@@ -126,6 +126,62 @@ describe("Cache [ Base ]", () => {
       expect(cache.keys()).toHaveLength(3);
       expect(cache.keys()).toStrictEqual(["1", "2", "3"]);
     });
+
+    it("should handle both function and non-function responses", async () => {
+      // Test direct value response
+      cache.set(request.setCache(true), { ...response, ...details, data: "DIRECT" });
+      expect(cache.get(request.cacheKey)?.data).toBe("DIRECT");
+
+      // Test function response with no previous data
+      cache.delete(request.cacheKey); // Clear previous data
+      cache.set(request.setCache(true), () => ({ ...response, ...details, data: "FUNCTION NO PREV" }));
+      expect(cache.get(request.cacheKey)?.data).toBe("FUNCTION NO PREV");
+
+      // Test function response with previous data
+      cache.set(request.setCache(true), (prev) => ({
+        ...response,
+        ...details,
+        data: `${prev?.data} UPDATED`,
+      }));
+      expect(cache.get(request.cacheKey)?.data).toBe("FUNCTION NO PREV UPDATED");
+    });
+
+    it("should properly merge partial responses with existing cache data", async () => {
+      // Set initial cache data
+      const initialData = {
+        ...response,
+        ...details,
+        data: { field1: "value1", field2: "value2" },
+      };
+      cache.set(request.setCache(true), initialData);
+
+      // Test direct value partial update
+      cache.update(request.setCache(true), { data: { field2: "updated2", field3: "value3" } });
+
+      let result = cache.get(request.cacheKey);
+      expect(result?.data).toEqual({
+        field2: "updated2",
+        field3: "value3",
+      });
+
+      cache.delete(request.cacheKey);
+
+      // Cannot update if cache is not set
+      cache.update(request.setCache(true), (prev) => {
+        expect(prev).toBeNull();
+        return {
+          ...prev,
+          data: {
+            ...prev?.data,
+            field1: "updated1",
+            field4: "value4",
+          },
+        };
+      });
+
+      result = cache.get(request.cacheKey);
+      expect(result).toBeUndefined();
+    });
   });
 
   describe("When CacheStore gets cleared before triggering cache actions", () => {
@@ -143,6 +199,36 @@ describe("Cache [ Base ]", () => {
   });
 
   describe("invalidate", () => {
+    it("should set staleTime to 0 when invalidating with existing cache", async () => {
+      // Set initial cache data
+      const initialData = {
+        ...response,
+        ...details,
+        data: "initial",
+        staleTime: 1000,
+      };
+      cache.set(request.setCache(true), initialData);
+
+      // Verify initial staleTime
+      expect(cache.get(request.cacheKey)?.staleTime).toBeGreaterThan(0);
+
+      // Update the value
+      await cache.invalidate(request.cacheKey);
+
+      // Verify staleTime is set to 0
+      const updatedCache = cache.get(request.cacheKey);
+      expect(updatedCache?.staleTime).toBe(0);
+    });
+    it("should not set staleTime to 0 when invalidating with non-existing cache", async () => {
+      cache.storage.set(request.cacheKey, undefined as any);
+
+      // Update the value
+      await cache.invalidate(request.cacheKey);
+
+      // Verify staleTime is set to 0
+      const updatedCache = cache.get(request.cacheKey);
+      expect(updatedCache).toBeUndefined();
+    });
     it("should invalidate cache when given a Request instance", async () => {
       // Create a mock Request instance
       const mockRequest = client.createRequest()({ endpoint: "/shared-endpoint" });
@@ -173,6 +259,58 @@ describe("Cache [ Base ]", () => {
       const invalidatedData = cache.storage.get(mockRequest.cacheKey);
 
       expect(invalidatedData?.staleTime).toBe(0);
+    });
+    it("should not invalidate cache when it is empty", async () => {
+      // Create a mock Request instance
+      const mockRequest = client
+        .createRequest()({ endpoint: "/shared-endpoint" })
+        .setMock(() => ({
+          data: "test" as any,
+          status: 200,
+        }));
+
+      cache.invalidate([new RegExp(mockRequest.cacheKey)]);
+
+      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it("should not invalidate cache when app is offline", async () => {
+      // Create a mock Request instance
+      const mockRequest = client
+        .createRequest()({ endpoint: "/shared-endpoint", cacheTime: -100 })
+        .setMock(() => ({
+          data: "test" as any,
+          status: 200,
+        }));
+
+      await mockRequest.send({
+        onResponse: () => {
+          client.appManager.setOnline(false);
+        },
+      });
+      cache.garbageCollectors.clear();
+      cache.invalidate([new RegExp(mockRequest.cacheKey)]);
+
+      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should not invalidate cache when app goes offline", async () => {
+      // Create a mock Request instance
+      const mockRequest = client
+        .createRequest()({ endpoint: "/shared-endpoint", cacheTime: 100 })
+        .setMock(() => ({
+          data: "test" as any,
+          status: 200,
+        }));
+
+      await mockRequest.send();
+      cache.invalidate([new RegExp(mockRequest.cacheKey)]);
+      client.appManager.setOnline(false);
+      await sleep(150);
+
+      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      expect(spy).not.toHaveBeenCalled();
     });
 
     it("should handle array of mixed invalidation keys (Request, string, RegExp)", async () => {

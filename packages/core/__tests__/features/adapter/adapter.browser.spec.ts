@@ -77,6 +77,16 @@ describe("Http Adapter [ Browser ]", () => {
     expect(error.message).toEqual(getErrorMessage("timeout").message);
   });
 
+  it("should use GET as default method when no method is specified", async () => {
+    const mockSpy = jest.spyOn(XMLHttpRequest.prototype, "open");
+    const data = mockRequest(request, { data: { response: [] } });
+
+    const { data: response } = await HttpAdapter().initialize(client).fetch(request, requestId);
+
+    expect(mockSpy).toHaveBeenCalledWith("GET", "https://shared-base-url/shared-endpoint", true);
+    expect(response).toStrictEqual(data);
+  });
+
   // it("should not throw when XMLHttpRequest is not available on window", async () => {
   //   const data = mockRequest(request, { delay: 20 });
   //   const xml = window.XMLHttpRequest;

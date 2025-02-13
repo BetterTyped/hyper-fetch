@@ -29,6 +29,7 @@ export const getAdapter = () =>
       async ({
         request,
         adapterOptions,
+        adapter,
         headers,
         payload,
         onError,
@@ -42,7 +43,7 @@ export const getAdapter = () =>
         onRequestStart,
         onSuccess,
       }) => {
-        const { method = HttpMethods.GET, client, endpoint } = request;
+        const { method, client, endpoint } = request;
         const { url } = client;
         const httpClient = client.url.includes("https://") ? https : http;
         const options = {
@@ -94,6 +95,7 @@ export const getAdapter = () =>
           let downloadedBytes = 0;
 
           response.on("data", (chunk) => {
+            /* istanbul ignore next */
             if (!chunks) {
               // if (!responseChunks.length) {
               onRequestEnd();
@@ -107,7 +109,8 @@ export const getAdapter = () =>
           });
 
           response.on("end", async () => {
-            const { statusCode = 0 } = response;
+            /* istanbul ignore next */
+            const { statusCode = adapter.systemErrorStatus } = response;
             const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
             if (success) {

@@ -411,11 +411,7 @@ export class Adapter<
               HeaderMapperType,
               PayloadMapperType
             >
-          >({
-            bindings,
-            systemErrorStatus: this.options.systemErrorStatus,
-            systemErrorExtra: this.options.systemErrorExtra,
-          });
+          >(bindings);
         }
 
         return this.unsafe_fetcher(bindings);

@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, stringifyDefaultOptions } from "client";
+import { Client, interceptRequest, interceptResponse, stringifyDefaultOptions } from "client";
 import { stringifyQueryParams } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
@@ -233,6 +233,52 @@ describe("Client [ Utils ]", () => {
 
       const payload = client.adapter.unsafe_payloadMapper(data, undefined);
       expect(payload).toBe("");
+    });
+  });
+
+  describe("when interceptors are disabled", () => {
+    it("should skip request interceptors when disabled", async () => {
+      const mockInterceptor = jest.fn((req) => req);
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableRequestInterceptors: true,
+      });
+
+      const result = await interceptRequest([mockInterceptor], req);
+
+      expect(mockInterceptor).not.toHaveBeenCalled();
+      expect(result).toBe(req);
+    });
+
+    it("should skip response interceptors when disabled", async () => {
+      const mockInterceptor = jest.fn((res) => res);
+      const response = {
+        data: { test: "data" },
+        status: 200,
+        success: true,
+      } as any;
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableResponseInterceptors: true,
+      });
+
+      const result = await interceptResponse([mockInterceptor], response, req);
+
+      expect(mockInterceptor).not.toHaveBeenCalled();
+      expect(result).toBe(response);
+    });
+
+    it("should run interceptors when not disabled", async () => {
+      const mockInterceptor = jest.fn((req) => req);
+
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableRequestInterceptors: false,
+      });
+
+      await interceptRequest([mockInterceptor], req);
+
+      expect(mockInterceptor).toHaveBeenCalledWith(req);
     });
   });
 });

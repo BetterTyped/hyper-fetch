@@ -2,28 +2,21 @@ import { getAdapterBindings, AdapterInstance, RequestProcessingError } from "ada
 import { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
 export const mocker = async <T extends AdapterInstance>({
-  bindings: {
-    request,
-    requestId,
-    onError,
-    onResponseEnd,
-    onTimeoutError,
-    onRequestEnd,
-    createAbortListener,
-    onResponseProgress,
-    onRequestProgress,
-    onResponseStart,
-    onBeforeRequest,
-    onRequestStart,
-    onSuccess,
-  },
-  systemErrorStatus,
-  systemErrorExtra,
-}: {
-  bindings: Awaited<ReturnType<typeof getAdapterBindings<T>>>;
-  systemErrorStatus: ExtractAdapterStatusType<T>;
-  systemErrorExtra: ExtractAdapterExtraType<T>;
-}) => {
+  request,
+  requestId,
+  onError,
+  onResponseEnd,
+  onTimeoutError,
+  onRequestEnd,
+  createAbortListener,
+  onResponseProgress,
+  onRequestProgress,
+  onResponseStart,
+  onBeforeRequest,
+  onRequestStart,
+  onSuccess,
+  adapter,
+}: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
   if (!request.unsafe_mock) {
     throw new RequestProcessingError("Mock should be defined when calling mocker");
   }
@@ -39,7 +32,7 @@ export const mocker = async <T extends AdapterInstance>({
 
   const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
 
-  createAbortListener({ status: systemErrorStatus, extra: systemErrorExtra, onAbort: () => {} });
+  createAbortListener({ status: adapter.systemErrorStatus, extra: adapter.systemErrorExtra, onAbort: () => {} });
 
   onBeforeRequest();
   onRequestStart();

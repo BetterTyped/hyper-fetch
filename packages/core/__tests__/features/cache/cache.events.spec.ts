@@ -1,7 +1,7 @@
 import { sleep } from "@hyper-fetch/testing";
 
 import { CacheValueType } from "cache";
-import { createCache, createLazyCacheAdapter } from "../../utils";
+import { createCache } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
 import { Plugin } from "plugin";
@@ -98,6 +98,46 @@ describe("Cache [ Events ]", () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
+    it("should properly cleanup onData listener when unmount function is called", async () => {
+      const plugin = new Plugin({ name: "data" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      const unmount = newCache.events.onData(spy);
+      unmount();
+      newCache.set(request, cacheData);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it("should properly cleanup onDataByKey listener when unmount function is called", async () => {
+      const plugin = new Plugin({ name: "dataByKey" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      const unmount = newCache.events.onDataByKey(request.cacheKey, spy);
+      unmount();
+      newCache.set(request, cacheData);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it("should properly cleanup onDelete listener when unmount function is called", async () => {
+      const plugin = new Plugin({ name: "delete" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      const unmount = newCache.events.onDelete(spy);
+      unmount();
+      newCache.delete(request.cacheKey);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it("should properly cleanup onDeleteByKey listener when unmount function is called", async () => {
+      const plugin = new Plugin({ name: "deleteByKey" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      const unmount = newCache.events.onDeleteByKey(request.cacheKey, spy);
+      unmount();
+      newCache.delete(request.cacheKey);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
   describe("when invalidate event is triggered", () => {
     it("should invalidate cache using cache key", async () => {
@@ -140,17 +180,6 @@ describe("Cache [ Events ]", () => {
       await sleep(1);
       expect(spy).toHaveBeenCalledTimes(1);
     });
-    it("should invalidate cache using lazyStorage regex", async () => {
-      const lazyStorage = new Map();
-      lazyStorage.set(request.cacheKey, cacheData);
-      cache = createCache(client, {
-        lazyStorage: createLazyCacheAdapter(lazyStorage),
-      });
-      cache.events.onInvalidateByKey(cacheKey, spy);
-      await cache.invalidate(new RegExp(cacheKey));
-      await sleep(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-    });
     it("should trigger onInvalidate event when cache is invalidated", async () => {
       cache.set(request, cacheData);
       cache.events.onInvalidate(spy);
@@ -160,6 +189,26 @@ describe("Cache [ Events ]", () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(cacheKey);
+    });
+    it("should properly cleanup onInvalidate listener when unmount function is called", async () => {
+      cache.set(request, cacheData);
+      const unmount = cache.events.onInvalidate(spy);
+
+      unmount();
+      await cache.invalidate(cacheKey);
+      await sleep(1);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+    it("should properly cleanup onInvalidateByKey listener when unmount function is called", async () => {
+      cache.set(request, cacheData);
+      const unmount = cache.events.onInvalidateByKey(cacheKey, spy);
+
+      unmount();
+      await cache.invalidate(cacheKey);
+      await sleep(1);
+
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });

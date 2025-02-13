@@ -137,6 +137,86 @@ describe("RequestManager [ Events ]", () => {
 
       expect(spy).not.toHaveBeenCalled();
     });
+
+    it("should properly cleanup all types of event listeners", async () => {
+      mockRequest(request);
+      const requestId = "test-request-id";
+      const { queryKey } = request;
+      const { cacheKey } = request;
+      const { abortKey } = request;
+
+      const spies = {
+        loading: jest.fn(),
+        loadingByQueue: jest.fn(),
+        loadingByCache: jest.fn(),
+        loadingById: jest.fn(),
+        requestStart: jest.fn(),
+        requestStartByQueue: jest.fn(),
+        requestStartById: jest.fn(),
+        responseStart: jest.fn(),
+        responseStartByQueue: jest.fn(),
+        responseStartById: jest.fn(),
+        uploadProgress: jest.fn(),
+        uploadProgressByQueue: jest.fn(),
+        uploadProgressById: jest.fn(),
+        downloadProgress: jest.fn(),
+        downloadProgressByQueue: jest.fn(),
+        downloadProgressById: jest.fn(),
+        response: jest.fn(),
+        responseByCache: jest.fn(),
+        responseById: jest.fn(),
+        abort: jest.fn(),
+        abortByKey: jest.fn(),
+        abortById: jest.fn(),
+        remove: jest.fn(),
+        removeByQueue: jest.fn(),
+        removeById: jest.fn(),
+      };
+
+      // Set up and immediately cleanup all event listeners
+      const cleanups = [
+        client.requestManager.events.onLoading(spies.loading),
+        client.requestManager.events.onLoadingByQueue(queryKey, spies.loadingByQueue),
+        client.requestManager.events.onLoadingByCache(cacheKey, spies.loadingByCache),
+        client.requestManager.events.onLoadingById(requestId, spies.loadingById),
+        client.requestManager.events.onRequestStart(spies.requestStart),
+        client.requestManager.events.onRequestStartByQueue(queryKey, spies.requestStartByQueue),
+        client.requestManager.events.onRequestStartById(requestId, spies.requestStartById),
+        client.requestManager.events.onResponseStart(spies.responseStart),
+        client.requestManager.events.onResponseStartByQueue(queryKey, spies.responseStartByQueue),
+        client.requestManager.events.onResponseStartById(requestId, spies.responseStartById),
+        client.requestManager.events.onUploadProgress(spies.uploadProgress),
+        client.requestManager.events.onUploadProgressByQueue(queryKey, spies.uploadProgressByQueue),
+        client.requestManager.events.onUploadProgressById(requestId, spies.uploadProgressById),
+        client.requestManager.events.onDownloadProgress(spies.downloadProgress),
+        client.requestManager.events.onDownloadProgressByQueue(queryKey, spies.downloadProgressByQueue),
+        client.requestManager.events.onDownloadProgressById(requestId, spies.downloadProgressById),
+        client.requestManager.events.onResponse(spies.response),
+        client.requestManager.events.onResponseByCache(cacheKey, spies.responseByCache),
+        client.requestManager.events.onResponseById(requestId, spies.responseById),
+        client.requestManager.events.onAbort(spies.abort),
+        client.requestManager.events.onAbortByKey(abortKey, spies.abortByKey),
+        client.requestManager.events.onAbortById(requestId, spies.abortById),
+        client.requestManager.events.onRemove(spies.remove),
+        client.requestManager.events.onRemoveByQueue(queryKey, spies.removeByQueue),
+        client.requestManager.events.onRemoveById(requestId, spies.removeById),
+      ];
+
+      // Execute all cleanup functions
+      cleanups.forEach((cleanup) => cleanup());
+
+      // Trigger a full request lifecycle
+      client.fetchDispatcher.add(request);
+      await sleep(5);
+      client.requestManager.abortByKey(request.abortKey);
+
+      await sleep(50);
+
+      // Verify no callbacks were called after cleanup
+      Object.values(spies).forEach((spy) => {
+        expect(spy).not.toHaveBeenCalled();
+      });
+    });
   });
   describe("When request manager aborts the request", () => {
     it("should allow to abort request by id", async () => {

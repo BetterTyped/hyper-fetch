@@ -493,9 +493,7 @@ describe("Mocker [ Base ]", () => {
   it("should throw error when mock is not defined", async () => {
     await expect(
       mocker({
-        bindings: {
-          request: client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }),
-        },
+        request: client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }),
       } as any),
     ).rejects.toThrow("Request processing error");
   });

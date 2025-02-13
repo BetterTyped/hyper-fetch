@@ -192,11 +192,11 @@ export class Cache {
    * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = async (cacheKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+  invalidate = (cacheKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
     this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { cacheKeys } });
-    const keys = await this.getAllKeys();
 
-    const invalidate = (key: string | RegExp | RequestInstance) => {
+    const onInvalidate = (key: string | RegExp | RequestInstance) => {
+      const keys = Array.from(this.storage.keys());
       const handleInvalidation = (cacheKey: string) => {
         const value = this.storage.get(cacheKey);
         if (value) {
@@ -215,7 +215,7 @@ export class Cache {
         handleInvalidation(key.cacheKey);
       } else if (typeof key === "string") {
         handleInvalidation(key);
-      } else if (keys?.length) {
+      } else if (keys.length) {
         keys.forEach((entityKey) => {
           if (key.test(entityKey)) {
             handleInvalidation(entityKey);
@@ -225,9 +225,9 @@ export class Cache {
     };
 
     if (Array.isArray(cacheKeys)) {
-      cacheKeys.forEach(invalidate.bind(this));
+      cacheKeys.forEach(onInvalidate.bind(this));
     } else {
-      invalidate.bind(this)(cacheKeys);
+      onInvalidate.bind(this)(cacheKeys);
     }
   };
 
@@ -319,7 +319,7 @@ export class Cache {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.client?.appManager.isOnline) {
+            if (this.client.appManager.isOnline) {
               this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
               this.delete(cacheKey);
             }
@@ -327,7 +327,7 @@ export class Cache {
         );
       }
       // Delete if value is stale and we are online
-      else if (this.client?.appManager.isOnline) {
+      else if (this.client.appManager.isOnline) {
         this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
         this.delete(cacheKey);
       }

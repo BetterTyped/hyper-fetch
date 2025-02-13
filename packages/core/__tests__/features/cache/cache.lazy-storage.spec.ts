@@ -50,6 +50,14 @@ describe("Cache [ Lazy Storage ]", () => {
   });
 
   describe("when using lazy storage", () => {
+    it("should not crash when lazy storage is not set", async () => {
+      const newClient = new Client({ url: "shared-base-url" });
+
+      await expect(newClient.cache.getLazyKeys()).resolves.not.toThrow();
+      await expect(newClient.cache.getAllKeys()).resolves.not.toThrow();
+    });
+  });
+  describe("when using lazy storage", () => {
     it("should new data to lazy storage", async () => {
       cache.events.onDataByKey(cacheKey, spy);
       await cache.set(request, cacheData);

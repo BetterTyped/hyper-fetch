@@ -103,5 +103,21 @@ describe("Dispatcher [ Basic ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith({ dispatcher: newDispatcher });
     });
+    it("should cancel running requests when clearing queues", async () => {
+      const spy = jest.spyOn(client.fetchDispatcher, "cancelRunningRequests");
+
+      // Create and add two requests to simulate multiple running requests
+      const dispatcherDump1 = client.fetchDispatcher.createStorageItem(request);
+      const dispatcherDump2 = client.fetchDispatcher.createStorageItem(request);
+
+      client.fetchDispatcher.addQueueItem(request.queryKey, dispatcherDump1);
+      client.fetchDispatcher.addQueueItem(`${request.queryKey}2`, dispatcherDump2);
+
+      // Clear all queues which should trigger cancellation
+      client.fetchDispatcher.clear();
+
+      // Verify that cancelRunningRequests was called for each request
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
   });
 });

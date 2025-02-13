@@ -408,6 +408,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     queryParams,
     payload,
     headers,
+    adapter: baseRequest.client.adapter,
     adapterOptions,
     getAbortController,
     getRequestStartTimestamp,

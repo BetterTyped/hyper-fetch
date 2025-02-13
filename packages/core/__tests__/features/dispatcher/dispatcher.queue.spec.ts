@@ -322,6 +322,15 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(spy).toHaveBeenCalledTimes(3);
     });
+    it("should not throw on missing items", async () => {
+      dispatcher.getQueue = () => null as any;
+      dispatcher.getQueuesKeys = () => ["test1"];
+
+      await expect(dispatcher.flush()).resolves.not.toThrow();
+    });
+    it("should not throw on missing requests", async () => {
+      expect(() => dispatcher.stopRequest("test1", "test2")).not.toThrow();
+    });
   });
   describe("When starting and stopping queue", () => {
     it("should stop queue from being send", async () => {

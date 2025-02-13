@@ -237,5 +237,68 @@ describe("Dispatcher [ Events ]", () => {
         expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
+    it("should emit and unsubscribe from global drained event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onDrained(spy);
+
+      // Add and complete multiple requests to trigger drain
+      const request1 = dispatcher.add(request.setQueued(true));
+      const request2 = dispatcher.add(request.setQueued(true));
+
+      dispatcher.delete(request.queryKey, request1, request.abortKey);
+      dispatcher.delete(request.queryKey, request2, request.abortKey);
+
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+
+      // Test unsubscribe
+      unmount();
+
+      const request3 = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, request3, request.abortKey);
+
+      await sleep(10); // Give time for potential unwanted events
+      expect(spy).toHaveBeenCalledTimes(1); // Should not be called again
+    });
+    it("should emit and unsubscribe from global queue status change event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onQueueStatusChange(spy);
+
+      // Trigger queue status change
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ stopped: true, requests: [], queryKey: request.queryKey }),
+      );
+
+      // Test unsubscribe
+      unmount();
+
+      // Should not trigger spy after unmount
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it("should emit and unsubscribe from global queue change event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onQueueChange(spy);
+
+      // Add request to trigger queue change
+      dispatcher.add(request);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requests: expect.any(Array),
+          queryKey: request.queryKey,
+        }),
+      );
+
+      // Test unsubscribe
+      unmount();
+
+      // Should not trigger spy after unmount
+      dispatcher.add(request);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
   });
 });

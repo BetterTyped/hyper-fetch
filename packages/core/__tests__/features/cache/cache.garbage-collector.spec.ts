@@ -50,6 +50,10 @@ describe("Cache [ Garbage Collector ]", () => {
   });
 
   describe("when garbage collector is triggered", () => {
+    it("should not schedule garbage collector for non existing key", async () => {
+      cache.scheduleGarbageCollector(cacheKey);
+      expect(Array.from(cache.garbageCollectors.keys())).toHaveLength(0);
+    });
     it("should garbage collect data from sync storage", async () => {
       cache.set(request.setCacheTime(10), cacheData);
       await waitFor(() => {

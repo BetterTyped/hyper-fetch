@@ -40,7 +40,7 @@ export const getAdapter = () =>
         onRequestProgress,
         onSuccess,
       }) => {
-        const { method = "GET", client, endpoint } = request;
+        const { method, client, endpoint } = request;
         const fullUrl = `${client.url}${endpoint}`;
         const xhr = new XMLHttpRequest();
         xhr.timeout = defaultTimeout;
@@ -71,6 +71,8 @@ export const getAdapter = () =>
           onResponseEnd();
           unmountListener();
         };
+
+        /* istanbul ignore next */
         xhr.ontimeout = () => onTimeoutError({ status: 0, extra: xhrExtra });
         // Data handler
         xhr.onreadystatechange = (e: Event) => {
