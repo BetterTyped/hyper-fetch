@@ -242,7 +242,6 @@ export const useTrackedState = <T extends RequestInstance>({
     setStatus: (status, emitToCache = true) => {
       if (emitToCache) {
         cache.update(request, (prev) => ({
-          // TODO: fix type
           status: status instanceof Function ? status((prev?.status as any) || null) : status,
         }));
       }
