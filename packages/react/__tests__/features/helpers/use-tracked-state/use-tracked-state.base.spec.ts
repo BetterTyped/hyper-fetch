@@ -1,6 +1,6 @@
 import { createClient, xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { initialState } from "helpers";
 import { renderUseTrackedState } from "../../../utils";
@@ -331,6 +331,134 @@ describe("useTrackingState [ Events ]", () => {
         });
 
         expect(customDeepCompare).toHaveBeenCalledWith(null, "test-data");
+      });
+    });
+    describe("when handling async response mapping", () => {
+      it("should handle async response mapper rejection", async () => {
+        const { result } = renderUseTrackedState(
+          request.setResponseMapper(async (response) => {
+            await sleep(1000);
+            return response;
+          }),
+        );
+
+        act(() => {
+          result.current[2].setRenderKey("data");
+          result.current[2].setCacheData({
+            data: true as any,
+            error: null,
+            status: 200,
+            success: true,
+            extra: xhrExtra,
+            retries: 0,
+            requestTimestamp: +new Date(),
+            responseTimestamp: +new Date(),
+            addedTimestamp: +new Date(),
+            triggerTimestamp: +new Date(),
+            cacheKey: request.cacheKey,
+            isCanceled: false,
+            isOffline: false,
+            staleTime: request.staleTime,
+            version: request.client.cache.version,
+            cacheTime: Infinity,
+          });
+        });
+
+        // Initial state should be maintained while processing
+        expect(result.current[0]).toStrictEqual(expect.objectContaining({ ...initialState, extra: xhrExtra }));
+
+        // Wait for the error to be processed
+        await expect(async () => {
+          await waitFor(() => {
+            expect(result.current[0].data).toBe(true);
+          });
+        }).not.toThrow();
+      });
+
+      it("should handle concurrent async response mapping", async () => {
+        let resolveFirst: (value: any) => void;
+        let resolveSecond: (value: any) => void;
+
+        const firstPromise = new Promise((resolve) => {
+          resolveFirst = resolve;
+        });
+        const secondPromise = new Promise((resolve) => {
+          resolveSecond = resolve;
+        });
+
+        let mapperCallCount = 0;
+        const { result } = renderUseTrackedState(
+          request.setResponseMapper(async (response) => {
+            mapperCallCount += 1;
+            if (mapperCallCount === 1) {
+              return firstPromise.then(() => ({ ...response, data: "first-data" }));
+            }
+            return secondPromise.then(() => ({ ...response, data: "second-data" }));
+          }),
+        );
+
+        // Set first data
+        act(() => {
+          result.current[2].setRenderKey("data");
+          result.current[2].setCacheData({
+            data: "initial" as any,
+            error: null,
+            status: 200,
+            success: true,
+            extra: xhrExtra,
+            retries: 0,
+            requestTimestamp: +new Date(),
+            responseTimestamp: +new Date(),
+            addedTimestamp: +new Date(),
+            triggerTimestamp: +new Date(),
+            cacheKey: request.cacheKey,
+            isCanceled: false,
+            isOffline: false,
+            staleTime: request.staleTime,
+            version: request.client.cache.version,
+            cacheTime: Infinity,
+          });
+        });
+
+        // Set second data before first resolves
+        act(() => {
+          result.current[2].setCacheData({
+            data: "newer" as any,
+            error: null,
+            status: 200,
+            success: true,
+            extra: xhrExtra,
+            retries: 0,
+            requestTimestamp: +new Date(),
+            responseTimestamp: +new Date(),
+            addedTimestamp: +new Date(),
+            triggerTimestamp: +new Date(),
+            cacheKey: request.cacheKey,
+            isCanceled: false,
+            isOffline: false,
+            staleTime: request.staleTime,
+            version: request.client.cache.version,
+            cacheTime: Infinity,
+          });
+        });
+
+        // Resolve promises in reverse order
+        act(() => {
+          resolveSecond({});
+        });
+
+        await waitFor(() => {
+          expect(result.current[0].data).toBe("second-data");
+        });
+
+        act(() => {
+          resolveFirst({});
+        });
+
+        // Should still show second data since it was the last update
+        await waitFor(() => {
+          expect(result.current[0].data).toBe("second-data");
+        });
       });
     });
   });
