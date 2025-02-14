@@ -79,19 +79,24 @@ export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string
     clientSpecificSendMessage.emit({
       payload: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: workspace },
     });
-  }, []);
 
-  client.cache.events.onData((data) => {
-    console.log("EMITTING DATA, CACHE CHANGE");
-    clientSpecificSendMessage.emit({
-      payload: {
-        messageType: MessageType.HF_DEVTOOLS_EVENT,
-        connectionName: workspace,
-        eventData: data,
-        eventType: EmitableCoreEvents.ON_CACHE_CHANGE,
-      },
+    const unmountOnData = client.cache.events.onData((data) => {
+      if (!data.isTriggeredExternally) {
+        clientSpecificSendMessage.emit({
+          payload: {
+            messageType: MessageType.HF_DEVTOOLS_EVENT,
+            connectionName: workspace,
+            eventData: { ...data },
+            eventType: EmitableCoreEvents.ON_CACHE_CHANGE,
+          },
+        });
+      }
     });
-  });
+
+    return () => {
+      unmountOnData();
+    };
+  }, []);
 
   return <Devtools workspace={workspace} client={client} initiallyOpen />;
 };

@@ -62,6 +62,7 @@ export class Cache {
    * Set the cache data to the storage
    * @param request
    * @param response
+   * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
   set = <Request extends RequestInstance>(
@@ -70,6 +71,7 @@ export class Cache {
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     > & { hydrated?: boolean },
+    isTriggeredExternally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
     const { cacheKey, cache, staleTime, cacheTime } = request;
@@ -113,6 +115,7 @@ export class Cache {
     this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
     this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
       ...newCacheData,
+      isTriggeredExternally,
       cacheKey,
     });
   };
@@ -121,6 +124,8 @@ export class Cache {
    * Update the cache data with partial response data
    * @param request
    * @param partialResponse
+   * @param isTriggeredExtrenally - informs whether an update was triggered due to internal logic or externally, e.g.
+   * via plugin.
    * @returns
    */
   update = <Request extends RequestInstance>(
@@ -131,6 +136,7 @@ export class Cache {
           ResponseDetailsType
       >
     >,
+    isTriggeredExtrenally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
     const { cacheKey } = request;
@@ -143,7 +149,7 @@ export class Cache {
     const processedResponse =
       typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
-      this.set(request, { ...cachedData, ...processedResponse });
+      this.set(request, { ...cachedData, ...processedResponse }, isTriggeredExtrenally);
     }
   };
 
