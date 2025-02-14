@@ -17,6 +17,7 @@ export const isEmpty = (value: unknown): boolean => {
  * @returns true when elements are equal
  */
 export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
+  // Nulls (objects), and other primitives
   if (firstValue === secondValue) return true;
 
   try {
@@ -31,9 +32,6 @@ export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
 
     // Compared types are different
     if (firstValueType !== secondValueType) return false;
-
-    // Null
-    if (firstValue === null && secondValue === null) return true;
 
     // NaN
     if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;

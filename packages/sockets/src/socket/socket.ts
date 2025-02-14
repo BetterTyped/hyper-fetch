@@ -13,7 +13,7 @@ import {
 import {
   SocketOptionsType,
   ReconnectCallbackType,
-  ReconnectStopCallbackType,
+  ReconnectFailedCallbackType,
   OpenCallbackType,
   CloseCallbackType,
   MessageCallbackType,
@@ -43,7 +43,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   __onConnectedCallbacks: OpenCallbackType<this>[] = [];
   __onDisconnectCallbacks: CloseCallbackType<this>[] = [];
   __onReconnectCallbacks: ReconnectCallbackType<this>[] = [];
-  __onReconnectStopCallbacks: ReconnectStopCallbackType<this>[] = [];
+  __onReconnectFailedCallbacks: ReconnectFailedCallbackType<this>[] = [];
   __onMessageCallbacks: MessageCallbackType<this, any>[] = [];
   __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
   __onErrorCallbacks: ErrorCallbackType<this, any>[] = [];
@@ -193,8 +193,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onReconnectStop(callback: ReconnectStopCallbackType<this>) {
-    this.__onReconnectStopCallbacks.push(callback);
+  onReconnectFailed(callback: ReconnectFailedCallbackType<this>) {
+    this.__onReconnectFailedCallbacks.push(callback);
     return this;
   }
 

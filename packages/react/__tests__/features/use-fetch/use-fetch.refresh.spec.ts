@@ -107,4 +107,47 @@ describe("useFetch [ Refreshing ]", () => {
 
     expect(spy).toHaveBeenCalledTimes(2);
   });
+  it("should refetch when tab is focused and refetchOnFocus is true", async () => {
+    const spy = jest.fn();
+    mockRequest(request);
+    const { result } = renderUseFetch(request, { ...hookOptions });
+
+    act(() => {
+      result.current.onRequestStart(spy);
+    });
+
+    await waitForRender();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    // Simulate tab focus
+    act(() => {
+      client.appManager.setFocused(true);
+    });
+
+    await waitForRender();
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+  it("should not refetch when tab is focused and refetchOnFocus is false", async () => {
+    const spy = jest.fn();
+    mockRequest(request);
+    const { result } = renderUseFetch(request, {
+      ...hookOptions,
+      refetchOnFocus: false,
+    });
+
+    act(() => {
+      result.current.onRequestStart(spy);
+    });
+
+    await waitForRender();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    // Simulate tab focus
+    act(() => {
+      client.appManager.setFocused(true);
+    });
+
+    await waitForRender();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });

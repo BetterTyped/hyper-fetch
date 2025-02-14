@@ -39,15 +39,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [globalConfig.useSubmitConfig, JSON.stringify(options), options?.deepCompare],
   );
-  const {
-    disabled,
-    dependencyTracking = true,
-    initialResponse,
-    bounce,
-    bounceType,
-    bounceTime,
-    deepCompare = true,
-  } = mergedOptions;
+  const { disabled, dependencyTracking, initialResponse, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 
   /**
    * Because of the dynamic cacheKey / queryKey signing within the request we need to store it's latest instance
@@ -83,8 +75,8 @@ export const useSubmit = <RequestType extends RequestInstance>(
     request,
     dispatcher,
     initialResponse,
-    deepCompare,
-    dependencyTracking,
+    deepCompare: deepCompare as boolean,
+    dependencyTracking: dependencyTracking as boolean,
   });
 
   /**

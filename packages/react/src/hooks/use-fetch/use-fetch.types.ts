@@ -82,6 +82,10 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
        * How long it should bounce requests.
        */
       bounceTime?: number;
+      /**
+       * Not applicable for debounce mode
+       */
+      bounceTimeout?: void;
     }
   | {
       /**

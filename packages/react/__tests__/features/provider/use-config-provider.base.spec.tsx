@@ -51,6 +51,18 @@ describe("useProvider [ Base ]", () => {
         render(<Page />);
         expect(screen.getByText(text)).toBeInTheDocument();
       });
+
+      it("should have default setConfig that does nothing", async () => {
+        render(<Page />);
+
+        act(() => {
+          values?.setConfig({ useCacheConfig: { dependencyTracking: false } });
+        });
+
+        await waitFor(() => {
+          expect(values?.config).toStrictEqual({});
+        });
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import { RequestSendType, xhrExtra } from "@hyper-fetch/core";
+import { ExtendRequest, RequestSendType, xhrExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -145,22 +145,29 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to pass query params to submit", async () => {
       let endpoint: unknown = null;
+      let queryParams: unknown = null;
       mockRequest(request);
-      const response = renderUseSubmit(request);
+      const response = renderUseSubmit(
+        request as unknown as ExtendRequest<typeof request, { payload: { value: string }; queryParams: string }>,
+      );
 
       await act(async () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
           endpoint = cmd.endpoint;
+          queryParams = cmd.queryParams;
         });
         response.result.current.submit({ payload: { value: "string" }, queryParams: "?something=test" });
       });
 
-      expect(endpoint).toBe("/shared-endpoint?something=test");
+      expect(endpoint).toBe("/shared-endpoint");
+      expect(queryParams).toBe("?something=test");
     });
     it("should trigger methods when submit modifies the queue keys", async () => {
       let data: unknown = null;
       const mock = mockRequest(request);
-      const response = renderUseSubmit(request);
+      const response = renderUseSubmit(
+        request as unknown as ExtendRequest<typeof request, { payload: { value: string }; queryParams: string }>,
+      );
 
       await act(async () => {
         data = await response.result.current.submit({ payload: { value: "123" }, queryParams: "?something=test" });
@@ -195,7 +202,12 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
       const mock = mockRequest(request);
-      const mappedRequest = request.setPayloadMapper(() => new FormData());
+      const mappedRequest = (
+        request as unknown as ExtendRequest<
+          typeof request,
+          { payload: { value: string }; queryParams: { something: string } }
+        >
+      ).setPayloadMapper(() => new FormData());
       const response = renderUseSubmit(mappedRequest);
 
       await act(async () => {

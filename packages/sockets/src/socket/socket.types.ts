@@ -20,7 +20,7 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
 };
 
 export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type ReconnectStopCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
+export type ReconnectFailedCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
 export type OpenCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
 export type CloseCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
 export type MessageCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => Event;

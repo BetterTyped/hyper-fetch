@@ -15,7 +15,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   const onConnectedCallback = useRef<null | VoidFunction>(null);
   const onConnectingCallback = useRef<null | VoidFunction>(null);
   const onReconnectingCallback = useRef<null | ((attempts: number) => void)>(null);
-  const onReconnectingStopCallback = useRef<null | ((attempts: number) => void)>(null);
+  const onReconnectingFailedCallback = useRef<null | ((attempts: number) => void)>(null);
 
   const state = useRef<UseSocketStateType<Socket, DataType>>(initialSocketState);
   const renderKeys = useRef<Array<keyof UseSocketStateType<Socket, DataType>>>([]);
@@ -99,8 +99,8 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     onReconnecting: (callback: (attempts: number) => void) => {
       onReconnectingCallback.current = callback;
     },
-    onReconnectingStop: (callback: (attempts: number) => void) => {
-      onReconnectingStopCallback.current = callback;
+    onReconnectingFailed: (callback: (attempts: number) => void) => {
+      onReconnectingFailedCallback.current = callback;
     },
   };
 
@@ -112,8 +112,8 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     const umountOnError = socket.events.onError((event) => {
       onErrorCallback.current?.(event);
     });
-    const umountOnConnecting = socket.events.onConnecting(() => {
-      actions.setConnecting(true);
+    const umountOnConnecting = socket.events.onConnecting((connecting) => {
+      actions.setConnecting(connecting);
       onConnectingCallback.current?.();
     });
     const umountOnOpen = socket.events.onConnected(() => {
@@ -127,8 +127,8 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
       onReconnectingCallback.current?.(attempts);
     });
-    const umountOnReconnectingStop = socket.events.onReconnectingStop((attempts) => {
-      onReconnectingStopCallback.current?.(attempts);
+    const umountOnReconnectingFailed = socket.events.onReconnectingFailed((attempts) => {
+      onReconnectingFailedCallback.current?.(attempts);
     });
 
     return () => {
@@ -137,7 +137,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
       umountOnOpen();
       umountOnClose();
       umountOnReconnecting();
-      umountOnReconnectingStop();
+      umountOnReconnectingFailed();
     };
   });
 

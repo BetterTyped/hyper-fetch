@@ -56,8 +56,8 @@ describe("Socket [ Events ]", () => {
 
   it("should emit and receive reconnecting stop event", async () => {
     const value = 1;
-    socket.events.onReconnectingStop(spy);
-    socket.events.emitReconnectingStop(value);
+    socket.events.onReconnectingFailed(spy);
+    socket.events.emitReconnectingFailed(value);
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(value);

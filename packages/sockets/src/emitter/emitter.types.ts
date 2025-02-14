@@ -19,7 +19,7 @@ export type EmitterOptionsType<Topic extends string, AdapterType extends SocketA
   options?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };
 
-export type EmitterEmitOptionsType<Emitter extends EmitterInstance> = EmitDataType<
+export type EmitterEmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
   ExtractEmitterPayloadType<Emitter>,
   ExtractEmitterHasParamsType<Emitter>
 > &
@@ -35,7 +35,7 @@ export type EmitterCallbackStartType<EmitterType extends EmitterInstance> = (emi
 
 // Emit
 
-export type EmitDataType<Payload, HasPayload extends boolean> = HasPayload extends false
+export type EmitPayloadType<Payload, HasPayload extends boolean> = HasPayload extends false
   ? {
       payload: Payload;
     }
@@ -53,36 +53,21 @@ export type EmitRestType<Emitter extends EmitterInstance> = {
   options?: Partial<EmitterOptionsType<ExtractEmitterTopicType<Emitter>, ExtractEmitterAdapterType<Emitter>>>;
 };
 
+export type EmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
+  ExtractEmitterPayloadType<Emitter>,
+  ExtractEmitterHasPayloadType<Emitter>
+> &
+  EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
+  EmitRestType<Emitter>;
+
 export type EmitType<Emitter extends EmitterInstance> =
   ExtractEmitterHasPayloadType<Emitter> extends false
-    ? (
-        options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-          EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-          EmitRestType<Emitter>,
-      ) => void
+    ? (options: EmitOptionsType<Emitter>) => void
     : ExtractRouteParams<ExtractEmitterTopicType<Emitter>> extends EmptyTypes
-      ? (
-          options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-            EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-            EmitRestType<Emitter>,
-        ) => void
+      ? (options?: EmitOptionsType<Emitter>) => void
       : ExtractEmitterHasParamsType<Emitter> extends false
-        ? (
-            options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-              EmitParamsType<
-                ExtractRouteParams<ExtractEmitterTopicType<Emitter>>,
-                ExtractEmitterHasParamsType<Emitter>
-              > &
-              EmitRestType<Emitter>,
-          ) => void
-        : (
-            options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-              EmitParamsType<
-                ExtractRouteParams<ExtractEmitterTopicType<Emitter>>,
-                ExtractEmitterHasParamsType<Emitter>
-              > &
-              EmitRestType<Emitter>,
-          ) => void;
+        ? (options: EmitOptionsType<Emitter>) => void
+        : (options?: EmitOptionsType<Emitter>) => void;
 
 export type ExtendEmitter<
   T extends EmitterInstance,

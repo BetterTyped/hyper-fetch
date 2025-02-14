@@ -17,7 +17,7 @@ export const useEventMessages = <ResponsesType extends { topic: string }>(
   options?: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
   const { config: globalConfig } = useProvider();
-  const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
+  const { dependencyTracking, filter } = { ...globalConfig.useEventMessages, ...options };
 
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, { dependencyTracking });
@@ -25,8 +25,8 @@ export const useEventMessages = <ResponsesType extends { topic: string }>(
   useDidUpdate(
     () => {
       const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ topic, data, extra }) => {
-        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => filter?.includes(topic);
-        const isFiltered = filter ? filterFn() : false;
+        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => !filter?.includes(topic);
+        const isFiltered = filter ? !filterFn() : false;
         if (!isFiltered) {
           onEventCallback.current?.(data, extra);
           actions.setData(data);

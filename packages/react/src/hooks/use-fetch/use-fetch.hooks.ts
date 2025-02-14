@@ -26,25 +26,22 @@ export const useFetch = <R extends RequestInstance>(
   // Build the configuration options
   const { config: globalConfig } = useProvider();
   const {
-    dependencies = useFetchDefaultOptions.dependencies,
-    disabled = useFetchDefaultOptions.disabled,
-    dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    revalidate = useFetchDefaultOptions.revalidate,
-    initialResponse = useFetchDefaultOptions.initialResponse,
-    refresh = useFetchDefaultOptions.refresh,
-    refreshTime = useFetchDefaultOptions.refreshTime,
-    refetchBlurred = useFetchDefaultOptions.refetchBlurred,
-    refetchOnBlur = useFetchDefaultOptions.refetchOnBlur,
-    refetchOnFocus = useFetchDefaultOptions.refetchOnFocus,
-    refetchOnReconnect = useFetchDefaultOptions.refetchOnReconnect,
-    bounce = useFetchDefaultOptions.bounce,
-    bounceType = useFetchDefaultOptions.bounceType,
-    bounceTime = useFetchDefaultOptions.bounceTime,
-    // TODO: handle type error
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    bounceTimeout = useFetchDefaultOptions.bounceTime,
-    deepCompare = useFetchDefaultOptions.deepCompare,
+    dependencies,
+    disabled,
+    dependencyTracking,
+    revalidate,
+    initialResponse,
+    refresh,
+    refreshTime,
+    refetchBlurred,
+    refetchOnBlur,
+    refetchOnFocus,
+    refetchOnReconnect,
+    bounce,
+    bounceType,
+    bounceTime,
+    bounceTimeout,
+    deepCompare,
   } = {
     ...useFetchDefaultOptions,
     ...globalConfig.useFetchConfig,

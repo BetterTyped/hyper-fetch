@@ -88,9 +88,9 @@ describe("useSocketState [ Base ]", () => {
     it("should call onConnecting callback", async () => {
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitConnecting();
+        socket.events.emitConnecting(true);
         callbacks.onConnecting(spy);
-        socket.events.emitConnecting();
+        socket.events.emitConnecting(true);
       });
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -105,16 +105,69 @@ describe("useSocketState [ Base ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);
     });
-    it("should call onReconnectingStop callback", async () => {
+    it("should call onReconnectingFailed callback", async () => {
       const value = 2;
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitReconnectingStop(value);
-        callbacks.onReconnectingStop(spy);
-        socket.events.emitReconnectingStop(value);
+        socket.events.emitReconnectingFailed(value);
+        callbacks.onReconnectingFailed(spy);
+        socket.events.emitReconnectingFailed(value);
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);
+    });
+  });
+
+  describe("when using dependency tracking", () => {
+    it("should not trigger re-render when key is not tracked", async () => {
+      const renderSpy = jest.fn();
+      view = renderUseSocketState(socket, { onRender: renderSpy });
+      const [, actions] = view.result.current;
+
+      renderSpy.mockClear(); // Clear initial render count
+
+      act(() => {
+        actions.setData(123);
+      });
+
+      expect(renderSpy).not.toHaveBeenCalled();
+    });
+
+    it("should trigger re-render when key is tracked", async () => {
+      const renderSpy = jest.fn();
+      view = renderUseSocketState(socket, { onRender: renderSpy });
+      const [, actions, , { setRenderKey }] = view.result.current;
+
+      act(() => {
+        setRenderKey("data");
+      });
+
+      renderSpy.mockClear(); // Clear initial render count
+
+      act(() => {
+        actions.setData(123);
+      });
+
+      expect(renderSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not add duplicate render keys", async () => {
+      const renderSpy = jest.fn();
+      view = renderUseSocketState(socket, { onRender: renderSpy });
+      const [, , , { setRenderKey }] = view.result.current;
+
+      act(() => {
+        setRenderKey("data");
+        setRenderKey("data"); // Adding same key twice
+      });
+
+      renderSpy.mockClear(); // Clear initial render count
+
+      act(() => {
+        view.result.current[1].setData(123);
+      });
+
+      expect(renderSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -28,6 +28,7 @@ describe("useListener [ Base ]", () => {
       emitListenerEvent(listener, message);
       await waitFor(() => {
         expect(view.result.current.data).toBeTruthy();
+        expect(view.result.current.extra).toBeObject();
         expect(view.result.current.connected).toBeTrue();
         expect(view.result.current.connecting).toBeFalse();
         expect(view.result.current.timestamp).toBeNumber();

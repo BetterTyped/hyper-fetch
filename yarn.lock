@@ -1185,15 +1185,27 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@better-hooks/lifecycle@^1.1.1":
+"@better-hooks/lifecycle@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-1.1.2.tgz#474ba9ea72c74acc1d522819733aa44e35e1db7c"
   integrity sha512-dyFNHMtLJzJ0eY9u6iprPEMeWsgveIE8U3CtqaV3EG6DwsEyb1ICnooBap7mAG+Curr26OzO9/n6+gCUQ85gWg==
+
+"@better-hooks/lifecycle@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-2.0.0.tgz#efa2961d1496d67357726e0923d5b191f4018b1a"
+  integrity sha512-VACrnIj/rrHwIiwIMqt7zijtpluhqIOeU3ivZgn2QC9OXGIKvi4vOhPo159NxmJVw+RonwOfNc25EXHAvAJvoA==
 
 "@better-hooks/performance@^1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-1.1.1.tgz#fde0f8a26ecacc5b48f06a6b090a78d023949e4a"
   integrity sha512-32IPpMaVgE8aVT/6liXxfETIOO5zTL5VySxiK8qA8F140s89UuV6BUknLPQEPsniJoxZdXYSkVx79hLrk8GPug==
+
+"@better-hooks/performance@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-2.0.0.tgz#f0c8c94c3a1cd4612a0458ec10cd3692b8528b4c"
+  integrity sha512-XC0mZ83fBCAa54yLPp711l8XGYHMZ/map8T/Vo46VcCAK9YQttvvRyX9gSDCyZtOj1gIdizaCRJ9nFV0k9EcDw==
+  dependencies:
+    "@better-hooks/lifecycle" "^1.1.2"
 
 "@bundled-es-modules/cookie@^2.0.1":
   version "2.0.1"

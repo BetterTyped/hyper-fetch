@@ -43,7 +43,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
         unmountEventError();
       };
     },
-    [emitter.topic],
+    [emitter.topic, onEventStartCallback.current, onEventErrorCallback.current],
     true,
   );
 
@@ -53,6 +53,14 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
 
   const emit: EmitType<EmitterType> = (emitOptions: Parameters<EmitType<EmitterType>>[0]) => {
     return emitter.emit(emitOptions as any);
+  };
+
+  const onEmit = (callback: (emitter: EmitterType) => void) => {
+    onEventStartCallback.current = callback;
+  };
+
+  const onEmitError = (callback: EmitterCallbackErrorType<EmitterType>) => {
+    onEventErrorCallback.current = callback;
   };
 
   return {
@@ -66,12 +74,8 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     },
     ...actions,
     ...callbacks,
-    onEmit: (callback: (emitter: EmitterType) => void) => {
-      onEventStartCallback.current = callback;
-    },
-    onEmitError: (callback: EmitterCallbackErrorType<EmitterType>) => {
-      onEventErrorCallback.current = callback;
-    },
+    onEmit,
+    onEmitError,
     emit,
     reconnect: emitter.socket.reconnect,
   };

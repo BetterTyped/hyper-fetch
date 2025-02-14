@@ -6,7 +6,7 @@ export const getOpenKey = () => "socket_open";
 export const getCloseKey = () => "socket_close";
 export const getConnectingKey = () => "socket_connecting";
 export const getReconnectingKey = () => "socket_reconnecting";
-export const getReconnectingStopKey = () => "socket_reconnecting_stop";
+export const getReconnectingFailedKey = () => "socket_reconnecting_stop";
 export const getListenerEventKey = () => `listener_event`;
 export const getListenerRemoveKey = () => `listener_remove`;
 export const getEmitterStartEventKey = () => `emitter_start_event`;

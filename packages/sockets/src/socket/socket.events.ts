@@ -7,7 +7,7 @@ import {
   getListenerEventKey,
   getOpenKey,
   getReconnectingKey,
-  getReconnectingStopKey,
+  getReconnectingFailedKey,
   getListenerEventByTopicKey,
   getListenerRemoveKey,
   getListenerRemoveByTopicKey,
@@ -32,14 +32,14 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
     emitDisconnected: (): void => {
       eventEmitter.emit(getCloseKey());
     },
-    emitConnecting: (): void => {
-      eventEmitter.emit(getConnectingKey());
+    emitConnecting: (connecting: boolean): void => {
+      eventEmitter.emit(getConnectingKey(), connecting);
     },
     emitReconnecting: (attempts: number): void => {
       eventEmitter.emit(getReconnectingKey(), attempts);
     },
-    emitReconnectingStop: (attempts: number): void => {
-      eventEmitter.emit(getReconnectingStopKey(), attempts);
+    emitReconnectingFailed: (attempts: number): void => {
+      eventEmitter.emit(getReconnectingFailedKey(), attempts);
     },
     emitListenerEvent: <ResponseType>(topic: string, { data, extra }: EventReturnType<ResponseType, Adapter>): void => {
       eventEmitter.emit(getListenerEventKey(), { topic, data, extra });
@@ -69,7 +69,7 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
       eventEmitter.on(getCloseKey(), callback);
       return () => eventEmitter.removeListener(getCloseKey(), callback);
     },
-    onConnecting: (callback: () => void): VoidFunction => {
+    onConnecting: (callback: (boolean: boolean) => void): VoidFunction => {
       eventEmitter.on(getConnectingKey(), callback);
       return () => eventEmitter.removeListener(getConnectingKey(), callback);
     },
@@ -77,9 +77,9 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
       eventEmitter.on(getReconnectingKey(), callback);
       return () => eventEmitter.removeListener(getReconnectingKey(), callback);
     },
-    onReconnectingStop: (callback: (attempts: number) => void): VoidFunction => {
-      eventEmitter.on(getReconnectingStopKey(), callback);
-      return () => eventEmitter.removeListener(getReconnectingStopKey(), callback);
+    onReconnectingFailed: (callback: (attempts: number) => void): VoidFunction => {
+      eventEmitter.on(getReconnectingFailedKey(), callback);
+      return () => eventEmitter.removeListener(getReconnectingFailedKey(), callback);
     },
     // Emitters
     onEmitterStartEvent: <EmitterType extends EmitterInstance>(

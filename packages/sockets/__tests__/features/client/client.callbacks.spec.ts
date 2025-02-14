@@ -74,9 +74,9 @@ describe("Socket Client  [ Callbacks ]", () => {
     });
   });
 
-  it("should trigger onReconnectStop callbacks", async () => {
+  it("should trigger onReconnectFailed callbacks", async () => {
     const spy = jest.fn();
-    const socket = createSocket({ reconnect: 0 }).onReconnectStop(spy);
+    const socket = createSocket({ reconnect: 0 }).onReconnectFailed(spy);
     socket.adapter.reconnect();
 
     await waitFor(() => {

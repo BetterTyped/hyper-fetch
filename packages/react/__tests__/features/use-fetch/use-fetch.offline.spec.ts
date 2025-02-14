@@ -34,7 +34,7 @@ describe("useFetch [ Offline ]", () => {
 
       await testSuccessState(mock, response);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
 
       act(() => {
         client.appManager.setOnline(false);

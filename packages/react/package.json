@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@better-hooks/lifecycle": "^1.1.1",
-    "@better-hooks/performance": "^1.1.1"
+    "@better-hooks/lifecycle": "^2.0.0",
+    "@better-hooks/performance": "^2.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

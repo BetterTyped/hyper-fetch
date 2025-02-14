@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-fragments */
 /* eslint-disable react/jsx-no-useless-fragment */
 import { Fragment } from "react";
-import { AdapterExtraType, Client } from "@hyper-fetch/core";
+import { HttpAdapterExtraType, Client } from "@hyper-fetch/core";
 import { render, waitFor } from "@testing-library/react";
 
 import { UseFetchRequest, UseFetchReturnType, useFetch } from "hooks/use-fetch";
@@ -10,7 +10,7 @@ import { Provider } from "provider";
 
 describe("Provider [ Hydration ]", () => {
   const data = [1, 2, 3, 4, 5];
-  const extra: AdapterExtraType = { headers: { "x-test": "test" } };
+  const extra: HttpAdapterExtraType = { headers: { "x-test": "test" } };
   let client = new Client({
     url: "http://localhost:3000",
   });
@@ -34,6 +34,7 @@ describe("Provider [ Hydration ]", () => {
           requestTimestamp: Date.now(),
         },
         hydrated: true,
+        override: true,
       },
     ]);
   };

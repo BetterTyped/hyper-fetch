@@ -7,12 +7,12 @@ import { SocketAdapterInstance } from "adapter";
 
 export class Emitter<
   Payload,
-  Endpoint extends string,
+  Topic extends string,
   Adapter extends SocketAdapterInstance,
   HasPayload extends boolean = false,
   HasParams extends boolean = false,
 > {
-  readonly topic: Endpoint;
+  readonly topic: Topic;
   params?: ParamsType;
   timeout: number;
   payload: Payload | undefined;
@@ -21,8 +21,8 @@ export class Emitter<
 
   constructor(
     readonly socket: Socket<Adapter>,
-    readonly emitterOptions: EmitterOptionsType<Endpoint, ExtractSocketAdapterType<Socket>>,
-    json?: Partial<Emitter<Payload, Endpoint, Adapter>>,
+    readonly emitterOptions: EmitterOptionsType<Topic, ExtractSocketAdapterType<Socket>>,
+    json?: Partial<Emitter<Payload, Topic, Adapter>>,
   ) {
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
@@ -55,11 +55,11 @@ export class Emitter<
     return cloned;
   };
 
-  setParams(params: NonNullable<ExtractRouteParams<Endpoint>>) {
+  setParams(params: NonNullable<ExtractRouteParams<Topic>>) {
     return this.clone<Payload, HasPayload, true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
     let topic = this.emitterOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -67,7 +67,7 @@ export class Emitter<
       });
     }
 
-    return topic as Endpoint;
+    return topic as Topic;
   };
 
   clone<
@@ -75,12 +75,12 @@ export class Emitter<
     NewHasPayload extends boolean = HasPayload,
     NewHasParams extends boolean = HasParams,
   >(
-    options?: Partial<EmitterOptionsType<Endpoint, Adapter>> & {
+    options?: Partial<EmitterOptionsType<Topic, Adapter>> & {
       params?: ParamsType;
       payload?: NewPayload;
     },
-  ): Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams> {
-    const json: Partial<Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams>> = {
+  ): Emitter<NewPayload, Topic, Adapter, NewHasPayload, NewHasParams> {
+    const json: Partial<Emitter<NewPayload, Topic, Adapter, NewHasPayload, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
       payload: this.payload as NewPayload,
@@ -89,7 +89,7 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams>(
+    const newInstance = new Emitter<NewPayload, Topic, Adapter, NewHasPayload, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,

@@ -1,5 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
-import { AdapterType, ResponseType, xhrExtra } from "@hyper-fetch/core";
+import { AdapterInstance, ResponseType, xhrExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";
@@ -97,7 +97,7 @@ describe("useFetch [ Base ]", () => {
     });
     it("should allow to use initial data", async () => {
       await testClientIsolation(client);
-      const initialResponse: ResponseType<unknown, Error, AdapterType> = {
+      const initialResponse: ResponseType<unknown, Error, AdapterInstance> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
@@ -114,7 +114,7 @@ describe("useFetch [ Base ]", () => {
     it("should allow to use initial data while requesting", async () => {
       await testClientIsolation(client);
       mockRequest(request);
-      const initialResponse: ResponseType<unknown, Error, AdapterType> = {
+      const initialResponse: ResponseType<unknown, Error, AdapterInstance> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
@@ -130,7 +130,7 @@ describe("useFetch [ Base ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       await testClientIsolation(client);
       const mock = mockRequest(request);
       const view = renderUseFetch(request);

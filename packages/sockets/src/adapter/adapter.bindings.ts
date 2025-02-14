@@ -41,7 +41,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     state.forceClosed = false;
     state.connecting = true;
     state.reconnectionAttempts = 0;
-    socket.events.emitConnecting();
+    socket.events.emitConnecting(true);
     return true;
   };
 
@@ -55,10 +55,16 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     state.connecting = false;
     state.forceClosed = true;
     state.reconnectionAttempts = 0;
+    socket.events.emitConnecting(true);
     return true;
   };
 
   const onReconnect = async (disconnect: () => Promise<any>, connect: () => Promise<any>): Promise<boolean> => {
+    socket.__onReconnectCallbacks.forEach((callback) => {
+      callback(socket);
+    });
+    socket.events.emitReconnecting(state.reconnectionAttempts);
+
     await disconnect();
     if (state.reconnectionAttempts < socket.reconnectAttempts) {
       state.reconnectionAttempts += 1;
@@ -68,21 +74,18 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
         extra: { reconnectionAttempts: state.reconnectionAttempts },
       });
       await connect();
-      socket.__onReconnectCallbacks.forEach((callback) => {
-        callback(socket);
-      });
-      socket.events.emitReconnecting(state.reconnectionAttempts);
       return true;
     }
-    logger.debug({
+
+    logger.error({
       title: "Stopped reconnecting",
       type: "system",
       extra: { reconnectionAttempts: state.reconnectionAttempts },
     });
-    socket.__onReconnectStopCallbacks.forEach((callback) => {
+    socket.__onReconnectFailedCallbacks.forEach((callback) => {
       callback(socket);
     });
-    socket.events.emitReconnectingStop(state.reconnectionAttempts);
+    socket.events.emitReconnectingFailed(state.reconnectionAttempts);
     return false;
   };
 
@@ -137,6 +140,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     logger.info({ title: "Connection open", type: "system", extra: {} });
     state.connected = true;
     state.connecting = false;
+    socket.events.emitConnecting(false);
     socket.events.emitConnected();
     socket.__onConnectedCallbacks.forEach((callback) => {
       callback(socket);
@@ -147,6 +151,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     logger.info({ title: "Connection closed", type: "system", extra: {} });
     state.connected = false;
     state.connecting = false;
+    socket.events.emitConnecting(false);
     socket.events.emitDisconnected();
     socket.__onDisconnectCallbacks.forEach((callback) => {
       callback(socket);

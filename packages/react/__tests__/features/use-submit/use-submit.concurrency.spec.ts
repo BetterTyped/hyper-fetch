@@ -1,13 +1,15 @@
 import { act } from "@testing-library/react";
+import { createClient } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
+import { renderUseSubmit, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Concurrency ]", () => {
-  let request = createRequest<null, null>({ method: "POST" });
+  let client = createClient({ url: "http://localhost:3000" });
+  let request = client.createRequest<{ response: null; payload: null }>()({ method: "POST", endpoint: "" });
 
   beforeAll(() => {
     startServer();
@@ -24,7 +26,8 @@ describe("useSubmit [ Concurrency ]", () => {
   beforeEach(() => {
     jest.resetModules();
     client.clear();
-    request = createRequest({ method: "POST" });
+    client = createClient({ url: "http://localhost:3000" });
+    request = client.createRequest<{ response: null; payload: null }>()({ method: "POST", endpoint: "" });
   });
 
   describe("given multiple rendered hooks", () => {
