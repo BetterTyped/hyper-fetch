@@ -212,8 +212,8 @@ export const useTrackedState = <T extends RequestInstance>({
       state.current.data = data instanceof Function ? data(state.current.data || null) : data;
       renderKeyTrigger(["data"]);
     },
-    setError: (error, emitToHooks) => {
-      if (emitToHooks) {
+    setError: (error, emitToCache) => {
+      if (emitToCache) {
         cache.update(request, (prev) => {
           const value = error instanceof Function ? error(prev?.error || null) : error;
           return {

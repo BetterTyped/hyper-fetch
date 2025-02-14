@@ -1,12 +1,14 @@
+import { createClient } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { createRequest, renderUseTrackedState } from "../../../utils";
+import { renderUseTrackedState } from "../../../utils";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useTrackedState [ Actions ]", () => {
-  let request = createRequest();
+  let client = createClient({ url: "http://localhost:3000" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "test" });
 
   beforeAll(() => {
     startServer();
@@ -18,12 +20,20 @@ describe("useTrackedState [ Actions ]", () => {
 
   afterAll(() => {
     stopServer();
+    jest.resetModules();
+    jest.resetAllMocks();
+    client.clear();
   });
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.resetAllMocks();
-    request = createRequest();
+    client = createClient({ url: "http://localhost:3000" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "test" });
+    request.setMock(() => {
+      return {
+        data: 123,
+        status: 200,
+      };
+    });
   });
 
   describe("when updating the local state", () => {
@@ -231,6 +241,75 @@ describe("useTrackedState [ Actions ]", () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+  describe("when using setData action", () => {
+    it("should update cache with direct value when emitToHooks is true", async () => {
+      await request.send();
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setData("new-value", true);
+      });
+
+      // Get the actual cache value
+      const cacheData = request.client.cache.get(request.cacheKey);
+      expect(cacheData?.data).toBe("new-value");
+    });
+
+    it("should update cache with function value when emitToHooks is true", async () => {
+      await request.send();
+      const { result } = renderUseTrackedState(request);
+
+      // First set some initial data
+      act(() => {
+        result.current[1].setData("initial-value", true);
+      });
+
+      // Then update with function
+      act(() => {
+        result.current[1].setData((prev: any) => `${prev}-updated`, true);
+      });
+
+      // Get the actual cache value
+      const cacheData = request.client.cache.get(request.cacheKey);
+      expect(cacheData?.data).toBe("initial-value-updated");
+    });
+
+    it("should not update cache when emitToHooks is false", async () => {
+      await request.send();
+      const { result } = renderUseTrackedState(request);
+
+      // First set some initial data in cache
+      act(() => {
+        result.current[1].setData("initial-value", true);
+      });
+
+      // Then update state without emitting to hooks
+      act(() => {
+        result.current[1].setData("new-value", false);
+      });
+
+      // Cache should retain the initial value
+      const cacheData = request.client.cache.get(request.cacheKey);
+      expect(cacheData?.data).toBe("initial-value");
+      // Local state should have the new value
+      expect(result.current[0].data).toBe("new-value");
+    });
+
+    it("should handle null previous data in function updates", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setData((prev: any) => {
+          expect(prev).toBe(null);
+          return "new-value";
+        }, true);
+      });
+
+      const cacheData = request.client.cache.get(request.cacheKey);
+      expect(cacheData?.data).toBeUndefined();
+      expect(result.current[0].data).toBe("new-value");
     });
   });
 });
