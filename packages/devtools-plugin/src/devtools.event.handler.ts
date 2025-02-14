@@ -1,4 +1,4 @@
-import { ClientInstance } from "@hyper-fetch/core";
+import { CacheValueType, ClientInstance } from "@hyper-fetch/core";
 import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
 import { EmitableCoreEvents, EmitableCustomEvents, DevtoolsPluginOptions } from "devtools.types";
@@ -22,20 +22,18 @@ export class DevtoolsEventHandler {
     this.client = client;
     this.unmountHooks = this.initializeHooks();
     this.connectionName = `HF_DEVTOOLS_CLIENT_${appName}`;
-    this.socket = new Socket({ url: `${socketAddress}:${socketPort}` }).setQuery({
+    this.socket = new Socket({ url: `${socketAddress}:${socketPort}`, autoConnect: false }).setQuery({
       connectionName: this.connectionName,
     });
+
     this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
-    console.log("SOCKET STATUS", this.socket.connect());
-    this.socket.onConnected(() => {
-      console.log("SOCKET CONNECTED");
-    });
+    this.socket.connect().then(() => console.log("CONNECTED"));
     this.socket.onDisconnected(() => {
-      console.log("SOCKET DISCONNECTED");
+      // TODO handle reconnection?
     });
-    this.socket.onError((err) => {
-      console.log("SOCKET ERR", err);
+    this.socket.onError(() => {
+      // TODO handle err?
     });
     this.socket.onConnected(() => {
       this.isConnected = true;
@@ -47,12 +45,16 @@ export class DevtoolsEventHandler {
       }
     });
     this.socketListener.listen((message) => {
-      console.log("LISTENED TO MESSAGE!", message);
+      const eventData = message.data.eventData as CacheValueType;
+      client.cache.update(
+        { cacheKey: eventData.cacheKey, cache: true, cacheTime: eventData.cacheTime, staleTime: eventData.staleTime },
+        eventData,
+        true,
+      );
     });
   }
 
   sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
-    console.log("SENDING EVENT", eventType);
     if (this.isConnected) {
       try {
         this.socketEmitter.emit({
@@ -134,7 +136,9 @@ export class DevtoolsEventHandler {
   };
   unmountOnCacheChange = () => {
     return this.client.cache.events.onData((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_CACHE_CHANGE, data);
+      if (!data.isTriggeredExternally) {
+        this.sendEvent(EmitableCoreEvents.ON_CACHE_CHANGE, { ...data, isTriggeredExternally: true });
+      }
     });
   };
   unmountOnCacheInvalidate = () => {

@@ -316,12 +316,12 @@ export const Devtools = <T extends ClientInstance>({
     });
     const unmountOnCacheChange = client.cache.events.onData((cacheData) => {
       setCache((draft) => {
-        const { cacheKey } = cacheData;
+        const { cacheKey, isTriggeredExternally, ...rest } = cacheData;
         const changedElement = draft.find((cacheElement) => cacheElement.cacheKey === cacheKey);
         if (changedElement) {
           changedElement.cacheData = cacheData;
         } else {
-          draft.push({ cacheKey: cacheData.cacheKey, cacheData });
+          draft.push({ cacheKey: cacheData.cacheKey, cacheData: { ...rest, cacheKey } });
         }
       });
     });
