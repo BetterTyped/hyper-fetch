@@ -261,8 +261,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setExtra: (extra, emitToCache = true) => {
       if (emitToCache) {
         cache.update(request, (prev) => ({
-          // TODO: fix type
-          extra: extra instanceof Function ? extra((prev?.extra as any) || null) : extra,
+          extra: extra instanceof Function ? extra(prev?.extra || null) : extra,
         }));
       }
       state.current.extra = extra instanceof Function ? extra(state.current.extra || null) : extra;
