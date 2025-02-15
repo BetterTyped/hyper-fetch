@@ -312,4 +312,56 @@ describe("useTrackedState [ Actions ]", () => {
       expect(result.current[0].data).toBe("new-value");
     });
   });
+  describe("when using setError action", () => {
+    it("should update cache with direct error value when emitToCache is true", async () => {
+      const { result } = renderUseTrackedState(request);
+      const testError = new Error("test error");
+
+      const spy = jest.spyOn(request.client.cache, "update");
+
+      act(() => {
+        result.current[1].setError(testError, true);
+      });
+
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it("should handle null previous error in function updates", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setError((prev: Error | null) => {
+          expect(prev).toBe(null);
+          return new Error("new error");
+        }, true);
+      });
+
+      expect(result.current[0].error).toBeInstanceOf(Error);
+      expect(result.current[0].success).toBe(false);
+    });
+
+    it("should not update cache when emitToCache is false", async () => {
+      const { result } = renderUseTrackedState(request);
+      const initialError = new Error("initial error");
+
+      // Set initial error in cache
+      act(() => {
+        result.current[1].setError(initialError, true);
+      });
+
+      // Update local state only
+      const newError = new Error("new error");
+      act(() => {
+        result.current[1].setError(newError, false);
+      });
+
+      // Cache should retain initial error
+      const cacheData = request.client.cache.get(request.cacheKey);
+      expect(cacheData).toBe(undefined);
+      // Local state should have new error
+      expect(result.current[0].error).toBe(newError);
+    });
+  });
 });
