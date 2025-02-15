@@ -205,14 +205,14 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const actions: UseTrackedStateActions<T> = {
-    setData: (data, emitToHooks) => {
+    setData: (data, emitToHooks = true) => {
       if (emitToHooks) {
         cache.update(request, (prev) => ({ data: data instanceof Function ? data(prev?.data || null) : data }));
       }
       state.current.data = data instanceof Function ? data(state.current.data || null) : data;
       renderKeyTrigger(["data"]);
     },
-    setError: (error, emitToCache) => {
+    setError: (error, emitToCache = true) => {
       if (emitToCache) {
         cache.update(request, (prev) => {
           const value = error instanceof Function ? error(prev?.error || null) : error;
@@ -263,7 +263,7 @@ export const useTrackedState = <T extends RequestInstance>({
           extra: extra instanceof Function ? extra(prev?.extra || null) : extra,
         }));
       }
-      state.current.extra = extra instanceof Function ? extra(state.current.extra || null) : extra;
+      state.current.extra = extra instanceof Function ? extra(state.current.extra) : extra;
       renderKeyTrigger(["extra"]);
     },
     setRetries: (retries, emitToCache = true) => {
@@ -276,29 +276,34 @@ export const useTrackedState = <T extends RequestInstance>({
       renderKeyTrigger(["retries"]);
     },
     setResponseTimestamp: (timestamp, emitToCache = true) => {
+      const getTimestamp = (prev: Date | null) => {
+        return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
+      };
+
       if (emitToCache) {
-        cache.update(request, (prev) => ({
-          responseTimestamp:
-            timestamp instanceof Function
-              ? +timestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null)
-              : +timestamp,
-        }));
+        cache.update(request, (prev) => {
+          const responseTimestamp = +getTimestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null);
+
+          return {
+            responseTimestamp,
+          };
+        });
       }
-      state.current.responseTimestamp =
-        timestamp instanceof Function ? timestamp(state.current.responseTimestamp || null) : timestamp;
+
+      state.current.responseTimestamp = getTimestamp(state.current.responseTimestamp);
       renderKeyTrigger(["responseTimestamp"]);
     },
     setRequestTimestamp: (timestamp, emitToCache = true) => {
+      const getTimestamp = (prev: Date | null) => {
+        return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
+      };
+
       if (emitToCache) {
         cache.update(request, (prev) => ({
-          requestTimestamp:
-            timestamp instanceof Function
-              ? +timestamp(prev?.requestTimestamp ? new Date(prev.requestTimestamp) : null)
-              : +timestamp,
+          requestTimestamp: +getTimestamp(prev?.requestTimestamp ? new Date(prev.requestTimestamp) : null),
         }));
       }
-      state.current.requestTimestamp =
-        timestamp instanceof Function ? timestamp(state.current.requestTimestamp || null) : timestamp;
+      state.current.requestTimestamp = getTimestamp(state.current.requestTimestamp);
       renderKeyTrigger(["requestTimestamp"]);
     },
   };
