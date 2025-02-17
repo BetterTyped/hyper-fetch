@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/dom";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
@@ -33,7 +33,11 @@ describe("Socket Client  [ Callbacks ]", () => {
   it("should trigger onError callbacks", async () => {
     const spy = jest.fn();
     createSocket().onError(spy);
-    getServer().error();
+    getServer().error({
+      code: 1000,
+      reason: "test",
+      wasClean: false,
+    });
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -55,7 +59,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
 
-    await socket.waitForConnection();
+    await waitForConnection(socket);
 
     emitter.setPayload({ test: "1" }).emit();
 

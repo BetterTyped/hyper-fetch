@@ -41,7 +41,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 
   useDidUpdate(
     () => {
-      state.current.connected = socket.adapter.state.connected;
+      state.current.connected = socket.adapter.connected;
       state.current.connecting = socket.adapter.state.connecting;
 
       const handleDependencyTracking = () => {

@@ -1,5 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { renderUseListener } from "../../utils/use-listener.utils";
@@ -12,7 +12,7 @@ describe("useListener [ Base ]", () => {
   beforeEach(async () => {
     startServer();
     listener = createListener();
-    await listener.socket.waitForConnection();
+    await waitForConnection(listener.socket);
     jest.resetModules();
     jest.resetAllMocks();
   });

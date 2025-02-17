@@ -1,4 +1,4 @@
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
@@ -20,7 +20,7 @@ describe("Emitter [ Emit ]", () => {
     socket = createSocket();
     emitter = createEmitter<DataType>(socket, { timeout: 4000 });
     jest.resetAllMocks();
-    await socket.waitForConnection();
+    await waitForConnection(socket);
   });
 
   it("should emit event message", async () => {

@@ -1,6 +1,6 @@
 import { Socket } from "@hyper-fetch/sockets";
 import { act, waitFor } from "@testing-library/react";
-import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
 import { renderUseEmitter } from "../../utils/use-emitter.utils";
 
@@ -13,7 +13,7 @@ describe("useEmitter [ Base ]", () => {
     startServer();
     socket = new Socket({ url });
     emitter = socket.createEmitter<{ name: string; age: number }>()({ topic: "test/:testId" });
-    await socket.waitForConnection();
+    await waitForConnection(socket);
 
     jest.resetModules();
     jest.resetAllMocks();

@@ -1,4 +1,4 @@
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 import { waitFor } from "@testing-library/react";
 
 import { createEmitter } from "../../utils/emitter.utils";
@@ -18,7 +18,7 @@ describe("Emitter [ Base ]", () => {
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
-    await socket.waitForConnection();
+    await waitForConnection(socket);
   });
 
   it("should initialize emitter with correct name", async () => {

@@ -1,7 +1,8 @@
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
-import { ServerSentEventsAdapter, getWebsocketAdapter, getSSEAdapter } from "adapter";
 import { createSocket } from "../../utils/socket.utils";
+import { getWebsocketAdapter } from "adapter-websockets/websocket-adapter.utils";
+import { getServerSentEventsAdapter } from "adapter-sse/sse-adapter.utils";
 
 const windowInstance = global.window;
 
@@ -22,14 +23,14 @@ describe("Socket Client [ Utils ]", () => {
     const spy = jest.fn();
     const spy2 = jest.fn();
     socket.adapter.listeners.set("test", new Map<any, any>().set(spy, spy2));
-    const removed = socket.adapter.removeListener("test", spy);
+    const removed = socket.adapter.removeListener({ topic: "test", callback: spy });
     expect(removed).toBeTrue();
     expect(spy2).toHaveBeenCalledOnce();
   });
 
   it("should not throw when removing not existing listener", async () => {
     const spy = jest.fn();
-    const removed = socket.adapter.removeListener("test", spy);
+    const removed = socket.adapter.removeListener({ topic: "test", callback: spy });
     expect(removed).toBeFalse();
   });
 
@@ -38,12 +39,11 @@ describe("Socket Client [ Utils ]", () => {
       windowSpy.mockImplementation(() => undefined as any);
     });
     it("should not throw when there is no window", () => {
-      const adapter = getWebsocketAdapter(socket);
+      const adapter = getWebsocketAdapter(url, {});
       expect(adapter).toBeNull();
     });
     it("should not throw SSE when there is no window", () => {
-      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
-      const adapter = getSSEAdapter(sseSocket);
+      const adapter = getServerSentEventsAdapter(url, {});
       expect(adapter).toBeNull();
     });
   });
@@ -53,12 +53,11 @@ describe("Socket Client [ Utils ]", () => {
       windowSpy.mockImplementation(() => ({}) as any);
     });
     it("should not throw when there is no window", () => {
-      const adapter = getWebsocketAdapter(socket);
+      const adapter = getWebsocketAdapter(url, {});
       expect(adapter).toBeNull();
     });
     it("should not throw SSE when there is no window", () => {
-      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
-      const adapter = getSSEAdapter(sseSocket);
+      const adapter = getServerSentEventsAdapter(url, {});
       expect(adapter).toBeNull();
     });
   });
@@ -68,23 +67,17 @@ describe("Socket Client [ Utils ]", () => {
       windowSpy.mockImplementation(() => windowInstance);
       jest.clearAllMocks();
     });
-    it("should create correct url with all parameters", () => {
+    it("should create correct url", () => {
       socket = createSocket({ queryParams: { bar: 2 } });
-      const adapter = getWebsocketAdapter(socket);
-      expect(adapter?.url).toBe(`${url}/?bar=2`);
-    });
-    it("should create correct url with query params", () => {
-      socket = createSocket({ queryParams: { bar: 2 } });
-      const adapter = getWebsocketAdapter(socket);
-      expect(adapter?.url).toBe(`${url}/?bar=2`);
+      const adapter = getWebsocketAdapter(url, {});
+      expect(adapter?.url).toBe(`${url}/`);
     });
     it("should initialize Websocket", () => {
-      const adapter = getWebsocketAdapter(socket);
+      const adapter = getWebsocketAdapter(url, {});
       expect(adapter).toBeInstanceOf(WebSocket);
     });
     it("should initialize EventSource", () => {
-      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
-      const adapter = getSSEAdapter(sseSocket);
+      const adapter = getServerSentEventsAdapter(url, {});
       expect(adapter).toBeInstanceOf(EventSource);
     });
   });

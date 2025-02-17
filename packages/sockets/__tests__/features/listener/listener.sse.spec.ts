@@ -1,9 +1,9 @@
 import { waitFor } from "@testing-library/dom";
-import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
+import { createSseMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { ServerSentEventsAdapter } from "adapter";
+import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
 
 const config = {
   adapter: ServerSentEventsAdapter,
@@ -20,7 +20,7 @@ describe("Listener [ SSE ]", () => {
     socket = createSocket(config);
     startServer();
     listener = createListener<DataType>(socket);
-    await socket.waitForConnection();
+    await waitForConnection(socket);
     jest.resetAllMocks();
   });
 

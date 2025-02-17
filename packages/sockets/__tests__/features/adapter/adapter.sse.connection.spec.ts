@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/dom";
 import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { ServerSentEventsAdapter } from "adapter";
+import { ServerSentEventsAdapter } from "adapter-sse";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
@@ -11,10 +11,10 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 const { startServer } = createSseMockingServer();
 
 describe("Socket SSE [ Connection ]", () => {
-  let socket = createSocket(socketOptions);
+  let socket: ReturnType<typeof createSocket>;
 
   beforeEach(async () => {
-    socket.emitter.removeAllListeners();
+    socket?.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
   });

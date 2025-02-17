@@ -56,7 +56,7 @@ describe("Socket Adapter [ Heartbeat ]", () => {
       }),
     );
     await waitFor(() => {
-      expect(socket.adapter.state.connected).toBeFalse();
+      expect(socket.adapter.connected).toBeFalse();
     });
   });
 });

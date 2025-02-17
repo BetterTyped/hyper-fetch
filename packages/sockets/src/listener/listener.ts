@@ -52,7 +52,7 @@ export class Listener<
     this.socket.adapter.listen(instance, callback);
 
     const removeListener = () => {
-      this.socket.adapter.removeListener(instance.topic, callback);
+      this.socket.adapter.removeListener({ topic: instance.topic, callback });
     };
 
     return removeListener;

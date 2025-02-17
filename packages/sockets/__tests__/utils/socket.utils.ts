@@ -1,5 +1,6 @@
 import { Socket, SocketOptionsType } from "socket";
-import { SocketAdapterInstance, WebsocketAdapterType } from "adapter";
+import { SocketAdapterInstance } from "adapter";
+import { WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
 
 export const createSocket = <T extends SocketAdapterInstance = WebsocketAdapterType>(
   config?: Partial<SocketOptionsType<T>>,

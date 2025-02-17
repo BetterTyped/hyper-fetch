@@ -40,7 +40,7 @@ describe("Socket [ Events ]", () => {
 
   it("should emit and receive connecting event", async () => {
     socket.events.onConnecting(spy);
-    socket.events.emitConnecting();
+    socket.events.emitConnecting(true);
 
     expect(spy).toHaveBeenCalledTimes(1);
   });

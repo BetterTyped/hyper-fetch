@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/dom";
 import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { ServerSentEventsAdapterType, ServerSentEventsAdapter } from "adapter";
+import { ServerSentEventsAdapter, ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
@@ -23,7 +23,7 @@ describe("Socket Adapter [ SSE ]", () => {
 
     const spy = jest.fn();
     socket.onDisconnected(spy);
-    expect(socket.adapter.state.connected).toBe(true);
+    expect(socket.adapter.connected).toBe(true);
     socket.adapter.disconnect();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -50,7 +50,7 @@ describe("Socket Adapter [ SSE ]", () => {
     socket.appManager.setOnline(false);
     socket.adapter.disconnect();
     socket.onDisconnected(() => {
-      socket.adapter.state.connected = false;
+      socket.adapter.connected = false;
       socket.appManager.setOnline(true);
     });
     startServer();
@@ -83,14 +83,14 @@ describe("Socket Adapter [ SSE ]", () => {
     const spy = jest.fn();
 
     socket.events.onConnected(spy);
-    socket.adapter.connect();
+    await socket.adapter.connect();
     startServer();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    socket.adapter.connect();
+    await socket.adapter.connect();
 
     await sleep(10);
 

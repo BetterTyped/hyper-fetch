@@ -1,6 +1,7 @@
 import { LoggerManager } from "@hyper-fetch/core";
 
 import { createSocket } from "../../utils/socket.utils";
+import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
 
 describe("Socket [ Methods ]", () => {
   beforeEach(() => {
@@ -9,14 +10,16 @@ describe("Socket [ Methods ]", () => {
 
   it("should allow to set new query params config", async () => {
     const settings = { skipEmptyString: true };
-    const socket = createSocket({ queryParamsConfig: settings });
-    expect(socket.queryParamsConfig).toBe(settings);
+    const adapter = WebsocketAdapter().setQueryParamsConfig(settings);
+    const socket = createSocket({ adapter: () => adapter });
+    expect(socket.adapter.queryParamsConfig).toBe(settings);
   });
 
   it("should allow to set new query params stringify", async () => {
     const method = () => "";
-    const socket = createSocket({ queryParamsStringify: method });
-    expect(socket.queryParamsStringify).toBe(method);
+    const adapter = WebsocketAdapter().setQueryParamsMapper(method);
+    const socket = createSocket({ adapter: () => adapter });
+    expect(socket.adapter.unsafe_queryParamsMapper).toBe(method);
   });
 
   it("should allow to activate debug", async () => {
@@ -44,8 +47,8 @@ describe("Socket [ Methods ]", () => {
     const spy = jest.fn();
     const socket = createSocket();
     socket.adapter.reconnect = spy;
-    socket.setQuery(value);
-    expect(socket.queryParams).toBe(value);
+    socket.adapter.setQueryParams(value);
+    expect(socket.adapter.queryParams).toBe(value);
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });

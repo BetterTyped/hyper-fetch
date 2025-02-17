@@ -1,46 +1,31 @@
-import { SocketInstance } from "socket";
+import { Socket } from "socket";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
 import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterExtraType } from "types";
 
-export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
-  socket: SocketInstance,
-  options?: {
-    connected?: boolean;
-    connecting?: boolean;
-    forceClosed?: boolean;
-    reconnectionAttempts?: number;
-  },
-) => {
-  const logger = socket.loggerManager.initialize(socket, "Socket Adapter");
-  const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
-
-  const state = {
-    connected: options?.connected ?? false,
-    connecting: options?.connecting ?? false,
-    forceClosed: options?.forceClosed ?? false,
-    reconnectionAttempts: options?.reconnectionAttempts ?? 0,
-  };
+export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Socket<T>) => {
+  const { adapter } = socket;
+  const logger = socket.loggerManager.initialize(socket, "Socket Bindings");
 
   // Methods
 
   const onConnect = (): boolean => {
-    if (!socket.appManager.isOnline || state.connecting) {
+    if (!socket.appManager.isOnline || adapter.connecting) {
       logger.warning({
         title: "Cannot initialize adapter.",
         type: "system",
         extra: {
-          connecting: state.connecting,
+          connecting: adapter.connecting,
           online: socket.appManager.isOnline,
         },
       });
       return false;
     }
 
-    state.forceClosed = false;
-    state.connecting = true;
-    state.reconnectionAttempts = 0;
+    socket.adapter.setForceClosed(false);
+    socket.adapter.setConnecting(true);
+    socket.adapter.setReconnectionAttempts(0);
     socket.events.emitConnecting(true);
     return true;
   };
@@ -49,29 +34,35 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     logger.debug({
       title: "Disconnecting",
       type: "system",
-      extra: { reconnectionAttempts: state.reconnectionAttempts },
+      extra: { reconnectionAttempts: adapter.reconnectionAttempts },
     });
-    state.connected = false;
-    state.connecting = false;
-    state.forceClosed = true;
-    state.reconnectionAttempts = 0;
+    socket.adapter.setConnected(false);
+    socket.adapter.setConnecting(false);
+    socket.adapter.setForceClosed(true);
+    socket.adapter.setReconnectionAttempts(0);
     socket.events.emitConnecting(true);
     return true;
   };
 
-  const onReconnect = async (disconnect: () => Promise<any>, connect: () => Promise<any>): Promise<boolean> => {
+  const onReconnect = async ({
+    disconnect,
+    connect,
+  }: {
+    disconnect: () => Promise<any>;
+    connect: () => Promise<any>;
+  }): Promise<boolean> => {
     socket.__onReconnectCallbacks.forEach((callback) => {
       callback(socket);
     });
-    socket.events.emitReconnecting(state.reconnectionAttempts);
+    socket.events.emitReconnecting(adapter.reconnectionAttempts);
 
     await disconnect();
-    if (state.reconnectionAttempts < socket.reconnectAttempts) {
-      state.reconnectionAttempts += 1;
+    if (adapter.reconnectionAttempts < socket.reconnectAttempts) {
+      socket.adapter.setReconnectionAttempts(adapter.reconnectionAttempts + 1);
       logger.debug({
         title: "Reconnecting",
         type: "system",
-        extra: { reconnectionAttempts: state.reconnectionAttempts },
+        extra: { reconnectionAttempts: adapter.reconnectionAttempts },
       });
       await connect();
       return true;
@@ -80,46 +71,40 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     logger.error({
       title: "Stopped reconnecting",
       type: "system",
-      extra: { reconnectionAttempts: state.reconnectionAttempts },
+      extra: { reconnectionAttempts: adapter.reconnectionAttempts },
     });
     socket.__onReconnectFailedCallbacks.forEach((callback) => {
       callback(socket);
     });
-    socket.events.emitReconnectingFailed(state.reconnectionAttempts);
+    socket.events.emitReconnectingFailed(adapter.reconnectionAttempts);
     return false;
   };
 
   // Listeners
 
-  const removeListener = (topic: string, callback: ListenerCallbackType<T, any>): boolean => {
-    const listenerGroup = listeners.get(topic);
-    if (listenerGroup) {
-      const unmount = listenerGroup.get(callback);
-      logger.debug({ title: "Removed event listener", type: "system", extra: { topic } });
-      socket.events.emitListenerRemoveEvent(topic);
-      listenerGroup.delete(callback);
-      unmount?.();
-      return true;
-    }
-    return false;
-  };
+  const onListen = ({
+    listener,
+    callback,
+    onUnmount = () => null,
+  }: {
+    listener: Pick<ListenerInstance, "topic">;
+    callback: ListenerCallbackType<T, any>;
+    onUnmount?: VoidFunction;
+  }): (() => void) => {
+    const listenerGroup = (adapter.listeners.get(listener.topic) ||
+      adapter.listeners.set(listener.topic, new Map()).get(listener.topic)) as Map<
+      ListenerCallbackType<T, any>,
+      VoidFunction
+    >;
 
-  const onListen = (
-    listener: Pick<ListenerInstance, "topic">,
-    callback: ListenerCallbackType<T, any>,
-    unmount: VoidFunction = () => null,
-  ): (() => void) => {
-    const listenerGroup = (listeners.get(listener.topic) ||
-      listeners.set(listener.topic, new Map()).get(listener.topic)) as Map<ListenerCallbackType<T, any>, VoidFunction>;
-
-    listenerGroup.set(callback, unmount);
-    return () => removeListener(listener.topic, callback);
+    listenerGroup.set(callback, onUnmount);
+    return () => socket.adapter.removeListener({ topic: listener.topic, callback });
   };
 
   // Emitters
 
-  const onEmit = async (emitter: EmitterInstance): Promise<EmitterInstance | null> => {
-    if (state.connecting || !state.connected) {
+  const onEmit = async ({ emitter }: { emitter: EmitterInstance }): Promise<EmitterInstance | null> => {
+    if (adapter.connecting || !adapter.connected) {
       logger.error({ title: "Cannot emit event when connection is not open", type: "system", extra: {} });
       return null;
     }
@@ -130,7 +115,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     return emitterInstance;
   };
 
-  const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error: ErrorType) => {
+  const onEmitError = <ErrorType extends Error>({ emitter, error }: { emitter: EmitterInstance; error: ErrorType }) => {
     socket.events.emitEmitterError(error, emitter);
   };
 
@@ -138,8 +123,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onConnected = () => {
     logger.info({ title: "Connection open", type: "system", extra: {} });
-    state.connected = true;
-    state.connecting = false;
+    adapter.setConnected(true);
+    adapter.setConnecting(false);
     socket.events.emitConnecting(false);
     socket.events.emitConnected();
     socket.__onConnectedCallbacks.forEach((callback) => {
@@ -149,8 +134,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onDisconnected = () => {
     logger.info({ title: "Connection closed", type: "system", extra: {} });
-    state.connected = false;
-    state.connecting = false;
+    adapter.setConnected(false);
+    adapter.setConnecting(false);
     socket.events.emitConnecting(false);
     socket.events.emitDisconnected();
     socket.__onDisconnectCallbacks.forEach((callback) => {
@@ -158,26 +143,32 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     });
   };
 
-  const onError = (event: Error) => {
-    logger.info({ title: "Error message", type: "system", extra: { event } });
+  const onError = ({ error }: { error: Error }) => {
+    logger.info({ title: "Error message", type: "system", extra: { error } });
     socket.__onErrorCallbacks.forEach((callback) => {
-      callback(event, socket);
+      callback(error, socket);
     });
-    socket.events.emitError(event);
+    socket.events.emitError(error);
   };
 
-  const onEvent = (topic: string, response: any, responseExtra: ExtractAdapterExtraType<T>) => {
-    logger.info({ title: "New event message", type: "system", extra: { response, responseExtra } });
+  const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
+    logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
-    const { data, extra } = socket.__modifyResponse({ data: response, extra: responseExtra });
-
-    socket.events.emitListenerEvent(topic, { data, extra });
+    const { data: modifiedData, extra: modifiedExtra } = socket.__modifyResponse({ data, extra });
+    socket.adapter.triggerListeners({ topic, data: modifiedData, extra: modifiedExtra });
+    socket.events.emitListenerEvent(topic, { data: modifiedData, extra: modifiedExtra });
   };
+
+  const queryParams = socket.adapter.unsafe_queryParamsMapper(
+    socket.adapter.queryParams,
+    socket.adapter.queryParamsConfig,
+  );
 
   return {
-    state,
-    listeners,
+    socket,
+    adapter: socket.adapter,
     logger,
+    queryParams,
     onConnect,
     onReconnect,
     onDisconnect,
@@ -188,6 +179,5 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     onDisconnected,
     onError,
     onEvent,
-    removeListener,
   };
 };

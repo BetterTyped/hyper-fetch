@@ -1,18 +1,18 @@
 import { waitFor } from "@testing-library/dom";
-import { ServerSentEventsAdapterType, Socket } from "@hyper-fetch/sockets";
+import { WebsocketAdapterType, Socket } from "@hyper-fetch/sockets";
 
-import { createWebsocketMockingServer } from "../../src";
+import { createWebsocketMockingServer, waitForConnection } from "../../src";
 
 const { url, startServer, stopServer, emitListenerEvent, expectEmitterEvent } = createWebsocketMockingServer();
 
 describe("Websocket Mocking [ Base ]", () => {
-  let socket = new Socket<ServerSentEventsAdapterType>({ url });
+  let socket: Socket<WebsocketAdapterType>;
 
   beforeEach(async () => {
     startServer();
-    socket = new Socket<ServerSentEventsAdapterType>({ url });
+    socket = new Socket<WebsocketAdapterType>({ url });
     jest.resetAllMocks();
-    await socket.waitForConnection();
+    await waitForConnection(socket);
   });
 
   afterEach(() => {

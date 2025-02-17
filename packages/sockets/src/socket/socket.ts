@@ -1,14 +1,5 @@
 import EventEmitter from "events";
-import {
-  stringifyQueryParams,
-  QueryParamsMapper,
-  QueryStringifyOptionsType,
-  LoggerManager,
-  LogLevel,
-  AppManager,
-  Time,
-  QueryParamsType,
-} from "@hyper-fetch/core";
+import { LoggerManager, LogLevel, AppManager, Time } from "@hyper-fetch/core";
 
 import {
   SocketOptionsType,
@@ -22,11 +13,13 @@ import {
   getSocketEvents,
   interceptListener,
   interceptEmitter,
+  SocketInstance,
 } from "socket";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
-import { SocketAdapterInstance, WebsocketAdapterType, WebsocketAdapter } from "adapter";
-import { ExtractAdapterExtraType } from "types";
+import { SocketAdapterInstance } from "adapter";
+import { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
+import { WebsocketAdapter, WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
 
 export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
@@ -35,48 +28,42 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   url: string;
   reconnectAttempts: number;
   reconnectTime: number;
-  queryParams?: QueryParamsType | string;
   debug: boolean;
   autoConnect: boolean;
 
   // Callbacks
-  __onConnectedCallbacks: OpenCallbackType<this>[] = [];
-  __onDisconnectCallbacks: CloseCallbackType<this>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<this>[] = [];
-  __onReconnectFailedCallbacks: ReconnectFailedCallbackType<this>[] = [];
-  __onMessageCallbacks: MessageCallbackType<this, any>[] = [];
+  __onConnectedCallbacks: OpenCallbackType<SocketInstance>[] = [];
+  __onDisconnectCallbacks: CloseCallbackType<SocketInstance>[] = [];
+  __onReconnectCallbacks: ReconnectCallbackType<SocketInstance>[] = [];
+  __onReconnectFailedCallbacks: ReconnectFailedCallbackType<SocketInstance>[] = [];
+  __onMessageCallbacks: MessageCallbackType<SocketInstance, any>[] = [];
   __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<this, any>[] = [];
+  __onErrorCallbacks: ErrorCallbackType<SocketInstance, any>[] = [];
 
   // Config
-  adapter: ReturnType<Adapter>;
+  adapter: Adapter;
   loggerManager = new LoggerManager();
   appManager = new AppManager();
-  queryParamsConfig?: QueryStringifyOptionsType;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Socket");
 
   constructor(public options: SocketOptionsType<Adapter>) {
-    const { url, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
-      this.options;
+    const { url, adapter, reconnect, reconnectTime, queryParams } = this.options;
     this.emitter?.setMaxListeners(1000);
     this.url = url;
-    this.queryParams = queryParams;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 5;
     this.autoConnect = true;
 
-    if (queryParamsConfig) {
-      this.queryParamsConfig = queryParamsConfig;
-    }
-    if (queryParamsStringify) {
-      this.queryParamsStringify = queryParamsStringify;
-    }
-
     // Adapter must be initialized at the end
-    this.adapter = (adapter ? adapter(this) : WebsocketAdapter(this)) as unknown as ReturnType<Adapter>;
+    const instanceOfAdapter = typeof adapter === "function" ? adapter() : adapter;
+    this.adapter = instanceOfAdapter || (WebsocketAdapter() as unknown as Adapter);
+    if (queryParams) {
+      this.adapter.setQueryParams(queryParams);
+    }
+    this.adapter.initialize(this);
   }
 
   /**
@@ -84,7 +71,6 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    */
   connect = async () => {
     await this.adapter.connect();
-    return this.waitForConnection();
   };
 
   /**
@@ -101,25 +87,9 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     await this.adapter.reconnect();
   };
 
-  waitForConnection = (timeout = Time.SEC * 4): Promise<boolean> => {
-    return new Promise<boolean>((resolve) => {
-      if (this.adapter.state.connected) {
-        resolve(true);
-        return;
-      }
-
-      let id: NodeJS.Timeout;
-      const unmount = this.events.onConnected(() => {
-        unmount();
-        resolve(true);
-        clearTimeout(id);
-      });
-
-      id = setTimeout(() => {
-        unmount();
-        throw new Error("Connection timeout");
-      }, timeout);
-    });
+  setQueryParams = (queryParams: ExtractAdapterQueryParamsType<Adapter>) => {
+    this.adapter.setQueryParams(queryParams);
+    return this;
   };
 
   /**
@@ -147,15 +117,6 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   /**
-   * Set the new query data to the socket
-   */
-  setQuery = (queryParams: QueryParamsType | string) => {
-    this.queryParams = queryParams;
-    this.adapter.reconnect();
-    return this;
-  };
-
-  /**
    * Callbacks
    */
 
@@ -165,7 +126,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onConnected(callback: OpenCallbackType<this>) {
-    this.__onConnectedCallbacks.push(callback);
+    this.__onConnectedCallbacks.push(callback as any);
     return this;
   }
   /**
@@ -174,7 +135,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onDisconnected(callback: CloseCallbackType<this>) {
-    this.__onDisconnectCallbacks.push(callback);
+    this.__onDisconnectCallbacks.push(callback as any);
     return this;
   }
 
@@ -184,7 +145,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onReconnect(callback: ReconnectCallbackType<this>) {
-    this.__onReconnectCallbacks.push(callback);
+    this.__onReconnectCallbacks.push(callback as any);
     return this;
   }
 
@@ -194,7 +155,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onReconnectFailed(callback: ReconnectFailedCallbackType<this>) {
-    this.__onReconnectFailedCallbacks.push(callback);
+    this.__onReconnectFailedCallbacks.push(callback as any);
     return this;
   }
 
@@ -204,7 +165,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onMessage<Event = ExtractAdapterExtraType<Adapter>>(callback: MessageCallbackType<this, Event>) {
-    this.__onMessageCallbacks.push(callback);
+    this.__onMessageCallbacks.push(callback as any);
     return this;
   }
 
@@ -224,16 +185,9 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onError<Event = ExtractAdapterExtraType<Adapter>>(callback: ErrorCallbackType<this, Event>) {
-    this.__onErrorCallbacks.push(callback);
+    this.__onErrorCallbacks.push(callback as any);
     return this;
   }
-
-  /**
-   * Method to stringify query params from objects.
-   */
-  queryParamsStringify: QueryParamsMapper<QueryParamsType | string> = (queryParams) => {
-    return stringifyQueryParams(queryParams, this.queryParamsConfig);
-  };
 
   /**
    * ********************

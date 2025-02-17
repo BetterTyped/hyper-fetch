@@ -1,6 +1,6 @@
 import { Socket } from "@hyper-fetch/sockets";
 import { act, waitFor } from "@testing-library/react";
-import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
 import { renderUseEventMessages } from "../../utils";
 import { createListener } from "../../utils/listener.utils";
@@ -20,7 +20,7 @@ describe("useEventMessages [ Base ]", () => {
     startServer();
     socket = new Socket({ url });
     listener = createListener();
-    await socket.waitForConnection();
+    await waitForConnection(socket);
     (provider.useProvider as jest.Mock).mockReturnValue({ config: {} });
   });
 
