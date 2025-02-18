@@ -8,6 +8,7 @@ import { getServerSentEventsAdapter } from "./sse-adapter.utils";
 import { SSEAdapterOptionsType } from "./sse-adapter.types";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
+import { Socket } from "socket";
 
 /**
  * -------------------------------------------
@@ -154,7 +155,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         };
 
         const listen = (
-          listener: ExtendListener<ListenerInstance, { adapter: ServerSentEventsAdapterType }>,
+          listener: ExtendListener<ListenerInstance, { socket: Socket<ServerSentEventsAdapterType> }>,
           callback: ListenerCallbackType<ServerSentEventsAdapterType, any>,
         ) => {
           return onListen({ listener, callback });

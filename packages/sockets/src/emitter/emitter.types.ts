@@ -1,30 +1,30 @@
-import { ExtractRouteParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
+import { ExtractRouteParams, EmptyTypes, TypeWithDefaults, ParamsType } from "@hyper-fetch/core";
 
 import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
+import { SocketInstance } from "socket";
 import {
-  ExtractEmitterAdapterType,
+  ExtractEmitterSocketType,
   ExtractEmitterHasPayloadType,
   ExtractEmitterHasParamsType,
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
   ExtractAdapterEmitterOptionsType,
+  ExtractSocketAdapterType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, any, any, any>;
+export type EmitterInstance = Emitter<any, any, SocketInstance, any, any>;
+
+export type EmitterConfigurationType<Payload, Params, Topic extends string, Socket extends SocketInstance> = {
+  payload?: Payload;
+  params?: Params;
+} & Partial<EmitterOptionsType<Topic, ExtractSocketAdapterType<Socket>>>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
   timeout?: number;
-  options?: ExtractAdapterEmitterOptionsType<AdapterType>;
+  adapterOptions?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };
-
-export type EmitterEmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
-  ExtractEmitterPayloadType<Emitter>,
-  ExtractEmitterHasParamsType<Emitter>
-> &
-  EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-  EmitRestType<Emitter>;
 
 export type EmitterCallbackErrorType<EmitterType extends EmitterInstance> = (
   error: Error,
@@ -39,26 +39,30 @@ export type EmitPayloadType<Payload, HasPayload extends boolean> = HasPayload ex
   ? {
       payload: Payload;
     }
-  : { payload?: never };
+  : { payload?: Payload };
 
-export type EmitParamsType<Params, HasPayload extends boolean> = HasPayload extends false
-  ? Params extends EmptyTypes | never | void
-    ? { params?: never }
+export type EmitParamsType<
+  Params extends ParamsType | EmptyTypes,
+  HasPayload extends boolean,
+> = HasPayload extends false
+  ? Params extends EmptyTypes
+    ? { params?: Params }
     : {
         params: Params;
       }
-  : { params?: never };
+  : { params?: Params };
 
-export type EmitRestType<Emitter extends EmitterInstance> = {
-  options?: Partial<EmitterOptionsType<ExtractEmitterTopicType<Emitter>, ExtractEmitterAdapterType<Emitter>>>;
-};
+export type EmitterRestParams<Adapter extends SocketAdapterInstance> =
+  ExtractAdapterEmitterOptionsType<Adapter> extends Record<string, any>
+    ? ExtractAdapterEmitterOptionsType<Adapter>
+    : {};
 
 export type EmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
   ExtractEmitterPayloadType<Emitter>,
   ExtractEmitterHasPayloadType<Emitter>
 > &
   EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-  EmitRestType<Emitter>;
+  EmitterRestParams<ExtractSocketAdapterType<ExtractEmitterSocketType<Emitter>>>;
 
 export type EmitType<Emitter extends EmitterInstance> =
   ExtractEmitterHasPayloadType<Emitter> extends false
@@ -75,7 +79,7 @@ export type ExtendEmitter<
     payload?: any;
     response?: any;
     topic?: string;
-    adapter?: SocketAdapterInstance;
+    socket?: SocketInstance;
     mappedData?: any;
     hasData?: true | false;
     hasParams?: true | false;
@@ -83,7 +87,7 @@ export type ExtendEmitter<
 > = Emitter<
   TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
   Properties["topic"] extends string ? Properties["topic"] : ExtractEmitterTopicType<T>,
-  Properties["adapter"] extends SocketAdapterInstance ? Properties["adapter"] : ExtractEmitterAdapterType<T>,
+  Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractEmitterSocketType<T>,
   Properties["hasData"] extends true ? true : ExtractEmitterHasPayloadType<T>,
   Properties["hasParams"] extends true ? true : ExtractEmitterHasParamsType<T>
 >;

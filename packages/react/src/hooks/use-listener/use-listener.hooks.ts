@@ -38,8 +38,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
       actions.setData(data);
       actions.setExtra(extra);
       actions.setTimestamp(+new Date());
-      // TODO: fix this
-    }, {} as any) as any;
+    });
   };
 
   const additionalCallbacks = {

@@ -2,22 +2,28 @@ import { ExtractRouteParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/c
 
 import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
+import { SocketInstance } from "socket";
 import {
   ExtractListenerHasParamsType,
   ExtractListenerTopicType,
   ExtractListenerResponseType,
   ExtractAdapterListenerOptionsType,
   ExtractAdapterExtraType,
-  ExtractListenerAdapterType,
+  ExtractListenerSocketType,
+  ExtractSocketAdapterType,
 } from "types";
 
-export type ListenerInstance = Listener<any, any, any, any>;
+export type ListenerInstance = Listener<any, any, SocketInstance, any>;
 
 export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
   params?: ExtractRouteParams<Topic>;
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
+
+export type ListenerConfigurationType<Params, Topic extends string, Socket extends SocketInstance> = {
+  params?: Params;
+} & Partial<ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>>>;
 
 export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
   ExtractListenerHasParamsType<Listener> extends false
@@ -28,22 +34,17 @@ export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
         params?: never;
       };
 
-export type ListenerListenOptionsType<Listener extends ListenerInstance> = ListenerParamsOptionsType<Listener>;
-
-export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterInstance> =
+export type ListenType<Listener extends ListenerInstance, Socket extends SocketInstance> =
   ExtractRouteParams<ExtractListenerTopicType<Listener>> extends EmptyTypes
     ? (
-        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
-        options?: ListenerListenOptionsType<Listener>,
+        callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
       ) => () => void
     : ExtractListenerHasParamsType<Listener> extends true
       ? (
-          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
-          options?: ListenerListenOptionsType<Listener>,
+          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
         ) => () => void
       : (
-          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
-          options: ListenerListenOptionsType<Listener>,
+          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
         ) => () => void;
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
@@ -56,12 +57,12 @@ export type ExtendListener<
   Properties extends {
     response?: any;
     topic?: string;
-    adapter?: SocketAdapterInstance;
+    socket?: SocketInstance;
     hasParams?: true | false;
   },
 > = Listener<
   TypeWithDefaults<Properties, "response", ExtractListenerResponseType<T>>,
   Properties["topic"] extends string ? Properties["topic"] : ExtractListenerTopicType<T>,
-  Properties["adapter"] extends SocketAdapterInstance ? Properties["adapter"] : ExtractListenerAdapterType<T>,
+  Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractListenerSocketType<T>,
   Properties["hasParams"] extends true ? true : ExtractListenerHasParamsType<T>
 >;

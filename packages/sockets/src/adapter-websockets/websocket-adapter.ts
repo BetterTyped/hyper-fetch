@@ -9,6 +9,7 @@ import { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 import { getWebsocketAdapter } from "./websocket-adapter.utils";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
+import { Socket } from "socket";
 
 /**
  * -------------------------------------------
@@ -206,7 +207,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         const listen = (
-          listener: ExtendListener<ListenerInstance, { adapter: WebsocketAdapterType }>,
+          listener: ExtendListener<ListenerInstance, { socket: Socket<WebsocketAdapterType> }>,
           callback: ListenerCallbackType<WebsocketAdapterType, any>,
         ) => {
           return onListen({ listener, callback });

@@ -64,8 +64,10 @@ describe("Listener [ SSE ]", () => {
 
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ topic: "test/:testId" });
-    const removeListener = listenerWithParams.listen((data) => spy(data), { params: { testId: 1 } });
+    const listenerWithParams = socket
+      .createListener<{ response: ResponseType }>()({ topic: "test/:testId" })
+      .setParams({ testId: 1 });
+    const removeListener = listenerWithParams.listen((data) => spy(data));
     const message = { topic: "Maciej", age: 99 };
     emitListenerEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();

@@ -1,30 +1,29 @@
 import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
-import { Socket } from "socket";
-import { ListenType, ListenerListenOptionsType, ListenerOptionsType } from "listener";
-import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterListenerOptionsType } from "types";
+import { SocketInstance } from "socket";
+import { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
+import { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Listener<
   Response,
   Topic extends string,
-  AdapterType extends SocketAdapterInstance,
+  Socket extends SocketInstance,
   HasParams extends boolean = false,
 > {
   readonly topic: Topic;
   params?: ParamsType;
-  options?: ExtractAdapterListenerOptionsType<AdapterType>;
+  options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>;
 
   constructor(
-    readonly socket: Socket<AdapterType>,
-    readonly listenerOptions: ListenerOptionsType<Topic, AdapterType>,
+    readonly socket: Socket,
+    readonly listenerOptions: ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>>,
   ) {
     const { topic, options } = listenerOptions;
     this.topic = topic;
     this.options = options;
   }
 
-  setOptions(options: ExtractAdapterListenerOptionsType<AdapterType>) {
+  setOptions(options: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>) {
     return this.clone({ options });
   }
 
@@ -32,8 +31,10 @@ export class Listener<
     return this.clone<true>({ params });
   }
 
-  clone<Params extends true | false = HasParams>(options?: Partial<ListenerOptionsType<Topic, AdapterType>>) {
-    const newInstance = new Listener<Response, Topic, AdapterType, Params>(this.socket, {
+  clone<NewHasParams extends true | false = HasParams>(
+    options?: ListenerConfigurationType<ExtractRouteParams<Topic>, Topic, Socket>,
+  ) {
+    const newInstance = new Listener<Response, Topic, Socket, NewHasParams>(this.socket, {
       ...this.listenerOptions,
       ...options,
       topic: this.paramsMapper(options?.params || this.params),
@@ -42,17 +43,13 @@ export class Listener<
     return newInstance;
   }
 
-  listen: ListenType<this, AdapterType> = (
-    callback: Parameters<ListenType<this, AdapterType>>[0],
-    options: Parameters<ListenType<this, AdapterType>>[1],
+  listen: ListenType<Listener<Response, Topic, Socket, HasParams>, Socket> = (
+    callback: Parameters<ListenType<Listener<Response, Topic, Socket, HasParams>, Socket>>[0],
   ) => {
-    const opts = options as ListenerListenOptionsType<this>;
-    const instance = options ? this.clone(opts as Partial<ListenerOptionsType<Topic, AdapterType>>) : this;
-
-    this.socket.adapter.listen(instance, callback);
+    this.socket.adapter.listen(this, callback);
 
     const removeListener = () => {
-      this.socket.adapter.removeListener({ topic: instance.topic, callback });
+      this.socket.adapter.removeListener({ topic: this.topic, callback });
     };
 
     return removeListener;
