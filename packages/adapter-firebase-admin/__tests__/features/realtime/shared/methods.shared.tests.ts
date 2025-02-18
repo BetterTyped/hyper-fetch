@@ -16,10 +16,10 @@ export const methodsSharedTestCases = (adapterFunction: () => ReturnType<typeof 
 };
 
 export const socketsMethodsSharedTestCases = (
-  db,
-  seedDbMethod: (db) => Promise<void>,
-  socketsAdapter: (database) => FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: (database) => () => FirebaseAdminAdapterTypes<any>,
+  db: any,
+  seedDbMethod: (db: any) => Promise<void>,
+  socketsAdapter: (database: any) => FirebaseAdminSocketAdapterTypes<any>,
+  coreAdapter: (database: any) => FirebaseAdminAdapterTypes<any>,
 ) => {
   onValueTestSuite(db, seedDbMethod, socketsAdapter, coreAdapter);
 };

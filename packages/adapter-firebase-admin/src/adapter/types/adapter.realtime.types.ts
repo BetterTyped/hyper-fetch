@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { AdapterType } from "@hyper-fetch/core";
+import { Adapter } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot } from "firebase/database";
-import { SocketAdapterType } from "@hyper-fetch/sockets";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 
 import {
   PermittedConstraints,
@@ -10,33 +10,36 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export type RealtimeSocketAdapterType = SocketAdapterType<
+export type RealtimeSocketAdapterType = SocketAdapter<
   never,
   RealtimeDbOnValueMethodExtra,
   { onlyOnce?: boolean } & RealtimeDBQueryParams
 >;
 
 export type RealtimeDbAdapterType =
-  | AdapterType<
+  | Adapter<
       DefaultRealtimeDBAdapterOptions,
       "get",
       RealtimeDBStatuses,
       RealtimeDbGetMethodExtra,
+      RealtimeDBQueryParams,
       RealtimeDBQueryParams
     >
-  | AdapterType<
+  | Adapter<
       DefaultRealtimeDBAdapterOptions,
       "push",
       RealtimeDBStatuses,
       RealtimeDbPushMethodExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >
-  | AdapterType<
+  | Adapter<
       DefaultRealtimeDBAdapterOptions,
       "set" | "update" | "remove",
       RealtimeDBStatuses,
       RealtimeDbDefaultExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >;
 
 export type DefaultRealtimeDBAdapterOptions = {

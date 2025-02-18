@@ -24,15 +24,30 @@ export type FirestoreSocketAdapterType = SocketAdapter<
 >;
 
 export type FirestoreAdapterType =
-  | Adapter<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
-  | Adapter<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
-  | Adapter<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
+  | Adapter<
+      Record<string, never>,
+      "getDoc",
+      FirestoreStatuses,
+      FirestoreExtra,
+      FirestoreQueryParams,
+      FirestoreQueryParams
+    >
+  | Adapter<
+      Record<string, never>,
+      "getDocs",
+      FirestoreStatuses,
+      FirestoreGetDocsExtra,
+      FirestoreQueryParams,
+      FirestoreQueryParams
+    >
+  | Adapter<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>, undefined>
   | Adapter<
       Record<string, never>,
       "updateDoc" | "addDoc" | "deleteDoc" | "setDoc",
       FirestoreStatuses,
       FirestoreRefOnlyExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >;
 
 export type FirestoreQueryParams = {

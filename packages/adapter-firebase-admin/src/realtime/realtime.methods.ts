@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { Database } from "firebase-admin/database";
-import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirebaseAdminAdapterTypes, FirebaseAdminDBTypes, RealtimeDBMethodsUnion } from "adapter/types";
+import { RealtimeDBMethodsUnion } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
 import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index";
 import {
@@ -12,23 +12,25 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbAdminMethods = <T extends FirebaseAdminDBTypes>(
-  database: Database,
-  url: string,
-  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
-  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
-  resolve: (
-    value:
-      | ResponseType<any, any, FirebaseAdminAdapterTypes<T>>
-      | PromiseLike<ResponseType<any, any, FirebaseAdminAdapterTypes<T>>>,
-  ) => void,
-  events: {
-    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
-    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
-    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
-    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
-  },
-): ((
+export const getRealtimeDbAdminMethods = ({
+  database,
+  url,
+  onSuccess,
+  onError,
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Database;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((
   methodName: RealtimeDBMethodsUnion,
   data: {
     constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
@@ -67,17 +69,17 @@ export const getRealtimeDbAdminMethods = <T extends FirebaseAdminDBTypes>(
 
   return async (methodName: RealtimeDBMethodsUnion, data) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data as any);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess({ data: result, status, extra, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
     } catch (error) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError({ error, status: "error", extra: {}, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

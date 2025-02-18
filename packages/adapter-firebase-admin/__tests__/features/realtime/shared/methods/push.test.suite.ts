@@ -15,12 +15,12 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
       const getReq = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "get",
+        method: "getDoc",
       });
       const pushReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
-          method: "push",
+          method: "setDoc",
           options: {},
         })
         .setPayload(newData);
@@ -28,7 +28,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const { data } = await getReq.send();
 
       expect(data).toHaveLength(11);
-      expect(data).toContainEqual({ ...newData, __key: pushedData.__key });
+      expect(data).toContainEqual({ ...newData, __key: pushedData?.__key });
       expect(extra).toHaveProperty("key");
     });
     it("should emit lifecycle events", async () => {
@@ -37,7 +37,8 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const pushReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "teas/",
-          method: "push",
+          method: "setDoc",
+          options: {},
         })
         .setPayload(newData);
 

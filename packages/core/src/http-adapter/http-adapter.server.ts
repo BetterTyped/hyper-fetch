@@ -16,6 +16,7 @@ export const getAdapter = () =>
     HttpStatusType,
     HttpAdapterExtraType,
     QueryParamsType | string | null,
+    undefined,
     string
   >({
     name: "server",

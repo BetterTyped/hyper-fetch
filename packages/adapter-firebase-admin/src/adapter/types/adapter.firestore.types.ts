@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { AdapterType } from "@hyper-fetch/core";
+import { Adapter } from "@hyper-fetch/core";
 import {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
@@ -7,7 +7,7 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
-import { SocketAdapterType } from "@hyper-fetch/sockets";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 
 import {
   FirestoreConstraintsUnion,
@@ -16,22 +16,37 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export type FirestoreSocketAdapterType = SocketAdapterType<
+export type FirestoreSocketAdapterType = SocketAdapter<
   never,
   FirestoreOnSnapshotExtra,
   { groupByChangeType?: boolean } & FirestoreQueryParams
 >;
 
 export type FirestoreAdapterType =
-  | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
-  | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
-  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
-  | AdapterType<
+  | Adapter<
+      Record<string, never>,
+      "getDoc",
+      FirestoreStatuses,
+      FirestoreExtra,
+      FirestoreQueryParams,
+      FirestoreQueryParams
+    >
+  | Adapter<
+      Record<string, never>,
+      "getDocs",
+      FirestoreStatuses,
+      FirestoreGetDocsExtra,
+      FirestoreQueryParams,
+      FirestoreQueryParams
+    >
+  | Adapter<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>, undefined>
+  | Adapter<
       Record<string, never>,
       "updateDoc" | "addDoc" | "deleteDoc" | "setDoc",
       FirestoreStatuses,
       FirestoreRefOnlyExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >;
 
 export type FirestoreQueryParams = {

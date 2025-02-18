@@ -19,7 +19,7 @@ import { getAdapterBindings } from "./adapter.bindings";
  * Base Adapter
  */
 
-export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any>;
+export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any, any>;
 
 export type AdapterGenericType<
   AdapterOptions,
@@ -27,6 +27,7 @@ export type AdapterGenericType<
   StatusType extends number | string,
   Extra extends Record<string, any>,
   QueryParams = QueryParamsType | string | EmptyTypes,
+  DefaultQueryParams = undefined,
   EndpointType = string,
   EndpointMapperType extends EndpointMapper<EndpointType> | DefaultMapperType = DefaultMapperType,
   QueryParamsMapperType extends QueryParamsMapper<QueryParams> | DefaultMapperType = DefaultMapperType,
@@ -38,6 +39,7 @@ export type AdapterGenericType<
   statusType: StatusType;
   extra: Extra;
   queryParams?: QueryParams;
+  defaultQueryParams?: DefaultQueryParams;
   endpointType: EndpointType;
   endpointMapperType?: EndpointMapperType;
   queryParamsMapperType?: QueryParamsMapperType;
@@ -45,19 +47,21 @@ export type AdapterGenericType<
   payloadMapperType?: PayloadMapperType;
 };
 
-export type DeclareAdapterType<Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any>> =
-  Adapter<
-    TypeWithDefaults<Properties, "adapterOptions", any>,
-    TypeWithDefaults<Properties, "methodType", any>,
-    TypeWithDefaults<Properties, "statusType", any>,
-    TypeWithDefaults<Properties, "extra", any>,
-    TypeWithDefaults<Properties, "queryParams", QueryParamsType | string | EmptyTypes>,
-    TypeWithDefaults<Properties, "endpointType", string>,
-    TypeWithDefaults<Properties, "endpointMapperType", DefaultMapperType>,
-    TypeWithDefaults<Properties, "queryParamsMapperType", DefaultMapperType>,
-    TypeWithDefaults<Properties, "headerMapperType", DefaultMapperType>,
-    NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>
-  >;
+export type DeclareAdapterType<
+  Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any, any>,
+> = Adapter<
+  TypeWithDefaults<Properties, "adapterOptions", any>,
+  TypeWithDefaults<Properties, "methodType", any>,
+  TypeWithDefaults<Properties, "statusType", any>,
+  TypeWithDefaults<Properties, "extra", any>,
+  TypeWithDefaults<Properties, "queryParams", QueryParamsType | string | EmptyTypes>,
+  TypeWithDefaults<Properties, "defaultQueryParams", undefined>,
+  TypeWithDefaults<Properties, "endpointType", string>,
+  TypeWithDefaults<Properties, "endpointMapperType", DefaultMapperType>,
+  TypeWithDefaults<Properties, "queryParamsMapperType", DefaultMapperType>,
+  TypeWithDefaults<Properties, "headerMapperType", DefaultMapperType>,
+  NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>
+>;
 
 export type AdapterFetcherType<Adapter extends AdapterInstance> = (
   options: Omit<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {

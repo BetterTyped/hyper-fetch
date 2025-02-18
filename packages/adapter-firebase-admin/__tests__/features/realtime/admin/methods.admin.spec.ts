@@ -6,7 +6,7 @@ import { FirebaseAdminAdapter } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {
-  let db;
+  let db: any;
 
   beforeAll(async () => {
     db = await realtimeDbAdmin;

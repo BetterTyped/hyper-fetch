@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
-import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirebaseAdminAdapterTypes, FirebaseAdminDBTypes, FirestoreMethodsUnion } from "adapter";
+import { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
 import {
   FirestoreConstraintsUnion,
@@ -12,30 +12,31 @@ import {
 } from "constraints";
 import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 
-export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
-  database: Firestore,
-  url: string,
-  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
-  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
-  resolve: (
-    value:
-      | ResponseType<any, any, FirebaseAdminAdapterTypes<T>>
-      | PromiseLike<ResponseType<any, any, FirebaseAdminAdapterTypes<T>>>,
-  ) => void,
-  events: {
-    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
-    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
-    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
-    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
-  },
-): ((
-  methodName: FirestoreMethodsUnion,
-  data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    payload?: any;
-    options?: Record<string, any>;
-  },
-) => Promise<void>) => {
+type DataType = {
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+  payload?: any;
+  options?: Record<string, any>;
+};
+
+export const getFirestoreAdminMethods = ({
+  database,
+  url,
+  onSuccess,
+  onError,
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Firestore;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((methodName: FirestoreMethodsUnion, data: DataType) => Promise<void>) => {
   const [cleanUrl] = url.split("?");
   const methods = {
     getDoc: async () => {
@@ -45,7 +46,14 @@ export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
       const status = result ? "success" : "emptyResource";
       return { result, status, extra: { ref: path, snapshot } };
     },
-    getDocs: async ({ constraints = [] }) => {
+    getDocs: async ({
+      constraints = [],
+    }: {
+      constraints?: PermittedConstraints<
+        FirestorePermittedMethods,
+        FirestoreConstraintsUnion | SharedQueryConstraints
+      >[];
+    }) => {
       const path = getRef(database, cleanUrl) as CollectionReference;
       const query = applyFireStoreAdminConstraints(path, constraints);
       const querySnapshot = await query.get();
@@ -54,7 +62,7 @@ export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
 
       return { result, status, extra: { ref: path, snapshot: querySnapshot } };
     },
-    setDoc: async ({ data, options }: { data?: any; options?: Record<string, any> }) => {
+    setDoc: async ({ data, options }: { data?: any; options?: any }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       const merge = options?.merge === true;
       const res = await path.set(data, { merge });
@@ -77,19 +85,19 @@ export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
     },
   };
 
-  return async (methodName: FirestoreMethodsUnion, data?) => {
+  return async (methodName: FirestoreMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
-      const { result, status, extra } = await methods[methodName](data as any);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess({ data: result, status, extra, resolve });
-      events.onResponseEnd();
+      onRequestStart();
+      const { result, status, extra } = await methods[methodName](data);
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
     } catch (error) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError({ error, status: "error", extra: {}, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

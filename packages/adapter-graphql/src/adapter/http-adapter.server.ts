@@ -20,6 +20,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     number,
     GraphQlExtraType,
     QueryParamsType | string,
+    undefined,
     GraphQlEndpointType
   >({
     name: "graphql",

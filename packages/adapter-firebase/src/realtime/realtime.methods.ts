@@ -2,7 +2,7 @@
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
 import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { RealtimeDbAdapterType, RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
+import { RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
 import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
 import {
@@ -30,12 +30,12 @@ export const getRealtimeDbBrowserMethods = ({
 }: {
   database: Database;
   url: string;
-  onSuccess: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onSuccess"];
-  onError: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onError"];
-  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onResponseStart"];
-  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onRequestStart"];
-  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onRequestEnd"];
-  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onResponseEnd"];
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
 }): ((methodName: RealtimeDBMethodsUnion, data: DataType) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);

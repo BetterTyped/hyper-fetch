@@ -15,7 +15,7 @@ import {
   ExtractRouteParams,
 } from "request";
 import { ClientInstance, RequestGenericType } from "client";
-import { getUniqueRequestId, HydrateDataType } from "utils";
+import { getUniqueRequestId } from "utils";
 import { ResponseType } from "adapter";
 import {
   ExtractAdapterType,
@@ -29,6 +29,7 @@ import {
   TypeWithDefaults,
   ExtractAdapterMethodType,
   ExtractAdapterOptionsType,
+  HydrateDataType,
 } from "types";
 import { Time } from "constants/time.constants";
 import { MockerConfigType, MockResponseType } from "mocker";

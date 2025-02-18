@@ -16,6 +16,7 @@ export type GraphQLAdapterType = Adapter<
   number,
   GraphQlExtraType,
   QueryParamsType | string,
+  undefined,
   GraphQlEndpointType,
   (endpoint: GraphQlEndpointType) => string
 >;

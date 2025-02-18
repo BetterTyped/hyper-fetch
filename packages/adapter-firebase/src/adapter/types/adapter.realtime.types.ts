@@ -17,20 +17,29 @@ export type RealtimeSocketAdapterType = SocketAdapter<
 >;
 
 export type RealtimeDbAdapterType =
-  | Adapter<DefaultRealtimeDBAdapterOptions, "get", RealtimeDBStatuses, RealtimeDbGetMethodExtra, RealtimeDBQueryParams>
+  | Adapter<
+      DefaultRealtimeDBAdapterOptions,
+      "get",
+      RealtimeDBStatuses,
+      RealtimeDbGetMethodExtra,
+      RealtimeDBQueryParams,
+      RealtimeDBQueryParams
+    >
   | Adapter<
       DefaultRealtimeDBAdapterOptions,
       "push",
       RealtimeDBStatuses,
       RealtimeDbPushMethodExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >
   | Adapter<
       DefaultRealtimeDBAdapterOptions,
       "set" | "update" | "remove",
       RealtimeDBStatuses,
       RealtimeDbDefaultExtra,
-      Record<string, never>
+      Record<string, never>,
+      undefined
     >;
 
 export type DefaultRealtimeDBAdapterOptions = {

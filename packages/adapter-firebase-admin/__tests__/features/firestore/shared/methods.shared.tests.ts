@@ -18,7 +18,7 @@ export const methodsSharedTestCases = (adapterFunction: () => ReturnType<typeof 
 
 export const socketsMethodsSharedTestCases = (
   adapter: FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseAdminAdapterTypes<any>,
+  coreAdapter: FirebaseAdminAdapterTypes<any>,
 ) => {
   onSnapshotTestSuite(adapter, coreAdapter);
 };

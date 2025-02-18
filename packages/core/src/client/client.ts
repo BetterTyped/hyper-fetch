@@ -24,8 +24,10 @@ import {
   ExtractAdapterQueryParamsType,
   ExtractAdapterEndpointType,
   ExtractUnionAdapter,
+  HydrateDataType,
+  HydrationOptions,
+  ExtractAdapterDefaultQueryParamsType,
 } from "types";
-import { HydrateDataType, HydrationOptions } from "utils";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -430,7 +432,11 @@ export class Client<
     type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
     type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
     type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
-    type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", undefined>;
+    type QueryParams = TypeWithDefaults<
+      RequestProperties,
+      "queryParams",
+      ExtractAdapterDefaultQueryParamsType<Adapter>
+    >;
 
     return <
       EndpointType extends ExtractAdapterEndpointType<Adapter>,

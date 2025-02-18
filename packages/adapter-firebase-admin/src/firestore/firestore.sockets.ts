@@ -6,19 +6,19 @@ import {
   Query,
   QuerySnapshot,
 } from "firebase-admin/firestore";
-import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 
 import { getGroupedResultFirestore, getOrderedResultFirestore, getRef, applyFireStoreAdminConstraints } from "./utils";
 import { getStatus } from "utils";
 import { FirestoreAdminSocketAdapterType } from "adapter";
 
-export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
-  return (socket) => {
-    const { state, listeners, removeListener, onReconnect, onListen, onEvent, onError } = getSocketAdapterBindings(
-      socket,
-      { connected: true },
-    );
-
+export const firestoreAdminSockets = (database: Firestore) => {
+  return (
+    new SocketAdapter({
+      name: "firebase-admin-firestore",
+      defaultConnected: true,
+    }) as unknown as FirestoreAdminSocketAdapterType
+  ).setConnector(({ socket, onReconnect, onListen, onEvent, onError }) => {
     const connect = () => {
       throw new Error("Connect function is not implemented for Firestore Admin socket.");
     };
@@ -28,10 +28,10 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     const reconnect = () => {
-      onReconnect(disconnect, connect);
+      onReconnect({ disconnect, connect });
     };
 
-    const listen: ReturnType<FirestoreAdminSocketAdapterType>["listen"] = (listener, callback) => {
+    const listen: FirestoreAdminSocketAdapterType["listen"] = (listener, callback) => {
       const fullUrl = socket.url + listener.topic;
       const { options } = listener;
       let pathRef: DocumentReference | Query = getRef(database, fullUrl);
@@ -54,13 +54,13 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
             options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
           callback({ data: response, extra });
-          onEvent(listener.topic, response, extra);
+          onEvent({ topic: listener.topic, data: response, extra });
         },
         (error) => {
-          onError(error);
+          onError({ error });
         },
       );
-      unmount = onListen(listener, callback, unsubscribe);
+      unmount = onListen({ listener, callback, onUnmount: unsubscribe });
       clearListeners = () => {
         unsubscribe();
         unmount();
@@ -74,14 +74,11 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     return {
-      state,
-      listeners,
-      listen,
-      removeListener,
-      emit,
       connect,
       reconnect,
       disconnect,
+      emit,
+      listen,
     };
-  };
+  });
 };
