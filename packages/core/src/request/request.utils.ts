@@ -193,7 +193,7 @@ export const sendRequest = <Request extends RequestInstance>(
           status: null,
           success: false,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-          extra: request.client.defaultExtra as any,
+          extra: request.client.adapter.defaultExtra,
           requestTimestamp: +new Date(),
           responseTimestamp: +new Date(),
         });

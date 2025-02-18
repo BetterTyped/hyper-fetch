@@ -129,15 +129,19 @@ describe("Client [ Base ]", () => {
       const defaultExtra = { headers: { test: "1" } };
       const client = new Client({
         url: "shared-base-url",
-      }).setDefaultExtra(defaultExtra);
+      });
 
-      expect(client.defaultExtra).toStrictEqual(defaultExtra);
+      client.adapter.setDefaultExtra(defaultExtra);
+
+      expect(client.adapter.defaultExtra).toStrictEqual(defaultExtra);
     });
     it("should assign new defaultMethod", async () => {
       const defaultMethod = "POST";
       const client = new Client({
         url: "shared-base-url",
-      }).setDefaultMethod(defaultMethod);
+      });
+
+      client.adapter.setDefaultMethod(defaultMethod);
 
       expect(client.defaultMethod).toStrictEqual(defaultMethod);
     });

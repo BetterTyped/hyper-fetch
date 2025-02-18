@@ -90,7 +90,7 @@ export const NetworkList = () => {
           <Table.Sortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
             Endpoint
           </Table.Sortable>
-          {typeof client.defaultMethod === "string" && (
+          {typeof client.adapter.defaultMethod === "string" && (
             <Table.Sortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
               Method
             </Table.Sortable>

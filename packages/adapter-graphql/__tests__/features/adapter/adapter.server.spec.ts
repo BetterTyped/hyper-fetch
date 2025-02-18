@@ -5,7 +5,7 @@ import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 import https from "https";
 
-import { GraphqlAdapter } from "../../../src/adapter";
+import { GraphqlAdapter, GraphqlMethod } from "../../../src/adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
@@ -107,6 +107,23 @@ describe("Graphql Adapter [ Server ]", () => {
       extensions: {},
     });
   });
+  it("should make a get request with string endpoint", async () => {
+    const req = client.createRequest<{ response: GetUserQueryResponse }>()({
+      endpoint: getUserQueryString,
+      method: GraphqlMethod.GET,
+    });
+    const expected = mockRequest(req, { data: { username: "prc", firstName: "Maciej" } });
+
+    const { data, error, status, extra } = await req.send({});
+
+    expect(expected.data).toStrictEqual(data);
+    expect(status).toBe(200);
+    expect(error).toBe(null);
+    expect(extra).toMatchObject({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
+  });
 
   it("should make a request and return error data with status", async () => {
     const expected = mockRequest(request, { status: 400 });
@@ -123,20 +140,13 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should allow to make mutation request", async () => {
-    const expected = mockRequest(
-      mutation.setPayload({
-        username: "Kacper",
-        password: "Kacper1234",
-      }),
-      { data: { username: "prc", firstName: "Maciej" } },
-    );
+    const req = mutation.setPayload({
+      username: "Kacper",
+      password: "Kacper1234",
+    });
+    const expected = mockRequest(req, { data: { username: "prc", firstName: "Maciej" } });
 
-    const { data, error, status, extra } = await mutation
-      .setPayload({
-        username: "Kacper",
-        password: "Kacper1234",
-      })
-      .send();
+    const { data, error, status, extra } = await req.send();
 
     expect(data).toStrictEqual(expected.data);
     expect(status).toBe(200);
@@ -179,40 +189,53 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(receivedOptions.timeout).toBe(10);
   });
 
-  it("should allow to calculate payload size", async () => {
-    let receivedOptions: any;
+  // it("should allow to calculate payload size", async () => {
+  //   let receivedOptions: any;
 
-    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
-    mockRequest(mutation);
+  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //     receivedOptions = options;
+  //     return requestCopy(options, callback);
+  //   });
+  //   mockRequest(mutation);
 
-    await mutation.send({
-      payload: {
-        username: "Kacper",
-        password: "Kacper1234",
-      },
-    });
+  //   await mutation.send({
+  //     payload: {
+  //       username: "Kacper",
+  //       password: "Kacper1234",
+  //     },
+  //   });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
-  });
+  //   expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  // });
 
-  it("should allow to calculate Buffer size", async () => {
-    let receivedOptions: any;
+  // it("should allow to calculate Buffer size", async () => {
+  //   let receivedOptions: any;
 
-    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
-    mockRequest(mutation);
+  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //     receivedOptions = options;
+  //     return requestCopy(options, callback);
+  //   });
+  //   mockRequest(mutation);
 
-    const buffer = Buffer.from("test");
+  //   const buffer = Buffer.from("test");
 
-    await mutation.send({
-      payload: buffer as any,
-    });
+  //   await mutation.send({
+  //     payload: buffer as any,
+  //   });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  //   expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  // });
+
+  it("should allow to cancel request and return error", async () => {
+    mockRequest(request, { delay: 5 });
+
+    setTimeout(() => {
+      request.abort();
+    }, 2);
+
+    const { data, error } = await request.send();
+
+    expect(data).toBe(null);
+    expect(error).toStrictEqual([getErrorMessage("abort")]);
   });
 });

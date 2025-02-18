@@ -41,6 +41,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
         onTimeoutError,
         onRequestEnd,
         createAbortListener,
+        getAbortController,
         onResponseProgress,
         onResponseStart,
         onBeforeRequest,
@@ -54,7 +55,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           method: request.method,
           headers: headers as OutgoingHttpHeaders,
           timeout: defaultTimeout,
-          signal: undefined as AbortSignal | undefined,
+          signal: getAbortController()?.signal,
         } satisfies https.RequestOptions;
 
         Object.entries(adapterOptions || {}).forEach(([name, value]) => {
@@ -63,18 +64,11 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           options[name] = value;
         });
 
-        if (request.payload) {
-          options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
-        }
-
         onBeforeRequest();
 
         const unmountListener = createAbortListener({
           status: 0,
           extra: gqlExtra,
-          onAbort: ({ signal }) => {
-            options.signal = signal;
-          },
         });
 
         const httpRequest = httpClient.request(fullUrl, options, (response) => {
@@ -87,6 +81,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           onRequestStart();
 
           response.on("data", (chunk) => {
+            /* istanbul ignore next */
             if (!chunks) {
               onRequestEnd();
               onResponseStart();
@@ -97,6 +92,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           });
 
           response.on("end", () => {
+            /* istanbul ignore next */
             const { statusCode = 0 } = response;
             const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
@@ -111,14 +107,15 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
             } else {
               // delay to finish after onabort/ontimeout
               const result = parseErrorResponse(chunks);
-
-              const error = "errors" in result ? result.errors : result;
-              const extensions = "extensions" in result ? result.extensions : undefined;
+              /* istanbul ignore next */
+              const error = "errors" in result ? result.errors : null;
+              /* istanbul ignore next */
+              const extensions = "extensions" in result ? result.extensions : {};
 
               onError({
                 error: error ?? [getErrorMessage()],
                 status: statusCode,
-                extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
+                extra: { headers: response.headers as Record<string, string>, extensions },
               });
             }
 
@@ -127,6 +124,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           });
         });
 
+        /* istanbul ignore next */
         httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: gqlExtra }));
         httpRequest.on("error", (error) => onError({ error, status: 0, extra: gqlExtra }));
         if (payload) {

@@ -30,7 +30,7 @@ export const mocker = async <T extends AdapterInstance>({
   } = request.unsafe_mock.config;
   const result = await request.unsafe_mock.fn({ request, requestId });
 
-  const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
+  const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
 
   createAbortListener({ status: adapter.systemErrorStatus, extra: adapter.systemErrorExtra, onAbort: () => {} });
 

@@ -362,7 +362,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   }: {
     status: ExtractAdapterStatusType<T>;
     extra: ExtractAdapterExtraType<T>;
-    onAbort?: (options: { signal: AbortSignal }) => void;
+    onAbort?: () => void;
   }) => {
     const controller = getAbortController();
     if (!controller) {
@@ -371,7 +371,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
     const abort = () => {
       onAbortError({ status, extra });
-      onAbort({ signal: controller.signal });
+      onAbort();
       requestManager.events.emitAbort({ requestId, request });
     };
 

@@ -155,6 +155,16 @@ export class Adapter<
    * ********************
    */
 
+  setDefaultMethod = (method: MethodType) => {
+    this.defaultMethod = method;
+    return this;
+  };
+
+  setDefaultExtra = (extra: Extra) => {
+    this.defaultExtra = extra;
+    return this;
+  };
+
   /**
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */

@@ -1,5 +1,5 @@
 import { AdapterInstance, ResponseType } from "adapter";
-import { HttpAdapterType, xhrExtra, parseResponse, HttpAdapter } from "http-adapter";
+import { HttpAdapterType, parseResponse, HttpAdapter } from "http-adapter";
 import {
   ClientErrorType,
   ClientInstance,
@@ -14,11 +14,9 @@ import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
-import { HttpMethods } from "../constants/http.constants";
 import {
   EmptyTypes,
   TypeWithDefaults,
-  ExtractAdapterExtraType,
   ExtractAdapterMethodType,
   ExtractAdapterOptionsType,
   ExtractAdapterQueryParamsType,
@@ -59,10 +57,6 @@ export class Client<
   cache: Cache;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
-
-  defaultMethod: ExtractAdapterMethodType<Adapter> = HttpMethods.GET as ExtractAdapterMethodType<Adapter>;
-  defaultExtra: ExtractAdapterExtraType<Adapter> = xhrExtra as ExtractAdapterExtraType<Adapter>;
-
   isMockerEnabled = true;
 
   // Registered requests effect
@@ -134,22 +128,6 @@ export class Client<
     this.adapter = adapter as unknown as Adapter;
     this.adapter.initialize(this);
     return this as unknown as Client<GlobalErrorType, NewAdapter>;
-  };
-
-  /**
-   * Set default method for requests.
-   */
-  setDefaultMethod = (defaultMethod: ExtractAdapterMethodType<Adapter>) => {
-    this.defaultMethod = defaultMethod;
-    return this;
-  };
-
-  /**
-   * Set default additional data for initial state.
-   */
-  setDefaultExtra = (defaultExtra: ExtractAdapterExtraType<Adapter>) => {
-    this.defaultExtra = defaultExtra;
-    return this;
   };
 
   /**

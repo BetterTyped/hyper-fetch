@@ -140,7 +140,7 @@ export class Request<
       endpoint,
       headers,
       auth = true,
-      method = client.defaultMethod,
+      method = client.adapter.defaultMethod,
       options,
       cancelable = false,
       retry = 0,

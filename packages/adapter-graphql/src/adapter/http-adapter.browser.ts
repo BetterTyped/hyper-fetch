@@ -87,6 +87,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           unmountListener();
         };
 
+        /* istanbul ignore next */
         xhr.ontimeout = () => onTimeoutError({ status: 0, extra: gqlExtra });
 
         // Data handler

@@ -38,6 +38,7 @@ export const getAdapter = () =>
         onTimeoutError,
         onRequestEnd,
         createAbortListener,
+        getAbortController,
         onResponseProgress,
         onResponseStart,
         onBeforeRequest,
@@ -51,7 +52,7 @@ export const getAdapter = () =>
           method,
           headers: headers as OutgoingHttpHeaders,
           timeout: defaultTimeout,
-          signal: undefined as AbortSignal | undefined,
+          signal: getAbortController()?.signal,
         } satisfies https.RequestOptions;
 
         if (adapterOptions) {
@@ -73,9 +74,6 @@ export const getAdapter = () =>
         const unmountListener = createAbortListener({
           status: 0,
           extra: xhrExtra,
-          onAbort: ({ signal }) => {
-            options.signal = signal;
-          },
         });
 
         const httpRequest = httpClient.request(fullUrl, options, (response) => {
