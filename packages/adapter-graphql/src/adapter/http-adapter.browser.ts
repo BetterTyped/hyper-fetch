@@ -18,6 +18,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     number,
     GraphQlExtraType,
     QueryParamsType | string,
+    undefined,
     GraphQlEndpointType
   >({
     name: "graphql",
@@ -26,6 +27,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
   })
+    .setInternalErrorMapping((error) => [error])
     .setEndpointMapper(gqlEndpointMapper)
     .setFetcher(
       async ({
@@ -95,7 +97,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           if (event.target && event.target.readyState === finishedState) {
             const { status } = event.target;
             const response = parseResponse(event.target.response);
-            const data = response?.data || null;
+            const data = response.data ?? null;
             const errors = response?.errors || null;
             const extensions = response?.extensions || {};
             const failure = response?.errors || status > 399 || status === 0;

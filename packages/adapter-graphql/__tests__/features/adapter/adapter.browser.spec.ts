@@ -150,4 +150,20 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     window.XMLHttpRequest = xml;
   });
+
+  it("should handle undefined response data as null", async () => {
+    mockRequest(request, { data: null });
+    const { data } = await request.send();
+    expect(data).toBe(null);
+  });
+
+  it("should use default error message when errors are null", async () => {
+    mockRequest(request, {
+      status: 400,
+      error: null,
+    });
+
+    const { error } = await request.send();
+    expect(error).toStrictEqual([getErrorMessage()]);
+  });
 });

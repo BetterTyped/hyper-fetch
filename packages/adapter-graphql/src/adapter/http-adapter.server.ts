@@ -1,4 +1,4 @@
-import { Adapter, parseErrorResponse, parseResponse, QueryParamsType } from "@hyper-fetch/core";
+import { Adapter, getErrorMessage, parseErrorResponse, parseResponse, QueryParamsType } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
@@ -29,6 +29,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
   })
+    .setInternalErrorMapping((error) => [error])
     .setEndpointMapper(gqlEndpointMapper)
     .setFetcher(
       async ({
@@ -62,9 +63,9 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
           options[name] = value;
         });
 
-        // if (request.payload) {
-        //   options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
-        // }
+        if (request.payload) {
+          options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+        }
 
         onBeforeRequest();
 
@@ -102,7 +103,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
             if (success) {
               const { data, errors, extensions } = parseResponse(chunks);
               onSuccess({
-                data,
+                data: data ?? null,
                 error: errors,
                 status: statusCode,
                 extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
@@ -115,7 +116,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
               const extensions = "extensions" in result ? result.extensions : undefined;
 
               onError({
-                error,
+                error: error ?? [getErrorMessage()],
                 status: statusCode,
                 extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
               });

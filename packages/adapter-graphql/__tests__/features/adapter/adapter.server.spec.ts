@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { Client } from "@hyper-fetch/core";
+import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 import https from "https";
 
@@ -13,7 +13,7 @@ const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockin
 
 describe("Graphql Adapter [ Server ]", () => {
   const requestId = "test";
-  // const requestCopy = https.request;
+  const requestCopy = https.request;
   let clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let requestHttp = clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
@@ -147,56 +147,72 @@ describe("Graphql Adapter [ Server ]", () => {
     });
   });
 
-  // it("should allow to set options", async () => {
-  //   let receivedOptions: any;
+  it("should handle undefined response data as null", async () => {
+    mockRequest(request, { data: null });
+    const { data } = await request.send();
+    expect(data).toBe(null);
+  });
 
-  //   jest.spyOn(https, "request").mockImplementation((options, callback) => {
-  //     receivedOptions = options;
-  //     return requestCopy(options, callback);
-  //   });
+  it("should use default error message when errors are null", async () => {
+    mockRequest(request, {
+      status: 400,
+      error: null,
+    });
 
-  //   const timeoutRequest = request.setOptions({ timeout: 10 });
-  //   mockRequest(timeoutRequest, { delay: 20 });
+    const { error } = await request.send();
+    expect(error).toStrictEqual([getErrorMessage()]);
+  });
 
-  //   await timeoutRequest.send();
+  it("should allow to set options", async () => {
+    let receivedOptions: any;
 
-  //   expect(receivedOptions.timeout).toBe(10);
-  // });
+    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+      receivedOptions = options;
+      return requestCopy(options, callback);
+    });
 
-  // it("should allow to calculate payload size", async () => {
-  //   let receivedOptions: any;
+    const timeoutRequest = request.setOptions({ timeout: 10 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
-  //   jest.spyOn(https, "request").mockImplementation((options, callback) => {
-  //     receivedOptions = options;
-  //     return requestCopy(options, callback);
-  //   });
-  //   mockRequest(mutation);
+    await timeoutRequest.send();
 
-  //   await mutation.send({
-  //     payload: {
-  //       username: "Kacper",
-  //       password: "Kacper1234",
-  //     },
-  //   });
+    expect(receivedOptions.timeout).toBe(10);
+  });
 
-  //   expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
-  // });
+  it("should allow to calculate payload size", async () => {
+    let receivedOptions: any;
 
-  // it("should allow to calculate Buffer size", async () => {
-  //   let receivedOptions: any;
+    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+      receivedOptions = options;
+      return requestCopy(options, callback);
+    });
+    mockRequest(mutation);
 
-  //   jest.spyOn(https, "request").mockImplementation((options, callback) => {
-  //     receivedOptions = options;
-  //     return requestCopy(options, callback);
-  //   });
-  //   mockRequest(mutation);
+    await mutation.send({
+      payload: {
+        username: "Kacper",
+        password: "Kacper1234",
+      },
+    });
 
-  //   const buffer = Buffer.from("test");
+    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  });
 
-  //   await mutation.send({
-  //     payload: buffer as any,
-  //   });
+  it("should allow to calculate Buffer size", async () => {
+    let receivedOptions: any;
 
-  //   expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
-  // });
+    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+      receivedOptions = options;
+      return requestCopy(options, callback);
+    });
+    mockRequest(mutation);
+
+    const buffer = Buffer.from("test");
+
+    await mutation.send({
+      payload: buffer as any,
+    });
+
+    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  });
 });

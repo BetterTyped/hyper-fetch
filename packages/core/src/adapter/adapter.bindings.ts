@@ -22,11 +22,13 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   requestId,
   resolve,
   onStartTime,
+  internalErrorMapping,
 }: {
   request: RequestInstance;
   requestId: string;
   resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
   onStartTime: (timestamp: number) => void;
+  internalErrorMapping: (error: ReturnType<typeof getErrorMessage>) => any;
 }) => {
   const { requestManager, loggerManager } = baseRequest.client;
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -305,7 +307,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
         requestId,
       },
     });
-    const error = getErrorMessage("abort");
+    const error = internalErrorMapping(getErrorMessage("abort"));
     return onError({ error, status, extra });
   };
 

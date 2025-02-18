@@ -15,7 +15,7 @@ import { RequestInstance, RequestOptionsType } from "request";
 import { Client, ClientInstance } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
-import { getAdapterHeaders, getAdapterPayload, RequestProcessingError } from "./adapter.utils";
+import { getAdapterHeaders, getAdapterPayload, getErrorMessage, RequestProcessingError } from "./adapter.utils";
 
 export type DefaultMapperType = <V, C>(value: V, config: C) => V;
 export const defaultMapper: DefaultMapperType = (value) => value;
@@ -111,6 +111,7 @@ export class Adapter<
    * ********************
    */
 
+  public unsafe_internalErrorMapping: (error: ReturnType<typeof getErrorMessage>) => any = (error) => error;
   /** Method to get default headers and to map them based on the data format exchange, by default it handles FormData / JSON formats. */
   public unsafe_headerMapper: HeaderMapperType = getAdapterHeaders as HeaderMapperType;
   /** Method to get request data and transform them to the required format. It handles FormData and JSON by default. */
@@ -192,6 +193,11 @@ export class Adapter<
     ) => AdapterOptions,
   ): this => {
     this.unsafe_getAdapterDefaults = callback;
+    return this;
+  };
+
+  setInternalErrorMapping = (callback: (error: ReturnType<typeof getErrorMessage>) => any) => {
+    this.unsafe_internalErrorMapping = callback;
     return this;
   };
 
@@ -403,6 +409,7 @@ export class Adapter<
           request,
           requestId,
           resolve,
+          internalErrorMapping: this.unsafe_internalErrorMapping,
           onStartTime: (time) => {
             startTime = time;
           },
@@ -437,7 +444,7 @@ export class Adapter<
         });
 
         return onError({
-          error,
+          error: this.unsafe_internalErrorMapping(error as ReturnType<typeof getErrorMessage>),
           status: this.options.systemErrorStatus,
           extra: this.options.systemErrorExtra,
         });

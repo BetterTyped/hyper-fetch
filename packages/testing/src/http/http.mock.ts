@@ -26,8 +26,12 @@ const getErrorMock = <Request extends RequestInstance, Status extends number, Gq
   const status = getStatus(options);
   const syntheticError = errorResponses?.[status as keyof typeof errorResponses];
 
-  if (!error && !syntheticError) {
+  if (error === null) {
     return null;
+  }
+
+  if (!error && !syntheticError) {
+    return undefined;
   }
 
   if (config.gql) {
@@ -56,7 +60,7 @@ const getDataMock = <Request extends RequestInstance, Status extends number, Gql
 ): any => {
   const success = getIsSuccessMock(options, config);
   const errors = getErrorMock(options, config);
-  const data = options.data || {};
+  const data = options.data !== undefined ? options.data : {};
 
   if (config.gql) {
     const response: Record<string, any> = {};
@@ -64,7 +68,7 @@ const getDataMock = <Request extends RequestInstance, Status extends number, Gql
     if (data) {
       response.data = data;
     }
-    if (errors) {
+    if (errors !== undefined) {
       response.errors = errors;
     }
 
