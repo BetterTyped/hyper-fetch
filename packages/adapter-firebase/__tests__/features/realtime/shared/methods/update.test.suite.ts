@@ -16,12 +16,12 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       const updateReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
-          method: "update",
+          method: "updateDoc",
         })
         .setPayload(newData);
       const getReq = client.createRequest<{ response: Tea }>()({
         endpoint: ":teaId",
-        method: "get",
+        method: "getDoc",
       });
       await updateReq.send({ params: { teaId: 1 } });
       const { data } = await getReq.send({ params: { teaId: 1 } });
@@ -33,7 +33,7 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       const updateReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
-          method: "update",
+          method: "updateDoc",
         })
         .setPayload(newData);
       await testLifecycleEvents(updateReq);

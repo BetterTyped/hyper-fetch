@@ -16,13 +16,13 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const getReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
       const setReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
         .setPayload(newData);
@@ -30,20 +30,22 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(extra.snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
         .setPayload({ data: null });
@@ -51,13 +53,15 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      expect(extra.snapshot.exists()).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(extra?.snapshot?.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
         .setPayload({ data: null });
