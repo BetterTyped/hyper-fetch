@@ -53,7 +53,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
         const url = getSocketUrl(socket.url, queryParams);
-        const sse = getServerSentEventsAdapter(url, adapter.adapterOptions);
+        let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
 
         const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
 
@@ -65,6 +65,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           sse?.clearListeners();
           sse?.close();
+          sse = getServerSentEventsAdapter(url, adapter.adapterOptions);
 
           // Make sure we picked good environment
           if (!sse) {
