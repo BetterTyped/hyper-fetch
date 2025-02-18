@@ -53,7 +53,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
         const url = getSocketUrl(socket.url, queryParams);
-        let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
+        const sse = getServerSentEventsAdapter(url, adapter.adapterOptions);
 
         const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
 
@@ -65,7 +65,6 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           sse?.clearListeners();
           sse?.close();
-          sse = getServerSentEventsAdapter(url, adapter.adapterOptions);
 
           // Make sure we picked good environment
           if (!sse) {
@@ -99,6 +98,11 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           });
 
           return new Promise((resolve) => {
+            if (sse?.readyState === EventSource.OPEN) {
+              resolve(true);
+              return;
+            }
+
             // Promise lifecycle
             const resolveConnected = () => {
               resolve(true);
@@ -119,12 +123,18 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             return Promise.resolve(false);
           }
           const promise = new Promise<boolean>((resolve) => {
+            if (sse?.readyState === EventSource.CLOSED) {
+              resolve(true);
+              return;
+            }
+
             const resolveDisconnected = () => {
               resolve(true);
               sse?.removeEventListener("error", resolveDisconnected);
             };
             sse?.addEventListener("error", resolveDisconnected, { disableCleanup: true });
           });
+
           onDisconnect();
           sse?.close();
           onDisconnected();

@@ -120,6 +120,11 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           return new Promise((resolve) => {
+            if (websocket?.readyState === WebSocket.OPEN) {
+              resolve(true);
+              return;
+            }
+
             // Promise lifecycle
             const resolveConnected = () => {
               resolve(true);

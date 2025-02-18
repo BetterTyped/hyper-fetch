@@ -42,5 +42,5 @@ export const getSocketError = (event: Event): string => {
     return JSON.stringify(event.data);
   }
 
-  return "There was an websocket error";
+  return "There was an socket error";
 };

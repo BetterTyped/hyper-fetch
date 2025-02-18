@@ -16,10 +16,11 @@ describe("Socket [ Methods ]", () => {
   });
 
   it("should allow to set new query params stringify", async () => {
-    const method = () => "";
+    const method = () => "testing";
     const adapter = WebsocketAdapter().setQueryParamsMapper(method);
     const socket = createSocket({ adapter: () => adapter });
-    expect(socket.adapter.unsafe_queryParamsMapper).toBe(method);
+    const queryParams = socket.adapter.unsafe_queryParamsMapper();
+    expect(queryParams).toBe("testing");
   });
 
   it("should allow to activate debug", async () => {

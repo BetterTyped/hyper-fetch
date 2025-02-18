@@ -59,7 +59,7 @@ describe("Socket SSE [ Connection ]", () => {
     startNewServer();
 
     await waitFor(() => {
-      expect(spy3).toHaveBeenCalledTimes(1);
+      expect(spy3).toHaveBeenCalledTimes(3);
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy2).toHaveBeenCalledTimes(1);
     });

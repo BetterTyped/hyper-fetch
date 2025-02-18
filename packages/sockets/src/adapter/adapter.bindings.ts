@@ -40,7 +40,6 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.adapter.setConnecting(false);
     socket.adapter.setForceClosed(true);
     socket.adapter.setReconnectionAttempts(0);
-    socket.events.emitConnecting(true);
     return true;
   };
 

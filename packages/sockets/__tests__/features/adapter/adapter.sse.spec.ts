@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/dom";
-import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
+import { createSseMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
 import { ServerSentEventsAdapter, ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
@@ -83,16 +83,14 @@ describe("Socket Adapter [ SSE ]", () => {
     const spy = jest.fn();
 
     socket.events.onConnected(spy);
-    await socket.adapter.connect();
     startServer();
+    socket.adapter.connect();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
     await socket.adapter.connect();
-
-    await sleep(10);
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -106,7 +104,7 @@ describe("Socket Adapter [ SSE ]", () => {
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(new Error());
+      expect(spy).toHaveBeenCalledWith(new Error("There was an socket error"));
     });
   });
 });
