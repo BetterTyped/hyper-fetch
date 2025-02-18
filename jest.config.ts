@@ -32,6 +32,7 @@ export const getJestConfig = (): Config.InitialOptions => ({
   testEnvironmentOptions: {
     customExportConditions: [""],
   },
+  transformIgnorePatterns: [],
   transform: {
     "^.+\\.[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
   },
