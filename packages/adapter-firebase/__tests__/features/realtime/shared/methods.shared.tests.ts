@@ -1,5 +1,5 @@
 /* eslint-disable max-params */
-import { FirebaseAdapter, FirebaseAdapterTypes, FirebaseSocketAdapterTypes } from "adapter";
+import { FirebaseAdapter, FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
 import { pushTestSuite } from "./methods/push.test.suite";
 import { onValueTestSuite } from "./methods/on-value.test.suite";
 import { getTestSuite } from "./methods/get.test.suite";
@@ -16,10 +16,10 @@ export const methodsSharedTestCases = (adapterFunction: () => ReturnType<typeof 
 };
 
 export const socketsMethodsSharedTestCases = (
-  db,
-  seedDbMethod: (db) => Promise<void>,
-  socketsAdapter: (database) => FirebaseSocketAdapterTypes<any>,
-  coreAdapter: (database) => () => FirebaseAdapterTypes<any>,
+  db: FirebaseDBTypes,
+  seedDbMethod: (db: any) => Promise<void>,
+  socketsAdapter: (database: FirebaseDBTypes) => FirebaseSocketAdapterTypes<any>,
+  coreAdapter: (database: FirebaseDBTypes) => FirebaseAdapterTypes<any>,
 ) => {
   onValueTestSuite(db, seedDbMethod, socketsAdapter, coreAdapter);
 };

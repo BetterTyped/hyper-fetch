@@ -1,6 +1,6 @@
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
-import { AdapterType, Request, Client } from "@hyper-fetch/core";
+import { Adapter, Request, Client } from "@hyper-fetch/core";
 
 import {
   RealtimeDbAdapterType,
@@ -25,7 +25,7 @@ export type FirebaseRealtimeDBType = Request<
   RealtimeDBQueryParams,
   any,
   any,
-  Client<any, AdapterType<any, RealtimeDBMethodsUnion, any, any, any, any>, any>,
+  Client<any, Adapter<any, RealtimeDBMethodsUnion, any, any, any, any>>,
   any,
   any,
   any
@@ -37,7 +37,7 @@ export type FirestoreRequestType = Request<
   FirestoreQueryParams,
   any,
   any,
-  Client<any, AdapterType<any, FirestoreMethodsUnion, any, any, any, any>, any>,
+  Client<any, Adapter<any, FirestoreMethodsUnion, any, any, any, any>>,
   any,
   any,
   any

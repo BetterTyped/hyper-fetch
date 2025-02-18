@@ -14,13 +14,13 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
 
     it("should return data available for endpoint", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "get",
+        method: "getDocs",
       });
       const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
-      expect(data[0]).toHaveProperty("__key");
+      expect(data?.[0]).toHaveProperty("__key");
       expect(extra).toHaveProperty("snapshot");
       expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");
@@ -29,9 +29,9 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
     it("should return data for dynamic endpoint", async () => {
       const req = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
@@ -40,9 +40,9 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
     it("should return emptyResource status for non existing resource", async () => {
       const req = clientBees
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
@@ -52,9 +52,9 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
     it("should emit lifecycle events", async () => {
       const req = clientBees
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 

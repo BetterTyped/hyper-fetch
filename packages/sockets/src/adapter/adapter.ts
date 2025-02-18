@@ -15,11 +15,11 @@ import { EmitterInstance } from "emitter";
 import { ExtractAdapterExtraType } from "types";
 
 export class SocketAdapter<
+  Extra = undefined,
   AdapterOptions extends Record<string, any> | EmptyTypes = undefined,
   ListenerOptions extends Record<string, any> | EmptyTypes = undefined,
   EmitterOptions extends Record<string, any> | EmptyTypes = undefined,
   QueryParams extends QueryParamsType | string | EmptyTypes = undefined,
-  Extra = undefined,
   QueryParamsMapperType extends QueryParamsMapper<any> | DefaultMapperType = DefaultMapperType,
 > {
   public name: string;
@@ -145,11 +145,11 @@ export class SocketAdapter<
         this.unsafe_queryParamsMapperConfig as Parameters<NewQueryParamsMapper>[1],
       )) as unknown as QueryParamsMapperType;
     return this as unknown as SocketAdapter<
+      Extra,
       AdapterOptions,
       ListenerOptions,
       EmitterOptions,
       QueryParams,
-      Extra,
       NewQueryParamsMapper
     >;
   };
@@ -162,7 +162,7 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, Extra, QueryParamsMapperType>,
+      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
       any
     >;
   }): boolean => {
@@ -185,7 +185,7 @@ export class SocketAdapter<
     topic: string;
     data: any;
     extra: ExtractAdapterExtraType<
-      SocketAdapter<AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, Extra, QueryParamsMapperType>
+      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>
     >;
   }) => {
     const listenerGroup = this.listeners.get(topic);

@@ -10,12 +10,12 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof Fire
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const updateReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })
         .setPayload(newData);
-      const getReq = client.createRequest<Tea>()({
+      const getReq = client.createRequest<{ response: Tea }>()({
         endpoint: ":teaId",
         method: "getDoc",
       });
@@ -28,7 +28,7 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof Fire
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
 
       const request = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })

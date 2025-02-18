@@ -14,13 +14,13 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
 
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
         .setParams({ teaId: 1 });
       const setReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "set",
         })
@@ -34,7 +34,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })

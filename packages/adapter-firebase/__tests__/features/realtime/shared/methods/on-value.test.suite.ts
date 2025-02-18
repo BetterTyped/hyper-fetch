@@ -3,19 +3,19 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseAdapterTypes, FirebaseSocketAdapterTypes } from "adapter";
+import { FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
 import { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (
-  db: Promise<any>,
-  seedDb: (initializedDb) => Promise<void>,
-  socketsAdapter: (database) => FirebaseSocketAdapterTypes<any>,
-  coreAdapter: (database) => () => FirebaseAdapterTypes<any>,
+  db: FirebaseDBTypes,
+  seedDb: (initializedDb: FirebaseDBTypes) => Promise<void>,
+  socketsAdapter: (database: FirebaseDBTypes) => FirebaseSocketAdapterTypes<any>,
+  coreAdapter: (database: FirebaseDBTypes) => FirebaseAdapterTypes<any>,
 ) => {
   describe("when using onValue method", () => {
-    let initializedSocketsAdapter;
-    let initializedCoreAdapter;
-    let initializedDb;
+    let initializedSocketsAdapter: FirebaseSocketAdapterTypes<any>;
+    let initializedCoreAdapter: FirebaseAdapterTypes<any>;
+    let initializedDb: FirebaseDBTypes;
     let spy = jest.fn();
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
@@ -33,7 +33,7 @@ export const onValueTestSuite = (
       const client = new Client({ url: "teas/" }).setAdapter(initializedCoreAdapter);
       const socket = new Socket({ url: "teas/", adapter: initializedSocketsAdapter });
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "push",
         })
@@ -52,18 +52,18 @@ export const onValueTestSuite = (
     it("should return unmount function", async () => {
       const { socket } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
-      const unmount = onValueReq.listen({ callback: spy });
+      const unmount = onValueReq.listen(spy);
       expect(unmount).toBeFunction();
     });
 
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
-      const unmount = onValueReq.listen({ callback: spy });
+      const unmount = onValueReq.listen(spy);
 
       await waitForExpect(async () => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -78,25 +78,23 @@ export const onValueTestSuite = (
         expect(spy).toHaveBeenCalledTimes(1);
       }, 1000);
 
-      expect(socket.adapter.listeners.get(onValueReq.endpoint).size).toBe(0);
+      expect(socket.adapter.listeners.get(onValueReq.topic)?.size).toBe(0);
     });
 
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
       const onValueReq = socketBees.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
         options: { onlyOnce: false },
       });
 
-      let receivedData;
-      let receivedExtra;
+      let receivedData: Tea[] | null;
+      let receivedExtra: any;
 
-      const unmount = onValueReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData = data;
-          receivedExtra = extra;
-        },
+      const unmount = onValueReq.listen(({ data, extra }) => {
+        spy();
+        receivedData = data;
+        receivedExtra = extra;
       });
 
       await waitForExpect(async () => {
@@ -111,13 +109,11 @@ export const onValueTestSuite = (
     it("should be called once with onlyOnce option", async () => {
       const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
         options: { onlyOnce: true },
       });
 
-      const unmount = onValueReq.listen({
-        callback: spy,
-      });
+      const unmount = onValueReq.listen(spy);
 
       await pushReq.send();
 
@@ -132,25 +128,23 @@ export const onValueTestSuite = (
       const { socket, pushReq } = await initialize();
 
       const onValueReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
         options: { onlyOnce: false },
       });
 
-      let receivedData;
-      let receivedExtra;
+      let receivedData: Tea[] | null;
+      let receivedExtra: any;
 
-      const unmount = onValueReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData = data;
-          receivedExtra = extra;
-        },
+      const unmount = onValueReq.listen(({ data, extra }) => {
+        spy();
+        receivedData = data;
+        receivedExtra = extra;
       });
 
       const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data.__key }]);
+        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data?.__key }]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");
@@ -164,18 +158,16 @@ export const onValueTestSuite = (
       const { socket } = await initialize();
       const onValueReq = socket
         .createListener<Tea[]>()({
-          endpoint: ":teaId",
+          topic: ":teaId",
         })
         .setParams({ teaId: 1 });
 
-      let receivedData;
-      let receivedExtra;
-      const unmount = onValueReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData = data;
-          receivedExtra = extra;
-        },
+      let receivedData: Tea[] | null;
+      let receivedExtra: any;
+      const unmount = onValueReq.listen(({ data, extra }) => {
+        spy();
+        receivedData = data;
+        receivedExtra = extra;
       });
 
       await waitForExpect(async () => {

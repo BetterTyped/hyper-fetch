@@ -13,12 +13,12 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
 
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-      const getReq = client.createRequest<Tea[]>()({
+      const getReq = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "push",
           options: {},
@@ -35,7 +35,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "teas/",
           method: "push",
         })

@@ -23,7 +23,7 @@ export type EmitterConfigurationType<Payload, Params, Topic extends string, Sock
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
   timeout?: number;
-  adapterOptions?: ExtractAdapterEmitterOptionsType<AdapterType>;
+  options?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };
 
 export type EmitterCallbackErrorType<EmitterType extends EmitterInstance> = (

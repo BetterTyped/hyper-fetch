@@ -15,29 +15,29 @@ export class Emitter<
   params?: ParamsType;
   timeout: number;
   payload: Payload | undefined;
-  adapterOptions: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
+  options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
   payloadMapper?: PayloadMapperType<any>;
 
   constructor(
     readonly socket: Socket,
-    readonly options: EmitterOptionsType<Topic, ExtractSocketAdapterType<Socket>>,
+    readonly emitterOptions: EmitterOptionsType<Topic, ExtractSocketAdapterType<Socket>>,
     /**
      * Used to recreate the emitter with the same state
      * @internal
      */
     snapshot?: Partial<Emitter<Payload, Topic, Socket, any, any>>,
   ) {
-    const { topic, timeout = Time.SEC * 2, adapterOptions } = options;
+    const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
     this.topic = snapshot?.topic ?? topic;
     this.payload = snapshot?.payload;
     this.timeout = snapshot?.timeout ?? timeout;
-    this.adapterOptions = snapshot?.adapterOptions ?? adapterOptions;
+    this.options = snapshot?.options ?? options;
     this.params = snapshot?.params;
   }
 
-  setOptions(adapterOptions: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined) {
-    return this.clone({ adapterOptions });
+  setOptions(options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined) {
+    return this.clone({ options });
   }
 
   setTimeout(timeout: number) {
@@ -63,7 +63,7 @@ export class Emitter<
   }
 
   private paramsMapper = (params: ParamsType | null | undefined): Topic => {
-    let topic = this.options.topic as string;
+    let topic = this.emitterOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
@@ -82,7 +82,7 @@ export class Emitter<
   ): Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams> {
     const snapshot: Partial<Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>> = {
       timeout: this.timeout,
-      adapterOptions: this.adapterOptions,
+      options: this.options,
       payload: this.payload as NewPayload,
       ...config,
       params: config?.params || this.params,
@@ -91,7 +91,7 @@ export class Emitter<
 
     const newInstance = new Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>(
       this.socket,
-      this.options,
+      this.emitterOptions,
       snapshot,
     );
 

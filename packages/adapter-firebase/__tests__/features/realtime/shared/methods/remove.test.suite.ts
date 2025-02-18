@@ -12,14 +12,14 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
   describe("remove", () => {
     it("should allow for removing data", async () => {
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "remove",
         })
@@ -32,7 +32,7 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
     });
     it("should emit lifecycle events", async () => {
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "remove",
         })

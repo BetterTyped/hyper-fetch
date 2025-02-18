@@ -18,21 +18,21 @@ import { Socket } from "socket";
  */
 
 export type WebsocketAdapterType = SocketAdapter<
+  MessageEvent<any>,
   WebsocketAdapterOptionsType,
   undefined,
   undefined,
   QueryParamsType | string,
-  MessageEvent<any>,
   typeof stringifyQueryParams
 >;
 
 export const WebsocketAdapter = (): WebsocketAdapterType =>
   new SocketAdapter<
+    MessageEvent<any>,
     WebsocketAdapterOptionsType,
     undefined,
     undefined,
     QueryParamsType | string,
-    MessageEvent<any>,
     typeof stringifyQueryParams
   >({
     name: "websockets",

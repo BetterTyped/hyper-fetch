@@ -18,10 +18,10 @@ export const onSnapshotTestSuite = (
     spy = jest.fn();
   });
   const initialize = async () => {
-    const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
+    const client = new Client({ url: "teas/" }).setAdapter(coreAdapter());
     const socket = new Socket({ url: "teas/", adapter });
     const pushReq = client
-      .createRequest<Tea, Tea>()({
+      .createRequest<{ response: Tea; payload: Tea }>()({
         endpoint: "",
         method: "addDoc",
       })
@@ -34,17 +34,17 @@ export const onSnapshotTestSuite = (
     it("should return unmount function", async () => {
       const { socket } = await initialize();
       const onSnapshotReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
-      const unmount = onSnapshotReq.listen({ callback: spy });
+      const unmount = onSnapshotReq.listen(spy);
       expect(unmount).toBeFunction();
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
       const onSnapshotReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
-      const unmount = onSnapshotReq.listen({ callback: spy });
+      const unmount = onSnapshotReq.listen(spy);
 
       await waitForExpect(async () => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -58,25 +58,23 @@ export const onSnapshotTestSuite = (
         expect(spy).toHaveBeenCalledTimes(1);
       }, 1000);
 
-      expect(socket.adapter.listeners.get(onSnapshotReq.endpoint).size).toBe(0);
+      expect(socket.adapter.listeners.get(onSnapshotReq.topic)?.size).toBe(0);
     });
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
       const onSnapshotReq = socketBees.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
 
-      let receivedData;
-      let receivedExtra;
-      let ref;
+      let receivedData: any;
+      let receivedExtra: any;
+      let ref: any;
 
-      const unmount = onSnapshotReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData = data;
-          receivedExtra = extra;
-          ref = extra.ref;
-        },
+      const unmount = onSnapshotReq.listen(({ data, extra }) => {
+        spy();
+        receivedData = data;
+        receivedExtra = extra;
+        ref = extra.ref;
       });
 
       await waitForExpect(async () => {
@@ -92,17 +90,15 @@ export const onSnapshotTestSuite = (
     it("should return data available for collection", async () => {
       const { socket } = await initialize();
       const onSnapshotReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
       });
 
-      let receivedData;
-      let receivedExtra;
-      const unmount = onSnapshotReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData = data;
-          receivedExtra = extra;
-        },
+      let receivedData: any;
+      let receivedExtra: any;
+      const unmount = onSnapshotReq.listen(({ data, extra }) => {
+        spy();
+        receivedData = data;
+        receivedExtra = extra;
       });
 
       await waitForExpect(async () => {
@@ -124,18 +120,16 @@ export const onSnapshotTestSuite = (
       } as Tea;
       const { socket, client } = await initialize();
       const onSnapshotReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
         options: { groupByChangeType: true },
       });
 
-      const receivedData = [];
-      const receivedExtra = [];
-      const unmount = onSnapshotReq.listen({
-        callback: ({ data, extra }) => {
-          spy();
-          receivedData.push(data);
-          receivedExtra.push(extra);
-        },
+      const receivedData: any[] = [];
+      const receivedExtra: any[] = [];
+      const unmount = onSnapshotReq.listen(({ data, extra }) => {
+        spy();
+        receivedData.push(data);
+        receivedExtra.push(extra);
       });
 
       await waitForExpect(async () => {
@@ -144,7 +138,7 @@ export const onSnapshotTestSuite = (
       }, 1000);
 
       const addTeaReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })
@@ -153,7 +147,7 @@ export const onSnapshotTestSuite = (
       await addTeaReq.send();
 
       const updateTeaReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })
@@ -162,7 +156,7 @@ export const onSnapshotTestSuite = (
       await updateTeaReq.send({ params: { teaId: 1 } });
 
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "deleteDoc",
         })
@@ -191,16 +185,14 @@ export const onSnapshotTestSuite = (
       const { socket } = await initialize();
       const onSnapshotReq = socket
         .createListener<Tea[]>()({
-          endpoint: ":teaId",
+          topic: ":teaId",
         })
         .setParams({ teaId: 1 });
 
-      let receivedData;
-      const unmount = onSnapshotReq.listen({
-        callback: ({ data }) => {
-          spy();
-          receivedData = data;
-        },
+      let receivedData: any;
+      const unmount = onSnapshotReq.listen(({ data }) => {
+        spy();
+        receivedData = data;
       });
 
       await waitForExpect(async () => {
@@ -247,16 +239,14 @@ export const onSnapshotTestSuite = (
 
       // Should listen for changes only for Green teas
       const onSnapshotReq = socket.createListener<Tea[]>()({
-        endpoint: "",
+        topic: "",
         options: { constraints: [$where("type", "==", "Green")] },
       });
 
-      const receivedData = [];
-      const unmount = onSnapshotReq.listen({
-        callback: ({ data }) => {
-          spy();
-          receivedData.push(data);
-        },
+      const receivedData: any[] = [];
+      const unmount = onSnapshotReq.listen(({ data }) => {
+        spy();
+        receivedData.push(data);
       });
 
       await waitForExpect(async () => {
@@ -271,13 +261,13 @@ export const onSnapshotTestSuite = (
       } as Tea;
 
       const shouldCacheAddDocRequest = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })
         .setPayload(shouldCacheData);
       const shouldNotCacheAddDocRequest = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })

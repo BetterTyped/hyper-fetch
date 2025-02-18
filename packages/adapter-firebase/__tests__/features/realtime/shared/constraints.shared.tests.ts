@@ -8,7 +8,7 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
   describe("Ordering", () => {
     it("Should allow ordering by child", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });
@@ -32,7 +32,7 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
   describe("Filtering and ordering", () => {
     it("Should allow to limit the result and order it", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });
@@ -43,7 +43,7 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
     });
     it("Should allow to combine multiple filters", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });

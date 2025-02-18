@@ -38,15 +38,15 @@ export type ExtractEmitterOptionsType<T extends SocketInstance> =
 
 // Adapter
 
-export type ExtractAdapterOptionsType<T extends SocketAdapterInstance> =
-  T extends SocketAdapter<infer P, any, any, any, any, any> ? P : never;
-export type ExtractAdapterListenerOptionsType<T extends SocketAdapterInstance> =
-  T extends SocketAdapter<any, infer P, any, any, any, any> ? P : never;
-export type ExtractAdapterEmitterOptionsType<T extends SocketAdapterInstance> =
-  T extends SocketAdapter<any, any, infer P, any, any, any> ? P : never;
-export type ExtractAdapterQueryParamsType<T extends SocketAdapterInstance> =
-  T extends SocketAdapter<any, any, any, infer P, any, any> ? P : never;
 export type ExtractAdapterExtraType<T extends SocketAdapterInstance> =
+  T extends SocketAdapter<infer P, any, any, any, any, any> ? P : never;
+export type ExtractAdapterOptionsType<T extends SocketAdapterInstance> =
+  T extends SocketAdapter<any, infer P, any, any, any, any> ? P : never;
+export type ExtractAdapterListenerOptionsType<T extends SocketAdapterInstance> =
+  T extends SocketAdapter<any, any, infer P, any, any, any> ? P : never;
+export type ExtractAdapterEmitterOptionsType<T extends SocketAdapterInstance> =
+  T extends SocketAdapter<any, any, any, infer P, any, any> ? P : never;
+export type ExtractAdapterQueryParamsType<T extends SocketAdapterInstance> =
   T extends SocketAdapter<any, any, any, any, infer P, any> ? P : never;
 export type ExtractAdapterQueryParamsMapperType<T extends SocketAdapterInstance> =
   T extends SocketAdapter<any, any, any, any, any, infer P> ? P : never;

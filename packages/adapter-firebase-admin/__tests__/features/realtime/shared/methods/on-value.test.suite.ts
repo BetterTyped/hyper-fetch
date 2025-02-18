@@ -33,7 +33,7 @@ export const onValueTestSuite = (
       const client = new Client({ url: "teas/" }).setAdapter(initializedCoreAdapter);
       const socket = new Socket({ url: "teas/", adapter: initializedSocketsAdapter });
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "push",
         })

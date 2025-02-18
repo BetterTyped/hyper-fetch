@@ -17,21 +17,21 @@ import { Socket } from "socket";
  */
 
 export type ServerSentEventsAdapterType = SocketAdapter<
+  MessageEvent<any>,
   SSEAdapterOptionsType,
   undefined,
   undefined,
   QueryParamsType | string,
-  MessageEvent<any>,
   typeof stringifyQueryParams
 >;
 
 export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
   new SocketAdapter<
+    MessageEvent<any>,
     SSEAdapterOptionsType,
     undefined,
     undefined,
     QueryParamsType | string,
-    MessageEvent<any>,
     typeof stringifyQueryParams
   >({
     name: "sse",

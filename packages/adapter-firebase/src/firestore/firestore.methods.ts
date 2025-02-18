@@ -11,9 +11,9 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirebaseAdapterTypes, FirebaseDBTypes, FirestoreMethodsUnion } from "adapter/types";
+import { FirestoreMethodsUnion } from "adapter/types";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
@@ -23,30 +23,31 @@ import {
 import { getStatus } from "utils";
 import { getOrderedResultFirestore, mapConstraint } from "./utils";
 
-export const getFirestoreBrowserMethods = <T extends FirebaseDBTypes>(
-  database: Firestore,
-  url: string,
-  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
-  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
-  resolve: (
-    value:
-      | ResponseType<any, any, FirebaseAdapterTypes<T>>
-      | PromiseLike<ResponseType<any, any, FirebaseAdapterTypes<T>>>,
-  ) => void,
-  events: {
-    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
-    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
-    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
-    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
-  },
-): ((
-  methodName: FirestoreMethodsUnion,
-  data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    payload?: any;
-    options?: Record<string, any>;
-  },
-) => Promise<void>) => {
+type DataType = {
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+  payload?: any;
+  options?: Record<string, any>;
+};
+
+export const getFirestoreBrowserMethods = ({
+  database,
+  url,
+  onSuccess,
+  onError,
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Firestore;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((methodName: FirestoreMethodsUnion, data: DataType) => Promise<void>) => {
   const [cleanUrl] = url.split("?");
   const methods = {
     getDoc: async () => {
@@ -95,19 +96,19 @@ export const getFirestoreBrowserMethods = <T extends FirebaseDBTypes>(
     },
   };
 
-  return async (methodName: FirestoreMethodsUnion, data) => {
+  return async (methodName: FirestoreMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess({ data: result, status, extra, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
     } catch (error) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError({ error, status: "error", extra: {}, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

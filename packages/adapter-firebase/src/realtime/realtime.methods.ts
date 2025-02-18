@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
-import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirebaseAdapterTypes, FirebaseDBTypes, RealtimeDBMethodsUnion } from "adapter/types";
+import { RealtimeDbAdapterType, RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
 import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
 import {
@@ -12,30 +12,31 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbBrowserMethods = <T extends FirebaseDBTypes>(
-  database: Database,
-  url: string,
-  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
-  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
-  resolve: (
-    value:
-      | ResponseType<any, any, FirebaseAdapterTypes<T>>
-      | PromiseLike<ResponseType<any, any, FirebaseAdapterTypes<T>>>,
-  ) => void,
-  events: {
-    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
-    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
-    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
-    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
-  },
-): ((
-  methodName: RealtimeDBMethodsUnion,
-  data: {
-    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
-    payload: any;
-    options: Record<string, any>;
-  },
-) => Promise<void>) => {
+type DataType = {
+  constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+  payload: any;
+  options: Record<string, any>;
+};
+
+export const getRealtimeDbBrowserMethods = ({
+  database,
+  url,
+  onSuccess,
+  onError,
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Database;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings<RealtimeDbAdapterType>>>["onResponseEnd"];
+}): ((methodName: RealtimeDBMethodsUnion, data: DataType) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods = {
@@ -69,19 +70,26 @@ export const getRealtimeDbBrowserMethods = <T extends FirebaseDBTypes>(
     },
   };
 
-  return async (methodName: RealtimeDBMethodsUnion, data) => {
+  return async (methodName: RealtimeDBMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess({ data: result, status, extra, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status: status as RealtimeDBStatuses, extra });
+      onResponseEnd();
     } catch (error) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError({ error, status: "error", extra: {}, resolve });
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onError({
+        error,
+        status: "error",
+        // TODO - fix this
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        extra: {},
+      });
+      onResponseEnd();
     }
   };
 };
