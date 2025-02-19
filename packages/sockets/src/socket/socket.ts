@@ -13,7 +13,6 @@ import {
   getSocketEvents,
   interceptListener,
   interceptEmitter,
-  SocketInstance,
 } from "socket";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
@@ -32,13 +31,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   autoConnect: boolean;
 
   // Callbacks
-  __onConnectedCallbacks: OpenCallbackType<SocketInstance>[] = [];
-  __onDisconnectCallbacks: CloseCallbackType<SocketInstance>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<SocketInstance>[] = [];
-  __onReconnectFailedCallbacks: ReconnectFailedCallbackType<SocketInstance>[] = [];
-  __onMessageCallbacks: MessageCallbackType<SocketInstance, any>[] = [];
-  __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<SocketInstance, any>[] = [];
+  unsafe_onConnectedCallbacks: OpenCallbackType[] = [];
+  unsafe_onDisconnectCallbacks: CloseCallbackType[] = [];
+  unsafe_onReconnectCallbacks: ReconnectCallbackType[] = [];
+  unsafe_onReconnectFailedCallbacks: ReconnectFailedCallbackType[] = [];
+  unsafe_onMessageCallbacks: MessageCallbackType<any>[] = [];
+  unsafe_onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
+  unsafe_onErrorCallbacks: ErrorCallbackType<any>[] = [];
 
   // Config
   adapter: Adapter;
@@ -111,7 +110,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   /**
    * Set the new logger instance to the socket
    */
-  setLogger = (callback: (socket: this) => LoggerManager) => {
+  setLogger = (callback: (socket: Socket<Adapter>) => LoggerManager) => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -125,8 +124,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onConnected(callback: OpenCallbackType<this>) {
-    this.__onConnectedCallbacks.push(callback as any);
+  onConnected(callback: OpenCallbackType) {
+    this.unsafe_onConnectedCallbacks.push(callback);
     return this;
   }
   /**
@@ -134,8 +133,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onDisconnected(callback: CloseCallbackType<this>) {
-    this.__onDisconnectCallbacks.push(callback as any);
+  onDisconnected(callback: CloseCallbackType) {
+    this.unsafe_onDisconnectCallbacks.push(callback);
     return this;
   }
 
@@ -144,8 +143,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onReconnect(callback: ReconnectCallbackType<this>) {
-    this.__onReconnectCallbacks.push(callback as any);
+  onReconnect(callback: ReconnectCallbackType) {
+    this.unsafe_onReconnectCallbacks.push(callback);
     return this;
   }
 
@@ -154,8 +153,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onReconnectFailed(callback: ReconnectFailedCallbackType<this>) {
-    this.__onReconnectFailedCallbacks.push(callback as any);
+  onReconnectFailed(callback: ReconnectFailedCallbackType) {
+    this.unsafe_onReconnectFailedCallbacks.push(callback);
     return this;
   }
 
@@ -164,8 +163,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onMessage<Event = ExtractAdapterExtraType<Adapter>>(callback: MessageCallbackType<this, Event>) {
-    this.__onMessageCallbacks.push(callback as any);
+  onMessage<Event>(callback: MessageCallbackType<Event>) {
+    this.unsafe_onMessageCallbacks.push(callback);
     return this;
   }
 
@@ -175,7 +174,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onSend(callback: SendCallbackType<EmitterInstance>) {
-    this.__onSendCallbacks.push(callback);
+    this.unsafe_onSendCallbacks.push(callback);
     return this;
   }
 
@@ -184,8 +183,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onError<Event = ExtractAdapterExtraType<Adapter>>(callback: ErrorCallbackType<this, Event>) {
-    this.__onErrorCallbacks.push(callback as any);
+  onError<Event>(callback: ErrorCallbackType<Event>) {
+    this.unsafe_onErrorCallbacks.push(callback);
     return this;
   }
 
@@ -195,12 +194,12 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * ********************
    */
 
-  __modifySend = (emitter: EmitterInstance) => {
-    return interceptEmitter(this.__onSendCallbacks, emitter);
+  unsafe__modifySend = (emitter: EmitterInstance) => {
+    return interceptEmitter(this.unsafe_onSendCallbacks, emitter);
   };
 
-  __modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
-    return interceptListener(this.__onMessageCallbacks, data, this);
+  unsafe__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
+    return interceptListener(this.unsafe_onMessageCallbacks, data);
   };
 
   /**

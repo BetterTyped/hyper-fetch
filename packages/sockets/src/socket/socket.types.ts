@@ -14,10 +14,10 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   queryParams?: ExtractAdapterQueryParamsType<Adapter>;
 };
 
-export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type ReconnectFailedCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type OpenCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type CloseCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type MessageCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => Event;
-export type SendCallbackType<EmitterType extends EmitterInstance> = (emitter: EmitterType) => EmitterInstance;
-export type ErrorCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;
+export type ReconnectCallbackType = () => void;
+export type ReconnectFailedCallbackType = () => void;
+export type OpenCallbackType = () => void;
+export type CloseCallbackType = () => void;
+export type MessageCallbackType<Event> = (data: { event: Event }) => Event;
+export type SendCallbackType<EmitterType extends EmitterInstance> = (data: { emitter: EmitterType }) => EmitterInstance;
+export type ErrorCallbackType<Event> = (data: { error: Event }) => void;

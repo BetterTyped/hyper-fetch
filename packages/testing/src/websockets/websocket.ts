@@ -31,8 +31,8 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
     server.current = new WS(url);
   };
 
-  const stopServer = (): void => {
-    getServer().close();
+  const stopServer = (options?: { code: number; reason: string; wasClean: boolean }): void => {
+    getServer().close(options);
     WS.clean();
   };
 

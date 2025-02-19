@@ -18,13 +18,13 @@ describe("Socket [ Utils ]", () => {
     const socket = new Socket({ url });
 
     socket.onMessage(() => null);
-    expect(() => interceptListener(socket.__onMessageCallbacks, { data: {}, extra: {} } as any, socket)).toThrow();
+    expect(() => interceptListener(socket.unsafe_onMessageCallbacks, { data: {}, extra: {} } as any, socket)).toThrow();
   });
 
   it("should throw on invalid listener interceptor", async () => {
     const socket = new Socket({ url });
 
     socket.onSend(() => null as any);
-    expect(() => interceptEmitter(socket.__onSendCallbacks, {} as EmitterInstance)).toThrow();
+    expect(() => interceptEmitter(socket.unsafe_onSendCallbacks, {} as EmitterInstance)).toThrow();
   });
 });

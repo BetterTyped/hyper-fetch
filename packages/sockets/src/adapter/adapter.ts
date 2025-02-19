@@ -169,7 +169,7 @@ export class SocketAdapter<
     const listenerGroup = this.listeners.get(topic);
     if (listenerGroup) {
       const unmount = listenerGroup.get(callback);
-      this.socket.events.emitListenerRemoveEvent(topic);
+      this.socket.events.emitListenerRemoveEvent({ topic });
       listenerGroup.delete(callback);
       unmount?.();
       return true;

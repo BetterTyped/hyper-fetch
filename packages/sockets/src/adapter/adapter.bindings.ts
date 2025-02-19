@@ -26,7 +26,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.adapter.setForceClosed(false);
     socket.adapter.setConnecting(true);
     socket.adapter.setReconnectionAttempts(0);
-    socket.events.emitConnecting(true);
+    socket.events.emitConnecting({ connecting: true });
     return true;
   };
 
@@ -50,10 +50,10 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     disconnect: () => Promise<any>;
     connect: () => Promise<any>;
   }): Promise<boolean> => {
-    socket.__onReconnectCallbacks.forEach((callback) => {
-      callback(socket);
+    socket.unsafe_onReconnectCallbacks.forEach((callback) => {
+      callback();
     });
-    socket.events.emitReconnecting(adapter.reconnectionAttempts);
+    socket.events.emitReconnecting({ attempts: adapter.reconnectionAttempts });
 
     await disconnect();
     if (adapter.reconnectionAttempts < socket.reconnectAttempts) {
@@ -72,10 +72,10 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       type: "system",
       extra: { reconnectionAttempts: adapter.reconnectionAttempts },
     });
-    socket.__onReconnectFailedCallbacks.forEach((callback) => {
-      callback(socket);
+    socket.unsafe_onReconnectFailedCallbacks.forEach((callback) => {
+      callback();
     });
-    socket.events.emitReconnectingFailed(adapter.reconnectionAttempts);
+    socket.events.emitReconnectingFailed({ attempts: adapter.reconnectionAttempts });
     return false;
   };
 
@@ -108,14 +108,14 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       return null;
     }
 
-    const emitterInstance = await socket.__modifySend(emitter);
-    socket.events.emitEmitterStartEvent(emitterInstance);
+    const emitterInstance = await socket.unsafe__modifySend(emitter);
+    socket.events.emitEmitterStartEvent({ emitter: emitterInstance });
 
     return emitterInstance;
   };
 
   const onEmitError = <ErrorType extends Error>({ emitter, error }: { emitter: EmitterInstance; error: ErrorType }) => {
-    socket.events.emitEmitterError(error, emitter);
+    socket.events.emitEmitterError({ error, emitter });
   };
 
   // Lifecycle
@@ -124,10 +124,10 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     logger.info({ title: "Connection open", type: "system", extra: {} });
     adapter.setConnected(true);
     adapter.setConnecting(false);
-    socket.events.emitConnecting(false);
+    socket.events.emitConnecting({ connecting: false });
     socket.events.emitConnected();
-    socket.__onConnectedCallbacks.forEach((callback) => {
-      callback(socket);
+    socket.unsafe_onConnectedCallbacks.forEach((callback) => {
+      callback();
     });
   };
 
@@ -135,27 +135,27 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     logger.info({ title: "Connection closed", type: "system", extra: {} });
     adapter.setConnected(false);
     adapter.setConnecting(false);
-    socket.events.emitConnecting(false);
+    socket.events.emitConnecting({ connecting: false });
     socket.events.emitDisconnected();
-    socket.__onDisconnectCallbacks.forEach((callback) => {
-      callback(socket);
+    socket.unsafe_onDisconnectCallbacks.forEach((callback) => {
+      callback();
     });
   };
 
   const onError = ({ error }: { error: Error }) => {
     logger.info({ title: "Error message", type: "system", extra: { error } });
-    socket.__onErrorCallbacks.forEach((callback) => {
-      callback(error, socket);
+    socket.unsafe_onErrorCallbacks.forEach((callback) => {
+      callback({ error });
     });
-    socket.events.emitError(error);
+    socket.events.emitError({ error });
   };
 
   const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
     logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
-    const { data: modifiedData, extra: modifiedExtra } = socket.__modifyResponse({ data, extra });
+    const { data: modifiedData, extra: modifiedExtra } = socket.unsafe__modifyResponse({ data, extra });
     socket.adapter.triggerListeners({ topic, data: modifiedData, extra: modifiedExtra });
-    socket.events.emitListenerEvent(topic, { data: modifiedData, extra: modifiedExtra });
+    socket.events.emitListenerEvent({ topic, data: modifiedData, extra: modifiedExtra });
   };
 
   const queryParams = socket.adapter.unsafe_queryParamsMapper(

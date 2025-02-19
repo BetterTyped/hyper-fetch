@@ -23,12 +23,14 @@ export const getSocketError = (event: Event): string => {
         return 'An endpoint is terminating the connection because it has received a message that "violates its policy". This reason is given either if there is no other sutible reason, or if there is a need to hide specific details about the policy.';
       case 1009:
         return "An endpoint is terminating the connection because it has received a message that is too big for it to process.";
-      case 1010:
+      case 1010: {
+        const reason = "reason" in event ? event.reason : null;
         // Note that this status code is not used by the server, because it can fail the WebSocket handshake instead.
         return (
           "An endpoint (client) is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake. <br /> Specifically, the extensions that are needed are: " +
-          ("reason" in event ? event.reason : "Unknown reason")
+          (reason || "Unknown reason")
         );
+      }
       case 1011:
         return "A server is terminating the connection because it encountered an unexpected condition that prevented it from fulfilling the request.";
       case 1015:

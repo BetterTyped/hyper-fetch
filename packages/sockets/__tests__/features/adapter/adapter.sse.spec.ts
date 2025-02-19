@@ -104,7 +104,7 @@ describe("Socket Adapter [ SSE ]", () => {
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(new Error("There was an socket error"));
+      expect(spy).toHaveBeenCalledWith({ error: new Error("There was an socket error") });
     });
   });
 });
