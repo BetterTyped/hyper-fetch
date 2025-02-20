@@ -154,7 +154,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           }
           const currentWebsocket = websocket;
           const promise = new Promise<boolean>((resolve) => {
-            if (currentWebsocket.readyState === EventSource.CLOSED) {
+            if (currentWebsocket.readyState === WebSocket.CLOSED) {
               resolve(true);
               socket.adapter.setConnected(false);
               socket.adapter.setConnecting(false);
