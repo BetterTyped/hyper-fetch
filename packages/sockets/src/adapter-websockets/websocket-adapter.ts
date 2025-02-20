@@ -42,7 +42,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
       ({
         socket,
         logger,
-        queryParams,
+        getQueryParams,
         onConnect,
         onReconnect,
         onDisconnect,
@@ -53,15 +53,15 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         onError,
         onEvent,
       }) => {
-        const url = getSocketUrl(socket.url, queryParams);
+        const autoConnect = socket.adapter.adapterOptions?.autoConnect ?? true;
+
         let websocket: ReturnType<typeof getWebsocketAdapter> | undefined;
 
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
 
-        const autoConnect = socket.adapter.adapterOptions?.autoConnect ?? true;
-
         const connect = async (): Promise<boolean> => {
+          const url = getSocketUrl(socket.url, getQueryParams());
           const enabled = onConnect();
           if (!enabled) {
             return Promise.resolve(false);
@@ -69,10 +69,12 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
           websocket?.clearListeners();
           websocket?.close();
-          websocket = getWebsocketAdapter(url, socket.adapter.adapterOptions);
+
+          const newWebsocket = getWebsocketAdapter(url, socket.adapter.adapterOptions);
+          websocket = newWebsocket;
 
           // Make sure we picked good environment
-          if (!websocket) {
+          if (!newWebsocket) {
             logger.error({
               title: "Cannot connect to websocket",
               type: "system",
@@ -84,11 +86,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           }
 
           // Clear listeners
-          websocket.clearListeners();
-          // Already connected
-          if (websocket.readyState === WebSocket.OPEN) {
-            return Promise.resolve(true);
-          }
+          newWebsocket.clearListeners();
 
           // Reconnection timeout
           const timeout = setTimeout(() => {
@@ -99,13 +97,13 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
            *  Mount listeners
            */
 
-          websocket.addEventListener("open", () => {
+          newWebsocket.addEventListener("open", () => {
             clearTimeout(timeout);
             onConnected();
             onHeartbeat();
           });
 
-          websocket.addEventListener("close", (event) => {
+          newWebsocket.addEventListener("close", (event) => {
             const error = getSocketError(event);
 
             onError({ error: new Error(error) });
@@ -113,7 +111,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             clearTimers();
           });
 
-          websocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+          newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
             const { topic, data, event } = parseMessageEvent(newEvent);
 
             onEvent({ topic, data, extra: event });
@@ -121,45 +119,57 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           return new Promise((resolve) => {
-            if (websocket?.readyState === WebSocket.OPEN) {
+            if (newWebsocket.readyState === WebSocket.OPEN) {
               resolve(true);
+              socket.adapter.setConnected(true);
+              socket.adapter.setConnecting(false);
               return;
             }
 
             // Promise lifecycle
             const resolveConnected = () => {
               resolve(true);
-              websocket?.removeEventListener("open", resolveConnected);
+              newWebsocket.removeEventListener("open", resolveConnected);
             };
             const resolveDisconnected = () => {
               resolve(false);
-              websocket?.removeEventListener("close", resolveDisconnected);
+              newWebsocket.removeEventListener("close", resolveDisconnected);
             };
             const resolveError = () => {
               resolve(false);
-              websocket?.removeEventListener("error", resolveError);
+              newWebsocket.removeEventListener("error", resolveError);
             };
 
-            websocket?.addEventListener("open", resolveConnected, { disableCleanup: true });
-            websocket?.addEventListener("close", resolveDisconnected, { disableCleanup: true });
-            websocket?.addEventListener("error", resolveError, { disableCleanup: true });
+            newWebsocket.addEventListener("open", resolveConnected, { disableCleanup: true });
+            newWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
+            newWebsocket.addEventListener("error", resolveError, { disableCleanup: true });
           });
         };
 
         const disconnect = async (): Promise<boolean> => {
           if (!websocket) {
-            return Promise.resolve(false);
+            socket.adapter.setConnected(false);
+            socket.adapter.setConnecting(false);
+            return Promise.resolve(true);
           }
+          const currentWebsocket = websocket;
           const promise = new Promise<boolean>((resolve) => {
+            if (currentWebsocket.readyState === EventSource.CLOSED) {
+              resolve(true);
+              socket.adapter.setConnected(false);
+              socket.adapter.setConnecting(false);
+              return;
+            }
+
             const resolveDisconnected = () => {
               resolve(true);
-              websocket?.removeEventListener("close", resolveDisconnected);
+              currentWebsocket.removeEventListener("close", resolveDisconnected);
             };
-            websocket?.addEventListener("close", resolveDisconnected, { disableCleanup: true });
+            currentWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
           });
 
           onDisconnect();
-          websocket?.close();
+          currentWebsocket.close();
           clearTimers();
 
           return promise;
@@ -174,18 +184,19 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           clearTimeout(pongTimer);
         };
 
-        const sendEventMessage = (payload: SocketEvent) => {
+        const sendEventMessage = (payload: SocketEvent): boolean => {
           if (websocket?.readyState === WebSocket.OPEN) {
             websocket.send(JSON.stringify(payload));
-          } else {
-            logger.error({
-              type: "system",
-              title: "Socket is not open",
-              extra: {
-                payload,
-              },
-            });
+            return true;
           }
+          logger.error({
+            type: "system",
+            title: "Socket is not open",
+            extra: {
+              payload,
+            },
+          });
+          return false;
         };
 
         const onHeartbeat = () => {
@@ -218,7 +229,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
           if (!instance) return;
 
-          sendEventMessage({ topic: instance.topic, data });
+          return sendEventMessage({ topic: instance.topic, data });
         };
 
         // Initialize

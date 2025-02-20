@@ -3,6 +3,7 @@ import { EmptyTypes } from "@hyper-fetch/core";
 import { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
+  /** istanbul ignore next */
   if (!window?.WebSocket) return null;
 
   class HyperFetchWebsocket extends WebSocket {

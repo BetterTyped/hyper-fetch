@@ -158,16 +158,14 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.events.emitListenerEvent({ topic, data: modifiedData, extra: modifiedExtra });
   };
 
-  const queryParams = socket.adapter.unsafe_queryParamsMapper(
-    socket.adapter.queryParams,
-    socket.adapter.queryParamsConfig,
-  );
+  const getQueryParams = () =>
+    socket.adapter.unsafe_queryParamsMapper(socket.adapter.queryParams, socket.adapter.queryParamsConfig);
 
   return {
     socket,
     adapter: socket.adapter,
     logger,
-    queryParams,
+    getQueryParams,
     onConnect,
     onReconnect,
     onDisconnect,

@@ -3,6 +3,7 @@ import { EmptyTypes } from "@hyper-fetch/core";
 import { SSEAdapterOptionsType } from "./sse-adapter.types";
 
 export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
+  /** istanbul ignore next */
   if (!window?.EventSource) return null;
 
   class HyperFetchEventSource extends EventSource {

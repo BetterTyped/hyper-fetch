@@ -41,7 +41,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
       ({
         socket,
         adapter,
-        queryParams,
+        getQueryParams,
         onConnect,
         onReconnect,
         onDisconnect,
@@ -51,14 +51,12 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         onError,
         onEvent,
       }) => {
-        let pingTimer: ReturnType<typeof setTimeout> | undefined;
-        let pongTimer: ReturnType<typeof setTimeout> | undefined;
-        const url = getSocketUrl(socket.url, queryParams);
         let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
 
         const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
 
         const connect = () => {
+          const url = getSocketUrl(socket.url, getQueryParams());
           const enabled = onConnect();
           if (!enabled) {
             return Promise.resolve(false);
@@ -66,10 +64,12 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           sse?.clearListeners();
           sse?.close();
-          sse = getServerSentEventsAdapter(url, adapter.adapterOptions);
+
+          const eventSource = getServerSentEventsAdapter(url, adapter.adapterOptions);
+          sse = eventSource;
 
           // Make sure we picked good environment
-          if (!sse) {
+          if (!eventSource) {
             return Promise.resolve(false);
           }
 
@@ -82,41 +82,43 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
            *  Mount listeners
            */
 
-          sse.addEventListener("open", () => {
+          eventSource.addEventListener("open", () => {
             clearTimeout(timeout);
             onConnected();
           });
 
-          sse.addEventListener("error", (event) => {
+          eventSource.addEventListener("error", (event) => {
             const error = getSocketError(event);
 
             onError({ error: new Error(error) });
           });
 
-          sse.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+          eventSource.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
             const { topic, data, event } = parseMessageEvent(newEvent);
 
             onEvent({ topic, data, extra: event });
           });
 
           return new Promise((resolve) => {
-            if (sse?.readyState === EventSource.OPEN) {
+            if (eventSource.readyState === EventSource.OPEN) {
               resolve(true);
+              adapter.setConnected(true);
+              adapter.setConnecting(false);
               return;
             }
 
             // Promise lifecycle
             const resolveConnected = () => {
               resolve(true);
-              sse?.removeEventListener("open", resolveConnected);
+              eventSource.removeEventListener("open", resolveConnected);
             };
             const resolveError = () => {
               resolve(false);
-              sse?.removeEventListener("error", resolveError);
+              eventSource.removeEventListener("error", resolveError);
             };
 
-            sse?.addEventListener("open", resolveConnected, { disableCleanup: true });
-            sse?.addEventListener("error", resolveError, { disableCleanup: true });
+            eventSource.addEventListener("open", resolveConnected, { disableCleanup: true });
+            eventSource.addEventListener("error", resolveError, { disableCleanup: true });
           });
         };
 
@@ -124,34 +126,31 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           if (!sse) {
             return Promise.resolve(false);
           }
+          const currentSse = sse;
           const promise = new Promise<boolean>((resolve) => {
-            if (sse?.readyState === EventSource.CLOSED) {
+            if (currentSse.readyState === EventSource.CLOSED) {
               resolve(true);
+              adapter.setConnected(false);
+              adapter.setConnecting(false);
               return;
             }
 
             const resolveDisconnected = () => {
               resolve(true);
-              sse?.removeEventListener("error", resolveDisconnected);
+              currentSse.removeEventListener("error", resolveDisconnected);
             };
-            sse?.addEventListener("error", resolveDisconnected, { disableCleanup: true });
+            currentSse.addEventListener("error", resolveDisconnected, { disableCleanup: true });
           });
 
           onDisconnect();
-          sse?.close();
+          currentSse.close();
           onDisconnected();
-          clearTimers();
 
           return promise;
         };
 
         const reconnect = () => {
           onReconnect({ disconnect, connect });
-        };
-
-        const clearTimers = () => {
-          clearTimeout(pingTimer);
-          clearTimeout(pongTimer);
         };
 
         const listen = (

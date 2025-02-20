@@ -28,13 +28,13 @@ export const createSseMockingServer = (url = "ws://localhost:1234") => {
     sources[url].emitOpen();
   };
 
-  const stopServer = (): void => {
-    sources[url].close();
+  const stopServer = (options?: { code: number; reason: string; wasClean: boolean }): void => {
+    sources[url].close(new CloseEvent("Connection closed", options));
     WS.clean();
   };
 
-  const emitError = () => {
-    sources[url].emitError(new Error("Test error"));
+  const emitError = (options?: { code: number; reason: string; wasClean: boolean }) => {
+    sources[url].emitError(new CloseEvent("Test error", options));
   };
 
   const getSource = () => {
