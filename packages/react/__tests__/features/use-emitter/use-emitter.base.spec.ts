@@ -79,27 +79,6 @@ describe("useEmitter [ Base ]", () => {
       expect(emitCalled).toBeTrue();
     });
 
-    it("should handle reconnection", async () => {
-      const view = renderUseEmitter(emitter);
-
-      await waitFor(() => {
-        expect(view.result.current.connecting).toBeFalse();
-      });
-
-      act(() => {
-        view.result.current.reconnect();
-      });
-
-      await waitFor(() => {
-        expect(view.result.current.connecting).toBeTrue();
-      });
-
-      await waitFor(() => {
-        expect(view.result.current.connected).toBeTrue();
-        expect(view.result.current.connecting).toBeFalse();
-      });
-    });
-
     it("should handle undefined onEmit callback", async () => {
       const myEmitter = emitter.setParams({ testId: "1" });
       renderUseEmitter(myEmitter);

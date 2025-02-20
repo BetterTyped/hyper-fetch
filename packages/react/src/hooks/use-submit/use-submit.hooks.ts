@@ -106,7 +106,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
         data: null,
         error: new Error("Cannot submit request. Option 'disabled' is enabled"),
         status: null,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
       }) as Promise<
         ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>, ExtractAdapterType<RequestType>>
       >;
