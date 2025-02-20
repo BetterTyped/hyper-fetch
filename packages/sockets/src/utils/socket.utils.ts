@@ -1,5 +1,4 @@
 export const getSocketUrl = (url: string, queryParams: string) => {
-  const queryPrefix = queryParams ? "?" : "";
-  const fullUrl = `${url}${queryPrefix}${queryParams}`;
+  const fullUrl = `${url}${queryParams}`;
   return fullUrl;
 };
