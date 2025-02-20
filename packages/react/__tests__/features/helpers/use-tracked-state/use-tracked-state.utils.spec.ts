@@ -1,4 +1,5 @@
 import { createClient } from "@hyper-fetch/core";
+
 import { getValidCacheData, getInitialState, initialState } from "helpers";
 import { isEmpty, isEqual } from "utils";
 
@@ -225,6 +226,8 @@ describe("useTrackedState [ Utils ]", () => {
         data: `mapped-${data.data}`,
       });
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       client.cache = {
         get: jest.fn().mockReturnValue(cacheData),
         version: "1",

@@ -132,4 +132,31 @@ describe("Generator", () => {
     expect(imported.client.url).toEqual(baseUrl);
     await fsPromises.rm(generatedFileNamePath);
   });
+
+  describe("HTTP Method handling", () => {
+    it("should use provided HTTP method in uppercase", async () => {
+      const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document);
+      const operations = getAvailableOperations(schema as unknown as Document);
+
+      // Find the POST operation (addPet)
+      const postOperation = operations.find((op) => op.method === "post");
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(postOperation!, exportedTypes);
+
+      expect(meta.method).toBe("POST");
+    });
+
+    it("should default to GET when no method is provided", async () => {
+      const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document);
+      const operation = {
+        // Minimal operation object without method
+        operationId: "testOperation",
+        path: "/test",
+        method: undefined as any,
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+
+      expect(meta.method).toBe("get");
+    });
+  });
 });
