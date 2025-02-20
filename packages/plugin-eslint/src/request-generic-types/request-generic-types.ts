@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { ESLintUtils } from "@typescript-eslint/utils";
 
-import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic.utilities";
+import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic-utilities.types";
 
 // The Rule creator returns a function that is used to create a well-typed ESLint rule
 // The parameter passed into RuleCreator is a URL generator function.
