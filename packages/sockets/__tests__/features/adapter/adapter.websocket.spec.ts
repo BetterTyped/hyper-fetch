@@ -166,4 +166,15 @@ describe("Websocket Adapter [ Base ]", () => {
       expect(socket.adapter.connecting).toBe(false);
     });
   });
+
+  it("should log error when trying to send payload through closed socket", async () => {
+    // Ensure socket is disconnected
+    await socket.adapter.disconnect();
+
+    // Try to send payload through closed socket
+    const result = await socket.adapter.emit(socket.createEmitter()({ topic: "test" }));
+
+    // Verify the result and error logging
+    expect(result).toBe(undefined);
+  });
 });

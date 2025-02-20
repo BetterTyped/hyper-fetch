@@ -49,7 +49,7 @@ export class SocketAdapter<
   // Listeners
   public listeners = new Map<string, Map<ListenerCallbackType<this, any>, VoidFunction>>();
   public listen: (listener: ListenerInstance, callback: ListenerCallbackType<this, any>) => RemoveListenerCallbackType;
-  public emit: (emitter: EmitterInstance, data: any) => void;
+  public emit: (emitter: EmitterInstance) => void;
   public connect: () => void;
   public reconnect: () => void;
   public disconnect: () => void;

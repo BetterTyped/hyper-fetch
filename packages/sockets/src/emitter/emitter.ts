@@ -1,7 +1,7 @@
 import { Time, ExtractRouteParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
-import { emitEvent, EmitOptionsType, EmitterConfigurationType, EmitterOptionsType, EmitType } from "emitter";
+import { EmitOptionsType, EmitterConfigurationType, EmitterOptionsType, EmitType } from "emitter";
 import { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Emitter<
@@ -16,7 +16,7 @@ export class Emitter<
   timeout: number;
   payload: Payload | undefined;
   options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
-  payloadMapper?: PayloadMapperType<any>;
+  unsafe_payloadMapper?: PayloadMapperType<any>;
 
   constructor(
     readonly socket: Socket,
@@ -53,7 +53,7 @@ export class Emitter<
   setPayloadMapper = <DataMapper extends (payload: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
     const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
 
-    cloned.payloadMapper = payloadMapper;
+    cloned.unsafe_payloadMapper = payloadMapper;
 
     return cloned;
   };
@@ -95,7 +95,7 @@ export class Emitter<
       snapshot,
     );
 
-    newInstance.payloadMapper = this.payloadMapper;
+    newInstance.unsafe_payloadMapper = this.unsafe_payloadMapper;
 
     return newInstance;
   }
@@ -104,6 +104,6 @@ export class Emitter<
     const typedOptions = options as EmitOptionsType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>>;
     const instance = this.clone<Payload, HasPayload, HasParams>(typedOptions);
 
-    emitEvent(instance);
+    this.socket.adapter.emit(instance);
   };
 }

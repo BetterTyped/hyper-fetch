@@ -14,8 +14,8 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 
 describe("Socket Adapter [ Heartbeat ]", () => {
   const { getServer, startServer } = createWebsocketMockingServer();
-  let socket = createSocket(socketOptions);
-  let server = getServer();
+  let socket: ReturnType<typeof createSocket>;
+  let server: ReturnType<typeof getServer>;
 
   beforeEach(async () => {
     startServer();
