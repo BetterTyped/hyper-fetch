@@ -95,6 +95,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
       expect(u).toBe(url);
       expect(e).toBe(endpoint);
@@ -107,6 +108,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
       expect(headers).toEqual({ "Content-Type": "application/json" });
     });
@@ -117,6 +119,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
       expect(payload).toEqual(JSON.stringify(data));
     });
@@ -128,6 +131,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
       expect(getAbortController()).toBeDefined();
     });
@@ -142,6 +146,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: resolveSpy,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         request.client.requestManager.addAbortController(request.abortKey, requestId);
@@ -163,6 +168,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const resolveSpy = jest.fn();
@@ -182,6 +188,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         client.requestManager.abortControllers.clear();
         expect(() => createAbortListener({ status: 0, extra: xhrExtra, onAbort: () => null })).toThrow();
@@ -199,6 +206,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
@@ -213,6 +221,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         const resolveSpy = jest.fn();
@@ -237,6 +246,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         onBeforeRequest();
         expect(onTriggerSpy).toHaveBeenCalledTimes(1);
@@ -273,6 +283,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -305,6 +316,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -317,6 +329,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         onRequestStart();
         expect(onStartSpy).toHaveBeenCalledTimes(1);
@@ -327,6 +340,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onRequestStartByQueue(request.queryKey, spy);
@@ -340,6 +354,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
@@ -353,6 +368,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const progress = {
           total: 9999,
@@ -378,6 +394,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const startTimestamp = onRequestStart();
@@ -394,6 +411,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         expect(getRequestStartTimestamp()).toBeNull();
         const progressTimestamp = onRequestProgress(progress);
@@ -406,6 +424,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         let value: number | undefined;
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, ({ loaded }) => {
@@ -422,6 +441,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         let value: number | undefined;
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, ({ loaded }) => {
@@ -444,6 +464,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const startTimestamp = onRequestStart({ total: progress.total, loaded: 0 });
@@ -460,6 +481,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         expect(getRequestStartTimestamp()).toBeNull();
         const progressTimestamp = onRequestEnd();
@@ -478,6 +500,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         expect(spy).toHaveBeenCalledWith(data);
@@ -499,6 +522,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         expect(requestSpy).toHaveBeenCalledWith(data);
@@ -517,6 +541,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         expect(payload).toBe(JSON.stringify(testData));
@@ -531,6 +556,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
 
         expect(payload).toBe(payload);
@@ -547,6 +573,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onResponseStartByQueue(request.queryKey, spy);
@@ -560,6 +587,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
@@ -573,6 +601,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const progress = {
           total: 9999,
@@ -591,6 +620,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         let value: number | undefined;
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, ({ total }) => {
@@ -620,6 +650,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const startTimestamp = onResponseStart();
@@ -636,6 +667,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const startTimestamp = getResponseStartTimestamp();
         expect(startTimestamp).toBeNull();
@@ -655,6 +687,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const spy = jest.fn();
         const startTimestamp = onResponseStart({ total: progress.total, loaded: 0 });
@@ -671,6 +704,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const startTimestamp = getResponseStartTimestamp();
         expect(startTimestamp).toBeNull();
@@ -689,6 +723,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const { responseTimestamp, requestTimestamp, ...response } = await onSuccess({
           data,
@@ -705,6 +740,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         await onSuccess({ data, status: 200, extra: xhrExtra });
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
@@ -718,6 +754,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         client.unsafe_onResponseCallbacks.push(() => ({
           ...successResponse,
@@ -734,6 +771,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         client.unsafe_onSuccessCallbacks.push(() => ({
           ...successResponse,
@@ -750,6 +788,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const newData: ResponseType<unknown, unknown, HttpAdapterType> = {
           data: "modified",
@@ -781,6 +820,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const { requestTimestamp, responseTimestamp, ...response } = await onError({
           error: data,
@@ -797,6 +837,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         await onError({ error: data, status: 400, extra: xhrExtra });
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
@@ -810,6 +851,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         client.unsafe_onResponseCallbacks.push(() => ({
           ...errorResponse,
@@ -826,6 +868,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         client.unsafe_onErrorCallbacks.push(() => ({
           ...errorResponse,
@@ -842,6 +885,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const newData: ResponseType<unknown, unknown, HttpAdapterType> = {
           data: "modified",
@@ -873,6 +917,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const response = await onAbortError({ status: 0, extra: xhrExtra });
         expect(response).toEqual({
@@ -891,6 +936,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const response = await onTimeoutError({ status: 0, extra: xhrExtra });
         expect(response).toEqual({
@@ -909,6 +955,7 @@ describe("Adapter [ Bindings ]", () => {
           requestId,
           resolve: () => null,
           onStartTime: () => null,
+          internalErrorMapping: (error) => error,
         });
         const response = await onUnexpectedError({ status: 0, extra: xhrExtra });
         expect(response).toEqual({
@@ -931,6 +978,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
 
       const spy = jest.fn();
@@ -954,6 +1002,7 @@ describe("Adapter [ Bindings ]", () => {
         requestId,
         resolve: () => null,
         onStartTime: () => null,
+        internalErrorMapping: (error) => error,
       });
 
       const spy = jest.fn();

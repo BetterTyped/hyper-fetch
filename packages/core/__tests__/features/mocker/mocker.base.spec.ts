@@ -50,7 +50,7 @@ describe("Mocker [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
         responseTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
       });
@@ -66,7 +66,7 @@ describe("Mocker [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
         responseTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
       });
@@ -164,7 +164,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     };
@@ -307,7 +307,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -369,7 +369,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -396,7 +396,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -432,7 +432,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -459,7 +459,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -469,7 +469,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: request.client.defaultExtra,
+      extra: request.client.adapter.defaultExtra,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
     });
@@ -513,7 +513,7 @@ describe("Mocker [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
       });
@@ -535,7 +535,7 @@ describe("Mocker [ Base ]", () => {
         error: expect.any(Error),
         status: 400,
         success: true,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
       });
@@ -556,7 +556,7 @@ describe("Mocker [ Base ]", () => {
         error: expect.any(Error),
         status: 500,
         success: false,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
       });
