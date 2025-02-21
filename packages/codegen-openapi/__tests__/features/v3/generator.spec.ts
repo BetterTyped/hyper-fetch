@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /**
  * @jest-environment node
  */
@@ -5,7 +6,8 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { OpenapiRequestGenerator, Document, getAvailableOperations } from "../../../src";
+import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "../../../src";
+import { HttpMethod } from "openapi/http-methods.enum";
 
 const expectedMetadata = {
   findPets: {
@@ -157,6 +159,145 @@ describe("Generator", () => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
 
       expect(meta.method).toBe("get");
+    });
+  });
+
+  describe("Error type handling", () => {
+    let exportedTypes: any;
+
+    beforeEach(async () => {
+      exportedTypes = (await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document)).exportedTypes;
+    });
+
+    it("should generate both error and response types when both are present", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+
+        responses: {
+          "200": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+          "400": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+        },
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+      meta.errorType = "ErrorType";
+      meta.responseType = "ResponseType";
+
+      const types = OpenapiRequestGenerator.generateTypes(meta);
+
+      // Verify exact type strings are generated
+      expect(types.TestOperationErrorType).toBe("export type TestOperationErrorType = ErrorType");
+      expect(types.TestOperationResponseType).toBe("export type TestOperationResponseType = ResponseType");
+    });
+
+    it("should generate only response type when error type is null", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+        responses: {
+          "200": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+        },
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+      // @ts-ignore
+      meta.errorType = null;
+      meta.responseType = "ResponseType";
+
+      const types = OpenapiRequestGenerator.generateTypes(meta);
+
+      // Verify only response type is generated
+      expect(types.TestOperationErrorType).toBeUndefined();
+      expect(types.TestOperationResponseType).toBe("export type TestOperationResponseType = ResponseType");
+    });
+
+    it("should generate only error type when response type is null", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+        responses: {
+          "400": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+        },
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+      meta.errorType = "ErrorType";
+      // @ts-ignore
+      meta.responseType = null;
+
+      const types = OpenapiRequestGenerator.generateTypes(meta);
+
+      // Verify only error type is generated
+      expect(types.TestOperationErrorType).toBe("export type TestOperationErrorType = ErrorType");
+      expect(types.TestOperationResponseType).toBeUndefined();
+    });
+
+    it("should not generate any types when both are null", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+      // @ts-ignore
+      meta.errorType = null;
+      // @ts-ignore
+      meta.responseType = null;
+
+      const types = OpenapiRequestGenerator.generateTypes(meta);
+
+      // Verify no types are generated
+      expect(types.TestOperationErrorType).toBeUndefined();
+      expect(types.TestOperationResponseType).toBeUndefined();
+    });
+  });
+
+  describe("Generic type handling", () => {
+    let exportedTypes: any;
+
+    beforeEach(async () => {
+      exportedTypes = (await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document)).exportedTypes;
+    });
+
+    it("should include generic type when present", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+        responses: {
+          "200": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+        },
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+
+      const request = OpenapiRequestGenerator.generateHyperFetchRequest(meta, {
+        TestOperationResponseType: "string",
+      });
+      expect(request).toBe(
+        'export const testOperation = client.createRequest<{response:TestOperationResponseType}>()({method: "GET", endpoint: "/test"})',
+      );
+    });
+
+    it("should generate basic request when genericType is falsy", async () => {
+      const operation: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        operationId: "testOperation",
+        path: "/test",
+        method: HttpMethod.GET,
+        responses: {
+          "200": { content: { "application/json": { schema: { type: "object" } } }, description: "" },
+        },
+      };
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
+
+      const request = OpenapiRequestGenerator.generateHyperFetchRequest(meta, {});
+      expect(request).toBe('export const testOperation = client.createRequest()({method: "GET", endpoint: "/test"})');
     });
   });
 });

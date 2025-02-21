@@ -80,7 +80,7 @@ export class OpenapiRequestGenerator {
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
       ? `${createTypeBaseName(id)}ResponseType`
-      : "unknown";
+      : undefined;
     const Payload = types[`${createTypeBaseName(id)}RequestBody`] ? `${createTypeBaseName(id)}RequestBody` : undefined;
     const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : undefined;
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
