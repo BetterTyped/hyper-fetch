@@ -1,7 +1,7 @@
 import { CssBaseline, Stack } from "@mui/material";
 import * as ReactDOM from "react-dom/client";
 import { SnackbarProvider } from "notistack";
-import { Devtools } from "@hyper-fetch/devtools-react";
+import { Devtools } from "@hyper-fetch/devtools";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { routing } from "./constants/routing.constants";

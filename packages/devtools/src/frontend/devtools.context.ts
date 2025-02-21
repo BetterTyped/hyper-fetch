@@ -16,6 +16,7 @@ import { createContext } from "frontend/utils/context";
 import { Status } from "frontend/utils/request.status.utils";
 import { DevtoolsDataProvider } from "frontend/pages/explorer/list/content.state";
 import { DevtoolsExplorerRequest } from "frontend/pages/explorer/list/content.types";
+import { Emitter, Listener } from "@hyper-fetch/sockets";
 
 export type Sort = { key: string; order: "asc" | "desc" };
 
@@ -29,6 +30,8 @@ export type Workspace = {
     request: RequestInstance;
   }[];
   client: ClientInstance;
+  clientSpecificReceiveMessage: Listener<any, any, any>;
+  clientSpecificSendMessage: Emitter<any, any, any>;
 };
 
 export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("DevtoolsSwitcher", {

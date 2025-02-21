@@ -87,6 +87,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   setQueryParams = (queryParams: ExtractAdapterQueryParamsType<Adapter>) => {
+    console.log("SETTING QUERY PARAMS", queryParams);
     this.adapter.setQueryParams(queryParams);
     return this;
   };

@@ -1,10 +1,10 @@
-import { Devtools, useDevtoolsWorkspaces } from "@hyper-fetch/devtools-react";
 import { ClientInstance, LoggerMethods } from "@hyper-fetch/core";
 import { useListener } from "@hyper-fetch/react";
 import { useEffect } from "react";
 
-import { clientSpecificReceiveMessage, clientSpecificSendMessage } from "./socket";
 import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "../types/messages.types";
+import { useDevtoolsWorkspaces } from "../frontend/devtools.context";
+import { Devtools } from "../frontend/devtools";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments
@@ -68,7 +68,8 @@ const handleEvent = (
 };
 
 export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string; client: ClientInstance }) => {
-  const { setRequestList } = useDevtoolsWorkspaces("Devtools");
+  const { setRequestList, workspaces } = useDevtoolsWorkspaces("Devtools");
+  const { clientSpecificReceiveMessage, clientSpecificSendMessage } = workspaces[workspace];
   const logger = client.loggerManager.initialize(client, `DevtoolsStandalone`);
   const { onEvent } = useListener(clientSpecificReceiveMessage, {});
   // TODO fix any

@@ -23,7 +23,7 @@
       "path": "./packages/devtools-plugin"
     },
     {
-      "path": "./packages/devtools-react"
+      "path": "./packages/devtools"
     },
     {
       "path": "./packages/devtools-standalone/"

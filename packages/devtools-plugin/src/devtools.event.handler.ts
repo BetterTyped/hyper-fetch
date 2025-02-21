@@ -22,7 +22,10 @@ export class DevtoolsEventHandler {
     this.client = client;
     this.unmountHooks = this.initializeHooks();
     this.connectionName = `HF_DEVTOOLS_CLIENT_${appName}`;
-    this.socket = new Socket({ url: `${socketAddress}:${socketPort}`, autoConnect: false }).setQuery({
+    this.socket = new Socket({
+      url: `${socketAddress}:${socketPort}`,
+      adapterOptions: { autoConnect: false },
+    }).setQueryParams({
       connectionName: this.connectionName,
     });
 

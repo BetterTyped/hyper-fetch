@@ -1,5 +1,5 @@
 {
-  "name": "@hyper-fetch/devtools-react",
+  "name": "@hyper-fetch/devtools",
   "version": "0.0.0",
   "private": false,
   "description": "Devtools standalone for HyperFetch",
@@ -22,11 +22,12 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'devtools-react-hyper-fetch-v${version}'"
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'devtools-hyper-fetch-v${version}'"
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
-    "@hyper-fetch/sockets": "*"
+    "@hyper-fetch/sockets": "*",
+    "@hyper-fetch/devtools-plugin": "*"
   },
   "peerDependenciesMeta": {
     "@hyper-fetch/core": {
@@ -76,7 +77,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
-    "directory": "packages/devtools-react"
+    "directory": "packages/devtools"
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
