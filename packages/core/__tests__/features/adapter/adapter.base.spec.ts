@@ -157,6 +157,15 @@ describe("Adapter [ Base ]", () => {
       expect(callback).toHaveBeenCalledWith({});
       expect(result).toBe(defaults);
     });
+
+    it("should set internal error mapping callback", () => {
+      const errorMapping = (error: any) => ({ customError: error });
+      const callback = jest.fn().mockImplementation(errorMapping);
+
+      adapter.setInternalErrorMapping(callback);
+
+      expect(adapter.unsafe_internalErrorMapping).toBe(callback);
+    });
   });
 
   describe("when checking default mappers", () => {

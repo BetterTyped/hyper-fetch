@@ -14,14 +14,5 @@ export type Connector = {
     listener: ListenerInstance,
     callback: ListenerCallbackType<SocketAdapterInstance, any>,
   ) => RemoveListenerCallbackType;
-  emit: (emitter: EmitterInstance, data: any) => void;
-};
-
-// Events
-
-export type SocketData<D = any> = { topic: string; payload: D };
-
-export type SocketEvent<T = any> = {
-  topic: string;
-  data: T;
+  emit: (emitter: EmitterInstance) => void;
 };

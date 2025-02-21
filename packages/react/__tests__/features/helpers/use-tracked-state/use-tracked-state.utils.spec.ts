@@ -1,3 +1,5 @@
+import { createClient } from "@hyper-fetch/core";
+
 import { getValidCacheData, getInitialState, initialState } from "helpers";
 import { isEmpty, isEqual } from "utils";
 
@@ -217,21 +219,19 @@ describe("useTrackedState [ Utils ]", () => {
         retries: 0,
       };
 
-      const mockRequest = {
-        client: {
-          cache: {
-            get: jest.fn().mockReturnValue(cacheData),
-            version: 1,
-          },
-          defaultExtra: null,
-        },
-        queryKey: "test",
-        cacheKey: "test",
-        unsafe_responseMapper: (data: any) => ({
-          ...data,
-          data: `mapped-${data.data}`,
-        }),
-      } as any;
+      const client = createClient({ url: "http://localhost:3000" });
+      const mockRequest = client.createRequest()({ endpoint: "/test" });
+      mockRequest.unsafe_responseMapper = (data: any) => ({
+        ...data,
+        data: `mapped-${data.data}`,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      client.cache = {
+        get: jest.fn().mockReturnValue(cacheData),
+        version: "1",
+      };
 
       const mockDispatcher = {
         getQueue: jest.fn().mockReturnValue({ stopped: false }),

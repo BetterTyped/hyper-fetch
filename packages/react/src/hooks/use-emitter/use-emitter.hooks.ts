@@ -77,6 +77,5 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     onEmit,
     onEmitError,
     emit,
-    reconnect: emitter.socket.reconnect,
   };
 };

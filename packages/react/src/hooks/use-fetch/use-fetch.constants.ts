@@ -21,5 +21,6 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   bounce: false,
   bounceType: "debounce",
   bounceTime: 400,
+  bounceTimeout: 400,
   deepCompare: true,
 };

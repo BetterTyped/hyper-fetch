@@ -124,7 +124,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
         const disconnect = async (): Promise<boolean> => {
           if (!sse) {
-            return Promise.resolve(false);
+            adapter.setConnected(false);
+            adapter.setConnecting(false);
+            return Promise.resolve(true);
           }
           const currentSse = sse;
           const promise = new Promise<boolean>((resolve) => {

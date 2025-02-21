@@ -108,6 +108,9 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       return null;
     }
 
+    // eslint-disable-next-line no-param-reassign
+    emitter.payload = emitter.unsafe_payloadMapper ? emitter.unsafe_payloadMapper(emitter.payload) : emitter.payload;
+
     const emitterInstance = await socket.unsafe__modifySend(emitter);
     socket.events.emitEmitterStartEvent({ emitter: emitterInstance });
 

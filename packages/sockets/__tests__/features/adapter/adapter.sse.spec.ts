@@ -162,7 +162,7 @@ describe("Socket Adapter [ SSE ]", () => {
     });
     newSocket.events.onConnected(spy);
 
-    await expect(newSocket.adapter.disconnect()).resolves.toBe(false);
+    await expect(newSocket.adapter.disconnect()).resolves.toBe(true);
   });
 
   it("should resolve immediately when EventSource is already in OPEN state", async () => {

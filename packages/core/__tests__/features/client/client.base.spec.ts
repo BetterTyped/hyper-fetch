@@ -143,7 +143,7 @@ describe("Client [ Base ]", () => {
 
       client.adapter.setDefaultMethod(defaultMethod);
 
-      expect(client.defaultMethod).toStrictEqual(defaultMethod);
+      expect(client.adapter.defaultMethod).toStrictEqual(defaultMethod);
     });
   });
 });

@@ -1,22 +1,26 @@
 /* eslint-disable max-classes-per-file */
 import { waitFor } from "@testing-library/dom";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
-import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
+import { WebsocketAdapter, WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
 import { createSocket } from "../../utils/socket.utils";
+import { Socket } from "socket";
 
 describe("Websocket Adapter [ Base ]", () => {
-  const { startServer, stopServer } = createWebsocketMockingServer();
+  const { url, startServer, stopServer } = createWebsocketMockingServer();
   const socketOptions = {
-    url: "ws://localhost:3000",
+    url,
     adapter: WebsocketAdapter(),
+    adapterOptions: {
+      autoConnect: true,
+    },
   };
-  let socket = createSocket(socketOptions);
+  let socket: Socket<WebsocketAdapterType>;
 
   beforeEach(async () => {
+    jest.resetAllMocks();
     startServer();
     socket = createSocket(socketOptions);
-    jest.resetAllMocks();
   });
 
   it("should create socket instance", () => {
@@ -25,7 +29,7 @@ describe("Websocket Adapter [ Base ]", () => {
   });
 
   it("should handle open connection state", async () => {
-    await socket.connect();
+    await waitForConnection(socket);
     expect(socket.adapter.connected).toBe(true);
   });
 
@@ -61,15 +65,17 @@ describe("Websocket Adapter [ Base ]", () => {
     });
     newSocket.events.onConnected(spy);
 
-    await expect(newSocket.adapter.disconnect()).resolves.toBe(false);
+    await expect(newSocket.adapter.disconnect()).resolves.toBe(true);
   });
 
   it("should resolve immediately when WebSocket is already in OPEN state", async () => {
+    const ws = window.WebSocket;
     class NewWebsocket extends WebSocket {
-      constructor(url: string, protocols?: string | string[]) {
-        super(url, protocols);
+      constructor(u: string, protocols?: string | string[]) {
+        super(u, protocols);
         Object.defineProperty(this, "readyState", {
           get: () => WebSocket.OPEN,
+          set: () => {},
         });
       }
     }
@@ -79,6 +85,7 @@ describe("Websocket Adapter [ Base ]", () => {
 
     const newSocket = createSocket({
       ...socketOptions,
+      adapter: WebsocketAdapter(),
       adapterOptions: { autoConnect: false },
     });
 
@@ -87,12 +94,14 @@ describe("Websocket Adapter [ Base ]", () => {
     expect(result).toBe(true);
     expect(newSocket.adapter.connected).toBe(true);
     expect(newSocket.adapter.connecting).toBe(false);
+    window.WebSocket = ws;
   });
 
   it("should resolve immediately when WebSocket is already in CLOSED state", async () => {
+    const ws = window.WebSocket;
     class NewWebsocket extends WebSocket {
-      constructor(url: string, protocols?: string | string[]) {
-        super(url, protocols);
+      constructor(u: string, protocols?: string | string[]) {
+        super(u, protocols);
         Object.defineProperty(this, "readyState", {
           get: () => WebSocket.CLOSED,
           set: () => {},
@@ -103,13 +112,14 @@ describe("Websocket Adapter [ Base ]", () => {
     // @ts-ignore-error
     window.WebSocket = NewWebsocket;
 
-    const newSocket = createSocket(socketOptions);
+    const newSocket = createSocket();
 
     const result = await newSocket.adapter.disconnect();
 
     expect(result).toBe(true);
     expect(newSocket.adapter.connected).toBe(false);
     expect(newSocket.adapter.connecting).toBe(false);
+    window.WebSocket = ws;
   });
 
   it("should respect autoConnect setting when going online", async () => {
@@ -155,5 +165,16 @@ describe("Websocket Adapter [ Base ]", () => {
       expect(socket.adapter.connected).toBe(false);
       expect(socket.adapter.connecting).toBe(false);
     });
+  });
+
+  it("should log error when trying to send payload through closed socket", async () => {
+    // Ensure socket is disconnected
+    await socket.adapter.disconnect();
+
+    // Try to send payload through closed socket
+    const result = await socket.adapter.emit(socket.createEmitter()({ topic: "test" }));
+
+    // Verify the result and error logging
+    expect(result).toBe(undefined);
   });
 });

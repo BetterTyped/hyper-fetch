@@ -42,7 +42,7 @@ describe("useTrackingState [ Events ]", () => {
         expect(result.current[0].error).toBe(initialState.error);
         expect(result.current[0].status).toBe(initialState.status);
         expect(result.current[0].success).toBe(initialState.success);
-        expect(result.current[0].extra).toStrictEqual(request.client.defaultExtra);
+        expect(result.current[0].extra).toStrictEqual(request.client.adapter.defaultExtra);
         expect(result.current[0].retries).toBe(0);
         expect(result.current[0].loading).toBe(initialState.loading);
       });

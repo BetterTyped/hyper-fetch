@@ -68,4 +68,14 @@ describe("Socket Adapter [ Bindings ]", () => {
 
     expect(socket.adapter.listeners.get("test")?.size).toBe(0);
   });
+
+  it("should get query params from adapter", () => {
+    const { getQueryParams } = getAdapterBindings(socket);
+
+    socket.adapter.queryParams = {
+      test: 123,
+    };
+
+    expect(getQueryParams()).toBe("?test=123");
+  });
 });
