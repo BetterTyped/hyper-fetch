@@ -8,7 +8,8 @@ export const styles = createStyles(({ isLight, css }) => {
 
       & * {
         font-size: 12px !important;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       & > ul {
         margin: 0 !important;

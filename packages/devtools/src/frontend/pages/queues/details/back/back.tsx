@@ -1,7 +1,7 @@
 import { XIcon } from "lucide-react";
 
 import { IconButton } from "frontend/components/icon-button/icon-button";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 
 export const Back = () => {
   const { setDetailsQueueKey } = useDevtoolsContext("DevtoolsNetworkBack");

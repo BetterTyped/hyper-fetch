@@ -2,9 +2,20 @@
   "name": "hyper-fetch",
   "version": "0.0.0",
   "license": "Apache-2.0",
-  "workspaces": [
-    "packages/*"
-  ],
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "electron",
+      "electron/**",
+      "electron-squirrel-startup",
+      "electron-squirrel-startup/**",
+      "@electron-forge",
+      "@electron-forge/**"
+    ]
+  },
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
     "prepare": "yarn install-peers && yarn husky install",
@@ -22,7 +33,6 @@
     "storybook:build": "nx run storybook:build-storybook --skip-nx-cache",
     "storybook:test": "yarn start & test-storybook --url http://127.0.0.1:4400 --config-dir ./storybook/.storybook"
   },
-  "private": true,
   "dependencies": {
     "@nx/cypress": "20.3.3",
     "@nx/eslint-plugin": "20.3.3",

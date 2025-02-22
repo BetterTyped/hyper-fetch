@@ -10,7 +10,7 @@ import { ExploreTabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "frontend/components/method/method";
 import { DevtoolsExplorerRequest } from "../list/content.types";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { Bar } from "frontend/components/bar/bar";
 

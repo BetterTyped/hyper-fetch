@@ -5,7 +5,7 @@ import { UncontrolledTreeEnvironment, Tree, TreeItem } from "react-complex-tree"
 
 import * as DropdownMenu from "frontend/components/dropdown/dropdown";
 import { Sidebar } from "frontend/components/sidebar/sidebar";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
 import { DevtoolsExplorerItem } from "./content.types";

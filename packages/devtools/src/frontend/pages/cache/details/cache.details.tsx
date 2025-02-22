@@ -7,7 +7,7 @@ import { Separator } from "frontend/components/separator/separator";
 import { Button } from "frontend/components/button/button";
 import { Bar } from "frontend/components/bar/bar";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Collapsible } from "frontend/components/collapsible/collapsible";
 import * as Table from "frontend/components/table/table";
 import { RowInfo } from "frontend/components/table/row-info/row-info";

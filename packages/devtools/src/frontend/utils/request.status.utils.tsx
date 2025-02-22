@@ -1,4 +1,4 @@
-import { DevtoolsRequestEvent } from "frontend/devtools.types";
+import { DevtoolsRequestEvent } from "frontend/pages/_root/devtools.types";
 import { tokens } from "frontend/theme/tokens";
 
 export enum Status {

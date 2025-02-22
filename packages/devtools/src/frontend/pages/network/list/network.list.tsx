@@ -1,13 +1,13 @@
 /* eslint-disable react/no-array-index-key */
 import { useMemo } from "react";
 
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Request } from "./request/request";
 import * as Table from "frontend/components/table/table";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { Status } from "frontend/utils/request.status.utils";
 import { PathsOf, useSearch } from "frontend/hooks/use-search";
-import { DevtoolsRequestEvent } from "frontend/devtools.types";
+import { DevtoolsRequestEvent } from "frontend/pages/_root/devtools.types";
 import { createStyles } from "frontend/theme/use-styles.hook";
 
 const styles = createStyles(({ css }) => {

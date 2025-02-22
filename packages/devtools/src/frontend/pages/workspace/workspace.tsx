@@ -1,5 +1,5 @@
 import { CardButton } from "frontend/components/card-button/card-button";
-import { useDevtoolsWorkspaces } from "frontend/devtools.context";
+import { useDevtoolsWorkspaces } from "frontend/pages/_root/devtools.context";
 
 export const Workspace = () => {
   const { activeWorkspace, workspaces } = useDevtoolsWorkspaces("DevtoolsWorkspace");

@@ -19,7 +19,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
    * Callbacks
    */
   const onEventStartCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
-  const onEventErrorCallback = useRef<null | EmitterCallbackErrorType<EmitterType>>(null);
+  const onEventErrorCallback = useRef<null | EmitterCallbackErrorType>(null);
 
   useDidUpdate(
     () => {
@@ -30,8 +30,8 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
       };
 
       const onEventError = () => {
-        return emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitterInstance) => {
-          onEventErrorCallback.current?.(error, emitterInstance);
+        return emitter.socket.events.onEmitterErrorByTopic(emitter, ({ error }) => {
+          onEventErrorCallback.current?.({ error });
         });
       };
 
@@ -59,7 +59,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     onEventStartCallback.current = callback;
   };
 
-  const onEmitError = (callback: EmitterCallbackErrorType<EmitterType>) => {
+  const onEmitError = (callback: EmitterCallbackErrorType) => {
     onEventErrorCallback.current = callback;
   };
 

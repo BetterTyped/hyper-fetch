@@ -26,12 +26,7 @@ export type EmitterOptionsType<Topic extends string, AdapterType extends SocketA
   options?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };
 
-export type EmitterCallbackErrorType<EmitterType extends EmitterInstance> = (
-  error: Error,
-  emitter: EmitterType,
-) => void;
-
-export type EmitterCallbackStartType<EmitterType extends EmitterInstance> = (emitter: EmitterType) => void;
+export type EmitterCallbackErrorType = (data: { error: Error }) => void;
 
 // Emit
 

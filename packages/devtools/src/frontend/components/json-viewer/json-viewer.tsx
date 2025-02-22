@@ -2,7 +2,7 @@
 import { CommonExternalProps, JSONTree } from "react-json-tree";
 import { produce } from "immer";
 
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Value } from "./value/value";
 import { Label } from "./label/label";
 import { getRaw, getTheme, updateValue } from "./json-viewer.utils";

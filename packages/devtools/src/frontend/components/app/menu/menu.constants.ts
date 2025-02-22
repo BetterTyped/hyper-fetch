@@ -7,7 +7,7 @@ import {
   // SquareChartGanttIcon,
 } from "lucide-react";
 
-import { DevtoolsModule } from "../../../devtools.types";
+import { DevtoolsModule } from "frontend/pages/_root/devtools.types";
 
 export const menuIcons: Partial<
   Record<DevtoolsModule, React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>>

@@ -4,7 +4,7 @@ import { EllipsisIcon, FolderIcon } from "lucide-react";
 import * as DropdownMenu from "frontend/components/dropdown/dropdown";
 import { IconButton } from "frontend/components/icon-button/icon-button";
 import { DevtoolsExplorerFolder } from "../content.types";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 
 const styles = createStyles(({ css }) => {

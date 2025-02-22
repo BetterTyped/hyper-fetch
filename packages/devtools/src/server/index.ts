@@ -136,5 +136,3 @@ export const startServer = async (port = 1234) => {
   }
   return {};
 };
-
-startServer().then((r) => console.log("SERVER STARTED"));

@@ -2,7 +2,7 @@ import { ListXIcon } from "lucide-react";
 
 import { Toolbar } from "frontend/components/toolbar/toolbar";
 import { Search } from "frontend/components/search/search";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Button } from "frontend/components/button/button";
 import { createStyles } from "frontend/theme/use-styles.hook";
 

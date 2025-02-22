@@ -78,9 +78,9 @@ describe("useSocketState [ Base ]", () => {
       const value = {} as MessageEvent;
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitError(value);
+        socket.events.emitError({ error: value });
         callbacks.onError(spy);
-        socket.events.emitError(value);
+        socket.events.emitError({ error: value });
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);
@@ -88,9 +88,9 @@ describe("useSocketState [ Base ]", () => {
     it("should call onConnecting callback", async () => {
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitConnecting(true);
+        socket.events.emitConnecting({ connecting: true });
         callbacks.onConnecting(spy);
-        socket.events.emitConnecting(true);
+        socket.events.emitConnecting({ connecting: true });
       });
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -98,9 +98,9 @@ describe("useSocketState [ Base ]", () => {
       const value = 2;
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitReconnecting(value);
+        socket.events.emitReconnecting({ attempts: value });
         callbacks.onReconnecting(spy);
-        socket.events.emitReconnecting(value);
+        socket.events.emitReconnecting({ attempts: value });
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);
@@ -109,9 +109,9 @@ describe("useSocketState [ Base ]", () => {
       const value = 2;
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitReconnectingFailed(value);
+        socket.events.emitReconnectingFailed({ attempts: value });
         callbacks.onReconnectingFailed(spy);
-        socket.events.emitReconnectingFailed(value);
+        socket.events.emitReconnectingFailed({ attempts: value });
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);

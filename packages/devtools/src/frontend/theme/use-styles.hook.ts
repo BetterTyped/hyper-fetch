@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import * as goober from "goober";
 
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { tokens } from "./tokens";
-import { useDevtoolsContext } from "frontend/devtools.context";
 
 export type StylesFactory<Keys extends string> = (params: {
   isLight: boolean;

@@ -3,7 +3,7 @@ import { QueueDataType } from "@hyper-fetch/core";
 
 import { Chip } from "frontend/components/chip/chip";
 import { getQueueStatus, getQueueStatusColor } from "frontend/utils/queue.status.utils";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { tokens } from "frontend/theme/tokens";
 import { CardButton } from "frontend/components/card-button/card-button";
 import { createStyles } from "frontend/theme/use-styles.hook";

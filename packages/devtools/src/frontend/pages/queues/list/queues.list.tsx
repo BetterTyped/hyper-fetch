@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Card } from "./card/card";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";

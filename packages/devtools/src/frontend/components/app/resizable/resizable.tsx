@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Resizable as ResizableComponent } from "re-resizable";
 
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { minSizes, sizes } from "./resizable.constants";
 

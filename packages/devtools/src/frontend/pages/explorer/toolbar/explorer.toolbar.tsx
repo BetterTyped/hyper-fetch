@@ -1,6 +1,6 @@
 import { Toolbar } from "frontend/components/toolbar/toolbar";
 import { Search } from "frontend/components/search/search";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 
 export const ExplorerToolbar = () => {
   const { setExplorerSearchTerm } = useDevtoolsContext("ToolbarExplorer");

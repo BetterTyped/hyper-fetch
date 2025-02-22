@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 
 import * as Table from "frontend/components/table/table";
-import { DevtoolsRequestEvent } from "frontend/devtools.types";
+import { DevtoolsRequestEvent } from "frontend/pages/_root/devtools.types";
 import { getStatus, getStatusColor, RequestStatusIcon } from "frontend/utils/request.status.utils";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 
 const styles = createStyles(({ isLight, css, tokens }) => {

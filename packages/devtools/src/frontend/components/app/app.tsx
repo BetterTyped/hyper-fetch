@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { Menu, Positions } from "./menu/menu";
 import { Resizable } from "./resizable/resizable";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { AppProvider } from "./app.context";
 import { Header } from "./header/header";
 

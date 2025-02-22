@@ -5,8 +5,7 @@
     "baseUrl": "./src",
     "paths": {
       "@browser-adapter": ["./adapter/http-adapter.browser.ts"],
-      "@server-adapter": ["./adapter/http-adapter.server.ts"],
-      "@hyper-fetch/graphql": ["../src"]
+      "@server-adapter": ["./adapter/http-adapter.server.ts"]
     }
   },
   "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]

@@ -3,8 +3,8 @@ import { useListener } from "@hyper-fetch/react";
 import { useEffect } from "react";
 
 import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "../types/messages.types";
-import { useDevtoolsWorkspaces } from "../frontend/devtools.context";
-import { Devtools } from "../frontend/devtools";
+import { useDevtoolsWorkspaces } from "../frontend/pages/_root/devtools.context";
+import { Devtools } from "../frontend/pages/_root/devtools";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments

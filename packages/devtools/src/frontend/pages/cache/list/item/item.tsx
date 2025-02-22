@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
 
 import * as Table from "frontend/components/table/table";
-import { DevtoolsCacheEvent } from "frontend/devtools.types";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { DevtoolsCacheEvent } from "frontend/pages/_root/devtools.types";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { useCountdown } from "frontend/hooks/use-countdown";
 import { Chip } from "frontend/components/chip/chip";
 import { createStyles } from "frontend/theme/use-styles.hook";

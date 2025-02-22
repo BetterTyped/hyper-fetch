@@ -1,6 +1,6 @@
 import { createStyles } from "frontend/theme/use-styles.hook";
-import { useDevtoolsContext } from "frontend/devtools.context";
-import { DevtoolsModule } from "frontend/devtools.types";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
+import { DevtoolsModule } from "frontend/pages/_root/devtools.types";
 import { menuIcons } from "./menu.constants";
 import { tokens } from "frontend/theme/tokens";
 import { useAppContext } from "../app.context";

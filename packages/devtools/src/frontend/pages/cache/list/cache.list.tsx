@@ -2,7 +2,7 @@
 /* eslint-disable react/no-array-index-key */
 import { NoContent } from "frontend/components/no-content/no-content";
 import * as Table from "frontend/components/table/table";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { Item } from "./item/item";
 import { useSearch } from "frontend/hooks/use-search";
 import { createStyles } from "frontend/theme/use-styles.hook";

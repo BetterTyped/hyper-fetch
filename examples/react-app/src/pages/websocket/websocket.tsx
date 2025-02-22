@@ -24,7 +24,7 @@ export const WebsocketsPage: React.FC = () => {
 
     setMessage("");
     emit({
-      data: {
+      payload: {
         message,
         username: "Client User",
         timestamp: new Date().toLocaleTimeString(),
@@ -33,7 +33,7 @@ export const WebsocketsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    socket.setQuery({
+    socket.setQueryParams({
       username: "Client User",
     });
     socket.connect();

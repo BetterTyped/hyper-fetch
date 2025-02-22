@@ -11,7 +11,7 @@ import { Collapsible } from "frontend/components/collapsible/collapsible";
 import { RowInfo } from "frontend/components/table/row-info/row-info";
 import { Chip } from "frontend/components/chip/chip";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
-import { useDevtoolsContext } from "frontend/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { Sidebar } from "frontend/components/sidebar/sidebar";
 
