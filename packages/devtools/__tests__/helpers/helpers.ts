@@ -16,15 +16,15 @@ export const connectDevtoolsClient = ({
 } = {}) => {
   const client = new Client({ url: baseUrl });
 
-  const devtools = devtoolsPlugin({
+  const plugin = devtoolsPlugin({
     appName: clientName,
     socketAddress,
     socketPort,
   });
 
-  client.addPlugin(devtools);
+  client.addPlugin(plugin);
 
-  return client;
+  return { client, plugin };
 };
 
 export const connectDevtoolsFrontend = async ({
@@ -34,22 +34,20 @@ export const connectDevtoolsFrontend = async ({
   socketAddress?: string;
   socketPort?: number;
 }) => {
-  const initSocket = new Socket({
+  let initSocket = new Socket({
     url: `ws://${socketAddress}:${socketPort}`,
     adapterOptions: { autoConnect: false },
   }).setDebug(true);
-  const socketConnected = initSocket.setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_APP });
+  initSocket = initSocket.setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_APP });
 
-  await socketConnected.connect();
+  await initSocket.connect();
+  return initSocket;
 };
 
 export const listenForServerMessage = async (wss: any) => {
   return new Promise((resolve) => {
     wss.on("connection", (wsConn, request) => {
-      console.log("CONNECTION LISTEN FOR SERVER", request.url);
       wsConn.on("message", (message) => {
-        console.log("CONNECTION LISTEN FOR SERVER MESSAGE", request.url);
-        console.log("MESSAGE", message);
         return resolve(message);
       });
     });
