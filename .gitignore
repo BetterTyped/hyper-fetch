@@ -6,6 +6,8 @@ dist
 tmp
 out-tsc
 .next
+.webpack
+.rspack
 
 # dependencies
 node_modules
