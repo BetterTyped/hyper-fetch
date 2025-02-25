@@ -7,16 +7,9 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "jsx": "preserve",
     "baseUrl": "./src",
     "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "strict": true,
-    "lib": ["esnext"],
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "incremental": true
+    "resolveJsonModule": true
   }
 }

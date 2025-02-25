@@ -57,11 +57,6 @@ export function App() {
     initializeSocketState();
   });
 
-  console.log(1);
-  console.log(1);
-  console.log(1);
-  console.log(1);
-  console.log(1);
 
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment

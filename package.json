@@ -41,8 +41,10 @@
     "@nx/vite": "20.3.3",
     "@nx/web": "20.3.3",
     "@nx/workspace": "20.3.3",
+    "lucide-react": "^0.476.0",
     "nx": "20.3.3",
-    "regenerator-runtime": "0.13.7"
+    "regenerator-runtime": "0.13.7",
+    "use-immer": "^0.11.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.6",
