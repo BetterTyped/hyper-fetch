@@ -31,7 +31,7 @@ export class DevtoolsEventHandler {
 
     this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
-    this.socket.connect().then(() => console.log("CONNECTED"));
+    this.socket.connect();
     this.socket.onDisconnected(() => {
       // TODO handle reconnection?
     });
@@ -41,8 +41,6 @@ export class DevtoolsEventHandler {
     this.socket.onConnected(() => {
       this.isConnected = true;
       while (this.eventQueue.length > 0) {
-        // TODO - optimize with Dequeue to have O(1)
-        // TODO - add timestamps for particular events.
         const nextEvent = this.eventQueue.shift();
         this.socketEmitter.emit({ payload: nextEvent });
       }
