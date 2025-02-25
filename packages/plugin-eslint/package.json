@@ -1,7 +1,6 @@
 {
   "name": "eslint-plugin-hyper-fetch",
   "version": "0.0.0",
-  "private": false,
   "description": "Eslint plugin for HyperFetch",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",

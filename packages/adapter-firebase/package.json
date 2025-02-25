@@ -1,7 +1,6 @@
 {
   "name": "@hyper-fetch/firebase",
   "version": "0.0.0",
-  "private": false,
   "description": "First class Firebase Web adapter for Hyper Fetch",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
@@ -51,11 +50,10 @@
       "optional": true
     }
   },
-  "dependencies": {},
   "devDependencies": {
-    "wait-for-expect": "^3.0.2",
     "firebase": "^9.21.0",
-    "firebase-tools": "^11.23.1"
+    "firebase-tools": "^11.23.1",
+    "wait-for-expect": "^3.0.2"
   },
   "keywords": [
     "firebase",

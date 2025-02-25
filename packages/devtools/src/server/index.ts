@@ -1,5 +1,5 @@
 import { createServer } from "http";
-import { WebSocket, WebSocketServer } from "ws";
+import ws, { WebSocket, WebSocketServer } from "ws";
 import url from "url";
 
 import { SocketTopics } from "../sockets/topics";
@@ -62,6 +62,16 @@ const sendStoredEvents = (devtoolsAppConnection: WebSocket | null, events: any[]
 };
 
 export const startServer = async (port = 1234) => {
+  console.log("STARTING SERVER", WebSocketServer, ws);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
+  console.log("STARTING SERVER", WebSocketServer);
   const server = createServer();
   const wss = new WebSocketServer({ server });
   let DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null = null;

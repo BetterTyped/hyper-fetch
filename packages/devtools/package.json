@@ -1,7 +1,6 @@
 {
   "name": "@hyper-fetch/devtools",
   "version": "0.0.0",
-  "private": false,
   "description": "Devtools standalone for HyperFetch",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
@@ -47,7 +46,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "2.1.1",
     "cmdk": "^1.0.0",
-    "electron": "^34.2.0",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "8.2.0",
     "goober": "2.1.14",
@@ -69,6 +67,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "use-immer": "^0.10.0",
+    "ws": "^8.18.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -97,10 +96,11 @@
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
     "@types/react-highlight-words": "^0.16.7",
+    "@types/ws": "^8",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "autoprefixer": "^10.4.19",
     "css-loader": "^7.1.1",
-    "electron": "34.2.0",
+    "electron": "^34.2.0",
     "eslint": "^8.0.1",
     "eslint-plugin-import": "^2.25.0",
     "fork-ts-checker-webpack-plugin": "^9.0.2",

@@ -1,7 +1,6 @@
 {
   "name": "@hyper-fetch/core",
   "version": "0.0.0",
-  "private": false,
   "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
@@ -55,7 +54,6 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "peerDependencies": {},
   "dependencies": {
     "events": "^3.3.0"
   },

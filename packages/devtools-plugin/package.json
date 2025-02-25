@@ -1,7 +1,6 @@
 {
   "name": "@hyper-fetch/devtools-plugin",
   "version": "0.0.0",
-  "private": false,
   "description": "Socket devtool plugin for HyperFetch",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
@@ -39,7 +38,6 @@
     "superjson": "2.2.1",
     "wait-for-expect": "^3.0.2",
     "ws": "^8.18.0"
-
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

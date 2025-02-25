@@ -25,9 +25,10 @@ const createWindow = (): void => {
     autoHideMenuBar: true,
     icon: "./src/app/assets/logo.svg",
     webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
+      enableRemoteModule: true,
       contextIsolation: false,
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
 
@@ -101,4 +102,9 @@ app.on("activate", () => {
 // SERVER
 // **********
 
+console.log("STARTING SERVER");
+console.log("STARTING SERVER");
+console.log("STARTING SERVER");
+console.log("STARTING SERVER");
+console.log("STARTING SERVER");
 startServer();

@@ -9,11 +9,9 @@
     ],
     "nohoist": [
       "electron",
+      "**/electron",
       "electron/**",
-      "electron-squirrel-startup",
-      "electron-squirrel-startup/**",
-      "@electron-forge",
-      "@electron-forge/**"
+      "**/electron/**"
     ]
   },
   "scripts": {
@@ -180,5 +178,6 @@
     "graphql-tag": "^2.12.6",
     "http": "*",
     "stream": "*"
-  }
+  },
+  "packageManager": "yarn@4.6.0"
 }

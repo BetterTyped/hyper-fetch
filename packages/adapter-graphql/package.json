@@ -1,7 +1,6 @@
 {
   "name": "@hyper-fetch/graphql",
   "version": "0.0.0",
-  "private": false,
   "description": "Simple graphql adapter",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
