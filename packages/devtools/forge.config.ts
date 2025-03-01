@@ -9,14 +9,6 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-console.log("forge.config.ts");
-
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,

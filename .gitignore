@@ -8,6 +8,8 @@ out-tsc
 .next
 .webpack
 .rspack
+.vite 
+.react-router/
 
 # dependencies
 node_modules

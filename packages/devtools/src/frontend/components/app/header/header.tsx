@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { XIcon } from "lucide-react";
 
-import { useDevtoolsContext, useDevtoolsWorkspaces } from "frontend/pages/_root/devtools.context";
-import { DevtoolsModule } from "frontend/pages/_root/devtools.types";
+import { useDevtoolsContext, useDevtoolsWorkspaces } from "frontend/pages/devtools/devtools.context";
+import { DevtoolsModule } from "frontend/pages/devtools/devtools.types";
 import { tokens } from "frontend/theme/tokens";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { LogoIcon } from "frontend/icons/logo";

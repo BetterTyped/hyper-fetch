@@ -8,4 +8,7 @@ export const config: UserConfig = {
       root: path.resolve(__dirname, "../"),
     }),
   ],
+  optimizeDeps: {
+    exclude: ["@reins/router"],
+  },
 };

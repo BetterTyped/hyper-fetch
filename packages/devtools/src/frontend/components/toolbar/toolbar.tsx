@@ -4,7 +4,7 @@ import * as Select from "frontend/components/select/select";
 import * as DropdownMenu from "frontend/components/dropdown/dropdown";
 import { IconButton } from "frontend/components/icon-button/icon-button";
 import { Bar } from "frontend/components/bar/bar";
-import { useDevtoolsContext, useDevtoolsWorkspaces } from "frontend/pages/_root/devtools.context";
+import { useDevtoolsContext, useDevtoolsWorkspaces } from "frontend/pages/devtools/devtools.context";
 import { tokens } from "frontend/theme/tokens";
 
 export enum Positions {

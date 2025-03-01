@@ -1,9 +1,8 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 import { createStyles } from "frontend/theme/use-styles.hook";
-import { Menu, Positions } from "./menu/menu";
+import { Menu } from "./menu/menu";
 import { Resizable } from "./resizable/resizable";
-import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
 import { AppProvider } from "./app.context";
 import { Header } from "./header/header";
 
@@ -43,33 +42,11 @@ const styles = createStyles(({ isLight, css, tokens }) => {
   };
 });
 
-const radiusStyles = createStyles(({ css }) => {
-  return {
-    [Positions.Top]: css`
-      border-radius: 0 0 10px 10px;
-    `,
-    [Positions.Left]: css`
-      border-radius: 0 10px 10px 0;
-    `,
-    [Positions.Right]: css`
-      border-radius: 10px 0 0 10px;
-    `,
-    [Positions.Bottom]: css`
-      border-radius: 10px 10px 0 0;
-    `,
-  };
-});
-
 export const Application = ({ children, ...props }: React.HTMLProps<HTMLDivElement>) => {
   const ref = useRef<HTMLDivElement>(null);
   const css = styles.useStyles();
-  const cssRadius = radiusStyles.useStyles();
   const [height, setHeight] = useState(0);
   const [width, setWeight] = useState(0);
-
-  const { position, isStandalone } = useDevtoolsContext("DevtoolsApplication");
-
-  const borderRadiusClass = cssRadius[position];
 
   const handleResize = () => {
     const rect = ref.current?.getBoundingClientRect();
@@ -92,11 +69,7 @@ export const Application = ({ children, ...props }: React.HTMLProps<HTMLDivEleme
 
   return (
     <AppProvider height={height} width={width}>
-      <Resizable
-        {...props}
-        className={css.clsx(css.base, { [css.full]: isStandalone, [borderRadiusClass]: !isStandalone })}
-        isStandalone={isStandalone}
-      >
+      <Resizable {...props} className={css.clsx(css.base, css.full)}>
         <Header />
         <div ref={ref} className={css.content}>
           <Menu height={height} />

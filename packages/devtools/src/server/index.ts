@@ -2,9 +2,9 @@ import { createServer } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import url from "url";
 
-import { SocketTopics } from "../sockets/topics";
 import { MessageType, MessageTypes } from "../types/messages.types";
-import { ConnectionName } from "../sockets/connection.name";
+import { ConnectionName } from "../frontend/constants/connection.name";
+import { SocketTopics } from "frontend/lib/socket/topics";
 
 // TODO - handle message with info about lostConnection for a given app when connection is lost on frontend side.
 
@@ -115,12 +115,9 @@ export const startServer = async (port = 1234) => {
 
       switch (message.data.messageType) {
         case MessageType.HF_DEVTOOLS_EVENT: {
-          const { connectionName } = message.data;
-          console.log("RECEIVED EVENT FROM DEVTOOLS", message);
-          if (connections[connectionName]?.ws) {
-            connections[connectionName].ws.send(
-              JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }),
-            );
+          const ws = connections[message.data.connectionName]?.ws;
+          if (ws?.send) {
+            ws.send(JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }));
           }
           return;
         }
@@ -150,8 +147,7 @@ export const startServer = async (port = 1234) => {
           return;
         }
         default:
-          console.log("UNHANDLED MESSSAGE TYPE", message);
-          return;
+          console.error("UNHANDLED MESSSAGE TYPE", message);
       }
     });
   });
@@ -159,6 +155,7 @@ export const startServer = async (port = 1234) => {
   wss.on("error", console.error);
 
   server.listen(port, () => {
+    // eslint-disable-next-line no-console
     console.log(`WebSocket server is running on port ${port}`);
   });
 

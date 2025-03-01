@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Resizable as ResizableComponent } from "re-resizable";
 
-import { useDevtoolsContext } from "frontend/pages/_root/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/devtools/devtools.context";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { minSizes, sizes } from "./resizable.constants";
 
@@ -34,12 +34,7 @@ const positionStyles = createStyles(({ css }) => {
   };
 });
 
-export const Resizable = ({
-  children,
-  className,
-  isStandalone,
-  ...props
-}: React.HTMLProps<HTMLDivElement> & { isStandalone: boolean }) => {
+export const Resizable = ({ children, className, ...props }: React.HTMLProps<HTMLDivElement>) => {
   const { position, size, setSize } = useDevtoolsContext("DevtoolsWrapper");
 
   const positionStyle = positionStyles.useStyles();

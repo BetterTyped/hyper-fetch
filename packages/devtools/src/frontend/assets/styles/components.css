@@ -1,0 +1,111 @@
+/* ***************************** */
+/* ********** Buttons ********** */
+/* ***************************** */
+
+.btn {
+  @apply inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all;
+}
+
+/* **************************** */
+/* ********** Alerts ********** */
+/* **************************** */
+
+.alert {
+  @apply !px-6 md:!px-8 !py-6 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
+}
+.alert > div:first-child > p:first-child {
+  @apply mb-3 text-2xl capitalize font-extrabold;
+}
+
+.alert--tip {
+  @apply bg-teal-200/20 dark:bg-teal-900/20;
+}
+.alert--tip > div:first-child > p:first-child {
+  @apply text-teal-600 dark:text-teal-500;
+}
+
+.alert--success {
+  @apply bg-green-200/20 dark:bg-green-700/20;
+}
+.alert--success > div:first-child > p:first-child {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.alert--info {
+  @apply bg-blue-300/20 dark:bg-blue-700/20;
+}
+.alert--info > div:first-child > p:first-child {
+  @apply text-blue-600 dark:text-blue-500;
+}
+
+.alert--caution {
+  @apply bg-yellow-400/20 dark:bg-yellow-700/20;
+}
+.alert--caution > div:first-child > p:first-child {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.alert--danger {
+  @apply bg-red-500/20 dark:bg-red-700/20;
+}
+.alert--danger > div:first-child > p:first-child {
+  @apply text-red-600 dark:text-red-300;
+}
+.alert--danger > div:first-child > p:not(:first-child) {
+  @apply text-gray-300;
+}
+
+/* Window Controls (macOS style) */
+.window-controls {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+}
+
+.window-control {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.window-control:hover {
+  filter: brightness(85%);
+}
+
+.window-control.close {
+  background-color: #ff5f57;
+}
+
+.window-control.minimize {
+  background-color: #febc2e;
+}
+
+.window-control.maximize {
+  background-color: #28c840;
+}
+
+/* Optional: Show symbols on hover */
+.window-control.close:hover::before {
+  content: "×";
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.window-control.minimize:hover::before {
+  content: "−";
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.window-control.maximize:hover::before {
+  content: "+";
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.5);
+}
