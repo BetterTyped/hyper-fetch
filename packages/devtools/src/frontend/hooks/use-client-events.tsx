@@ -3,7 +3,7 @@ import { useListener } from "@hyper-fetch/react";
 import { useDidMount } from "@reins/hooks";
 
 import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "types/messages.types";
-import { useDevtoolsWorkspaces } from "frontend/pages/devtools/devtools.context";
+import { useWorkspaces } from "frontend/context/devtools.context";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments
@@ -70,7 +70,7 @@ const handleEvent = ({
 };
 
 export const useClientEvents = ({ workspace, client }: { workspace: string; client: ClientInstance }) => {
-  const { setRequestList, workspaces } = useDevtoolsWorkspaces("Devtools");
+  const { setRequestList, workspaces } = useWorkspaces("Devtools");
 
   const { clientSpecificReceiveMessage, clientSpecificSendMessage } = workspaces[workspace];
   const { onEvent } = useListener(clientSpecificReceiveMessage, {});

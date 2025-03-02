@@ -1,10 +1,10 @@
-import { DevtoolsWorkspaces } from "frontend/pages/devtools/devtools.context";
+import { DevtoolsWorkspaces } from "frontend/context/devtools.context";
 import { Layout } from "./components/layout/layout";
-import { useDevtoolsWorkspaces } from "./hooks/use-devtools-workspaces";
-import { Link, Route } from "./routing/router";
+import { useConnectWorkspaces } from "./hooks/use-connect-workspaces";
+import { Route } from "./routing/router";
 
 export function App() {
-  const { workspaces, setWorkspaces, activeWorkspace, setActiveWorkspace } = useDevtoolsWorkspaces();
+  const { workspaces, setWorkspaces, activeWorkspace, setActiveWorkspace } = useConnectWorkspaces();
 
   const setRequestList = (workspaceName: string, requestList: any) => {
     setWorkspaces((draft) => {
@@ -23,15 +23,20 @@ export function App() {
         setActiveWorkspace={setActiveWorkspace}
         setRequestList={setRequestList}
       >
-        <Link to="dashboard">Dashboard</Link>
-        <Link to="workspace">Workspace</Link>
-
         <Route to="dashboard" />
-        <Route to="workspace" />
-        <Route to="devtools" />
-        <Route to="devtools.network" />
-        <Route to="devtools.cache" />
-        <Route to="devtools.queues" />
+        <Route to="project" />
+        <Route to="dashboard.projects" />
+        <Route to="dashboard.resources" />
+        <Route to="dashboard.members" />
+        <Route to="dashboard.settings" />
+        <Route to="dashboard.activities" />
+        <Route to="dashboard.favorites" />
+        <Route to="dashboard.recentlyVisited" />
+        <Route to="project.workspace" />
+        <Route to="project.network" />
+        <Route to="project.cache" />
+        <Route to="project.queues" />
+        <Route to="project.settings" />
         {/* {activeWorkspace && workspaces[activeWorkspace] && (
           <Devtools workspace={activeWorkspace} client={workspaces[activeWorkspace].client} />
         )} */}

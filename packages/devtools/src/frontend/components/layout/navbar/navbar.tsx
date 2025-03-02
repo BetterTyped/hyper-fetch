@@ -10,6 +10,7 @@ import {
 } from "frontend/components/ui/breadcrumb";
 import { Button } from "frontend/components/ui/button";
 import { NavUser } from "./nav-user";
+import { Link } from "frontend/routing/router";
 
 const dragStyle = {
   "-webkit-user-select": "none",
@@ -52,8 +53,10 @@ export const Navbar = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#" className="flex gap-1 items-center" style={noDragStyle}>
-                  <Home className="w-4 h-4" /> Home
+                <BreadcrumbLink className="flex gap-1 items-center" style={noDragStyle} asChild>
+                  <Link to="dashboard.projects">
+                    <Home className="w-4 h-4" /> Home
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />

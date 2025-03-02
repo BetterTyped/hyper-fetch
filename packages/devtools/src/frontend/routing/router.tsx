@@ -1,26 +1,60 @@
-import { createRoute, createRouter, createRouting } from "@reins/router";
+import { createRoute, createRouter, createRouting, RoutingNames } from "@reins/router";
 
 import { makeElectronRouter } from "./electron-adapter";
-import { Dashboard } from "../pages/dashboard/dashboard";
-import { Devtools } from "../pages/devtools/devtools";
-import { Network } from "../pages/devtools/network/network";
-import { Cache } from "../pages/devtools/cache/cache";
-import { Queues } from "../pages/devtools/queues/queues";
-import { Workspace } from "../pages/workspace/workspace";
+import { Network } from "../pages/project/network/network";
+import { Cache } from "../pages/project/cache/cache";
+import { Queues } from "../pages/project/queues/queues";
+import { Settings } from "../pages/dashboard/settings/settings";
+import { Activities } from "../pages/dashboard/activities/activities";
+import { Favorites } from "../pages/dashboard/favorites/favorites";
+import { RecentlyVisited } from "../pages/dashboard/recently-visited/recently-visited";
+import { Members } from "../pages/dashboard/members/members";
+import { Resources } from "../pages/dashboard/resources/resources";
+import { Projects } from "../pages/dashboard/projects/projects";
+import { Workspace } from "frontend/pages/project/workspace/workspace";
 
-const routes = createRouting({
+const routing = createRouting({
   dashboard: createRoute({
     path: "/",
-    component: Dashboard,
-  }),
-  workspace: createRoute({
-    path: "/workspace",
-    component: Workspace,
-  }),
-  devtools: createRoute({
-    path: "/devtools",
-    component: Devtools,
+    component: Projects,
   }).addRouting({
+    projects: createRoute({
+      path: "/projects",
+      component: Projects,
+    }),
+    resources: createRoute({
+      path: "/resources",
+      component: Resources,
+    }),
+    members: createRoute({
+      path: "/members",
+      component: Members,
+    }),
+    settings: createRoute({
+      path: "/settings",
+      component: Settings,
+    }),
+    activities: createRoute({
+      path: "/activities",
+      component: Activities,
+    }),
+    favorites: createRoute({
+      path: "/favorites",
+      component: Favorites,
+    }),
+    recentlyVisited: createRoute({
+      path: "/recently-visited",
+      component: RecentlyVisited,
+    }),
+  }),
+  project: createRoute({
+    path: "/project",
+    component: Workspace,
+  }).addRouting({
+    workspace: createRoute({
+      path: "/workspace",
+      component: Workspace,
+    }),
     network: createRoute({
       path: "/network",
       component: Network,
@@ -33,10 +67,18 @@ const routes = createRouting({
       path: "/queues",
       component: Queues,
     }),
+    settings: createRoute({
+      path: "/settings",
+      component: Settings,
+    }),
   }),
 });
 
-export const { Link, Route, useRoute } = createRouter({
-  router: makeElectronRouter(),
-  routing: routes,
+export const router = makeElectronRouter();
+
+export const { Link, Route, useRoute, useLocation } = createRouter({
+  router,
+  routing,
 });
+
+export type RoutingLocations = RoutingNames<typeof routing>;

@@ -11,4 +11,7 @@ export const config: UserConfig = {
   optimizeDeps: {
     exclude: ["@reins/router"],
   },
+  resolve: {
+    preserveSymlinks: true, // this is the fix!
+  },
 };

@@ -17,8 +17,10 @@ const routerState = {
 };
 
 export const makeElectronNavigator = (router: RouterInstance): NavigatorType => {
-  const emitEvent = (event: HistoryEvents) => {
-    dispatchEvent(new Event(event));
+  const emitEvent = () => {
+    router.listeners.forEach((listener) => {
+      listener();
+    });
   };
 
   const locator: LocatorType = () => {
@@ -47,10 +49,13 @@ export const makeElectronNavigator = (router: RouterInstance): NavigatorType => 
     const search = to.split("?")[1] || "";
     const activePage = routerState.history[routerState.history.length - 1];
 
-    if (activePage.path !== path || activePage.search !== search) {
+    if (event === HistoryEvents.PUSH && (activePage.path !== path || activePage.search !== search)) {
       routerState.history.push({ path, search });
+    } else {
+      routerState.history[routerState.history.length - 1] = { path, search };
     }
-    emitEvent(event);
+
+    emitEvent();
   };
 
   return {
@@ -62,6 +67,7 @@ export const makeElectronNavigator = (router: RouterInstance): NavigatorType => 
 
 export const makeElectronRouter = () => {
   const router = new Router({
+    name: "electron",
     getNavigator: makeElectronNavigator,
   });
 
