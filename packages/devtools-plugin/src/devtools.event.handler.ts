@@ -67,7 +67,7 @@ export class DevtoolsEventHandler {
           },
         });
       } catch (e) {
-        console.log("ERRORR", e);
+        console.error("ERROR", e);
       }
     } else {
       this.eventQueue.push({

@@ -1,6 +1,6 @@
 import { Adapter, getErrorMessage, parseErrorResponse, parseResponse, QueryParamsType } from "@hyper-fetch/core";
-import http, { OutgoingHttpHeaders } from "http";
-import https from "https";
+import http, { OutgoingHttpHeaders } from "node:http";
+import https from "node:https";
 
 import {
   gqlExtra,

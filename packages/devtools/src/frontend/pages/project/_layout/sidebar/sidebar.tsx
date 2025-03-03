@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArchiveX, Command, File, Inbox, LucideIcon, Send, Settings2 } from "lucide-react";
+import { ArchiveX, Atom, Boxes, Earth, File, Home, Inbox, LucideIcon, Send, Settings2 } from "lucide-react";
 
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import {
 } from "frontend/components/ui/sidebar";
 import { Link, RoutingLocations } from "frontend/routing/router";
 import { useWorkspaces } from "frontend/context/devtools.context";
+import Logo from "frontend/assets/images/logo.svg?react";
 
 const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isActive: boolean }[] = [
   {
@@ -28,19 +29,19 @@ const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isAc
   {
     title: "Network",
     url: "project.network",
-    icon: File,
+    icon: Earth,
     isActive: false,
   },
   {
     title: "Cache",
     url: "project.cache",
-    icon: Send,
+    icon: Boxes,
     isActive: false,
   },
   {
     title: "Queues",
     url: "project.queues",
-    icon: ArchiveX,
+    icon: Atom,
     isActive: false,
   },
   {
@@ -58,43 +59,41 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
   const { client } = workspace;
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="min-h-full">
       <Sidebar
         variant="inset"
         collapsible="none"
-        className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row rounded-xl"
+        className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row rounded-xl bg-transparent pr-1"
         {...props}
       >
         {/* This is the first sidebar */}
         {/* We disable collapsible and adjust width to icon. */}
         {/* This will make the sidebar appear as icons. */}
         <SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
-                <a href="#">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground">
-                    <Command className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{workspace.name}</span>
-                    <span className="truncate text-xs">{client.adapter.name}</span>
-                  </div>
-                </a>
+          <SidebarMenu className="mt-2 mb-3">
+            <SidebarMenuItem className="flex justify-center">
+              <SidebarMenuButton
+                size="lg"
+                asChild
+                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
+              >
+                <Link to="dashboard">
+                  <Home className="!size-5" />
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent className="px-1.5 md:px-0">
-              <SidebarMenu>
+          <SidebarGroup className="p-0">
+            <SidebarGroupContent className="p-0">
+              <SidebarMenu className="p-0">
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
+                      <Link to={item.url} className="flex flex-col h-15">
+                        <item.icon className="!size-5" />
+                        <span className="text-[10px]">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -103,7 +102,9 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+        <SidebarFooter>
+          <Logo className="size-10 mx-auto" />
+        </SidebarFooter>
       </Sidebar>
     </SidebarProvider>
   );

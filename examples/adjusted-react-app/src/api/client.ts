@@ -4,7 +4,7 @@ import { devtoolsPlugin } from "@hyper-fetch/devtools-plugin";
 
 export const client = new Client({ url: "http://localhost:5000" }).setDebug(true).addPlugin(
   devtoolsPlugin({
-    appName: "ADJUSTED_REACT_APP",
+    appName: "Adjusted app",
     socketPort: 1234,
   }),
 );

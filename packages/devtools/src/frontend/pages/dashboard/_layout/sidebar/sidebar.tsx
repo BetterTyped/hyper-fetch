@@ -1,15 +1,15 @@
 import * as React from "react";
 import {
-  BookOpen,
   Bot,
-  Frame,
+  Clock,
+  FolderKanban,
   LifeBuoy,
   LucideIcon,
-  Map,
-  PieChart,
+  MousePointerClick,
   Send,
-  Settings2,
-  SquareTerminal,
+  Settings,
+  Star,
+  Users,
 } from "lucide-react";
 
 import { NavPrimary } from "./_components/nav-primary";
@@ -33,7 +33,7 @@ const primary: Array<{
   {
     title: "Projects",
     link: "dashboard.projects",
-    icon: SquareTerminal,
+    icon: FolderKanban,
     isActive: true,
   },
   {
@@ -44,12 +44,12 @@ const primary: Array<{
   {
     title: "Members",
     link: "dashboard.members",
-    icon: BookOpen,
+    icon: Users,
   },
   {
     title: "Settings",
     link: "dashboard.settings",
-    icon: Settings2,
+    icon: Settings,
   },
 ];
 
@@ -61,17 +61,17 @@ const secondary: Array<{
   {
     name: "Activities",
     link: "dashboard.activities",
-    icon: Frame,
+    icon: MousePointerClick,
   },
   {
     name: "My Favorites",
     link: "dashboard.favorites",
-    icon: PieChart,
+    icon: Star,
   },
   {
     name: "Recently visited",
     link: "dashboard.recentlyVisited",
-    icon: Map,
+    icon: Clock,
   },
 ];
 

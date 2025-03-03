@@ -101,6 +101,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
     function (error) {
       process.env[envLabel] = "0";
       if (error) {
+        console.log(error);
         die("Installation failed", error);
         return process.exit();
       }

@@ -5,11 +5,9 @@ import { ProjectSidebar } from "./sidebar/sidebar";
 export const ProjectLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Devtools>
-      <div className="h-full w-full p-3">
-        <Card className="grid grid-cols-[200px_1fr] h-full w-full p-0 gap-0">
-          <ProjectSidebar />
-          <div className="border-l-2 p-4">{children}</div>
-        </Card>
+      <div className="grid grid-cols-[70px_1fr] h-full w-full py-2 px-1">
+        <ProjectSidebar />
+        <Card className="h-full w-full p-0 gap-0 bg-sidebar">{children}</Card>
       </div>
     </Devtools>
   );

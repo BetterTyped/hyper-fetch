@@ -180,6 +180,5 @@
     "graphql-tag": "^2.12.6",
     "http": "*",
     "stream": "*"
-  },
-  "packageManager": "yarn@1.22.18"
+  }
 }

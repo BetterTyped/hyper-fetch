@@ -135,7 +135,7 @@ body,
 .dark {
   --background: oklch(0.15 0.03 272.53);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.18 0.03 274.25);
+  --card: oklch(0.25 0.04 274.44);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.15 0.03 272.53);
   --popover-foreground: oklch(0.985 0 0);
@@ -157,7 +157,7 @@ body,
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.18 0.03 274.25);
+  --sidebar: oklch(0.2 0.03 274.67);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
