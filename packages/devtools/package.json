@@ -72,7 +72,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@reins/hooks": "^0.14.0",
-    "@reins/router": "portal:./../../../reins/packages/router",
+    "@reins/router": "^0.14.0",
     "@reins/types": "^0.14.0",
     "@reins/utils": "^0.14.0",
     "@tailwindcss/typography": "^0.5.16",
