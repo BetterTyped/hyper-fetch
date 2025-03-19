@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@anttiviljami/dtsgenerator": "^3.12.2",
-    "@apidevtools/json-schema-ref-parser": "^10.1.0",
+    "@apidevtools/json-schema-ref-parser": "^11.9.3",
     "commander": "^11.0.0",
     "lodash": "^4.17.21",
     "openapi-types": "^12.1.3",
