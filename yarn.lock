@@ -1911,6 +1911,11 @@
     xterm-addon-fit "^0.5.0"
     xterm-addon-search "^0.8.0"
 
+"@electron-toolkit/preload@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@electron-toolkit/preload/-/preload-3.0.1.tgz#8bae193fd851f3d38c56eec13a5dd602744e8064"
+  integrity sha512-EzoQmpK8jqqU8YnM5jRe0GJjGVJPke2KtANqz8QtN2JPT96ViOvProBdK5C6riCm0j1T8jjAGVQCZLQy9OVoIA==
+
 "@electron/asar@^3.2.1", "@electron/asar@^3.2.13", "@electron/asar@^3.2.5", "@electron/asar@^3.3.1":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@electron/asar/-/asar-3.3.1.tgz#cd14e897770d9844673dd7c1dc8944e086e1e0ea"

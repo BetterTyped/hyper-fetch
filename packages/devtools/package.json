@@ -50,6 +50,7 @@
     "ws": "^8.18.1"
   },
   "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
     "@hyper-fetch/core": "file:./../core/",
     "@hyper-fetch/devtools-plugin": "file:./../devtools-plugin/",
     "@hyper-fetch/react": "file:./../react/",
