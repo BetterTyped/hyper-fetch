@@ -64,11 +64,48 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const getInitialState = <T extends RequestInstance>(
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>,
-  dispatcher: Dispatcher,
-  request: T,
-): UseTrackedStateType<T> => {
+export const getIsInitiallyLoading = ({
+  queryKey,
+  dispatcher,
+  hasState,
+  revalidate,
+  disabled,
+}: {
+  queryKey: string;
+  dispatcher: Dispatcher;
+  hasState: boolean;
+  revalidate?: boolean;
+  disabled?: boolean;
+}) => {
+  if (!revalidate && hasState) {
+    return false;
+  }
+
+  const queue = dispatcher.getQueue(queryKey);
+  const isInitiallyLoading = dispatcher.hasRunningRequests(queryKey) || (!queue.stopped && disabled === false);
+
+  return isInitiallyLoading;
+};
+
+export const getInitialState = <T extends RequestInstance>({
+  initialResponse,
+  dispatcher,
+  request,
+  disabled,
+  revalidate,
+}: {
+  initialResponse: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  dispatcher: Dispatcher;
+  request: T;
+  /**
+   * useFetch only
+   */
+  disabled?: boolean;
+  /**
+   * useFetch only
+   */
+  revalidate?: boolean;
+}): UseTrackedStateType<T> => {
   const { client, cacheKey, responseMapper } = request;
   const { cache } = client;
 
@@ -77,8 +114,15 @@ export const getInitialState = <T extends RequestInstance>(
     ExtractErrorType<T>,
     ExtractAdapterExtraType<ExtractAdapterType<T>>
   >(cacheKey);
-  const cacheState = getValidCacheData<T>(request, initialData, cacheData);
-  const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
+  const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
+
+  const initialLoading = getIsInitiallyLoading({
+    queryKey: request.queueKey,
+    dispatcher,
+    disabled,
+    revalidate,
+    hasState: !!cacheState,
+  });
 
   if (cacheState) {
     const mappedData = responseMapper ? responseMapper(cacheState) : cacheState;

@@ -71,6 +71,8 @@ export const useFetch = <RequestType extends RequestInstance>(
       initialData,
       deepCompare,
       dependencyTracking,
+      disabled,
+      revalidate,
     });
 
   /**
@@ -94,11 +96,6 @@ export const useFetch = <RequestType extends RequestInstance>(
     if (!disabled) {
       logger.debug(`Fetching data`);
       dispatcher.add(request);
-      const queue = dispatcher.getQueue(request.queueKey);
-      // We want fast initial loading state if not paused / disabled
-      if (!queue.stopped && queue.requests.length) {
-        actions.setLoading(true);
-      }
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }

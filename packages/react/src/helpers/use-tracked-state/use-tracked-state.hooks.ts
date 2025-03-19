@@ -16,7 +16,13 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
+import {
+  getDetailsState,
+  getInitialState,
+  getIsInitiallyLoading,
+  getValidCacheData,
+  isStaleCacheData,
+} from "./use-tracked-state.utils";
 
 /**
  *
@@ -33,13 +39,23 @@ export const useTrackedState = <T extends RequestInstance>({
   deepCompare,
   dependencyTracking,
   defaultCacheEmitting = true,
+  /**
+   * useFetch only
+   */
+  disabled,
+  /**
+   * useFetch only
+   */
+  revalidate,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queueKey, cacheTime, responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData, dispatcher, request));
+  const state = useRef<UseTrackedStateType<T>>(
+    getInitialState({ initialResponse: initialData, dispatcher, request, disabled }),
+  );
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
   const isProcessingData = useRef("");
 
@@ -83,6 +99,15 @@ export const useTrackedState = <T extends RequestInstance>({
         ExtractAdapterExtraType<ExtractAdapterType<T>>
       >(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialData, cacheData);
+
+      // Handle initial loading state
+      state.current.loading = getIsInitiallyLoading({
+        queryKey: request.queueKey,
+        dispatcher,
+        disabled,
+        revalidate,
+        hasState: !!cacheState,
+      });
 
       const hasInitialState = isEqual(initialData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
@@ -232,7 +257,7 @@ export const useTrackedState = <T extends RequestInstance>({
           isRetry: false,
           isOffline: false,
         });
-      } else {
+      } else if (loading !== state.current.loading) {
         state.current.loading = loading;
         renderKeyTrigger(["loading"]);
       }

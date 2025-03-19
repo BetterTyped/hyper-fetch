@@ -22,6 +22,8 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   dependencyTracking: boolean;
   defaultCacheEmitting?: boolean;
   deepCompare: boolean | typeof isEqual;
+  disabled?: boolean;
+  revalidate?: boolean;
 };
 
 export type UseTrackedStateReturn<T extends RequestInstance> = [
