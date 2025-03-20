@@ -1,5 +1,6 @@
-import * as browser from "adapter/http-adapter.browser";
-import * as server from "adapter/http-adapter.server";
+import * as browser from "@browser-adapter";
+import * as server from "@server-adapter";
+
 import { GraphQLAdapterType } from "./adapter.types";
 
 export const GraphqlAdapter = (): GraphQLAdapterType => {

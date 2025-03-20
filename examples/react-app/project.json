@@ -5,22 +5,6 @@
   "projectType": "application",
   "tags": [],
   "targets": {
-    "app-build": {
-      "executor": "@nx/vite:build",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/examples/react-app"
-      },
-      "configurations": {
-        "development": {
-          "mode": "development"
-        },
-        "production": {
-          "mode": "production"
-        }
-      }
-    },
     "run": {
       "executor": "@nx/vite:dev-server",
       "defaultConfiguration": "development",
