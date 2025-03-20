@@ -12,6 +12,12 @@ import { getAvailableOperations } from "./operations";
 import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, getBaseUrl } from "./utils";
 import { HttpMethod } from "./http-methods.enum";
 
+interface RefError {
+  path: string;
+  ref: string;
+  message: string;
+}
+
 export class OpenapiRequestGenerator {
   protected openapiDocument: Document;
   constructor(openapiDocument: any) {
@@ -195,7 +201,41 @@ export class OpenapiRequestGenerator {
     };
   }
 
+  static validateSchema(openapiDocument: Document) {
+    // Validate refs before processing
+    const errors: RefError[] = [];
+
+    function validateRefs(obj: any, path = "") {
+      if (!obj || typeof obj !== "object") return;
+
+      // Check if current object has $ref
+      if (obj.$ref && typeof obj.$ref === "string" && obj.$ref.endsWith("/")) {
+        errors.push({
+          path,
+          ref: obj.$ref,
+          message: `Invalid reference "${obj.$ref}" - reference path cannot end with '/'`,
+        });
+      }
+
+      // Recursively check all object properties
+      Object.entries(obj).forEach(([key, value]) => {
+        const newPath = path ? `${path}.${key}` : key;
+        validateRefs(value, newPath);
+      });
+    }
+
+    validateRefs(openapiDocument);
+
+    // If there are validation errors, throw them with details
+    if (errors.length > 0) {
+      const errorMessages = errors.map((err) => `Invalid reference at ${err.path}: ${err.message}`);
+      throw new Error(`Schema validation failed. The following errors were found:\n${errorMessages.join("\n")}`);
+    }
+  }
+
   static async prepareSchema(openapiDocument: Document) {
+    OpenapiRequestGenerator.validateSchema(openapiDocument);
+
     const rootSchema = await RefParser.bundle(openapiDocument);
     const schema = parseSchema(rootSchema as any);
     const generator = new DtsGenerator([schema]);
