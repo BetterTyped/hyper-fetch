@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import * as goober from "goober";
 
-import { useDevtoolsContext } from "frontend/pages/project/_context/devtools.context";
+import { useDevtoolsContext } from "frontend/pages/workspace/_context/devtools.context";
 import { tokens } from "./tokens";
 
 export type StylesFactory<Keys extends string> = (params: {

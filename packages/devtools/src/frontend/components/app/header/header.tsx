@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { XIcon } from "lucide-react";
 
-import { useDevtoolsContext, useWorkspaces } from "frontend/pages/project/_context/devtools.context";
-import { DevtoolsModule } from "frontend/pages/project/_context/devtools.types";
+import { useDevtoolsContext, useOnlineProjects } from "frontend/pages/workspace/_context/devtools.context";
+import { DevtoolsModule } from "frontend/pages/workspace/_context/devtools.types";
 import { tokens } from "frontend/theme/tokens";
 import { createStyles } from "frontend/theme/use-styles.hook";
 import { LogoIcon } from "frontend/icons/logo";
@@ -90,7 +90,7 @@ export const Header = (props: React.HTMLProps<HTMLDivElement>) => {
   const css = styles.useStyles();
 
   const { setOpen, setModule } = useDevtoolsContext("DevtoolsHeader");
-  const { activeWorkspace, workspaces } = useWorkspaces("DevtoolsWorkspace");
+  const { activeWorkspace, workspaces } = useOnlineProjects("DevtoolsWorkspace");
 
   const workspace = activeWorkspace ? workspaces[activeWorkspace] : null;
   const name = workspace?.name || "Devtools";

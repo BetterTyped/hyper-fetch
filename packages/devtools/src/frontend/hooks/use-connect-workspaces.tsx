@@ -7,9 +7,9 @@ import { Workspace } from "frontend/context/devtools.context";
 import { initializeSocket } from "frontend/lib/socket/socket";
 import { MessageType } from "types/messages.types";
 
-export const useConnectWorkspaces = () => {
-  const [activeWorkspace, setActiveWorkspace] = useState<string | null>(null);
-  const [workspaces, setWorkspaces] = useImmer<Record<string, Workspace>>({});
+export const useOnlineProjects = () => {
+  const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [projects, setProjects] = useImmer<Record<string, Workspace>>({});
 
   useDidMount(() => {
     const initializeSocketState = async () => {
@@ -20,9 +20,9 @@ export const useConnectWorkspaces = () => {
         switch (messageType) {
           case MessageType.DEVTOOLS_CLIENT_INIT:
             {
-              const shouldCreateWorkspace = !workspaces[connectionName];
-              if (shouldCreateWorkspace) {
-                setWorkspaces((draft) => {
+              const shouldCreateProject = !projects[connectionName];
+              if (shouldCreateProject) {
+                setProjects((draft) => {
                   return {
                     ...draft,
                     [connectionName]: {
@@ -34,8 +34,8 @@ export const useConnectWorkspaces = () => {
                     },
                   };
                 });
-                if (!activeWorkspace) {
-                  setActiveWorkspace(connectionName);
+                if (!activeProject) {
+                  setActiveProject(connectionName);
                 }
               }
             }
@@ -50,9 +50,7 @@ export const useConnectWorkspaces = () => {
   });
 
   return {
-    workspaces,
-    setWorkspaces,
-    activeWorkspace,
-    setActiveWorkspace,
+    projects,
+    setProjects,
   };
 };

@@ -21,9 +21,7 @@ export type Workspace = {
   clientSpecificSendMessage: Emitter<any, any, any>;
 };
 
-export const [DevtoolsWorkspaces, useWorkspaces] = createContext("DevtoolsSwitcher", {
-  workspaces: {} as Record<string, Workspace>,
-  activeWorkspace: null as string | null,
-  setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
-  setRequestList: (() => {}) as (workspaceId: string, requests: RequestInstance[]) => void,
+export const [DevtoolsOnlineProjects, useOnlineProjects] = createContext("DevtoolsSwitcher", {
+  projects: {} as Record<string, Workspace>,
+  setRequestList: (() => {}) as (projectId: string, requests: RequestInstance[]) => void,
 });

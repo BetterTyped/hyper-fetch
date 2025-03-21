@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, clipboard, Data, ipcMain, nativeImage } from "electron";
 import path from "node:path";
 import started from "electron-squirrel-startup";
+import Store from "electron-store";
 
 import { startServer } from "../server";
 
@@ -9,6 +10,7 @@ if (started) {
   app.quit();
 }
 
+const store = new Store();
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -17,6 +19,7 @@ const createWindow = () => {
     width: 1200,
     height: 800,
     webPreferences: {
+      sandbox: false,
       preload: path.join(__dirname, "preload.js"),
     },
   });
@@ -29,13 +32,41 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (process.env.NODE_ENV !== "production") {
+    mainWindow.webContents.openDevTools();
+  }
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", createWindow);
+
+app.whenReady().then(() => {
+  ipcMain.on("electron-store-get", async (event, val) => {
+    // eslint-disable-next-line no-param-reassign
+    event.returnValue = store.get(val);
+  });
+  ipcMain.on("electron-store-set", async (_, key, val) => {
+    store.set(key, val);
+  });
+
+  ipcMain.on("electron-store-delete", async (_, key) => {
+    try {
+      store.delete(key);
+    } catch (error) {
+      console.error("🚀 ~ ipcMain.on ~ error:", error);
+    }
+  });
+
+  ipcMain.on("clipboard", async (_, val: Data & { img?: string }) => {
+    if (val.img) {
+      clipboard.writeImage(nativeImage.createFromBuffer(Buffer.from(val.img, "base64")));
+    } else {
+      clipboard.write(val);
+    }
+  });
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

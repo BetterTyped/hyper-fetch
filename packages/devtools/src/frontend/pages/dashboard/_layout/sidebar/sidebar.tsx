@@ -1,19 +1,8 @@
 import * as React from "react";
-import {
-  Bot,
-  Clock,
-  FolderKanban,
-  LifeBuoy,
-  LucideIcon,
-  MousePointerClick,
-  Send,
-  Settings,
-  Star,
-  Users,
-} from "lucide-react";
+import { FolderKanban, LifeBuoy, LucideIcon, Send, Settings, AudioLines } from "lucide-react";
 
 import { NavPrimary } from "./_components/nav-primary";
-import { NavSecondary } from "./_components/nav-secondary";
+// import { NavSecondary } from "./_components/nav-secondary";
 import { NavTertiary } from "./_components/nav-tertiary";
 import { NavUser } from "./_components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
@@ -31,21 +20,21 @@ const primary: Array<{
   }>;
 }> = [
   {
-    title: "Projects",
-    link: "dashboard.projects",
+    title: "Workspaces",
+    link: "dashboard",
     icon: FolderKanban,
     isActive: true,
   },
   {
-    title: "Resources",
-    link: "dashboard.resources",
-    icon: Bot,
+    title: "Online Projects",
+    link: "dashboard.onlineProjects",
+    icon: AudioLines,
   },
-  {
-    title: "Members",
-    link: "dashboard.members",
-    icon: Users,
-  },
+  // {
+  //   title: "Members",
+  //   link: "dashboard.members",
+  //   icon: Users,
+  // },
   {
     title: "Settings",
     link: "dashboard.settings",
@@ -53,27 +42,27 @@ const primary: Array<{
   },
 ];
 
-const secondary: Array<{
-  name: string;
-  link: RoutingLocations;
-  icon: LucideIcon;
-}> = [
-  {
-    name: "Activities",
-    link: "dashboard.activities",
-    icon: MousePointerClick,
-  },
-  {
-    name: "My Favorites",
-    link: "dashboard.favorites",
-    icon: Star,
-  },
-  {
-    name: "Recently visited",
-    link: "dashboard.recentlyVisited",
-    icon: Clock,
-  },
-];
+// const secondary: Array<{
+//   name: string;
+//   link: RoutingLocations;
+//   icon: LucideIcon;
+// }> = [
+//   {
+//     name: "Activities",
+//     link: "dashboard.activities",
+//     icon: MousePointerClick,
+//   },
+//   {
+//     name: "My Favorites",
+//     link: "dashboard.favorites",
+//     icon: Star,
+//   },
+//   {
+//     name: "Recently visited",
+//     link: "dashboard.recentlyVisited",
+//     icon: Clock,
+//   },
+// ];
 
 const tertiary: Array<{
   name: string;
@@ -82,12 +71,12 @@ const tertiary: Array<{
 }> = [
   {
     name: "Support",
-    link: "https://support.hyperfetch.dev",
+    link: "https://github.com/BetterTyped/hyper-fetch/issues",
     icon: LifeBuoy,
   },
   {
     name: "Feedback",
-    link: "https://feedback.hyperfetch.dev",
+    link: "https://github.com/BetterTyped/hyper-fetch/discussions",
     icon: Send,
   },
 ];
@@ -110,7 +99,7 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
         </SidebarHeader>
         <SidebarContent>
           <NavPrimary items={primary} />
-          <NavSecondary items={secondary} />
+          {/* <NavSecondary items={secondary} /> */}
           <NavTertiary items={tertiary} className="mt-auto" />
         </SidebarContent>
         <SidebarFooter>

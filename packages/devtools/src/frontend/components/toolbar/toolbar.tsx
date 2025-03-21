@@ -4,7 +4,7 @@ import * as Select from "frontend/components/select/select";
 import * as DropdownMenu from "frontend/components/dropdown/dropdown";
 import { IconButton } from "frontend/components/icon-button/icon-button";
 import { Bar } from "frontend/components/bar/bar";
-import { useDevtoolsContext, useWorkspaces } from "frontend/pages/project/_context/devtools.context";
+import { useDevtoolsContext, useOnlineProjects } from "frontend/pages/workspace/_context/devtools.context";
 import { tokens } from "frontend/theme/tokens";
 
 export enum Positions {
@@ -23,7 +23,7 @@ const positionsIcons = {
 export const Toolbar = ({ children }: { children: React.ReactNode }) => {
   const { isOnline, setIsOnline, position, setPosition, theme, setTheme, isStandalone } =
     useDevtoolsContext("DevtoolsOptions");
-  const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspaces("DevtoolsOptions");
+  const { workspaces, activeWorkspace, setActiveWorkspace } = useOnlineProjects("DevtoolsOptions");
 
   return (
     <Bar>

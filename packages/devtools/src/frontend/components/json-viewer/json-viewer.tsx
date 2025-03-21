@@ -2,7 +2,6 @@
 import { CommonExternalProps, JSONTree } from "react-json-tree";
 import { produce } from "immer";
 
-import { useDevtoolsContext } from "frontend/pages/project/_context/devtools.context";
 import { Value } from "./value/value";
 import { Label } from "./label/label";
 import { getRaw, getTheme, updateValue } from "./json-viewer.utils";
@@ -21,7 +20,8 @@ export const JSONViewer = ({
   onChange?: (value: any) => void;
 } & Partial<Omit<CommonExternalProps, "data" | "theme" | "valueRenderer">>) => {
   const css = styles.useStyles();
-  const { theme } = useDevtoolsContext("JSONViewer");
+  // const { theme } = useDevtoolsContext("JSONViewer");
+  const theme = "light";
 
   const handleOnChange = (path: (number | string)[]) => (value: any) => {
     if (onChange) {

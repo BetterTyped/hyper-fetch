@@ -1,29 +1,28 @@
 import { createRoute, createRouter, createRouting, RoutingNames } from "@reins/router";
 
 import { makeElectronRouter } from "./electron-adapter";
-import { Network } from "../pages/project/network/network";
-import { Cache } from "../pages/project/cache/cache";
-import { Queues } from "../pages/project/queues/queues";
 import { Settings } from "../pages/dashboard/settings/settings";
 import { Activities } from "../pages/dashboard/activities/activities";
 import { Favorites } from "../pages/dashboard/favorites/favorites";
 import { RecentlyVisited } from "../pages/dashboard/recently-visited/recently-visited";
 import { Members } from "../pages/dashboard/members/members";
 import { Resources } from "../pages/dashboard/resources/resources";
-import { Projects } from "../pages/dashboard/projects/projects";
-import { Workspace } from "frontend/pages/project/workspace/workspace";
+import { Workspaces } from "../pages/dashboard/workspaces/workspaces";
+import { Details } from "../pages/workspace/details/details";
+import { Queues } from "frontend/pages/workspace/queues/queues";
+import { Network } from "frontend/pages/workspace/network/network";
 
 const routing = createRouting({
   dashboard: createRoute({
     path: "/",
-    component: Projects,
+    component: Workspaces,
   }).addRouting({
     projects: createRoute({
       path: "/projects",
-      component: Projects,
+      component: Workspaces,
     }),
-    resources: createRoute({
-      path: "/resources",
+    onlineProjects: createRoute({
+      path: "/onlineProjects",
       component: Resources,
     }),
     members: createRoute({
@@ -47,14 +46,10 @@ const routing = createRouting({
       component: RecentlyVisited,
     }),
   }),
-  project: createRoute({
-    path: "/project",
-    component: Workspace,
+  workspace: createRoute({
+    path: "/workspace/:workspaceId",
+    component: Details,
   }).addRouting({
-    workspace: createRoute({
-      path: "/workspace",
-      component: Workspace,
-    }),
     network: createRoute({
       path: "/network",
       component: Network,
