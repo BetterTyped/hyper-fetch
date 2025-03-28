@@ -1,9 +1,3 @@
-import { ProjectLayout } from "../_layout/layout";
-
-export const ProjectSettings = () => {
-  return (
-    <ProjectLayout>
-      <div>Settings</div>
-    </ProjectLayout>
-  );
+export const WorkspaceSettings = () => {
+  return <div>Settings</div>;
 };

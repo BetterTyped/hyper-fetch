@@ -54,7 +54,7 @@ export const Navbar = () => {
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink className="flex gap-1 items-center" style={noDragStyle} asChild>
-                  <Link to="dashboard.projects">
+                  <Link to="projects">
                     <Home className="w-4 h-4" /> Home
                   </Link>
                 </BreadcrumbLink>

@@ -33,7 +33,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
         {!noButtons && (
           <Stack direction="row" spacing={2}>
             <Box>
-              <Button size="small" variant="contained" type="button" onClick={() => navigate({ to: "Dashboard" })}>
+              <Button size="small" variant="contained" type="button" onClick={() => navigate({ to: "home" })}>
                 Go To dashboard
               </Button>
             </Box>

@@ -1,0 +1,102 @@
+/* eslint-disable react/no-array-index-key */
+import { useMemo } from "react";
+
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
+import { Request } from "./request/request";
+import * as Table from "frontend/components/table/table";
+import { NoContent } from "frontend/components/no-content/no-content";
+import { Status } from "frontend/utils/request.status.utils";
+import { PathsOf, useSearch } from "frontend/hooks/use-search";
+import { DevtoolsRequestEvent } from "frontend/context/projects/types";
+
+export const NetworkList = () => {
+  const {
+    client,
+    state: { requests, networkFilter, networkSearchTerm, networkSort },
+    setNetworkSort,
+  } = useDevtools();
+
+  const data = useMemo(() => {
+    if (!networkFilter) return requests;
+    switch (networkFilter) {
+      case Status.SUCCESS:
+        return requests.filter((item) => item.isSuccess);
+      case Status.FAILED:
+        return requests.filter((item) => item.isFinished && !item.isCanceled && !item.isSuccess);
+      case Status.IN_PROGRESS:
+        return requests.filter((item) => !item.isFinished);
+      case Status.PAUSED:
+        return requests.filter((item) => item.isPaused);
+      case Status.CANCELED:
+        return requests.filter((item) => item.isCanceled);
+      default:
+        return requests;
+    }
+  }, [requests, networkFilter]);
+
+  const handleSort = (key: PathsOf<DevtoolsRequestEvent>) => {
+    return (sort: "asc" | "desc" | null) => {
+      const sorting = sort ? { key, order: sort } : null;
+      setNetworkSort(sorting);
+    };
+  };
+
+  const handleGetSort = (key: PathsOf<DevtoolsRequestEvent>) => {
+    if (!networkSort) return null;
+    if (networkSort.key === key) return networkSort.order;
+    return null;
+  };
+
+  const { items } = useSearch({
+    data,
+    searchKeys: ["request.endpoint", "request.method", "request.queryKey", "request.cacheKey", "request.abortKey"],
+    searchTerm: networkSearchTerm,
+    baseSort: networkSort
+      ? (a, b) => {
+          const { key, order } = networkSort;
+
+          const path = key.split(".");
+
+          const valueA = path.reduce((acc, k) => (acc as any)[k as any], a.item);
+          const valueB = path.reduce((acc, k) => (acc as any)[k as any], b.item);
+
+          if (valueA === valueB) return 0;
+          if (order === "asc") return valueA > valueB ? 1 : -1;
+          return valueA < valueB ? 1 : -1;
+        }
+      : undefined,
+    dependencies: [networkSort],
+  });
+
+  if (!items.length) {
+    return <NoContent text="Make some request to see them here!" />;
+  }
+
+  return (
+    <Table.Root wrapperClassName="w-full flex-1">
+      <Table.Header style={{ opacity: !requests.length ? 0.4 : 1 }}>
+        <Table.Row>
+          <Table.Sortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+            Endpoint
+          </Table.Sortable>
+          {typeof client.adapter.defaultMethod === "string" && (
+            <Table.Sortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+              Method
+            </Table.Sortable>
+          )}
+          <Table.Sortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+            Success
+          </Table.Sortable>
+          <Table.Sortable sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
+            Timestamp
+          </Table.Sortable>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body className="relative">
+        {items.map((item, index) => {
+          return <Request key={index} item={item} />;
+        })}
+      </Table.Body>
+    </Table.Root>
+  );
+};

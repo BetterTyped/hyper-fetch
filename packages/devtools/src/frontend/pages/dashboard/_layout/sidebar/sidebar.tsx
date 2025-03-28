@@ -1,11 +1,11 @@
 import * as React from "react";
-import { FolderKanban, LifeBuoy, LucideIcon, Send, Settings, AudioLines } from "lucide-react";
+import { LifeBuoy, LucideIcon, Send, Settings, AudioLines } from "lucide-react";
 
 import { NavPrimary } from "./_components/nav-primary";
 // import { NavSecondary } from "./_components/nav-secondary";
 import { NavTertiary } from "./_components/nav-tertiary";
-import { NavUser } from "./_components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
+// import { NavOrg } from "./_components/nav-org";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
 import Logo from "../../../../assets/images/logo.svg?react";
 import { RoutingLocations } from "frontend/routing/router";
 
@@ -19,15 +19,15 @@ const primary: Array<{
     link: RoutingLocations;
   }>;
 }> = [
+  // {
+  //   title: "Workspaces",
+  //   link: "dashboard",
+  //   icon: FolderKanban,
+  //   isActive: true,
+  // },
   {
-    title: "Workspaces",
-    link: "dashboard",
-    icon: FolderKanban,
-    isActive: true,
-  },
-  {
-    title: "Online Projects",
-    link: "dashboard.onlineProjects",
+    title: "Projects",
+    link: "projects",
     icon: AudioLines,
   },
   // {
@@ -37,7 +37,7 @@ const primary: Array<{
   // },
   {
     title: "Settings",
-    link: "dashboard.settings",
+    link: "settings",
     icon: Settings,
   },
 ];
@@ -82,11 +82,11 @@ const tertiary: Array<{
 ];
 
 export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const user = {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  };
+  // const user = {
+  //   name: "shadcn",
+  //   email: "m@example.com",
+  //   avatar: "/avatars/shadcn.jpg",
+  // };
 
   return (
     <SidebarProvider className="min-h-full">
@@ -97,14 +97,14 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
             <span className="text-lg font-bold">HyperFetch</span>
           </div>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="mb-2">
           <NavPrimary items={primary} />
           {/* <NavSecondary items={secondary} /> */}
           <NavTertiary items={tertiary} className="mt-auto" />
         </SidebarContent>
-        <SidebarFooter>
-          <NavUser user={user} />
-        </SidebarFooter>
+        {/* <SidebarFooter>
+          <NavOrg user={user} />
+        </SidebarFooter> */}
       </Sidebar>
     </SidebarProvider>
   );

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { PlusIcon, ActivityIcon } from "lucide-react";
 
 import { useLocation } from "frontend/routing/router";
-import { DashboardLayout } from "../_layout/layout";
 import { useWorkspaces } from "frontend/store/workspaces.store";
 import { WorkspaceCard } from "frontend/components/ui/workspace-card";
 import { Card } from "frontend/components/ui/card";
@@ -65,7 +64,7 @@ export const Workspaces = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
         <KpiCard3 value="9" label="Online Projects" change="Live" positive />
         <KpiCardFeed
@@ -103,6 +102,6 @@ export const Workspaces = () => {
         </Card>
       </div>
       <AddWorkspaceDialog open={showNewWorkspaceDialog} onOpenChange={setShowNewWorkspaceDialog} />
-    </DashboardLayout>
+    </>
   );
 };

@@ -11,7 +11,7 @@
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3 --forceExit",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
-    "start": "electron-forge start",
+    "start": "rimraf node_modules/.vite && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish:app": "electron-forge publish",

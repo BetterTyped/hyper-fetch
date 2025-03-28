@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArchiveX, Atom, Boxes, Earth, File, Home, Inbox, LucideIcon, Send, Settings2 } from "lucide-react";
+import { Atom, Book, Boxes, Earth, Home, Inbox, LucideIcon, Settings2 } from "lucide-react";
 
 import {
   Sidebar,
@@ -28,21 +28,27 @@ const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isAc
     isActive: true,
   },
   {
-    title: "Network",
-    url: "workspace.network",
+    title: "APIs",
+    url: "workspace.apis",
     icon: Earth,
     isActive: false,
   },
   {
-    title: "Cache",
-    url: "workspace.cache",
-    icon: Boxes,
+    title: "Docs",
+    url: "workspace.documentation",
+    icon: Book,
     isActive: false,
   },
   {
-    title: "Queues",
-    url: "workspace.queues",
+    title: "Testing",
+    url: "workspace.testing",
     icon: Atom,
+    isActive: false,
+  },
+  {
+    title: "Mocks",
+    url: "workspace.mocks",
+    icon: Boxes,
     isActive: false,
   },
   {
@@ -87,7 +93,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 asChild
                 className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
               >
-                <Link to="dashboard">
+                <Link to="home">
                   <Home className="!size-5" />
                 </Link>
               </SidebarMenuButton>
@@ -101,7 +107,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={item.url} params={{ workspaceId: workspace?.id }} className="flex flex-col h-15">
+                      <Link to={item.url} params={{ workspaceId }} className="flex flex-col h-15">
                         <item.icon className="!size-5" />
                         <span className="text-[10px]">{item.title}</span>
                       </Link>
