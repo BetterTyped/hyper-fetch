@@ -1,6 +1,5 @@
 import { NetworkDetails } from "./details/network.details";
 import { NetworkList } from "./list/network.list";
-import { Content } from "frontend/components/content/content";
 
 export const ProjectNetwork = () => {
   return (

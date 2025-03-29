@@ -1,4 +1,4 @@
-import { useCallback, useMemo, SetStateAction, useEffect } from "react";
+import { useCallback, useMemo, SetStateAction } from "react";
 import { createClient, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 import {
@@ -315,14 +315,6 @@ export const useDevtools = () => {
       }),
     [canceled, failed, paused, removed, requests, success],
   );
-
-  useEffect(() => {
-    if (!projectStates[projectName]) {
-      setProjectStates((draft) => {
-        draft[projectName] = initialProjectState;
-      });
-    }
-  }, [projectName, projectStates, setProjectStates]);
 
   return {
     client,

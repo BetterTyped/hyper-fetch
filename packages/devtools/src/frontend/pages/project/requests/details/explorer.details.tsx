@@ -8,7 +8,7 @@ import { Chip } from "frontend/components/ui/chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
 import { ExploreTabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
-import { Method } from "frontend/components/method/method";
+import { Method } from "frontend/components/ui/method";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Bar } from "frontend/components/bar/bar";
 import { DevtoolsExplorerRequest } from "../list/content.types";

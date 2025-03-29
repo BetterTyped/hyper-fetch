@@ -1,11 +1,10 @@
 import { CpuIcon } from "lucide-react";
 import { QueueDataType } from "@hyper-fetch/core";
 
-import { Chip } from "frontend/components/chip/chip";
 import { getQueueStatus, getQueueStatusColor } from "frontend/utils/queue.status.utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { CardButton } from "frontend/components/card-button/card-button";
-import { Key } from "frontend/components/key/key";
+import { Key } from "frontend/components/ui/key";
+import { Chip } from "frontend/components/ui/chip";
 
 export const Card = ({ queue }: { queue: QueueDataType }) => {
   const status = getQueueStatus(queue);
@@ -25,7 +24,8 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   const total = (stats[queue.queryKey]?.total || 0) + queue.requests.length;
 
   return (
-    <CardButton
+    <button
+      type="button"
       color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
       onClick={() => setDetailsQueueKey(queue.queryKey)}
     >
@@ -46,6 +46,6 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
         </div>
         <Key className="text-xs" type="queue" value={queue.queryKey} />
       </div>
-    </CardButton>
+    </button>
   );
 };

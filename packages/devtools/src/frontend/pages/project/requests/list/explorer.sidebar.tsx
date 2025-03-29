@@ -10,7 +10,7 @@ import {
   DropdownMenuShortcut,
 } from "frontend/components/ui/dropdown-menu";
 import { Button } from "frontend/components/ui/button";
-import { Sidebar } from "frontend/components/sidebar/sidebar";
+import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
@@ -55,7 +55,7 @@ export const ExplorerSidebar = () => {
   }
 
   return (
-    <Sidebar position="right">
+    <ResizableSidebar position="right">
       <div className="flex justify-between items-center px-2 pt-[5px] pb-0">
         <span className="text-xs font-semibold text-light-500 dark:text-dark-50">Collection</span>
         <DropdownMenu>
@@ -91,6 +91,6 @@ export const ExplorerSidebar = () => {
       >
         <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
       </UncontrolledTreeEnvironment>
-    </Sidebar>
+    </ResizableSidebar>
   );
 };

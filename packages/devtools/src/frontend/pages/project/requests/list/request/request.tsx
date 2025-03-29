@@ -2,7 +2,7 @@ import { TreeItem, TreeItemRenderContext } from "react-complex-tree";
 import { EllipsisIcon, FileUp } from "lucide-react";
 
 import { DevtoolsExplorerRequest } from "../content.types";
-import { Method } from "frontend/components/method/method";
+import { Method } from "frontend/components/ui/method";
 import { Button } from "frontend/components/ui/button";
 import {
   DropdownMenu,

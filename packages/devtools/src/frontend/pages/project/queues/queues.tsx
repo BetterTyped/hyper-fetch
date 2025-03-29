@@ -1,6 +1,5 @@
 import { QueuesList } from "./list/queues.list";
 import { QueuesDetails } from "./details/queues.details";
-import { Content } from "frontend/components/content/content";
 
 export const ProjectQueues = () => {
   return (

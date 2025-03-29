@@ -1,16 +1,17 @@
-import { app, BrowserWindow, clipboard, Data, ipcMain, nativeImage } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "node:path";
 import started from "electron-squirrel-startup";
-import Store from "electron-store";
 
 import { startServer } from "../server";
+import { setupWindowControls } from "./src/window-controls";
+import { persistentStore } from "./src/persistent-store";
+import { copyToClipboard } from "./src/clipboard";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
-const store = new Store();
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -43,29 +44,9 @@ const createWindow = () => {
 app.on("ready", createWindow);
 
 app.whenReady().then(() => {
-  ipcMain.on("electron-store-get", async (event, val) => {
-    // eslint-disable-next-line no-param-reassign
-    event.returnValue = store.get(val);
-  });
-  ipcMain.on("electron-store-set", async (_, key, val) => {
-    store.set(key, val);
-  });
-
-  ipcMain.on("electron-store-delete", async (_, key) => {
-    try {
-      store.delete(key);
-    } catch (error) {
-      console.error("🚀 ~ ipcMain.on ~ error:", error);
-    }
-  });
-
-  ipcMain.on("clipboard", async (_, val: Data & { img?: string }) => {
-    if (val.img) {
-      clipboard.writeImage(nativeImage.createFromBuffer(Buffer.from(val.img, "base64")));
-    } else {
-      clipboard.write(val);
-    }
-  });
+  copyToClipboard();
+  persistentStore();
+  setupWindowControls();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

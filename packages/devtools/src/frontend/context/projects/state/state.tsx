@@ -1,3 +1,4 @@
+import { useDidMount } from "@reins/hooks";
 import { useCallback, useEffect } from "react";
 import { QueueDataType, RequestInstance, RequestResponseType, ResponseDetailsType } from "@hyper-fetch/core";
 
@@ -9,12 +10,12 @@ import {
   DevtoolsRequestResponse,
 } from "../types";
 import { useConnections } from "../connection/connection";
-import { useProjectStates } from "./state.context";
+import { initialProjectState, useProjectStates } from "./state.context";
 import { useProjects } from "frontend/store/projects.store";
 
 export const State = ({ project }: { project: string }) => {
-  const { setProjectStates } = useProjectStates("State");
   const { projects } = useProjects();
+  const { setProjectStates } = useProjectStates("State");
 
   const { connections } = useConnections("State");
   const { client } = connections[project as keyof typeof connections];
@@ -256,6 +257,12 @@ export const State = ({ project }: { project: string }) => {
       unmountCacheDelete();
     };
   }, [client, handleCacheChange, handleStats, project, setProjectStates]);
+
+  useDidMount(() => {
+    setProjectStates((draft) => {
+      draft[project] = initialProjectState;
+    });
+  });
 
   return null;
 };

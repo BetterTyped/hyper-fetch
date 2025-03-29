@@ -11,9 +11,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "frontend/co
 import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
 import { Badge } from "frontend/components/ui/badge";
 import { DevtoolsRequestQueueStats } from "frontend/context/projects/types";
-import { Key } from "frontend/components/key/key";
+import { Key } from "frontend/components/ui/key";
 import { Bar } from "frontend/components/bar/bar";
-import { Sidebar } from "frontend/components/sidebar/sidebar";
+import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { getQueueStatus, QueueStatus } from "frontend/utils/queue.status.utils";
 
 const defaultStats: DevtoolsRequestQueueStats = {
@@ -100,7 +100,7 @@ export const QueuesDetails = () => {
   if (!item) return null;
 
   return (
-    <Sidebar
+    <ResizableSidebar
       position="right"
       className="absolute flex flex-col top-0 right-0 bottom-0 border-l border-light-400 dark:border-dark-400"
       defaultSize={{
@@ -223,6 +223,6 @@ export const QueuesDetails = () => {
           </CollapsibleContent>
         </Collapsible>
       </div>
-    </Sidebar>
+    </ResizableSidebar>
   );
 };

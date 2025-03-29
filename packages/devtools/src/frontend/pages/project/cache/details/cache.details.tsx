@@ -5,14 +5,14 @@ import { AdapterInstance, CacheValueType, getLoadingByCacheKey } from "@hyper-fe
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "frontend/components/ui/accordion";
 import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { Separator } from "frontend/components/separator/separator";
-import { Button } from "frontend/components/button/button";
+import { Separator } from "frontend/components/ui/separator";
+import { Button } from "frontend/components/ui/button";
 import { Bar } from "frontend/components/bar/bar";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
 import { Countdown } from "frontend/components/countdown/countdown";
-import { Chip } from "frontend/components/chip/chip";
-import { Key } from "frontend/components/key/key";
-import { Sidebar } from "frontend/components/sidebar/sidebar";
+import { Chip } from "frontend/components/ui/chip";
+import { Key } from "frontend/components/ui/key";
+import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { Back } from "./back/back";
 
 export const CacheDetails = () => {
@@ -164,7 +164,7 @@ export const CacheDetails = () => {
   if (!item) return null;
 
   return (
-    <Sidebar
+    <ResizableSidebar
       position="right"
       className="absolute flex flex-col inset-y-0 right-0"
       defaultSize={{
@@ -260,6 +260,6 @@ export const CacheDetails = () => {
           </AccordionItem>
         </Accordion>
       </div>
-    </Sidebar>
+    </ResizableSidebar>
   );
 };

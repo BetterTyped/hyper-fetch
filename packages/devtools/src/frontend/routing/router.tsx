@@ -23,8 +23,10 @@ import { ProjectRequests } from "../pages/project/requests/requests";
 import { WorkspaceLayout } from "frontend/pages/workspace/_layout/layout";
 import { DashboardLayout } from "frontend/pages/dashboard/_layout/layout";
 import { ProjectLayout } from "frontend/pages/project/_layout/layout";
+import { App } from "frontend/components/app/app";
 
 const root = createRoot({
+  layout: App,
   notFound: () => <div>Page not found</div>,
 }).addChildren({
   dashboard: createRoute({
@@ -115,6 +117,7 @@ export const {
   Application,
   useRoute,
   useLocation,
+  useBreadcrumbs,
 } = createRouter({
   router,
   root,

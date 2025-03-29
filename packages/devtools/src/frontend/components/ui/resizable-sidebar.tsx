@@ -30,7 +30,7 @@ const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bott
   return <div className={`${baseClasses} ${positionClasses[position]}`} />;
 };
 
-export const Sidebar = ({
+export const ResizableSidebar = ({
   className,
   position,
   children,

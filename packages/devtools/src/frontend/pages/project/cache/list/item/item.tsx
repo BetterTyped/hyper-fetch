@@ -4,9 +4,9 @@ import { getLoadingByCacheKey } from "@hyper-fetch/core";
 import { DevtoolsCacheEvent } from "frontend/context/projects/types";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCountdown } from "frontend/hooks/use-countdown";
-import { Chip } from "frontend/components/chip/chip";
-import { Key } from "frontend/components/key/key";
+import { Key } from "frontend/components/ui/key";
 import { TableCell, TableRow } from "frontend/components/ui/table";
+import { Chip } from "frontend/components/ui/chip";
 
 export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   const {

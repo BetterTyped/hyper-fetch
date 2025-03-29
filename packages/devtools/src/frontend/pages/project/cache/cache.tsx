@@ -1,6 +1,5 @@
 import { CacheList } from "./list/cache.list";
 import { CacheDetails } from "./details/cache.details";
-import { Content } from "frontend/components/content/content";
 
 export const ProjectCache = () => {
   return (

@@ -1,7 +1,7 @@
 import React from "react";
 import { Atom, Boxes, CircleDotDashed } from "lucide-react";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const getKeyIcon = (type: KeyTypes) => {
   switch (type) {
