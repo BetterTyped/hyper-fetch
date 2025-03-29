@@ -1,14 +1,14 @@
 import { XIcon } from "lucide-react";
 
-import { IconButton } from "frontend/components/icon-button/icon-button";
+import { Button } from "frontend/components/ui/button";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
 export const Back = () => {
   const { setDetailsExplorerRequest } = useDevtools();
 
   return (
-    <IconButton onClick={() => setDetailsExplorerRequest(null)}>
+    <Button variant="ghost" size="icon" onClick={() => setDetailsExplorerRequest(null)}>
       <XIcon />
-    </IconButton>
+    </Button>
   );
 };

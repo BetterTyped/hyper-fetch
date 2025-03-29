@@ -1,90 +1,14 @@
 import { Resizable, ResizableProps } from "re-resizable";
 
-import { createStyles } from "frontend/theme/use-styles.hook";
-
-const styles = createStyles(({ isLight, css, tokens }) => {
-  return {
-    sidebar: css`
-      display: flex;
-      flex-direction: column;
-      background: ${isLight ? tokens.colors.light[50] : tokens.colors.dark[600]};
-      border-left: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
-      border-right: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
-      overflow-y: hidden;
-    `,
-    handle: css`
-      z-index: 100;
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-
-      &:hover {
-        opacity: 1;
-      }
-      &:active {
-        opacity: 1;
-      }
-      &:focus {
-        opacity: 1;
-      }
-    `,
-    top: css`
-      position: absolute;
-      width: 100%;
-    `,
-    left: css`
-      position: absolute;
-      height: 100%;
-    `,
-    right: css`
-      position: absolute;
-      height: 100%;
-    `,
-    bottom: css`
-      position: absolute;
-      width: 100%;
-    `,
-  };
-});
-
-// They are always on the opposite side
-const borderStyles = createStyles(({ isLight, css, tokens }) => {
-  return {
-    base: css`
-      position: absolute;
-      z-index: 100;
-      box-shadow: 0 0 6px 0.5px ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[400]};
-    `,
-    top: css`
-      height: 1px;
-      width: 100%;
-      border-bottom: 1px solid ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[400]};
-      margin-bottom: 5px;
-    `,
-    left: css`
-      height: 100%;
-      width: 1px;
-      border-right: 1px solid ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[400]};
-      margin-right: 5px;
-    `,
-    right: css`
-      height: 100%;
-      width: 1px;
-      border-left: 1px solid ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[400]};
-      margin-left: 5px;
-    `,
-    bottom: css`
-      height: 1px;
-      width: 100%;
-      border-top: 1px solid ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[400]};
-      margin-top: 5px;
-    `,
-  };
-});
-
-const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bottom" }) => {
-  const css = borderStyles.useStyles();
-
-  return <div className={css.clsx(css.base, css[position])} />;
+const getPositionClasses = (position: "top" | "left" | "right" | "bottom") => {
+  return `absolute ${
+    {
+      top: "w-full",
+      left: "h-full",
+      right: "h-full",
+      bottom: "w-full",
+    }[position]
+  }`;
 };
 
 const getOpositePosition = (position: "top" | "left" | "right" | "bottom") => {
@@ -94,13 +18,24 @@ const getOpositePosition = (position: "top" | "left" | "right" | "bottom") => {
   return "top";
 };
 
+const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bottom" }) => {
+  const baseClasses = "absolute z-100 shadow-cyan";
+  const positionClasses = {
+    top: "h-[1px] w-full border-b border-cyan-300 dark:border-cyan-400 mb-[5px]",
+    left: "h-full w-[1px] border-r border-cyan-300 dark:border-cyan-400 mr-[5px]",
+    right: "h-full w-[1px] border-l border-cyan-300 dark:border-cyan-400 ml-[5px]",
+    bottom: "h-[1px] w-full border-t border-cyan-300 dark:border-cyan-400 mt-[5px]",
+  };
+
+  return <div className={`${baseClasses} ${positionClasses[position]}`} />;
+};
+
 export const Sidebar = ({
   className,
   position,
   children,
   ...props
 }: ResizableProps & { position: "top" | "left" | "right" | "bottom" }) => {
-  const css = styles.useStyles();
   return (
     <Resizable
       defaultSize={{
@@ -111,12 +46,15 @@ export const Sidebar = ({
       maxHeight="100%"
       maxWidth="100%"
       {...props}
-      className={css.clsx(css.sidebar, className)}
+      className={`flex flex-col overflow-y-hidden bg-light-50 dark:bg-dark-600 border-l border-r border-light-300 dark:border-dark-400 ${className || ""}`}
       handleComponent={{
         [getOpositePosition(position)]: <BorderHandle position={position} />,
       }}
-      handleClasses={{ [getOpositePosition(position)]: css.handle }}
-      handleWrapperClass={css[position]}
+      handleClasses={{
+        [getOpositePosition(position)]:
+          "z-100 opacity-0 hover:opacity-100 focus:opacity-100 active:opacity-100 transition-opacity duration-200",
+      }}
+      handleWrapperClass={getPositionClasses(position)}
     >
       {children}
     </Resizable>

@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { PlusIcon, ActivityIcon } from "lucide-react";
 
 import { useLocation } from "frontend/routing/router";
-import { WorkspaceCard } from "frontend/components/ui/workspace-card";
 import { Card } from "frontend/components/ui/card";
 import { KpiCard3 } from "frontend/components/ui/kpi-card-3";
 import { KpiCardFeed } from "frontend/components/ui/kpi-card-feed";
 import { useProjects } from "frontend/store/projects.store";
+import { ProjectCard } from "frontend/components/ui/project-card";
 
 export const Projects = () => {
   const projects = useProjects((state) => state.projects);
@@ -54,7 +54,7 @@ export const Projects = () => {
 
   const onOpenProject = (projectName: string) => {
     navigate({
-      to: "projects.details",
+      to: "project",
       params: {
         projectName,
       },
@@ -79,13 +79,7 @@ export const Projects = () => {
       <h1 className="text-2xl font-bold mb-4">Projects</h1>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Object.values(projects).map((project) => (
-          <WorkspaceCard
-            key={project.name}
-            {...project}
-            iconUrl=""
-            isConnectedToCloud={false}
-            onOpen={() => onOpenProject(project.name)}
-          />
+          <ProjectCard key={project.name} iconUrl="" {...project} onOpen={() => onOpenProject(project.name)} />
         ))}
         <Card
           className="w-full max-w-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-center cursor-pointer border-dashed"

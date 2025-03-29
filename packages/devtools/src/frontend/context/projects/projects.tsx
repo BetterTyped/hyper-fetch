@@ -13,7 +13,7 @@ const Projects = () => {
 
   return (
     <>
-      {settings.ports.map((port) => (
+      {[1234, ...settings.ports].map((port) => (
         <Bridge key={String(port)} port={port} />
       ))}
       {Object.keys(connections).map((connection) => (

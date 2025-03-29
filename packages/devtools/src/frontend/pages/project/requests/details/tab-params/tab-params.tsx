@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 
-import * as Table from "frontend/components/table/table";
+import { Table, TableHeader, TableBody, TableRow, TableCell } from "frontend/components/ui/table";
 import { DevtoolsExplorerRequest } from "../../list/content.types";
+import { TableSortable } from "frontend/components/ui/table-sortable";
 
 export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const parameters: string[] = useMemo(() => {
@@ -14,24 +15,28 @@ export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   return (
     <div>
       {!!parameters.length && (
-        <Table.Root>
-          <Table.Header>
-            <Table.Sortable>Parameter</Table.Sortable>
-            <Table.Sortable>Value</Table.Sortable>
-          </Table.Header>
-          <Table.Body>
+        <Table>
+          <TableHeader>
+            <TableSortable sort={null} onSort={() => {}}>
+              Parameter
+            </TableSortable>
+            <TableSortable sort={null} onSort={() => {}}>
+              Value
+            </TableSortable>
+          </TableHeader>
+          <TableBody>
             {parameters.map((parameter) => {
               return (
-                <Table.Row key={parameter}>
-                  <Table.Cell>{parameter}</Table.Cell>
-                  <Table.Cell aria-label="parameter-value">
+                <TableRow key={parameter}>
+                  <TableCell>{parameter}</TableCell>
+                  <TableCell aria-label="parameter-value">
                     <input type="text" />
-                  </Table.Cell>
-                </Table.Row>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </Table.Body>
-        </Table.Root>
+          </TableBody>
+        </Table>
       )}
     </div>
   );

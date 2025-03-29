@@ -27,7 +27,7 @@ const primary: Array<{
   // },
   {
     title: "Projects",
-    link: "projects",
+    link: "dashboard",
     icon: AudioLines,
   },
   // {
@@ -37,7 +37,7 @@ const primary: Array<{
   // },
   {
     title: "Settings",
-    link: "settings",
+    link: "dashboard.settings",
     icon: Settings,
   },
 ];

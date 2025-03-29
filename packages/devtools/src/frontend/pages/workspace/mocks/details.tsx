@@ -15,7 +15,7 @@ export const WorkspaceMocks = () => {
   if (!workspace) {
     return (
       <EmptyState title="Workspace not found" description="Please create a workspace first">
-        <Button onClick={() => navigate({ to: "home" })}>Create Workspace</Button>
+        <Button onClick={() => navigate({ to: "dashboard" })}>Create Workspace</Button>
       </EmptyState>
     );
   }

@@ -16,44 +16,44 @@ import {
   SidebarProvider,
 } from "frontend/components/ui/sidebar";
 import { Link, RoutingLocations, useRoute } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useProjects } from "frontend/store/projects.store";
 
 // import Logo from "frontend/assets/images/logo.svg?react";
 
 const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isActive: boolean }[] = [
   {
     title: "Project",
-    url: "projects.details",
+    url: "project",
     icon: Inbox,
     isActive: true,
   },
-  {
-    title: "Requests",
-    url: "projects.details.requests",
-    icon: Earth,
-    isActive: false,
-  },
+  // {
+  //   title: "Requests",
+  //   url: "project.requests",
+  //   icon: Earth,
+  //   isActive: false,
+  // },
   {
     title: "Network",
-    url: "projects.details.network",
+    url: "project.network",
     icon: Earth,
     isActive: false,
   },
   {
     title: "Cache",
-    url: "projects.details.cache",
+    url: "project.cache",
     icon: Boxes,
     isActive: false,
   },
   {
     title: "Queues",
-    url: "projects.details.queues",
+    url: "project.queues",
     icon: Atom,
     isActive: false,
   },
   {
     title: "Settings",
-    url: "projects.details.settings",
+    url: "project.settings",
     icon: Settings2,
     isActive: false,
   },
@@ -61,13 +61,13 @@ const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isAc
 
 export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const {
-    params: { workspaceId },
-  } = useRoute("workspace");
-  const { workspaces } = useWorkspaces();
-  const workspace = workspaces.find((w) => w.id === workspaceId);
+    params: { projectName },
+  } = useRoute("project");
+  const { projects } = useProjects();
+  const project = projects[projectName];
 
-  if (!workspace) {
-    return null;
+  if (!project) {
+    return <div />;
   }
 
   return (
@@ -78,9 +78,6 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
         className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row rounded-xl bg-transparent pr-1"
         {...props}
       >
-        {/* This is the first sidebar */}
-        {/* We disable collapsible and adjust width to icon. */}
-        {/* This will make the sidebar appear as icons. */}
         <SidebarHeader>
           <SidebarMenu className="mt-2 mb-3">
             <SidebarMenuItem className="flex justify-center">
@@ -89,7 +86,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 asChild
                 className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
               >
-                <Link to="home">
+                <Link to="dashboard">
                   <Home className="!size-5" />
                 </Link>
               </SidebarMenuButton>
@@ -103,7 +100,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={item.url} params={{ workspaceId: workspace?.id }} className="flex flex-col h-15">
+                      <Link to={item.url} params={{ projectName }} className="flex flex-col h-15">
                         <item.icon className="!size-5" />
                         <span className="text-[10px]">{item.title}</span>
                       </Link>

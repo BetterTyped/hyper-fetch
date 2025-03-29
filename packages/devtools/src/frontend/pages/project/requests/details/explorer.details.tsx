@@ -2,10 +2,10 @@ import { ComponentType } from "react";
 import { SendIcon } from "lucide-react";
 
 import { Back } from "./back/back";
-import * as Tabs from "frontend/components/tabs/tabs";
-import { Separator } from "frontend/components/separator/separator";
-import { Chip } from "frontend/components/chip/chip";
-import { Button } from "frontend/components/button/button";
+import { Button } from "frontend/components/ui/button";
+import { Separator } from "frontend/components/ui/separator";
+import { Chip } from "frontend/components/ui/chip";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
 import { ExploreTabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "frontend/components/method/method";
@@ -33,14 +33,14 @@ export const ExplorerDetails = () => {
     <div className="flex flex-col flex-1">
       <Bar className="flex-wrap-none">
         <Back />
-        <Separator className="h-[18px] mx-1" />
+        <Separator orientation="vertical" className="h-[18px] mx-1" />
         <div className="flex flex-1 items-center text-sm gap-2.5">
           <div className="flex flex-1 gap-2.5">
-            <div className="flex items-center gap-[3px] bg-light-300 dark:bg-dark-500 border-none rounded-md text-dark-400 dark:text-light-300 text-base px-2.5 py-1 w-full">
+            <div className="flex items-center gap-[3px] bg-muted border-none rounded-md text-muted-foreground text-base px-2.5 py-1 w-full">
               <Chip color="blue">
                 <Method method={item.request.method} />
               </Chip>
-              <Separator className="h-[18px] mx-1" />
+              <Separator orientation="vertical" className="h-[18px] mx-1" />
               <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-full text-sm font-normal">
                 <span className="font-medium inline-block text-cyan-800 dark:text-cyan-200 opacity-60">
                   {"{{baseUrl}}"}
@@ -48,7 +48,7 @@ export const ExplorerDetails = () => {
                 {item.request.endpoint}
               </span>
             </div>
-            <Button>
+            <Button size="default" variant="default">
               Send
               <SendIcon className="w-3 ml-[1px] -mb-[2px]" />
             </Button>
@@ -56,24 +56,20 @@ export const ExplorerDetails = () => {
         </div>
       </Bar>
       <div className="overflow-y-auto p-2.5">
-        <Tabs.Root defaultValue={ExploreTabs.PARAMS}>
-          <Tabs.List>
-            {Object.values(ExploreTabs).map((tab) => {
-              return (
-                <Tabs.Trigger key={tab} value={tab}>
-                  {tab}
-                </Tabs.Trigger>
-              );
-            })}
-          </Tabs.List>
-          {Object.entries(components).map(([tab, Component]) => {
-            return (
-              <Tabs.Content key={tab} value={tab}>
-                <Component item={item} />
-              </Tabs.Content>
-            );
-          })}
-        </Tabs.Root>
+        <Tabs defaultValue={ExploreTabs.PARAMS}>
+          <TabsList>
+            {Object.values(ExploreTabs).map((tab) => (
+              <TabsTrigger key={tab} value={tab}>
+                {tab}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {Object.entries(components).map(([tab, Component]) => (
+            <TabsContent key={tab} value={tab}>
+              <Component item={item} />
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </div>
   );

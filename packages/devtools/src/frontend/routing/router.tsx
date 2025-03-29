@@ -1,4 +1,4 @@
-import { createRoute, createRouter, RoutesNames } from "@reins/router";
+import { createRoot, createRoute, createRouter, Router, RoutesNames } from "@reins/router";
 
 import { makeElectronRouter } from "./electron-adapter";
 import { Settings } from "../pages/dashboard/settings/settings";
@@ -22,34 +22,63 @@ import { ProjectCache } from "frontend/pages/project/cache/cache";
 import { ProjectRequests } from "../pages/project/requests/requests";
 import { WorkspaceLayout } from "frontend/pages/workspace/_layout/layout";
 import { DashboardLayout } from "frontend/pages/dashboard/_layout/layout";
+import { ProjectLayout } from "frontend/pages/project/_layout/layout";
 
-const routes = createRoute({
-  path: "/",
-  component: Projects,
-  layout: DashboardLayout,
-  error: () => <div>This is Error</div>,
+const root = createRoot({
+  notFound: () => <div>Page not found</div>,
 }).addChildren({
-  members: createRoute({
-    path: "/members",
-    component: Members,
+  dashboard: createRoute({
+    path: "/",
+    component: Projects,
+    layout: DashboardLayout,
+  }).addChildren({
+    members: createRoute({
+      path: "/members",
+      component: Members,
+    }),
+    settings: createRoute({
+      path: "/settings",
+      component: Settings,
+    }),
+    activities: createRoute({
+      path: "/activities",
+      component: Activities,
+    }),
+    favorites: createRoute({
+      path: "/favorites",
+      component: Favorites,
+    }),
+    recentlyVisited: createRoute({
+      path: "/recently-visited",
+      component: RecentlyVisited,
+    }),
   }),
-  settings: createRoute({
-    path: "/settings",
-    component: Settings,
+  project: createRoute({
+    path: "/project/:projectName",
+    component: ProjectDetails,
+    layout: ProjectLayout,
+  }).addChildren({
+    requests: createRoute({
+      path: "/requests",
+      component: ProjectRequests,
+    }),
+    network: createRoute({
+      path: "/network",
+      component: ProjectNetwork,
+    }),
+    cache: createRoute({
+      path: "/cache",
+      component: ProjectCache,
+    }),
+    queues: createRoute({
+      path: "/queues",
+      component: ProjectQueues,
+    }),
+    settings: createRoute({
+      path: "/settings",
+      component: ProjectSettings,
+    }),
   }),
-  activities: createRoute({
-    path: "/activities",
-    component: Activities,
-  }),
-  favorites: createRoute({
-    path: "/favorites",
-    component: Favorites,
-  }),
-  recentlyVisited: createRoute({
-    path: "/recently-visited",
-    component: RecentlyVisited,
-  }),
-
   workspace: createRoute({
     path: "/workspace/:workspaceId",
     component: WorkspaceDetails,
@@ -76,43 +105,19 @@ const routes = createRoute({
       component: WorkspaceSettings,
     }),
   }),
-  projects: createRoute({
-    path: "/projects",
-    component: Projects,
-  }).addChildren({
-    details: createRoute({
-      path: "/project/:projectName",
-      component: ProjectDetails,
-    }).addChildren({
-      requests: createRoute({
-        path: "/requests",
-        component: ProjectRequests,
-      }),
-      network: createRoute({
-        path: "/network",
-        component: ProjectNetwork,
-      }),
-      cache: createRoute({
-        path: "/cache",
-        component: ProjectCache,
-      }),
-      queues: createRoute({
-        path: "/queues",
-        component: ProjectQueues,
-      }),
-      settings: createRoute({
-        path: "/settings",
-        component: ProjectSettings,
-      }),
-    }),
-  }),
 });
 
-export const router = makeElectronRouter();
+export const router = makeElectronRouter() as Router<"", typeof root>;
 
-export const { Link, Application, useRoute, useLocation } = createRouter({
+export const {
+  router: r,
+  Link,
+  Application,
+  useRoute,
+  useLocation,
+} = createRouter({
   router,
-  routes,
+  root,
 });
 
-export type RoutingLocations = RoutesNames<typeof routes>;
+export type RoutingLocations = RoutesNames<(typeof root)["children"]>;

@@ -3,8 +3,6 @@ import { CircleCheck, Copy } from "lucide-react";
 
 import { useClipboard } from "frontend/hooks/use-clipboard";
 
-import { styles } from "../json-viewer.styles";
-
 export const Label = ({
   label,
   getRaw,
@@ -14,7 +12,6 @@ export const Label = ({
   expandable: boolean;
   getRaw: () => string;
 }) => {
-  const css = styles.useStyles();
   const ref = useRef<ReturnType<typeof setTimeout>>();
   const [copied, setCopied] = useState(false);
 
@@ -42,13 +39,12 @@ export const Label = ({
 
   return (
     <>
-      <span className={css.label}>{label}:</span>
+      <span className="relative text-light-900 dark:text-light-300 whitespace-nowrap">{label}:</span>
       {expandable && (
-        // Prevents some propagation issues with span instead of button
         <span
           tabIndex={0}
           role="button"
-          className={css.copy}
+          className="relative w-3 h-3 bg-transparent border-0 p-0 ml-1"
           onClick={handleCopy}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -56,7 +52,11 @@ export const Label = ({
             }
           }}
         >
-          {copied ? <CircleCheck className="copied" /> : <Copy />}
+          {copied ? (
+            <CircleCheck className="w-3 h-3 translate-y-0.5 stroke-green-600 dark:stroke-green-400" />
+          ) : (
+            <Copy className="w-3 h-3 translate-y-0.5" />
+          )}
         </span>
       )}
     </>

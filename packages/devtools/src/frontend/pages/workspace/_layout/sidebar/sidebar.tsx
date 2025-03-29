@@ -93,7 +93,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 asChild
                 className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
               >
-                <Link to="home">
+                <Link to="dashboard">
                   <Home className="!size-5" />
                 </Link>
               </SidebarMenuButton>

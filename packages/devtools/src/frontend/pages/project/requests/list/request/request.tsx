@@ -1,10 +1,19 @@
 import { TreeItem, TreeItemRenderContext } from "react-complex-tree";
 import { EllipsisIcon, FileUp } from "lucide-react";
 
-import * as DropdownMenu from "frontend/components/dropdown/dropdown";
-import { IconButton } from "frontend/components/icon-button/icon-button";
 import { DevtoolsExplorerRequest } from "../content.types";
 import { Method } from "frontend/components/method/method";
+import { Button } from "frontend/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "frontend/components/ui/dropdown-menu";
 
 export const Request = ({
   item,
@@ -23,41 +32,41 @@ export const Request = ({
         <Method method={item.data.request.method} />
         {item.data.name}
       </span>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <IconButton>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
             <EllipsisIcon />
-          </IconButton>
-        </DropdownMenu.Trigger>
+          </Button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenu.Content>
-          <DropdownMenu.Label>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>
             <FileUp />
             Request
-          </DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Group>
-            <DropdownMenu.Item onClick={renameRequest}>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={renameRequest}>
               Rename
-              <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               Show cache
-              <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               Show in network
-              <DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-          </DropdownMenu.Group>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item>Add example response</DropdownMenu.Item>
-          <DropdownMenu.Item>Add request template</DropdownMenu.Item>
-          <DropdownMenu.Item>View documentation</DropdownMenu.Item>
-          <DropdownMenu.Item>Support</DropdownMenu.Item>
-          <DropdownMenu.Item>API</DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Add example response</DropdownMenuItem>
+          <DropdownMenuItem>Add request template</DropdownMenuItem>
+          <DropdownMenuItem>View documentation</DropdownMenuItem>
+          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuItem>API</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

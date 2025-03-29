@@ -2,14 +2,20 @@
 import { CirclePlusIcon } from "lucide-react";
 import { UncontrolledTreeEnvironment, Tree, TreeItem } from "react-complex-tree";
 
-import * as DropdownMenu from "frontend/components/dropdown/dropdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuShortcut,
+} from "frontend/components/ui/dropdown-menu";
+import { Button } from "frontend/components/ui/button";
 import { Sidebar } from "frontend/components/sidebar/sidebar";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
 import { DevtoolsExplorerItem } from "./content.types";
 import { TreeElement } from "./tree-element/tree-element";
-import { IconButton } from "frontend/components/icon-button/icon-button";
 import { useExplorer } from "../requests.context";
 
 // import { reactComplexTreeStyles } from "./react-complex-tree.styles";
@@ -49,24 +55,22 @@ export const ExplorerSidebar = () => {
   }
 
   return (
-    // className={treeCss.clsx(treeCss.styles)}
     <Sidebar position="right">
       <div className="flex justify-between items-center px-2 pt-[5px] pb-0">
         <span className="text-xs font-semibold text-light-500 dark:text-dark-50">Collection</span>
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <IconButton>
-              <CirclePlusIcon />
-            </IconButton>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Content>
-            <DropdownMenu.Item onClick={addNewFolder}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <CirclePlusIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={addNewFolder}>
               Add folder
-              <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <UncontrolledTreeEnvironment
         dataProvider={treeState}

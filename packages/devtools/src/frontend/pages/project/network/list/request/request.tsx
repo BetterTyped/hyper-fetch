@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import * as Table from "frontend/components/table/table";
+import { TableCell, TableRow } from "frontend/components/ui/table";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { getStatus, RequestStatusIcon } from "frontend/utils/request.status.utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
@@ -16,28 +16,24 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [item]);
 
   return (
-    <Table.Row
-      tabIndex={0}
-      role="button"
+    <TableRow
       onClick={() => setDetailsRequestId(item.requestId)}
       className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
         item.requestId === detailsRequestId ? "ring-1 ring-inset ring-blue-400" : ""
       }`}
     >
-      <Table.Cell className="text-sm font-light px-2 first:pl-3 last:pr-3">
+      <TableCell className="text-sm font-light">
         <div className="flex items-center gap-1">
           <RequestStatusIcon status={status} />
           <span>{item.request.endpoint}</span>
         </div>
-      </Table.Cell>
+      </TableCell>
 
-      <Table.Cell className="text-sm font-light px-2 first:pl-3 last:pr-3">{String(item.request.method)}</Table.Cell>
+      <TableCell className="text-sm font-light">{String(item.request.method)}</TableCell>
 
-      <Table.Cell className="text-sm font-light px-2 first:pl-3 last:pr-3">
-        {String(item.response?.success ?? "")}
-      </Table.Cell>
+      <TableCell className="text-sm font-light">{String(item.response?.success ?? "")}</TableCell>
 
-      <Table.Cell className="text-sm font-light px-2 first:pl-3 last:pr-3">
+      <TableCell className="text-sm font-light">
         <div>
           {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
           {!!item.details?.responseTimestamp && (
@@ -46,7 +42,7 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
             </span>
           )}
         </div>
-      </Table.Cell>
-    </Table.Row>
+      </TableCell>
+    </TableRow>
   );
 };

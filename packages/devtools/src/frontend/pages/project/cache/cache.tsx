@@ -1,15 +1,12 @@
 import { CacheList } from "./list/cache.list";
 import { CacheDetails } from "./details/cache.details";
 import { Content } from "frontend/components/content/content";
-import { ProjectLayout } from "../_layout/layout";
 
 export const ProjectCache = () => {
   return (
-    <ProjectLayout>
-      <Content>
-        <CacheList />
-        <CacheDetails />
-      </Content>
-    </ProjectLayout>
+    <div className="flex relative flex-1 h-full">
+      <CacheList />
+      <CacheDetails />
+    </div>
   );
 };

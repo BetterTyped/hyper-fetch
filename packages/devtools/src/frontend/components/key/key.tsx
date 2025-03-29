@@ -1,72 +1,22 @@
 import React from "react";
 import { Atom, Boxes, CircleDotDashed } from "lucide-react";
 
-import * as Tooltip from "frontend/components/tooltip/tooltip";
-import { createStyles } from "frontend/theme/use-styles.hook";
-
-const styles = createStyles(({ css }) => {
-  return {
-    base: css`
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      overflow: hidden;
-      background-color: transparent;
-      border: none;
-      color: inherit;
-      padding: 0;
-      max-width: 100%;
-      outline: none !important;
-
-      & svg {
-        width: 20px;
-        height: 20px;
-      }
-    `,
-    text: css`
-      display: block;
-      max-width: 100%;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    `,
-  };
-});
-
-const colorsVariants = createStyles(({ isLight, css, tokens }) => {
-  return {
-    queue: css`
-      & svg {
-        stroke: ${isLight ? tokens.colors.blue[300] : tokens.colors.blue[300]};
-      }
-    `,
-    cache: css`
-      & svg {
-        stroke: ${isLight ? tokens.colors.orange[300] : tokens.colors.orange[300]};
-      }
-    `,
-    abort: css`
-      & svg {
-        stroke: ${isLight ? tokens.colors.red[300] : tokens.colors.red[300]};
-      }
-    `,
-  };
-});
-
-export type KeyTypes = "queue" | "cache" | "abort";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const getKeyIcon = (type: KeyTypes) => {
   switch (type) {
     case "queue":
-      return <Atom />;
+      return <Atom className="w-5 h-5 stroke-blue-300" />;
     case "cache":
-      return <Boxes />;
+      return <Boxes className="w-5 h-5 stroke-orange-300" />;
     case "abort":
-      return <CircleDotDashed />;
+      return <CircleDotDashed className="w-5 h-5 stroke-red-300" />;
     default:
       return null;
   }
 };
+
+export type KeyTypes = "queue" | "cache" | "abort";
 
 export const Key = ({
   value,
@@ -74,15 +24,16 @@ export const Key = ({
   className,
   ...props
 }: React.HTMLProps<HTMLButtonElement> & { value: string; type: KeyTypes }) => {
-  const css = styles.useStyles();
-  const colorVariants = colorsVariants.useStyles();
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger {...props} className={css.clsx(css.base, colorVariants[type], className)}>
+    <Tooltip>
+      <TooltipTrigger
+        {...props}
+        className={`flex items-center gap-1 overflow-hidden bg-transparent border-none text-inherit p-0 max-w-full outline-none ${className ?? ""}`}
+      >
         {getKeyIcon(type)}
-        <span className={css.text}>{value}</span>
-      </Tooltip.Trigger>
-      <Tooltip.Content>This is {type}Key</Tooltip.Content>
-    </Tooltip.Root>
+        <span className="block max-w-full truncate whitespace-nowrap">{value}</span>
+      </TooltipTrigger>
+      <TooltipContent>This is {type}Key</TooltipContent>
+    </Tooltip>
   );
 };

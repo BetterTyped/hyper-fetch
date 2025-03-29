@@ -1,46 +1,19 @@
 import { HttpMethods } from "@hyper-fetch/core";
 
-import { createStyles } from "frontend/theme/use-styles.hook";
+const methodColors = {
+  default: "text-cyan-400",
+  [HttpMethods.GET]: "text-green-400",
+  [HttpMethods.POST]: "text-yellow-400",
+  [HttpMethods.PATCH]: "text-purple-400",
+  [HttpMethods.PUT]: "text-pink-400",
+  [HttpMethods.DELETE]: "text-red-400",
+} as const;
 
-const styles = createStyles(({ css }) => {
-  return {
-    base: css`
-      text-transform: uppercase;
-      font-weight: 600;
-      font-size: 10px;
-    `,
-  };
-});
+export const Method = ({ method, className, ...props }: React.HTMLProps<HTMLDivElement> & { method: string }) => {
+  const colorClass = methodColors[method as keyof typeof methodColors] || methodColors.default;
 
-const colorStyles = createStyles(({ css, tokens }) => {
-  return {
-    default: css`
-      color: ${tokens.colors.cyan[400]};
-    `,
-    [HttpMethods.GET]: css`
-      color: ${tokens.colors.green[400]};
-    `,
-    [HttpMethods.POST]: css`
-      color: ${tokens.colors.yellow[400]};
-    `,
-    [HttpMethods.PATCH]: css`
-      color: ${tokens.colors.purple[400]};
-    `,
-    [HttpMethods.PUT]: css`
-      color: ${tokens.colors.pink[400]};
-    `,
-    [HttpMethods.DELETE]: css`
-      color: ${tokens.colors.red[400]};
-    `,
-  };
-});
-
-export const Method = ({ method, ...props }: React.HTMLProps<HTMLDivElement> & { method: string }) => {
-  const css = styles.useStyles();
-  const colors = colorStyles.useStyles();
-  const color = colors[method as keyof typeof colors] || colors.default;
   return (
-    <span {...props} className={css.clsx(color, css.base)}>
+    <span {...props} className={`uppercase font-semibold text-xs ${colorClass} ${className || ""}`}>
       {method}
     </span>
   );

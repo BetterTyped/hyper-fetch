@@ -3,11 +3,12 @@ import { useMemo } from "react";
 
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Request } from "./request/request";
-import * as Table from "frontend/components/table/table";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { Status } from "frontend/utils/request.status.utils";
 import { PathsOf, useSearch } from "frontend/hooks/use-search";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
+import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/table";
+import { TableSortable } from "frontend/components/ui/table-sortable";
 
 export const NetworkList = () => {
   const {
@@ -73,30 +74,30 @@ export const NetworkList = () => {
   }
 
   return (
-    <Table.Root wrapperClassName="w-full flex-1">
-      <Table.Header style={{ opacity: !requests.length ? 0.4 : 1 }}>
-        <Table.Row>
-          <Table.Sortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+    <Table className="w-full flex-1">
+      <TableHeader style={{ opacity: !requests.length ? 0.4 : 1 }}>
+        <TableRow>
+          <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
             Endpoint
-          </Table.Sortable>
+          </TableSortable>
           {typeof client.adapter.defaultMethod === "string" && (
-            <Table.Sortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+            <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
               Method
-            </Table.Sortable>
+            </TableSortable>
           )}
-          <Table.Sortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+          <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
             Success
-          </Table.Sortable>
-          <Table.Sortable sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
+          </TableSortable>
+          <TableSortable sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
             Timestamp
-          </Table.Sortable>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body className="relative">
+          </TableSortable>
+        </TableRow>
+      </TableHeader>
+      <TableBody className="relative">
         {items.map((item, index) => {
           return <Request key={index} item={item} />;
         })}
-      </Table.Body>
-    </Table.Root>
+      </TableBody>
+    </Table>
   );
 };

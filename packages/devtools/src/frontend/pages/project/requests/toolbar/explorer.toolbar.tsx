@@ -1,5 +1,5 @@
 import { Toolbar } from "frontend/components/toolbar/toolbar";
-import { Search } from "frontend/components/search/search";
+import { Input } from "frontend/components/ui/input";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
 export const ExplorerToolbar = () => {
@@ -7,7 +7,7 @@ export const ExplorerToolbar = () => {
 
   return (
     <Toolbar>
-      <Search placeholder="Search" onChange={(e) => setExplorerSearchTerm(e.target.value)} />
+      <Input placeholder="Search" onChange={(e) => setExplorerSearchTerm(e.target.value)} />
       <div style={{ flex: "1 1 auto" }} />
     </Toolbar>
   );

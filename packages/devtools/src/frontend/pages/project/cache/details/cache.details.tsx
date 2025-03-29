@@ -2,19 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
 import { AdapterInstance, CacheValueType, getLoadingByCacheKey } from "@hyper-fetch/core";
 
-import { Back } from "./back/back";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "frontend/components/ui/accordion";
+import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Separator } from "frontend/components/separator/separator";
 import { Button } from "frontend/components/button/button";
 import { Bar } from "frontend/components/bar/bar";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
-import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { Collapsible } from "frontend/components/collapsible/collapsible";
-import * as Table from "frontend/components/table/table";
-import { RowInfo } from "frontend/components/table/row-info/row-info";
 import { Countdown } from "frontend/components/countdown/countdown";
 import { Chip } from "frontend/components/chip/chip";
 import { Key } from "frontend/components/key/key";
 import { Sidebar } from "frontend/components/sidebar/sidebar";
+import { Back } from "./back/back";
 
 export const CacheDetails = () => {
   const {
@@ -186,35 +185,42 @@ export const CacheDetails = () => {
       </Bar>
       <div className="overflow-y-auto pb-10">
         <div className="p-2.5">
-          <Table.Root>
-            <Table.Body>
-              <RowInfo label="Cache Observers:" value={listeners} />
-              <RowInfo
-                label="Last updated:"
-                value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
-              />
-              <RowInfo
-                label="Time left before stale:"
-                value={
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">Cache Observers:</TableCell>
+                <TableCell>{listeners}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Last updated:</TableCell>
+                <TableCell>
+                  {`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(
+                    item.cacheData.responseTimestamp,
+                  ).toLocaleTimeString()}`}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Time left before stale:</TableCell>
+                <TableCell>
                   <Countdown
                     value={item.cacheData.responseTimestamp + item.cacheData.staleTime}
                     onDone={() => setStale(true)}
                     onStart={() => setStale(false)}
                     doneText={<Chip color="gray">Cache data is stale</Chip>}
                   />
-                }
-              />
-              <RowInfo
-                label="Time left for garbage collection:"
-                value={
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Time left for garbage collection:</TableCell>
+                <TableCell>
                   <Countdown
                     value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
                     doneText={<Chip color="gray">Data removed from cache</Chip>}
                   />
-                }
-              />
-            </Table.Body>
-          </Table.Root>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
 
           <div className="flex flex-wrap gap-x-2.5 gap-y-1.5 mt-1.5">
             <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
@@ -235,16 +241,24 @@ export const CacheDetails = () => {
             </Button>
           </div>
         </div>
-        <Collapsible title="Config" defaultOpen>
-          <div className="p-2.5">
-            <JSONViewer data={elements?.additionalData} onChange={onChangeData} sortObjectKeys />
-          </div>
-        </Collapsible>
-        <Collapsible title="Cache" defaultOpen>
-          <div className="p-2.5">
-            <JSONViewer data={elements?.data} onChange={onChangeData} />
-          </div>
-        </Collapsible>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="config">
+            <AccordionTrigger className="px-2.5">Config</AccordionTrigger>
+            <AccordionContent>
+              <div className="p-2.5">
+                <JSONViewer data={elements?.additionalData} onChange={onChangeData} sortObjectKeys />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="cache">
+            <AccordionTrigger className="px-2.5">Cache</AccordionTrigger>
+            <AccordionContent>
+              <div className="p-2.5">
+                <JSONViewer data={elements?.data} onChange={onChangeData} />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </Sidebar>
   );

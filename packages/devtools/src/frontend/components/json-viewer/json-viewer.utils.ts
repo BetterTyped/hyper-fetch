@@ -1,9 +1,7 @@
 import type { Theme } from "react-base16-styling";
 import { KeyPath } from "react-json-tree";
 
-import { tokens } from "frontend/theme/tokens";
-
-export const getTheme = (isLight: boolean): Theme => {
+export const getTheme = ({ isLight }: { isLight: boolean }): Theme => {
   if (!isLight) {
     return {
       scheme: "bright",
@@ -15,14 +13,14 @@ export const getTheme = (isLight: boolean): Theme => {
       base05: "#c8ccd1",
       base06: "#e2e5e9",
       base07: "#f0f3f6",
-      base08: tokens.colors.red[400],
-      base09: tokens.colors.orange[400],
-      base0A: tokens.colors.pink[400],
-      base0B: tokens.colors.green[400],
-      base0C: tokens.colors.cyan[400],
-      base0D: tokens.colors.light[200],
-      base0E: tokens.colors.pink[400],
-      base0F: tokens.colors.blue[400],
+      base08: "#ff0000",
+      base09: "#ffa500",
+      base0A: "#ffc0cb",
+      base0B: "#008000",
+      base0C: "#0000ff",
+      base0D: "#0000ff",
+      base0E: "#800080",
+      base0F: "#0000ff",
       // eslint-disable-next-line max-params
       nestedNode: ({ style }) => {
         return {
@@ -44,14 +42,14 @@ export const getTheme = (isLight: boolean): Theme => {
     base05: "#c8ccd1",
     base06: "#e2e5e9",
     base07: "#f0f3f6",
-    base08: tokens.colors.red[500],
-    base09: tokens.colors.orange[500],
-    base0A: tokens.colors.pink[500],
-    base0B: tokens.colors.green[500],
-    base0C: tokens.colors.cyan[500],
-    base0D: tokens.colors.light[700],
-    base0E: tokens.colors.pink[500],
-    base0F: tokens.colors.blue[500],
+    base08: "#ff0000",
+    base09: "#ffa500",
+    base0A: "#ffc0cb",
+    base0B: "#008000",
+    base0C: "#0000ff",
+    base0D: "#0000ff",
+    base0E: "#800080",
+    base0F: "#0000ff",
     // eslint-disable-next-line max-params
     nestedNode: ({ style }) => {
       return {

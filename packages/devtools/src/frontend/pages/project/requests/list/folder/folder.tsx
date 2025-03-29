@@ -1,10 +1,19 @@
 import { TreeItem, TreeItemRenderContext } from "react-complex-tree";
 import { EllipsisIcon, FolderIcon } from "lucide-react";
 
-import * as DropdownMenu from "frontend/components/dropdown/dropdown";
-import { IconButton } from "frontend/components/icon-button/icon-button";
 import { DevtoolsExplorerFolder } from "../content.types";
 import { useExplorer } from "../../requests.context";
+import { Button } from "frontend/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "frontend/components/ui/dropdown-menu";
 
 export const Folder = ({
   item,
@@ -30,46 +39,46 @@ export const Folder = ({
         {item.data.name}
       </span>
 
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <IconButton>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
             <EllipsisIcon />
-          </IconButton>
-        </DropdownMenu.Trigger>
+          </Button>
+        </DropdownMenuTrigger>
 
-        <DropdownMenu.Content>
-          <DropdownMenu.Label>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>
             <FolderIcon />
             Folder
-          </DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Group>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
             {item.canRename && (
-              <DropdownMenu.Item onClick={renameFolder}>
+              <DropdownMenuItem onClick={renameFolder}>
                 Rename
-                <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
-              </DropdownMenu.Item>
+                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+              </DropdownMenuItem>
             )}
-            <DropdownMenu.Item onClick={addNewFolder}>
+            <DropdownMenuItem onClick={addNewFolder}>
               Add folder
-              <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               Run folder
-              <DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
               View documentation
-              <DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
-          </DropdownMenu.Group>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Item>Add Request</DropdownMenu.Item>
-          <DropdownMenu.Item>View documentation</DropdownMenu.Item>
-          <DropdownMenu.Item>Support</DropdownMenu.Item>
-          <DropdownMenu.Item>API</DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Add Request</DropdownMenuItem>
+          <DropdownMenuItem>View documentation</DropdownMenuItem>
+          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuItem>API</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

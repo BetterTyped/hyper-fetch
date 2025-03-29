@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
 
-import * as Table from "frontend/components/table/table";
 import { DevtoolsCacheEvent } from "frontend/context/projects/types";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCountdown } from "frontend/hooks/use-countdown";
 import { Chip } from "frontend/components/chip/chip";
 import { Key } from "frontend/components/key/key";
+import { TableCell, TableRow } from "frontend/components/ui/table";
 
 export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   const {
@@ -31,7 +31,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   const isFresh = staleTimestamp >= Date.now() ? Object.values(countdown).some((v) => v > 1) : false;
 
   return (
-    <Table.Row
+    <TableRow
       tabIndex={0}
       role="button"
       onClick={() => setDetailsCacheKey(item.cacheKey)}
@@ -39,20 +39,20 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
         item.cacheKey === detailsCacheKey ? "ring-1 ring-blue-400 ring-inset" : ""
       }`}
     >
-      <Table.Cell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
+      <TableCell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
         <Key type="cache" value={item.cacheKey} />
-      </Table.Cell>
-      <Table.Cell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
+      </TableCell>
+      <TableCell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
         <Chip color={isFresh ? "green" : "orange"}>{isFresh ? "Fresh" : "Stale"}</Chip>
-      </Table.Cell>
-      <Table.Cell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">{listeners}</Table.Cell>
-      <Table.Cell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
+      </TableCell>
+      <TableCell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">{listeners}</TableCell>
+      <TableCell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">
         {!!item.cacheData?.responseTimestamp && (
           <div className="text-light-700 dark:text-light-700">
             {new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}
           </div>
         )}
-      </Table.Cell>
-    </Table.Row>
+      </TableCell>
+    </TableRow>
   );
 };

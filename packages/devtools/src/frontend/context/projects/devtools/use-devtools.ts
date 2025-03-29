@@ -1,5 +1,5 @@
-import { useCallback, useMemo, SetStateAction } from "react";
-import { QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import { useCallback, useMemo, SetStateAction, useEffect } from "react";
+import { createClient, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 import {
   DevtoolsRequestEvent,
@@ -9,7 +9,7 @@ import {
   DevtoolsRequestQueueStats,
   Sort,
 } from "../types";
-import { useProjectStates } from "../state/state.context";
+import { initialProjectState, useProjectStates } from "../state/state.context";
 import { DevtoolsExplorerRequest } from "frontend/pages/project/requests/list/content.types";
 import { Status } from "frontend/utils/request.status.utils";
 import { useConnections } from "../connection/connection";
@@ -17,16 +17,22 @@ import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/projects.store";
 
 export const useDevtools = () => {
-  const { params } = useRoute("projects.details");
+  const { params } = useRoute("project");
   const { projectStates, setProjectStates } = useProjectStates("Devtools");
   const { connections } = useConnections("Devtools");
   const { projects } = useProjects();
 
   const { projectName } = params;
 
-  const { client } = connections[projectName as keyof typeof connections];
-  const { requests, canceled, success, failed, paused, removed } =
-    projectStates[projectName as keyof typeof projectStates];
+  const { client } = connections[projectName as keyof typeof connections] || {
+    client: createClient({
+      url: "http://localhost.dummy:3000",
+    }),
+  };
+
+  const projectState = projectStates[projectName as keyof typeof projectStates] || initialProjectState;
+
+  const { requests, canceled, success, failed, paused, removed } = projectState;
 
   const setRequests = useCallback((newRequests: SetStateAction<DevtoolsRequestEvent[]>) => {
     setProjectStates((draft) => {
@@ -310,10 +316,18 @@ export const useDevtools = () => {
     [canceled, failed, paused, removed, requests, success],
   );
 
+  useEffect(() => {
+    if (!projectStates[projectName]) {
+      setProjectStates((draft) => {
+        draft[projectName] = initialProjectState;
+      });
+    }
+  }, [projectName, projectStates, setProjectStates]);
+
   return {
     client,
     project: projects[projectName as keyof typeof projects],
-    state: projectStates[projectName as keyof typeof projectStates],
+    state: projectState,
     allRequests,
     clearNetwork,
     removeNetworkRequest,

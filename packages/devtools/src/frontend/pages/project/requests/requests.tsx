@@ -1,7 +1,5 @@
 import { ExplorerSidebar } from "./list/explorer.sidebar";
 import { ExplorerDetails } from "./details/explorer.details";
-import { Content } from "frontend/components/content/content";
-import { ProjectLayout } from "../_layout/layout";
 import { ExplorerContext } from "./requests.context";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { DevtoolsDataProvider } from "./list/content.state";
@@ -13,12 +11,10 @@ export const ProjectRequests = () => {
 
   return (
     <ExplorerContext treeState={new DevtoolsDataProvider(explorerRequests)}>
-      <ProjectLayout>
-        <Content>
-          <ExplorerSidebar />
-          <ExplorerDetails />
-        </Content>
-      </ProjectLayout>
+      <div className="flex relative flex-1 h-full">
+        <ExplorerSidebar />
+        <ExplorerDetails />
+      </div>
     </ExplorerContext>
   );
 };
