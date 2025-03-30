@@ -40,8 +40,6 @@ export const Navbar = () => {
     window.electron.ipcRenderer.send("window-maximize");
   };
 
-  console.log(breadcrumbs);
-
   return (
     <div className="flex gap-1 pt-2 px-3 justify-between" style={dragStyle}>
       <div className="flex gap-1 items-center">
