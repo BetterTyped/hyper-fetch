@@ -78,6 +78,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
                   ...prev,
                   [connectionName]: {
                     name: connectionName,
+                    // TODO - Kacper add the adapter name to event and pick adapter here
                     client: new Client({ url: "http://localhost.dummyhost:5000" }),
                     connected: true,
                     eventListener,

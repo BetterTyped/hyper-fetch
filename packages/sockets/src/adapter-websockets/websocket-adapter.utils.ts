@@ -17,31 +17,31 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
       super(socketUrl, protocols);
     }
 
-    addEventListener<K extends keyof WebSocketEventMap>(
+    addEventListener = <K extends keyof WebSocketEventMap>(
       type: K,
       listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
       options?: boolean | (AddEventListenerOptions & { disableCleanup?: boolean }),
-    ): void {
+    ) => {
       super.addEventListener(type, listener, options);
       this.listeners.set(listener, { type, listener, options });
-    }
+    };
 
-    removeEventListener<K extends keyof WebSocketEventMap>(
+    removeEventListener = <K extends keyof WebSocketEventMap>(
       type: K,
       listener: (this: WebSocket, ev: WebSocketEventMap[K]) => any,
       options?: boolean | EventListenerOptions,
-    ): void {
+    ) => {
       super.removeEventListener(type, listener, options);
       this.listeners.delete(listener);
-    }
+    };
 
-    clearListeners() {
+    clearListeners = () => {
       this.listeners.forEach(({ type, listener, options }) => {
         if (!options?.disableCleanup) {
           this.removeEventListener(type, listener, options);
         }
       });
-    }
+    };
   }
 
   return new HyperFetchWebsocket(url, adapterOptions?.protocols);

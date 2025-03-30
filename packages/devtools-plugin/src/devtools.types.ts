@@ -16,4 +16,4 @@ export enum EmitableCustomEvents {
   REQUEST_CREATED = "REQUEST_CREATED",
 }
 
-export type DevtoolsPluginOptions = { appName: string; socketAddress?: string; socketPort?: number };
+export type DevtoolsPluginOptions = { appName: string; socketAddress?: string; socketPort?: number; debug?: boolean };

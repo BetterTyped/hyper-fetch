@@ -15,7 +15,7 @@ export class DevtoolsEventHandler {
 
   constructor(
     client: ClientInstance,
-    { socketAddress = "ws://localhost", socketPort = 1234, appName }: DevtoolsPluginOptions,
+    { socketAddress = "ws://localhost", socketPort = 1234, appName, debug = false }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.eventQueue = [];
@@ -25,6 +25,8 @@ export class DevtoolsEventHandler {
     this.socket = new Socket({
       url: `${socketAddress}:${socketPort}`,
       adapterOptions: { autoConnect: false },
+      reconnect: 100,
+      reconnectTime: 3000,
     }).setQueryParams({
       connectionName: this.connectionName,
     });
@@ -33,12 +35,21 @@ export class DevtoolsEventHandler {
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
     this.socket.connect();
     this.socket.onDisconnected(() => {
-      // TODO handle reconnection?
+      if (debug) {
+        // eslint-disable-next-line no-console
+        console.log("[HyperFetch Devtools] disconnected");
+      }
     });
-    this.socket.onError(() => {
-      // TODO handle err?
+    this.socket.onError(({ error }) => {
+      if (debug) {
+        console.error("[HyperFetch Devtools] error:", error);
+      }
     });
     this.socket.onConnected(() => {
+      if (debug) {
+        // eslint-disable-next-line no-console
+        console.log("[HyperFetch Devtools] connected");
+      }
       this.isConnected = true;
       while (this.eventQueue.length > 0) {
         const nextEvent = this.eventQueue.shift();

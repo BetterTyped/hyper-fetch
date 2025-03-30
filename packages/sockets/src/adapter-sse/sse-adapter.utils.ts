@@ -41,31 +41,31 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
       });
     };
 
-    addEventListener<K extends keyof EventSourceEventMap>(
+    addEventListener = <K extends keyof EventSourceEventMap>(
       type: K,
       listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
       options?: boolean | (AddEventListenerOptions & { disableCleanup?: boolean }),
-    ): void {
+    ): void => {
       super.addEventListener(type, listener, options);
       this.listeners.set(listener, { type, listener, options });
-    }
+    };
 
-    removeEventListener<K extends keyof EventSourceEventMap>(
+    removeEventListener = <K extends keyof EventSourceEventMap>(
       type: K,
       listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
       options?: boolean | EventListenerOptions,
-    ): void {
+    ): void => {
       super.removeEventListener(type, listener, options);
       this.listeners.delete(listener);
-    }
+    };
 
-    clearListeners() {
+    clearListeners = () => {
       this.listeners.forEach(({ type, listener, options }) => {
         if (!options?.disableCleanup) {
           this.removeEventListener(type, listener, options);
         }
       });
-    }
+    };
   }
 
   return new HyperFetchEventSource(url, adapterOptions?.eventSourceInit);

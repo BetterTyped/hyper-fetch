@@ -97,7 +97,6 @@ export class SocketAdapter<
 
   public setQueryParams(queryParams: QueryParams) {
     this.queryParams = queryParams;
-    this.reconnect?.();
     return this;
   }
 

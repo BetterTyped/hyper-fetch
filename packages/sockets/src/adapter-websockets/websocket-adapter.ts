@@ -53,12 +53,16 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         onError,
         onEvent,
       }) => {
-        const autoConnect = socket.adapter.adapterOptions?.autoConnect ?? true;
+        const autoConnect =
+          typeof socket.adapter.adapterOptions?.autoConnect === "boolean"
+            ? socket.adapter.adapterOptions?.autoConnect
+            : true;
 
         let websocket: ReturnType<typeof getWebsocketAdapter> | undefined;
 
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
+        let timeout: ReturnType<typeof setTimeout> | undefined;
 
         const connect = async (): Promise<boolean> => {
           const url = getSocketUrl(socket.url, getQueryParams());
@@ -67,6 +71,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             return Promise.resolve(false);
           }
 
+          clearTimeout(timeout);
           websocket?.clearListeners();
           websocket?.close();
 
@@ -89,7 +94,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           newWebsocket.clearListeners();
 
           // Reconnection timeout
-          const timeout = setTimeout(() => {
+          timeout = setTimeout(() => {
             reconnect();
           }, socket.reconnectTime);
 
@@ -104,11 +109,18 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           newWebsocket.addEventListener("close", (event) => {
-            const error = getSocketError(event);
-
-            onError({ error: new Error(error) });
+            clearTimeout(timeout);
             onDisconnected();
             clearTimers();
+            const error = getSocketError(event);
+            onError({ error: new Error(error) });
+
+            // If close was not by calling disconnect method, reconnect
+            if (event.code !== 1000) {
+              timeout = setTimeout(() => {
+                reconnect();
+              }, socket.reconnectTime);
+            }
           });
 
           newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
@@ -169,7 +181,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           onDisconnect();
-          currentWebsocket.close();
+          currentWebsocket.close(1000);
           clearTimers();
 
           return promise;
@@ -224,10 +236,10 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         // Initialize
-
         if (autoConnect) {
           connect();
         }
+
         socket.appManager.events.onOnline(() => {
           if (autoConnect && !socket.adapter.connected) {
             connect();

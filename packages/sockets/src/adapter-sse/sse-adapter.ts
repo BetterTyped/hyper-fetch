@@ -53,7 +53,10 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
       }) => {
         let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
 
-        const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
+        const autoConnect =
+          typeof socket.adapter.adapterOptions?.autoConnect === "boolean"
+            ? socket.adapter.adapterOptions?.autoConnect
+            : true;
 
         const connect = () => {
           const url = getSocketUrl(socket.url, getQueryParams());
