@@ -1,6 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { devtoolsPlugin } from "@hyper-fetch/devtools-plugin";
 import { Socket } from "@hyper-fetch/sockets";
+
 import { ConnectionName } from "frontend/constants/connection.name";
 
 export const connectDevtoolsClient = ({
@@ -42,23 +43,4 @@ export const connectDevtoolsFrontend = async ({
 
   await initSocket.connect();
   return initSocket;
-};
-
-export const listenForServerMessage = async (wss: any) => {
-  return new Promise((resolve) => {
-    wss.on("connection", (wsConn, request) => {
-      wsConn.on("message", (message) => {
-        return resolve(message);
-      });
-    });
-  });
-};
-
-export const listenForSocketMessage = async (socket: Socket) => {
-  return new Promise((resolve) => {
-    socket.onMessage((message) => {
-      console.log("SOCKET MESSAGE", message);
-      return resolve(message);
-    });
-  });
 };

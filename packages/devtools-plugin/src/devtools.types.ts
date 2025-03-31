@@ -16,4 +16,10 @@ export enum EmitableCustomEvents {
   REQUEST_CREATED = "REQUEST_CREATED",
 }
 
+export enum MessageTypes {
+  HF_DEVTOOLS_EVENT = "HF_DEVTOOLS_EVENT",
+  PLUGIN_INITIALIZED = "PLUGIN_INITIALIZED",
+  CLIENT_INITIALIZED = "CLIENT_INITIALIZED",
+}
+
 export type DevtoolsPluginOptions = { appName: string; socketAddress?: string; socketPort?: number; debug?: boolean };

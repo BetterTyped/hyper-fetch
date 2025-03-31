@@ -8,6 +8,18 @@ import { createContext } from "frontend/utils/context";
 export type Connection = {
   name: string;
   client: ClientInstance;
+  metaData: {
+    clientOptions: { url?: string };
+    // TODO - not sure if any is the best approach
+    adapterOptions: {
+      name?: string;
+      defaultMethod?: any;
+      defaultExtra?: any;
+      systemErrorStatus?: any;
+      systemErrorExtra?: any;
+      defaultRequestOptions?: any;
+    };
+  };
   connected: boolean;
   eventListener: ExtendListener<ListenerInstance, { response: BaseMessage["data"] }>;
   eventEmitter: ExtendEmitter<EmitterInstance, { payload: BaseMessage["data"] }>;

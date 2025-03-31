@@ -64,7 +64,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
 
     // TODO - Kacper fix this type?
     devtoolsListener.listen((event: any) => {
-      const { connectionName, messageType } = event.data;
+      const { connectionName, messageType, eventData } = event.data;
 
       nameRef.current = connectionName;
 
@@ -78,7 +78,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
                   ...prev,
                   [connectionName]: {
                     name: connectionName,
-                    // TODO - Kacper add the adapter name to event and pick adapter here
+                    metaData: eventData,
                     client: new Client({ url: "http://localhost.dummyhost:5000" }),
                     connected: true,
                     eventListener,
