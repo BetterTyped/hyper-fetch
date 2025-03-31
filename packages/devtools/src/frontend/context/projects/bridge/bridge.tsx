@@ -4,7 +4,7 @@ import { useDidMount } from "@reins/hooks";
 import { Socket } from "@hyper-fetch/sockets";
 
 import { BaseMessage, MessageType } from "types/messages.types";
-import { SocketTopics } from "frontend/lib/socket/topics";
+import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionName } from "frontend/constants/connection.name";
 import { Connection, useConnections } from "../connection/connection";
 import { useProjects } from "frontend/store/projects.store";

@@ -4,7 +4,7 @@ import url from "url";
 
 import { MessageType, MessageTypes } from "../types/messages.types";
 import { ConnectionName } from "../frontend/constants/connection.name";
-import { SocketTopics } from "frontend/lib/socket/topics";
+import { SocketTopics } from "frontend/constants/topics";
 
 // TODO - handle message with info about lostConnection for a given app when connection is lost on frontend side.
 
