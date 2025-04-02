@@ -17,6 +17,7 @@ export enum EmitableCustomEvents {
 }
 
 export enum MessageType {
+  PLUGIN_INITIALIZED = "PLUGIN_INITIALIZED",
   DEVTOOLS_CLIENT_INIT = "DEVTOOLS_CLIENT_INIT",
   DEVTOOLS_CLIENT_CONFIRM = "DEVTOOLS_CLIENT_CONFIRM",
   DEVTOOLS_CLIENT_HANGUP = "DEVTOOLS_CLIENT_HANGUP",
@@ -36,7 +37,10 @@ export type BaseMessage = {
 
 export type DevtoolsClientHandshakeMessage = {
   data: {
-    messageType: MessageType.DEVTOOLS_CLIENT_INIT | MessageType.DEVTOOLS_CLIENT_CONFIRM;
+    messageType:
+      | MessageType.DEVTOOLS_CLIENT_INIT
+      | MessageType.DEVTOOLS_CLIENT_CONFIRM
+      | MessageType.PLUGIN_INITIALIZED;
     connectionName: string;
   };
 };

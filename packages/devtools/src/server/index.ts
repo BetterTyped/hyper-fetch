@@ -1,4 +1,4 @@
-import { createServer } from "http";
+import { createServer, Server } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import url from "url";
 
@@ -8,12 +8,16 @@ import { SocketTopics } from "frontend/constants/topics";
 
 // TODO - handle message with info about lostConnection for a given app when connection is lost on frontend side.
 
-const initializeFrontendForConnection = (devtoolsAppConnection: WebSocket, connectionName: string) => {
+const initializeFrontendForConnection = (
+  devtoolsAppConnection: WebSocket,
+  connectionName: string,
+  message: Record<any, any>,
+) => {
   devtoolsAppConnection?.send(
     JSON.stringify({
       ...{
         topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
-        data: { messageType: MessageType.DEVTOOLS_CLIENT_INIT, connectionName },
+        data: { messageType: MessageType.DEVTOOLS_CLIENT_INIT, connectionName, eventData: message.data.eventData },
       },
     }),
   );
@@ -40,28 +44,16 @@ const addConnection = (devtoolsAppConnection: WebSocket | null, connectionName: 
   } else {
     connections[connectionName].ws = connection;
   }
-  if (devtoolsAppConnection) {
-    initializeFrontendForConnection(devtoolsAppConnection, connectionName);
-    connections[connectionName].frontendStatus = "sent";
-  }
 };
 
-const initializePendingFrontends = (devtoolsAppConnection: WebSocket) => {
-  Object.keys(connections).forEach((connectionName) => {
-    if (connections[connectionName].frontendStatus === "pending") {
-      initializeFrontendForConnection(devtoolsAppConnection, connectionName);
-      connections[connectionName].frontendStatus = "sent";
-    }
-  });
+export type StartServer = {
+  server: Server | null;
+  wss: WebSocketServer | null;
+  connections: Record<string, any>;
+  DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
 };
 
-const sendStoredEvents = (devtoolsAppConnection: WebSocket | null, events: any[]) => {
-  while (events && events.length > 0 && devtoolsAppConnection) {
-    devtoolsAppConnection.send(events.shift());
-  }
-};
-
-export const startServer = async (port = 1234) => {
+export const startServer = async (port = 1234): Promise<StartServer> => {
   const server = createServer();
   const wss = new WebSocketServer({ server });
   let DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null = null;
@@ -74,7 +66,6 @@ export const startServer = async (port = 1234) => {
     }
     if (connectionName && connectionName === ConnectionName.HF_DEVTOOLS_APP) {
       DEVTOOLS_FRONTEND_WS_CONNECTION = wsConn;
-      initializePendingFrontends(DEVTOOLS_FRONTEND_WS_CONNECTION);
     }
     if (connectionName && !Array.isArray(connectionName) && connectionName.startsWith("HF_DEVTOOLS_CLIENT")) {
       addConnection(DEVTOOLS_FRONTEND_WS_CONNECTION, connectionName, wsConn);
@@ -114,10 +105,10 @@ export const startServer = async (port = 1234) => {
       }
 
       switch (message.data.messageType) {
-        case MessageType.HF_DEVTOOLS_EVENT: {
-          const ws = connections[message.data.connectionName]?.ws;
-          if (ws?.send) {
-            ws.send(JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }));
+        case MessageType.PLUGIN_INITIALIZED: {
+          if (connections[message.data.connectionName]) {
+            initializeFrontendForConnection(DEVTOOLS_FRONTEND_WS_CONNECTION, message.data.connectionName, message);
+            connections[message.data.connectionName].frontendStatus = "sent";
           }
           return;
         }
@@ -126,11 +117,21 @@ export const startServer = async (port = 1234) => {
             console.error(`CONNECTION ${message.data.connectionName} DOES NOT EXIST`);
             return;
           }
-
+          const ws = connections[message.data.connectionName]?.ws;
+          ws!.send(
+            JSON.stringify({
+              data: { messageType: "CLIENT_INITIALIZED" },
+              topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER,
+            }),
+          );
           connections[message.data.connectionName].frontendStatus = "initialized";
-          const connectionEvents = connections[message.data.connectionName]?.events;
-          sendStoredEvents(DEVTOOLS_FRONTEND_WS_CONNECTION, connectionEvents);
-
+          return;
+        }
+        case MessageType.HF_DEVTOOLS_EVENT: {
+          const ws = connections[message.data.connectionName]?.ws;
+          if (ws?.send) {
+            ws.send(JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }));
+          }
           return;
         }
         case MessageType.HF_APP_EVENT: {
@@ -168,5 +169,5 @@ export const startServer = async (port = 1234) => {
   if (await isReady) {
     return { server, wss, connections, DEVTOOLS_FRONTEND_WS_CONNECTION };
   }
-  return {};
+  return { server: null, wss: null, connections: {}, DEVTOOLS_FRONTEND_WS_CONNECTION: null };
 };
