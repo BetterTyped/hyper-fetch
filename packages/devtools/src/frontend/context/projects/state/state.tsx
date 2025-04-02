@@ -1,16 +1,16 @@
 import { useDidMount } from "@reins/hooks";
 import { useCallback, useEffect } from "react";
-import { QueueDataType, RequestInstance, RequestResponseType, ResponseDetailsType } from "@hyper-fetch/core";
+import { QueueDataType } from "@hyper-fetch/core";
 
-import {
-  DevtoolsCacheEvent,
-  DevtoolsElement,
-  DevtoolsRequestEvent,
-  DevtoolsRequestQueueStats,
-  DevtoolsRequestResponse,
-} from "../types";
+import { DevtoolsCacheEvent, DevtoolsElement, DevtoolsRequestEvent, DevtoolsRequestResponse } from "../types";
 import { useConnections } from "../connection/connection";
-import { initialProjectState, useProjectStates } from "./state.context";
+import {
+  generateEndpointStats,
+  generateMethodStats,
+  getEndpointStatsKey,
+  initialProjectState,
+  useProjectStates,
+} from "./state.context";
 import { useProjects } from "frontend/store/projects.store";
 
 export const State = ({ project }: { project: string }) => {
@@ -82,63 +82,6 @@ export const State = ({ project }: { project: string }) => {
     });
   }, [client.cache, project, setProjectStates]);
 
-  const handleStats = useCallback(
-    (request: RequestInstance, response: RequestResponseType<RequestInstance>, details: ResponseDetailsType) => {
-      const key = request.queryKey;
-
-      setProjectStates((draft) => {
-        const current: DevtoolsRequestQueueStats = draft[project].stats[key] || {
-          total: 0,
-          success: 0,
-          failed: 0,
-          canceled: 0,
-          avgTime: 0,
-          minTime: 0,
-          maxTime: 0,
-          lastTime: 0,
-          avgQueueTime: 0,
-          minQueueTime: 0,
-          maxQueueTime: 0,
-          lastQueueTime: 0,
-          avgProcessingTime: 0,
-          minProcessingTime: 0,
-          maxProcessingTime: 0,
-          lastProcessingTime: 0,
-        };
-
-        const reqTime = details.responseTimestamp - response.requestTimestamp;
-        const processTime = details.requestTimestamp - details.triggerTimestamp;
-        const queueTime = details.triggerTimestamp - details.addedTimestamp;
-
-        const avgTime = current.avgTime ? (current.avgTime + reqTime) / 2 : reqTime;
-        const avgProcessingTime = current.avgProcessingTime
-          ? (current.avgProcessingTime + processTime) / 2
-          : processTime;
-        const avgQueueTime = current.avgProcessingTime ? (current.avgProcessingTime + queueTime) / 2 : queueTime;
-
-        draft[project].stats[key] = {
-          total: current.total + 1,
-          success: response.success ? current.success + 1 : current.success,
-          failed: !response.success && !details.isCanceled ? current.failed + 1 : current.failed,
-          canceled: details.isCanceled ? current.canceled + 1 : current.canceled,
-          avgTime,
-          minTime: current.minTime ? Math.min(current.minTime, reqTime) : reqTime,
-          maxTime: Math.max(current.maxTime, reqTime),
-          lastTime: reqTime,
-          avgQueueTime,
-          minQueueTime: current.minQueueTime ? Math.min(current.minQueueTime, queueTime) : queueTime,
-          maxQueueTime: Math.max(current.maxQueueTime, queueTime),
-          lastQueueTime: queueTime,
-          avgProcessingTime,
-          minProcessingTime: current.minProcessingTime ? Math.min(current.minProcessingTime, processTime) : processTime,
-          maxProcessingTime: Math.max(current.maxProcessingTime, processTime),
-          lastProcessingTime: processTime,
-        };
-      });
-    },
-    [project, setProjectStates],
-  );
-
   useEffect(() => {
     const unmountOffline = client.appManager.events.onOffline(() => {
       setProjectStates((draft) => {
@@ -162,25 +105,61 @@ export const State = ({ project }: { project: string }) => {
       });
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
-      if (!details.isCanceled) {
-        handleStats(request, response, details);
+      const { method, endpoint } = request;
+      const methodAndEndpoint = getEndpointStatsKey(request);
+
+      if (details.isCanceled) {
+        return;
       }
 
-      if (response.success) {
-        setProjectStates((draft) => {
+      setProjectStates((draft) => {
+        const requestIndex = draft[project].requests.findIndex((el) => el.requestId === requestId);
+
+        if (requestIndex !== -1) {
+          draft[project].requests[requestIndex] = {
+            ...draft[project].requests[requestIndex],
+            response,
+            details,
+          } as DevtoolsRequestEvent;
+        }
+
+        draft[project].generalStats = generateEndpointStats({
+          existingStats: draft[project].generalStats,
+          request,
+          response,
+          details,
+        });
+
+        draft[project].endpointsStats[methodAndEndpoint] = {
+          ...generateEndpointStats({
+            existingStats: draft[project].endpointsStats[methodAndEndpoint],
+            request,
+            response,
+            details,
+          }),
+          method,
+          endpoint,
+        };
+
+        draft[project].methodStats[method] = generateMethodStats({
+          existingStats: draft[project].methodStats[method],
+          request,
+          response,
+          details,
+        });
+
+        if (response.success) {
           draft[project].success = [
             ...draft[project].success,
             { requestId, response, details } satisfies DevtoolsRequestResponse,
           ].filter((_, index) => index < settings.maxRequestsHistorySize);
-        });
-      } else if (!details.isCanceled) {
-        setProjectStates((draft) => {
+        } else {
           draft[project].failed = [
             ...draft[project].failed,
             { requestId, response, details } satisfies DevtoolsRequestResponse,
           ].filter((_, index) => index < settings.maxRequestsHistorySize);
-        });
-      }
+        }
+      });
     });
     const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
       setProjectStates((draft) => {
@@ -256,7 +235,7 @@ export const State = ({ project }: { project: string }) => {
       unmountOnCacheInvalidate();
       unmountCacheDelete();
     };
-  }, [client, handleCacheChange, handleStats, project, setProjectStates]);
+  }, [client, handleCacheChange, project, setProjectStates]);
 
   useDidMount(() => {
     setProjectStates((draft) => {

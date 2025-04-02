@@ -14,8 +14,8 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
+  AxisDomain,
 } from "recharts";
-import { AxisDomain } from "recharts/types/util/types";
 
 import {
   AvailableChartColors,

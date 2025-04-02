@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
-export const NetworkTraffic = ({ project }) => {
+export const NetworkTraffic = () => {
+  const { project } = useDevtools();
+
   // Mock data for network traffic
   const networkMetrics = {
     totalRequests: 1254,

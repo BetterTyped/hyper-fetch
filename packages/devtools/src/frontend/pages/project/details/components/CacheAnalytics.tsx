@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
-export const CacheAnalytics = ({ project }) => {
+export const CacheAnalytics = () => {
+  const { project } = useDevtools();
+
   // Mock data for cache analytics
   const cacheAnalytics = {
     hitRate: 78,

@@ -1,7 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Badge } from "frontend/components/ui/badge";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
-export const ProjectOverview = ({ project }) => {
+export const ProjectOverview = () => {
+  const { client } = useDevtools();
+
+  const type = "Application";
+
   return (
     <Card>
       <CardHeader>
@@ -12,8 +17,8 @@ export const ProjectOverview = ({ project }) => {
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">Adapter Type</h3>
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{project.adapter || "HTTP"}</Badge>
-            {project.adapter === "http" && (
+            <Badge variant="outline">{client.adapter.name || "HTTP"}</Badge>
+            {client.adapter.name === "http" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 text-blue-500"
@@ -27,7 +32,7 @@ export const ProjectOverview = ({ project }) => {
                 />
               </svg>
             )}
-            {project.adapter === "graphql" && (
+            {client.adapter.name === "graphql" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 text-pink-500"
@@ -37,7 +42,7 @@ export const ProjectOverview = ({ project }) => {
                 <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
               </svg>
             )}
-            {project.adapter === "firebase" && (
+            {client.adapter.name === "firebase" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 text-yellow-500"
@@ -51,11 +56,11 @@ export const ProjectOverview = ({ project }) => {
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">Project Type</h3>
-          <p className="font-medium">{project.type || "Frontend Application"}</p>
+          <p className="font-medium">{type || "Frontend Application"}</p>
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">Base URL</h3>
-          <p className="font-medium text-sm truncate">{project.baseUrl || "Not configured"}</p>
+          <p className="font-medium text-sm truncate">{client.url || "Not configured"}</p>
         </div>
       </CardContent>
     </Card>

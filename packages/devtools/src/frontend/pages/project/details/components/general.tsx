@@ -3,10 +3,11 @@ import { useMemo } from "react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
-import { ProjectOverview } from "./ProjectOverview";
-import { Project } from "frontend/store/projects.store";
+import { ProjectOverview } from "./overview";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { EmptyBox } from "frontend/components/ui/empty-box";
+import { Method } from "frontend/components/ui/method";
+import { Badge } from "frontend/components/ui/badge";
 
 // Function to determine className based on method
 const getMethodClassNames = (method: string): string => {
@@ -24,9 +25,9 @@ const getMethodClassNames = (method: string): string => {
   }
 };
 
-export const General = ({ project }: { project: Project }) => {
+export const GeneralDashboard = () => {
   const {
-    state: { requests, failed, success },
+    state: { requests, failed, success, generalStats },
   } = useDevtools();
 
   const recentRequests = requests.slice(0, 4);
@@ -35,16 +36,6 @@ export const General = ({ project }: { project: Project }) => {
   const successRequests = success.length;
 
   const successRate = totalRequests > 0 ? Math.min(100, (successRequests / totalRequests) * 100) : 0;
-
-  // Calculate average response time
-  const avgResponseTime =
-    requests.length > 0
-      ? requests
-          .slice(0, 20)
-          .filter((req) => req.response)
-          .reduce((sum, req) => sum + (req.response!.responseTimestamp - req.response!.requestTimestamp), 0) /
-        requests.slice(0, 20).length
-      : 0;
 
   // Calculate request distribution by method
   const methodCounts = requests.reduce(
@@ -59,7 +50,7 @@ export const General = ({ project }: { project: Project }) => {
   // Group errors by status code or type
   const errorsByStatus = failed.reduce(
     (acc, req) => {
-      const status = req.response?.status || "Unknown";
+      const status = req.response?.status ?? "Unknown";
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     },
@@ -92,12 +83,10 @@ export const General = ({ project }: { project: Project }) => {
   // Detect potential request chains (requests happening within 500ms of each other)
   const requestChains = useMemo(() => {
     const chains: Array<{ id: string; requests: Array<(typeof requests)[0]> }> = [];
-    const sortedRequests = [...requests].sort((a, b) => a.triggerTimestamp - b.triggerTimestamp);
-
     let currentChain: Array<(typeof requests)[0]> = [];
 
-    sortedRequests.forEach((req, i) => {
-      if (i === 0 || req.triggerTimestamp - sortedRequests[i - 1].triggerTimestamp > 500) {
+    requests.forEach((req, i) => {
+      if (i === 0 || req.triggerTimestamp - requests[i - 1].triggerTimestamp > 500) {
         // Start new chain
         if (currentChain.length > 0) {
           chains.push({ id: `chain-${Date.now()}-${chains.length}`, requests: [...currentChain] });
@@ -114,7 +103,7 @@ export const General = ({ project }: { project: Project }) => {
       chains.push({ id: `chain-${Date.now()}-${chains.length}`, requests: [...currentChain] });
     }
 
-    return chains.filter((chain) => chain.requests.length > 1).slice(0, 3); // Show only chains with multiple requests
+    return chains.filter((chain) => chain.requests.length > 1).slice(0, 20); // Show top 20 chains with multiple requests
   }, [requests]);
 
   // Generate troubleshooting tips based on request patterns
@@ -258,7 +247,7 @@ export const General = ({ project }: { project: Project }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <ProjectOverview project={project} />
+      <ProjectOverview />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="md:col-span-2">
           <CardHeader>
@@ -300,11 +289,7 @@ export const General = ({ project }: { project: Project }) => {
                   recentRequests.map((item) => (
                     <div key={item.requestId} className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${item.isSuccess ? "bg-green-500" : "bg-red-500"}`} />
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded ${getMethodClassNames(item.request.method)}`}
-                      >
-                        {item.request.method}
-                      </span>
+                      <Method method={item.request.method} />
                       <span className="text-sm font-medium truncate flex-1">{item.request.endpoint}</span>
                       <span className="text-xs text-muted-foreground">
                         {new Date(item.triggerTimestamp).toLocaleTimeString()}
@@ -326,7 +311,7 @@ export const General = ({ project }: { project: Project }) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Avg. Response Time</p>
-                <p className="text-3xl font-bold">{(avgResponseTime / 1000).toFixed(2)}s</p>
+                <p className="text-3xl font-bold">{(generalStats.avgResponseTime / 1000).toFixed(2)}s</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Requests</p>
@@ -346,9 +331,7 @@ export const General = ({ project }: { project: Project }) => {
               {!Object.entries(methodCounts).length && <EmptyBox title="No API requests recorded yet" />}
               {Object.entries(methodCounts).map(([method, count]) => (
                 <div key={method} className="flex items-center gap-4">
-                  <span className={`px-2 py-1 text-xs font-medium rounded ${getMethodClassNames(method)}`}>
-                    {method}
-                  </span>
+                  <Method method={method} />
                   <div className="flex-1">
                     <Progress value={totalRequests > 0 ? (count / totalRequests) * 100 : 0} className="h-2" />
                   </div>
@@ -370,20 +353,29 @@ export const General = ({ project }: { project: Project }) => {
             {failed.length === 0 ? (
               <EmptyBox title="No errors detected - Looking good!" />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Most frequent error</p>
-                  <p className="text-xl font-bold">
-                    Status {mostFrequentError[0]}: {mostFrequentError[1]} occurrences
+                  <p className="text-md font-medium text-muted-foreground mb-1">Most frequent error</p>
+                  <p className="flex items-center gap-2 text-xl font-bold">
+                    <Badge>Status {mostFrequentError[0]}</Badge> {mostFrequentError[1]} occurrences
                   </p>
                 </div>
-                <div className="space-y-2">
-                  {Object.entries(errorsByStatus).map(([status, count]) => (
-                    <div key={status} className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Status {status}</span>
-                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">{count}</span>
-                    </div>
-                  ))}
+                <div className="space-y-2 md:-mt-16">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">Status</span>
+                    <span className="text-sm font-medium text-muted-foreground">Count</span>
+                  </div>
+                  {Object.entries(errorsByStatus)
+                    .sort((a, b) => Number(a[0]) - Number(b[0]))
+                    .filter((data, index) => index < 5)
+                    .map(([status, count]) => (
+                      <div key={status} className="flex justify-between items-center">
+                        <span className="text-sm font-medium">
+                          <Badge>Status: {status}</Badge>
+                        </span>
+                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">{count}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
@@ -401,7 +393,7 @@ export const General = ({ project }: { project: Project }) => {
             ) : (
               <div className="space-y-4">
                 {endpointPatterns.map(([pattern, count]) => (
-                  <div key={pattern} className="p-3 border rounded-md">
+                  <div key={pattern} className="p-3 border rounded-md bg-gray-500/40">
                     <div className="flex justify-between items-center">
                       <span className="font-mono text-sm">{pattern}</span>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{count} requests</span>
@@ -430,23 +422,132 @@ export const General = ({ project }: { project: Project }) => {
                   <div key={chain.id} className="space-y-2">
                     <p className="text-sm font-medium">Chain of {chain.requests.length} requests</p>
                     <div className="flex flex-col gap-2">
-                      {chain.requests.map((req, i) => (
-                        <div key={req.requestId} className="flex items-center gap-2">
-                          <div className="flex flex-col items-center">
-                            <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs">
-                              {i + 1}
-                            </span>
-                            {i < chain.requests.length - 1 && <div className="w-0.5 h-3 bg-gray-200/20" />}
-                          </div>
-                          <span
-                            className={`px-2 py-1 text-xs font-medium rounded ${getMethodClassNames(req.request.method)}`}
-                          >
-                            {req.request.method}
-                          </span>
-                          <span className="text-sm font-medium truncate flex-1">{req.request.endpoint}</span>
-                          <span className="text-xs">{req.isSuccess ? "✓" : "✗"}</span>
-                        </div>
-                      ))}
+                      {(() => {
+                        const displayRequests: Array<{
+                          req: (typeof chain.requests)[0];
+                          index: number;
+                          isDuplicate?: boolean;
+                          duplicateCount?: number;
+                          isLast?: boolean;
+                        }> = [];
+
+                        // Track sequences of identical requests
+                        let currentSequence: Array<(typeof chain.requests)[0]> = [];
+                        let lastEndpoint = "";
+                        let lastMethod = "";
+
+                        // Process each request in the chain
+                        chain.requests.forEach((req, i) => {
+                          const currentEndpoint = req.request.endpoint;
+                          const currentMethod = req.request.method;
+
+                          // Check if this request is identical to the previous one
+                          if (currentEndpoint === lastEndpoint && currentMethod === lastMethod) {
+                            currentSequence.push(req);
+                          } else {
+                            // If we had a sequence of identical requests
+                            if (currentSequence.length >= 3) {
+                              // Add the last item from the previous sequence
+                              displayRequests.push({
+                                req: currentSequence[currentSequence.length - 1],
+                                index: i - 1,
+                                isLast: true,
+                              });
+
+                              // Add an ellipsis to represent the duplicates
+                              displayRequests.push({
+                                req: currentSequence[0],
+                                index: i - Math.floor(currentSequence.length / 2),
+                                isDuplicate: true,
+                                duplicateCount: currentSequence.length - 2,
+                              });
+                            } else if (currentSequence.length > 0) {
+                              // If sequence is less than 3, add all items directly
+                              currentSequence.forEach((seqReq, seqIndex) => {
+                                if (seqIndex > 0) {
+                                  // Skip first item as it's already added
+                                  displayRequests.push({
+                                    req: seqReq,
+                                    index: i - currentSequence.length + seqIndex,
+                                  });
+                                }
+                              });
+                            }
+
+                            // Start a new sequence
+                            currentSequence = [req];
+                            // Always add the first occurrence of a new request
+                            displayRequests.push({ req, index: i });
+                          }
+
+                          // Update tracking variables
+                          lastEndpoint = currentEndpoint;
+                          lastMethod = currentMethod;
+                        });
+
+                        // Handle the last sequence if it's still open
+                        if (currentSequence.length >= 3) {
+                          // Add the last item in the sequence
+                          displayRequests.push({
+                            req: currentSequence[currentSequence.length - 1],
+                            index: chain.requests.length - 1,
+                            isLast: true,
+                          });
+
+                          // Add an ellipsis for the middle items
+                          displayRequests.push({
+                            req: currentSequence[0],
+                            index: chain.requests.length - Math.floor(currentSequence.length / 2),
+                            isDuplicate: true,
+                            duplicateCount: currentSequence.length - 2,
+                          });
+                        } else if (currentSequence.length > 1) {
+                          // If last sequence is less than 3, add remaining items
+                          for (let i = 1; i < currentSequence.length; i += 1) {
+                            displayRequests.push({
+                              req: currentSequence[i],
+                              index: chain.requests.length - currentSequence.length + i,
+                            });
+                          }
+                        }
+
+                        // Sort the requests by their index to ensure correct display order
+                        return displayRequests
+                          .sort((a, b) => a.index - b.index)
+                          .map((item, idx) =>
+                            item.isDuplicate ? (
+                              <div key={`ellipsis-${item.index}`} className="flex items-center gap-2">
+                                <div className="flex flex-col items-center">
+                                  <span className="w-6 h-6 rounded-full bg-gray-200/20 flex items-center justify-center text-xs">
+                                    ...
+                                  </span>
+                                  {idx < displayRequests.length - 1 && <div className="w-0.5 h-3 bg-gray-200/20" />}
+                                </div>
+                                <span className="text-sm font-medium text-muted-foreground pb-2">
+                                  {item.duplicateCount} more similar requests
+                                </span>
+                              </div>
+                            ) : (
+                              <div
+                                key={item.req.requestId + (item.isLast ? "-last" : "")}
+                                className="flex items-center gap-2"
+                              >
+                                <div className="flex flex-col items-center">
+                                  <span className="w-6 h-6 rounded-full bg-gray-200/20 flex items-center justify-center text-xs">
+                                    {item.index + 1}
+                                  </span>
+                                  {idx < displayRequests.length - 1 && <div className="w-0.5 h-3 bg-gray-200/20" />}
+                                </div>
+                                <span
+                                  className={`px-2 py-1 text-xs font-medium rounded ${getMethodClassNames(item.req.request.method)}`}
+                                >
+                                  {item.req.request.method}
+                                </span>
+                                <span className="text-sm font-medium truncate flex-1">{item.req.request.endpoint}</span>
+                              </div>
+                            ),
+                          );
+                      })()}
                     </div>
                   </div>
                 ))}

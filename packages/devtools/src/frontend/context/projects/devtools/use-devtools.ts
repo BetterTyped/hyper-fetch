@@ -1,14 +1,7 @@
-import { useCallback, useMemo, SetStateAction } from "react";
+import { useCallback, SetStateAction } from "react";
 import { createClient, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
-import {
-  DevtoolsRequestEvent,
-  DevtoolsRequestResponse,
-  DevtoolsElement,
-  DevtoolsCacheEvent,
-  DevtoolsRequestQueueStats,
-  Sort,
-} from "../types";
+import { DevtoolsRequestEvent, DevtoolsRequestResponse, DevtoolsElement, DevtoolsCacheEvent, Sort } from "../types";
 import { initialProjectState, useProjectStates } from "../state/state.context";
 import { DevtoolsExplorerRequest } from "frontend/pages/project/requests/list/content.types";
 import { Status } from "frontend/utils/request.status.utils";
@@ -31,8 +24,6 @@ export const useDevtools = () => {
   };
 
   const projectState = projectStates[projectName as keyof typeof projectStates] || initialProjectState;
-
-  const { requests, canceled, success, failed, paused, removed } = projectState;
 
   const setRequests = useCallback((newRequests: SetStateAction<DevtoolsRequestEvent[]>) => {
     setProjectStates((draft) => {
@@ -146,21 +137,6 @@ export const useDevtools = () => {
           typeof newDetailsQueueKey === "function"
             ? newDetailsQueueKey(draft[projectName].detailsQueueKey)
             : newDetailsQueueKey;
-      });
-    },
-    [],
-  );
-
-  const setStats = useCallback(
-    (
-      newStats:
-        | { [queryKey: string]: DevtoolsRequestQueueStats }
-        | ((prev: { [queryKey: string]: DevtoolsRequestQueueStats }) => {
-            [queryKey: string]: DevtoolsRequestQueueStats;
-          }),
-    ) => {
-      setProjectStates((draft) => {
-        draft[projectName].stats = typeof newStats === "function" ? newStats(draft[projectName].stats) : newStats;
       });
     },
     [],
@@ -290,37 +266,10 @@ export const useDevtools = () => {
     [client.appManager],
   );
 
-  const allRequests: DevtoolsRequestEvent[] = useMemo(
-    () =>
-      requests.map((item) => {
-        const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
-        const isSuccess = !!success.find((el) => el.requestId === item.requestId);
-        const isRemoved = !!removed.find((el) => el.requestId === item.requestId);
-        const isPaused = !!paused.find((el) => el.requestId === item.requestId);
-        const response =
-          success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
-
-        return {
-          ...response,
-          requestId: item.requestId,
-          request: item.request,
-          details: response?.details,
-          isRemoved,
-          isCanceled,
-          isSuccess,
-          isFinished: !!response,
-          isPaused,
-          triggerTimestamp: item.triggerTimestamp,
-        };
-      }),
-    [canceled, failed, paused, removed, requests, success],
-  );
-
   return {
     client,
     project: projects[projectName as keyof typeof projects],
     state: projectState,
-    allRequests,
     clearNetwork,
     removeNetworkRequest,
     handleSetOnline,
@@ -338,7 +287,6 @@ export const useDevtools = () => {
     setProcessingSort,
     setQueues,
     setDetailsQueueKey,
-    setStats,
     setExplorerSearchTerm,
     setDetailsExplorerRequest,
     setExplorerRequests,

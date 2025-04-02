@@ -3,12 +3,11 @@ import { Progress } from "frontend/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { Badge } from "frontend/components/ui/badge";
 import { Button } from "frontend/components/ui/button";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
-interface BottleneckAnalyzerProps {
-  project: any;
-}
+export const BottleneckAnalyzer = () => {
+  const { project } = useDevtools();
 
-export const BottleneckAnalyzer = ({ project }: BottleneckAnalyzerProps) => {
   // Mock data for bottlenecks
   const bottlenecks = {
     processingIssues: [

@@ -2,8 +2,8 @@ import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/projects.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
-import { General } from "./components/general";
-import { PerformanceDashboard } from "./components/PerformanceDashboard";
+import { GeneralDashboard } from "./components/general";
+import { PerformanceDashboard } from "./components/performance";
 import { CacheAnalytics } from "./components/CacheAnalytics";
 import { NetworkTraffic } from "./components/NetworkTraffic";
 import { BottleneckAnalyzer } from "./components/BottleneckAnalyzer";
@@ -20,7 +20,7 @@ export const ProjectDetails = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-8">
+    <div className="py-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
         <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Application</span>
@@ -36,23 +36,23 @@ export const ProjectDetails = () => {
         </TabsList>
 
         <TabsContent value="general">
-          <General project={project} />
+          <GeneralDashboard />
         </TabsContent>
 
         <TabsContent value="performance">
-          <PerformanceDashboard project={project} />
+          <PerformanceDashboard />
         </TabsContent>
 
         <TabsContent value="cache">
-          <CacheAnalytics project={project} />
+          <CacheAnalytics />
         </TabsContent>
 
         <TabsContent value="network">
-          <NetworkTraffic project={project} />
+          <NetworkTraffic />
         </TabsContent>
 
         <TabsContent value="bottlenecks">
-          <BottleneckAnalyzer project={project} />
+          <BottleneckAnalyzer />
         </TabsContent>
       </Tabs>
     </div>

@@ -7,6 +7,7 @@ import { createContext } from "frontend/utils/context";
 
 export type Connection = {
   name: string;
+  // devtoolsSocket: SocketInstance;
   client: ClientInstance;
   connected: boolean;
   eventListener: ExtendListener<ListenerInstance, { response: BaseMessage["data"] }>;

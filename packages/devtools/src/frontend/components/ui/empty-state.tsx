@@ -1,17 +1,21 @@
 import { AppWindowMac } from "lucide-react";
 
+import { cn } from "frontend/lib/utils";
+
 export const EmptyState = ({
   title,
   description,
   icon: Icon = AppWindowMac,
   children,
   size = "md",
+  className = "",
 }: {
   title: string;
   description?: string;
   icon?: React.ElementType;
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg";
+  className?: string;
 }) => {
   // Size variant classes
   const sizeClasses = {
@@ -33,7 +37,7 @@ export const EmptyState = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+    <div className={cn(`flex flex-col items-center justify-center h-full p-8 text-center`, className)}>
       <div
         className={`flex items-center justify-center mb-4 rounded-full bg-gray-100 dark:bg-gray-800 ${sizeClasses[size].container}`}
       >

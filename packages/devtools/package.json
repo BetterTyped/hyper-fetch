@@ -84,7 +84,7 @@
     "electron-store": "8.2.0",
     "goober": "2.1.14",
     "immer": "10.1.1",
-    "lucide-react": "^0.477.0",
+    "lucide-react": "^0.485.0",
     "match-sorter": "6.3.4",
     "re-resizable": "^6.11.2",
     "react": "^19.0.0",
