@@ -12,7 +12,6 @@ import { TableSortable } from "frontend/components/ui/table-sortable";
 
 export const NetworkList = () => {
   const {
-    client,
     state: { requests, networkFilter, networkSearchTerm, networkSort },
     setNetworkSort,
   } = useDevtools();
@@ -80,13 +79,14 @@ export const NetworkList = () => {
           <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
             Endpoint
           </TableSortable>
-          {typeof client.adapter.defaultMethod === "string" && (
-            <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-              Method
-            </TableSortable>
-          )}
+          <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+            Method
+          </TableSortable>
           <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
             Success
+          </TableSortable>
+          <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
+            Cached
           </TableSortable>
           <TableSortable sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
             Timestamp

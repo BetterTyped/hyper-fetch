@@ -3,7 +3,7 @@ import { useEmitter, useListener } from "@hyper-fetch/react";
 import { useDidMount } from "@reins/hooks";
 
 import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "types/messages.types";
-import { useConnections } from "../connection/connection";
+import { useConnections } from "../connection";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments

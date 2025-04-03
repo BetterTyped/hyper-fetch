@@ -63,6 +63,25 @@ export type MethodStats = {
   lowestResponseTimeFailed: number;
 };
 
+export type EndpointCacheStats = {
+  endpoint: string;
+  method: string;
+  size: number;
+  entries: Map<
+    string, // cacheKey
+    {
+      endpointWithParams: string;
+      cacheKey: string;
+      // stale time
+      staleTime: number;
+      // garbage collection
+      cacheTime: number;
+      // kb
+      size: number;
+    }
+  >;
+};
+
 export type ProjectState = {
   isOnline: boolean;
   networkSearchTerm: string;
@@ -86,6 +105,9 @@ export type ProjectState = {
   methodStats: {
     [method: string]: MethodStats;
   };
+  cacheStats: {
+    [endpoint: string]: EndpointCacheStats;
+  };
   // Devtools
   detailsRequestId: string | null;
   networkFilter: Status | null;
@@ -99,6 +121,7 @@ export type ProjectState = {
   queues: QueueDataType[];
   detailsQueueKey: string | null;
   stats: {
+    // TODO: change to methodAndEndpoint
     [queryKey: string]: DevtoolsRequestQueueStats;
   };
   explorerSearchTerm: string;
@@ -166,6 +189,13 @@ export const initialMethodStats: MethodStats = {
   lowestResponseTimeFailed: 0,
 };
 
+export const initialEndpointCacheStats: EndpointCacheStats = {
+  endpoint: "",
+  method: "",
+  size: 0,
+  entries: new Map(),
+};
+
 export const initialProjectState: ProjectState = {
   isOnline: false,
   // Requests
@@ -182,6 +212,7 @@ export const initialProjectState: ProjectState = {
   },
   endpointsStats: {},
   methodStats: {},
+  cacheStats: {},
   // Network
   networkSearchTerm: "",
   networkSort: null,
@@ -203,6 +234,41 @@ export const initialProjectState: ProjectState = {
   explorerSearchTerm: "",
   detailsExplorerRequest: null,
   explorerRequests: [],
+};
+
+const getDataSize = (data: unknown): number => {
+  let size = 0;
+
+  // Handle streams and blob-like objects
+  if (data instanceof ReadableStream) {
+    // We can't reliably get the size of a ReadableStream before consuming it
+    // Return 0 to indicate unknown size
+    return 0;
+  }
+
+  if (data instanceof Blob) {
+    return data.size;
+  }
+
+  if (data instanceof FormData) {
+    // Calculate FormData size by iterating through entries
+    // eslint-disable-next-line no-restricted-syntax
+    for (const pair of data.entries()) {
+      size += pair[0].length;
+
+      const value = pair[1];
+      if (value instanceof File) {
+        size += value.size;
+      } else if (typeof value === "string") {
+        size += value.length;
+      } else {
+        size += String(value).length;
+      }
+    }
+  } else {
+    size = stringifyValue(data).length;
+  }
+  return size;
 };
 
 export const generateMethodStats = ({
@@ -267,48 +333,8 @@ export const generateEndpointStats = ({
   const processingTime = details.requestTimestamp - details.triggerTimestamp;
   const queueTime = details.triggerTimestamp - details.addedTimestamp;
 
-  // Handle payload size calculation
-  let payloadSize = 0;
-  if (request?.payload) {
-    if (request.payload instanceof FormData) {
-      // Calculate FormData size by iterating through entries
-      // eslint-disable-next-line no-restricted-syntax
-      for (const pair of request.payload.entries()) {
-        // Add size of the key
-        payloadSize += pair[0].length;
-
-        // Handle value based on type
-        const value = pair[1];
-        if (value instanceof File) {
-          payloadSize += value.size;
-        } else if (typeof value === "string") {
-          payloadSize += value.length;
-        } else {
-          payloadSize += String(value).length;
-        }
-      }
-    } else {
-      payloadSize = stringifyValue(request.payload).length;
-    }
-  }
-
-  // Handle response size calculation
-  let responseSize = 0;
-  if (response?.data) {
-    if (
-      response.data instanceof ReadableStream ||
-      response.data instanceof Blob ||
-      response.data instanceof ArrayBuffer
-    ) {
-      // For streams/blobs/buffers, use the content-length header if available
-      const contentLength = response.extra?.headers?.["content-length"];
-      if (contentLength) {
-        responseSize = contentLength ? parseInt(contentLength, 10) : 0;
-      }
-    } else {
-      responseSize = stringifyValue(response.data).length;
-    }
-  }
+  const payloadSize = getDataSize(request.payload);
+  const responseSize = getDataSize(response.data);
 
   const totalRequests = existingStats.totalRequests + 1;
   const totalSuccess = existingStats.totalRequestsSuccess + (isSuccess ? 1 : 0);
@@ -384,4 +410,31 @@ export const generateEndpointStats = ({
 
 export const getEndpointStatsKey = (request: RequestInstance) => {
   return `${request.method}-${request.endpoint}`;
+};
+
+export const generateEndpointCacheStats = ({
+  existingStats = initialEndpointCacheStats,
+  request,
+  response,
+}: {
+  existingStats: EndpointCacheStats;
+} & NonNullableKeys<Pick<DevtoolsRequestEvent, "request" | "response" | "details">>): EndpointCacheStats => {
+  const responseSize = getDataSize(response.data);
+
+  const previousEntry = existingStats.entries.get(request.cacheKey);
+
+  existingStats.entries.set(request.cacheKey, {
+    endpointWithParams: request.endpoint,
+    cacheKey: request.cacheKey,
+    staleTime: request.staleTime,
+    cacheTime: request.cacheTime,
+    size: responseSize ?? 0,
+  });
+
+  return {
+    endpoint: existingStats.endpoint ?? request.endpoint,
+    method: existingStats.method ?? request.method,
+    size: existingStats.size - (previousEntry?.size ?? 0) + responseSize,
+    entries: existingStats.entries,
+  };
 };

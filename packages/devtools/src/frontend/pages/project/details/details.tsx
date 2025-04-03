@@ -4,7 +4,7 @@ import { EmptyState } from "frontend/components/ui/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
 import { GeneralDashboard } from "./components/general";
 import { PerformanceDashboard } from "./components/performance";
-import { CacheAnalytics } from "./components/CacheAnalytics";
+import { CacheDashboard } from "./components/cache";
 import { NetworkTraffic } from "./components/NetworkTraffic";
 import { BottleneckAnalyzer } from "./components/BottleneckAnalyzer";
 
@@ -44,7 +44,7 @@ export const ProjectDetails = () => {
         </TabsContent>
 
         <TabsContent value="cache">
-          <CacheAnalytics />
+          <CacheDashboard />
         </TabsContent>
 
         <TabsContent value="network">

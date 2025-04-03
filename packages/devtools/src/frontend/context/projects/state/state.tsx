@@ -5,6 +5,7 @@ import { QueueDataType } from "@hyper-fetch/core";
 import { DevtoolsCacheEvent, DevtoolsElement, DevtoolsRequestEvent, DevtoolsRequestResponse } from "../types";
 import { useConnections } from "../connection/connection";
 import {
+  generateEndpointCacheStats,
   generateEndpointStats,
   generateMethodStats,
   getEndpointStatsKey,
@@ -143,6 +144,13 @@ export const State = ({ project }: { project: string }) => {
 
         draft[project].methodStats[method] = generateMethodStats({
           existingStats: draft[project].methodStats[method],
+          request,
+          response,
+          details,
+        });
+
+        draft[project].cacheStats[methodAndEndpoint] = generateEndpointCacheStats({
+          existingStats: draft[project].cacheStats[methodAndEndpoint],
           request,
           response,
           details,

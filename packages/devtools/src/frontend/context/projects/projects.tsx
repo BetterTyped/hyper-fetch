@@ -3,7 +3,7 @@ import { useImmer } from "use-immer";
 import { useSettings } from "frontend/store/settings.store";
 import { Bridge } from "./bridge/bridge";
 import { Connections, useConnections } from "./connection/connection";
-import { Events } from "./events/events";
+import { Events } from "./connection/events/events";
 import { ProjectState, ProjectStatesContext } from "./state/state.context";
 import { State } from "./state/state";
 
