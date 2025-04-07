@@ -14,6 +14,10 @@ export type WorkspaceStore = {
   updateWorkspace: (workspace: Workspace) => void;
 };
 
+/* -------------------------------------------------------------------------------------------------
+ * PERSISTED STORE
+ * -----------------------------------------------------------------------------------------------*/
+
 export const useWorkspaces = create<WorkspaceStore>()(
   persist(
     (set) => ({

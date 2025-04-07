@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "frontend/components/ui/button";
 import { Input } from "frontend/components/ui/input";
 import { Label } from "frontend/components/ui/label";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
 
 interface AddWorkspaceDialogProps {
   open: boolean;

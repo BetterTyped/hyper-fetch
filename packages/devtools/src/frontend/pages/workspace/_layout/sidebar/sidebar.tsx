@@ -16,7 +16,7 @@ import {
   SidebarProvider,
 } from "frontend/components/ui/sidebar";
 import { Link, RoutingLocations, useRoute } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
 
 // import Logo from "frontend/assets/images/logo.svg?react";
 

@@ -14,7 +14,7 @@ import {
 import { Card } from "frontend/components/ui/card";
 // import { Devtools } from "../_context/devtools";
 import { ProjectSidebar } from "./sidebar/sidebar";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
 import { useRoute } from "frontend/routing/router";
 import { Input } from "frontend/components/ui/input";
 import { Label } from "frontend/components/ui/label";

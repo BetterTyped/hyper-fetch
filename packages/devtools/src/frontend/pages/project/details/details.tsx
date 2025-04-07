@@ -1,12 +1,11 @@
 import { useRoute } from "frontend/routing/router";
-import { useProjects } from "frontend/store/projects.store";
+import { useProjects } from "frontend/store/project/projects.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
-import { GeneralDashboard } from "./components/general";
-import { PerformanceDashboard } from "./components/performance";
-import { CacheDashboard } from "./components/cache";
-import { NetworkTraffic } from "./components/NetworkTraffic";
-import { BottleneckAnalyzer } from "./components/BottleneckAnalyzer";
+import { GeneralDashboard } from "./general/general";
+import { PerformanceDashboard } from "./performance/performance";
+import { CacheDashboard } from "./cache/cache";
+import { BottleneckAnalyzer } from "./bottlenecks/bottleneck";
 
 export const ProjectDetails = () => {
   const {
@@ -31,7 +30,6 @@ export const ProjectDetails = () => {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="cache">Cache</TabsTrigger>
-          <TabsTrigger value="network">Network</TabsTrigger>
           <TabsTrigger value="bottlenecks">Bottlenecks</TabsTrigger>
         </TabsList>
 
@@ -45,10 +43,6 @@ export const ProjectDetails = () => {
 
         <TabsContent value="cache">
           <CacheDashboard />
-        </TabsContent>
-
-        <TabsContent value="network">
-          <NetworkTraffic />
         </TabsContent>
 
         <TabsContent value="bottlenecks">

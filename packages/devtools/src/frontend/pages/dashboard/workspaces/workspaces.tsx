@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { PlusIcon, ActivityIcon } from "lucide-react";
 
 import { useLocation } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
 import { WorkspaceCard } from "frontend/components/ui/workspace-card";
 import { Card } from "frontend/components/ui/card";
 import { AddWorkspaceDialog } from "./add-workspace/add-workspace-dialog";

@@ -1,10 +1,11 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { setAutoFreeze } from "immer";
+import { enableMapSet, setAutoFreeze } from "immer";
 
 import { App } from "./app";
 
 setAutoFreeze(false);
+enableMapSet();
 
 const root = createRoot(document.getElementById("root") as HTMLElement);
 root.render(

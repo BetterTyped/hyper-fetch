@@ -1,6 +1,6 @@
 import { Button } from "frontend/components/ui/button";
 import { useRoute } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspaces.store";
+import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
 
 export const WorkspaceMocks = () => {

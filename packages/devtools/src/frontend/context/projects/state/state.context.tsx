@@ -242,12 +242,12 @@ const getDataSize = (data: unknown): number => {
   // Handle streams and blob-like objects
   if (data instanceof ReadableStream) {
     // We can't reliably get the size of a ReadableStream before consuming it
-    // Return 0 to indicate unknown size
     return 0;
   }
 
   if (data instanceof Blob) {
-    return data.size;
+    size = data.size;
+    return Number((size / 1024).toFixed(2));
   }
 
   if (data instanceof FormData) {
@@ -266,9 +266,10 @@ const getDataSize = (data: unknown): number => {
       }
     }
   } else {
-    size = stringifyValue(data).length;
+    size = String(stringifyValue(data)).length;
   }
-  return size;
+
+  return Number((size / 1024).toFixed(2));
 };
 
 export const generateMethodStats = ({
@@ -409,7 +410,7 @@ export const generateEndpointStats = ({
 };
 
 export const getEndpointStatsKey = (request: RequestInstance) => {
-  return `${request.method}-${request.endpoint}`;
+  return `${request.method}-${request.requestOptions.endpoint}`;
 };
 
 export const generateEndpointCacheStats = ({

@@ -1,14 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Badge } from "frontend/components/ui/badge";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
+import { cn } from "frontend/lib/utils";
 
-export const ProjectOverview = () => {
+export const CardOverview = ({ className }: { className?: string }) => {
   const { client } = useDevtools();
 
   const type = "Application";
 
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>Project Overview</CardTitle>
         <CardDescription>General information about your HyperFetch configuration</CardDescription>

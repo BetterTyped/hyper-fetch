@@ -148,6 +148,11 @@ export class Adapter<
   public unsafe_getRequestDefaults?: (
     options: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
   ) => Partial<RequestOptionsType<EndpointType, AdapterOptions, MethodType>>;
+  /**
+   * Get formatted endpoint name of the request.
+   * Helpful in displaying long endpoints like in case of graphql schemas etc.
+   */
+  public unsafe_devtoolsEndpointGetter: (request: RequestInstance) => string = (request) => request.endpoint;
 
   /**
    * ********************
@@ -162,6 +167,11 @@ export class Adapter<
 
   setDefaultExtra = (extra: Extra) => {
     this.defaultExtra = extra;
+    return this;
+  };
+
+  setDevtoolsEndpointGetter = (callback: (request: RequestInstance) => string) => {
+    this.unsafe_devtoolsEndpointGetter = callback;
     return this;
   };
 

@@ -1,6 +1,7 @@
 import { Client, createClient } from "client";
 import { Adapter, AdapterInstance, RequestProcessingError, getAdapterHeaders, getAdapterPayload } from "adapter";
 import { HttpMethods } from "../../../src/constants/http.constants";
+import { RequestInstance } from "request";
 
 describe("Adapter [ Base ]", () => {
   let adapter: AdapterInstance;
@@ -38,6 +39,11 @@ describe("Adapter [ Base ]", () => {
       const config = { test: true };
       adapter.setPayloadMapperConfig(config);
       expect(adapter.unsafe_payloadMapperConfig).toBe(config);
+    });
+    it("should set devtools endpoint getter", () => {
+      const mapper = (req: RequestInstance) => req.endpoint;
+      adapter.setDevtoolsEndpointGetter(mapper);
+      expect(adapter.unsafe_devtoolsEndpointGetter).toBe(mapper);
     });
   });
 

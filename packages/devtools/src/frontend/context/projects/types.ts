@@ -48,7 +48,6 @@ export type DevtoolsRequestEvent = Partial<DevtoolsRequestResponse> &
     isSuccess: boolean;
     isFinished: boolean;
     isPaused: boolean;
-    triggerTimestamp: number;
   };
 
 export type DevtoolsCacheEvent = {

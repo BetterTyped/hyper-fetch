@@ -1,70 +1,64 @@
 import { useDidMount } from "@reins/hooks";
 import { useCallback, useEffect } from "react";
-import { QueueDataType } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
+import { NonNullableKeys } from "@hyper-fetch/core";
 
-import { DevtoolsCacheEvent, DevtoolsElement, DevtoolsRequestEvent, DevtoolsRequestResponse } from "../types";
+import { DevtoolsCacheEvent, DevtoolsRequestEvent } from "../types";
 import { useConnections } from "../connection/connection";
-import {
-  generateEndpointCacheStats,
-  generateEndpointStats,
-  generateMethodStats,
-  getEndpointStatsKey,
-  initialProjectState,
-  useProjectStates,
-} from "./state.context";
-import { useProjects } from "frontend/store/projects.store";
+import { initialProjectState, useProjectStates } from "./state.context";
+import { useNetworkStore } from "frontend/store/project/network.store";
+import { useErrorStatsStore } from "frontend/store/project/error-stats.store";
+import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
+import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
+import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
+import { useCacheStore } from "frontend/store/project/cache.store";
+import { useQueueStore } from "frontend/store/project/queue.store";
 
 export const State = ({ project }: { project: string }) => {
-  const { projects } = useProjects();
   const { setProjectStates } = useProjectStates("State");
+
+  const { setNetworkRequest, setNetworkResponse } = useNetworkStore(
+    useShallow((selector) => ({
+      setNetworkRequest: selector.setNetworkRequest,
+      setNetworkResponse: selector.setNetworkResponse,
+    })),
+  );
+  const { setCache, invalidateCache, addLoadingKey, removeLoadingKey } = useCacheStore(
+    useShallow((selector) => ({
+      setCache: selector.setCache,
+      invalidateCache: selector.invalidateCache,
+      addLoadingKey: selector.addLoadingKey,
+      removeLoadingKey: selector.removeLoadingKey,
+    })),
+  );
+  const { setNetworkStats } = useNetworkStatsStore(
+    useShallow((selector) => ({
+      setNetworkStats: selector.setNetworkStats,
+    })),
+  );
+  const { setMethodStats } = useMethodStatsStore(
+    useShallow((selector) => ({
+      setMethodStats: selector.setMethodStats,
+    })),
+  );
+  const { setCacheStats } = useCacheStatsStore(
+    useShallow((selector) => ({
+      setCacheStats: selector.setCacheStats,
+    })),
+  );
+  const { setErrorStats } = useErrorStatsStore(
+    useShallow((selector) => ({
+      setErrorStats: selector.setErrorStats,
+    })),
+  );
+  const { setQueue } = useQueueStore(
+    useShallow((selector) => ({
+      setQueue: selector.setQueue,
+    })),
+  );
 
   const { connections } = useConnections("State");
   const { client } = connections[project as keyof typeof connections];
-  const { settings } = projects[project as keyof typeof projects];
-
-  const updateQueues = (queue: QueueDataType) => {
-    const inQueueRequests: DevtoolsElement[] = queue.requests.map((item) => {
-      return {
-        requestId: item.requestId,
-        queryKey: item.request.queryKey,
-        cacheKey: item.request.cacheKey,
-        abortKey: item.request.abortKey,
-      };
-    });
-
-    const pausedQueueRequests: DevtoolsElement[] = queue.stopped
-      ? inQueueRequests
-      : queue.requests
-          .filter((item) => item.stopped)
-          .map((item) => ({
-            requestId: item.requestId,
-            queryKey: item.request.queryKey,
-            cacheKey: item.request.cacheKey,
-            abortKey: item.request.abortKey,
-          }));
-
-    setProjectStates((draft) => {
-      // Update inProgress
-      draft[project].inProgress = [
-        ...draft[project].inProgress.filter((el) => el.queryKey !== queue.queryKey),
-        ...inQueueRequests,
-      ].filter((_, index) => index < settings.maxRequestsHistorySize);
-
-      // Update paused
-      draft[project].paused = [
-        ...draft[project].paused.filter((el) => el.queryKey !== queue.queryKey),
-        ...pausedQueueRequests,
-      ].filter((_, index) => index < settings.maxRequestsHistorySize);
-
-      // Update queues
-      const currentQueue = draft[project].queues.findIndex((el) => el.queryKey === queue.queryKey);
-      if (currentQueue === -1) {
-        draft[project].queues.push(queue);
-      } else {
-        draft[project].queues[currentQueue] = queue;
-      }
-    });
-  };
 
   const handleCacheChange = useCallback(() => {
     const cacheKeys = [...client.cache.storage.keys()];
@@ -96,126 +90,161 @@ export const State = ({ project }: { project: string }) => {
       });
     });
 
-    const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
-      setProjectStates((draft) => {
-        draft[project].requests = [{ ...details, triggerTimestamp: new Date() }, ...draft[project].requests].filter(
-          (_, index) => index < settings.maxRequestsHistorySize,
-        ) as DevtoolsRequestEvent[];
+    const unmountOnRequestStart = client.requestManager.events.onRequestStart((item) => {
+      const data: DevtoolsRequestEvent = {
+        requestId: item.requestId,
+        request: item.request,
+        isRemoved: false,
+        isCanceled: false,
+        isSuccess: false,
+        isFinished: false,
+        isPaused: false,
+      };
 
-        draft[project].loadingKeys = draft[project].loadingKeys.filter((i) => i !== details.request.cacheKey);
+      setNetworkRequest({
+        project,
+        data,
+      });
+
+      addLoadingKey({
+        project,
+        cacheKey: item.request.cacheKey,
       });
     });
-    const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
-      const { method, endpoint } = request;
-      const methodAndEndpoint = getEndpointStatsKey(request);
 
+    const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
       if (details.isCanceled) {
         return;
       }
 
-      setProjectStates((draft) => {
-        const requestIndex = draft[project].requests.findIndex((el) => el.requestId === requestId);
+      const data: NonNullableKeys<DevtoolsRequestEvent> = {
+        requestId,
+        response,
+        details,
+        request,
+        isRemoved: false,
+        isCanceled: false,
+        isSuccess: !!response.success,
+        isFinished: true,
+        isPaused: false,
+      };
 
-        if (requestIndex !== -1) {
-          draft[project].requests[requestIndex] = {
-            ...draft[project].requests[requestIndex],
-            response,
-            details,
-          } as DevtoolsRequestEvent;
-        }
+      setNetworkResponse({
+        project,
+        data,
+      });
 
-        draft[project].generalStats = generateEndpointStats({
-          existingStats: draft[project].generalStats,
-          request,
-          response,
-          details,
+      setNetworkStats({
+        project,
+        data,
+      });
+
+      setErrorStats({
+        project,
+        data,
+      });
+
+      setCacheStats({
+        project,
+        request,
+        data,
+      });
+
+      setMethodStats({
+        project,
+        data,
+      });
+    });
+    const unmountOnRequestPause = client.requestManager.events.onAbort((item) => {
+      const data: DevtoolsRequestEvent = {
+        requestId: item.requestId,
+        request: item.request,
+        isRemoved: false,
+        isCanceled: true,
+        isSuccess: false,
+        isFinished: false,
+        isPaused: false,
+      };
+
+      setNetworkResponse({
+        project,
+        data,
+      });
+    });
+    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((data) => {
+      if (!data.requests.length) {
+        removeLoadingKey({
+          project,
+          cacheKey: data.queryKey,
         });
-
-        draft[project].endpointsStats[methodAndEndpoint] = {
-          ...generateEndpointStats({
-            existingStats: draft[project].endpointsStats[methodAndEndpoint],
-            request,
-            response,
-            details,
-          }),
-          method,
-          endpoint,
+      }
+      setQueue({
+        project,
+        data,
+      });
+    });
+    const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange((data) => {
+      setQueue({
+        project,
+        data,
+      });
+    });
+    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((data) => {
+      if (!data.requests.length) {
+        removeLoadingKey({
+          project,
+          cacheKey: data.queryKey,
+        });
+      }
+      setQueue({
+        project,
+        data,
+      });
+    });
+    const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange((data) => {
+      setQueue({
+        project,
+        data,
+      });
+    });
+    const unmountOnRemove = client.requestManager.events.onRemove((item) => {
+      if (!item.resolved) {
+        const data: DevtoolsRequestEvent = {
+          requestId: item.requestId,
+          request: item.request,
+          isRemoved: true,
+          isCanceled: false,
+          isSuccess: false,
+          isFinished: false,
+          isPaused: false,
         };
 
-        draft[project].methodStats[method] = generateMethodStats({
-          existingStats: draft[project].methodStats[method],
-          request,
-          response,
-          details,
-        });
-
-        draft[project].cacheStats[methodAndEndpoint] = generateEndpointCacheStats({
-          existingStats: draft[project].cacheStats[methodAndEndpoint],
-          request,
-          response,
-          details,
-        });
-
-        if (response.success) {
-          draft[project].success = [
-            ...draft[project].success,
-            { requestId, response, details } satisfies DevtoolsRequestResponse,
-          ].filter((_, index) => index < settings.maxRequestsHistorySize);
-        } else {
-          draft[project].failed = [
-            ...draft[project].failed,
-            { requestId, response, details } satisfies DevtoolsRequestResponse,
-          ].filter((_, index) => index < settings.maxRequestsHistorySize);
-        }
-      });
-    });
-    const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
-      setProjectStates((draft) => {
-        draft[project].canceled = [
-          { requestId, queryKey: request.queryKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-          ...draft[project].canceled,
-        ].filter((_, index) => index < settings.maxRequestsHistorySize);
-      });
-    });
-    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((values) => {
-      updateQueues(values);
-    });
-    const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange((values) => {
-      updateQueues(values);
-    });
-    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((values) => {
-      updateQueues(values);
-    });
-    const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange((values) => {
-      updateQueues(values);
-    });
-    const unmountOnRemove = client.requestManager.events.onRemove(({ requestId, request, resolved }) => {
-      if (!resolved) {
-        setProjectStates((draft) => {
-          draft[project].removed = [
-            ...draft[project].removed,
-            { requestId, queryKey: request.queryKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-          ].filter((_, index) => index < settings.maxRequestsHistorySize);
+        setNetworkResponse({
+          project,
+          data,
         });
       }
     });
-    const unmountOnCacheChange = client.cache.events.onData((cacheData) => {
-      setProjectStates((draft) => {
-        const { cacheKey, isTriggeredExternally, ...rest } = cacheData;
-        const changedElement = draft[project].cache.find((cacheElement) => cacheElement.cacheKey === cacheKey);
-        if (changedElement) {
-          changedElement.cacheData = cacheData;
-        } else {
-          draft[project].cache.push({ cacheKey: cacheData.cacheKey, cacheData: { ...rest, cacheKey } });
-        }
+    const unmountOnCacheChange = client.cache.events.onData((data) => {
+      setCache({
+        project,
+        data,
       });
+
+      // setProjectStates((draft) => {
+      //   const { cacheKey, isTriggeredExternally, ...rest } = cacheData;
+      //   const changedElement = draft[project].cache.find((cacheElement) => cacheElement.cacheKey === cacheKey);
+      //   if (changedElement) {
+      //     changedElement.cacheData = cacheData;
+      //   } else {
+      //     draft[project].cache.push({ cacheKey: cacheData.cacheKey, cacheData: { ...rest, cacheKey } });
+      //   }
+      // });
     });
     const unmountOnCacheInvalidate = client.cache.events.onInvalidate((cacheKey) => {
-      setProjectStates((draft) => {
-        const invalidatedElement = draft[project].cache.find((cacheElement) => cacheElement.cacheKey === cacheKey);
-        if (invalidatedElement) {
-          invalidatedElement.cacheData.staleTime = 0;
-        }
+      invalidateCache({
+        project,
+        cacheKey,
       });
     });
 
@@ -243,7 +272,23 @@ export const State = ({ project }: { project: string }) => {
       unmountOnCacheInvalidate();
       unmountCacheDelete();
     };
-  }, [client, handleCacheChange, project, setProjectStates]);
+  }, [
+    client,
+    project,
+    addLoadingKey,
+    handleCacheChange,
+    invalidateCache,
+    removeLoadingKey,
+    setCache,
+    setCacheStats,
+    setErrorStats,
+    setMethodStats,
+    setNetworkRequest,
+    setNetworkResponse,
+    setNetworkStats,
+    setProjectStates,
+    setQueue,
+  ]);
 
   useDidMount(() => {
     setProjectStates((draft) => {

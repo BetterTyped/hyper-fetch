@@ -5,7 +5,7 @@ import { useLocation } from "frontend/routing/router";
 import { Card } from "frontend/components/ui/card";
 import { KpiCard3 } from "frontend/components/ui/kpi-card-3";
 import { KpiCardFeed } from "frontend/components/ui/kpi-card-feed";
-import { useProjects } from "frontend/store/projects.store";
+import { useProjects } from "frontend/store/project/projects.store";
 import { ProjectCard } from "frontend/components/ui/project-card";
 
 export const Projects = () => {

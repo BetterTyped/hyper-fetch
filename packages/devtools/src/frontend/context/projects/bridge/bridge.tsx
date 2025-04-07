@@ -7,7 +7,7 @@ import { BaseMessage, MessageType } from "types/messages.types";
 import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionName } from "frontend/constants/connection.name";
 import { Connection, useConnections } from "../connection/connection";
-import { useProjects } from "frontend/store/projects.store";
+import { useProjects } from "frontend/store/project/projects.store";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
   const { connections, setConnections } = useConnections("Bridge");
@@ -19,6 +19,8 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
     const socket = new Socket({
       url: `ws://${address}:${port}`,
       adapterOptions: { autoConnect: false },
+      reconnect: Infinity,
+      reconnectTime: 4000,
     })
       .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_APP })
       .onConnected(() => {
@@ -88,6 +90,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
               });
               addProject({
                 name: connectionName,
+                connected: true,
                 settings: {
                   simulatedErrors: {
                     Default: new Error("This is error simulated by HyperFetch Devtools"),

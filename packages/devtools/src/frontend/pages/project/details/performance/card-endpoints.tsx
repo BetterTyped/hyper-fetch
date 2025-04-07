@@ -1,0 +1,84 @@
+/* eslint-disable react/no-unstable-nested-components */
+import { useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { Progress } from "frontend/components/ui/progress";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
+import { EmptyState } from "frontend/components/ui/empty-state";
+import { Method } from "frontend/components/ui/method";
+import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
+import { cn } from "frontend/lib/utils";
+
+export const CardEndpoints = ({ className }: { className?: string }) => {
+  const { project } = useDevtools();
+
+  const { generalStats, methodsStats } = useMethodStatsStore(
+    useShallow((state) => ({
+      generalStats: state.projects[project.name].generalStats,
+      methodsStats: state.projects[project.name].methodsStats,
+    })),
+  );
+
+  const slowestEndpoints = useMemo(() => {
+    return Object.entries(methodsStats)
+      .sort((a, b) => b[1].avgResponseTime - a[1].avgResponseTime)
+      .slice(0, 10);
+  }, [methodsStats]);
+
+  return (
+    <Card className={cn(className)}>
+      <CardHeader>
+        <CardTitle>Slowest Endpoints</CardTitle>
+        <CardDescription>Endpoints with longest response times</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Endpoint</TableHead>
+              <TableHead>Avg. Response Time</TableHead>
+              <TableHead>Avg. Processing Time</TableHead>
+              <TableHead>Avg. Response Size</TableHead>
+            </TableRow>
+          </TableHeader>
+          {!!slowestEndpoints.length && (
+            <TableBody>
+              {slowestEndpoints.map(([key, req]) => (
+                <TableRow key={key}>
+                  <TableCell className="font-medium">
+                    <Method method={req.method} /> {req.endpoint}
+                  </TableCell>
+                  <TableCell>{req.avgResponseTime}ms</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span>{req.avgProcessingTime}ms</span>
+                      <Progress value={(req.avgProcessingTime / req.avgResponseTime) * 100} className="h-2 w-24" />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span>{req.avgResponseTime}ms</span>
+                      <Progress
+                        value={(generalStats.avgResponseTime / req.avgResponseTime) * 100}
+                        className="h-2 w-24"
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          )}
+        </Table>
+        {!slowestEndpoints.length && (
+          <EmptyState
+            title="No endpoints statistics"
+            description="Make some requests to see the data"
+            className="mb-16 -mt-4/"
+          />
+        )}
+      </CardContent>
+    </Card>
+  );
+};
