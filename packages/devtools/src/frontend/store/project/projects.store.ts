@@ -14,7 +14,7 @@ export type Project = {
 export type ProjectStore = {
   projects: { [key: string]: Project };
   addProject: (project: Project) => void;
-  removeProject: (project: Project) => void;
+  removeProject: (projectName: string) => void;
   updateProject: (project: Project) => void;
   setConnected: (projectName: string, connected: boolean) => void;
   setSettings: (projectName: string, settings: Partial<Project["settings"]>) => void;
@@ -46,10 +46,10 @@ export const useProjects = create<ProjectStore>()(
           }),
         );
       },
-      removeProject: (project: Project) => {
+      removeProject: (projectName: string) => {
         set((state) =>
           produce(state, (draft) => {
-            delete draft.projects[project.name];
+            delete draft.projects[projectName];
           }),
         );
       },

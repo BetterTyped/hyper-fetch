@@ -5751,10 +5751,10 @@
     "@reins/query-params" "*"
     "@reins/types" "*"
 
-"@reins/router@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@reins/router/-/router-0.17.0.tgz#e7be911d4926216d088e1d76fd7c404d1c29843d"
-  integrity sha512-eRTdYZlMopwOjpRNCaNEfwjtKpc7dxdryrvfcqMdvTN5V0c+vsQEjDzCBDjp10ajLVkTSzGxZumXoL/cBxnG0g==
+"@reins/router@^0.17.1":
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/@reins/router/-/router-0.17.1.tgz#205be2ec97c68e331d0f368123084567d5ce362b"
+  integrity sha512-zStF97lHBh/9SYj00MuHXGjWsJ5xFVNbdF8cSJ3EmLl5kodpEqyJgJEQIe7PbJNHSYCKWcEB2xatb59pHzBH7g==
   dependencies:
     "@reins/hooks" "*"
     "@reins/query-params" "*"

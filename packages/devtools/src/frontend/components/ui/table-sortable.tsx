@@ -19,7 +19,7 @@ export function TableSortable({ children, sort, onSort, className, ...props }: T
 
   return (
     <TableHead className={cn("cursor-pointer select-none", className)} {...props}>
-      <Button variant="ghost" onClick={handleSort} className="h-8 px-2 hover:bg-transparent">
+      <Button variant="ghost" onClick={handleSort} className="h-8 !px-0 hover:bg-transparent">
         {children}
         {sort === "asc" && <ArrowUpIcon className="ml-2 h-4 w-4" />}
         {sort === "desc" && <ArrowDownIcon className="ml-2 h-4 w-4" />}

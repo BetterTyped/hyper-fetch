@@ -15,8 +15,10 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "frontend/components/ui/sidebar";
-import { Link, RoutingLocations, useRoute } from "frontend/routing/router";
+import { Link, RoutingLocations, useMatchedName, useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
+import { cn } from "frontend/lib/utils";
+import Logo from "../../../../assets/images/logo.svg?react";
 
 // import Logo from "frontend/assets/images/logo.svg?react";
 
@@ -64,7 +66,12 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
     params: { projectName },
   } = useRoute("project");
   const { projects } = useProjects();
+  const activeName = useMatchedName();
   const project = projects[projectName];
+
+  const getIsActive = (name: RoutingLocations) => {
+    return activeName === name;
+  };
 
   if (!project) {
     return <div />;
@@ -99,10 +106,10 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
               <SidebarMenu className="p-0">
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild className={cn(!getIsActive(item.url) && "opacity-60")}>
                       <Link to={item.url} params={{ projectName }} className="flex flex-col h-15">
                         <item.icon className="!size-5" />
-                        <span className="text-[10px]">{item.title}</span>
+                        <span className="text-[11px]">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -111,7 +118,9 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>{/* <Logo className="size-10 mx-auto" /> */}</SidebarFooter>
+        <SidebarFooter>
+          <Logo className="size-10 mx-auto mb-2" />
+        </SidebarFooter>
       </Sidebar>
     </SidebarProvider>
   );

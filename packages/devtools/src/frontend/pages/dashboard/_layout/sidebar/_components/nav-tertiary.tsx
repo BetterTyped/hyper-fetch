@@ -26,7 +26,7 @@ export function NavTertiary({
           {items.map((item) => (
             <SidebarMenuItem key={item.name}>
               <SidebarMenuButton asChild size="sm">
-                <a href={item.link}>
+                <a href={item.link} target="_blank" rel="noopener noreferrer">
                   <item.icon />
                   <span>{item.name}</span>
                 </a>

@@ -12,7 +12,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "frontend/components/ui/sidebar";
-import { Link, RoutingLocations } from "frontend/routing/router";
+import { Link, RoutingLocations, useMatchedName } from "frontend/routing/router";
 
 export function NavPrimary({
   items,
@@ -28,6 +28,8 @@ export function NavPrimary({
     }[];
   }[];
 }) {
+  const activeName = useMatchedName();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -35,8 +37,8 @@ export function NavPrimary({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link to={item.link}>
+              <SidebarMenuButton asChild tooltip={item.title} isActive={activeName === item.link}>
+                <Link to={item.link} params={{} as any}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
@@ -53,8 +55,8 @@ export function NavPrimary({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link to={subItem.link}>
+                          <SidebarMenuSubButton asChild isActive={activeName === subItem.link}>
+                            <Link to={subItem.link} params={{} as any}>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

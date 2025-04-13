@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, shell } from "electron";
 import path from "node:path";
 import started from "electron-squirrel-startup";
 
@@ -36,6 +36,24 @@ const createWindow = () => {
   if (process.env.NODE_ENV !== "production") {
     mainWindow.webContents.openDevTools();
   }
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // config.fileProtocol is my custom file protocol
+    if (url.startsWith("file://")) {
+      return { action: "allow" };
+    }
+    // Open URL in default browser and prevent window from opening
+    shell.openExternal(url).catch(console.error);
+    return { action: "deny" };
+  });
+
+  // Handle navigation to external URLs
+  mainWindow.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) {
+      event.preventDefault();
+      shell.openExternal(url).catch(console.error);
+    }
+  });
 };
 
 // This method will be called when Electron has finished

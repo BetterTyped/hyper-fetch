@@ -118,6 +118,7 @@ export const {
   useRoute,
   useLocation,
   useBreadcrumbs,
+  useMatchedName,
 } = createRouter({
   router,
   root,

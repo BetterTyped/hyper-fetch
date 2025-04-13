@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { Earth } from "lucide-react";
 
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Request } from "./request/request";
@@ -11,6 +12,8 @@ import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/
 import { TableSortable } from "frontend/components/ui/table-sortable";
 import { useNetworkStore } from "frontend/store/project/network.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
+import { cn } from "frontend/lib/utils";
+import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 
 export const NetworkList = () => {
   const { project } = useDevtools();
@@ -71,34 +74,49 @@ export const NetworkList = () => {
   });
 
   return (
-    <div className="w-full h-full flex-1">
-      <Table className="w-full flex-1">
-        <TableHeader style={{ opacity: !requests.length ? 0.4 : 1 }}>
-          <TableRow>
-            <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
-              Endpoint
-            </TableSortable>
-            <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-              Method
-            </TableSortable>
-            <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
-              Success
-            </TableSortable>
-            <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
-              Cached
-            </TableSortable>
-            <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
-              Timestamp
-            </TableSortable>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="relative">
-          {items?.map((item, index) => {
-            return <Request key={index} item={item} />;
-          })}
-        </TableBody>
-      </Table>
-      {!items.length && <EmptyState title="No requests" description="Make some request to see them here!" />}
-    </div>
+    <Section id="network" className="flex flex-col w-full h-full flex-1">
+      <SectionHeader>
+        <SectionIcon>
+          <Earth />
+        </SectionIcon>
+        <SectionTitle>Network</SectionTitle>
+        <SectionDescription>You can see here all the requests made from your project.</SectionDescription>
+      </SectionHeader>
+      <div className="flex-1 max-h-full">
+        <Table className="w-full h-full" wrapperClassName="pb-4">
+          <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
+            <TableRow>
+              <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+                Endpoint
+              </TableSortable>
+              <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+                Method
+              </TableSortable>
+              <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+                Success
+              </TableSortable>
+              <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
+                Cached
+              </TableSortable>
+              <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
+                Timestamp
+              </TableSortable>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="relative pb-8">
+            {items?.map((item, index) => {
+              return <Request key={index} item={item} />;
+            })}
+          </TableBody>
+        </Table>
+        {!items.length && (
+          <EmptyState
+            title="No requests made"
+            description="Make some request to see them here!"
+            className="max-h-148"
+          />
+        )}
+      </div>
+    </Section>
   );
 };

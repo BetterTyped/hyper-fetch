@@ -5,7 +5,6 @@ import { SparkAreaChart } from "./spark-chart";
 interface KpiCard3Props<T extends Record<string, any>> {
   value: React.ReactNode;
   label: React.ReactNode;
-  subtitle: React.ReactNode;
   variant?: "primary" | "secondary";
   data: T[];
   name: keyof T;
@@ -15,7 +14,6 @@ interface KpiCard3Props<T extends Record<string, any>> {
 export const KpiCardFeed = <T extends Record<string, any>>({
   value,
   label,
-  subtitle,
   variant,
   data,
   name,
@@ -40,9 +38,6 @@ export const KpiCardFeed = <T extends Record<string, any>>({
             {value}
           </span>
         </div>
-        <dd className="-mt-2 -mb-3 flex items-baseline justify-between">
-          <span className="text-[10px] font-light text-gray-600 dark:text-gray-400">{subtitle}</span>
-        </dd>
       </CardHeader>
       <CardFooter className="-mt-1.5 text-sm font-light text-gray-600 dark:text-gray-400">
         <SparkAreaChart

@@ -8,7 +8,7 @@ import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
 import { BottleneckAnalyzer } from "./bottlenecks/bottleneck";
-import { Avatar } from "frontend/components/ui/avatar";
+import { Section, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 
 export const ProjectDetails = () => {
   const {
@@ -23,20 +23,20 @@ export const ProjectDetails = () => {
   }
 
   return (
-    <div className="py-6 space-y-8">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-12 w-12 rounded-lg overflow-hidden flex items-center justify-center bg-gray-700">
-            {iconUrl ? (
-              <img src={iconUrl} alt={`${project.name} icon`} className="w-full h-full object-cover" />
-            ) : (
-              <FolderOpen className="h-6 w-6 text-gray-400" />
-            )}
-          </Avatar>
-          <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+    <Section id="project-details" className="space-y-2">
+      <SectionHeader>
+        <SectionIcon>
+          {iconUrl ? (
+            <img src={iconUrl} alt={`${project.name} icon`} className="w-full h-full object-cover" />
+          ) : (
+            <FolderOpen className="h-6 w-6 text-gray-400" />
+          )}
+        </SectionIcon>
+        <SectionTitle className="text-2xl">{project.name}</SectionTitle>
+        <div className="absolute right-2">
+          <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Application</span>
         </div>
-        <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Application</span>
-      </div>
+      </SectionHeader>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="mb-2 gap-2">
@@ -62,6 +62,6 @@ export const ProjectDetails = () => {
           <BottleneckAnalyzer />
         </TabsContent>
       </Tabs>
-    </div>
+    </Section>
   );
 };
