@@ -14,7 +14,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   const { project } = useDevtools();
   const { detailsQueueKey, openDetails } = useQueueStore(
     useShallow((state) => ({
-      detailsQueueKey: state.projects[project.name].detailsQueryKey,
+      detailsQueueKey: state.projects[project.name].detailsId,
       openDetails: state.openDetails,
     })),
   );
@@ -33,6 +33,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   return (
     <button
       type="button"
+      className="border border-gray-200 dark:border-gray-800 rounded-md p-2"
       color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
       onClick={() => openDetails(project.name, queue.queryKey)}
     >

@@ -30,8 +30,9 @@ export const useNetworkStore = create<{
   setNetworkRequest: (data: { project: string; data: DevtoolsRequestEvent }) => void;
   setNetworkResponse: (data: { project: string; data: DevtoolsRequestEvent }) => void;
   clearNetwork: (data: { project: string }) => void;
-  openDetails: (data: { project: string; requestId: string }) => void;
   removeNetworkRequest: (data: { project: string; requestId: string }) => void;
+  openDetails: (data: { project: string; requestId: string }) => void;
+  closeDetails: (project: string) => void;
 }>((set) => ({
   projects: {},
   initialize: (projectName: string) => {
@@ -117,6 +118,13 @@ export const useNetworkStore = create<{
         draft.projects[project].requests = draft.projects[project].requests.filter(
           (request) => request.requestId !== requestId,
         );
+      }),
+    );
+  },
+  closeDetails: (project: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].detailsRequestId = null;
       }),
     );
   },

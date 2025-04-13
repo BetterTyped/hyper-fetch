@@ -37,7 +37,7 @@ export const EmptyState = ({
   };
 
   return (
-    <div className={cn(`flex flex-col items-center justify-center h-full p-8 text-center`, className)}>
+    <div className={cn(`flex flex-col items-center justify-center h-full p-8 text-center mx-auto`, className)}>
       <div
         className={`flex items-center justify-center mb-4 rounded-full bg-gray-100 dark:bg-gray-800 ${sizeClasses[size].container}`}
       >

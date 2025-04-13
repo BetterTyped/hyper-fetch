@@ -27,6 +27,7 @@ type Store = {
   initialize: (project: string) => void;
   setSearchTerm: (project: string, searchTerm: string) => void;
   openDetails: (data: { project: string; cacheKey: string }) => void;
+  closeDetails: (project: string) => void;
   setCacheSort: (data: { project: string; sorting: Sort }) => void;
   setCache: (data: { project: string; data: Parameters<Parameters<Cache["events"]["onData"]>[0]>[0] }) => void;
   invalidateCache: (data: { project: string; cacheKey: string }) => void;
@@ -60,6 +61,13 @@ export const useCacheStore = create<Store>((set) => ({
           draft.projects[project] = getInitialState();
         }
         draft.projects[project].detailsId = cacheKey;
+      }),
+    );
+  },
+  closeDetails: (project: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].detailsId = null;
       }),
     );
   },

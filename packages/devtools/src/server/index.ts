@@ -38,6 +38,7 @@ const connections: Record<
     status: "connected" | "hangup";
   }
 > = {};
+// TODO - remove connections from memory when connection is lost
 const addConnection = (devtoolsAppConnection: WebSocket | null, connectionName: string, connection: WebSocket) => {
   if (!connections[connectionName]) {
     connections[connectionName] = { ws: connection, frontendStatus: "pending", events: [], status: "connected" };
@@ -60,6 +61,7 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
 
   wss.on("connection", (wsConn, request) => {
     const connectionName = getConnectionName(request.url || "");
+
     if (!connectionName) {
       console.error("MISSING CONNECTION NAME", request.url);
       return;
@@ -107,6 +109,9 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
       switch (message.data.messageType) {
         case MessageType.PLUGIN_INITIALIZED: {
           if (connections[message.data.connectionName]) {
+            // TODO - this handles only case when plugin(app) is connected after devtools are open
+            // We need to handle case that plugin is initialized and then devtools are open
+            // We need to handle case that devtools connection is lost and then restored (so it has to be re-initialized)
             initializeFrontendForConnection(DEVTOOLS_FRONTEND_WS_CONNECTION, message.data.connectionName, message);
             connections[message.data.connectionName].frontendStatus = "sent";
           }

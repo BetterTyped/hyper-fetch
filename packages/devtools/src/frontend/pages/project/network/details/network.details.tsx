@@ -48,7 +48,7 @@ export const NetworkDetails = () => {
 
   const remove = () => {
     if (item) {
-      removeNetworkRequest({ project: project.name, requestId: item.requestId });
+      removeNetworkRequest({ project: project.name, requestId: item.requestId ?? "" });
     }
   };
 
@@ -112,7 +112,7 @@ export const NetworkDetails = () => {
         </Table>
 
         {!!item.details?.retries && <Badge variant="secondary">Retried Request ({item.details.retries})</Badge>}
-        {item.request.isMockerEnabled && !!item.request.unsafe_mock && <Badge variant="secondary">Mocked</Badge>}
+        {/* {item.request.isMockerEnabled && !!item.request.unsafe_mock && <Badge variant="secondary">Mocked</Badge>} */}
 
         <div className="flex flex-wrap gap-2 mt-4">
           <Button variant="destructive" size="sm" onClick={remove}>

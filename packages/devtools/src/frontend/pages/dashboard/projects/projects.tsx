@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PlusIcon, ActivityIcon } from "lucide-react";
+import { Info, ActivityIcon } from "lucide-react";
 
 import { useLocation } from "frontend/routing/router";
 import { Card } from "frontend/components/ui/card";
@@ -77,7 +77,7 @@ export const Projects = () => {
       </div>
 
       <h1 className="text-2xl font-bold mb-4">Projects</h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {Object.values(projects).map((project) => (
           <ProjectCard key={project.name} iconUrl="" {...project} onOpen={() => onOpenProject(project.name)} />
         ))}
@@ -86,11 +86,11 @@ export const Projects = () => {
           // onClick={() => setShowNewWorkspaceDialog(true)}
         >
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-              <PlusIcon className="h-6 w-6 text-gray-500" />
+            <div className="h-12 w-12 rounded-full bg-gray-400/20 flex items-center justify-center mb-2">
+              <Info className="h-6 w-6 text-gray-500" />
             </div>
             <p className="text-sm text-gray-500">Cannot see your project?</p>
-            <p className="text-sm text-gray-500">Projects are automatically detected</p>
+            <p className="text-sm text-gray-500">Learn how to connect your project</p>
           </div>
         </Card>
       </div>

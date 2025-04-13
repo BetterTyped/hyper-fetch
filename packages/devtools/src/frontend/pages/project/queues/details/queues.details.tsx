@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useQueue } from "@hyper-fetch/react";
 import { ListX, Pause, Play } from "lucide-react";
-import { Request } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
 import { Back } from "./back/back";
@@ -28,16 +27,16 @@ const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) =>
 
 export const QueuesDetails = () => {
   const { project, client } = useDevtools();
-  const { queues, detailsQueryKey } = useQueueStore((state) => state.projects[project.name]);
-  const { stats } = useQueueStatsStore(useShallow((state) => state.projects[project.name] || {}));
+  const { queues, detailsId } = useQueueStore(useShallow((state) => state.projects[project.name]));
+  const queueStats = useQueueStatsStore(useShallow((state) => state.projects[project.name]));
 
-  const item = detailsQueryKey ? queues.get(detailsQueryKey) : null;
-  const itemStats = (detailsQueryKey ? stats?.get(detailsQueryKey) : null) || initialNetworkStats;
+  const item = detailsId ? queues.get(detailsId) : null;
+  const itemStats = (detailsId ? queueStats?.stats?.get(detailsId) : null) || initialNetworkStats;
 
   const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
 
   const dummyRequest = useMemo(() => {
-    return new Request(client, {
+    return client.createRequest()({
       endpoint: "",
       queryKey: item?.queryKey,
       method: item?.queryKey.split("_")[0],

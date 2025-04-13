@@ -2,12 +2,12 @@
 /* eslint-disable react/no-array-index-key */
 import { useShallow } from "zustand/react/shallow";
 
-import { NoContent } from "frontend/components/no-content/no-content";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { useSearch } from "frontend/hooks/use-search";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Item } from "./item/item";
 import { useCacheStore } from "frontend/store/project/cache.store";
+import { EmptyState } from "frontend/components/ui/empty-state";
 
 export const CacheList = () => {
   const { project } = useDevtools();
@@ -20,7 +20,7 @@ export const CacheList = () => {
   });
 
   if (!items.length) {
-    return <NoContent text="Make some cached request to see them here!" />;
+    return <EmptyState title="No caches" description="Make some cached request to see them here!" />;
   }
 
   return (

@@ -1,13 +1,15 @@
 /* eslint-disable react/no-array-index-key */
+import { useShallow } from "zustand/react/shallow";
+
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { Card } from "./card/card";
-import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
 import { useQueueStore } from "frontend/store/project/queue.store";
+import { EmptyState } from "frontend/components/ui/empty-state";
+import { Card } from "./card/card";
 
 export const QueuesList = () => {
   const { project } = useDevtools();
-  const { queues, searchTerm } = useQueueStore((state) => state.projects[project.name]);
+  const { queues, searchTerm } = useQueueStore(useShallow((state) => state.projects[project.name]));
 
   const { items } = useSearch({
     data: Array.from(queues.values()),
@@ -16,7 +18,7 @@ export const QueuesList = () => {
   });
 
   if (!items.length) {
-    return <NoContent text="Make some request to see them here!" />;
+    return <EmptyState title="No queues" description="Make some request to see them here!" />;
   }
 
   return (

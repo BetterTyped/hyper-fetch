@@ -12,12 +12,11 @@ import {
 import { Button } from "frontend/components/ui/button";
 import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
 import { DevtoolsExplorerItem } from "./content.types";
 import { TreeElement } from "./tree-element/tree-element";
 import { useExplorer } from "../requests.context";
-
+import { EmptyState } from "frontend/components/ui/empty-state";
 // import { reactComplexTreeStyles } from "./react-complex-tree.styles";
 
 export const ExplorerSidebar = () => {
@@ -51,7 +50,7 @@ export const ExplorerSidebar = () => {
   };
 
   if (!items.length) {
-    return <NoContent text="Make some request to see them here!" />;
+    return <EmptyState title="No requests" description="Make some request to see them here!" />;
   }
 
   return (

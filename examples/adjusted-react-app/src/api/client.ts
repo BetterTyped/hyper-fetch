@@ -6,6 +6,7 @@ export const client = new Client({ url: "http://localhost:5000" }).setDebug(true
   devtoolsPlugin({
     appName: "Adjusted app",
     socketPort: 1234,
+    debug: true,
   }),
 );
-export const socket = new Socket({ url: "ws://localhost:5050", autoConnect: false }).setDebug(true);
+export const socket = new Socket({ url: "ws://localhost:5050" }).setDebug(true);

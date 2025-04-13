@@ -4,13 +4,13 @@ import { useShallow } from "zustand/react/shallow";
 
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Request } from "./request/request";
-import { NoContent } from "frontend/components/no-content/no-content";
 import { Status } from "frontend/utils/request.status.utils";
 import { PathsOf, useSearch } from "frontend/hooks/use-search";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/table";
 import { TableSortable } from "frontend/components/ui/table-sortable";
 import { useNetworkStore } from "frontend/store/project/network.store";
+import { EmptyState } from "frontend/components/ui/empty-state";
 
 export const NetworkList = () => {
   const { project } = useDevtools();
@@ -70,36 +70,35 @@ export const NetworkList = () => {
     dependencies: [networkSort],
   });
 
-  if (!items.length) {
-    return <NoContent text="Make some request to see them here!" />;
-  }
-
   return (
-    <Table className="w-full flex-1">
-      <TableHeader style={{ opacity: !requests.length ? 0.4 : 1 }}>
-        <TableRow>
-          <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
-            Endpoint
-          </TableSortable>
-          <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-            Method
-          </TableSortable>
-          <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
-            Success
-          </TableSortable>
-          <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
-            Cached
-          </TableSortable>
-          <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
-            Timestamp
-          </TableSortable>
-        </TableRow>
-      </TableHeader>
-      <TableBody className="relative">
-        {items.map((item, index) => {
-          return <Request key={index} item={item} />;
-        })}
-      </TableBody>
-    </Table>
+    <div className="w-full h-full flex-1">
+      <Table className="w-full flex-1">
+        <TableHeader style={{ opacity: !requests.length ? 0.4 : 1 }}>
+          <TableRow>
+            <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+              Endpoint
+            </TableSortable>
+            <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+              Method
+            </TableSortable>
+            <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+              Success
+            </TableSortable>
+            <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
+              Cached
+            </TableSortable>
+            <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
+              Timestamp
+            </TableSortable>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="relative">
+          {items?.map((item, index) => {
+            return <Request key={index} item={item} />;
+          })}
+        </TableBody>
+      </Table>
+      {!items.length && <EmptyState title="No requests" description="Make some request to see them here!" />}
+    </div>
   );
 };

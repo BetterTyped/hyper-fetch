@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { ClientInstance, NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
+import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { DevtoolsRequestEvent, DevtoolsRequestResponse } from "frontend/context/projects/types";
 import { getDataSize, getEndpointAndMethod } from "./utils";

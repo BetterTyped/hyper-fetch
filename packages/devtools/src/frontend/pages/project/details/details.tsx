@@ -1,3 +1,5 @@
+import { FolderOpen } from "lucide-react";
+
 import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
@@ -6,6 +8,7 @@ import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
 import { BottleneckAnalyzer } from "./bottlenecks/bottleneck";
+import { Avatar } from "frontend/components/ui/avatar";
 
 export const ProjectDetails = () => {
   const {
@@ -13,6 +16,7 @@ export const ProjectDetails = () => {
   } = useRoute("project");
   const { projects } = useProjects();
   const project = projects[projectName];
+  const iconUrl = "";
 
   if (!project) {
     return <EmptyState title="Project not found" description="Please connect to a project first" />;
@@ -21,7 +25,16 @@ export const ProjectDetails = () => {
   return (
     <div className="py-6 space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12 rounded-lg overflow-hidden flex items-center justify-center bg-gray-700">
+            {iconUrl ? (
+              <img src={iconUrl} alt={`${project.name} icon`} className="w-full h-full object-cover" />
+            ) : (
+              <FolderOpen className="h-6 w-6 text-gray-400" />
+            )}
+          </Avatar>
+          <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+        </div>
         <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Application</span>
       </div>
 
