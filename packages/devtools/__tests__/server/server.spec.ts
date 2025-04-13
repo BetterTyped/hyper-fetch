@@ -42,13 +42,13 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
 
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
-      expect(connections?.["test-client"].ws).toBeDefined();
+      expect(connections?.["HF_DEVTOOLS_CLIENT_test-client"].ws).toBeDefined();
 
       await plugin.data.eventHandler?.socket.disconnect();
-      await waitFor(() => expect(connections?.["test-client"].ws).toBeNull);
-      await waitFor(() => expect(receivedMessage).toBeDefined);
+      await waitFor(() => expect(connections?.["HF_DEVTOOLS_CLIENT_test-client"].ws).toBeNull());
+      await waitFor(() => expect(receivedMessage).toBeTruthy());
       expect(receivedMessage).toEqual({
-        event: { messageType: MessageType.DEVTOOLS_CLIENT_HANGUP, connectionName: "test-client" },
+        event: { messageType: MessageType.DEVTOOLS_CLIENT_HANGUP, connectionName: "HF_DEVTOOLS_CLIENT_test-client" },
       });
 
       await socket.disconnect();
@@ -57,7 +57,7 @@ describe("Devtools Socket Server", () => {
       await socket.connect();
       await plugin.data.eventHandler?.socket.connect();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
-      await waitFor(() => expect(connections?.["test-client"].ws).toBeDefined);
+      await waitFor(() => expect(connections?.["HF_DEVTOOLS_CLIENT_test-client"].ws).toBeDefined);
     });
   });
   describe("If the frontend connection is established and initialized", () => {
@@ -78,6 +78,28 @@ describe("Devtools Socket Server", () => {
       const receivedMetaData = clientReceivedMessages[0].event.eventData;
       expect(receivedMetaData.clientOptions).toEqual(client.options);
       expect(receivedMetaData.adapterOptions).toEqual(client.adapter.options);
+    });
+  });
+  describe("If the frontend connection is established then frontend is refreshed", () => {
+    it("Should re-send the appropriate metadata to the client", async () => {
+      const clientReceivedMessages: any = [];
+      const { connections } = serverObject || {};
+      const socket = await connectDevtoolsFrontend({
+        socketAddress: "localhost",
+        socketPort: 1234,
+      });
+
+      connectDevtoolsClient();
+      await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
+
+      socket.onMessage((message) => {
+        clientReceivedMessages.push(message);
+        return message;
+      });
+
+      await socket.disconnect();
+      await socket.connect();
+      await waitFor(() => expect(clientReceivedMessages.length).toBeGreaterThan(0));
     });
   });
 });

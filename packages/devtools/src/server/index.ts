@@ -6,7 +6,7 @@ import { MessageType, MessageTypes } from "../types/messages.types";
 import { ConnectionName } from "../frontend/constants/connection.name";
 import { SocketTopics } from "frontend/constants/topics";
 
-// TODO - handle message with info about lostConnection for a given app when connection is lost on frontend side.
+// TODO -
 
 const initializeFrontendForConnection = (
   devtoolsAppConnection: WebSocket,
@@ -30,18 +30,20 @@ const getConnectionName = (requestUrl: string) => {
 };
 
 const connections: Record<
-  string,
+  string, // connectionName
   {
     ws: WebSocket | null;
     frontendStatus: "pending" | "sent" | "initialized";
-    events: any[];
+    // TODO - buffer events if connection to frontend or backend somehow lost
+    events?: any[];
     status: "connected" | "hangup";
+    clientMetaData?: any;
   }
 > = {};
-// TODO - remove connections from memory when connection is lost
-const addConnection = (devtoolsAppConnection: WebSocket | null, connectionName: string, connection: WebSocket) => {
+
+const addConnection = (connectionName: string, connection: WebSocket) => {
   if (!connections[connectionName]) {
-    connections[connectionName] = { ws: connection, frontendStatus: "pending", events: [], status: "connected" };
+    connections[connectionName] = { ws: connection, frontendStatus: "pending", status: "connected" };
   } else {
     connections[connectionName].ws = connection;
   }
@@ -66,12 +68,23 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
       console.error("MISSING CONNECTION NAME", request.url);
       return;
     }
+    if (connectionName && !Array.isArray(connectionName) && connectionName.startsWith("HF_DEVTOOLS_CLIENT")) {
+      addConnection(connectionName, wsConn);
+    }
+
     if (connectionName && connectionName === ConnectionName.HF_DEVTOOLS_APP) {
       DEVTOOLS_FRONTEND_WS_CONNECTION = wsConn;
+      if (Object.keys(connections).length !== 0) {
+        Object.entries(connections).forEach(([connectionName, connectionData]) => {
+          initializeFrontendForConnection(
+            DEVTOOLS_FRONTEND_WS_CONNECTION!,
+            connectionName,
+            connectionData.clientMetaData,
+          );
+        });
+      }
     }
-    if (connectionName && !Array.isArray(connectionName) && connectionName.startsWith("HF_DEVTOOLS_CLIENT")) {
-      addConnection(DEVTOOLS_FRONTEND_WS_CONNECTION, connectionName, wsConn);
-    }
+
     wsConn.on("error", console.error);
     wsConn.on("close", () => {
       const closedConnectionName = getConnectionName(request.url || "");
@@ -109,11 +122,9 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
       switch (message.data.messageType) {
         case MessageType.PLUGIN_INITIALIZED: {
           if (connections[message.data.connectionName]) {
-            // TODO - this handles only case when plugin(app) is connected after devtools are open
-            // We need to handle case that plugin is initialized and then devtools are open
-            // We need to handle case that devtools connection is lost and then restored (so it has to be re-initialized)
             initializeFrontendForConnection(DEVTOOLS_FRONTEND_WS_CONNECTION, message.data.connectionName, message);
             connections[message.data.connectionName].frontendStatus = "sent";
+            connections[message.data.connectionName].clientMetaData = message;
           }
           return;
         }
@@ -146,14 +157,14 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
               JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER }),
             );
           } else {
-            connections[conn].events.push(
-              JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER }),
+            console.error(
+              `Something went wrong while handling HF_APP_EVENT - DEVTOOLS_FRONTEND_CONNECTION - ${DEVTOOLS_FRONTEND_WS_CONNECTION}`,
             );
           }
           return;
         }
         default:
-          console.error("UNHANDLED MESSSAGE TYPE", message);
+          console.error("UNHANDLED MESSAGE TYPE", message);
       }
     });
   });
