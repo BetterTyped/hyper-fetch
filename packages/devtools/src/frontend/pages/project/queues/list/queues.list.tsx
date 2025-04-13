@@ -3,16 +3,16 @@ import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Card } from "./card/card";
 import { NoContent } from "frontend/components/no-content/no-content";
 import { useSearch } from "frontend/hooks/use-search";
+import { useQueueStore } from "frontend/store/project/queue.store";
 
 export const QueuesList = () => {
-  const {
-    state: { queues, processingSearchTerm },
-  } = useDevtools();
+  const { project } = useDevtools();
+  const { queues, searchTerm } = useQueueStore((state) => state.projects[project.name]);
 
   const { items } = useSearch({
-    data: queues,
+    data: Array.from(queues.values()),
     searchKeys: ["queryKey"],
-    searchTerm: processingSearchTerm,
+    searchTerm,
   });
 
   if (!items.length) {

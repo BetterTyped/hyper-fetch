@@ -1,9 +1,8 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
 
-import { Sort } from "frontend/context/projects/types";
 import { Status } from "frontend/utils/request.status.utils";
-import { DevtoolsRequestEvent } from "types/message.parts";
+import { DevtoolsRequestEvent, Sort } from "frontend/context/projects/types";
 import { useProjects } from "./projects.store";
 
 export type NetworkStore = {
@@ -11,6 +10,7 @@ export type NetworkStore = {
   networkSort: Sort | null;
   networkFilter: Status | null;
   requests: DevtoolsRequestEvent[];
+  detailsRequestId: string | null;
 };
 
 const getInitialState = (): NetworkStore => ({
@@ -18,16 +18,20 @@ const getInitialState = (): NetworkStore => ({
   networkSort: null,
   networkFilter: null,
   requests: [],
+  detailsRequestId: null,
 });
 
 export const useNetworkStore = create<{
   projects: { [project: string]: NetworkStore };
   initialize: (projectName: string) => void;
   setNetworkSearchTerm: (data: { project: string; searchTerm: string }) => void;
-  setNetworkSort: (data: { project: string; sorting: Sort }) => void;
-  setNetworkFilter: (data: { project: string; filter: Status }) => void;
+  setNetworkSort: (data: { project: string; sorting: Sort | null }) => void;
+  setNetworkFilter: (data: { project: string; filter: Status | null }) => void;
   setNetworkRequest: (data: { project: string; data: DevtoolsRequestEvent }) => void;
   setNetworkResponse: (data: { project: string; data: DevtoolsRequestEvent }) => void;
+  clearNetwork: (data: { project: string }) => void;
+  openDetails: (data: { project: string; requestId: string }) => void;
+  removeNetworkRequest: (data: { project: string; requestId: string }) => void;
 }>((set) => ({
   projects: {},
   initialize: (projectName: string) => {
@@ -90,6 +94,29 @@ export const useNetworkStore = create<{
         } else {
           console.error(`Request with id ${data.requestId} not found`);
         }
+      }),
+    );
+  },
+  clearNetwork: ({ project }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project] = getInitialState();
+      }),
+    );
+  },
+  openDetails: ({ project, requestId }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].detailsRequestId = requestId;
+      }),
+    );
+  },
+  removeNetworkRequest: ({ project, requestId }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].requests = draft.projects[project].requests.filter(
+          (request) => request.requestId !== requestId,
+        );
       }),
     );
   },

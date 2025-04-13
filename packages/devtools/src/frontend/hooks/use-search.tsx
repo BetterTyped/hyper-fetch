@@ -44,7 +44,7 @@ export const useSearch = <T extends Array<Record<string, any>>>({
   };
 
   const handleSearch = () => {
-    if (!searchTerm) {
+    if (!searchTerm && data !== filteredData) {
       setFilteredData(data);
       return;
     }
@@ -54,19 +54,22 @@ export const useSearch = <T extends Array<Record<string, any>>>({
 
   useDidUpdate(
     () => {
-      handleSearch();
+      // handleSearch();
     },
     [data],
     true,
   );
 
   useDidUpdate(() => {
-    debounce(handleSearch);
+    // debounce(handleSearch);
   }, [searchTerm]);
 
-  useDidUpdate(() => {
-    debounce(handleMatchSorter);
-  }, dependencies || []);
+  useDidUpdate(
+    () => {
+      // debounce(handleMatchSorter);
+    },
+    dependencies ? [...dependencies] : [],
+  );
 
   return { items: filteredData };
 };

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
 import { AdapterInstance, CacheValueType, getLoadingByCacheKey } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "frontend/components/ui/accordion";
 import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
@@ -14,20 +15,28 @@ import { Chip } from "frontend/components/ui/chip";
 import { Key } from "frontend/components/ui/key";
 import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { Back } from "./back/back";
+import { useCacheStore } from "frontend/store/project/cache.store";
+import { useNetworkStore } from "frontend/store/project/network.store";
 
 export const CacheDetails = () => {
-  const {
-    client,
-    state: { requests, inProgress, loadingKeys, detailsCacheKey, cache },
-    project: {
-      settings: { simulatedErrors },
-    },
-    setLoadingKeys,
-  } = useDevtools();
+  const { client, project } = useDevtools();
+
+  const { detailsId, caches, loadingKeys, addLoadingKeys, removeLoadingKeys } = useCacheStore(
+    useShallow((state) => ({
+      detailsId: state.projects[project.name].detailsId,
+      caches: state.projects[project.name].caches,
+      loadingKeys: state.projects[project.name].loadingKeys,
+      addLoadingKeys: state.addLoadingKey,
+      removeLoadingKeys: state.removeLoadingKey,
+    })),
+  );
+
+  const { requests } = useNetworkStore((state) => state.projects[project.name]);
+
   const item = useMemo(() => {
-    if (!detailsCacheKey) return null;
-    return cache.find((request) => request.cacheKey === detailsCacheKey);
-  }, [detailsCacheKey, cache]);
+    if (!detailsId) return null;
+    return caches.get(detailsId);
+  }, [detailsId, caches]);
 
   const [listeners, setListeners] = useState(
     item ? client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length : 0,
@@ -37,8 +46,8 @@ export const CacheDetails = () => {
     item ? item.cacheData.responseTimestamp + item.cacheData.staleTime < Date.now() : false,
   );
 
-  const hasInProgressRequest = item ? inProgress.some((i) => i.cacheKey === item.cacheKey) : false;
-  const isLoading = item ? loadingKeys.includes(item.cacheKey) : false;
+  const hasInProgressRequest = item ? requests.some((i) => i.request.cacheKey === item.cacheKey) : false;
+  const isLoading = item ? loadingKeys.has(item.cacheKey) : false;
 
   const elements = useMemo(() => {
     if (!item) return null;
@@ -115,26 +124,9 @@ export const CacheDetails = () => {
   const toggleLoading = () => {
     if (!item || !latestItem) return;
     if (!hasInProgressRequest) {
-      setLoadingKeys((prev: string[]) => {
-        if (prev.includes(item.cacheKey)) {
-          client.requestManager.events.emitLoading({
-            loading: false,
-            isOffline: false,
-            isRetry: false,
-            request: latestItem?.request,
-            requestId: latestItem.requestId,
-          });
-          return prev.filter((i) => i !== item.cacheKey);
-        }
-        client.requestManager.events.emitLoading({
-          loading: true,
-          isOffline: false,
-          isRetry: false,
-          request: latestItem.request,
-          requestId: latestItem.requestId,
-        });
-        return [...prev, item.cacheKey];
-      });
+      addLoadingKeys({ project: project.name, cacheKey: item.cacheKey });
+    } else {
+      removeLoadingKeys({ project: project.name, cacheKey: item.cacheKey });
     }
   };
 
@@ -143,7 +135,7 @@ export const CacheDetails = () => {
     const data: CacheValueType<unknown, unknown, any> = {
       ...item.cacheData,
       data: null,
-      error: simulatedErrors.Default,
+      error: project.settings.simulatedErrors.Default,
       responseTimestamp: Date.now(),
       extra: client.adapter.defaultExtra,
       success: false,

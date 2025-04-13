@@ -5,6 +5,7 @@ import {
   ExtendRequest,
   RequestEventType,
   RequestInstance,
+  RequestJSON,
   ResponseDetailsType,
   ResponseType,
 } from "@hyper-fetch/core";
@@ -41,14 +42,16 @@ export type DevtoolsRequestResponse = {
   details: ResponseDetailsType;
 };
 
-export type DevtoolsRequestEvent = Partial<DevtoolsRequestResponse> &
-  RequestEvent<ClientInstance> & {
-    isRemoved: boolean;
-    isCanceled: boolean;
-    isSuccess: boolean;
-    isFinished: boolean;
-    isPaused: boolean;
-  };
+export type DevtoolsRequestEvent = Partial<DevtoolsRequestResponse> & {
+  request: RequestJSON<RequestInstance>;
+  client: ClientInstance;
+  isRemoved: boolean;
+  isCanceled: boolean;
+  isSuccess: boolean;
+  isFinished: boolean;
+  isPaused: boolean;
+  timestamp: number;
+};
 
 export type DevtoolsCacheEvent = {
   cacheKey: string;

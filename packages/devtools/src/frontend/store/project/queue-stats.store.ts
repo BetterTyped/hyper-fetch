@@ -7,30 +7,30 @@ import { getNetworkStats, initialNetworkStats, NetworkStats } from "./network-st
 import { ErrorStats, getErrorStats } from "./error-stats.store";
 import { getDataSize } from "./utils";
 
-type MethodStatsStore = {
+type QueueStatsStore = {
   projects: {
     [project: string]: {
-      generalStats: NetworkStats;
-      methodsStats: Map<string, { networkStats: NetworkStats; errorStats: ErrorStats }>;
+      stats: Map<string, NetworkStats>;
+      errorStats: Map<string, ErrorStats>;
     };
   };
   initialize: (projectName: string) => void;
-  setMethodStats: (data: { project: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setQueueStats: (data: { project: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
 };
 
-export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
+export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
   projects: {},
   initialize: (projectName: string) => {
     set((state) =>
       produce(state, (draft) => {
         draft.projects[projectName] = {
-          generalStats: initialNetworkStats,
-          methodsStats: new Map(),
+          stats: new Map(),
+          errorStats: new Map(),
         };
       }),
     );
   },
-  setMethodStats: async ({ project, data }) => {
+  setQueueStats: async ({ project, data }) => {
     const responseSize = await getDataSize(data.response);
     const payloadSize = await getDataSize(data.request.payload);
     const perf = {
@@ -42,18 +42,15 @@ export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
       produce(state, (draft) => {
         if (!draft.projects[project]) {
           draft.projects[project] = {
-            generalStats: initialNetworkStats,
-            methodsStats: new Map(),
+            stats: new Map(),
+            errorStats: new Map(),
           };
         }
-        draft.projects[project].methodsStats.set(data.request.method, {
-          networkStats: getNetworkStats(
-            draft.projects[project].methodsStats.get(data.request.method)?.networkStats ?? initialNetworkStats,
-            data,
-            perf,
-          ),
-          errorStats: getErrorStats(data),
-        });
+        draft.projects[project].stats.set(
+          data.request.queryKey,
+          getNetworkStats(draft.projects[project].stats.get(data.request.queryKey) ?? initialNetworkStats, data, perf),
+        );
+        draft.projects[project].errorStats.set(data.request.queryKey, getErrorStats(data));
       }),
     );
   },

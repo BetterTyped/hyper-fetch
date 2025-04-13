@@ -1,15 +1,20 @@
 import { useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 import { TableCell, TableRow } from "frontend/components/ui/table";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { getStatus, RequestStatusIcon } from "frontend/utils/request.status.utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
+import { useNetworkStore } from "frontend/store/project/network.store";
 
 export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
-  const {
-    setDetailsRequestId,
-    state: { detailsRequestId },
-  } = useDevtools();
+  const { project } = useDevtools();
+  const { openDetails, detailsRequestId } = useNetworkStore(
+    useShallow((state) => ({
+      openDetails: state.openDetails,
+      detailsRequestId: state.projects[project.name].detailsRequestId,
+    })),
+  );
 
   const status = useMemo(() => {
     return getStatus(item);
@@ -17,7 +22,7 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
 
   return (
     <TableRow
-      onClick={() => setDetailsRequestId(item.requestId)}
+      onClick={() => openDetails({ project: project.name, requestId: item.requestId })}
       className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
         item.requestId === detailsRequestId ? "ring-1 ring-inset ring-blue-400" : ""
       }`}
@@ -35,10 +40,10 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
 
       <TableCell className="text-sm font-light">
         <div>
-          {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
+          {new Date(item.timestamp).toLocaleTimeString()}{" "}
           {!!item.details?.responseTimestamp && (
             <span className="text-gray-700 dark:text-gray-300">
-              ({item.details.responseTimestamp - item.triggerTimestamp}ms)
+              ({item.details.responseTimestamp - item.timestamp}ms)
             </span>
           )}
         </div>

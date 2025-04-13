@@ -1,7 +1,7 @@
-import { RequestInstance, stringifyValue } from "@hyper-fetch/core";
+import { ClientInstance, RequestInstance, RequestJSON, stringifyValue } from "@hyper-fetch/core";
 
-export const getEndpointAndMethod = (request: RequestInstance) => {
-  const endpoint = request.client.adapter.unsafe_devtoolsEndpointGetter(request);
+export const getEndpointAndMethod = (request: RequestJSON<RequestInstance>, client: ClientInstance) => {
+  const endpoint = client.adapter.unsafe_devtoolsEndpointGetter(request as unknown as RequestInstance);
   return `${request.method}-${endpoint}`;
 };
 

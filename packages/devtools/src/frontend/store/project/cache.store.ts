@@ -2,8 +2,7 @@ import { produce } from "immer";
 import { create } from "zustand/react";
 import { Cache, CacheValueType } from "@hyper-fetch/core";
 
-import { DevtoolsCacheEvent } from "types/message.parts";
-import { Sort } from "frontend/context/projects/types";
+import { DevtoolsCacheEvent, Sort } from "frontend/context/projects/types";
 
 type CacheKey = string;
 
@@ -26,7 +25,7 @@ const getInitialState = (): CacheStore => ({
 type Store = {
   projects: { [project: string]: CacheStore };
   initialize: (project: string) => void;
-  setSearchTerm: (data: { project: string; searchTerm: string }) => void;
+  setSearchTerm: (project: string, searchTerm: string) => void;
   openDetails: (data: { project: string; cacheKey: string }) => void;
   setCacheSort: (data: { project: string; sorting: Sort }) => void;
   setCache: (data: { project: string; data: Parameters<Parameters<Cache["events"]["onData"]>[0]>[0] }) => void;
@@ -44,7 +43,7 @@ export const useCacheStore = create<Store>((set) => ({
       }),
     );
   },
-  setSearchTerm: ({ project, searchTerm }) => {
+  setSearchTerm: (project: string, searchTerm: string) => {
     set((state) =>
       produce(state, (draft) => {
         if (!draft.projects[project]) {
@@ -83,7 +82,7 @@ export const useCacheStore = create<Store>((set) => ({
         const { cacheKey, isTriggeredExternally } = data;
 
         // TODO: ???
-        if (!isTriggeredExternally) {
+        if (isTriggeredExternally) {
           draft.projects[project].caches.set(cacheKey, {
             cacheKey,
             cacheData: data.data as CacheValueType<unknown, unknown, any>,
@@ -112,6 +111,9 @@ export const useCacheStore = create<Store>((set) => ({
   addLoadingKey: ({ project, cacheKey }) => {
     set((state) =>
       produce(state, (draft) => {
+        if (!draft.projects[project]) {
+          draft.projects[project] = getInitialState();
+        }
         draft.projects[project].loadingKeys.add(cacheKey);
       }),
     );
@@ -119,6 +121,9 @@ export const useCacheStore = create<Store>((set) => ({
   removeLoadingKey: ({ project, cacheKey }) => {
     set((state) =>
       produce(state, (draft) => {
+        if (!draft.projects[project]) {
+          draft.projects[project] = getInitialState();
+        }
         draft.projects[project].loadingKeys.delete(cacheKey);
       }),
     );

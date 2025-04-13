@@ -1,8 +1,8 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { RequestInstance } from "@hyper-fetch/core";
+import { ClientInstance, NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
-import { DevtoolsRequestResponse } from "types/message.parts";
+import { DevtoolsRequestEvent, DevtoolsRequestResponse } from "frontend/context/projects/types";
 import { getDataSize, getEndpointAndMethod } from "./utils";
 
 export type CacheStats = {
@@ -32,7 +32,7 @@ export type CacheStatsStore = {
   >;
 };
 
-const getInitialState = ({ request }: { request: RequestInstance }): CacheStatsStore => ({
+const getInitialState = ({ request }: { request: RequestJSON<RequestInstance> }): CacheStatsStore => ({
   endpoint: request.endpoint,
   method: request.method,
   staleEntries: 0,
@@ -58,7 +58,7 @@ const generateCacheStats = ({
   metadata,
 }: {
   currentStats: CacheStatsStore;
-  data: DevtoolsRequestResponse & { request: RequestInstance };
+  data: DevtoolsRequestResponse & { request: RequestJSON<RequestInstance> };
   metadata: {
     // KB size of the response
     cacheSize: number;
@@ -92,11 +92,7 @@ type Store = {
     };
   };
   initialize: (projectName: string) => void;
-  setCacheStats: (data: {
-    project: string;
-    request: RequestInstance;
-    data: DevtoolsRequestResponse & { request: RequestInstance };
-  }) => void;
+  setCacheStats: (data: { project: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
 };
 
 export const useCacheStatsStore = create<Store>((set) => ({
@@ -114,7 +110,7 @@ export const useCacheStatsStore = create<Store>((set) => ({
       }),
     );
   },
-  setCacheStats: async ({ project, request, data }) => {
+  setCacheStats: async ({ project, data }) => {
     const cacheSize = await getDataSize(data.response);
 
     const metadata = {
@@ -124,7 +120,7 @@ export const useCacheStatsStore = create<Store>((set) => ({
 
     set((state) =>
       produce(state, (draft) => {
-        const endpointAndMethod = getEndpointAndMethod(request);
+        const endpointAndMethod = getEndpointAndMethod(data.request, data.client);
 
         if (!draft.projects[project]) {
           draft.projects[project] = {
@@ -138,7 +134,8 @@ export const useCacheStatsStore = create<Store>((set) => ({
         draft.projects[project].cachesStats.set(
           endpointAndMethod,
           generateCacheStats({
-            currentStats: draft.projects[project].cachesStats.get(endpointAndMethod) ?? getInitialState({ request }),
+            currentStats:
+              draft.projects[project].cachesStats.get(endpointAndMethod) ?? getInitialState({ request: data.request }),
             data,
             metadata,
           }),

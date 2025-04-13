@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Request } from "./request/request";
@@ -9,13 +10,14 @@ import { PathsOf, useSearch } from "frontend/hooks/use-search";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/table";
 import { TableSortable } from "frontend/components/ui/table-sortable";
+import { useNetworkStore } from "frontend/store/project/network.store";
 
 export const NetworkList = () => {
-  const {
-    state: { requests, networkFilter, networkSearchTerm, networkSort },
-    setNetworkSort,
-  } = useDevtools();
-
+  const { project } = useDevtools();
+  const { requests, networkFilter, networkSearchTerm, networkSort } = useNetworkStore(
+    useShallow((state) => state.projects[project.name]),
+  );
+  const setNetworkSort = useNetworkStore((state) => state.setNetworkSort);
   const data = useMemo(() => {
     if (!networkFilter) return requests;
     switch (networkFilter) {
@@ -37,7 +39,7 @@ export const NetworkList = () => {
   const handleSort = (key: PathsOf<DevtoolsRequestEvent>) => {
     return (sort: "asc" | "desc" | null) => {
       const sorting = sort ? { key, order: sort } : null;
-      setNetworkSort(sorting);
+      setNetworkSort({ project: project.name, sorting });
     };
   };
 
@@ -88,7 +90,7 @@ export const NetworkList = () => {
           <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
             Cached
           </TableSortable>
-          <TableSortable sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
+          <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
             Timestamp
           </TableSortable>
         </TableRow>

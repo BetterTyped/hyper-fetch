@@ -1,17 +1,24 @@
 import { CpuIcon } from "lucide-react";
 import { QueueDataType } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { getQueueStatus, getQueueStatusColor } from "frontend/utils/queue.status.utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Key } from "frontend/components/ui/key";
 import { Chip } from "frontend/components/ui/chip";
+import { useQueueStore } from "frontend/store/project/queue.store";
+import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
 
 export const Card = ({ queue }: { queue: QueueDataType }) => {
   const status = getQueueStatus(queue);
-  const {
-    state: { stats, detailsQueueKey },
-    setDetailsQueueKey,
-  } = useDevtools();
+  const { project } = useDevtools();
+  const { detailsQueueKey, openDetails } = useQueueStore(
+    useShallow((state) => ({
+      detailsQueueKey: state.projects[project.name].detailsQueryKey,
+      openDetails: state.openDetails,
+    })),
+  );
+  const queueStats = useQueueStatsStore(useShallow((state) => state.projects[project.name]?.stats.get(queue.queryKey)));
 
   const statusColor = (
     {
@@ -21,13 +28,13 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
     } as const
   )[status];
 
-  const total = (stats[queue.queryKey]?.total || 0) + queue.requests.length;
+  const total = queueStats?.totalRequests || 0;
 
   return (
     <button
       type="button"
       color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
-      onClick={() => setDetailsQueueKey(queue.queryKey)}
+      onClick={() => openDetails(project.name, queue.queryKey)}
     >
       <div className="flex justify-between w-full gap-4 mb-1.5">
         <div className="flex items-center gap-1 text-sm font-bold">

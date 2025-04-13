@@ -8,11 +8,14 @@ type QueueStore = {
   projects: {
     [project: string]: {
       queues: Map<QueryKey, QueueDataType<RequestInstance>>;
+      searchTerm: string;
       detailsQueryKey: string | null;
     };
   };
   initialize: (projectName: string) => void;
   setQueue: (data: { project: string; data: QueueDataType<RequestInstance> }) => void;
+  setSearchTerm: (project: string, searchTerm: string) => void;
+  openDetails: (project: string, queryKey: QueryKey) => void;
 };
 
 export const useQueueStore = create<QueueStore>((set) => ({
@@ -23,6 +26,7 @@ export const useQueueStore = create<QueueStore>((set) => ({
         draft.projects[projectName] = {
           queues: new Map(),
           detailsQueryKey: null,
+          searchTerm: "",
         };
       }),
     );
@@ -34,11 +38,26 @@ export const useQueueStore = create<QueueStore>((set) => ({
           draft.projects[project] = {
             queues: new Map(),
             detailsQueryKey: null,
+            searchTerm: "",
           };
         }
 
         // Update queues
         draft.projects[project].queues.set(data.queryKey, data);
+      }),
+    );
+  },
+  setSearchTerm: (project: string, searchTerm: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].searchTerm = searchTerm;
+      }),
+    );
+  },
+  openDetails: (project: string, queryKey: QueryKey) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.projects[project].detailsQueryKey = queryKey;
       }),
     );
   },

@@ -2,7 +2,7 @@ import { produce } from "immer";
 import { create } from "zustand/react";
 import { NonNullableKeys, stringifyValue } from "@hyper-fetch/core";
 
-import { DevtoolsRequestEvent } from "types/message.parts";
+import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { getEndpointAndMethod } from "./utils";
 
 export type ErrorStats = {
@@ -66,7 +66,7 @@ export const useErrorStatsStore = create<ErrorStatsStore>((set) => ({
           };
         }
         const { status } = data.response;
-        const endpointAndMethod = getEndpointAndMethod(data.request);
+        const endpointAndMethod = getEndpointAndMethod(data.request, data.client);
         const element = draft.projects[project].endpointErrorStats.get(endpointAndMethod);
         if (!element) {
           draft.projects[project].statusErrorStats.set(status, initialErrorStats);

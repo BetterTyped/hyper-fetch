@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { TrashIcon } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 
 import { Back } from "./back/back";
 import { getStatus, getStatusColor, RequestStatusIcon, Status } from "frontend/utils/request.status.utils";
@@ -11,12 +12,13 @@ import { Badge } from "frontend/components/ui/badge";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
 import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
+import { useNetworkStore } from "frontend/store/project/network.store";
 
 export const NetworkDetails = () => {
-  const {
-    removeNetworkRequest,
-    state: { requests, detailsRequestId },
-  } = useDevtools();
+  const { project } = useDevtools();
+
+  const { requests, detailsRequestId } = useNetworkStore(useShallow((state) => state.projects[project.name]));
+  const removeNetworkRequest = useNetworkStore((state) => state.removeNetworkRequest);
 
   const item = useMemo(() => {
     if (!detailsRequestId) return null;
@@ -46,7 +48,7 @@ export const NetworkDetails = () => {
 
   const remove = () => {
     if (item) {
-      removeNetworkRequest(item.requestId);
+      removeNetworkRequest({ project: project.name, requestId: item.requestId });
     }
   };
 

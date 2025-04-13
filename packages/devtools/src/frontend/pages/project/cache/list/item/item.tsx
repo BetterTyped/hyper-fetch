@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { DevtoolsCacheEvent } from "frontend/context/projects/types";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
@@ -7,13 +8,16 @@ import { useCountdown } from "frontend/hooks/use-countdown";
 import { Key } from "frontend/components/ui/key";
 import { TableCell, TableRow } from "frontend/components/ui/table";
 import { Chip } from "frontend/components/ui/chip";
+import { useCacheStore } from "frontend/store/project/cache.store";
 
 export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
-  const {
-    client,
-    setDetailsCacheKey,
-    state: { detailsCacheKey },
-  } = useDevtools();
+  const { client, project } = useDevtools();
+  const { detailsId, openDetails } = useCacheStore(
+    useShallow((state) => ({
+      detailsId: state.projects[project.name].detailsId,
+      openDetails: state.openDetails,
+    })),
+  );
 
   const staleTimestamp = item.cacheData.responseTimestamp + item.cacheData.staleTime;
   const countdown = useCountdown(staleTimestamp);
@@ -26,7 +30,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
     return client.requestManager.emitter.onListener(getLoadingByCacheKey(item.cacheKey), (count) => {
       setListeners(count);
     });
-  }, [client.requestManager.emitter, item.cacheKey, setDetailsCacheKey]);
+  }, [client.requestManager.emitter, item.cacheKey]);
 
   const isFresh = staleTimestamp >= Date.now() ? Object.values(countdown).some((v) => v > 1) : false;
 
@@ -34,9 +38,9 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
     <TableRow
       tabIndex={0}
       role="button"
-      onClick={() => setDetailsCacheKey(item.cacheKey)}
+      onClick={() => openDetails({ project: project.name, cacheKey: item.cacheKey })}
       className={`cursor-pointer hover:bg-light-100 dark:hover:bg-dark-500 ${
-        item.cacheKey === detailsCacheKey ? "ring-1 ring-blue-400 ring-inset" : ""
+        item.cacheKey === detailsId ? "ring-1 ring-blue-400 ring-inset" : ""
       }`}
     >
       <TableCell className="font-light text-sm px-2 first:pl-[10px] last:pr-[10px]">

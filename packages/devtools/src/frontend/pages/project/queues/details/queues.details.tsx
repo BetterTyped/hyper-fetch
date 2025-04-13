@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQueue } from "@hyper-fetch/react";
 import { ListX, Pause, Play } from "lucide-react";
 import { Request } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { Back } from "./back/back";
 import { Separator } from "frontend/components/ui/separator";
@@ -10,30 +11,13 @@ import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "frontend/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
 import { Badge } from "frontend/components/ui/badge";
-import { DevtoolsRequestQueueStats } from "frontend/context/projects/types";
 import { Key } from "frontend/components/ui/key";
 import { Bar } from "frontend/components/bar/bar";
 import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
 import { getQueueStatus, QueueStatus } from "frontend/utils/queue.status.utils";
-
-const defaultStats: DevtoolsRequestQueueStats = {
-  total: 0,
-  success: 0,
-  failed: 0,
-  canceled: 0,
-  avgTime: 0,
-  minTime: 0,
-  maxTime: 0,
-  lastTime: 0,
-  avgQueueTime: 0,
-  minQueueTime: 0,
-  maxQueueTime: 0,
-  lastQueueTime: 0,
-  avgProcessingTime: 0,
-  minProcessingTime: 0,
-  maxProcessingTime: 0,
-  lastProcessingTime: 0,
-};
+import { useQueueStore } from "frontend/store/project/queue.store";
+import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
+import { initialNetworkStats } from "frontend/store/project/network-stats.store";
 
 const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <TableRow>
@@ -43,15 +27,12 @@ const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) =>
 );
 
 export const QueuesDetails = () => {
-  const {
-    client,
-    state: { stats, queues, detailsQueueKey },
-  } = useDevtools();
+  const { project, client } = useDevtools();
+  const { queues, detailsQueryKey } = useQueueStore((state) => state.projects[project.name]);
+  const { stats } = useQueueStatsStore(useShallow((state) => state.projects[project.name] || {}));
 
-  const item = useMemo(() => {
-    if (!detailsQueueKey) return null;
-    return queues.find((request) => request.queryKey === detailsQueueKey);
-  }, [detailsQueueKey, queues]);
+  const item = detailsQueryKey ? queues.get(detailsQueryKey) : null;
+  const itemStats = (detailsQueryKey ? stats?.get(detailsQueryKey) : null) || initialNetworkStats;
 
   const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
 
@@ -65,7 +46,7 @@ export const QueuesDetails = () => {
 
   const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
 
-  const { color, statistics } = useMemo(() => {
+  const { color } = useMemo(() => {
     const statusColor = (
       {
         Pending: "gray",
@@ -77,9 +58,8 @@ export const QueuesDetails = () => {
     return {
       status,
       color: statusColor,
-      statistics: item ? stats[item.queryKey] || defaultStats : defaultStats,
     };
-  }, [item, stats, status]);
+  }, [status]);
 
   const toggleQueue = () => {
     if (stopped) {
@@ -122,10 +102,19 @@ export const QueuesDetails = () => {
         <div className="p-2.5">
           <Table>
             <TableBody>
-              <RowInfo label="Total Requests:" value={<Badge variant="secondary">{statistics.total}</Badge>} />
-              <RowInfo label="Success Requests:" value={<Badge variant="default">{statistics.success}</Badge>} />
-              <RowInfo label="Failed Requests:" value={<Badge variant="destructive">{statistics.failed}</Badge>} />
-              <RowInfo label="Canceled Requests:" value={<Badge variant="secondary">{statistics.canceled}</Badge>} />
+              <RowInfo label="Total Requests:" value={<Badge variant="secondary">{itemStats.totalRequests}</Badge>} />
+              <RowInfo
+                label="Success Requests:"
+                value={<Badge variant="default">{itemStats.totalRequestsSuccess}</Badge>}
+              />
+              <RowInfo
+                label="Failed Requests:"
+                value={<Badge variant="destructive">{itemStats.totalRequestsFailed}</Badge>}
+              />
+              <RowInfo
+                label="Canceled Requests:"
+                value={<Badge variant="secondary">{itemStats.totalRequestsCanceled}</Badge>}
+              />
               <RowInfo label="In Progress Requests:" value={<Badge>{item.requests.length}</Badge>} />
             </TableBody>
           </Table>
@@ -149,19 +138,19 @@ export const QueuesDetails = () => {
                 <TableBody>
                   <RowInfo
                     label="Last response time:"
-                    value={<Badge>{parseInt(String(statistics.lastTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.latestResponseTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Min response time:"
-                    value={<Badge>{parseInt(String(statistics.minTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.lowestResponseTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Max response time:"
-                    value={<Badge>{parseInt(String(statistics.maxTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.highestResponseTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Average response time:"
-                    value={<Badge>{parseInt(String(statistics.avgTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.avgResponseTime), 10)}ms</Badge>}
                   />
                 </TableBody>
               </Table>
@@ -176,19 +165,19 @@ export const QueuesDetails = () => {
                 <TableBody>
                   <RowInfo
                     label="Last pre-processing time:"
-                    value={<Badge>{parseInt(String(statistics.lastProcessingTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.latestProcessingTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Min pre-processing time:"
-                    value={<Badge>{parseInt(String(statistics.minProcessingTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.lowestProcessingTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Max pre-processing time:"
-                    value={<Badge>{parseInt(String(statistics.maxProcessingTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.highestProcessingTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Average pre-processing time:"
-                    value={<Badge>{parseInt(String(statistics.avgProcessingTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.avgProcessingTime), 10)}ms</Badge>}
                   />
                 </TableBody>
               </Table>
@@ -203,19 +192,19 @@ export const QueuesDetails = () => {
                 <TableBody>
                   <RowInfo
                     label="Last queue time:"
-                    value={<Badge>{parseInt(String(statistics.avgQueueTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.avgQueueTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Min time spent in queue:"
-                    value={<Badge>{parseInt(String(statistics.minQueueTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.lowestQueueTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Max time spent in queue:"
-                    value={<Badge>{parseInt(String(statistics.maxQueueTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.highestQueueTime), 10)}ms</Badge>}
                   />
                   <RowInfo
                     label="Average time spent in queue:"
-                    value={<Badge>{parseInt(String(statistics.avgQueueTime), 10)}ms</Badge>}
+                    value={<Badge>{parseInt(String(itemStats.avgQueueTime), 10)}ms</Badge>}
                   />
                 </TableBody>
               </Table>

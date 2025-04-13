@@ -1,17 +1,23 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/no-array-index-key */
+import { useShallow } from "zustand/react/shallow";
+
 import { NoContent } from "frontend/components/no-content/no-content";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { useSearch } from "frontend/hooks/use-search";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Item } from "./item/item";
+import { useCacheStore } from "frontend/store/project/cache.store";
 
 export const CacheList = () => {
-  const {
-    state: { cache, cacheSearchTerm },
-  } = useDevtools();
+  const { project } = useDevtools();
+  const { caches, cacheSearchTerm } = useCacheStore(useShallow((state) => state.projects[project.name] || {}));
 
-  const { items } = useSearch({ data: cache, searchKeys: ["cacheKey"], searchTerm: cacheSearchTerm });
+  const { items } = useSearch({
+    data: Array.from(caches.values()),
+    searchKeys: ["cacheKey"],
+    searchTerm: cacheSearchTerm,
+  });
 
   if (!items.length) {
     return <NoContent text="Make some cached request to see them here!" />;
@@ -19,7 +25,7 @@ export const CacheList = () => {
 
   return (
     <Table className="w-full flex-1">
-      <TableHeader style={{ opacity: !cache.length ? 0.4 : 1 }}>
+      <TableHeader style={{ opacity: !caches.size ? 0.4 : 1 }}>
         <TableRow>
           <TableHead>Cache Key</TableHead>
           <TableHead>Status</TableHead>

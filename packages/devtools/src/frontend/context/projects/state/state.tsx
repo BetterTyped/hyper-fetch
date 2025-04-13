@@ -1,7 +1,7 @@
 import { useDidMount } from "@reins/hooks";
 import { useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { NonNullableKeys } from "@hyper-fetch/core";
+import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent, DevtoolsRequestEvent } from "../types";
 import { useConnections } from "../connection/connection";
@@ -13,6 +13,7 @@ import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
 import { useCacheStore } from "frontend/store/project/cache.store";
 import { useQueueStore } from "frontend/store/project/queue.store";
+import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
 
 export const State = ({ project }: { project: string }) => {
   const { setProjectStates } = useProjectStates("State");
@@ -51,6 +52,13 @@ export const State = ({ project }: { project: string }) => {
       setErrorStats: selector.setErrorStats,
     })),
   );
+
+  const { setQueueStats } = useQueueStatsStore(
+    useShallow((selector) => ({
+      setQueueStats: selector.setQueueStats,
+    })),
+  );
+
   const { setQueue } = useQueueStore(
     useShallow((selector) => ({
       setQueue: selector.setQueue,
@@ -93,12 +101,15 @@ export const State = ({ project }: { project: string }) => {
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((item) => {
       const data: DevtoolsRequestEvent = {
         requestId: item.requestId,
-        request: item.request,
+        request: item.request as unknown as RequestJSON<RequestInstance>,
+        client,
         isRemoved: false,
         isCanceled: false,
         isSuccess: false,
         isFinished: false,
         isPaused: false,
+        // TODO: use request start time for every timestamp
+        timestamp: Date.now(),
       };
 
       setNetworkRequest({
@@ -121,12 +132,14 @@ export const State = ({ project }: { project: string }) => {
         requestId,
         response,
         details,
-        request,
+        request: request as unknown as RequestJSON<RequestInstance>,
+        client,
         isRemoved: false,
         isCanceled: false,
         isSuccess: !!response.success,
         isFinished: true,
         isPaused: false,
+        timestamp: Date.now(),
       };
 
       setNetworkResponse({
@@ -146,7 +159,6 @@ export const State = ({ project }: { project: string }) => {
 
       setCacheStats({
         project,
-        request,
         data,
       });
 
@@ -154,16 +166,23 @@ export const State = ({ project }: { project: string }) => {
         project,
         data,
       });
+
+      setQueueStats({
+        project,
+        data,
+      });
     });
     const unmountOnRequestPause = client.requestManager.events.onAbort((item) => {
       const data: DevtoolsRequestEvent = {
         requestId: item.requestId,
-        request: item.request,
+        request: item.request as unknown as RequestJSON<RequestInstance>,
+        client,
         isRemoved: false,
         isCanceled: true,
         isSuccess: false,
         isFinished: false,
         isPaused: false,
+        timestamp: Date.now(),
       };
 
       setNetworkResponse({
@@ -211,12 +230,14 @@ export const State = ({ project }: { project: string }) => {
       if (!item.resolved) {
         const data: DevtoolsRequestEvent = {
           requestId: item.requestId,
-          request: item.request,
+          request: item.request as unknown as RequestJSON<RequestInstance>,
+          client,
           isRemoved: true,
           isCanceled: false,
           isSuccess: false,
           isFinished: false,
           isPaused: false,
+          timestamp: Date.now(),
         };
 
         setNetworkResponse({
@@ -288,6 +309,7 @@ export const State = ({ project }: { project: string }) => {
     setNetworkStats,
     setProjectStates,
     setQueue,
+    setQueueStats,
   ]);
 
   useDidMount(() => {
