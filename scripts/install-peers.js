@@ -75,7 +75,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
 
   const packages = [...new Set(Object.keys(peerDependencies))]
     .filter((key) => {
-      return !key.includes("@hyper-fetch");
+      return !key.includes("@hyper-fetch") && !key.startsWith("react") && !key.startsWith("react-dom");
     })
     .map(function (key) {
       return `${key}@${peerDependencies[key]}`;

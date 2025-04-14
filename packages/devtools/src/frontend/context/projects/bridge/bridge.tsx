@@ -68,7 +68,9 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
     devtoolsListener.listen((event: any) => {
       const { connectionName, messageType, eventData } = event.data;
 
-      nameRef.current = connectionName;
+      // HF_DEVTOOLS_PLUGIN_${projectName}
+      // eslint-disable-next-line prefer-destructuring
+      nameRef.current = connectionName.split("_")[2];
 
       switch (messageType) {
         case MessageType.DEVTOOLS_PLUGIN_INIT:
