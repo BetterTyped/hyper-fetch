@@ -70,18 +70,19 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
 
       // HF_DEVTOOLS_PLUGIN_${projectName}
       // eslint-disable-next-line prefer-destructuring
-      nameRef.current = connectionName.split("_")[2];
+      const name = connectionName.replace("HF_DEVTOOLS_PLUGIN_", "");
+      nameRef.current = name;
 
       switch (messageType) {
         case MessageType.DEVTOOLS_PLUGIN_INIT: {
           {
-            const shouldCreateProject = !connections[connectionName];
+            const shouldCreateProject = !connections[name];
             if (shouldCreateProject) {
               setConnections((prev) => {
                 return {
                   ...prev,
-                  [connectionName]: {
-                    name: connectionName,
+                  [name]: {
+                    name,
                     metaData: eventData,
                     client: new Client({ url: "http://localhost.dummyhost:5000" }),
                     connected: true,
@@ -91,7 +92,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
                 };
               });
               addProject({
-                name: connectionName,
+                name,
                 connected: true,
                 settings: {
                   simulatedErrors: {
@@ -108,7 +109,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           setConnections((prev) => {
             return {
               ...prev,
-              [connectionName]: { ...prev[connectionName], connected: false },
+              [name]: { ...prev[name], connected: false },
             };
           });
           return;

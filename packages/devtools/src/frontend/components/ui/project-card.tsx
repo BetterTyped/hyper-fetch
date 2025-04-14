@@ -48,7 +48,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, onOpen }) => 
                 <FolderOpen className="h-6 w-6 text-gray-400" />
               )}
             </Avatar>
-            <div className="space-y-1.5 overflow-hidden">
+            <div className="space-y-1.5 overflow-hidden flex-1">
               <h3 className="font-semibold text-lg leading-none break-words">{name}</h3>
             </div>
             <div className="-mr-2 -mt-4">
