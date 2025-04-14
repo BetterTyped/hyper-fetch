@@ -18,7 +18,13 @@ export class ConnectionHandler {
       throw new Error(`No open connection exists for the connectionName ${connectionName}`);
     }
     if (!this.devtoolsFrontendConnection) {
-      throw new Error(`Something went wrong, connection to frontend connection does not exist`);
+      /**
+       * This error can happen when the devtools plugin connects to the fake server
+       * We found this case being triggered with msw setup, which caused websocket to open
+       * We early return here to avoid the error on the startup of the devtools app
+       */
+      console.error(`Something went wrong, connection to frontend connection does not exist`);
+      return;
     }
     this.devtoolsFrontendConnection.send(
       JSON.stringify({
