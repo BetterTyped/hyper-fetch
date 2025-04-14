@@ -4,8 +4,8 @@ interface KpiCard1Props {
   value: React.ReactNode;
   label: React.ReactNode;
   icon: React.ReactNode;
-  children: React.ReactNode;
-  color: keyof typeof colors;
+  color?: keyof typeof colors;
+  children?: React.ReactNode;
 }
 
 const colors = {
@@ -34,10 +34,10 @@ const iconColors = {
   white: "bg-white/30 text-white",
 };
 
-export const KpiCard1 = ({ value, label, children, icon, color }: KpiCard1Props) => {
+export const KpiCard1 = ({ value, label, children, icon, color = "blue" }: KpiCard1Props) => {
   return (
     <div className={cn(`bg-gradient-to-br rounded-xl p-6 shadow-sm`, colors[color])}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className={cn(`p-2 rounded-lg`, iconColors[color])}>{icon}</div>
           <div>
@@ -46,7 +46,7 @@ export const KpiCard1 = ({ value, label, children, icon, color }: KpiCard1Props)
           </div>
         </div>
       </div>
-      <div className="text-sm text-gray-500">{children}</div>
+      {children && <div className="text-sm text-gray-500 mt-4">{children}</div>}
     </div>
   );
 };

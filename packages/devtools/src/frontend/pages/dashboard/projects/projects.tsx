@@ -41,15 +41,15 @@ export const Projects = () => {
       <div className="mb-1">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <KpiCard1 value={9} label="Active Projects" icon={<Server className="h-5 w-5" />} color="yellow">
-            <span className="text-sm font-medium">+2</span> new projects this week
+            {/* <span className="text-sm font-medium">+2</span> new projects this week */}
           </KpiCard1>
 
           <KpiCard1 value={messageCount} label="Requests" icon={<Earth className="h-5 w-5" />} color="blue">
-            <span className="font-medium">15</span> requests per minute
+            {/* <span className="font-medium">15</span> requests per minute */}
           </KpiCard1>
 
           <KpiCard1 value={127} label="Saved Mocks" icon={<Database className="h-5 w-5" />} color="green">
-            <span className="font-medium">8</span> new mocks today
+            {/* <span className="font-medium">8</span> new mocks today */}
           </KpiCard1>
         </div>
       </div>

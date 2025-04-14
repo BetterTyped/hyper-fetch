@@ -73,7 +73,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       nameRef.current = connectionName.split("_")[2];
 
       switch (messageType) {
-        case MessageType.DEVTOOLS_PLUGIN_INIT:
+        case MessageType.DEVTOOLS_PLUGIN_INIT: {
           {
             const shouldCreateProject = !connections[connectionName];
             if (shouldCreateProject) {
@@ -103,8 +103,19 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
             }
           }
           return;
-        default:
+        }
+        case MessageType.DEVTOOLS_PLUGIN_HANGUP: {
+          setConnections((prev) => {
+            return {
+              ...prev,
+              [connectionName]: { ...prev[connectionName], connected: false },
+            };
+          });
+          return;
+        }
+        default: {
           console.error(`Unknown message type: ${messageType}`);
+        }
       }
     });
   });
