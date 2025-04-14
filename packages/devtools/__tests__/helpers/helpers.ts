@@ -39,7 +39,7 @@ export const connectDevtoolsFrontend = async ({
     url: `ws://${socketAddress}:${socketPort}`,
     adapterOptions: { autoConnect: false },
   }).setDebug(true);
-  initSocket = initSocket.setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_APP });
+  initSocket = initSocket.setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND });
 
   await initSocket.connect();
   return initSocket;
