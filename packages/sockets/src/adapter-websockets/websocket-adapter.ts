@@ -102,12 +102,10 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
            *  Mount listeners
            */
 
-          newWebsocket.addEventListener("open", (event) => {
-            if ((event.target as WebSocket)?.readyState === WebSocket.OPEN) {
-              clearTimeout(timeout);
-              onConnected();
-              onHeartbeat();
-            }
+          newWebsocket.addEventListener("open", () => {
+            clearTimeout(timeout);
+            onConnected();
+            onHeartbeat();
           });
 
           newWebsocket.addEventListener("close", (event) => {

@@ -85,11 +85,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
            *  Mount listeners
            */
 
-          eventSource.addEventListener("open", (event) => {
-            if ((event.target as WebSocket)?.readyState === WebSocket.OPEN) {
-              clearTimeout(timeout);
-              onConnected();
-            }
+          eventSource.addEventListener("open", () => {
+            clearTimeout(timeout);
+            onConnected();
           });
 
           eventSource.addEventListener("error", (event) => {
