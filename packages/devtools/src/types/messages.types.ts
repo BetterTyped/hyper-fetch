@@ -14,6 +14,7 @@ export enum EmitableCoreEvents {
 
 export enum EmitableCustomEvents {
   REQUEST_CREATED = "REQUEST_CREATED",
+  PLUGIN_HANGUP = "PLUGIN_HANGUP",
 }
 
 export enum MessageType {

@@ -152,6 +152,9 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    * Time of pooling for the deduplication to be active (default 10ms)
    */
   deduplicateTime?: number;
+
+  responseType?: "stream";
+  responseEncoding?: string;
 };
 
 export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;

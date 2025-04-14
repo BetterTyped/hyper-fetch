@@ -1,8 +1,9 @@
-import { ConnectionMap } from "../types/connection.type";
 import { WebSocket } from "ws";
+
+import { ConnectionMap } from "../types/connection.type";
 import { ConnectionName } from "../../frontend/constants/connection.name";
 import { SocketTopics } from "../../frontend/constants/topics";
-import { DevtoolsClientHandshakeMessage, MessageType } from "../../types/messages.types";
+import { DevtoolsClientHandshakeMessage, EmitableCustomEvents, MessageType } from "../../types/messages.types";
 
 export class ConnectionHandler {
   connections: ConnectionMap = {};
@@ -55,7 +56,6 @@ export class ConnectionHandler {
       }),
     );
     this.connections[connectionName].frontendStatus = "initialized";
-    return;
   };
 
   addPluginConnection = (connectionName: string, connection: WebSocket) => {
@@ -74,8 +74,8 @@ export class ConnectionHandler {
     if (connectionName && connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
       this.setDevtoolsFrontendConnection(conn);
       if (Object.keys(this.connections).length !== 0) {
-        Object.entries(this.connections).forEach(([connectionName, connectionData]) => {
-          this.sendConnectedAppsInfoToDevtoolsFrontend(connectionName, connectionData.clientMetaData);
+        Object.entries(this.connections).forEach(([connName, connectionData]) => {
+          this.sendConnectedAppsInfoToDevtoolsFrontend(connName, connectionData.clientMetaData);
         });
       }
     }
@@ -100,12 +100,14 @@ export class ConnectionHandler {
         JSON.stringify({
           ...{
             topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
-            data: { messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP, connectionName },
+            data: {
+              messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP,
+              connectionName,
+              eventType: EmitableCustomEvents.PLUGIN_HANGUP,
+            },
           },
         }),
       );
     }
   };
-
-  sendEventToDevtoolsFrontend = (connectionName: string) => {};
 }
