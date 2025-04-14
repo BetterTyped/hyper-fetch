@@ -84,7 +84,7 @@ export const Events = ({ project }: { project: string }) => {
 
   useDidMount(() => {
     emit({
-      payload: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: project },
+      payload: { messageType: MessageType.DEVTOOLS_PLUGIN_CONFIRM, connectionName: project },
     });
 
     const unmountOnData = client.cache.events.onData((data) => {

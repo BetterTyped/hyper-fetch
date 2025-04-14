@@ -22,7 +22,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       reconnect: Infinity,
       reconnectTime: 4000,
     })
-      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_APP })
+      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND })
       .onConnected(() => {
         if (!nameRef.current) return;
 
@@ -71,7 +71,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       nameRef.current = connectionName;
 
       switch (messageType) {
-        case MessageType.DEVTOOLS_CLIENT_INIT:
+        case MessageType.DEVTOOLS_PLUGIN_INIT:
           {
             const shouldCreateProject = !connections[connectionName];
             if (shouldCreateProject) {
