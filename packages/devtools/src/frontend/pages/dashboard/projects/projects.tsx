@@ -1,44 +1,24 @@
-import { useState, useEffect } from "react";
-import { Info, Earth } from "lucide-react";
+import { Earth, Server, Database, FolderCode } from "lucide-react";
 
 import { useLocation } from "frontend/routing/router";
-import { Card } from "frontend/components/ui/card";
-import { KpiCard3 } from "frontend/components/ui/kpi-card-3";
-import { KpiCardFeed } from "frontend/components/ui/kpi-card-feed";
 import { useProjects } from "frontend/store/project/projects.store";
 import { ProjectCard } from "frontend/components/ui/project-card";
+import { KpiCard1 } from "frontend/components/ui/kpi-card-2";
+import { Tutorial } from "./components/tutorial";
+import {
+  Section,
+  SectionDescription,
+  SectionGroup,
+  SectionHeader,
+  SectionIcon,
+  SectionSubtitle,
+  SectionTitle,
+} from "frontend/components/ui/section";
 
 export const Projects = () => {
   const projects = useProjects((state) => state.projects);
   const { navigate } = useLocation();
   const messageCount = 0;
-  const [pulseHistory, setPulseHistory] = useState<Array<{ value: number; date: Date }>>(
-    Array(20)
-      .fill(0)
-      .map((_, index) => ({ value: 15, date: new Date(Date.now() - index * 1000) })),
-  );
-
-  // Simulate websocket connection and message reception
-  useEffect(() => {
-    let accumulatedMessages = 0;
-
-    // Simulate receiving messages periodically
-    const messageInterval = setInterval(() => {
-      // Add new entry with accumulated messages over the last 3 seconds
-      setPulseHistory((prev) => {
-        const newEntry = { value: Math.min(accumulatedMessages + 15, 30), date: new Date() };
-        // Remove oldest entry and add new one
-        return [...prev.slice(1), newEntry];
-      });
-
-      // Reset accumulator and update last update time
-      accumulatedMessages = 0;
-    }, 3000);
-
-    return () => {
-      clearInterval(messageInterval);
-    };
-  }, []);
 
   const onOpenProject = (projectName: string) => {
     navigate({
@@ -50,38 +30,40 @@ export const Projects = () => {
   };
 
   return (
-    <>
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <KpiCard3 value="9" label="Online Projects" change="Live" positive />
-        <KpiCardFeed
-          value={messageCount}
-          label="Requests"
-          data={pulseHistory}
-          name="value"
-          icon={<Earth className="h-5 w-5 text-blue-500" />}
-        />
-        <KpiCard3 value="127" label="Saved Mocks" />
+    <Section id="projects">
+      <SectionHeader>
+        <SectionIcon>
+          <FolderCode />
+        </SectionIcon>
+        <SectionTitle>Projects</SectionTitle>
+        <SectionDescription>Manage your projects and connect them to your workspace.</SectionDescription>
+      </SectionHeader>
+      <div className="mb-1">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <KpiCard1 value={9} label="Active Projects" icon={<Server className="h-5 w-5" />} color="yellow">
+            <span className="text-sm font-medium">+2</span> new projects this week
+          </KpiCard1>
+
+          <KpiCard1 value={messageCount} label="Requests" icon={<Earth className="h-5 w-5" />} color="blue">
+            <span className="font-medium">15</span> requests per minute
+          </KpiCard1>
+
+          <KpiCard1 value={127} label="Saved Mocks" icon={<Database className="h-5 w-5" />} color="green">
+            <span className="font-medium">8</span> new mocks today
+          </KpiCard1>
+        </div>
       </div>
 
-      <h3 className="text-xl font-bold mb-4">Projects</h3>
+      <SectionGroup>
+        <SectionSubtitle>Active projects</SectionSubtitle>
+        <SectionDescription>Here are the projects that are currently active in your workspace.</SectionDescription>
+      </SectionGroup>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {Object.values(projects).map((project) => (
           <ProjectCard key={project.name} iconUrl="" {...project} onOpen={() => onOpenProject(project.name)} />
         ))}
-        <Card
-          className="w-full max-w-sm hover:shadow-md transition-shadow duration-300 flex items-center justify-center cursor-pointer border-dashed"
-          // onClick={() => setShowNewWorkspaceDialog(true)}
-        >
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="h-12 w-12 rounded-full bg-gray-400/20 flex items-center justify-center mb-2">
-              <Info className="h-6 w-6 text-gray-500" />
-            </div>
-            <p className="text-sm text-gray-500">Cannot see your project?</p>
-            <p className="text-sm text-gray-500">Learn how to connect your project</p>
-          </div>
-        </Card>
+        <Tutorial />
       </div>
-    </>
+    </Section>
   );
 };

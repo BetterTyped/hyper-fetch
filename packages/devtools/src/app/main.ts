@@ -19,6 +19,8 @@ const createWindow = () => {
     frame: false,
     width: 1200,
     height: 800,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       sandbox: false,
       preload: path.join(__dirname, "preload.js"),
@@ -45,14 +47,6 @@ const createWindow = () => {
     // Open URL in default browser and prevent window from opening
     shell.openExternal(url).catch(console.error);
     return { action: "deny" };
-  });
-
-  // Handle navigation to external URLs
-  mainWindow.webContents.on("will-navigate", (event, url) => {
-    if (!url.startsWith("file://")) {
-      event.preventDefault();
-      shell.openExternal(url).catch(console.error);
-    }
   });
 };
 

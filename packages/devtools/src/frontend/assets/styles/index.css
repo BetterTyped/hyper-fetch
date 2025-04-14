@@ -140,11 +140,11 @@ body,
   --popover: oklch(0.15 0.03 272.53);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.81 0.01 256.88);
   --secondary: oklch(0.27 0.03 260.8);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.27 0.03 257.69);
-  --muted-foreground: oklch(0.87 0.01 256.88);
+  --muted-foreground: oklch(0.77 0.01 256.88);
   --accent: oklch(0.27 0.03 260.8);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
@@ -204,6 +204,35 @@ body,
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --animate-shine: shine 5s ease-in-out 500ms infinite;
+  --animate-gradient: gradient 6s linear infinite;
+
+  @keyframes shine {
+    0% {
+      top: 0;
+      transform: scaleY(5);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.8;
+    }
+    20% {
+      top: 100%;
+      transform: scaleY(10);
+      opacity: 0;
+    }
+    100% {
+      top: 100%;
+      transform: scaleY(1);
+      opacity: 0;
+    }
+  }
+  @keyframes gradient {
+    to {
+      background-position: 200% center;
+    }
+  }
 }
 
 @layer base {

@@ -36,6 +36,14 @@ export const SectionHeader = ({ children, className, ...props }: React.Component
   );
 };
 
+export const SectionGroup = ({ children, className, ...props }: React.ComponentProps<"div">) => {
+  return (
+    <div className={cn("flex flex-col py-4", className)} {...props}>
+      {children}
+    </div>
+  );
+};
+
 export const SectionTitle = ({ children, className, ...props }: React.ComponentProps<"h3">) => {
   return (
     <h3 className={cn("text-lg font-medium mb-0", className)} {...props}>
@@ -49,6 +57,14 @@ export const SectionDescription = ({ children, className, ...props }: React.Comp
     <p className={cn("text-sm text-gray-500", className)} {...props}>
       {children}
     </p>
+  );
+};
+
+export const SectionSubtitle = ({ children, className, ...props }: React.ComponentProps<"h4">) => {
+  return (
+    <h4 className={cn("text-lg font-medium", className)} {...props}>
+      {children}
+    </h4>
   );
 };
 
