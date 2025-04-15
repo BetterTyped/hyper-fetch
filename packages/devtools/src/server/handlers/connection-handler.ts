@@ -73,7 +73,7 @@ export class ConnectionHandler {
   };
 
   handleNewConnection = (connectionName: string | string[], conn: WebSocket): void => {
-    if (connectionName && !Array.isArray(connectionName) && connectionName.startsWith("HF_DEVTOOLS_PLUGIN")) {
+    if (connectionName && !Array.isArray(connectionName) && connectionName !== ConnectionName.HF_DEVTOOLS_FRONTEND) {
       this.addPluginConnection(connectionName, conn);
     }
 
@@ -96,7 +96,7 @@ export class ConnectionHandler {
       const hangupConnection = this.connections[connectionName];
       hangupConnection.ws = null;
       hangupConnection.status = "hangup";
-      // TODO - should we handle the case when both sides are disconnected?
+
       if (!this.devtoolsFrontendConnection) {
         console.error(`Something went wrong. Connection to devtools frontend and devtools plugin lost.`);
         return;

@@ -23,7 +23,7 @@ export class DevtoolsEventHandler {
     this.eventQueue = [];
     this.client = client;
     this.unmountHooks = this.initializeHooks();
-    this.connectionName = `HF_DEVTOOLS_PLUGIN_${appName}`;
+    this.connectionName = appName;
     this.socket = new Socket({
       url: `${socketAddress}:${socketPort}`,
       adapterOptions: { autoConnect: false },
