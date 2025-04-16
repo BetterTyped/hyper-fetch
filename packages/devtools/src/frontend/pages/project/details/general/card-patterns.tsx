@@ -17,10 +17,10 @@ export const CardPatterns = ({ className }: { className?: string }) => {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <div className="flex items-center space-x-2">
-          <ActivitySquare className="w-5 h-5 text-muted-foreground" />
-          <CardTitle>API Usage Patterns</CardTitle>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <ActivitySquare className="w-4 h-4" />
+          API Usage Patterns
+        </CardTitle>
         <CardDescription>Common endpoint patterns and statistics in your application</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">

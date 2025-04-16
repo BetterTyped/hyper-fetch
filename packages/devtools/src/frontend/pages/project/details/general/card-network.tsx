@@ -20,7 +20,7 @@ export const CardNetwork = ({ className }: { className?: string }) => {
     <Card className={cn(className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Earth className="h-5 w-5" />
+          <Earth className="h-4 w-4" />
           Network Overview
         </CardTitle>
         <CardDescription>Traffic summary statistics</CardDescription>

@@ -19,10 +19,10 @@ export const CardTraffic = ({ className }: { className?: string }) => {
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <BarChart2 className="h-5 w-5" />
-          <CardTitle>Top traffic by Endpoint</CardTitle>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <BarChart2 className="h-4 w-4" />
+          Top traffic by Endpoint
+        </CardTitle>
         <CardDescription>Number of requests and data responses by endpoint</CardDescription>
       </CardHeader>
       <CardContent>

@@ -1,4 +1,5 @@
 import { useShallow } from "zustand/react/shallow";
+import { Clock } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
@@ -21,7 +22,10 @@ export const CardRecent = ({ className }: { className?: string }) => {
     <Card className={cn(className)}>
       <>
         <CardHeader>
-          <CardTitle>Recent Requests</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Recent Requests
+          </CardTitle>
           <CardDescription>Last few requests processed</CardDescription>
         </CardHeader>
         <CardContent>
@@ -40,7 +44,7 @@ export const CardRecent = ({ className }: { className?: string }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody className="relative pb-8">
-                  {requests.slice(0, 5).map((item) => (
+                  {requests.slice(0, 8).map((item) => (
                     <RequestRow key={item.requestId} item={item} />
                   ))}
                 </TableBody>
