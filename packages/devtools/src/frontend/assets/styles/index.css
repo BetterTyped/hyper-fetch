@@ -135,7 +135,7 @@ body,
 .dark {
   --background: oklch(0.15 0.03 272.53);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.25 0.04 274.44);
+  --card: oklch(0.23 0.03 275.43);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.03 274);
   --popover-foreground: oklch(0.985 0 0);
@@ -231,6 +231,16 @@ body,
   @keyframes gradient {
     to {
       background-position: 200% center;
+    }
+  }
+  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s) infinite;
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
     }
   }
 }

@@ -4,12 +4,12 @@ import { AppWindowIcon, FolderOpen, MoreVertical, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "./card";
 import { Button } from "./button";
 import { Badge } from "./badge";
-import { useConnections } from "frontend/context/projects/connection/connection";
 import { Avatar } from "./avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./dialog";
 import { useProjects } from "frontend/store/project/projects.store";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import { AdapterIcon } from "./adapter-icon";
+import { useConnectionStore } from "frontend/store/project/connection.store";
 
 interface ProjectCardProps {
   name: string;
@@ -18,18 +18,14 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, onOpen }) => {
-  const { connections, setConnections } = useConnections("ProjectCard");
+  const { connections, removeConnection } = useConnectionStore();
   const removeProject = useProjects((state) => state.removeProject);
   const { connected } = connections[name] || { connected: false };
   const adapterName = "HTTP";
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleRemove = () => {
-    setConnections((prev) => {
-      const newConnections = { ...prev };
-      delete newConnections[name];
-      return newConnections;
-    });
+    removeConnection(name);
     removeProject(name);
     setIsDeleteDialogOpen(false);
   };

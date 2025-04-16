@@ -47,7 +47,7 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
       aria-disabled="true"
       aria-current="page"
       className={cn(
-        "flex gap-2 items-center text-gray-100/80 bg-indigo-600/70 px-3 py-1 rounded-md font-normal",
+        "flex gap-2 items-center text-gray-50/90 bg-yellow-500/90 px-3 py-1 rounded-md font-normal",
         className,
       )}
       {...props}

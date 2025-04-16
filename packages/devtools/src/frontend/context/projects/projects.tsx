@@ -4,8 +4,7 @@ import { useDidUpdate, useWillMount } from "@reins/hooks";
 
 import { useSettings } from "frontend/store/app/settings.store";
 import { Bridge } from "./bridge/bridge";
-import { Connections, useConnections } from "./connection/connection";
-import { Events } from "./connection/events/events";
+import { Events } from "./events/events";
 import { State } from "./state/state";
 import { useInitializerStore } from "frontend/store/project/initialization.store";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
@@ -16,10 +15,11 @@ import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
 import { useErrorStatsStore } from "frontend/store/project/error-stats.store";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { useProjects } from "frontend/store/project/projects.store";
+import { useConnectionStore } from "frontend/store/project/connection.store";
 
-const Projects = () => {
+export const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
   const { settings } = useSettings();
-  const { connections } = useConnections("Projects");
+  const { connections } = useConnectionStore();
   const { projects } = useProjects();
 
   const { initializedProjects, initialize } = useInitializerStore(
@@ -99,15 +99,7 @@ const Projects = () => {
       {Object.keys(connections).map((project) => (
         <State key={project} project={project} />
       ))}
-    </>
-  );
-};
-
-export const ProjectsProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Connections>
-      <Projects />
       {children}
-    </Connections>
+    </>
   );
 };

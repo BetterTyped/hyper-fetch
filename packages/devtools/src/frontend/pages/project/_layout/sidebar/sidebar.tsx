@@ -91,7 +91,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
               <SidebarMenuButton
                 size="lg"
                 asChild
-                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
+                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 hover:bg-yellow-600/70 text-sidebar-primary-foreground"
               >
                 <Link to="dashboard">
                   <Home className="!size-5" />

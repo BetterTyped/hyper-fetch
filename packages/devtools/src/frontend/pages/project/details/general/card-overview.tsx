@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Badge } from "frontend/components/ui/badge";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { cn } from "frontend/lib/utils";
@@ -12,7 +12,6 @@ export const CardOverview = ({ className }: { className?: string }) => {
     <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>Project Overview</CardTitle>
-        <CardDescription>General information about your HyperFetch configuration</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">

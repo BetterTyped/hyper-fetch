@@ -11,9 +11,9 @@ import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/table";
 import { TableSortable } from "frontend/components/ui/table-sortable";
 import { useNetworkStore } from "frontend/store/project/network.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
 import { cn } from "frontend/lib/utils";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
+import { EmptyTable } from "frontend/components/ui/empty-table";
 
 export const NetworkList = () => {
   const { project } = useDevtools();
@@ -83,38 +83,36 @@ export const NetworkList = () => {
         <SectionDescription>You can see here all the requests made from your project.</SectionDescription>
       </SectionHeader>
       <div className="flex-1 max-h-full">
-        <Table className="w-full h-full" wrapperClassName="pb-4">
-          <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
-            <TableRow>
-              <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
-                Endpoint
-              </TableSortable>
-              <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-                Method
-              </TableSortable>
-              <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
-                Success
-              </TableSortable>
-              <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
-                Cached
-              </TableSortable>
-              <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
-                Timestamp
-              </TableSortable>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="relative pb-8">
-            {items?.map((item, index) => {
-              return <Request key={index} item={item} />;
-            })}
-          </TableBody>
-        </Table>
+        {!!items.length && (
+          <Table className="w-full h-full" wrapperClassName="pb-4">
+            <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
+              <TableRow>
+                <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+                  Endpoint
+                </TableSortable>
+                <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+                  Method
+                </TableSortable>
+                <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+                  Success
+                </TableSortable>
+                <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
+                  Cached
+                </TableSortable>
+                <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
+                  Timestamp
+                </TableSortable>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="relative pb-8">
+              {items?.map((item, index) => {
+                return <Request key={index} item={item} />;
+              })}
+            </TableBody>
+          </Table>
+        )}
         {!items.length && (
-          <EmptyState
-            title="No requests made"
-            description="Make some request to see them here!"
-            className="max-h-148"
-          />
+          <EmptyTable title="Network is empty" description="Make some request to see them listed here." />
         )}
       </div>
     </Section>

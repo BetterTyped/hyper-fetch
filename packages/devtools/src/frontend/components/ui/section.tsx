@@ -8,12 +8,16 @@ export const SectionContext = createContext<{
   id: string;
   icon: null | React.ReactNode;
   setIcon: (icon: React.ReactNode) => void;
+  actions: null | React.ReactNode;
+  setActions: (actions: React.ReactNode) => void;
 } | null>(null);
 
 export const Section = ({ children, className, ...props }: React.ComponentProps<"section"> & { id: string }) => {
   const [icon, setIcon] = useState<React.ReactNode>(null);
-
-  const value = useMemo(() => ({ id: props.id, icon, setIcon }), [props.id, icon]);
+  const [actions, setActions] = useState<React.ReactNode>(null);
+  const value = useMemo(() => {
+    return { id: props.id, icon, setIcon, actions, setActions };
+  }, [props.id, icon, actions]);
 
   return (
     <SectionContext.Provider value={value}>
@@ -29,9 +33,10 @@ export const SectionHeader = ({ children, className, ...props }: React.Component
   return (
     <div className="relative flex flex-row items-center gap-4 py-4">
       {context?.icon}
-      <div className={cn("flex flex-col", className)} {...props}>
+      <div className={cn("flex flex-col flex-1", className)} {...props}>
         {children}
       </div>
+      {context?.actions}
     </div>
   );
 };
@@ -84,6 +89,22 @@ export const SectionIcon = memo(({ children, className, ...props }: React.Compon
         >
           {children}
         </Avatar>,
+      );
+    }
+  });
+
+  return null;
+});
+
+export const SectionActions = memo(({ children, className, ...props }: React.ComponentProps<"div">) => {
+  const context = useContext(SectionContext);
+
+  useDidMount(() => {
+    if (children) {
+      context?.setActions(
+        <div className={cn("flex flex-row gap-2", className)} {...props}>
+          {children}
+        </div>,
       );
     }
   });

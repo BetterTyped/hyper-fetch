@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LifeBuoy, LucideIcon, Send, Settings, AudioLines } from "lucide-react";
+import { LifeBuoy, LucideIcon, Send, Settings, FolderCode } from "lucide-react";
 
 import { NavPrimary } from "./_components/nav-primary";
 // import { NavSecondary } from "./_components/nav-secondary";
@@ -28,7 +28,7 @@ const primary: Array<{
   {
     title: "Projects",
     link: "dashboard",
-    icon: AudioLines,
+    icon: FolderCode,
   },
   // {
   //   title: "Members",

@@ -3,7 +3,7 @@ import { useEmitter, useListener } from "@hyper-fetch/react";
 import { useDidMount } from "@reins/hooks";
 
 import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "types/messages.types";
-import { useConnections } from "../connection";
+import { useConnectionStore } from "frontend/store/project/connection.store";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments
@@ -72,7 +72,7 @@ const handleEvent = ({
 };
 
 export const Events = ({ project }: { project: string }) => {
-  const { connections } = useConnections("Events");
+  const { connections } = useConnectionStore();
 
   const { client, eventListener, eventEmitter } = connections[project as keyof typeof connections];
   const { onEvent } = useListener(eventListener);

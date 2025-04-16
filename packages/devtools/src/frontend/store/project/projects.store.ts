@@ -3,8 +3,19 @@ import { create } from "zustand/react";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 export type Project = {
+  /**
+   * The name of the project. Set by devtools-plugin.
+   * @example "my-project"
+   */
   name: string;
-  connected: boolean;
+  /**
+   * The environment of the project. Set by devtools-plugin.
+   * @example "development", "production", "backend", "frontend" etc.
+   */
+  environment: string;
+  /**
+   * The settings of the project.
+   */
   settings: {
     simulatedErrors: Record<string, Error>;
     maxRequestsHistorySize: number;
@@ -16,7 +27,6 @@ export type ProjectStore = {
   addProject: (project: Project) => void;
   removeProject: (projectName: string) => void;
   updateProject: (project: Project) => void;
-  setConnected: (projectName: string, connected: boolean) => void;
   setSettings: (projectName: string, settings: Partial<Project["settings"]>) => void;
 };
 
@@ -57,13 +67,6 @@ export const useProjects = create<ProjectStore>()(
         set((state) =>
           produce(state, (draft) => {
             draft.projects[project.name] = project;
-          }),
-        );
-      },
-      setConnected: (projectName: string, connected: boolean) => {
-        set((state) =>
-          produce(state, (draft) => {
-            draft.projects[projectName].connected = connected;
           }),
         );
       },

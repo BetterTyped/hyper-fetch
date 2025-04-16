@@ -6,11 +6,11 @@ import { Socket } from "@hyper-fetch/sockets";
 import { BaseMessage, MessageType } from "types/messages.types";
 import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionName } from "frontend/constants/connection.name";
-import { Connection, useConnections } from "../connection/connection";
 import { useProjects } from "frontend/store/project/projects.store";
+import { useConnectionStore } from "frontend/store/project/connection.store";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
-  const { connections, setConnections } = useConnections("Bridge");
+  const { connections, addConnection, updateConnection } = useConnectionStore();
   const { addProject } = useProjects();
 
   useDidMount(() => {
@@ -26,27 +26,15 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       .onConnected(() => {
         if (!nameRef.current) return;
 
-        setConnections((prev) => {
-          return {
-            ...prev,
-            [nameRef.current]: {
-              ...prev[nameRef.current],
-              connected: true,
-            },
-          };
+        updateConnection(nameRef.current, {
+          connected: true,
         });
       })
       .onDisconnected(() => {
         if (!nameRef.current) return;
 
-        setConnections((prev) => {
-          return {
-            ...prev,
-            [nameRef.current]: {
-              ...prev[nameRef.current],
-              connected: false,
-            },
-          };
+        updateConnection(nameRef.current, {
+          connected: false,
         });
       });
 
@@ -78,22 +66,19 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           {
             const shouldCreateProject = !connections[name];
             if (shouldCreateProject) {
-              setConnections((prev) => {
-                return {
-                  ...prev,
-                  [name]: {
-                    name,
-                    metaData: eventData,
-                    client: new Client({ url: "http://localhost.dummyhost:5000" }),
-                    connected: true,
-                    eventListener,
-                    eventEmitter,
-                  } satisfies Connection,
-                };
+              addConnection({
+                name,
+                metaData: eventData,
+                // TODO - Kacper add the adapter type to be the same as the one in the application?
+
+                client: new Client({ url: "http://localhost.dummyhost:5000" }),
+                connected: true,
+                eventListener,
+                eventEmitter,
               });
               addProject({
                 name,
-                connected: true,
+                environment: eventData.environment,
                 settings: {
                   simulatedErrors: {
                     Default: new Error("This is error simulated by HyperFetch Devtools"),
@@ -106,11 +91,8 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           return;
         }
         case MessageType.DEVTOOLS_PLUGIN_HANGUP: {
-          setConnections((prev) => {
-            return {
-              ...prev,
-              [name]: { ...prev[name], connected: false },
-            };
+          updateConnection(nameRef.current, {
+            connected: false,
           });
           return;
         }

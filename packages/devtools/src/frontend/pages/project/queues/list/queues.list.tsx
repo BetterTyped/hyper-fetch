@@ -5,9 +5,9 @@ import { Atom } from "lucide-react";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useSearch } from "frontend/hooks/use-search";
 import { useQueueStore } from "frontend/store/project/queue.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
 import { Card } from "./card/card";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
+import { EmptyTable } from "frontend/components/ui/empty-table";
 
 export const QueuesList = () => {
   const { project } = useDevtools();
@@ -35,11 +35,7 @@ export const QueuesList = () => {
           })}
         </div>
         {!items.length && (
-          <EmptyState
-            title="No active queues"
-            description="Make some request to see their queues here!"
-            className="max-h-148"
-          />
+          <EmptyTable title="No active queues" description="Make some request to see all active queues here." />
         )}
       </div>
     </Section>

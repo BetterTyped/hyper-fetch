@@ -5,7 +5,7 @@ import { Section, SectionIcon, SectionHeader, SectionTitle, SectionDescription }
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 
 export const ProjectSettings = () => {
-  const { client } = useDevtools();
+  const { project, client } = useDevtools();
 
   return (
     <Section id="settings" className="flex flex-col w-full h-full flex-1">
@@ -13,7 +13,7 @@ export const ProjectSettings = () => {
         <SectionIcon>
           <Settings2 />
         </SectionIcon>
-        <SectionTitle>Settings</SectionTitle>
+        <SectionTitle>Project Settings</SectionTitle>
         <SectionDescription>Adjust your project settings here.</SectionDescription>
       </SectionHeader>
       <div className="flex flex-col gap-4 p-4">
@@ -30,7 +30,7 @@ export const ProjectSettings = () => {
               </div>
               <div className="p-4 border rounded-md">
                 <p className="text-sm font-medium text-muted-foreground">Environment</p>
-                <p className="text-base">Development</p>
+                <p className="text-base">{project?.environment || "Development"}</p>
               </div>
               <div className="p-4 border rounded-md">
                 <p className="text-sm font-medium text-muted-foreground">Adapter</p>

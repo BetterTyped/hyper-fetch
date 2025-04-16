@@ -17,7 +17,7 @@ export class ConnectionHandler {
     if (!this.connections[connectionName]) {
       throw new Error(`No open connection exists for the connectionName ${connectionName}`);
     }
-    if (!this.devtoolsFrontendConnection) {
+    if (!this.devtoolsFrontendConnection || !message) {
       /**
        * This error can happen when the devtools plugin connects to the fake server
        * We found this case being triggered with msw setup, which caused websocket to open

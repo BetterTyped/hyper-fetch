@@ -8,7 +8,7 @@ import { useSearch } from "frontend/hooks/use-search";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Item } from "./item/item";
 import { useCacheStore } from "frontend/store/project/cache.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyTable } from "frontend/components/ui/empty-table";
 import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription } from "frontend/components/ui/section";
 
 export const CacheList = () => {
@@ -31,27 +31,25 @@ export const CacheList = () => {
         <SectionDescription>This is the cache list for your project.</SectionDescription>
       </SectionHeader>
       <div className="flex-1 max-h-full">
-        <Table className="w-full h-full" wrapperClassName="pb-4">
-          <TableHeader style={{ opacity: !caches.size ? 0.4 : 1 }}>
-            <TableRow>
-              <TableHead>Cache Key</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Observers</TableHead>
-              <TableHead>Last updated</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="relative">
-            {items.map((item, index) => {
-              return <Item key={index} item={item} />;
-            })}
-          </TableBody>
-        </Table>
+        {!!items.length && (
+          <Table className="w-full h-full" wrapperClassName="pb-4">
+            <TableHeader style={{ opacity: !caches.size ? 0.4 : 1 }}>
+              <TableRow>
+                <TableHead>Cache Key</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Observers</TableHead>
+                <TableHead>Last updated</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="relative">
+              {items.map((item, index) => {
+                return <Item key={index} item={item} />;
+              })}
+            </TableBody>
+          </Table>
+        )}
         {!items.length && (
-          <EmptyState
-            title="No cache entries"
-            description="Make some cached request to see its data here!"
-            className="max-h-148"
-          />
+          <EmptyTable title="No cache entries" description="Make some cached request to see its data here." />
         )}
       </div>
     </Section>

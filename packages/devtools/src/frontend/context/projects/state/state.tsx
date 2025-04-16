@@ -4,7 +4,6 @@ import { useShallow } from "zustand/react/shallow";
 import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent, DevtoolsRequestEvent } from "../types";
-import { useConnections } from "../connection/connection";
 import { initialProjectState, useProjectStates } from "./state.context";
 import { useNetworkStore } from "frontend/store/project/network.store";
 import { useErrorStatsStore } from "frontend/store/project/error-stats.store";
@@ -14,6 +13,7 @@ import { useNetworkStatsStore } from "frontend/store/project/network-stats.store
 import { useCacheStore } from "frontend/store/project/cache.store";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
+import { useConnectionStore } from "frontend/store/project/connection.store";
 
 export const State = ({ project }: { project: string }) => {
   const { setProjectStates } = useProjectStates("State");
@@ -65,7 +65,7 @@ export const State = ({ project }: { project: string }) => {
     })),
   );
 
-  const { connections } = useConnections("State");
+  const { connections } = useConnectionStore();
   const { client } = connections[project as keyof typeof connections];
 
   const handleCacheChange = useCallback(() => {

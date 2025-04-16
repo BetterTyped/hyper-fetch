@@ -8,7 +8,8 @@ import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
 import { BottleneckAnalyzer } from "./bottlenecks/bottleneck";
-import { Section, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
+import { Section, SectionActions, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
+import { Environments } from "./environments/environments";
 
 export const ProjectDetails = () => {
   const {
@@ -33,9 +34,9 @@ export const ProjectDetails = () => {
           )}
         </SectionIcon>
         <SectionTitle className="text-2xl">{project.name}</SectionTitle>
-        <div className="absolute right-2">
-          <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Application</span>
-        </div>
+        <SectionActions>
+          <Environments />
+        </SectionActions>
       </SectionHeader>
 
       <Tabs defaultValue="general" className="w-full">
