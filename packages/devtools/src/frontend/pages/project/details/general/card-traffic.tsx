@@ -1,53 +1,49 @@
+import { BarChart2 } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { cn } from "frontend/lib/utils";
+import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
+import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
+import { formatBytes } from "frontend/utils/size.utils";
+import { getMethodColor, Method } from "frontend/components/ui/method";
 
 export const CardTraffic = ({ className }: { className?: string }) => {
-  // Mock data for network traffic
-  const networkMetrics = {
-    totalRequests: 1254,
-    totalTransferred: "8.7 MB",
-    avgRequestSize: "7.2 KB",
-    avgResponseSize: "22.4 KB",
-    requestsPerMinute: 42,
-    trafficByContentType: [
-      { type: "application/json", size: "5.2 MB", percentage: 60 },
-      { type: "text/html", size: "1.8 MB", percentage: 21 },
-      { type: "image/*", size: "1.1 MB", percentage: 13 },
-      { type: "other", size: "0.6 MB", percentage: 6 },
-    ],
-  };
+  const { project } = useDevtools();
+  const { networkStats, networkEntries } = useNetworkStatsStore(useShallow((state) => state.projects[project.name]));
+
+  const trafficByEndpoint = Array.from(networkEntries.values())
+    .sort((a, b) => b.stats.totalRequests - a.stats.totalRequests)
+    .slice(0, 10);
 
   return (
     <Card className={cn(className)}>
       <CardHeader>
-        <CardTitle>Traffic by Content Type</CardTitle>
-        <CardDescription>Data transfer by response content type</CardDescription>
+        <div className="flex items-center gap-2">
+          <BarChart2 className="h-5 w-5" />
+          <CardTitle>Top traffic by Endpoint</CardTitle>
+        </div>
+        <CardDescription>Number of requests and data responses by endpoint</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {networkMetrics.trafficByContentType.map((item, i) => (
-            <div key={item.type} className="space-y-2">
+          {trafficByEndpoint.map((item) => (
+            <div key={item.endpoint} className="space-y-2">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      // eslint-disable-next-line no-nested-ternary
-                      i === 0 ? "bg-blue-500" : i === 1 ? "bg-green-500" : i === 2 ? "bg-yellow-500" : "bg-gray-500"
-                    }`}
-                  />
-                  <span className="font-medium">{item.type}</span>
+                  <Method method={item.method} />
+                  <span className="font-medium">{item.endpoint}</span>
                 </div>
                 <span className="text-sm">
-                  {item.size} ({item.percentage}%)
+                  {((item.stats.totalRequests / networkStats.totalRequests) * 100).toFixed(1)}% (
+                  {formatBytes(item.stats.totalTransferredResponse)})
                 </span>
               </div>
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div className="relative h-2 w-full overflow-hidden rounded-full">
+                <div className={`h-2 w-full opacity-25 ${getMethodColor(item.method).background}`} />
                 <div
-                  className={`h-full ${
-                    // eslint-disable-next-line no-nested-ternary
-                    i === 0 ? "bg-blue-500" : i === 1 ? "bg-green-500" : i === 2 ? "bg-yellow-500" : "bg-gray-500"
-                  }`}
-                  style={{ width: `${item.percentage}%` }}
+                  className={`absolute left-0 top-0 h-full rounded-r-full ${getMethodColor(item.method).background}`}
+                  style={{ width: `${(item.stats.totalRequests / networkStats.totalRequests) * 100}%` }}
                 />
               </div>
             </div>

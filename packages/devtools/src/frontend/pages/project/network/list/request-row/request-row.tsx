@@ -6,8 +6,9 @@ import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { getStatus, RequestStatusIcon } from "frontend/utils/request.status.utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useNetworkStore } from "frontend/store/project/network.store";
+import { Method } from "frontend/components/ui/method";
 
-export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
+export const RequestRow = ({ item }: { item: DevtoolsRequestEvent }) => {
   const { project } = useDevtools();
   const { openDetails, detailsRequestId } = useNetworkStore(
     useShallow((state) => ({
@@ -34,9 +35,12 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
         </div>
       </TableCell>
 
-      <TableCell className="text-sm font-light">{String(item.request.method)}</TableCell>
+      <TableCell className="text-sm font-light">
+        <Method method={item.request.method} />
+      </TableCell>
 
       <TableCell className="text-sm font-light">{String(item.response?.success ?? "")}</TableCell>
+      <TableCell className="text-sm font-light">{String(item.request.cache ?? "")}</TableCell>
 
       <TableCell className="text-sm font-light">
         <div>

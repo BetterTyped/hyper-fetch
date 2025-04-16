@@ -19,7 +19,7 @@ export const getAdapter = () =>
     undefined,
     string
   >({
-    name: "server",
+    name: "http-server",
     defaultMethod: HttpMethods.GET,
     defaultExtra: xhrExtra,
     systemErrorStatus: 0 as number,

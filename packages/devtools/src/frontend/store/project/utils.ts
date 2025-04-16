@@ -38,12 +38,12 @@ export const getDataSize = async (data: unknown): Promise<number> => {
       // Handle potential stream errors silently
     }
 
-    return Number((streamSize / 1024).toFixed(2));
+    return toNumber(streamSize);
   }
 
   if (data instanceof Blob) {
     size = data.size;
-    return Number((size / 1024).toFixed(2));
+    return toNumber(size);
   }
 
   if (data instanceof FormData) {
@@ -65,5 +65,5 @@ export const getDataSize = async (data: unknown): Promise<number> => {
     size = String(stringifyValue(data)).length;
   }
 
-  return Number((size / 1024).toFixed(2));
+  return toNumber(size);
 };

@@ -10,8 +10,8 @@ export const GeneralDashboard = () => {
       <CardOverview />
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <CardNetwork className="md:col-span-2" />
-        <CardTraffic className="md:col-span-3" />
-        <CardRecent className="md:col-span-2" />
+        <CardRecent className="md:col-span-3" />
+        <CardTraffic className="md:col-span-2" />
         <CardPatterns className="md:col-span-3" />
       </div>
     </div>

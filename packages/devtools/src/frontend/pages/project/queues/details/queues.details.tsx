@@ -93,7 +93,7 @@ export const QueuesDetails = () => {
       <Bar style={{ flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator orientation="vertical" className="mx-2 h-4" />
-        <Key value={item.queryKey} type="queue" />
+        <Key value={item.queryKey} type="query" />
         <Badge variant={color === "gray" ? "secondary" : "default"}>{status}</Badge>
         <div className="flex-1" />
       </Bar>

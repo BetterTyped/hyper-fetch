@@ -52,7 +52,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
         <div className="-mt-1.5 mb-2.5 text-cyan-400 dark:text-cyan-500 font-normal text-xs flex">
           (<strong className="mr-[3px]">{total} </strong> in total)
         </div>
-        <Key className="text-xs" type="queue" value={queue.queryKey} />
+        <Key className="text-xs" type="query" value={queue.queryKey} />
       </div>
     </button>
   );

@@ -1,7 +1,6 @@
 import { ClientInstance } from "@hyper-fetch/core";
 import { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
 import { create } from "zustand";
-import { produce } from "immer";
 
 import { BaseMessage } from "types/messages.types";
 
@@ -36,24 +35,24 @@ type ConnectionStore = {
 export const useConnectionStore = create<ConnectionStore>((set) => ({
   connections: {},
   addConnection: (connection: Connection) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.connections[connection.name] = connection;
-      }),
-    );
+    set((state) => {
+      const newState = { ...state };
+      newState.connections[connection.name] = connection;
+      return newState;
+    });
   },
   removeConnection: (connectionName: string) => {
-    set((state) =>
-      produce(state, (draft) => {
-        delete draft.connections[connectionName];
-      }),
-    );
+    set((state) => {
+      const newState = { ...state };
+      delete newState.connections[connectionName];
+      return newState;
+    });
   },
   updateConnection: (name: string, connection: Partial<Omit<Connection, "name">>) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.connections[name] = { ...draft.connections[name], ...connection };
-      }),
-    );
+    set((state) => {
+      const newState = { ...state };
+      newState.connections[name] = { ...newState.connections[name], ...connection };
+      return newState;
+    });
   },
 }));

@@ -70,7 +70,6 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
                 name,
                 metaData: eventData,
                 // TODO - Kacper add the adapter type to be the same as the one in the application?
-
                 client: new Client({ url: "http://localhost.dummyhost:5000" }),
                 connected: true,
                 eventListener,

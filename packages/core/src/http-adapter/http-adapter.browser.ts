@@ -16,7 +16,7 @@ export const getAdapter = () =>
     undefined,
     string
   >({
-    name: "browser",
+    name: "http-browser",
     defaultMethod: HttpMethods.GET,
     defaultExtra: xhrExtra,
     systemErrorStatus: 0 as number,

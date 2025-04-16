@@ -13,6 +13,7 @@ import {
 import { Status } from "frontend/utils/request.status.utils";
 import { createContext } from "frontend/utils/context";
 import { DevtoolsExplorerRequest } from "frontend/pages/project/requests/list/content.types";
+import { toNumber } from "frontend/store/project/utils";
 
 export type ConnectionStats = {
   // General
@@ -247,7 +248,7 @@ const getDataSize = (data: unknown): number => {
 
   if (data instanceof Blob) {
     size = data.size;
-    return Number((size / 1024).toFixed(2));
+    return toNumber(Number(size));
   }
 
   if (data instanceof FormData) {
@@ -269,7 +270,7 @@ const getDataSize = (data: unknown): number => {
     size = String(stringifyValue(data)).length;
   }
 
-  return Number((size / 1024).toFixed(2));
+  return toNumber(Number(size));
 };
 
 export const generateMethodStats = ({

@@ -56,14 +56,14 @@ export const EnvironmentDialog = ({
                   {onlineEnvironments.map((env) => (
                     <Card
                       key={env.name}
-                      className="cursor-pointer hover:bg-gray-500/20"
+                      className="cursor-pointer hover:bg-gray-500/20 p-0"
                       onClick={() => handleEnvironmentChange(env.name)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <RadioGroupItem value={env.name} id={env.name} />
-                            <Label htmlFor={env.name} className="font-medium">
+                            <Label htmlFor={env.name} className="text-[17px] capitalize">
                               {env.name}
                             </Label>
                           </div>
@@ -84,14 +84,14 @@ export const EnvironmentDialog = ({
                   {offlineEnvironments.map((env) => (
                     <Card
                       key={env.name}
-                      className="cursor-pointer hover:bg-gray-500/20 opacity-70"
+                      className="cursor-pointer hover:bg-gray-500/20 opacity-70 p-0"
                       onClick={() => handleEnvironmentChange(env.name)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <RadioGroupItem value={env.name} id={env.name} />
-                            <Label htmlFor={env.name} className="font-medium">
+                            <Label htmlFor={env.name} className="text-[17px] capitalize">
                               {env.name}
                             </Label>
                           </div>

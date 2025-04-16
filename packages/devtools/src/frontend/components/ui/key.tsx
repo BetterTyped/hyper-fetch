@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 const getKeyIcon = (type: KeyTypes) => {
   switch (type) {
-    case "queue":
+    case "query":
       return <Atom className="w-5 h-5 stroke-blue-300" />;
     case "cache":
       return <Boxes className="w-5 h-5 stroke-orange-300" />;
@@ -16,7 +16,13 @@ const getKeyIcon = (type: KeyTypes) => {
   }
 };
 
-export type KeyTypes = "queue" | "cache" | "abort";
+export type KeyTypes = "query" | "cache" | "abort";
+
+const names = {
+  query: "queryKey",
+  cache: "cacheKey",
+  abort: "abortKey",
+};
 
 export const Key = ({
   value,
@@ -33,7 +39,7 @@ export const Key = ({
         {getKeyIcon(type)}
         <span className="block max-w-full truncate whitespace-nowrap">{value}</span>
       </TooltipTrigger>
-      <TooltipContent>This is {type}Key</TooltipContent>
+      <TooltipContent>This is {names[type]}</TooltipContent>
     </Tooltip>
   );
 };

@@ -4,7 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Earth } from "lucide-react";
 
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { Request } from "./request/request";
+import { RequestRow } from "./request-row/request-row";
 import { Status } from "frontend/utils/request.status.utils";
 import { PathsOf, useSearch } from "frontend/hooks/use-search";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
@@ -106,7 +106,7 @@ export const NetworkList = () => {
             </TableHeader>
             <TableBody className="relative pb-8">
               {items?.map((item, index) => {
-                return <Request key={index} item={item} />;
+                return <RequestRow key={index} item={item} />;
               })}
             </TableBody>
           </Table>

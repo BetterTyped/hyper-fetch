@@ -4,7 +4,7 @@
 @import "./components.css" layer(components);
 
 body {
-  @apply bg-gray-900/90 text-gray-300;
+  @apply bg-gray-900/90 text-gray-300 rounded-lg border-[1px] border-gray-800;
 }
 
 html,
@@ -140,7 +140,7 @@ body,
   --popover: oklch(0.21 0.03 274);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.81 0.01 256.88);
+  --primary-foreground: oklch(0.442 0.017 285.786);
   --secondary: oklch(0.27 0.03 260.8);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.27 0.03 257.69);

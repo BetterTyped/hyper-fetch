@@ -23,7 +23,7 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     undefined,
     GraphQlEndpointType
   >({
-    name: "graphql",
+    name: "graphql-server",
     defaultMethod: GraphqlMethod.POST,
     defaultExtra: gqlExtra,
     systemErrorStatus: 0,

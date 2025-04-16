@@ -216,7 +216,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           pingTimer = setTimeout(() => {
             sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
             pongTimer = setTimeout(() => {
-              websocket?.close(1000);
+              websocket?.close();
             }, pongTimeout);
           }, pingTimeout);
         };
