@@ -45,6 +45,7 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
     wsConn.on("message", (msg: MessageTypes) => {
       const message = JSON.parse(msg.toString()) as MessageTypes;
       switch (message.data.messageType) {
+        // Received info from connected plugin and informing devtools frontend
         case MessageType.PLUGIN_INITIALIZED: {
           connectionHandler.sendConnectedAppsInfoToDevtoolsFrontend(
             message.data.connectionName,
@@ -52,6 +53,7 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
           );
           return;
         }
+        // Received info from devtools frontend that client apps have been created
         case MessageType.DEVTOOLS_PLUGIN_CONFIRM: {
           connectionHandler.handleDevtoolsFrontendInitialization(message.data.connectionName);
           return;

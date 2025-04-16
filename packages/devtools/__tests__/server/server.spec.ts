@@ -42,13 +42,13 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
 
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
-      expect(connections?.["HF_DEVTOOLS_PLUGIN_test-client"].ws).toBeDefined();
+      expect(connections?.["test-client"].ws).toBeDefined();
 
       await plugin.data.eventHandler?.socket.disconnect();
-      await waitFor(() => expect(connections?.["HF_DEVTOOLS_PLUGIN_test-client"].ws).toBeNull());
+      await waitFor(() => expect(connections?.["test-client"].ws).toBeNull());
       await waitFor(() => expect(receivedMessage).toBeTruthy());
       expect(receivedMessage).toEqual({
-        event: { messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP, connectionName: "HF_DEVTOOLS_PLUGIN_test-client" },
+        event: { messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP, connectionName: "test-client" },
       });
 
       await socket.disconnect();
@@ -57,7 +57,7 @@ describe("Devtools Socket Server", () => {
       await socket.connect();
       await plugin.data.eventHandler?.socket.connect();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
-      await waitFor(() => expect(connections?.["HF_DEVTOOLS_PLUGIN_test-client"].ws).toBeDefined);
+      await waitFor(() => expect(connections?.["test-client"].ws).toBeDefined);
     });
   });
   describe("If the frontend connection is established and initialized", () => {
