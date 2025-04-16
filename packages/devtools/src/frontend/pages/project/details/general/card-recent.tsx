@@ -1,13 +1,15 @@
 import { useShallow } from "zustand/react/shallow";
-import { Clock } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
+import { EmptyState } from "frontend/components/ui/empty-state";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useNetworkStore } from "frontend/store/project/network.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
 import { cn } from "frontend/lib/utils";
 import { RequestRow } from "../../network/list/request-row/request-row";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
+import { Link } from "frontend/routing/router";
+import { Button } from "frontend/components/ui/button";
 
 export const CardRecent = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
@@ -22,10 +24,18 @@ export const CardRecent = ({ className }: { className?: string }) => {
     <Card className={cn(className)}>
       <>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Recent Requests
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Recent Requests
+            </CardTitle>
+            <Button variant="secondary" size="sm" asChild>
+              <Link to="project.network" params={{ projectName: project.name }}>
+                View All Requests
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
           <CardDescription>Last few requests processed</CardDescription>
         </CardHeader>
         <CardContent>
