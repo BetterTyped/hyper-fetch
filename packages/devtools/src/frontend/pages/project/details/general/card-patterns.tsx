@@ -8,6 +8,7 @@ import { EmptyState } from "frontend/components/ui/empty-state";
 import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { Badge } from "frontend/components/ui/badge";
 import { Method } from "frontend/components/ui/method";
+import { formatBytes } from "frontend/utils/size.utils";
 
 export const CardPatterns = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
@@ -39,7 +40,10 @@ export const CardPatterns = ({ className }: { className?: string }) => {
               </Badge>
             </div>
             <div className="text-xs text-muted-foreground">
-              Average Response Time: {networkStats.avgResponseTime?.toFixed(2)}ms
+              Average Response Time: {networkStats.avgResponseTime?.toFixed(0)}ms
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Average Response Size: {formatBytes(networkStats.avgResponseSize)}
             </div>
           </div>
         ))}

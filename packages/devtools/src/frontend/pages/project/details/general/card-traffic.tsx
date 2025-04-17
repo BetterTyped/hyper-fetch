@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "front
 import { cn } from "frontend/lib/utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
-import { formatBytes } from "frontend/utils/size.utils";
 import { getMethodColor, Method } from "frontend/components/ui/method";
 
 export const CardTraffic = ({ className }: { className?: string }) => {
@@ -36,7 +35,7 @@ export const CardTraffic = ({ className }: { className?: string }) => {
                 </div>
                 <span className="text-sm">
                   {((item.stats.totalRequests / networkStats.totalRequests) * 100).toFixed(1)}% (
-                  {formatBytes(item.stats.totalTransferredResponse)})
+                  {item.stats.totalRequests} request{item.stats.totalRequests === 1 ? "" : "s"})
                 </span>
               </div>
               <div className="relative h-2 w-full overflow-hidden rounded-full">
