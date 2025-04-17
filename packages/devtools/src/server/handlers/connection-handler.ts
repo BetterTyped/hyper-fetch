@@ -42,7 +42,11 @@ export class ConnectionHandler {
     if (!this.connections[devtoolsConnectionName]) {
       throw new Error(`No connection exists for the connectionName ${devtoolsConnectionName}`);
     }
-    this.connections[devtoolsConnectionName].ws!.send(message);
+    if (!this.connections[devtoolsConnectionName].ws) {
+      console.error(`No websocket connection exists for the connectionName ${devtoolsConnectionName}`);
+      return;
+    }
+    this.connections[devtoolsConnectionName].ws.send(message);
   };
 
   sendMessageToDevtoolsFrontend = (message: string) => {
