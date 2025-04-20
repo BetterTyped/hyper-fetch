@@ -20,8 +20,8 @@ export const Projects = () => {
   };
 
   return (
-    <Section id="projects">
-      <SectionHeader>
+    <Section id="projects" className="h-full px-4 overflow-auto">
+      <SectionHeader sticky>
         <SectionIcon>
           <FolderCode />
         </SectionIcon>

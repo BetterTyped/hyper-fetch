@@ -28,7 +28,7 @@ export const CacheList = () => {
   });
 
   return (
-    <Section id="cache" className="flex flex-col w-full h-full flex-1">
+    <Section id="cache" className="flex flex-col px-4 w-full h-full flex-1 overflow-auto">
       <SectionHeader>
         <SectionIcon>
           <Boxes />

@@ -76,7 +76,7 @@ export const NetworkList = () => {
   });
 
   return (
-    <Section id="network" className="flex flex-col w-full h-full flex-1">
+    <Section id="network" className="flex flex-col px-4 w-full h-full flex-1 overflow-auto">
       <SectionHeader>
         <SectionIcon>
           <Earth />

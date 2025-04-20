@@ -25,7 +25,7 @@ export const QueuesList = () => {
   });
 
   return (
-    <Section id="queues" className="flex flex-col w-full h-full flex-1">
+    <Section id="queues" className="flex flex-col px-4 w-full h-full flex-1 overflow-auto">
       <SectionHeader>
         <SectionIcon>
           <Atom />

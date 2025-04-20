@@ -7,7 +7,7 @@ export const ProjectLayout = () => {
   return (
     <div className="grid grid-cols-[70px_1fr] h-full w-full py-2 px-1">
       <ProjectSidebar />
-      <Content className="px-4 pb-4">
+      <Content>
         <Outlet />
       </Content>
     </div>

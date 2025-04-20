@@ -19,7 +19,6 @@ import { ProjectSettings } from "frontend/pages/project/settings/settings";
 import { ProjectQueues } from "frontend/pages/project/queues/queues";
 import { ProjectNetwork } from "frontend/pages/project/network/network";
 import { ProjectCache } from "frontend/pages/project/cache/cache";
-import { ProjectRequests } from "../pages/project/requests/requests";
 import { WorkspaceLayout } from "frontend/pages/workspace/_layout/layout";
 import { DashboardLayout } from "frontend/pages/dashboard/_layout/layout";
 import { ProjectLayout } from "frontend/pages/project/_layout/layout";
@@ -60,10 +59,6 @@ const root = createRoot({
     component: ProjectDetails,
     layout: ProjectLayout,
   }).addChildren({
-    requests: createRoute({
-      path: "/requests",
-      component: ProjectRequests,
-    }),
     network: createRoute({
       path: "/network",
       component: ProjectNetwork,

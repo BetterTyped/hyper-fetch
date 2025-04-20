@@ -24,8 +24,8 @@ export const ProjectDetails = () => {
   }
 
   return (
-    <Section id="project-details" className="space-y-2">
-      <SectionHeader>
+    <Section id="project-details" className="h-full space-y-2 px-4 overflow-auto">
+      <SectionHeader sticky>
         <SectionIcon>
           {iconUrl ? (
             <img src={iconUrl} alt={`${project.name} icon`} className="w-full h-full object-cover" />
@@ -39,7 +39,7 @@ export const ProjectDetails = () => {
         </SectionActions>
       </SectionHeader>
 
-      <Tabs defaultValue="general" className="w-full">
+      <Tabs defaultValue="general" className="w-full pb-4">
         <TabsList className="mb-2 gap-2">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>

@@ -35,7 +35,7 @@ export const ProjectSettings = () => {
   };
 
   return (
-    <Section id="settings" className="flex flex-col w-full h-full flex-1">
+    <Section id="settings" className="flex flex-col px-4 w-full h-full flex-1 overflow-auto">
       <SectionHeader>
         <SectionIcon>
           <Settings2 />
@@ -43,7 +43,7 @@ export const ProjectSettings = () => {
         <SectionTitle>Project Settings</SectionTitle>
         <SectionDescription>Adjust your project settings here.</SectionDescription>
       </SectionHeader>
-      <div className="flex flex-col gap-4 p-4">
+      <div className="flex flex-col gap-4 py-4">
         <Card>
           <CardHeader>
             <CardTitle>Client Configuration</CardTitle>

@@ -28,14 +28,24 @@ export const Section = ({ children, className, ...props }: React.ComponentProps<
   );
 };
 
-export const SectionHeader = ({ children, className, ...props }: React.ComponentProps<"div">) => {
+export const SectionHeader = ({
+  children,
+  className,
+  sticky = false,
+  ...props
+}: React.ComponentProps<"div"> & { sticky?: boolean }) => {
   const context = useContext(SectionContext);
   return (
-    <div className="relative flex flex-row items-center gap-4 py-4">
+    <div
+      className={cn("relative flex flex-row items-center gap-4 py-4", sticky && "sticky top-0 z-10", className)}
+      {...props}
+    >
+      {sticky && (
+        <div className="-z-10 absolute -bottom-[6px] -left-4 -right-4 h-[14px] bg-gradient-to-b from-sidebar to-transparent pointer-events-none" />
+      )}
+      {sticky && <div className="-z-10 absolute top-0 -left-4 -right-4 bottom-[4px] bg-sidebar pointer-events-none" />}
       {context?.icon}
-      <div className={cn("flex flex-col flex-1", className)} {...props}>
-        {children}
-      </div>
+      <div className={cn("flex flex-col flex-1")}>{children}</div>
       {context?.actions}
     </div>
   );
