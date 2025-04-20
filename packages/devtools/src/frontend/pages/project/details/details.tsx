@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
-import { BottleneckAnalyzer } from "./bottlenecks/bottleneck";
+import { Errors } from "./errors/errors";
 import { Section, SectionActions, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 import { Environments } from "./environments/environments";
 
@@ -44,7 +44,7 @@ export const ProjectDetails = () => {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="cache">Cache</TabsTrigger>
-          <TabsTrigger value="bottlenecks">Bottlenecks</TabsTrigger>
+          <TabsTrigger value="errors">Errors</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -59,8 +59,8 @@ export const ProjectDetails = () => {
           <CacheDashboard />
         </TabsContent>
 
-        <TabsContent value="bottlenecks">
-          <BottleneckAnalyzer />
+        <TabsContent value="errors">
+          <Errors />
         </TabsContent>
       </Tabs>
     </Section>

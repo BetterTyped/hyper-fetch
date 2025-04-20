@@ -13,7 +13,7 @@ import { formatBytes } from "frontend/utils/size.utils";
 export const CardPatterns = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
 
-  const methodStats = useMethodStatsStore(useShallow((state) => state.projects[project.name]?.methodsStats));
+  const stats = useMethodStatsStore(useShallow((state) => state.projects[project.name]?.methodsStats));
 
   return (
     <Card className={cn(className)}>
@@ -25,25 +25,23 @@ export const CardPatterns = ({ className }: { className?: string }) => {
         <CardDescription>Common endpoint patterns and statistics in your application</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        {!methodStats.size && (
-          <EmptyState title="Analyzing API usage patterns..." description="No patterns detected yet." />
-        )}
+        {!stats.size && <EmptyState title="Analyzing API usage patterns..." description="No patterns detected yet." />}
 
-        {Array.from(methodStats?.values() || []).map(({ method, networkStats }) => (
+        {Array.from(stats?.values() || []).map(({ method, methodStats }) => (
           <div key={method} className="p-3 border rounded-md bg-gray-500/40">
             <div className="flex justify-between items-center">
               <span className="font-mono text-sm">
                 <Method method={method} className="text-[15px]" />
               </span>
               <Badge variant="secondary">
-                {networkStats.totalRequests} request{networkStats.totalRequests !== 1 ? "s" : ""}
+                {methodStats.totalRequests} request{methodStats.totalRequests !== 1 ? "s" : ""}
               </Badge>
             </div>
             <div className="text-xs text-muted-foreground">
-              Average Response Time: {networkStats.avgResponseTime?.toFixed(0)}ms
+              Average Response Time: {methodStats.avgResponseTime?.toFixed(0)}ms
             </div>
             <div className="text-xs text-muted-foreground">
-              Average Response Size: {formatBytes(networkStats.avgResponseSize)}
+              Average Response Size: {formatBytes(methodStats.avgResponseSize)}
             </div>
           </div>
         ))}

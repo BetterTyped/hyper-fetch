@@ -80,7 +80,11 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
                 environment: eventData.environment,
                 settings: {
                   simulatedErrors: {
-                    Default: new Error("This is error simulated by HyperFetch Devtools"),
+                    Default: {
+                      name: "Default",
+                      status: 400,
+                      body: new Error("This is error simulated by HyperFetch Devtools"),
+                    },
                   },
                   maxRequestsHistorySize: 1000,
                 },

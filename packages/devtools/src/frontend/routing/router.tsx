@@ -111,15 +111,7 @@ const root = createRoot({
 
 export const router = makeElectronRouter() as Router<"", typeof root>;
 
-export const {
-  router: r,
-  Link,
-  Application,
-  useRoute,
-  useLocation,
-  useBreadcrumbs,
-  useMatchedName,
-} = createRouter({
+export const { Link, Application, useRoute, useLocation, useBreadcrumbs, useMatchedName } = createRouter({
   router,
   root,
 });

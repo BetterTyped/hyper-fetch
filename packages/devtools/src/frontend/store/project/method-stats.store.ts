@@ -15,7 +15,7 @@ type MethodStatsStore = {
         string,
         {
           method: string;
-          networkStats: NetworkStats;
+          methodStats: NetworkStats;
           errorStats: ErrorStats;
         }
       >;
@@ -55,8 +55,8 @@ export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
         }
         draft.projects[project].methodsStats.set(data.request.method, {
           method: data.request.method,
-          networkStats: getNetworkStats(
-            draft.projects[project].methodsStats.get(data.request.method)?.networkStats ?? initialNetworkStats,
+          methodStats: getNetworkStats(
+            draft.projects[project].methodsStats.get(data.request.method)?.methodStats ?? initialNetworkStats,
             data,
             perf,
           ),

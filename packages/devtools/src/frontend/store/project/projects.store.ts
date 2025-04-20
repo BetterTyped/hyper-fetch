@@ -2,6 +2,12 @@ import { produce } from "immer";
 import { create } from "zustand/react";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+export type SimulatedError = {
+  name: string;
+  status: string | number;
+  body: Record<string, any>;
+};
+
 export type Project = {
   /**
    * The name of the project. Set by devtools-plugin.
@@ -17,7 +23,7 @@ export type Project = {
    * The settings of the project.
    */
   settings: {
-    simulatedErrors: Record<string, Error>;
+    simulatedErrors: Record<string, SimulatedError>;
     maxRequestsHistorySize: number;
   };
 };
@@ -28,6 +34,7 @@ export type ProjectStore = {
   removeProject: (projectName: string) => void;
   updateProject: (project: Project) => void;
   setSettings: (projectName: string, settings: Partial<Project["settings"]>) => void;
+  setSimulatedErrors: (projectName: string, simulatedErrors: Record<string, SimulatedError>) => void;
 };
 
 /* -------------------------------------------------------------------------------------------------
@@ -79,7 +86,25 @@ export const useProjects = create<ProjectStore>()(
               simulatedErrors: {
                 ...draft.projects[projectName].settings.simulatedErrors,
                 ...settings.simulatedErrors,
-                Default: new Error("This is error simulated by HyperFetch Devtools"),
+                Default: {
+                  name: "Default",
+                  status: 400,
+                  body: new Error("This is error simulated by HyperFetch Devtools"),
+                },
+              },
+            };
+          }),
+        );
+      },
+      setSimulatedErrors: (projectName: string, simulatedErrors: Record<string, SimulatedError>) => {
+        set((state) =>
+          produce(state, (draft) => {
+            draft.projects[projectName].settings.simulatedErrors = {
+              ...simulatedErrors,
+              Default: {
+                name: "Default",
+                status: 400,
+                body: new Error("This is error simulated by HyperFetch Devtools"),
               },
             };
           }),

@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/no-array-index-key */
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Boxes } from "lucide-react";
 
@@ -13,10 +14,15 @@ import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription }
 
 export const CacheList = () => {
   const { project } = useDevtools();
-  const { caches, cacheSearchTerm } = useCacheStore(useShallow((state) => state.projects[project.name] || {}));
+  const caches = useCacheStore(useShallow((state) => state.projects[project.name]?.caches));
+  const cacheSearchTerm = useCacheStore(useShallow((state) => state.projects[project.name]?.cacheSearchTerm));
+
+  const data = useMemo(() => {
+    return Array.from(caches.values()).filter((cache) => !!cache.cacheData);
+  }, [caches.size]);
 
   const { items } = useSearch({
-    data: Array.from(caches.values()),
+    data,
     searchKeys: ["cacheKey"],
     searchTerm: cacheSearchTerm,
   });

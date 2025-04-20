@@ -37,7 +37,7 @@ export type ErrorStatsStore = {
   projects: {
     [project: string]: {
       statusErrorStats: Map<number | string, ErrorStats>;
-      endpointErrorStats: Map<EndpointAndMethod, ErrorStats>;
+      endpointErrorStats: Map<EndpointAndMethod, ErrorStats & { endpoint: string; method: string }>;
     };
   };
   initialize: (projectName: string) => void;
@@ -70,12 +70,17 @@ export const useErrorStatsStore = create<ErrorStatsStore>((set) => ({
         const element = draft.projects[project].endpointErrorStats.get(endpointAndMethod);
         if (!element) {
           draft.projects[project].statusErrorStats.set(status, initialErrorStats);
-          draft.projects[project].endpointErrorStats.set(endpointAndMethod, initialErrorStats);
+          draft.projects[project].endpointErrorStats.set(endpointAndMethod, {
+            ...initialErrorStats,
+            endpoint: data.request.requestOptions.endpoint,
+            method: data.request.requestOptions.method,
+          });
         }
-        draft.projects[project].endpointErrorStats.set(
-          endpointAndMethod,
-          getErrorStats(data, draft.projects[project].endpointErrorStats.get(endpointAndMethod)),
-        );
+        draft.projects[project].endpointErrorStats.set(endpointAndMethod, {
+          ...getErrorStats(data, draft.projects[project].endpointErrorStats.get(endpointAndMethod)),
+          endpoint: data.request.requestOptions.endpoint,
+          method: data.request.requestOptions.method,
+        });
         draft.projects[project].statusErrorStats.set(
           status,
           getErrorStats(data, draft.projects[project].statusErrorStats.get(status)),

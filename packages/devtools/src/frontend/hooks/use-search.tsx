@@ -54,19 +54,19 @@ export const useSearch = <T extends Array<Record<string, any>>>({
 
   useDidUpdate(
     () => {
-      // handleSearch();
+      handleSearch();
     },
     [data],
     true,
   );
 
   useDidUpdate(() => {
-    // debounce(handleSearch);
+    debounce(handleSearch);
   }, [searchTerm]);
 
   useDidUpdate(
     () => {
-      // debounce(handleMatchSorter);
+      debounce(handleMatchSorter);
     },
     dependencies ? [...dependencies] : [],
   );

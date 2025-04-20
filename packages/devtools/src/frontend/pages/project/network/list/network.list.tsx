@@ -17,10 +17,12 @@ import { EmptyTable } from "frontend/components/ui/empty-table";
 
 export const NetworkList = () => {
   const { project } = useDevtools();
-  const { requests, networkFilter, networkSearchTerm, networkSort } = useNetworkStore(
-    useShallow((state) => state.projects[project.name]),
-  );
+  const requests = useNetworkStore(useShallow((state) => state.projects[project.name].requests));
+  const networkFilter = useNetworkStore(useShallow((state) => state.projects[project.name].networkFilter));
+  const networkSearchTerm = useNetworkStore(useShallow((state) => state.projects[project.name].networkSearchTerm));
+  const networkSort = useNetworkStore(useShallow((state) => state.projects[project.name].networkSort));
   const setNetworkSort = useNetworkStore((state) => state.setNetworkSort);
+
   const data = useMemo(() => {
     if (!networkFilter) return requests;
     switch (networkFilter) {

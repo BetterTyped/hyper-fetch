@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Home, Package, Maximize2, X, Minus } from "lucide-react";
 
 import {
@@ -101,7 +101,7 @@ export const Navbar = () => {
 
                 if (!isLast) {
                   return (
-                    <>
+                    <Fragment key={name}>
                       <BreadcrumbSeparator className="hidden md:block" />
                       <BreadcrumbItem>
                         <BreadcrumbLink
@@ -116,7 +116,7 @@ export const Navbar = () => {
                           </Link>
                         </BreadcrumbLink>
                       </BreadcrumbItem>
-                    </>
+                    </Fragment>
                   );
                 }
 

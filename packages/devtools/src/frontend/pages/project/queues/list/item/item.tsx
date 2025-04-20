@@ -8,8 +8,9 @@ import { Key } from "frontend/components/ui/key";
 import { Chip } from "frontend/components/ui/chip";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "frontend/components/ui/card";
 
-export const Card = ({ queue }: { queue: QueueDataType }) => {
+export const Item = ({ queue }: { queue: QueueDataType }) => {
   const status = getQueueStatus(queue);
   const { project } = useDevtools();
   const { detailsQueueKey, openDetails } = useQueueStore(
@@ -31,29 +32,29 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   const total = queueStats?.totalRequests || 0;
 
   return (
-    <button
-      type="button"
-      className="border border-gray-200 dark:border-gray-800 rounded-md p-2"
+    <Card
+      role="button"
+      className="gap-2"
       color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
       onClick={() => openDetails(project.name, queue.queryKey)}
     >
-      <div className="flex justify-between w-full gap-4 mb-1.5">
-        <div className="flex items-center gap-1 text-sm font-bold">
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardTitle className="flex items-center gap-1">
           <CpuIcon className="w-[22px] h-[22px] stroke-gray-500" />
           Queue
-        </div>
+        </CardTitle>
         <Chip color={statusColor}>{status}</Chip>
-      </div>
-      <div className="text-xs font-medium">
+      </CardHeader>
+      <CardContent>
         <span className="text-[28px] font-bold mr-1.5 text-light-900 dark:text-light-100">{queue.requests.length}</span>
         <span>Active request{queue.requests.length === 1 ? "" : "s"}</span>
-      </div>
-      <div className="text-left mt-1.5 text-xs font-medium max-w-[180px]">
         <div className="-mt-1.5 mb-2.5 text-cyan-400 dark:text-cyan-500 font-normal text-xs flex">
           (<strong className="mr-[3px]">{total} </strong> in total)
         </div>
+      </CardContent>
+      <CardFooter>
         <Key className="text-xs" type="query" value={queue.queryKey} />
-      </div>
-    </button>
+      </CardFooter>
+    </Card>
   );
 };
