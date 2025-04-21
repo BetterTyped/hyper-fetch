@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { cn } from "frontend/lib/utils";
@@ -7,15 +8,50 @@ import { jsonViewerStyles } from "../json-viewer.styles";
 export const Value = ({
   value,
   raw,
+  path,
   onChange,
   disabled = false,
 }: {
   value: any;
   raw: any;
+  path: (string | number)[];
   onChange: (value: any) => void;
   disabled?: boolean;
 }) => {
   const disabledStyles = disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400";
+
+  const isDate = useMemo(() => {
+    const last = path[path.length - 1];
+    // TODO - just do the proper lookup for the date value, do not check for the keys
+    if (typeof last === "string") {
+      const keys = ["date", "createdAt", "updatedAt", "created_at", "updated_at", "timestamp"];
+      return keys.some((key) => last.toLowerCase().includes(key));
+    }
+    return false;
+  }, [path]);
+
+  const date = useMemo(() => {
+    if (!isDate || !raw) return undefined;
+    const parsed = new Date(raw);
+    return parsed.toISOString();
+  }, [isDate, raw]);
+
+  if (isDate) {
+    return (
+      <span className={cn(jsonViewerStyles.value, disabledStyles)} style={{ paddingLeft: !disabled ? "28px" : "8px" }}>
+        {!disabled && (
+          <input
+            disabled={disabled}
+            className={cn(jsonViewerStyles.checkbox)}
+            type="date"
+            value={date}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        )}
+        {date || "null"}
+      </span>
+    );
+  }
 
   if (typeof raw === "boolean") {
     return (

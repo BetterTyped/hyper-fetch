@@ -25,7 +25,7 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [item]);
 
   return (
-    <Tabs defaultValue="request" className="h-[600px] my-4 flex-1">
+    <Tabs defaultValue="payload" className="h-[600px] my-4 flex-1">
       <TabsList>
         <TabsTrigger value="payload">
           <FileUp />
@@ -107,7 +107,7 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10",
-            isOpen ? "bottom-2" : "bottom-4",
+            isOpen ? "bottom-1" : "bottom-4",
           )}
         >
           {isOpen ? "Show Less" : "Show More"}
