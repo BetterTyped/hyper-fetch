@@ -67,9 +67,9 @@ export const NetworkDetails = () => {
       minHeight="100%"
       maxHeight="100%"
     >
-      <div className="flex items-center border-b p-4">
+      <div className="flex items-center border-b px-4 py-3 gap-1 bg-card">
         <Back />
-        <Separator className="mx-2 h-4" />
+        <Separator className="mx-2 h-4" orientation="vertical" />
         <div
           className="flex items-center gap-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
           style={{ color }}

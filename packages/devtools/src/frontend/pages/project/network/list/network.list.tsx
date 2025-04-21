@@ -77,46 +77,44 @@ export const NetworkList = () => {
 
   return (
     <Section id="network" className="flex flex-col px-4 w-full h-full flex-1 overflow-auto">
-      <SectionHeader>
+      <SectionHeader sticky>
         <SectionIcon>
           <Earth />
         </SectionIcon>
         <SectionTitle>Network</SectionTitle>
         <SectionDescription>You can see here all the requests made from your project.</SectionDescription>
       </SectionHeader>
-      <div className="flex-1 max-h-full">
-        {!!items.length && (
-          <Table className="w-full h-full" wrapperClassName="pb-4">
-            <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
-              <TableRow>
-                <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
-                  Endpoint
-                </TableSortable>
-                <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-                  Method
-                </TableSortable>
-                <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
-                  Success
-                </TableSortable>
-                <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
-                  Cached
-                </TableSortable>
-                <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
-                  Timestamp
-                </TableSortable>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="relative pb-8">
-              {items?.map((item, index) => {
-                return <RequestRow key={index} item={item} />;
-              })}
-            </TableBody>
-          </Table>
-        )}
-        {!items.length && (
-          <EmptyTable title="Network is empty" description="Make some request to see them listed here." />
-        )}
-      </div>
+      {!!items.length && (
+        <Table className="flex-1" wrapperClassName="pb-4">
+          <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
+            <TableRow>
+              <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+                Endpoint
+              </TableSortable>
+              <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+                Method
+              </TableSortable>
+              <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+                Success
+              </TableSortable>
+              <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
+                Cached
+              </TableSortable>
+              <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
+                Timestamp
+              </TableSortable>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="relative pb-8">
+            {items?.map((item, index) => {
+              return <RequestRow key={index} item={item} />;
+            })}
+          </TableBody>
+        </Table>
+      )}
+      {!items.length && (
+        <EmptyTable title="Network is empty" description="Make some request to see them listed here." />
+      )}
     </Section>
   );
 };
