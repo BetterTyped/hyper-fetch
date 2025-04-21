@@ -1,5 +1,9 @@
 import TextareaAutosize from "react-textarea-autosize";
 
+import { cn } from "frontend/lib/utils";
+
+import { jsonViewerStyles } from "../json-viewer.styles";
+
 export const Value = ({
   value,
   raw,
@@ -11,16 +15,15 @@ export const Value = ({
   onChange: (value: any) => void;
   disabled?: boolean;
 }) => {
+  const disabledStyles = disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400";
+
   if (typeof raw === "boolean") {
     return (
-      <span
-        className={`inline-flex relative ${disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400"} rounded px-1 py-0.5`}
-        style={{ paddingLeft: !disabled ? "28px" : "8px" }}
-      >
+      <span className={cn(jsonViewerStyles.value, disabledStyles)} style={{ paddingLeft: !disabled ? "28px" : "8px" }}>
         {!disabled && (
           <input
             disabled={disabled}
-            className="absolute left-1 top-1/2 -translate-y-1/2 rounded focus:outline-2 focus:outline-cyan-400"
+            className={cn(jsonViewerStyles.checkbox)}
             type="checkbox"
             value={value}
             onChange={(e) => onChange(e.target.checked)}
@@ -34,12 +37,10 @@ export const Value = ({
 
   if (typeof raw === "number") {
     return (
-      <span
-        className={`inline-flex ${disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400"} rounded px-1 py-0.5`}
-      >
+      <span className={cn(jsonViewerStyles.value, disabledStyles)}>
         <input
           disabled={disabled}
-          className="w-full bg-transparent border-0 tracking-wider rounded focus:outline-2 focus:outline-cyan-400"
+          className={cn(jsonViewerStyles.input)}
           type="number"
           value={raw}
           onChange={(e) => onChange(Number(e.target.value))}
@@ -53,13 +54,11 @@ export const Value = ({
     const resize = lines > 1 ? "vertical" : "none";
 
     return (
-      <span
-        className={`inline-flex ${disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400"} rounded px-1 py-0.5`}
-      >
+      <span className={cn(jsonViewerStyles.value, disabledStyles)}>
         <TextareaAutosize
           maxRows={10}
           disabled={disabled}
-          className="w-full bg-transparent border-0 tracking-wider rounded focus:outline-2 focus:outline-cyan-400"
+          className={cn(jsonViewerStyles.input)}
           value={raw}
           onChange={(e) => onChange(e.target.value)}
           style={{ resize }}
@@ -68,5 +67,5 @@ export const Value = ({
     );
   }
 
-  return <span>{String(value)}</span>;
+  return <span className={cn(jsonViewerStyles.value, "ml-2")}>{String(value)}</span>;
 };

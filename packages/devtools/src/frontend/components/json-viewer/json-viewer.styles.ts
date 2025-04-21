@@ -1,132 +1,62 @@
-import { tokens } from "frontend/theme/tokens";
-import { createStyles } from "frontend/theme/use-styles.hook";
+import { cn } from "frontend/lib/utils";
 
-export const styles = createStyles(({ isLight, css }) => {
-  return {
-    base: css`
-      padding: 0 10px;
+export const jsonViewerStyles = {
+  base: cn(
+    // Base styles
+    "group relative px-2.5",
+    // All elements
+    "[&_*]:!text-xs [&_*]:!font-mono",
+    // Direct ul child
+    "[&>ul]:!m-0",
+    // All ul elements
+    "[&_ul]:relative",
+    // All label elements
+    "[&_label]:min-h-[19px]",
+    // ul > li
+    "[&_ul>li]:-translate-x-2.5",
+    // Expandable arrow down - ul > li > div > div
+    `[&_ul>li>div>div]:!text-dark-200 [&_ul>li>div>div]:-translate-y-[1px] [&_ul>li>div>div]:translate-x-[3px] [&_ul>li>div>div]:scale-[0.7]`,
+    // ul > li > div
+    "[&_ul>li>div]:-ml-1.5",
+    // Line under arrow - ul > li > div::after
+    `[&_ul>li>div]:after:absolute [&_ul>li>div]:after:content-[''] [&_ul>li>div]:after:block [&_ul>li>div]:after:w-0.5 [&_ul>li>div]:after:top-[25px] [&_ul>li>div]:after:left-[-3px] [&_ul>li>div]:after:bottom-[5px] [&_ul>li>div]:after:bg-dark-500`,
+    // li with children
+    "[&_li:has(:nth-child(3))>ul]:!grid [&_li:has(:nth-child(3))>ul]:grid-cols-1 [&_li:has(:nth-child(3))>ul]:w-[calc(100%-0.675em)]",
+    // li without children
+    "[&_li:not(:has(:nth-child(3)))]:flex",
+    // li without children span
+    "[&_li:not(:has(:nth-child(3)))>span]:flex-1",
+    // All elements box-sizing
+    "[&_*]:box-border",
+  ),
 
-      & * {
-        font-size: 12px !important;
-        font-family:
-          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-      }
-      & > ul {
-        margin: 0 !important;
-      }
+  value: cn(
+    "inline-flex text-inherit relative bg-transparent",
+    "p-[2px_4px] rounded text-xs w-full ml-0.5",
+    "bg-dark-400",
+  ),
 
-      & ul {
-        position: relative;
-      }
+  disabledValue: "!bg-transparent",
 
-      & label {
-        min-height: 19px;
-      }
-      & ul > li {
-        transform: translateX(-10px);
-      }
-      /* Expandable arrow down */
-      & ul > li > div > div {
-        color: ${isLight ? tokens.colors.light[400] : tokens.colors.dark[200]}!important;
-      }
-      & ul > li > div {
-        margin-left: -6px;
-      }
-      /* Line under arrow */
-      & ul > li > div::after {
-        position: absolute;
-        content: "";
-        display: block;
-        width: 2px;
-        background: ${isLight ? tokens.colors.light[300] : tokens.colors.dark[500]};
-        top: 25px;
-        left: -3px;
-        bottom: 5px;
-      }
+  input: cn(
+    // Base styles
+    "text-inherit bg-transparent border-0",
+    "tracking-[0.3px] resize-vertical w-full rounded p-0",
+    // Focus state
+    "focus:outline-offset-2 focus:outline-2 focus:outline-cyan-400",
+  ),
 
-      & li:has(:nth-child(3)) > ul {
-        display: grid !important;
-        grid-template-columns: 1fr;
-        width: calc(100% - 0.675em);
-      }
+  checkbox: cn(
+    // Base styles
+    "absolute m-0 left-1 top-1/2 -translate-y-1/2 rounded p-0",
+    // Focus state
+    "focus:outline-offset-2 focus:outline-2 focus:outline-cyan-400",
+  ),
 
-      & li:not(:has(:nth-child(3))) {
-        display: flex;
-      }
+  label: cn("relative whitespace-nowrap", "text-light-300"),
 
-      & li:not(:has(:nth-child(3))) > span {
-        flex: 1 1 auto;
-      }
-
-      & * {
-        box-sizing: border-box;
-      }
-    `,
-    value: css`
-      display: inline-flex;
-      color: inherit;
-      position: relative;
-      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[400]};
-      padding: 2px 4px;
-      border-radius: 4px;
-      font-size: 12px;
-      width: 100%;
-      margin-left: 2px;
-    `,
-    disabledValue: css`
-      background: transparent !important;
-    `,
-    input: css`
-      color: inherit;
-      background: transparent;
-      border: 0;
-      letter-spacing: 0.3px;
-      resize: vertical;
-      width: 100%;
-      border-radius: 3px;
-      padding: 0;
-
-      &:focus {
-        outline-offset: 2px;
-        outline: 2px solid ${tokens.colors.cyan[400]};
-      }
-    `,
-    checkbox: css`
-      position: absolute;
-      margin: 0;
-      left: 4px;
-      top: 50%;
-      transform: translate(0, -50%);
-      border-radius: 3px;
-      padding: 0;
-
-      &:focus {
-        outline-offset: 2px;
-        outline: 2px solid ${tokens.colors.cyan[400]};
-      }
-    `,
-    label: css`
-      position: relative;
-      color: ${isLight ? tokens.colors.light[900] : tokens.colors.light[300]};
-      white-space: nowrap;
-    `,
-    copy: css`
-      position: relative;
-      width: 12px;
-      height: 12px;
-      background: transparent;
-      border: 0;
-      padding: 0;
-      margin-left: 4px;
-
-      & svg {
-        width: 12px;
-        height: 12px;
-        transform: translateY(2px);
-      }
-      & svg.copied {
-        stroke: ${isLight ? tokens.colors.green[600] : tokens.colors.green[400]};
-      }
-    `,
-  };
-});
+  copy: {
+    wrapper: cn("relative w-4 h-4 bg-transparent border-0 p-0 ml-1", "[&_svg]:w-3 [&_svg]:h-3 [&_svg]:translate-y-0.5"),
+    copied: cn("[&_svg.copied]:stroke-green-400"),
+  },
+};

@@ -118,6 +118,7 @@ export const useNetworkStore = create<{
         draft.projects[project].requests = draft.projects[project].requests.filter(
           (request) => request.requestId !== requestId,
         );
+        draft.projects[project].detailsRequestId = null;
       }),
     );
   },

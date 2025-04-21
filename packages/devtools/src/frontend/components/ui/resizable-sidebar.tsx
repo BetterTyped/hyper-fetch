@@ -36,7 +36,7 @@ const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bott
       className={cn(
         baseClasses,
         positionClasses[position],
-        "flex items-center justify-end group border-l",
+        "flex items-center justify-end group border-l transition-all duration-200",
         "[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.3),theme(colors.slate.400/.2),theme(colors.slate.900/.3))1]",
         "hover:[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.6),theme(colors.slate.400/.6),theme(colors.slate.900/.5))1]",
         "active:[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.6),theme(colors.slate.400/.6),theme(colors.slate.900/.5))1]",
@@ -82,7 +82,8 @@ export const ResizableSidebar = ({
     maxWidth: "100%",
     ...props,
     className: cn(
-      "flex flex-col bg-sidebar border-l border-r border-light-300 dark:border-dark-400 pointer-events-auto",
+      "flex flex-col border-l border-r border-dark-400 pointer-events-auto",
+      "bg-card rounded-lg",
       className,
     ),
     handleComponent: {
@@ -97,7 +98,7 @@ export const ResizableSidebar = ({
 
   if (absolute) {
     return (
-      <div className={cn("absolute pointer-events-none z-100 inset-0 flex", sideClasses[position])}>
+      <div className={cn("absolute pointer-events-none z-10 inset-2 flex", sideClasses[position])}>
         <Resizable {...componentProps}>{children}</Resizable>
       </div>
     );

@@ -37,7 +37,7 @@ export const SectionHeader = ({
   const context = useContext(SectionContext);
   return (
     <div
-      className={cn("relative flex flex-row items-center gap-4 py-4", sticky && "sticky top-0 z-50", className)}
+      className={cn("relative flex flex-row items-center gap-4 py-4", sticky && "sticky top-0 z-10", className)}
       {...props}
     >
       {sticky && (

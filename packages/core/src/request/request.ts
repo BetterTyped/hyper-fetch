@@ -430,6 +430,8 @@ export class Request<
       updatedQueueKey: this.updatedQueueKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
+      isMockerEnabled: this.isMockerEnabled,
+      hasMock: !!this.unsafe_mock,
     };
   }
 

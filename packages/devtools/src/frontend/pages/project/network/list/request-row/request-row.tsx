@@ -24,7 +24,7 @@ export const RequestRow = ({ item }: { item: DevtoolsRequestEvent }) => {
   return (
     <TableRow
       onClick={() => openDetails({ project: project.name, requestId: item.requestId ?? "" })}
-      className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 ${
+      className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md ${
         item.requestId === detailsRequestId ? "ring-1 ring-inset ring-blue-400" : ""
       }`}
     >

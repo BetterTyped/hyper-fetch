@@ -12,7 +12,6 @@ import {
 } from "../types";
 import { Status } from "frontend/utils/request.status.utils";
 import { createContext } from "frontend/utils/context";
-import { DevtoolsExplorerRequest } from "frontend/pages/project/requests/list/content.types";
 import { toNumber } from "frontend/store/project/utils";
 
 export type ConnectionStats = {
@@ -125,9 +124,6 @@ export type ProjectState = {
     // TODO: change to methodAndEndpoint
     [queryKey: string]: DevtoolsRequestQueueStats;
   };
-  explorerSearchTerm: string;
-  detailsExplorerRequest: DevtoolsExplorerRequest | null;
-  explorerRequests: RequestInstance[];
 };
 
 type ProjectStateContextType = {
@@ -231,10 +227,6 @@ export const initialProjectState: ProjectState = {
   queues: [],
   detailsQueueKey: null,
   stats: {},
-  // Explorer
-  explorerSearchTerm: "",
-  detailsExplorerRequest: null,
-  explorerRequests: [],
 };
 
 const getDataSize = (data: unknown): number => {

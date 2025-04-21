@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { CircleCheck, Copy } from "lucide-react";
 
 import { useClipboard } from "frontend/hooks/use-clipboard";
+import { cn } from "frontend/lib/utils";
+
+import { jsonViewerStyles } from "../json-viewer.styles";
 
 export const Label = ({
   label,
@@ -38,13 +41,13 @@ export const Label = ({
   }, []);
 
   return (
-    <>
-      <span className="relative text-light-900 dark:text-light-300 whitespace-nowrap">{label}:</span>
+    <span className="flex items-center mt-[1px]">
+      <span className={cn(jsonViewerStyles.label)}>{label}:</span>
       {expandable && (
         <span
           tabIndex={0}
           role="button"
-          className="relative w-3 h-3 bg-transparent border-0 p-0 ml-1"
+          className={cn(jsonViewerStyles.copy.wrapper)}
           onClick={handleCopy}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -52,13 +55,9 @@ export const Label = ({
             }
           }}
         >
-          {copied ? (
-            <CircleCheck className="w-3 h-3 translate-y-0.5 stroke-green-600 dark:stroke-green-400" />
-          ) : (
-            <Copy className="w-3 h-3 translate-y-0.5" />
-          )}
+          {copied ? <CircleCheck className={cn(jsonViewerStyles.copy.copied)} /> : <Copy />}
         </span>
       )}
-    </>
+    </span>
   );
 };

@@ -1,65 +1,33 @@
 import type { Theme } from "react-base16-styling";
 import { KeyPath } from "react-json-tree";
 
-export const getTheme = ({ isLight }: { isLight: boolean }): Theme => {
-  if (!isLight) {
+export const theme: Theme = {
+  scheme: "modern-vscode",
+  base00: "transparent",
+  base01: "#1e1e1e",
+  base02: "#2d2d30",
+  base03: "#858585",
+  base04: "#d4d4d4",
+  base05: "#e2e2e2",
+  base06: "#f0f0f0",
+  base07: "#ffffff",
+  base08: "#ff6b6b",
+  base09: "#e6b673",
+  base0A: "#f9d649",
+  base0B: "#7bd88f",
+  base0C: "#5cc5c0",
+  base0D: "#6ab0f3",
+  base0E: "#d466a9",
+  base0F: "#e85858",
+  // eslint-disable-next-line max-params
+  nestedNode: ({ style }) => {
     return {
-      scheme: "bright",
-      base00: "transparent",
-      base01: "#444c56",
-      base02: "#58626d",
-      base03: "#6a737d",
-      base04: "#a0a6ab",
-      base05: "#c8ccd1",
-      base06: "#e2e5e9",
-      base07: "#f0f3f6",
-      base08: "#ff0000",
-      base09: "#ffa500",
-      base0A: "#ffc0cb",
-      base0B: "#008000",
-      base0C: "#0000ff",
-      base0D: "#0000ff",
-      base0E: "#800080",
-      base0F: "#0000ff",
-      // eslint-disable-next-line max-params
-      nestedNode: ({ style }) => {
-        return {
-          style: {
-            ...style,
-            transform: "translateX(10px)",
-          },
-        };
+      style: {
+        ...style,
+        transform: "translateX(10px)",
       },
     };
-  }
-  return {
-    scheme: "bright",
-    base00: "transparent",
-    base01: "#444c56",
-    base02: "#58626d",
-    base03: "#6a737d",
-    base04: "#a0a6ab",
-    base05: "#c8ccd1",
-    base06: "#e2e5e9",
-    base07: "#f0f3f6",
-    base08: "#ff0000",
-    base09: "#ffa500",
-    base0A: "#ffc0cb",
-    base0B: "#008000",
-    base0C: "#0000ff",
-    base0D: "#0000ff",
-    base0E: "#800080",
-    base0F: "#0000ff",
-    // eslint-disable-next-line max-params
-    nestedNode: ({ style }) => {
-      return {
-        style: {
-          ...style,
-          transform: "translateX(10px)",
-        },
-      };
-    },
-  };
+  },
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
