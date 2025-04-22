@@ -1,22 +1,15 @@
-import { useMemo } from "react";
-import { useQueue } from "@hyper-fetch/react";
-import { ListX, Pause, Play } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Back } from "./back/back";
-import { Separator } from "frontend/components/ui/separator";
-import { Button } from "frontend/components/ui/button";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "frontend/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableRow } from "frontend/components/ui/table";
 import { Badge } from "frontend/components/ui/badge";
-import { Key } from "frontend/components/ui/key";
-import { Bar } from "frontend/components/bar/bar";
 import { ResizableSidebar } from "frontend/components/ui/resizable-sidebar";
-import { getQueueStatus, QueueStatus } from "frontend/utils/queue.status.utils";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
 import { initialNetworkStats } from "frontend/store/project/network-stats.store";
+import { SectionHead } from "./section-head";
+import { SectionToolbar } from "./section-toolbar";
 
 const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <TableRow>
@@ -26,54 +19,12 @@ const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) =>
 );
 
 export const QueuesDetails = () => {
-  const { project, client } = useDevtools();
+  const { project } = useDevtools();
   const { queues, detailsId } = useQueueStore(useShallow((state) => state.projects[project.name]));
   const queueStats = useQueueStatsStore(useShallow((state) => state.projects[project.name]));
 
   const item = detailsId ? queues.get(detailsId) : null;
   const itemStats = (detailsId ? queueStats?.stats?.get(detailsId) : null) || initialNetworkStats;
-
-  const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
-
-  const dummyRequest = useMemo(() => {
-    return client.createRequest()({
-      endpoint: "",
-      queryKey: item?.queryKey,
-      method: item?.queryKey.split("_")[0],
-    });
-  }, [client, item?.queryKey]);
-
-  const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
-
-  const { color } = useMemo(() => {
-    const statusColor = (
-      {
-        Pending: "gray",
-        Running: "blue",
-        Stopped: "orange",
-      } as const
-    )[status];
-
-    return {
-      status,
-      color: statusColor,
-    };
-  }, [status]);
-
-  const toggleQueue = () => {
-    if (stopped) {
-      start();
-    } else {
-      stop();
-    }
-  };
-
-  const clear = () => {
-    if (item) {
-      dispatcher.cancelRunningRequests(item.queryKey);
-      dispatcher.clearQueue(item.queryKey);
-    }
-  };
 
   // TODO NO CONTENT
   if (!item) return null;
@@ -90,13 +41,12 @@ export const QueuesDetails = () => {
       minHeight="100%"
       maxHeight="100%"
     >
-      <Bar style={{ flexWrap: "nowrap", justifyContent: "flex-start" }}>
-        <Back />
-        <Separator orientation="vertical" className="mx-2 h-4" />
-        <Key value={item.queryKey} type="query" />
-        <Badge variant={color === "gray" ? "secondary" : "default"}>{status}</Badge>
-        <div className="flex-1" />
-      </Bar>
+      <div className="max-h-full flex flex-col">
+        <div className="px-4">
+          <SectionToolbar item={item} />
+          <SectionHead item={item} />
+        </div>
+      </div>
       <div className="overflow-y-auto">
         <div className="p-2.5">
           <Table>
@@ -117,16 +67,6 @@ export const QueuesDetails = () => {
               <RowInfo label="In Progress Requests:" value={<Badge>{item.requests.length}</Badge>} />
             </TableBody>
           </Table>
-          <div className="flex flex-wrap gap-x-2.5 gap-y-1.5 pt-1.5">
-            <Button variant={stopped ? "default" : "secondary"} onClick={toggleQueue}>
-              {stopped ? <Play className="mr-2 h-4 w-4" /> : <Pause className="mr-2 h-4 w-4" />}
-              {stopped ? "Play" : "Stop"}
-            </Button>
-            <Button variant="outline" disabled={!requests.length} onClick={clear}>
-              <ListX className="mr-2 h-4 w-4" />
-              Clear
-            </Button>
-          </div>
         </div>
 
         <Collapsible defaultOpen>

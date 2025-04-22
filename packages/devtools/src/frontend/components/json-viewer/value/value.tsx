@@ -42,13 +42,12 @@ export const Value = ({
         {!disabled && (
           <input
             disabled={disabled}
-            className={cn(jsonViewerStyles.checkbox)}
+            className={cn(jsonViewerStyles.input)}
             type="date"
-            value={date}
+            value={date?.substring(0, 10)}
             onChange={(e) => onChange(e.target.value)}
           />
         )}
-        {date || "null"}
       </span>
     );
   }

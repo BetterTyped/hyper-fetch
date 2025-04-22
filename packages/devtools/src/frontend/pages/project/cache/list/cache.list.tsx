@@ -7,7 +7,7 @@ import { Boxes } from "lucide-react";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { useSearch } from "frontend/hooks/use-search";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { Item } from "./item/item";
+import { CacheRowItem } from "./row-item/row-item";
 import { useCacheStore } from "frontend/store/project/cache.store";
 import { EmptyTable } from "frontend/components/ui/empty-table";
 import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription } from "frontend/components/ui/section";
@@ -48,7 +48,7 @@ export const CacheList = () => {
           </TableHeader>
           <TableBody className="relative">
             {items.map((item, index) => {
-              return <Item key={index} item={item} />;
+              return <CacheRowItem key={index} item={item} />;
             })}
           </TableBody>
         </Table>

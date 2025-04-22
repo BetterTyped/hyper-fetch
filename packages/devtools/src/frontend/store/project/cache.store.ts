@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { Cache, CacheValueType } from "@hyper-fetch/core";
+import { Cache } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent, Sort } from "frontend/context/projects/types";
 
@@ -89,11 +89,12 @@ export const useCacheStore = create<Store>((set) => ({
         }
         const { cacheKey, isTriggeredExternally } = data;
 
-        // TODO: ???
+        // TODO: Kacper - why it is showing that "isTriggeredExternally" is true here?
+        // It has to be false, because we're reading data from the client cache events
         if (isTriggeredExternally) {
           draft.projects[project].caches.set(cacheKey, {
             cacheKey,
-            cacheData: data.data as CacheValueType<unknown, unknown, any>,
+            cacheData: data,
           });
         }
       }),

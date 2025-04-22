@@ -10,7 +10,7 @@ import { TableCell, TableRow } from "frontend/components/ui/table";
 import { Chip } from "frontend/components/ui/chip";
 import { useCacheStore } from "frontend/store/project/cache.store";
 
-export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
+export const CacheRowItem = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { client, project } = useDevtools();
   const { detailsId, openDetails } = useCacheStore(
     useShallow((state) => ({
@@ -39,7 +39,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
       tabIndex={0}
       role="button"
       onClick={() => openDetails({ project: project.name, cacheKey: item.cacheKey })}
-      className={`cursor-pointer hover:bg-light-100 dark:hover:bg-dark-500 ${
+      className={`cursor-pointer hover:bg-light-100 dark:hover:bg-dark-500 rounded-md ${
         item.cacheKey === detailsId ? "ring-1 ring-blue-400 ring-inset" : ""
       }`}
     >
