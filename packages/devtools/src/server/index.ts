@@ -19,13 +19,7 @@ export type StartServer = {
   DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
 };
 
-let crashed = false;
 export const startServer = async (options?: { port?: number; onServerCrash?: () => void }): Promise<StartServer> => {
-  if (!crashed) {
-    crashed = true;
-    throw new Error("Server crashed");
-  }
-
   const { port = 1234 } = options || {};
 
   const server = createServer();
