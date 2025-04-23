@@ -9,6 +9,7 @@ import { Chip } from "frontend/components/ui/chip";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { useQueueStatsStore } from "frontend/store/project/queue-stats.store";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { cn } from "frontend/lib/utils";
 
 export const Item = ({ queue }: { queue: QueueDataType }) => {
   const status = getQueueStatus(queue);
@@ -30,12 +31,17 @@ export const Item = ({ queue }: { queue: QueueDataType }) => {
   )[status];
 
   const total = queueStats?.totalRequests || 0;
+  const isActive = detailsQueueKey === queue.queryKey && !queue.stopped;
+  const color = getQueueStatusColor({ queue, active: isActive });
 
   return (
     <Card
       role="button"
-      className="gap-2"
-      color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
+      className={cn(
+        "gap-2 hover:bg-gray-800 cursor-pointer overflow-visible",
+        color.border,
+        isActive && "ring-inset ring-2 ring-cyan-400",
+      )}
       onClick={() => openDetails(project.name, queue.queryKey)}
     >
       <CardHeader className="flex flex-row items-center justify-between gap-3">

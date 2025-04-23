@@ -16,7 +16,7 @@ export class DevtoolsEventHandler {
 
   constructor(
     client: ClientInstance,
-    { socketAddress = "ws://localhost", socketPort = 1234, appName, debug = false }: DevtoolsPluginOptions,
+    { socketAddress = "ws://localhost", socketPort = 2137, appName, debug = false }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.isInitialized = false;

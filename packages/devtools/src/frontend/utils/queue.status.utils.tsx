@@ -18,13 +18,13 @@ export const getQueueStatus = (queue: QueueDataType): QueueStatus => {
 
 export const getQueueStatusColor = ({ queue, active }: { queue: QueueDataType; active: boolean }) => {
   if (active) {
-    return "blue";
+    return { border: "border-blue-400" };
   }
   if (queue.stopped) {
-    return "orange";
+    return { border: "border-orange-400" };
   }
   if (queue.requests.length) {
-    return "cyan";
+    return { border: "border-cyan-400" };
   }
-  return "gray";
+  return { border: "border-gray-400" };
 };

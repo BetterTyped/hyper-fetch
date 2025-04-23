@@ -53,7 +53,7 @@ export const CacheDetails = () => {
       defaultSize={{
         width: "70%",
       }}
-      minWidth="400px"
+      minWidth="500px"
       maxWidth="100%"
       minHeight="100%"
       maxHeight="100%"

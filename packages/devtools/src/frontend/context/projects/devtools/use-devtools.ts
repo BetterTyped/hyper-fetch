@@ -1,4 +1,5 @@
 import { createClient } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
@@ -8,7 +9,7 @@ export const useDevtools = () => {
   const {
     params: { projectName },
   } = useRoute("project");
-  const { projects } = useProjects();
+  const project = useProjects(useShallow((state) => state.projects[projectName]));
   const { connections } = useConnectionStore();
 
   const { client } = connections[projectName as keyof typeof connections] || {
@@ -19,6 +20,6 @@ export const useDevtools = () => {
 
   return {
     client,
-    project: projects[projectName as keyof typeof projects],
+    project,
   };
 };

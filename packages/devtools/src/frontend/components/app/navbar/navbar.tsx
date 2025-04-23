@@ -121,7 +121,7 @@ export const Navbar = () => {
                 }
 
                 return (
-                  <>
+                  <Fragment key={name}>
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
                       <BreadcrumbPage className="capitalize">
@@ -129,7 +129,7 @@ export const Navbar = () => {
                         {name}
                       </BreadcrumbPage>
                     </BreadcrumbItem>
-                  </>
+                  </Fragment>
                 );
               })}
             </BreadcrumbList>

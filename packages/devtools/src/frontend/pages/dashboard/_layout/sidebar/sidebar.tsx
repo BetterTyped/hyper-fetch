@@ -8,12 +8,15 @@ import { NavTertiary } from "./_components/nav-tertiary";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
 import Logo from "../../../../assets/images/logo.svg?react";
 import { RoutingLocations } from "frontend/routing/router";
+import { Badge } from "frontend/components/ui/badge";
+import { cn } from "frontend/lib/utils";
 
 const primary: Array<{
   title: string;
   link: RoutingLocations;
   icon: LucideIcon;
   isActive?: boolean;
+  onCrash?: boolean;
   items?: Array<{
     title: string;
     link: RoutingLocations;
@@ -39,6 +42,7 @@ const primary: Array<{
     title: "Settings",
     link: "dashboard.settings",
     icon: Settings,
+    onCrash: true,
   },
 ];
 
@@ -89,12 +93,25 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
   // };
 
   return (
-    <SidebarProvider className="min-h-full">
-      <Sidebar variant="inset" {...props} collapsible="none" className="h-full rounded-xl pl-2">
+    <SidebarProvider className="min-h-full w-full">
+      <Sidebar variant="inset" {...props} collapsible="none" className="h-full rounded-xl pl-2 w-full">
         <SidebarHeader>
-          <div className="flex items-center gap-1 pt-3">
-            <Logo className="h-8 w-8" />
-            <span className="text-lg font-bold">HyperFetch</span>
+          <div className="flex items-center gap-1 pt-5 pb-0 pr-3">
+            <Logo className="h-9 w-9 ml-1" />
+            <div className="text-xl tracking-wide">
+              <span className="font-bold mr-1">Hyper</span>
+              <span
+                className={cn(
+                  "font-light text-gray-400",
+                  "bg-clip-text !text-transparent bg-gradient-to-tr from-gray-400/70 via-gray-400/90 to-gray-400/80",
+                )}
+              >
+                Flow
+              </span>
+            </div>
+            <Badge variant="outline" className="ml-auto">
+              v0.0.1
+            </Badge>
           </div>
         </SidebarHeader>
         <SidebarContent className="mb-2">

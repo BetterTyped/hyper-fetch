@@ -1,4 +1,4 @@
-import { EllipsisVertical, Trash, XIcon, Globe } from "lucide-react";
+import { Sparkles, Trash, XIcon, Globe } from "lucide-react";
 
 import { SidebarHeader } from "frontend/components/ui/sidebar";
 import {
@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "frontend/components/ui/dropdown-menu";
 import { Button } from "frontend/components/ui/button";
@@ -19,10 +18,10 @@ import { useNetworkStore } from "frontend/store/project/network.store";
 export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {
   const { project } = useDevtools();
   const removeNetworkRequest = useNetworkStore((state) => state.removeNetworkRequest);
-  const openDetails = useNetworkStore((state) => state.openDetails);
+  const closeDetails = useNetworkStore((state) => state.closeDetails);
 
   const close = () => {
-    openDetails({ project: project.name, requestId: "" });
+    closeDetails(project.name);
   };
 
   const remove = () => {
@@ -40,14 +39,19 @@ export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {
         </span>{" "}
         / Details
       </div>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <EllipsisVertical className="w-3 h-3 stroke-muted-foreground" />
+          <Button variant="secondary" size="sm">
+            <Sparkles className="h-4 w-4" />
+            Actions
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" side="bottom" align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuContent side="bottom" align="end">
+          <DropdownMenuLabel className="flex flex-row items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Network Actions
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             {/* <DropdownMenuItem>
@@ -57,10 +61,8 @@ export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {
               </DropdownMenuShortcut>
             </DropdownMenuItem> */}
             <DropdownMenuItem onClick={remove}>
+              <Trash className="mr-2 h-4 w-4" />
               Remove
-              <DropdownMenuShortcut>
-                <Trash />
-              </DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

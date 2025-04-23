@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
-import { AppWindowIcon, FolderOpen, MoreVertical, Trash2 } from "lucide-react";
+import { FolderOpen, MoreVertical, Trash2, ChevronRight } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "./card";
+import { Card, CardContent, CardFooter, CardHeader } from "./card";
 import { Button } from "./button";
 import { Badge } from "./badge";
 import { Avatar } from "./avatar";
@@ -10,18 +10,19 @@ import { useProjects } from "frontend/store/project/projects.store";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import { AdapterIcon } from "./adapter-icon";
 import { useConnectionStore } from "frontend/store/project/connection.store";
+import { ShineBorder } from "./shine-border";
 
 interface ProjectCardProps {
   name: string;
   iconUrl: string;
+  adapterName: string;
   onOpen: () => void;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, onOpen }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, onOpen }) => {
   const { connections, removeConnection } = useConnectionStore();
   const removeProject = useProjects((state) => state.removeProject);
   const { connected } = connections[name] || { connected: false };
-  const adapterName = "HTTP";
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleRemove = () => {
@@ -33,32 +34,43 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, onOpen }) => 
   return (
     <>
       <Card
-        className={`w-full hover:shadow-md transition-shadow duration-300 gap-2 justify-between ${!connected ? "opacity-70" : ""} group`}
+        className="group relative w-full hover:shadow-xl transition-all duration-300 gap-2 justify-between group bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer"
+        onClick={onOpen}
       >
+        {connected && <ShineBorder duration={12} shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />}
         <CardHeader>
           <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12 rounded-lg overflow-hidden flex items-center justify-center bg-gray-700">
+            <Avatar className="h-11 w-11 rounded-lg overflow-hidden flex items-center justify-center bg-gray-700">
               {iconUrl ? (
                 <img src={iconUrl} alt={`${name} icon`} className="w-full h-full object-cover" />
               ) : (
-                <FolderOpen className="h-6 w-6 text-gray-400" />
+                <FolderOpen className="h-5 w-5 text-gray-400" />
               )}
             </Avatar>
-            <div className="space-y-1.5 overflow-hidden flex-1">
-              <h3 className="font-semibold text-lg leading-none break-words">{name}</h3>
+            <div className="space-y-0.5 mt-1 overflow-hidden flex-1">
+              <h3 className="font-medium text-2xl leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500">
+                {name}
+              </h3>
             </div>
             <div className="-mr-2 -mt-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-8 h-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [&[data-state=open]]:opacity-100 transition-opacity"
+                    className="w-8 h-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [&[data-state=open]]:opacity-100 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="flex items-center gap-2">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDeleteDialogOpen(true);
+                    }}
+                    className="flex items-center gap-2"
+                  >
                     <Trash2 className="h-4 w-4" />
                     Remove Project
                   </DropdownMenuItem>
@@ -67,42 +79,43 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, onOpen }) => 
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 space-y-2">
-          {connected && <CardDescription>Project is currently running</CardDescription>}
-          {!connected && <CardDescription>Project was last connected 2 hours ago</CardDescription>}
-          <div className="flex items-center gap-2 mt-2 mb-3">
-            <Badge
-              variant={connected ? "default" : "outline"}
-              className={`font-medium flex items-center gap-1.5 ${
-                connected
-                  ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                  : "bg-gray-100 text-gray-500 border-gray-200"
-              }`}
-            >
-              <span className={`relative flex h-2 w-2 ${connected ? "animate-pulse" : ""}`}>
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full ${
-                    connected ? "bg-emerald-400" : "bg-gray-400"
-                  } opacity-75`}
-                />
-                <span
-                  className={`relative inline-flex rounded-full h-2 w-2 ${
-                    connected ? "bg-emerald-500" : "bg-gray-500"
-                  }`}
-                />
-              </span>
-              {connected ? "Online" : "Offline"}
-            </Badge>
-            <Badge variant="secondary" className="font-medium">
+        <CardContent className="flex-1 space-y-3">
+          <div className="pt-1 text-muted-foreground/80">
+            {connected && <p className="text-base">Project is currently active and connected</p>}
+            {!connected && <p className="text-base">Project is currently offline</p>}
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary">
               <AdapterIcon name={adapterName} />
               {adapterName}
             </Badge>
+
+            <div className="flex items-center gap-2">
+              <div
+                className={`relative flex items-center justify-center ${connected ? "text-emerald-500" : "text-gray-400"}`}
+              >
+                <div
+                  className={`absolute h-2.5 w-2.5 rounded-full ${connected ? "bg-emerald-500" : "bg-gray-400"} opacity-20 animate-ping`}
+                />
+                <div className={`h-2 w-2 rounded-full ${connected ? "bg-emerald-500" : "bg-gray-400"}`} />
+              </div>
+              <span
+                className={`text-xs font-medium ${connected ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500 dark:text-gray-400"}`}
+              >
+                {connected ? "Connected" : "Disconnected"}
+              </span>
+            </div>
           </div>
         </CardContent>
-        <CardFooter className="flex gap-2">
-          <Button onClick={onOpen} size="lg" className="flex-1">
-            <AppWindowIcon className="h-4 w-4" />
-            Open Project
+        <CardFooter className="flex justify-end pt-0">
+          <Button
+            variant="ghost"
+            size="lg"
+            className="text-gray-400 hover:text-gray-200 group-hover:text-gray-200 !bg-transparent -mr-4 -mb-2"
+            onClick={onOpen}
+          >
+            View Details
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </CardFooter>
       </Card>

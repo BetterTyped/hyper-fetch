@@ -29,7 +29,7 @@ export const Projects = () => {
         <SectionDescription>Manage your projects and connect them to your workspace.</SectionDescription>
       </SectionHeader>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3 mt-4">
         {Object.values(projects).map((project) => (
           <ProjectCard key={project.name} iconUrl="" {...project} onOpen={() => onOpenProject(project.name)} />
         ))}

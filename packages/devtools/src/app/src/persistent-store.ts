@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import Store from "electron-store";
 
-const store = new Store();
+export const store = new Store();
 
 export const persistentStore = () => {
   ipcMain.on("electron-store-get", async (event, val) => {

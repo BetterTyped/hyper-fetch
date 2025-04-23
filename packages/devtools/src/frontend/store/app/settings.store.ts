@@ -1,39 +1,36 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-type Settings = {
-  ports: number[];
+export type Settings = {
+  serverPort: number;
 };
 
 type SettingsStore = {
+  serverStatus: "running" | "crashed";
   settings: Settings;
   setSettings: (settings: Partial<Settings>) => void;
+  setServerPort: (port: number) => void;
+  setServerStatus: (status: "running" | "crashed") => void;
 };
 
 export const useSettings = create<SettingsStore>()(
   persist(
     (set) => ({
       settings: {
-        ports: [],
+        serverPort: 2137,
       },
+      serverStatus: "running",
       setSettings: (newSettings: Partial<Settings>) =>
         set((state) => ({
           settings: { ...state.settings, ...newSettings },
         })),
-      setPorts: (ports: number[]) =>
+      setServerPort: (port: number) =>
         set((state) => ({
-          settings: { ...state.settings, ports },
+          settings: { ...state.settings, serverPort: port },
         })),
-      addPort: (port: number) =>
-        set((state) => ({
-          settings: { ...state.settings, ports: [...state.settings.ports, port] },
-        })),
-      removePort: (port: number) =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            ports: state.settings.ports.filter((p) => p !== port),
-          },
+      setServerStatus: (status: "running" | "crashed") =>
+        set(() => ({
+          serverStatus: status,
         })),
     }),
     {

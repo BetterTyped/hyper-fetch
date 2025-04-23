@@ -4,6 +4,23 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 
+type StoreAPI = {
+  get(key: string): Promise<any>;
+  set(property: string, val: unknown): void;
+  delete(key: string): unknown;
+};
+
+type ServerAPI = {
+  status(): boolean;
+  restart(options?: { port?: number }): Promise<{ running: boolean; port: number; success: boolean; message: string }>;
+  onStatusChange(callback: (isRunning: boolean) => void): () => void;
+};
+
+export interface ExtendedElectronAPI {
+  store: StoreAPI;
+  server: ServerAPI;
+}
+
 // Custom APIs for renderer
 // const api = {};
 
@@ -26,7 +43,24 @@ if (process.contextIsolated) {
         },
         // Other method you want to add like has(), reset(), etc.
       },
-    });
+      server: {
+        status() {
+          return ipcRenderer.sendSync("electron-server-status");
+        },
+        restart(options) {
+          return ipcRenderer.invoke("electron-server-restart", options);
+        },
+        onStatusChange(callback) {
+          const subscription = (_: any, isRunning: boolean) => callback(isRunning);
+          ipcRenderer.on("electron-server-status-change", subscription);
+
+          // Return a function to remove the listener
+          return () => {
+            ipcRenderer.removeListener("electron-server-status-change", subscription);
+          };
+        },
+      },
+    } as typeof electronAPI & ExtendedElectronAPI);
     // contextBridge.exposeInMainWorld("api", api);
   } catch (error) {
     console.error(error);
@@ -48,7 +82,24 @@ if (process.contextIsolated) {
       },
       // Other method you want to add like has(), reset(), etc.
     },
-  };
+    server: {
+      status() {
+        return ipcRenderer.sendSync("electron-server-status");
+      },
+      restart(options) {
+        return ipcRenderer.invoke("electron-server-restart", options);
+      },
+      onStatusChange(callback) {
+        const subscription = (_: any, isRunning: boolean) => callback(isRunning);
+        ipcRenderer.on("electron-server-status-change", subscription);
+
+        // Return a function to remove the listener
+        return () => {
+          ipcRenderer.removeListener("electron-server-status-change", subscription);
+        };
+      },
+    },
+  } as typeof electronAPI & ExtendedElectronAPI;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore (define in dts)
   window.api = api;

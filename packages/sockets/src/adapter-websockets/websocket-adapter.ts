@@ -197,6 +197,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">) => {
+          if (!websocket) return false;
           websocket!.send(JSON.stringify({ topic, data: payload }));
           return true;
         };
@@ -216,6 +217,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           pingTimer = setTimeout(() => {
             sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
             pongTimer = setTimeout(() => {
+              // this should trigger reconnect
               websocket?.close();
             }, pongTimeout);
           }, pingTimeout);

@@ -2,10 +2,10 @@ import { app, BrowserWindow, shell } from "electron";
 import path from "node:path";
 import started from "electron-squirrel-startup";
 
-import { startServer } from "../server";
 import { setupWindowControls } from "./src/window-controls";
 import { persistentStore } from "./src/persistent-store";
 import { copyToClipboard } from "./src/clipboard";
+import { setupServerControl } from "./src/server-control";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -55,10 +55,13 @@ const createWindow = () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", createWindow);
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   copyToClipboard();
   persistentStore();
   setupWindowControls();
+
+  // Initialize server control
+  await setupServerControl();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -80,9 +83,3 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-
-// **********
-// SERVER
-// **********
-
-startServer();

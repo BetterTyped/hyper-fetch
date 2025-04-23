@@ -4,7 +4,7 @@
 @import "./components.css" layer(components);
 
 body {
-  @apply bg-gray-900/90 text-gray-300 rounded-lg border-[1px] border-gray-800;
+  @apply bg-gray-900/90 text-gray-300;
 }
 
 html,
@@ -56,8 +56,10 @@ body,
   --text-7xl--line-height: 1;
   --text-7xl--letter-spacing: -0.0268em;
 
-  --animate-shine: shine 5s ease-in-out 500ms infinite;
-  --animate-gradient: gradient 6s linear infinite;
+  --duration: 6s;
+
+  --animate-shine: shine var(--duration) ease-in-out 500ms infinite;
+  --animate-gradient: gradient var(--duration) linear infinite;
 
   @keyframes shine {
     0% {
@@ -205,8 +207,9 @@ body,
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --animate-shine: shine 5s ease-in-out 500ms infinite;
-  --animate-gradient: gradient 6s linear infinite;
+  --duration: 6s;
+  --animate-shine: shine var(--duration) ease-in-out 500ms infinite;
+  --animate-gradient: gradient var(--duration) linear infinite;
 
   @keyframes shine {
     0% {
@@ -241,6 +244,17 @@ body,
     }
     50% {
       transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  @keyframes shine {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
     }
   }
 }

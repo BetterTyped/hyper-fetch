@@ -6,7 +6,7 @@ import { Atom } from "lucide-react";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useSearch } from "frontend/hooks/use-search";
 import { useQueueStore } from "frontend/store/project/queue.store";
-import { Item } from "./item/item";
+import { Item } from "./queue-item/queue-item";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 import { EmptyTable } from "frontend/components/ui/empty-table";
 

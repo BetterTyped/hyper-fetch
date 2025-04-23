@@ -39,15 +39,14 @@ export const Value = ({
   if (isDate) {
     return (
       <span className={cn(jsonViewerStyles.value, disabledStyles)} style={{ paddingLeft: !disabled ? "28px" : "8px" }}>
-        {!disabled && (
-          <input
-            disabled={disabled}
-            className={cn(jsonViewerStyles.input)}
-            type="date"
-            value={date?.substring(0, 10)}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        )}
+        <input
+          disabled={disabled}
+          className={cn(jsonViewerStyles.input, "w-fit")}
+          type="datetime-local"
+          step="1"
+          value={date?.substring(0, 19)}
+          onChange={(e) => onChange(e.target.value)}
+        />
       </span>
     );
   }

@@ -40,17 +40,18 @@ export const jsonViewerStyles = {
 
   input: cn(
     // Base styles
-    "text-inherit bg-transparent border-0",
+    "text-inherit bg-gray-200/10 border-0",
     "tracking-[0.3px] resize-vertical w-full rounded p-0",
     // Focus state
-    "focus:outline-offset-2 focus:outline-2 focus:outline-cyan-400",
+    "focus:outline-offset-2 focus:outline-2 focus:outline-amber-400",
+    "disabled:bg-transparent",
   ),
 
   checkbox: cn(
     // Base styles
     "absolute m-0 left-1 top-1/2 -translate-y-1/2 rounded p-0",
     // Focus state
-    "focus:outline-offset-2 focus:outline-2 focus:outline-cyan-400",
+    "focus:outline-offset-2 focus:outline-2 focus:outline-amber-400",
   ),
 
   label: cn("relative whitespace-nowrap", "text-light-300"),

@@ -1,4 +1,4 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronRight, type LucideIcon, AlertTriangle } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "frontend/components/ui/collapsible";
 import {
@@ -13,6 +13,7 @@ import {
   SidebarMenuSubItem,
 } from "frontend/components/ui/sidebar";
 import { Link, RoutingLocations, useMatchedName } from "frontend/routing/router";
+import { useSettings } from "frontend/store/app/settings.store";
 
 export function NavPrimary({
   items,
@@ -22,6 +23,7 @@ export function NavPrimary({
     link: RoutingLocations;
     icon: LucideIcon;
     isActive?: boolean;
+    onCrash?: boolean;
     items?: {
       title: string;
       link: RoutingLocations;
@@ -29,6 +31,7 @@ export function NavPrimary({
   }[];
 }) {
   const activeName = useMatchedName();
+  const serverStatus = useSettings((state) => state.serverStatus);
 
   return (
     <SidebarGroup>
@@ -38,9 +41,15 @@ export function NavPrimary({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title} isActive={activeName === item.link}>
-                <Link to={item.link} params={{} as any}>
-                  <item.icon />
-                  <span>{item.title}</span>
+                <Link to={item.link} params={{} as any} className="h-[34px] px-3">
+                  <item.icon className="min-w-[18px] min-h-[18px]" />
+                  <span className="text-[14px]">{item.title}</span>
+                  {item.onCrash && serverStatus === "crashed" && (
+                    <div className="ml-auto text-xs font-medium px-2 py-0.5 rounded-md animate-pulse flex items-center gap-1 pl-2">
+                      <AlertTriangle className="h-3 w-3" />
+                      Fix server
+                    </div>
+                  )}
                 </Link>
               </SidebarMenuButton>
               {item.items?.length ? (

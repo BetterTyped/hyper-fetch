@@ -1,6 +1,9 @@
+import { toast } from "sonner";
 import { useState } from "react";
 import { AlertCircle, CheckCircle2, Cpu, Info, Wrench } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { Button } from "frontend/components/ui/button";
 import {
@@ -11,31 +14,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from "frontend/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "frontend/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "frontend/components/ui/form";
 import { Input } from "frontend/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "frontend/components/ui/alert";
 import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "frontend/components/ui/card";
+import { useSettings } from "frontend/store/app/settings.store";
 
-interface PortConfigurationFormData {
-  port: string;
-}
+const portSchema = z.object({
+  port: z.number().int().min(1, "Port must be at least 1").max(65535, "Port cannot exceed 65535"),
+});
+
+type PortConfigurationFormData = z.infer<typeof portSchema>;
 
 export const PortConfiguration = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Dummy state for demonstration
-  const [serverStatus] = useState<"running" | "crashed">("running");
-  const [currentPort, setCurrentPort] = useState("3000");
+  const [loading, setLoading] = useState(false);
+
+  const { serverStatus, settings, setServerPort } = useSettings();
 
   const form = useForm<PortConfigurationFormData>({
+    resolver: zodResolver(portSchema),
     defaultValues: {
-      port: currentPort,
+      port: settings.serverPort,
     },
   });
 
   const handleSubmit = (data: PortConfigurationFormData) => {
-    // Dummy function for now
-    setCurrentPort(data.port);
-    setIsDialogOpen(false);
+    if (loading) return;
+    setLoading(true);
+    window.electron.server.restart({ port: data.port }).then(({ success, message }) => {
+      if (success) {
+        setIsDialogOpen(false);
+        setServerPort(data.port);
+        toast.success(message);
+      } else {
+        toast.error(message);
+      }
+      setLoading(false);
+    });
   };
 
   return (
@@ -52,7 +69,7 @@ export const PortConfiguration = () => {
       <CardContent className="grid grid-cols-3 gap-4">
         <div className="flex-1">
           <div className="text-sm font-medium text-muted-foreground">Current Port</div>
-          <div className="text-2xl font-bold">{currentPort}</div>
+          <div className="text-2xl font-bold">{settings.serverPort}</div>
         </div>
         <div className="flex-1">
           <div className="grid gap-2">
@@ -60,12 +77,18 @@ export const PortConfiguration = () => {
             <div className="flex items-center gap-2">
               {serverStatus === "running" ? (
                 <>
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <div className="relative">
+                    <div className="absolute -top-1 -left-1 size-2 rounded-full bg-green-500" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
                   <span className="text-green-500 font-medium">Running</span>
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-5 w-5 text-red-500" />
+                  <div className="relative">
+                    <div className="absolute -top-1 -left-1 size-2 rounded-full bg-red-500 animate-pulse" />
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                  </div>
                   <span className="text-red-500 font-medium">Crashed</span>
                 </>
               )}
@@ -87,7 +110,28 @@ export const PortConfiguration = () => {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Server Crashed</AlertTitle>
-            <AlertDescription>The server has crashed. Please check the logs or try changing the port.</AlertDescription>
+            <AlertDescription className="flex flex-col gap-2">
+              <span>The server has crashed. Please check the logs or try changing the port.</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => {
+                  setLoading(true);
+                  window.electron.server.restart({ port: settings.serverPort }).then(({ success, message }) => {
+                    if (success) {
+                      toast.success(message);
+                    } else {
+                      toast.error(message);
+                    }
+                    setLoading(false);
+                  });
+                }}
+                disabled={loading}
+              >
+                Restart Server
+              </Button>
+            </AlertDescription>
           </Alert>
         )}
         <Alert variant="info">
@@ -109,6 +153,14 @@ export const PortConfiguration = () => {
               Enter a new port number for the application server. The server will need to restart for changes to take
               effect.
             </DialogDescription>
+            <Alert variant="warning">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                If you change the port, you must update the plugin configuration in your application to use the same
+                port.
+              </AlertDescription>
+            </Alert>
           </DialogHeader>
 
           <Form {...form}>
@@ -120,8 +172,15 @@ export const PortConfiguration = () => {
                   <FormItem>
                     <FormLabel>Port Number</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" max="65535" {...field} />
+                      <Input
+                        type="number"
+                        min="1"
+                        max="65535"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                      />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

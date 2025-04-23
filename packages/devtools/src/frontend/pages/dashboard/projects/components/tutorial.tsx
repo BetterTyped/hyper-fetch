@@ -9,7 +9,7 @@ export const Tutorial = () => {
 
   return (
     <Card
-      className="relative w-full hover:shadow-md hover:brightness-110 transition-all duration-300 flex items-center justify-center cursor-pointer min-h-[220px]"
+      className="relative w-full hover:shadow-md hover:brightness-110 transition-all duration-300 flex items-center justify-center cursor-pointer min-h-[190px]"
       onClick={handleClick}
     >
       <div className="flex flex-col items-center justify-center py-2">

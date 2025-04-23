@@ -39,7 +39,7 @@ export const CacheRowItem = ({ item }: { item: DevtoolsCacheEvent }) => {
       tabIndex={0}
       role="button"
       onClick={() => openDetails({ project: project.name, cacheKey: item.cacheKey })}
-      className={`cursor-pointer hover:bg-light-100 dark:hover:bg-dark-500 rounded-md ${
+      className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md ${
         item.cacheKey === detailsId ? "ring-1 ring-blue-400 ring-inset" : ""
       }`}
     >

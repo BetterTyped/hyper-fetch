@@ -8,8 +8,9 @@ import { AdapterIcon } from "frontend/components/ui/adapter-icon";
 import { useConnectionStore } from "frontend/store/project/connection.store";
 
 export const CardOverview = ({ className }: { className?: string }) => {
-  const { project, client } = useDevtools();
-  const { connected } = useConnectionStore((state) => state.connections[project.name]);
+  const { project } = useDevtools();
+  const data = useConnectionStore((state) => state.connections[project.name]);
+  const { connected } = data || {};
 
   const type = "Application";
 
@@ -24,14 +25,14 @@ export const CardOverview = ({ className }: { className?: string }) => {
       <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">Base URL</h3>
-          <p className="font-medium text-sm truncate">{client.url || "Not configured"}</p>
+          <p className="font-medium text-sm truncate">{project.url || "Not configured"}</p>
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">Adapter Type</h3>
           <div className="flex items-center gap-2">
             <Badge variant="default">
-              <AdapterIcon name={client.adapter.name} />
-              {client.adapter.name}
+              <AdapterIcon name={project.adapterName} />
+              {project.adapterName}
             </Badge>
           </div>
         </div>

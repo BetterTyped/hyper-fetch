@@ -9,7 +9,7 @@ const adapterIcons = {
 
 const iconsKeys = Object.keys(adapterIcons);
 
-export const AdapterIcon = ({ name, ...props }: { name: string } & LucideProps) => {
+export const AdapterIcon = ({ name = "", ...props }: { name: string } & LucideProps) => {
   const icon = iconsKeys.find((key) => name.includes(key));
   const Icon = icon ? adapterIcons[icon as keyof typeof adapterIcons] : adapterIcons.default;
   return <Icon {...props} />;

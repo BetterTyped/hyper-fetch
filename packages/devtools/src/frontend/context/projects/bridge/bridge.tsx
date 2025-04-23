@@ -10,8 +10,9 @@ import { useProjects } from "frontend/store/project/projects.store";
 import { useConnectionStore } from "frontend/store/project/connection.store";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
-  const { connections, addConnection, updateConnection } = useConnectionStore();
-  const { addProject } = useProjects();
+  const addConnection = useConnectionStore((state) => state.addConnection);
+  const updateConnection = useConnectionStore((state) => state.updateConnection);
+  const addProject = useProjects((state) => state.addProject);
 
   useDidMount(() => {
     const nameRef = { current: "" };
@@ -63,34 +64,33 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
 
       switch (messageType) {
         case MessageType.DEVTOOLS_PLUGIN_INIT: {
-          {
-            const shouldCreateProject = !connections[name];
-            if (shouldCreateProject) {
-              addConnection({
-                name,
-                metaData: eventData,
-                // TODO - Kacper add the adapter type to be the same as the one in the application?
-                client: new Client({ url: "http://localhost.dummyhost:5000" }),
-                connected: true,
-                eventListener,
-                eventEmitter,
-              });
-              addProject({
-                name,
-                environment: eventData.environment,
-                settings: {
-                  simulatedErrors: {
-                    Default: {
-                      name: "Default",
-                      status: 400,
-                      body: new Error("This is error simulated by HyperFetch Devtools"),
-                    },
-                  },
-                  maxRequestsHistorySize: 1000,
+          // TODO - Kacper add the adapter type to be the same as the one in the application?
+          const client = new Client({ url: "http://localhost.dummyhost:5000" });
+
+          addConnection({
+            name,
+            metaData: eventData,
+            client,
+            connected: true,
+            eventListener,
+            eventEmitter,
+          });
+          addProject({
+            name,
+            environment: eventData.environment,
+            adapterName: client.adapter.name,
+            url: client.url,
+            settings: {
+              simulatedErrors: {
+                Default: {
+                  name: "Default",
+                  status: 400,
+                  body: new Error("This is error simulated by HyperFetch Devtools"),
                 },
-              });
-            }
-          }
+              },
+              maxRequestsHistorySize: 1000,
+            },
+          });
           return;
         }
         case MessageType.DEVTOOLS_PLUGIN_HANGUP: {

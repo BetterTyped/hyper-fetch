@@ -19,6 +19,17 @@ export type Project = {
    * @example "development", "production", "backend", "frontend" etc.
    */
   environment: string;
+
+  /**
+   * The adapter name of the project. Set by devtools-plugin.
+   */
+  adapterName: string;
+
+  /**
+   * The url of the project. Set by devtools-plugin.
+   */
+  url: string;
+
   /**
    * The settings of the project.
    */
@@ -43,19 +54,12 @@ export type ProjectStore = {
 
 export const useProjects = create<ProjectStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       projects: {},
       addProject: (project: Project) => {
-        const { projects } = get();
-        if (projects[project.name]) {
-          return;
-        }
         set(
           produce((draft) => {
-            if (!draft.projects[project.name]) {
-              draft.projects[project.name] = project;
-            }
-
+            draft.projects[project.name] = project;
             draft.projects[project.name].settings.simulatedErrors = {
               ...project.settings.simulatedErrors,
               Default: new Error("This is error simulated by HyperFetch Devtools"),

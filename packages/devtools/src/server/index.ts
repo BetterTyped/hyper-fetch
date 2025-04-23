@@ -19,7 +19,15 @@ export type StartServer = {
   DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
 };
 
-export const startServer = async (port = 1234): Promise<StartServer> => {
+let crashed = false;
+export const startServer = async (options?: { port?: number; onServerCrash?: () => void }): Promise<StartServer> => {
+  if (!crashed) {
+    crashed = true;
+    throw new Error("Server crashed");
+  }
+
+  const { port = 1234 } = options || {};
+
   const server = createServer();
   const wss = new WebSocketServer({ server });
   const connectionHandler = new ConnectionHandler();
@@ -81,10 +89,33 @@ export const startServer = async (port = 1234): Promise<StartServer> => {
 
   wss.on("error", console.error);
 
-  server.listen(port, () => {
-    // eslint-disable-next-line no-console
-    console.log(`WebSocket server is running on port ${port}`);
-  });
+  if (options?.onServerCrash) {
+    process.on("unhandledRejection", options.onServerCrash);
+  }
+
+  server
+    .listen(port, () => {
+      // eslint-disable-next-line no-console
+      console.log(`WebSocket server is running on port ${port}`);
+    })
+    .on("close", () => {
+      if (options?.onServerCrash) {
+        options.onServerCrash();
+      }
+      if (options?.onServerCrash) {
+        process.off("unhandledRejection", options.onServerCrash);
+      }
+      console.warn("Server closed");
+    })
+    .on("error", (error) => {
+      if (options?.onServerCrash) {
+        options.onServerCrash();
+      }
+      if (options?.onServerCrash) {
+        process.off("unhandledRejection", options.onServerCrash);
+      }
+      console.error("Server error", error);
+    });
 
   const isReady = new Promise((resolve) => {
     server.on("listening", () => {

@@ -57,7 +57,6 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
         / Details
       </div>
 
-      {/* Destructive Actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
@@ -65,10 +64,12 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
             Actions
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Queue Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" side="bottom">
+          <DropdownMenuLabel className="flex flex-row items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Queue Actions
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-
           <DropdownMenuItem onClick={toggleQueue}>
             <LoaderIcon className="mr-2 h-4 w-4" />
             {stopped ? "Start" : "Stop"}

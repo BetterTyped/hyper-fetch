@@ -61,7 +61,13 @@ export const SectionGroup = ({ children, className, ...props }: React.ComponentP
 
 export const SectionTitle = ({ children, className, ...props }: React.ComponentProps<"h3">) => {
   return (
-    <h3 className={cn("text-lg font-medium mb-0", className)} {...props}>
+    <h3
+      className={cn(
+        "text-lg font-medium mb-0 leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </h3>
   );

@@ -1,3 +1,4 @@
+import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Resizable, ResizableProps } from "re-resizable";
 
 import { cn } from "frontend/lib/utils";
@@ -62,6 +63,39 @@ const sideClasses = {
   bottom: "justify-end",
 };
 
+const availableBreakpoints = [
+  {
+    name: "xs",
+    breakpoint: 300,
+  },
+  {
+    name: "sm",
+    breakpoint: 500,
+  },
+  {
+    name: "md",
+    breakpoint: 800,
+  },
+  {
+    name: "lg",
+    breakpoint: 1000,
+  },
+  {
+    name: "xl",
+    breakpoint: 1200,
+  },
+].reverse();
+
+const ResizableSidebarContext = createContext<{
+  breakpoint: (typeof availableBreakpoints)[number];
+}>({
+  breakpoint: availableBreakpoints[0],
+});
+
+export const useResizableSidebar = () => {
+  return useContext(ResizableSidebarContext);
+};
+
 export const ResizableSidebar = ({
   className,
   position,
@@ -72,6 +106,10 @@ export const ResizableSidebar = ({
   position: "top" | "left" | "right" | "bottom";
   absolute?: boolean;
 }) => {
+  const sidebarRef = useRef<Resizable>(null);
+
+  const [breakpoint, setBreakpoint] = useState<(typeof availableBreakpoints)[number]>(availableBreakpoints[0]);
+
   const componentProps: ResizableProps = {
     defaultSize: {
       width: "400px",
@@ -89,20 +127,45 @@ export const ResizableSidebar = ({
     handleComponent: {
       [getOppositePosition(position)]: <BorderHandle position={position} />,
     },
-    handleClasses: {
-      // [getOppositePosition(position)]:
-      // "z-100 opacity-0 hover:opacity-100 focus:opacity-100 active:opacity-100 transition-opacity duration-200",
-    },
     handleWrapperClass: getPositionClasses(position),
+    onResize: (e, direction, ref) => {
+      const width = ref.clientWidth;
+      const newBreakpoint = availableBreakpoints.find((b) => width >= b.breakpoint);
+      if (newBreakpoint) {
+        setBreakpoint(newBreakpoint);
+      }
+    },
   };
+
+  const value = useMemo(() => ({ breakpoint }), [breakpoint]);
+
+  useLayoutEffect(() => {
+    if (sidebarRef.current) {
+      const { width } = sidebarRef.current.size;
+      const newBreakpoint = availableBreakpoints.find((b) => width >= b.breakpoint);
+      if (newBreakpoint) {
+        setBreakpoint(newBreakpoint);
+      }
+    }
+  }, [sidebarRef]);
 
   if (absolute) {
     return (
-      <div className={cn("absolute pointer-events-none z-10 inset-2 flex", sideClasses[position])}>
-        <Resizable {...componentProps}>{children}</Resizable>
-      </div>
+      <ResizableSidebarContext.Provider value={value}>
+        <div className={cn("absolute pointer-events-none z-10 inset-2 flex", sideClasses[position])}>
+          <Resizable {...componentProps} ref={sidebarRef}>
+            {children}
+          </Resizable>
+        </div>
+      </ResizableSidebarContext.Provider>
     );
   }
 
-  return <Resizable {...componentProps}>{children}</Resizable>;
+  return (
+    <ResizableSidebarContext.Provider value={value}>
+      <Resizable {...componentProps} ref={sidebarRef}>
+        {children}
+      </Resizable>
+    </ResizableSidebarContext.Provider>
+  );
 };

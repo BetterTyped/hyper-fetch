@@ -45,7 +45,7 @@ import { useNetworkStore } from "frontend/store/project/network.store";
 export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { project, client } = useDevtools();
   const [selectedError, setSelectedError] = useState<SimulatedError | null>(null);
-  const openDetails = useCacheStore((state) => state.openDetails);
+  const closeDetails = useCacheStore((state) => state.closeDetails);
   const { addLoadingKeys, removeLoadingKeys, loadingKeys } = useCacheStore(
     useShallow((state) => ({
       addLoadingKeys: state.addLoadingKey,
@@ -63,7 +63,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const closeSidebar = () => {
-    openDetails({ project: project.name, cacheKey: item.cacheKey });
+    closeDetails(project.name);
   };
 
   const remove = () => {
@@ -122,7 +122,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
         / Details
       </div>
 
-      {/* Destructive Actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
@@ -130,8 +129,11 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
             Actions
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Cache Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" side="bottom">
+          <DropdownMenuLabel className="flex flex-row items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Cache Actions
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={toggleLoading}>
