@@ -14,7 +14,7 @@ export const App = () => {
         className={cn(
           "relative h-full w-full flex flex-col min-w-[800px] min-h-[600px] rounded-lg border-[1px] border-gray-700",
           {
-            "brightness-90 opacity-90": !isFocused,
+            "brightness-90": !isFocused,
           },
         )}
       >
