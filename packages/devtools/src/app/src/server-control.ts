@@ -1,4 +1,5 @@
 import { ipcMain, BrowserWindow } from "electron";
+import { parseResponse } from "@hyper-fetch/core";
 import * as net from "net";
 
 import { startServer, StartServer } from "../../server";
@@ -9,8 +10,12 @@ import type { Settings } from "frontend/store/app/settings.store";
 let serverInstance: StartServer | null = null;
 
 const getPort = (options?: { port?: number }) => {
-  const settings = store.get("settings") as Settings;
-  return options?.port || settings?.serverPort || 2137;
+  const storeData = store.get("settings");
+  const parsed = parseResponse(storeData) as { state?: { settings: Settings } } | undefined;
+  // eslint-disable-next-line no-console
+  console.log(`Found settings port: ${parsed?.state?.settings?.serverPort}`);
+
+  return options?.port || parsed?.state?.settings?.serverPort || 2137;
 };
 
 /**
@@ -56,8 +61,8 @@ const onServerCrash = () => {
  * Initialize the server and set up IPC handlers for controlling it
  */
 export async function setupServerControl() {
-  // Start the server immediately
   try {
+    // Start the server immediately
     serverInstance = await startServer({ port: getPort(), onServerCrash });
   } catch (error) {
     console.error("🚀 ~ setupServerControl ~ error:", error);

@@ -20,7 +20,7 @@ export type StartServer = {
 };
 
 export const startServer = async (options?: { port?: number; onServerCrash?: () => void }): Promise<StartServer> => {
-  const { port = 1234 } = options || {};
+  const { port = 2137 } = options || {};
 
   const server = createServer();
   const wss = new WebSocketServer({ server });
@@ -90,7 +90,7 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
   server
     .listen(port, () => {
       // eslint-disable-next-line no-console
-      console.log(`WebSocket server is running on port ${port}`);
+      console.log(`Application Server is running on port ${port}`);
     })
     .on("close", () => {
       if (options?.onServerCrash) {
@@ -112,7 +112,7 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
     });
 
   const isReady = new Promise((resolve) => {
-    server.on("listening", () => {
+    server.on(`listening`, () => {
       resolve(true);
     });
   });
