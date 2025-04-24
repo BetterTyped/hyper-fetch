@@ -8,14 +8,20 @@ import type { Settings } from "frontend/store/app/settings.store";
 
 // Store server instance for control
 let serverInstance: StartServer | null = null;
+const defaultPort = 2137;
 
 const getPort = (options?: { port?: number }) => {
   const storeData = store.get("settings");
   const parsed = parseResponse(storeData) as { state?: { settings: Settings } } | undefined;
+  const port = options?.port || parsed?.state?.settings?.serverPort || defaultPort;
   // eslint-disable-next-line no-console
-  console.log(`Found settings port: ${parsed?.state?.settings?.serverPort}`);
+  console.log(`Setting Application Server port: ${port}`, {
+    passedPort: options?.port,
+    settingsPort: parsed?.state?.settings?.serverPort,
+    defaultPort,
+  });
 
-  return options?.port || parsed?.state?.settings?.serverPort || 2137;
+  return port;
 };
 
 /**
@@ -48,7 +54,7 @@ const isPortInUse = (port: number): Promise<boolean> => {
 const notifyStatusChange = (isRunning: boolean) => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((window) => {
-    window.webContents.send("electron-server-status-change", isRunning);
+    window.webContents.send("application-server-status-change", isRunning);
   });
 };
 
@@ -72,16 +78,16 @@ export async function setupServerControl() {
   notifyStatusChange(!!serverInstance?.server);
 
   // Server control IPC handlers
-  ipcMain.handle("electron-server-status", () => {
+  ipcMain.handle("application-server-status", () => {
     return !!serverInstance?.server;
   });
 
-  ipcMain.on("electron-server-status", (event) => {
+  ipcMain.on("application-server-status", (event) => {
     // eslint-disable-next-line no-param-reassign
     event.returnValue = !!serverInstance?.server;
   });
 
-  ipcMain.handle("electron-server-restart", async (_, options: { port?: number }) => {
+  ipcMain.handle("application-server-restart", async (_, options: { port?: number }) => {
     const port = getPort(options);
 
     // Check if port is already in use

@@ -45,18 +45,18 @@ if (process.contextIsolated) {
       },
       server: {
         status() {
-          return ipcRenderer.sendSync("electron-server-status");
+          return ipcRenderer.sendSync("application-server-status");
         },
         restart(options) {
-          return ipcRenderer.invoke("electron-server-restart", options);
+          return ipcRenderer.invoke("application-server-restart", options);
         },
         onStatusChange(callback) {
           const subscription = (_: any, isRunning: boolean) => callback(isRunning);
-          ipcRenderer.on("electron-server-status-change", subscription);
+          ipcRenderer.on("application-server-status-change", subscription);
 
           // Return a function to remove the listener
           return () => {
-            ipcRenderer.removeListener("electron-server-status-change", subscription);
+            ipcRenderer.removeListener("application-server-status-change", subscription);
           };
         },
       },
@@ -84,18 +84,18 @@ if (process.contextIsolated) {
     },
     server: {
       status() {
-        return ipcRenderer.sendSync("electron-server-status");
+        return ipcRenderer.sendSync("application-server-status");
       },
       restart(options) {
-        return ipcRenderer.invoke("electron-server-restart", options);
+        return ipcRenderer.invoke("application-server-restart", options);
       },
       onStatusChange(callback) {
         const subscription = (_: any, isRunning: boolean) => callback(isRunning);
-        ipcRenderer.on("electron-server-status-change", subscription);
+        ipcRenderer.on("application-server-status-change", subscription);
 
         // Return a function to remove the listener
         return () => {
-          ipcRenderer.removeListener("electron-server-status-change", subscription);
+          ipcRenderer.removeListener("application-server-status-change", subscription);
         };
       },
     },
