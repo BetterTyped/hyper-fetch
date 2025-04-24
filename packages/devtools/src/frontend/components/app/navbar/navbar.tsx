@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
-import { Home, Package, Maximize2, X, Minus } from "lucide-react";
+import { Home, Maximize2, X, Minus, AppWindowMac } from "lucide-react";
+import { BreadcrumbsType } from "@reins/router";
 
 import {
   Breadcrumb,
@@ -11,7 +12,7 @@ import {
 } from "frontend/components/ui/breadcrumb";
 // import { Button } from "frontend/components/ui/button";
 // import { NavUser } from "./nav-user";
-import { Link, useBreadcrumbs } from "frontend/routing/router";
+import { Link, RoutingRoot, useBreadcrumbs } from "frontend/routing/router";
 import { useIsFocused } from "frontend/hooks/use-is-focused";
 
 const dragStyle = {
@@ -23,6 +24,21 @@ const noDragStyle = {
   "-webkit-user-select": "none",
   "-webkit-app-region": "no-drag",
 } as React.CSSProperties;
+
+const Item = ({ name, params, breadcrumb }: BreadcrumbsType<RoutingRoot>[number]) => {
+  switch (name) {
+    case "project": {
+      return (
+        <>
+          <AppWindowMac className="w-4 h-4" />
+          {params.projectName}
+        </>
+      );
+    }
+    default:
+      return breadcrumb;
+  }
+};
 
 export const Navbar = () => {
   const isFocused = useIsFocused();
@@ -94,14 +110,12 @@ export const Navbar = () => {
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {breadcrumbs.map((data, index) => {
-                const { name, path } = data;
+                const { path, name } = data;
                 const isLast = index === breadcrumbs.length - 1;
-
-                const isProject = path.includes("project") && path.split("/").length === 3;
 
                 if (!isLast) {
                   return (
-                    <Fragment key={name}>
+                    <Fragment key={path}>
                       <BreadcrumbSeparator className="hidden md:block" />
                       <BreadcrumbItem>
                         <BreadcrumbLink
@@ -111,8 +125,7 @@ export const Navbar = () => {
                           asChild
                         >
                           <Link href={path}>
-                            {isProject ? <Package className="w-4 h-4" /> : null}
-                            {name}
+                            <Item {...data} />
                           </Link>
                         </BreadcrumbLink>
                       </BreadcrumbItem>
@@ -125,8 +138,7 @@ export const Navbar = () => {
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
                       <BreadcrumbPage className="capitalize">
-                        {isProject ? <Package className="w-4 h-4" /> : null}
-                        {name}
+                        <Item {...data} />
                       </BreadcrumbPage>
                     </BreadcrumbItem>
                   </Fragment>

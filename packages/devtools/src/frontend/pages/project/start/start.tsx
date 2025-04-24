@@ -8,10 +8,19 @@ import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
 import { Errors } from "./errors/errors";
-import { Section, SectionActions, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
+import {
+  Section,
+  SectionActions,
+  SectionDescription,
+  SectionHeader,
+  SectionIcon,
+  SectionTitle,
+} from "frontend/components/ui/section";
 import { Environments } from "./environments/environments";
+import { AdapterIcon } from "frontend/components/ui/adapter-icon";
+import { Badge } from "frontend/components/ui/badge";
 
-export const ProjectDetails = () => {
+export const ProjectStart = () => {
   const {
     params: { projectName },
   } = useRoute("project");
@@ -33,7 +42,14 @@ export const ProjectDetails = () => {
             <FolderOpen className="h-6 w-6 text-gray-400" />
           )}
         </SectionIcon>
-        <SectionTitle className="text-2xl">{project.name}</SectionTitle>
+        <SectionTitle className="text-2xl flex items-center gap-2">
+          {project.name}
+          <Badge variant="secondary">
+            <AdapterIcon name={project.adapterName} />
+            {project.adapterName}
+          </Badge>
+        </SectionTitle>
+        <SectionDescription>{project.url || "Not configured"}</SectionDescription>
         <SectionActions>
           <Environments />
         </SectionActions>

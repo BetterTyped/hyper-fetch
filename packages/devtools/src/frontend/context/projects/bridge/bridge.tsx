@@ -6,7 +6,7 @@ import { Socket } from "@hyper-fetch/sockets";
 import { BaseMessage, MessageType } from "types/messages.types";
 import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionName } from "frontend/constants/connection.name";
-import { useProjects } from "frontend/store/project/projects.store";
+import { defaultSimulatedError, useProjects } from "frontend/store/project/projects.store";
 import { useConnectionStore } from "frontend/store/project/connection.store";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
@@ -82,11 +82,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
             url: client.url,
             settings: {
               simulatedErrors: {
-                Default: {
-                  name: "Default",
-                  status: 400,
-                  body: new Error("This is error simulated by HyperFetch Devtools"),
-                },
+                Default: defaultSimulatedError,
               },
               maxRequestsHistorySize: 1000,
             },

@@ -1,3 +1,7 @@
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
 export type EmptyTypes = null | undefined;
 
 export type NullableType<T> = T | EmptyTypes;

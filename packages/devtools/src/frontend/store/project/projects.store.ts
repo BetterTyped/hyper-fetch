@@ -39,6 +39,14 @@ export type Project = {
   };
 };
 
+export const defaultSimulatedError: SimulatedError = {
+  name: "Default",
+  status: 400,
+  body: {
+    message: "This is error simulated by HyperFetch Devtools",
+  },
+};
+
 export type ProjectStore = {
   projects: { [key: string]: Project };
   addProject: (project: Project) => void;
@@ -62,7 +70,7 @@ export const useProjects = create<ProjectStore>()(
             draft.projects[project.name] = project;
             draft.projects[project.name].settings.simulatedErrors = {
               ...project.settings.simulatedErrors,
-              Default: new Error("This is error simulated by HyperFetch Devtools"),
+              Default: defaultSimulatedError,
             };
           }),
         );
@@ -90,11 +98,7 @@ export const useProjects = create<ProjectStore>()(
               simulatedErrors: {
                 ...draft.projects[projectName].settings.simulatedErrors,
                 ...settings.simulatedErrors,
-                Default: {
-                  name: "Default",
-                  status: 400,
-                  body: new Error("This is error simulated by HyperFetch Devtools"),
-                },
+                Default: defaultSimulatedError,
               },
             };
           }),
@@ -105,11 +109,7 @@ export const useProjects = create<ProjectStore>()(
           produce(state, (draft) => {
             draft.projects[projectName].settings.simulatedErrors = {
               ...simulatedErrors,
-              Default: {
-                name: "Default",
-                status: 400,
-                body: new Error("This is error simulated by HyperFetch Devtools"),
-              },
+              Default: defaultSimulatedError,
             };
           }),
         );

@@ -14,7 +14,7 @@ import { WorkspaceMocks } from "frontend/pages/workspace/mocks/details";
 import { WorkspaceTesting } from "frontend/pages/workspace/testing/testing";
 import { WorkspaceDocumentation } from "frontend/pages/workspace/documentation/documentation";
 import { WorkspaceApis } from "frontend/pages/workspace/apis/apis";
-import { ProjectDetails } from "frontend/pages/project/details/details";
+import { ProjectStart } from "frontend/pages/project/start/start";
 import { ProjectSettings } from "frontend/pages/project/settings/settings";
 import { ProjectQueues } from "frontend/pages/project/queues/queues";
 import { ProjectNetwork } from "frontend/pages/project/network/network";
@@ -56,7 +56,7 @@ const root = createRoot({
   }),
   project: createRoute({
     path: "/project/:projectName",
-    component: ProjectDetails,
+    component: ProjectStart,
     layout: ProjectLayout,
   }).addChildren({
     network: createRoute({
@@ -111,4 +111,5 @@ export const { Link, Application, useRoute, useLocation, useBreadcrumbs, useMatc
   root,
 });
 
+export type RoutingRoot = typeof root;
 export type RoutingLocations = RoutesNames<(typeof root)["children"]>;

@@ -91,9 +91,11 @@ export const ProjectsProvider = ({ children }: { children: React.ReactNode }) =>
   return (
     <>
       <Bridge key={String(settings.serverPort)} port={settings.serverPort} />
-      {Object.keys(connections).map((connection) => (
-        <Events key={connection} project={connection} />
-      ))}
+      {Object.entries(connections)
+        .filter(([, connection]) => connection.connected)
+        .map(([connectionName]) => (
+          <Events key={connectionName} project={connectionName} />
+        ))}
       {Object.keys(connections).map((project) => (
         <State key={project} project={project} />
       ))}

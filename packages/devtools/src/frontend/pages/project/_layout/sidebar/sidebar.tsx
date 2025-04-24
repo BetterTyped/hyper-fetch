@@ -91,7 +91,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
               <SidebarMenuButton
                 size="lg"
                 asChild
-                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 hover:bg-yellow-600/70 text-sidebar-primary-foreground"
+                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 hover:bg-yellow-500/80 text-sidebar-primary-foreground"
               >
                 <Link to="dashboard">
                   <Home className="!size-5" />
@@ -106,7 +106,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
               <SidebarMenu className="p-0">
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className={cn(!getIsActive(item.url) && "opacity-60")}>
+                    <SidebarMenuButton asChild className={cn(!getIsActive(item.url) ? "opacity-60" : "bg-gray-400/10")}>
                       <Link to={item.url} params={{ projectName }} className="flex flex-col h-15">
                         <item.icon className="!size-5" />
                         <span className="text-[11px]">{item.title}</span>
