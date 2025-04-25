@@ -1,12 +1,11 @@
 {
   "name": "@hyper-fetch/devtools",
-  "productName": "Hyper Flow",
-  "description": "Hyper Fetch application for managing the API",
+  "description": "Manage your API with Hyper Flow",
   "version": "0.0.0",
-  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": ".vite/build/index.js",
+  "main": ".vite/build/main.js",
   "scripts": {
     "dev": "vite",
     "clean": "npx rimraf dist",
