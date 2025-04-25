@@ -2,7 +2,7 @@
   "name": "eslint-plugin-hyper-fetch",
   "version": "0.0.0",
   "description": "Eslint plugin for HyperFetch",
-  "author": "Maciej Pyrc <m.pyrc@interia.pl>",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
   "main": "dist/index.js",

@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/codegen-openapi",
   "version": "0.0.0",
   "description": "Hyper Fetch request code generator from OpenApi schema",
-  "author": "Kacper Skawina <kacper.skawina@gmail.com>",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
   "main": "dist/index.js",

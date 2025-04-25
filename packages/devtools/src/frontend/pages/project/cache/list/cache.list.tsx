@@ -11,6 +11,7 @@ import { CacheRowItem } from "./row-item/row-item";
 import { useCacheStore } from "frontend/store/project/cache.store";
 import { EmptyTable } from "frontend/components/ui/empty-table";
 import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription } from "frontend/components/ui/section";
+import { DocsButton } from "frontend/components/ui/docs-button";
 
 export const CacheList = () => {
   const { project } = useDevtools();
@@ -54,7 +55,9 @@ export const CacheList = () => {
         </Table>
       )}
       {!items.length && (
-        <EmptyTable title="No cache entries" description="Make some cached request to see its data here." />
+        <EmptyTable title="No cache entries" description="Make some cached request to see its data here.">
+          <DocsButton />
+        </EmptyTable>
       )}
     </Section>
   );

@@ -69,6 +69,10 @@ export const State = ({ project }: { project: string }) => {
   const { client } = connections[project as keyof typeof connections];
 
   const handleCacheChange = useCallback(() => {
+    if (!client?.cache) {
+      return;
+    }
+
     const cacheKeys = [...client.cache.storage.keys()];
     const cacheItems = cacheKeys
       .map((key) => {
@@ -83,9 +87,13 @@ export const State = ({ project }: { project: string }) => {
     setProjectStates((draft) => {
       draft[project].cache = cacheItems;
     });
-  }, [client.cache, project, setProjectStates]);
+  }, [client?.cache, project, setProjectStates]);
 
   useEffect(() => {
+    if (!client) {
+      return;
+    }
+
     const unmountOffline = client.appManager.events.onOffline(() => {
       setProjectStates((draft) => {
         draft[project].isOnline = false;

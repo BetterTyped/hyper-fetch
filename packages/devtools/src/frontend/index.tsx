@@ -7,8 +7,7 @@ import { App } from "./app";
 setAutoFreeze(false);
 enableMapSet();
 
-const root = createRoot(document.getElementById("root") as HTMLElement);
-root.render(
+createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,

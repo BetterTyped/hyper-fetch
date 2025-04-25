@@ -8,7 +8,7 @@ import { Badge } from "frontend/components/ui/badge";
 
 export const ProjectLayout = () => {
   const { project } = useDevtools();
-  const connected = useConnectionStore((state) => state.connections[project.name].connected);
+  const connected = useConnectionStore((state) => !!state.connections[project.name]?.connected);
 
   return (
     <div className="grid grid-cols-[70px_1fr] h-full w-full py-2 px-1">

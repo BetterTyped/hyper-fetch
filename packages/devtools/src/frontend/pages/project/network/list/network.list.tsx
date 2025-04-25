@@ -14,6 +14,7 @@ import { useNetworkStore } from "frontend/store/project/network.store";
 import { cn } from "frontend/lib/utils";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 import { EmptyTable } from "frontend/components/ui/empty-table";
+import { DocsButton } from "frontend/components/ui/docs-button";
 
 export const NetworkList = () => {
   const { project } = useDevtools();
@@ -113,7 +114,9 @@ export const NetworkList = () => {
         </Table>
       )}
       {!items.length && (
-        <EmptyTable title="Network is empty" description="Make some request to see them listed here." />
+        <EmptyTable title="Network is empty" description="Make some request to see them listed here.">
+          <DocsButton />
+        </EmptyTable>
       )}
     </Section>
   );

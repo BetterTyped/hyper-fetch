@@ -11,36 +11,39 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 
 const config: ForgeConfig = {
   packagerConfig: {
+    name: "Hyper Flow",
     asar: true,
-    icon: "./src/app/assets/logo.svg",
+    icon: "./src/app/assets/appstore.png",
+    appCategoryType: "public.app-category.developer-tools",
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      description: "Hyper Fetch Devtools",
-      name: "hyper-fetch-devtools",
-      authors: "Maciej Pyrc",
-      setupExe: "hyper-fetch-devtools.exe",
+      name: "HyperFlow",
+      description: "Hyper Fetch application for managing the API",
+      authors: "Maciej Pyrc, Kacper Skawina",
+      setupExe: "hyper-flow.exe",
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({
       options: {
-        name: "Hyper Fetch Devtools",
-        icon: "./src/app/assets/logo.svg",
-        productName: "Hyper Fetch Devtools",
+        name: "HyperFlow",
+        icon: "./src/app/assets/appstore.png",
+        productName: "Hyper Flow",
       },
     }),
     new MakerDMG({
       format: "ULFO",
-      name: "hyper-fetch",
+      name: "Hyper Flow",
+      icon: "./src/app/assets/appstore.png",
     }),
   ],
   publishers: [
     new PublisherGithub({
       repository: {
         owner: "prc5",
-        name: "hyper-fetch",
+        name: "@BetterTyped/hyper-fetch",
       },
       draft: true,
     }),

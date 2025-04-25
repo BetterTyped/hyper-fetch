@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/core",
   "version": "0.0.0",
   "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",
-  "author": "Maciej Pyrc <m.pyrc@interia.pl>",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
   "main": "dist/index.js",

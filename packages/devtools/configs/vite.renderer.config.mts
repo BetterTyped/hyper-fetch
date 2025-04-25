@@ -6,8 +6,8 @@ import svgr from "vite-plugin-svgr";
 
 import { config } from "./vite.base.config";
 
-config.plugins?.push(react());
-config.plugins?.push(tailwindcss());
-config.plugins?.push(svgr());
 // https://vitejs.dev/config
-export default defineConfig(config);
+export default defineConfig({
+  ...config,
+  plugins: [...(config.plugins || []), react(), tailwindcss(), svgr()],
+});

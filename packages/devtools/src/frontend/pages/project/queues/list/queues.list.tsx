@@ -9,6 +9,7 @@ import { useQueueStore } from "frontend/store/project/queue.store";
 import { Item } from "./queue-item/queue-item";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
 import { EmptyTable } from "frontend/components/ui/empty-table";
+import { DocsButton } from "frontend/components/ui/docs-button";
 
 export const QueuesList = () => {
   const { project } = useDevtools();
@@ -40,7 +41,9 @@ export const QueuesList = () => {
           })}
         </div>
         {!items.length && (
-          <EmptyTable title="No active queues" description="Make some request to see all active queues here." />
+          <EmptyTable title="No active queues" description="Make some request to see all active queues here.">
+            <DocsButton />
+          </EmptyTable>
         )}
       </div>
     </Section>
