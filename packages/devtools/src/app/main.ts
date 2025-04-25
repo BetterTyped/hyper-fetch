@@ -5,7 +5,8 @@ import started from "electron-squirrel-startup";
 import { setupWindowControls } from "./src/window-controls";
 import { persistentStore } from "./src/persistent-store";
 import { copyToClipboard } from "./src/clipboard";
-import { setupServerControl } from "./src/server-control";
+import { closeServer, setupServerControl } from "./src/server-control";
+import { createMenu } from "./src/menu";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -15,6 +16,7 @@ if (started) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    title: "Hyper Flow",
     transparent: true,
     frame: false,
     width: 1200,
@@ -53,21 +55,23 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", () => {
+  createWindow();
+  createMenu();
+  setupServerControl();
+});
 
 app.whenReady().then(async () => {
   copyToClipboard();
   persistentStore();
   setupWindowControls();
-
-  // Initialize server control
-  await setupServerControl();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
+  closeServer();
   if (process.platform !== "darwin") {
     app.quit();
   }

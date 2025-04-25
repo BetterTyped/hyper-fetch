@@ -63,6 +63,15 @@ const onServerCrash = () => {
   notifyStatusChange(false);
 };
 
+export const closeServer = () => {
+  if (serverInstance && serverInstance.server) {
+    serverInstance.server.close();
+    if (serverInstance.wss) {
+      serverInstance.wss.close();
+    }
+  }
+};
+
 /**
  * Initialize the server and set up IPC handlers for controlling it
  */
@@ -103,12 +112,7 @@ export async function setupServerControl() {
     }
 
     // If server is running, stop it first
-    if (serverInstance && serverInstance.server) {
-      serverInstance.server.close();
-      if (serverInstance.wss) {
-        serverInstance.wss.close();
-      }
-    }
+    closeServer();
 
     // Start server with new options
     try {
