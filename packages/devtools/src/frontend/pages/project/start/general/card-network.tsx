@@ -8,6 +8,8 @@ import { cn } from "frontend/lib/utils";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
 import { toNumber } from "frontend/store/project/utils";
 import { formatBytes } from "frontend/utils/size.utils";
+import { AdapterIcon } from "frontend/components/ui/adapter-icon";
+import { Badge } from "frontend/components/ui/badge";
 
 export const CardNetwork = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
@@ -17,16 +19,25 @@ export const CardNetwork = ({ className }: { className?: string }) => {
   const cachingRate = toNumber((networkStats.totalCachedRequests * 100) / networkStats.totalRequests);
 
   return (
-    <Card className={cn(className)}>
+    <Card className={cn(className, "gap-3")}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Earth className="h-4 w-4" />
           Network Overview
         </CardTitle>
-        <CardDescription>Traffic summary statistics</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Adapter</p>
+            <p>
+              <Badge variant="secondary">
+                <AdapterIcon name={project.adapterName} />
+                {project.adapterName}
+              </Badge>
+            </p>
+          </div>
+          <div />
           <div>
             <p className="text-sm text-muted-foreground">Total Requests</p>
             <p className="text-2xl font-bold">{networkStats.totalRequests}</p>

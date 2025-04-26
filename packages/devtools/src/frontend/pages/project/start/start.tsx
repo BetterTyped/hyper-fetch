@@ -17,8 +17,6 @@ import {
   SectionTitle,
 } from "frontend/components/ui/section";
 import { Environments } from "./environments/environments";
-import { AdapterIcon } from "frontend/components/ui/adapter-icon";
-import { Badge } from "frontend/components/ui/badge";
 
 export const ProjectStart = () => {
   const {
@@ -45,10 +43,6 @@ export const ProjectStart = () => {
         <SectionTitle className="text-2xl flex items-center gap-2">{project.name}</SectionTitle>
         <SectionDescription className="-mt-1 flex items-center gap-2">
           {project.url || "Not configured"}
-          <Badge variant="secondary">
-            <AdapterIcon name={project.adapterName} />
-            {project.adapterName}
-          </Badge>
         </SectionDescription>
         <SectionActions>
           <Environments />
