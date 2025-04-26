@@ -16,10 +16,11 @@ interface ProjectCardProps {
   name: string;
   iconUrl: string;
   adapterName: string;
+  url: string;
   onOpen: () => void;
 }
 
-export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, onOpen }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, url, onOpen }) => {
   const { connections, removeConnection } = useConnectionStore();
   const removeProject = useProjects((state) => state.removeProject);
   const { connected } = connections[name] || { connected: false };
@@ -48,9 +49,10 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, 
               )}
             </Avatar>
             <div className="space-y-0.5 mt-1 overflow-hidden flex-1">
-              <h3 className="font-medium text-2xl leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500">
+              <h3 className="font-medium text-2xl leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500 text-ellipsis">
                 {name}
               </h3>
+              <div className="text-xs text-gray-400/80 text-ellipsis">{url}</div>
             </div>
             <div className="-mr-2 -mt-4">
               <DropdownMenu>
@@ -80,7 +82,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, 
           </div>
         </CardHeader>
         <CardContent className="flex-1 space-y-3">
-          <div className="pt-1 text-muted-foreground/80">
+          <div className="pt-1 text-muted-foreground/90">
             {connected && <p className="text-base">Project is currently active and connected</p>}
             {!connected && <p className="text-base">Project is currently offline</p>}
           </div>
@@ -107,7 +109,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ name, iconUrl, adapterName, 
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end pt-0">
+        <CardFooter className="flex justify-end pt-0 -mt-2">
           <Button
             variant="ghost"
             size="lg"

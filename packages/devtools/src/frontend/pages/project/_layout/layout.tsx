@@ -1,4 +1,5 @@
 import { Outlet } from "@reins/router";
+import { Plug2 } from "lucide-react";
 
 import { ProjectSidebar } from "./sidebar/sidebar";
 import { Content } from "frontend/components/ui/content";
@@ -16,11 +17,9 @@ export const ProjectLayout = () => {
       <Content className="relative">
         {!connected && (
           <div className="absolute left-1/2 top-2 z-50 -translate-x-1/2">
-            <Badge variant="warning" className="flex items-center gap-2">
-              <div className="relative flex items-center justify-center">
-                <div className="h-2 w-2 rounded-full bg-yellow-500" />
-              </div>
-              Disconnected
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <Plug2 className="w-5 h-5" />
+              Offline
             </Badge>
           </div>
         )}

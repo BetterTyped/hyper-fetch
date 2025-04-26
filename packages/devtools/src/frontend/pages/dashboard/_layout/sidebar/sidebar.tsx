@@ -6,10 +6,10 @@ import { NavPrimary } from "./_components/nav-primary";
 import { NavTertiary } from "./_components/nav-tertiary";
 // import { NavOrg } from "./_components/nav-org";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
-import Logo from "../../../../assets/images/logo.svg?react";
 import { RoutingLocations } from "frontend/routing/router";
 import { Badge } from "frontend/components/ui/badge";
 import { cn } from "frontend/lib/utils";
+import icon from "frontend/assets/images/icon.png";
 
 const primary: Array<{
   title: string;
@@ -97,7 +97,7 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
       <Sidebar variant="inset" {...props} collapsible="none" className="h-full rounded-xl pl-2 w-full">
         <SidebarHeader>
           <div className="flex items-center gap-1 pt-5 pb-0 pr-3">
-            <Logo className="h-9 w-9 ml-1" />
+            <img src={icon} alt="" className="h-9 w-9 ml-1" />
             <div className="text-xl tracking-wide">
               <span className="font-bold mr-1">Hyper</span>
               <span

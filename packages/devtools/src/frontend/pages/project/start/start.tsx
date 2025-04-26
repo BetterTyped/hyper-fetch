@@ -42,14 +42,14 @@ export const ProjectStart = () => {
             <FolderOpen className="h-6 w-6 text-gray-400" />
           )}
         </SectionIcon>
-        <SectionTitle className="text-2xl flex items-center gap-2">
-          {project.name}
+        <SectionTitle className="text-2xl flex items-center gap-2">{project.name}</SectionTitle>
+        <SectionDescription className="-mt-1 flex items-center gap-2">
+          {project.url || "Not configured"}
           <Badge variant="secondary">
             <AdapterIcon name={project.adapterName} />
             {project.adapterName}
           </Badge>
-        </SectionTitle>
-        <SectionDescription>{project.url || "Not configured"}</SectionDescription>
+        </SectionDescription>
         <SectionActions>
           <Environments />
         </SectionActions>

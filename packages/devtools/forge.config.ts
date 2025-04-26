@@ -13,30 +13,25 @@ const config: ForgeConfig = {
   packagerConfig: {
     name: "Hyper Flow",
     asar: true,
-    icon: "./src/app/assets/appstore.png",
-    appCategoryType: "public.app-category.developer-tools",
+    icon: "./src/app/images/icon",
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      name: "HyperFlow",
-      description: "Hyper Fetch application for managing the API",
       authors: "Maciej Pyrc, Kacper Skawina",
       setupExe: "hyper-flow.exe",
+      setupIcon: "./src/app/images/icon.ico",
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({
       options: {
-        name: "HyperFlow",
-        icon: "./src/app/assets/appstore.png",
-        productName: "Hyper Flow",
+        icon: "./src/app/images/icon.png",
       },
     }),
     new MakerDMG({
       format: "ULFO",
-      name: "Hyper Flow",
-      icon: "./src/app/assets/appstore.png",
+      icon: "./src/app/images/icon.icns",
     }),
   ],
   publishers: [
