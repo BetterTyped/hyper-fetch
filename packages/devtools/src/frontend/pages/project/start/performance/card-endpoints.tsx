@@ -22,8 +22,8 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
   );
 
   const slowestEndpoints = useMemo(() => {
-    return Object.entries(methodsStats)
-      .sort((a, b) => b[1].avgResponseTime - a[1].avgResponseTime)
+    return Array.from(methodsStats.values())
+      .sort((a, b) => b.methodStats.avgResponseTime - a.methodStats.avgResponseTime)
       .slice(0, 10);
   }, [methodsStats]);
 
@@ -45,23 +45,26 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
           </TableHeader>
           {!!slowestEndpoints.length && (
             <TableBody>
-              {slowestEndpoints.map(([key, req]) => (
-                <TableRow key={key}>
+              {slowestEndpoints.map((req) => (
+                <TableRow key={req.method}>
                   <TableCell className="font-medium">
-                    <Method method={req.method} /> {req.endpoint}
+                    <Method method={req.method} />
                   </TableCell>
-                  <TableCell>{req.avgResponseTime}ms</TableCell>
+                  <TableCell>{req.methodStats.avgResponseTime}ms</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{req.avgProcessingTime}ms</span>
-                      <Progress value={(req.avgProcessingTime / req.avgResponseTime) * 100} className="h-2 w-24" />
+                      <span>{req.methodStats.avgProcessingTime}ms</span>
+                      <Progress
+                        value={(req.methodStats.avgProcessingTime / req.methodStats.avgResponseTime) * 100}
+                        className="h-2 w-24"
+                      />
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{req.avgResponseTime}ms</span>
+                      <span>{req.methodStats.avgResponseSize}ms</span>
                       <Progress
-                        value={(generalStats.avgResponseTime / req.avgResponseTime) * 100}
+                        value={(generalStats.avgResponseTime / req.methodStats.avgResponseTime) * 100}
                         className="h-2 w-24"
                       />
                     </div>

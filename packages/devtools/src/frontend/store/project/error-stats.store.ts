@@ -22,6 +22,10 @@ export const initialErrorStats: ErrorStats = {
 };
 
 export const getErrorStats = (data: NonNullableKeys<DevtoolsRequestEvent>, prev?: ErrorStats): ErrorStats => {
+  if (data.response.success) {
+    return prev || initialErrorStats;
+  }
+
   return {
     status: data.response.status,
     errors: [...new Set([...(prev?.errors ?? []), stringifyValue(data.response.error)])],

@@ -8,12 +8,9 @@ import { getDataSize, getEndpointAndMethod } from "./utils";
 export type NetworkStats = {
   // General
   totalRequests: number;
-  totalRequestsLoading: number;
   totalRequestsSuccess: number;
   totalRequestsFailed: number;
   totalRequestsCanceled: number;
-  totalRequestsPaused: number;
-  totalRequestsRemoved: number;
   totalCachedRequests: number;
   totalNonCachedRequests: number;
   // Response
@@ -27,7 +24,7 @@ export type NetworkStats = {
   lowestResponseTimeSuccess: number;
   lowestResponseTimeFailed: number;
   latestResponseTime: number;
-  // Processing
+  // Processing / Queue
   avgProcessingTime: number;
   highestProcessingTime: number;
   lowestProcessingTime: number;
@@ -42,22 +39,14 @@ export type NetworkStats = {
   highestPayloadSize: number;
   highestResponseSize: number;
   latestResponseSize: number;
-  // Queue
-  avgQueueTime: number;
-  highestQueueTime: number;
-  lowestQueueTime: number;
-  latestQueueTime: number;
 };
 
 export const initialNetworkStats: NetworkStats = {
   // General
   totalRequests: 0,
-  totalRequestsLoading: 0,
   totalRequestsSuccess: 0,
   totalRequestsFailed: 0,
   totalRequestsCanceled: 0,
-  totalRequestsPaused: 0,
-  totalRequestsRemoved: 0,
   totalCachedRequests: 0,
   totalNonCachedRequests: 0,
   // Response
@@ -86,17 +75,24 @@ export const initialNetworkStats: NetworkStats = {
   highestPayloadSize: 0,
   highestResponseSize: 0,
   latestResponseSize: 0,
-  // Queue
-  avgQueueTime: 0,
-  highestQueueTime: 0,
-  lowestQueueTime: 0,
-  latestQueueTime: 0,
 };
 
 const getNetworkInitialState = (): NetworkStatsStore => ({
   networkStats: initialNetworkStats,
   networkEntries: new Map(),
 });
+
+const getAvgValue = (currentAvg: number, newValue: number, enabled = true) => {
+  return enabled ? (currentAvg + newValue) / 2 : currentAvg;
+};
+
+const getHighestValue = (currentHighest: number, newValue: number, enabled = true) => {
+  return enabled ? Math.max(currentHighest, newValue) : currentHighest;
+};
+
+const getLowestValue = (currentLowest: number, newValue: number, enabled = true) => {
+  return enabled ? Math.min(currentLowest, newValue) : currentLowest;
+};
 
 export const getNetworkStats = (
   currentStats: NetworkStats,
@@ -107,67 +103,49 @@ export const getNetworkStats = (
   },
 ): NetworkStats => {
   const { request, response, details } = data;
-
-  const cached = request.cache ? 1 : 0;
-  const nonCached = request.cache ? 0 : 1;
-
-  const isSuccess = response?.success ?? false;
-  const responseTime = details.responseTimestamp - response.requestTimestamp;
   const { responseSize, payloadSize } = perf;
-  const isLoading = !response;
+
+  const responseTime = details.responseTimestamp - response.requestTimestamp;
+  const processingTime = details.triggerTimestamp - details.requestTimestamp;
 
   return {
     // General
     totalRequests: currentStats.totalRequests + 1,
-    totalRequestsLoading: currentStats.totalRequestsLoading + (isLoading ? 1 : 0),
-    totalRequestsSuccess: currentStats.totalRequestsSuccess + (isSuccess ? 1 : 0),
-    totalRequestsFailed: currentStats.totalRequestsFailed + (!isSuccess ? 1 : 0),
-    totalRequestsCanceled: currentStats.totalRequestsCanceled,
-    totalRequestsPaused: currentStats.totalRequestsPaused,
-    totalRequestsRemoved: currentStats.totalRequestsRemoved,
-    totalCachedRequests: currentStats.totalCachedRequests + cached,
-    totalNonCachedRequests: currentStats.totalNonCachedRequests + nonCached,
+    totalRequestsSuccess: currentStats.totalRequestsSuccess + (response.success ? 1 : 0),
+    totalRequestsFailed: currentStats.totalRequestsFailed + (!response.success ? 1 : 0),
+    totalRequestsCanceled: currentStats.totalRequestsCanceled + (details.isCanceled ? 1 : 0),
+    totalCachedRequests: currentStats.totalCachedRequests + (request.cache ? 1 : 0),
+    totalNonCachedRequests: currentStats.totalNonCachedRequests + (request.cache ? 0 : 1),
     // Response
-    avgResponseTime: currentStats.avgResponseTime,
-    avgResponseTimeSuccess: currentStats.avgResponseTimeSuccess,
-    avgResponseTimeFailed: currentStats.avgResponseTimeFailed,
-    highestResponseTime: currentStats.highestResponseTime,
-    highestResponseTimeSuccess: currentStats.highestResponseTimeSuccess,
-    highestResponseTimeFailed: currentStats.highestResponseTimeFailed,
-    lowestResponseTime: currentStats.lowestResponseTime,
-    // eslint-disable-next-line no-nested-ternary
-    lowestResponseTimeSuccess: isSuccess
-      ? currentStats.lowestResponseTimeSuccess === 0
-        ? responseTime
-        : Math.min(currentStats.lowestResponseTimeSuccess, responseTime)
-      : currentStats.lowestResponseTimeSuccess,
-    // eslint-disable-next-line no-nested-ternary
-    lowestResponseTimeFailed: !isSuccess
-      ? currentStats.lowestResponseTimeFailed === 0
-        ? responseTime
-        : Math.min(currentStats.lowestResponseTimeFailed, responseTime)
-      : currentStats.lowestResponseTimeFailed,
+    avgResponseTime: getAvgValue(currentStats.avgResponseTime, responseTime),
+    avgResponseTimeSuccess: getAvgValue(currentStats.avgResponseTimeSuccess, responseTime, response.success),
+    avgResponseTimeFailed: getAvgValue(currentStats.avgResponseTimeFailed, responseTime, !response.success),
+    highestResponseTime: getHighestValue(currentStats.highestResponseTime, responseTime),
+    highestResponseTimeSuccess: getHighestValue(
+      currentStats.highestResponseTimeSuccess,
+      responseTime,
+      response.success,
+    ),
+    highestResponseTimeFailed: getHighestValue(currentStats.highestResponseTimeFailed, responseTime, !response.success),
+    lowestResponseTime: getLowestValue(currentStats.lowestResponseTime, responseTime),
+    lowestResponseTimeSuccess: getLowestValue(currentStats.lowestResponseTimeSuccess, responseTime, response.success),
+    lowestResponseTimeFailed: getLowestValue(currentStats.lowestResponseTimeFailed, responseTime, !response.success),
     latestResponseTime: responseTime,
     // Processing
-    avgProcessingTime: currentStats.avgProcessingTime,
-    highestProcessingTime: currentStats.highestProcessingTime,
-    lowestProcessingTime: currentStats.lowestProcessingTime,
-    latestProcessingTime: currentStats.latestProcessingTime,
+    avgProcessingTime: getAvgValue(currentStats.avgProcessingTime, processingTime),
+    highestProcessingTime: getHighestValue(currentStats.highestProcessingTime, processingTime),
+    lowestProcessingTime: getLowestValue(currentStats.lowestProcessingTime, processingTime),
+    latestProcessingTime: processingTime,
     // Payload
     totalTransferredPayload: currentStats.totalTransferredPayload + payloadSize,
     totalTransferredResponse: currentStats.totalTransferredResponse + responseSize,
-    avgPayloadSize: currentStats.avgPayloadSize,
-    avgResponseSize: currentStats.avgResponseSize,
-    lowestPayloadSize: currentStats.lowestPayloadSize,
-    lowestResponseSize: currentStats.lowestResponseSize,
-    highestPayloadSize: currentStats.highestPayloadSize,
-    highestResponseSize: currentStats.highestResponseSize,
+    avgPayloadSize: getAvgValue(currentStats.avgPayloadSize, payloadSize),
+    avgResponseSize: getAvgValue(currentStats.avgResponseSize, responseSize),
+    lowestPayloadSize: getLowestValue(currentStats.lowestPayloadSize, payloadSize),
+    lowestResponseSize: getLowestValue(currentStats.lowestResponseSize, responseSize),
+    highestPayloadSize: getHighestValue(currentStats.highestPayloadSize, payloadSize),
+    highestResponseSize: getHighestValue(currentStats.highestResponseSize, responseSize),
     latestResponseSize: responseSize,
-    // Queue
-    avgQueueTime: currentStats.avgQueueTime,
-    highestQueueTime: currentStats.highestQueueTime,
-    lowestQueueTime: currentStats.lowestQueueTime,
-    latestQueueTime: currentStats.latestQueueTime,
   };
 };
 

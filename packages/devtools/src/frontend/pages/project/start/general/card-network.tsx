@@ -1,7 +1,7 @@
 import { Earth } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { cn } from "frontend/lib/utils";

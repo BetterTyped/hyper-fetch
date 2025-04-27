@@ -25,7 +25,7 @@ export const CardPatterns = ({ className }: { className?: string }) => {
         <CardDescription>Common endpoint patterns and statistics in your application</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        {!stats.size && <EmptyState title="Analyzing API usage patterns..." description="No patterns detected yet." />}
+        {!stats?.size && <EmptyState title="Analyzing API usage patterns..." description="No patterns detected yet." />}
 
         {Array.from(stats?.values() || []).map(({ method, methodStats }) => (
           <div key={method} className="p-3 border rounded-md bg-gray-500/40">

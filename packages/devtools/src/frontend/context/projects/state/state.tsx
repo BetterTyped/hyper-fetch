@@ -160,11 +160,6 @@ export const State = ({ project }: { project: string }) => {
         data,
       });
 
-      setErrorStats({
-        project,
-        data,
-      });
-
       setCacheStats({
         project,
         data,
@@ -179,6 +174,13 @@ export const State = ({ project }: { project: string }) => {
         project,
         data,
       });
+
+      if (!response.success) {
+        setErrorStats({
+          project,
+          data,
+        });
+      }
     });
     const unmountOnRequestPause = client.requestManager.events.onAbort((item) => {
       const data: DevtoolsRequestEvent = {
