@@ -83,7 +83,7 @@ const getNetworkInitialState = (): NetworkStatsStore => ({
 });
 
 const getAvgValue = (currentAvg: number, newValue: number, enabled = true) => {
-  return enabled ? (currentAvg + newValue) / 2 : currentAvg;
+  return enabled ? parseFloat(((currentAvg + newValue) / 2).toFixed(2)) : currentAvg;
 };
 
 const getHighestValue = (currentHighest: number, newValue: number, enabled = true) => {
@@ -105,8 +105,8 @@ export const getNetworkStats = (
   const { request, response, details } = data;
   const { responseSize, payloadSize } = perf;
 
-  const responseTime = details.responseTimestamp - response.requestTimestamp;
-  const processingTime = details.triggerTimestamp - details.requestTimestamp;
+  const responseTime = parseFloat((details.responseTimestamp - response.requestTimestamp).toFixed(2));
+  const processingTime = parseFloat((details.triggerTimestamp - details.addedTimestamp).toFixed(2));
 
   return {
     // General
@@ -188,10 +188,17 @@ export const useNetworkStatsStore = create<{
         if (!draft.projects[project]) {
           draft.projects[project] = getNetworkInitialState();
         }
-        const endpointName = getEndpointAndMethod(data.request, data.client);
+
+        const globalEndpointAndMethod = getEndpointAndMethod(
+          // api/users/:id
+          data.request.requestOptions.endpoint,
+          data.request.method,
+          data.client,
+        );
+
         draft.projects[project].networkStats = getNetworkStats(draft.projects[project].networkStats, data, perf);
-        const existingEntry = draft.projects[project].networkEntries.get(endpointName);
-        draft.projects[project].networkEntries.set(endpointName, {
+        const existingEntry = draft.projects[project].networkEntries.get(globalEndpointAndMethod);
+        draft.projects[project].networkEntries.set(globalEndpointAndMethod, {
           endpoint: data.request.endpoint,
           method: data.request.method,
           stats: getNetworkStats(existingEntry?.stats ?? initialNetworkStats, data, perf),

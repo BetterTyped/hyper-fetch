@@ -141,7 +141,7 @@ body,
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.03 274);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.442 0.017 285.786);
+  --primary: oklch(0.79 0.15 81.49);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.27 0.03 260.8);
   --secondary-foreground: oklch(0.985 0 0);
@@ -257,16 +257,16 @@ body,
       background-position: 0% 0%;
     }
   }
-  --animate-background-position-spin: background-position-spin 3000ms infinite alternate
-;
+  --animate-background-position-spin: background-position-spin 3000ms infinite alternate;
   @keyframes background-position-spin {
-  0% {
-    background-position: top center;
+    0% {
+      background-position: top center;
     }
-  100% {
-    background-position: bottom center;
+    100% {
+      background-position: bottom center;
     }
-  }}
+  }
+}
 
 @layer base {
   * {

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
@@ -5,8 +6,9 @@ import { Progress } from "frontend/components/ui/progress";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
 import { useCacheStore } from "frontend/store/project/cache.store";
-import { ChartCache } from "frontend/components/ui/chart-cache";
+import { ChartCache } from "frontend/components/charts/chart-cache";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
+import { toNumber } from "frontend/store/project/utils";
 import { cn } from "frontend/lib/utils";
 
 export const CardMetrics = ({ className }: { className?: string }) => {
@@ -14,16 +16,26 @@ export const CardMetrics = ({ className }: { className?: string }) => {
 
   const { caches } = useCacheStore(useShallow((state) => ({ caches: state.projects[project.name].caches })));
 
-  const { generalStats } = useCacheStatsStore(
+  const { generalStats, cachesStats } = useCacheStatsStore(
     useShallow((state) => ({
-      cachesStats: state.projects[project.name].cachesStats,
       generalStats: state.projects[project.name].generalStats,
+      cachesStats: state.projects[project.name].cachesStats,
     })),
   );
 
   const { networkStats } = useNetworkStatsStore(
     useShallow((state) => ({ networkStats: state.projects[project.name].networkStats })),
   );
+
+  const chartData = useMemo(() => {
+    return Array.from(cachesStats.values()).map((cache) => ({
+      name: `${cache.method} ${cache.endpoint}`,
+      endpoint: cache.endpoint,
+      method: cache.method,
+      totalSize: cache.generalStats.cacheSize,
+      totalEntries: cache.cacheEntries.size,
+    }));
+  }, [cachesStats]);
 
   return (
     <Card className={cn(className)}>
@@ -36,11 +48,11 @@ export const CardMetrics = ({ className }: { className?: string }) => {
           <h3 className="text-sm font-medium">Cache Usage</h3>
           <div className="flex items-center gap-2">
             <Progress
-              value={(networkStats.totalCachedRequests / networkStats.totalRequests) * 100}
+              value={toNumber((networkStats.totalCachedRequests / networkStats.totalRequests) * 100)}
               className="h-2 flex-1"
             />
             <span className="text-sm font-bold">
-              {(networkStats.totalCachedRequests / networkStats.totalRequests) * 100}%
+              {toNumber((networkStats.totalCachedRequests / networkStats.totalRequests) * 100).toFixed(2)}%
             </span>
           </div>
         </div>
@@ -48,7 +60,7 @@ export const CardMetrics = ({ className }: { className?: string }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">Cache Size</h3>
-            <p className="text-2xl font-bold">{generalStats.size} KB</p>
+            <p className="text-2xl font-bold">{generalStats.cacheSize} KB</p>
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">Entries</h3>
@@ -58,8 +70,10 @@ export const CardMetrics = ({ className }: { className?: string }) => {
 
         <div className="space-y-1 pt-4 border-t">
           <h3 className="text-sm font-medium mb-2">Cache Distribution</h3>
-          <div className="h-38 w-full border border-slate-700 rounded-md relative overflow-hidden">
-            <ChartCache data={Object.values(caches)} totalSize={generalStats.size} />
+          <div className="w-full border border-slate-500 rounded-md relative overflow-hidden aspect-1/1">
+            <div className="w-[calc(100%+2px)] h-[calc(100%+2px)] ml-[-1px] mt-[-1px]">
+              <ChartCache data={chartData} totalSize={generalStats.cacheSize} />
+            </div>
           </div>
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span className="flex items-center gap-1">
@@ -76,7 +90,7 @@ export const CardMetrics = ({ className }: { className?: string }) => {
             </span>
           </div>
         </div>
-        <div className="space-y-2 pt-2 border-t">
+        {/* <div className="space-y-2 pt-2 border-t">
           <div className="flex justify-between">
             <h3 className="text-sm font-medium">Stale Entries</h3>
             <span className="text-sm font-medium">{generalStats.stale}</span>
@@ -96,7 +110,7 @@ export const CardMetrics = ({ className }: { className?: string }) => {
             <span className="text-sm font-medium">{generalStats.stale}</span>
           </div>
           <Progress value={(generalStats.stale / caches.size) * 100} className="h-2" />
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

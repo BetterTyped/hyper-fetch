@@ -1,12 +1,17 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { HelpCircle } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "frontend/components/ui/tooltip";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
 import { EmptyState } from "frontend/components/ui/empty-state";
 import { cn } from "frontend/lib/utils";
+import { Method } from "frontend/components/ui/method";
+import { formatBytes } from "frontend/utils/size.utils";
+import { EntriesDocs } from "frontend/components/docs/entries.docs";
 
 export const CardMostCached = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
@@ -19,13 +24,10 @@ export const CardMostCached = ({ className }: { className?: string }) => {
   );
 
   const mostCachedEndpoints = useMemo(() => {
-    return Object.entries(cacheStats).map(([key, value]) => ({
-      endpoint: key,
-      hits: value.hits,
-      size: value.size,
-      lastAccessed: value.lastAccessed,
-      ttl: value.ttl,
-    }));
+    return Array.from(cacheStats.values())
+      .sort((a, b) => b.generalStats.cacheSize - a.generalStats.cacheSize)
+      .filter((item) => item.cacheEntries.size)
+      .slice(0, 5);
   }, [cacheStats]);
 
   return (
@@ -39,20 +41,33 @@ export const CardMostCached = ({ className }: { className?: string }) => {
           <TableHeader>
             <TableRow>
               <TableHead>Endpoint</TableHead>
-              <TableHead>Hits</TableHead>
+              <TableHead>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center gap-1">
+                      Entries
+                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px]">
+                    <EntriesDocs />
+                  </TooltipContent>
+                </Tooltip>
+              </TableHead>
               <TableHead>Size</TableHead>
-              <TableHead>Last Accessed</TableHead>
-              <TableHead>TTL</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {mostCachedEndpoints.map((endpoint) => (
               <TableRow key={endpoint.endpoint}>
-                <TableCell className="font-medium">{endpoint.endpoint}</TableCell>
-                <TableCell>{endpoint.hits}</TableCell>
-                <TableCell>{endpoint.size}</TableCell>
-                <TableCell>{endpoint.lastAccessed}</TableCell>
-                <TableCell>{endpoint.ttl}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <Method method={endpoint.method} />
+                    {endpoint.endpoint}
+                  </div>
+                </TableCell>
+                <TableCell>{endpoint.cacheEntries.size}</TableCell>
+                <TableCell>{formatBytes(endpoint.generalStats.cacheSize)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

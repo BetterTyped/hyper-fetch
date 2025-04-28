@@ -15,10 +15,11 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { client } = useDevtools();
 
   const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState("cache");
 
   const onChangeData = (newData: CacheValueType<any, any, any>) => {
     if (item) {
-      const data = { ...item.cacheData, ...newData, version: client.cache.version };
+      const data = { ...item.cacheData, ...newData, version: client.cache.version, cached: true };
 
       client.cache.storage.set<any, any, any>(item.cacheKey, data);
       client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
@@ -63,8 +64,19 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
     };
   }, [item]);
 
+  const hasContent = (value: string) => {
+    switch (value) {
+      case "cache":
+        return !!elements?.data;
+      case "config":
+        return !!elements?.additionalData;
+      default:
+        return false;
+    }
+  };
+
   return (
-    <Tabs defaultValue="cache" className="h-[600px] my-4 flex-1">
+    <Tabs defaultValue="cache" className="h-[600px] my-4 flex-1" onValueChange={setActiveTab}>
       <TabsList>
         <TabsTrigger value="cache">
           <Boxes />
@@ -77,7 +89,12 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
       </TabsList>
 
       <div className="relative">
-        <div className={cn("transition-all duration-300 ease-in-out overflow-hidden", !isOpen && "max-h-[200px]")}>
+        <div
+          className={cn(
+            "transition-all duration-300 ease-in-out overflow-hidden",
+            !isOpen && hasContent(activeTab) && "max-h-[200px]",
+          )}
+        >
           <TabsContent value="cache" className="h-full">
             {elements?.data ? (
               <Card className="p-4 bg-sidebar mb-4">
@@ -99,26 +116,30 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
           </TabsContent>
         </div>
 
-        <div
-          className={cn(
-            "absolute bottom-0 left-0 right-0 h-24 pointer-events-none",
-            !isOpen && "bg-gradient-to-t from-card to-transparent",
-            !isOpen && "h-32",
-          )}
-        />
+        {hasContent(activeTab) && (
+          <>
+            <div
+              className={cn(
+                "absolute bottom-0 left-0 right-0 h-24 pointer-events-none",
+                !isOpen && "bg-gradient-to-t from-card to-transparent",
+                !isOpen && "h-32",
+              )}
+            />
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            "absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10",
-            isOpen ? "bottom-1" : "bottom-4",
-          )}
-        >
-          {isOpen ? "Show Less" : "Show More"}
-          <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
-        </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10",
+                isOpen ? "bottom-1" : "bottom-4",
+              )}
+            >
+              {isOpen ? "Show Less" : "Show More"}
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
+            </Button>
+          </>
+        )}
       </div>
     </Tabs>
   );

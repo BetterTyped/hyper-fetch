@@ -1,4 +1,4 @@
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, BookText, Gauge, Database } from "lucide-react";
 
 import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { CacheDashboard } from "./cache/cache";
-import { Errors } from "./errors/errors";
 import {
   Section,
   SectionActions,
@@ -51,10 +50,18 @@ export const ProjectStart = () => {
 
       <Tabs defaultValue="general" className="w-full pb-4">
         <TabsList className="mb-2 gap-2">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="cache">Cache</TabsTrigger>
-          <TabsTrigger value="errors">Errors</TabsTrigger>
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <BookText className="h-4 w-4" />
+            General
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center gap-2">
+            <Gauge className="h-4 w-4" />
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="cache" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Cache
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -67,10 +74,6 @@ export const ProjectStart = () => {
 
         <TabsContent value="cache">
           <CacheDashboard />
-        </TabsContent>
-
-        <TabsContent value="errors">
-          <Errors />
         </TabsContent>
       </Tabs>
     </Section>

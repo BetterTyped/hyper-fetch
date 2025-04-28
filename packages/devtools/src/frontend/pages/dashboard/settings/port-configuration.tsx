@@ -78,7 +78,6 @@ export const PortConfiguration = () => {
               {serverStatus === "running" ? (
                 <>
                   <div className="relative">
-                    <div className="absolute -top-1 -left-1 size-2 rounded-full bg-green-500" />
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                   </div>
                   <span className="text-green-500 font-medium">Running</span>
@@ -86,7 +85,6 @@ export const PortConfiguration = () => {
               ) : (
                 <>
                   <div className="relative">
-                    <div className="absolute -top-1 -left-1 size-2 rounded-full bg-red-500 animate-pulse" />
                     <AlertCircle className="h-5 w-5 text-red-500" />
                   </div>
                   <span className="text-red-500 font-medium">Crashed</span>

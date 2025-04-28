@@ -14,7 +14,9 @@ export const FormPage: React.FC = () => {
 
   // Patch
   const resultPatch = useSubmit(
-    patchUser.setParams({ userId: 1 }).setPayload({ email: "test", age: 12, name: "name" }),
+    patchUser
+      .setParams({ userId: Math.round(Math.random() * 10000) })
+      .setPayload({ email: "test", age: 12, name: "name" }),
   );
 
   // Queue

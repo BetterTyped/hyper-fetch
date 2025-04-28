@@ -116,6 +116,7 @@ export class Cache {
     this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
       ...newCacheData,
       isTriggeredExternally,
+      cached: request.cache,
       cacheKey,
     });
   };
@@ -260,7 +261,7 @@ export class Cache {
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey });
+        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey, cached: true });
         return data;
       }
     }

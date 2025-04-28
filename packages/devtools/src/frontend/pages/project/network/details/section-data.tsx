@@ -11,6 +11,7 @@ import { Button } from "frontend/components/ui/button";
 
 export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
   const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState("payload");
 
   const config = useMemo(() => {
     if (!item) return null;
@@ -24,8 +25,22 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
     return values;
   }, [item]);
 
+  const hasContent = (value: string) => {
+    switch (value) {
+      case "response":
+        return !!item.response;
+      case "details":
+        return !!item.details;
+      case "payload":
+      case "request":
+        return true;
+      default:
+        return false;
+    }
+  };
+
   return (
-    <Tabs defaultValue="payload" className="h-[600px] my-4 flex-1">
+    <Tabs defaultValue="payload" className="h-[600px] my-4 flex-1" onValueChange={setActiveTab}>
       <TabsList>
         <TabsTrigger value="payload">
           <FileUp />
@@ -46,7 +61,12 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
       </TabsList>
 
       <div className="relative">
-        <div className={cn("transition-all duration-300 ease-in-out overflow-hidden", !isOpen && "max-h-[200px]")}>
+        <div
+          className={cn(
+            "transition-all duration-300 ease-in-out overflow-hidden",
+            !isOpen && hasContent(activeTab) && "max-h-[200px]",
+          )}
+        >
           <TabsContent value="payload" className="h-full">
             <Card className="p-4 bg-sidebar mb-4">
               <JSONViewer
@@ -93,26 +113,30 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
           </TabsContent>
         </div>
 
-        <div
-          className={cn(
-            "absolute bottom-0 left-0 right-0 h-24 pointer-events-none",
-            !isOpen && "bg-gradient-to-t from-card to-transparent",
-            !isOpen && "h-32",
-          )}
-        />
+        {hasContent(activeTab) && (
+          <>
+            <div
+              className={cn(
+                "absolute bottom-0 left-0 right-0 h-24 pointer-events-none",
+                !isOpen && "bg-gradient-to-t from-card to-transparent",
+                !isOpen && "h-32",
+              )}
+            />
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            "absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10",
-            isOpen ? "bottom-1" : "bottom-4",
-          )}
-        >
-          {isOpen ? "Show Less" : "Show More"}
-          <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
-        </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                "absolute left-1/2 -translate-x-1/2 flex items-center gap-1 z-10",
+                isOpen ? "bottom-1" : "bottom-4",
+              )}
+            >
+              {isOpen ? "Show Less" : "Show More"}
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isOpen && "rotate-180")} />
+            </Button>
+          </>
+        )}
       </div>
     </Tabs>
   );

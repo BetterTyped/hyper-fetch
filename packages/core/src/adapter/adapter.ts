@@ -152,7 +152,7 @@ export class Adapter<
    * Get formatted endpoint name of the request.
    * Helpful in displaying long endpoints like in case of graphql schemas etc.
    */
-  public unsafe_devtoolsEndpointGetter: (request: RequestInstance) => string = (request) => request.endpoint;
+  public unsafe_devtoolsEndpointGetter: (endpoint: string) => string = (endpoint) => endpoint;
 
   /**
    * ********************
@@ -170,7 +170,7 @@ export class Adapter<
     return this;
   };
 
-  setDevtoolsEndpointGetter = (callback: (request: RequestInstance) => string) => {
+  setDevtoolsEndpointGetter = (callback: (endpoint: string) => string) => {
     this.unsafe_devtoolsEndpointGetter = callback;
     return this;
   };

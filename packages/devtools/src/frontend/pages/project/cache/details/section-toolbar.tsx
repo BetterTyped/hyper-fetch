@@ -81,7 +81,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       success: false,
     };
     client.cache.storage.set(item.cacheKey, data);
-    client.cache.events.emitCacheData(data);
+    client.cache.events.emitCacheData({ ...data, cached: true });
   };
 
   const latestItem = useMemo(() => {

@@ -17,7 +17,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param data
    */
   emitCacheData: <Response, Error, Adapter extends AdapterInstance>(
-    data: CacheValueType<Response, Error, Adapter> & { isTriggeredExternally?: boolean },
+    data: CacheValueType<Response, Error, Adapter> & { cached: boolean; isTriggeredExternally?: boolean },
   ): void => {
     emitter.emit(getCacheKey(), data);
     emitter.emit(getCacheByKey(data.cacheKey), data);
@@ -42,7 +42,9 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @returns
    */
   onData: <Response, Error, Adapter extends AdapterInstance>(
-    callback: (data: CacheValueType<Response, Error, Adapter> & { isTriggeredExternally: boolean }) => void,
+    callback: (
+      data: CacheValueType<Response, Error, Adapter> & { cached: boolean; isTriggeredExternally: boolean },
+    ) => void,
   ): VoidFunction => {
     emitter.on(getCacheKey(), callback);
     return () => emitter.removeListener(getCacheKey(), callback);

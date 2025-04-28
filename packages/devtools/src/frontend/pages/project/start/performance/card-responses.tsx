@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Bar, BarChart, CartesianGrid, Rectangle, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   ChartConfig,
@@ -16,8 +16,8 @@ import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { EmptyBox } from "frontend/components/ui/empty-box";
 import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
-import { getMethodColor } from "frontend/components/ui/method";
 import { cn } from "frontend/lib/utils";
+import { getMethodColor } from "frontend/components/ui/method";
 
 export const CardResponses = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
@@ -38,11 +38,11 @@ export const CardResponses = ({ className }: { className?: string }) => {
   const chartData = useMemo(() => {
     // Convert methodStats to the array format expected by the chart
     return (
-      Object.entries(methodsStats)
-        .map(([method, stats]) => ({
+      Array.from(methodsStats.values())
+        .map(({ method, methodStats }) => ({
           method,
-          requests: stats.totalRequests,
-          fill: getMethodColor(method).fill,
+          requests: methodStats.totalRequests,
+          fill: getMethodColor(method).var,
         }))
         // Sort by method name for consistent display order
         .sort((a, b) => a.method.localeCompare(b.method))
@@ -50,10 +50,10 @@ export const CardResponses = ({ className }: { className?: string }) => {
   }, [methodsStats]);
 
   const chartConfig: ChartConfig = useMemo(() => {
-    return chartData.reduce((acc, { method }) => {
+    return chartData.reduce((acc, { method, fill }) => {
       acc[method] = {
         label: method,
-        color: getMethodColor(method).fill,
+        color: fill,
       };
       return acc;
     }, {} as ChartConfig);
@@ -97,24 +97,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
                 <XAxis dataKey="method" tickLine={false} tickMargin={10} axisLine={false} />
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <ChartLegend content={<ChartLegendContent verticalAlign="top" />} />
-                <Bar
-                  dataKey="requests"
-                  strokeWidth={0}
-                  radius={8}
-                  activeIndex={2}
-                  // eslint-disable-next-line react/no-unstable-nested-components
-                  activeBar={({ ...props }) => {
-                    return (
-                      <Rectangle
-                        {...props}
-                        fillOpacity={0.8}
-                        stroke={props.payload.fill}
-                        strokeDasharray={4}
-                        strokeDashoffset={4}
-                      />
-                    );
-                  }}
-                />
+                <Bar dataKey="requests" strokeWidth={0} radius={8} />
               </BarChart>
             </ChartContainer>
           )}

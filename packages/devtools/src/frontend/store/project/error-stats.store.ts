@@ -70,18 +70,25 @@ export const useErrorStatsStore = create<ErrorStatsStore>((set) => ({
           };
         }
         const { status } = data.response;
-        const endpointAndMethod = getEndpointAndMethod(data.request, data.client);
-        const element = draft.projects[project].endpointErrorStats.get(endpointAndMethod);
+
+        const globalEndpointAndMethod = getEndpointAndMethod(
+          // api/users/:id
+          data.request.requestOptions.endpoint,
+          data.request.method,
+          data.client,
+        );
+
+        const element = draft.projects[project].endpointErrorStats.get(globalEndpointAndMethod);
         if (!element) {
           draft.projects[project].statusErrorStats.set(status, initialErrorStats);
-          draft.projects[project].endpointErrorStats.set(endpointAndMethod, {
+          draft.projects[project].endpointErrorStats.set(globalEndpointAndMethod, {
             ...initialErrorStats,
             endpoint: data.request.requestOptions.endpoint,
             method: data.request.requestOptions.method,
           });
         }
-        draft.projects[project].endpointErrorStats.set(endpointAndMethod, {
-          ...getErrorStats(data, draft.projects[project].endpointErrorStats.get(endpointAndMethod)),
+        draft.projects[project].endpointErrorStats.set(globalEndpointAndMethod, {
+          ...getErrorStats(data, draft.projects[project].endpointErrorStats.get(globalEndpointAndMethod)),
           endpoint: data.request.requestOptions.endpoint,
           method: data.request.requestOptions.method,
         });

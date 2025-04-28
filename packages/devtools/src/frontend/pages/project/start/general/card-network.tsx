@@ -1,7 +1,7 @@
 import { Earth } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Card, CardContent, CardHeader, CardTitle } from "frontend/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { cn } from "frontend/lib/utils";
@@ -16,7 +16,6 @@ export const CardNetwork = ({ className }: { className?: string }) => {
   const { networkStats } = useNetworkStatsStore(useShallow((state) => state.projects[project.name]));
 
   const successRate = toNumber((networkStats.totalRequestsSuccess * 100) / networkStats.totalRequests);
-  const cachingRate = toNumber((networkStats.totalCachedRequests * 100) / networkStats.totalRequests);
 
   return (
     <Card className={cn(className, "gap-3")}>
@@ -25,11 +24,12 @@ export const CardNetwork = ({ className }: { className?: string }) => {
           <Earth className="h-4 w-4" />
           Network Overview
         </CardTitle>
+        <CardDescription>Network overview for {project.name}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-y-4">
           <div>
-            <p className="text-sm text-muted-foreground">Adapter</p>
+            <p className="text-sm text-muted-foreground mb-2">Adapter</p>
             <p>
               <Badge variant="secondary">
                 <AdapterIcon name={project.adapterName} />
@@ -69,13 +69,6 @@ export const CardNetwork = ({ className }: { className?: string }) => {
             <span>{successRate.toFixed(1)}%</span>
           </div>
           <Progress value={successRate} className="h-2" />
-        </div>
-        <div className="space-y-2 pt-2 border-t">
-          <div className="flex justify-between text-sm">
-            <span>Caching rate</span>
-            <span>{cachingRate.toFixed(1)}%</span>
-          </div>
-          <Progress value={cachingRate} className="h-2" />
         </div>
       </CardContent>
     </Card>

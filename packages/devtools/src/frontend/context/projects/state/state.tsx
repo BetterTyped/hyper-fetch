@@ -257,20 +257,12 @@ export const State = ({ project }: { project: string }) => {
       }
     });
     const unmountOnCacheChange = client.cache.events.onData((data) => {
-      setCache({
-        project,
-        data,
-      });
-
-      // setProjectStates((draft) => {
-      //   const { cacheKey, isTriggeredExternally, ...rest } = cacheData;
-      //   const changedElement = draft[project].cache.find((cacheElement) => cacheElement.cacheKey === cacheKey);
-      //   if (changedElement) {
-      //     changedElement.cacheData = cacheData;
-      //   } else {
-      //     draft[project].cache.push({ cacheKey: cacheData.cacheKey, cacheData: { ...rest, cacheKey } });
-      //   }
-      // });
+      if (data.cached) {
+        setCache({
+          project,
+          data,
+        });
+      }
     });
     const unmountOnCacheInvalidate = client.cache.events.onInvalidate((cacheKey) => {
       invalidateCache({

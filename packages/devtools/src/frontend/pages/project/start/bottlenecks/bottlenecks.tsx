@@ -1,14 +1,12 @@
-import { CardErrors } from "./card-errors";
+import { CardErrors } from "../general/card-errors";
 // import { CardHealth } from "./card-health";
 // import { CardNetwork } from "./card-network";
-import { CardOverview } from "./card-overview";
 // import { CardProcessing } from "./card-processing";
 // import { CardRecommended } from "./card-recommended";
 
-export const Errors = () => {
+export const Bottlenecks = () => {
   return (
     <div className="space-y-4 mt-4">
-      <CardOverview />
       {/* <CardProcessing /> */}
       {/* <CardNetwork /> */}
       <CardErrors />
