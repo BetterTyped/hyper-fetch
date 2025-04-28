@@ -1,4 +1,5 @@
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
+import { cn } from "frontend/lib/utils";
 
 export enum Status {
   REMOVED = "Removed",
@@ -61,6 +62,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
     }
   };
 
+  const baseClassName = "w-5 h-5";
+
   switch (status) {
     case Status.REMOVED:
       return (
@@ -72,9 +75,7 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           y="0px"
           viewBox="0 0 512 512"
           xmlSpace="preserve"
-          width="14px"
-          height="14px"
-          className={className}
+          className={cn(baseClassName, className)}
         >
           <g>
             <g>
@@ -109,8 +110,7 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           y="0px"
           viewBox="0 0 468.293 468.293"
           xmlSpace="preserve"
-          width="14px"
-          height="14px"
+          className={cn(baseClassName, className)}
         >
           <path
             fill={getIconColor()}
@@ -132,8 +132,7 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           y="0px"
           viewBox="0 0 512 512"
           xmlSpace="preserve"
-          width="14px"
-          height="14px"
+          className={cn(baseClassName, className)}
         >
           <ellipse fill={getIconColor()} cx="256" cy="256" rx="256" ry="255.832" />
           <g transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 77.26 32)">
@@ -144,7 +143,12 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
       );
     case Status.SUCCESS:
       return (
-        <svg viewBox="6 6 50 50" xmlns="http://www.w3.org/2000/svg" id="fi_6276686" width="14px" height="14px">
+        <svg
+          viewBox="6 6 50 50"
+          xmlns="http://www.w3.org/2000/svg"
+          id="fi_6276686"
+          className={cn(baseClassName, className)}
+        >
           <g id="Checkmark">
             <path
               d="m32 8a24 24 0 1 0 24 24 24.03187 24.03187 0 0 0 -24-24zm13.41 17.41-15 15a1.97983 1.97983 0 0 1 -2.82 0l-7-7a1.994 1.994 0 0 1 2.82-2.82l5.59 5.58 13.59-13.58a1.994 1.994 0 0 1 2.82 2.82z"
@@ -161,10 +165,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
       return (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="14px"
-          height="14px"
           viewBox="0 0 24 24"
-          className={`animate-spin ${className}`}
+          className={cn(baseClassName, "animate-spin", className)}
         >
           <path
             fill={getIconColor()}

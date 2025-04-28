@@ -13,6 +13,34 @@ body,
   @apply h-full;
 }
 
+/* ***************************** */
+/* ********** Scrolls ********** */
+/* ***************************** */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  @apply bg-zinc-800;
+}
+
+*::-webkit-scrollbar-thumb {
+  @apply bg-zinc-700 rounded-full;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-500;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(82 82 91) rgb(39 39 42);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @plugin "@tailwindcss/typography" {

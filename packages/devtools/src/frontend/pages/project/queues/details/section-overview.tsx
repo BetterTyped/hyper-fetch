@@ -67,8 +67,8 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
               Pending Requests:
             </TableCell>
             <TableCell>
-              <Badge variant={stats?.totalRequestsLoading ? "info" : "secondary"}>
-                {stats?.totalRequestsLoading} request{stats?.totalRequestsLoading === 1 ? "" : "s"}
+              <Badge variant={item.requests.length > 0 ? "info" : "secondary"}>
+                {item.requests.length} request{item.requests.length === 1 ? "" : "s"}
               </Badge>
             </TableCell>
           </TableRow>

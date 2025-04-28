@@ -8,6 +8,7 @@ export const Environments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentEnvironment, setCurrentEnvironment] = useState("development");
 
+  // TODO: we should get this from the backend
   // Mock environments data - in a real app this would come from your backend/state management
   const environments = [
     { name: "development", isOnline: true },
@@ -22,9 +23,9 @@ export const Environments = () => {
 
   return (
     <div>
-      <Button variant="secondary" onClick={() => setIsDialogOpen(true)}>
+      <Button variant="secondary" className="capitalize" onClick={() => setIsDialogOpen(true)}>
         <Atom className="w-4 h-4" />
-        Change Environment
+        {currentEnvironment}
       </Button>
       <EnvironmentDialog
         open={isDialogOpen}

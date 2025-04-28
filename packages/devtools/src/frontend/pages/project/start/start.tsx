@@ -15,7 +15,7 @@ import {
   SectionIcon,
   SectionTitle,
 } from "frontend/components/ui/section";
-import { Environments } from "./environments/environments";
+// import { Environments } from "./environments/environments";
 
 export const ProjectStart = () => {
   const {
@@ -43,9 +43,7 @@ export const ProjectStart = () => {
         <SectionDescription className="-mt-1 flex items-center gap-2">
           {project.url || "Not configured"}
         </SectionDescription>
-        <SectionActions>
-          <Environments />
-        </SectionActions>
+        <SectionActions>{/* <Environments /> */}</SectionActions>
       </SectionHeader>
 
       <Tabs defaultValue="general" className="w-full pb-4">

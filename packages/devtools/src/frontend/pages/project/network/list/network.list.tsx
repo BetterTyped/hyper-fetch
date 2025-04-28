@@ -8,7 +8,7 @@ import { RequestRow } from "./request-row/request-row";
 import { Status } from "frontend/utils/request.status.utils";
 import { PathsOf, useSearch } from "frontend/hooks/use-search";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
-import { Table, TableBody, TableHeader, TableRow } from "frontend/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { TableSortable } from "frontend/components/ui/table-sortable";
 import { useNetworkStore } from "frontend/store/project/network.store";
 import { cn } from "frontend/lib/utils";
@@ -89,21 +89,17 @@ export const NetworkList = () => {
         <Table className="flex-1" wrapperClassName="pb-4">
           <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
             <TableRow>
+              <TableHead />
               <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
                 Endpoint
               </TableSortable>
-              <TableSortable sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
-                Method
-              </TableSortable>
-              <TableSortable sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
-                Success
-              </TableSortable>
               <TableSortable sort={handleGetSort("request.cache")} onSort={handleSort("request.cache")}>
-                Cached
+                Cache
               </TableSortable>
               <TableSortable sort={handleGetSort("timestamp")} onSort={handleSort("timestamp")}>
                 Timestamp
               </TableSortable>
+              <TableHead>Response time</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="relative pb-8">

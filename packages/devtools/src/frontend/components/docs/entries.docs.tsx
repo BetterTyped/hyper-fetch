@@ -1,7 +1,11 @@
-export const EntriesDocs = () => {
+import { cn } from "frontend/lib/utils";
+import { Separator } from "../ui/separator";
+
+export const EntriesDocs = ({ className, ...props }: React.HTMLProps<HTMLDivElement>) => {
   return (
-    <div className="space-y-2">
+    <div {...props} className={cn("space-y-2 max-w-xl p-2", className)}>
       <p className="text-xl font-medium">What are entries?</p>
+      <Separator />
       <p>Number of unique cache keys for this endpoint.</p>
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">Why multiple entries?</p>
@@ -11,6 +15,7 @@ export const EntriesDocs = () => {
           <li>Query parameters</li>
         </ul>
       </div>
+      <Separator />
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">Example:</p>
         <p className="text-sm">

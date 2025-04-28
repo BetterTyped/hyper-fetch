@@ -46,16 +46,16 @@ export const CardRecent = ({ className }: { className?: string }) => {
               <Table className="w-full h-full" wrapperClassName="pb-4">
                 <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 z-10")}>
                   <TableRow>
+                    <TableHead />
                     <TableHead>Endpoint</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Success</TableHead>
-                    <TableHead>Cached</TableHead>
+                    <TableHead>Cache</TableHead>
                     <TableHead>Timestamp</TableHead>
+                    <TableHead>Response time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="relative pb-8">
                   {requests.slice(0, 8).map((item) => (
-                    <RequestRow key={item.requestId} item={item} />
+                    <RequestRow key={item.requestId} item={item} clickable={false} />
                   ))}
                 </TableBody>
               </Table>

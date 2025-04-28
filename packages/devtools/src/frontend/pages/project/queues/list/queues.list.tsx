@@ -17,7 +17,7 @@ export const QueuesList = () => {
 
   const data = useMemo(() => {
     return Array.from(queues.values());
-  }, [queues.size]);
+  }, [queues]);
 
   const { items } = useSearch({
     data,

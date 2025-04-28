@@ -39,6 +39,11 @@ export type NetworkStats = {
   highestPayloadSize: number;
   highestResponseSize: number;
   latestResponseSize: number;
+  // Queue
+  avgQueueTime: number;
+  highestQueueTime: number;
+  lowestQueueTime: number;
+  latestQueueTime: number;
 };
 
 export const initialNetworkStats: NetworkStats = {
@@ -75,6 +80,11 @@ export const initialNetworkStats: NetworkStats = {
   highestPayloadSize: 0,
   highestResponseSize: 0,
   latestResponseSize: 0,
+  // Queue
+  avgQueueTime: 0,
+  highestQueueTime: 0,
+  lowestQueueTime: 0,
+  latestQueueTime: 0,
 };
 
 const getNetworkInitialState = (): NetworkStatsStore => ({
@@ -106,7 +116,8 @@ export const getNetworkStats = (
   const { responseSize, payloadSize } = perf;
 
   const responseTime = parseFloat((details.responseTimestamp - response.requestTimestamp).toFixed(2));
-  const processingTime = parseFloat((details.triggerTimestamp - details.addedTimestamp).toFixed(2));
+  const processingTime = parseFloat((details.requestTimestamp - details.triggerTimestamp).toFixed(2));
+  const queueTime = parseFloat((details.triggerTimestamp - details.addedTimestamp).toFixed(2));
 
   return {
     // General
@@ -146,6 +157,11 @@ export const getNetworkStats = (
     highestPayloadSize: getHighestValue(currentStats.highestPayloadSize, payloadSize),
     highestResponseSize: getHighestValue(currentStats.highestResponseSize, responseSize),
     latestResponseSize: responseSize,
+    // Queue
+    avgQueueTime: getAvgValue(currentStats.avgQueueTime, queueTime),
+    highestQueueTime: getHighestValue(currentStats.highestQueueTime, queueTime),
+    lowestQueueTime: getLowestValue(currentStats.lowestQueueTime, queueTime),
+    latestQueueTime: queueTime,
   };
 };
 

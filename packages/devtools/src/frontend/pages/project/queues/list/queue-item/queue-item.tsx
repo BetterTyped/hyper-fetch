@@ -12,7 +12,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "frontend/c
 import { cn } from "frontend/lib/utils";
 
 export const Item = ({ queue }: { queue: QueueDataType }) => {
-  const status = getQueueStatus(queue);
   const { project } = useDevtools();
   const { detailsQueueKey, openDetails } = useQueueStore(
     useShallow((state) => ({
@@ -22,6 +21,7 @@ export const Item = ({ queue }: { queue: QueueDataType }) => {
   );
   const queueStats = useQueueStatsStore(useShallow((state) => state.projects[project.name]?.stats.get(queue.queryKey)));
 
+  const status = getQueueStatus(queue);
   const statusColor = (
     {
       Pending: "gray",

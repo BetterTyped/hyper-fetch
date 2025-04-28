@@ -49,7 +49,7 @@ export const CardNotCached = ({ className }: { className?: string }) => {
                       <HelpCircle className="w-4 h-4 text-muted-foreground" />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-[300px]">
+                  <TooltipContent>
                     <EntriesDocs />
                   </TooltipContent>
                 </Tooltip>

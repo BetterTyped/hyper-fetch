@@ -20,7 +20,7 @@ export const CacheList = () => {
 
   const data = useMemo(() => {
     return Array.from(caches.values()).filter((cache) => !!cache.cacheData);
-  }, [caches.size]);
+  }, [caches]);
 
   const { items } = useSearch({
     data,

@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { useMemo } from "react";
-import { useShallow } from "zustand/react/shallow";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
@@ -14,12 +13,7 @@ import { cn } from "frontend/lib/utils";
 export const CardEndpoints = ({ className }: { className?: string }) => {
   const { project } = useDevtools();
 
-  const { generalStats, methodsStats } = useMethodStatsStore(
-    useShallow((state) => ({
-      generalStats: state.projects[project.name].generalStats,
-      methodsStats: state.projects[project.name].methodsStats,
-    })),
-  );
+  const methodsStats = useMethodStatsStore((state) => state.projects[project.name].methodsStats);
 
   const slowestEndpoints = useMemo(() => {
     return Array.from(methodsStats.values())
@@ -53,20 +47,20 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
                   <TableCell>{req.methodStats.avgResponseTime}ms</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{req.methodStats.avgProcessingTime}ms</span>
                       <Progress
-                        value={(req.methodStats.avgProcessingTime / req.methodStats.avgResponseTime) * 100}
+                        value={(req.methodStats.avgProcessingTime / req.methodStats.highestProcessingTime) * 100}
                         className="h-2 w-24"
                       />
+                      <span>{req.methodStats.avgProcessingTime}ms</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span>{req.methodStats.avgResponseSize}ms</span>
                       <Progress
-                        value={(generalStats.avgResponseTime / req.methodStats.avgResponseTime) * 100}
+                        value={(req.methodStats.avgResponseSize / req.methodStats.highestResponseSize) * 100}
                         className="h-2 w-24"
                       />
+                      <span>{req.methodStats.avgResponseSize}ms</span>
                     </div>
                   </TableCell>
                 </TableRow>
