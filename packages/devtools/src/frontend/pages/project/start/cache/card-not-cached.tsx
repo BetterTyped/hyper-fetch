@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "front
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { Tooltip, TooltipContent, TooltipTrigger } from "frontend/components/ui/tooltip";
 import { cn } from "frontend/lib/utils";
 import { Method } from "frontend/components/ui/method";

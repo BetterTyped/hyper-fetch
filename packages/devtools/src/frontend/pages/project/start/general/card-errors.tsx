@@ -4,7 +4,7 @@ import { AlertCircle, ThumbsUp } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Badge } from "frontend/components/ui/badge";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { useErrorStatsStore } from "frontend/store/project/error-stats.store";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { cn } from "frontend/lib/utils";

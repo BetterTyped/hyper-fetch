@@ -153,13 +153,6 @@ export const useCacheStatsStore = create<Store>((set) => ({
           data.request.method,
           data.client,
         );
-        const endpointWithParamsAndMethod = getEndpointAndMethod(
-          // api/users/1
-          data.request.endpoint,
-          data.request.method,
-          data.client,
-        );
-
         if (!draft.projects[project]) {
           draft.projects[project] = {
             generalStats: {
@@ -174,7 +167,7 @@ export const useCacheStatsStore = create<Store>((set) => ({
           globalEndpointAndMethod,
           generateCacheStats({
             currentStats:
-              draft.projects[project].cachesStats.get(endpointWithParamsAndMethod) ??
+              draft.projects[project].cachesStats.get(globalEndpointAndMethod) ??
               getInitialState({ request: data.request }),
             data,
             details: {

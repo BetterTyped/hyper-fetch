@@ -2,7 +2,7 @@ import { FolderOpen, BookText, Gauge, Database } from "lucide-react";
 
 import { useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "frontend/components/ui/tabs";
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";

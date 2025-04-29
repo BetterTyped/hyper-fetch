@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "front
 import { Progress } from "frontend/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { Method } from "frontend/components/ui/method";
 import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { cn } from "frontend/lib/utils";

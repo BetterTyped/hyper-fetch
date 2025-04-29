@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "f
 import { Tooltip, TooltipContent, TooltipTrigger } from "frontend/components/ui/tooltip";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useCacheStatsStore } from "frontend/store/project/cache-stats.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { cn } from "frontend/lib/utils";
 import { Method } from "frontend/components/ui/method";
 import { formatBytes } from "frontend/utils/size.utils";

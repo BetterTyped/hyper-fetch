@@ -4,7 +4,7 @@ import { Braces, Clock, FileText, FileUp, ChevronDown } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "frontend/components/ui/tabs";
 import { JSONViewer } from "frontend/components/json-viewer/json-viewer";
 import { Card } from "frontend/components/ui/card";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { DevtoolsRequestEvent } from "frontend/context/projects/types";
 import { cn } from "frontend/lib/utils";
 import { Button } from "frontend/components/ui/button";

@@ -23,15 +23,20 @@ import { WorkspaceLayout } from "frontend/pages/workspace/_layout/layout";
 import { DashboardLayout } from "frontend/pages/dashboard/_layout/layout";
 import { ProjectLayout } from "frontend/pages/project/_layout/layout";
 import { App } from "frontend/components/app/app";
+import { AppError } from "frontend/components/errors/app-error";
+import { PageError } from "frontend/components/errors/page-error";
+import { NotFound } from "frontend/components/no-content/not-found";
 
 const root = createRoot({
   layout: App,
-  notFound: () => <div>Page not found</div>,
+  error: AppError,
+  notFound: NotFound,
 }).addChildren({
   dashboard: createRoute({
     path: "/",
     component: Projects,
     layout: DashboardLayout,
+    error: PageError,
   }).addChildren({
     members: createRoute({
       path: "/members",
@@ -58,6 +63,7 @@ const root = createRoot({
     path: "/project/:projectName",
     component: ProjectStart,
     layout: ProjectLayout,
+    error: PageError,
   }).addChildren({
     network: createRoute({
       path: "/network",
@@ -80,6 +86,7 @@ const root = createRoot({
     path: "/workspace/:workspaceId",
     component: WorkspaceDetails,
     layout: WorkspaceLayout,
+    error: PageError,
   }).addChildren({
     apis: createRoute({
       path: "/apis",

@@ -13,7 +13,7 @@ import { TableSortable } from "frontend/components/ui/table-sortable";
 import { useNetworkStore } from "frontend/store/project/network.store";
 import { cn } from "frontend/lib/utils";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
-import { EmptyTable } from "frontend/components/ui/empty-table";
+import { EmptyTable } from "frontend/components/no-content/empty-table";
 import { DocsButton } from "frontend/components/ui/docs-button";
 
 export const NetworkList = () => {

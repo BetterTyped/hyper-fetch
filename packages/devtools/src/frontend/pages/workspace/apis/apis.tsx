@@ -1,7 +1,7 @@
 import { Button } from "frontend/components/ui/button";
 import { useRoute } from "frontend/routing/router";
 import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 
 export const WorkspaceApis = () => {
   const {

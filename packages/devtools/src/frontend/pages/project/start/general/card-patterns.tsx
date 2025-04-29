@@ -4,7 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { cn } from "frontend/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { Badge } from "frontend/components/ui/badge";
 import { Method } from "frontend/components/ui/method";

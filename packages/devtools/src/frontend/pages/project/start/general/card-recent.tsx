@@ -3,7 +3,7 @@ import { Clock, ArrowRight } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "frontend/components/ui/table";
-import { EmptyState } from "frontend/components/ui/empty-state";
+import { EmptyState } from "frontend/components/no-content/empty-state";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useNetworkStore } from "frontend/store/project/network.store";
 import { cn } from "frontend/lib/utils";

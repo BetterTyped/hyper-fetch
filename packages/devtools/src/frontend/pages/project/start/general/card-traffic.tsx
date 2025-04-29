@@ -6,7 +6,7 @@ import { cn } from "frontend/lib/utils";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
 import { getMethodColor, Method } from "frontend/components/ui/method";
-import { EmptyBox } from "frontend/components/ui/empty-box";
+import { EmptyBox } from "frontend/components/no-content/empty-box";
 
 export const CardTraffic = ({ className }: { className?: string }) => {
   const { project } = useDevtools();

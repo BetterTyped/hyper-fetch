@@ -13,7 +13,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "frontend/components/ui/card";
 import { Progress } from "frontend/components/ui/progress";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
-import { EmptyBox } from "frontend/components/ui/empty-box";
+import { EmptyBox } from "frontend/components/no-content/empty-box";
 import { useMethodStatsStore } from "frontend/store/project/method-stats.store";
 import { useNetworkStatsStore } from "frontend/store/project/network-stats.store";
 import { cn } from "frontend/lib/utils";

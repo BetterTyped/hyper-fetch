@@ -8,7 +8,7 @@ import { useSearch } from "frontend/hooks/use-search";
 import { useQueueStore } from "frontend/store/project/queue.store";
 import { Item } from "./queue-item/queue-item";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "frontend/components/ui/section";
-import { EmptyTable } from "frontend/components/ui/empty-table";
+import { EmptyTable } from "frontend/components/no-content/empty-table";
 import { DocsButton } from "frontend/components/ui/docs-button";
 
 export const QueuesList = () => {

@@ -9,7 +9,7 @@ import { useSearch } from "frontend/hooks/use-search";
 import { useDevtools } from "frontend/context/projects/devtools/use-devtools";
 import { CacheRowItem } from "./row-item/row-item";
 import { useCacheStore } from "frontend/store/project/cache.store";
-import { EmptyTable } from "frontend/components/ui/empty-table";
+import { EmptyTable } from "frontend/components/no-content/empty-table";
 import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription } from "frontend/components/ui/section";
 import { DocsButton } from "frontend/components/ui/docs-button";
 
