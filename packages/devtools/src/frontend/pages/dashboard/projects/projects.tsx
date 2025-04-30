@@ -18,6 +18,7 @@ export const Projects = () => {
       },
     });
   };
+  throw new Error("Sentry Test Error");
 
   return (
     <Section id="projects" className="h-full px-4 overflow-auto">

@@ -26,4 +26,13 @@
  * ```
  */
 
+import * as Sentry from "@sentry/electron/renderer";
+import { init as reactInit } from "@sentry/react";
+
 import "frontend/index";
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 1.0,
+});

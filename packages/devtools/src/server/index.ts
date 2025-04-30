@@ -5,6 +5,7 @@ import url from "url";
 import { DevtoolsClientHandshakeMessage, MessageType, MessageTypes } from "../types/messages.types";
 import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionHandler } from "./handlers/connection-handler";
+import { serverLogger } from "../utils/logger";
 
 const getConnectionName = (requestUrl: string) => {
   const queryParams = url.parse(requestUrl, true).query;
@@ -30,13 +31,30 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
     const connectionName = getConnectionName(request.url || "");
 
     if (!connectionName) {
-      console.error("MISSING CONNECTION NAME", request.url);
+      serverLogger.error("WebSocket connection attempt failed", {
+        context: "WebSocketServer",
+        details: {
+          reason: "Missing connection name in request URL",
+          url: request.url,
+          headers: request.headers,
+        },
+      });
       return;
     }
 
     connectionHandler.handleNewConnection(connectionName, wsConn);
 
-    wsConn.on("error", console.error);
+    wsConn.on("error", (error) => {
+      serverLogger.error("WebSocket connection error", {
+        context: "WebSocketServer",
+        details: {
+          connectionName,
+          error: error.message,
+          stack: error.stack,
+        },
+      });
+    });
+
     wsConn.on("close", () => {
       const closedConnectionName = getConnectionName(request.url || "");
       if (!closedConnectionName) {
@@ -44,6 +62,7 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
       }
       connectionHandler.handleClosedConnection(closedConnectionName);
     });
+
     wsConn.on("message", (msg: MessageTypes) => {
       const message = JSON.parse(msg.toString()) as MessageTypes;
       switch (message.data.messageType) {
@@ -76,12 +95,27 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
           return;
         }
         default:
-          console.error("UNHANDLED MESSAGE TYPE", message);
+          serverLogger.warning("Unhandled message type received", {
+            context: "WebSocketServer",
+            details: {
+              messageType: message.data.messageType,
+              connectionName: message.data.connectionName,
+              fullMessage: message,
+            },
+          });
       }
     });
   });
 
-  wss.on("error", console.error);
+  wss.on("error", (error) => {
+    serverLogger.error("WebSocket server error", {
+      context: "WebSocketServer",
+      details: {
+        error: error.message,
+        stack: error.stack,
+      },
+    });
+  });
 
   if (options?.onServerCrash) {
     process.on("unhandledRejection", options.onServerCrash);
@@ -89,8 +123,13 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
 
   server
     .listen(port, () => {
-      // eslint-disable-next-line no-console
-      console.log(`Application Server is running on port ${port}`);
+      serverLogger.success("Application Server started", {
+        context: "Server",
+        details: {
+          port,
+          protocol: "http",
+        },
+      });
     })
     .on("close", () => {
       if (options?.onServerCrash) {
@@ -99,7 +138,13 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
       if (options?.onServerCrash) {
         process.off("unhandledRejection", options.onServerCrash);
       }
-      console.warn("Server closed");
+      serverLogger.warning("Server closed", {
+        context: "Server",
+        details: {
+          port,
+          reason: "Server closed event triggered",
+        },
+      });
     })
     .on("error", (error) => {
       if (options?.onServerCrash) {
@@ -108,7 +153,14 @@ export const startServer = async (options?: { port?: number; onServerCrash?: () 
       if (options?.onServerCrash) {
         process.off("unhandledRejection", options.onServerCrash);
       }
-      console.error("Server error", error);
+      serverLogger.error("Server error occurred", {
+        context: "Server",
+        details: {
+          port,
+          error: error.message,
+          stack: error.stack,
+        },
+      });
     });
 
   const isReady = new Promise((resolve) => {

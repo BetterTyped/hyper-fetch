@@ -1,3 +1,14 @@
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_PUBLIC_POSTHOG_HOST: string;
+  readonly VITE_PUBLIC_POSTHOG_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable import/newline-after-import */
 /* eslint-disable import/no-default-export */

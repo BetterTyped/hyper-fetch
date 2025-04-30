@@ -4,6 +4,7 @@ import { ConnectionMap } from "../types/connection.type";
 import { ConnectionName } from "../../frontend/constants/connection.name";
 import { SocketTopics } from "../../frontend/constants/topics";
 import { DevtoolsClientHandshakeMessage, EmitableCustomEvents, MessageType } from "../../types/messages.types";
+import { serverLogger } from "utils/logger";
 
 export class ConnectionHandler {
   connections: ConnectionMap = {};
@@ -23,7 +24,16 @@ export class ConnectionHandler {
        * We found this case being triggered with msw setup, which caused websocket to open
        * We early return here to avoid the error on the startup of the devtools app
        */
-      console.error(`Something went wrong, connection to frontend connection does not exist`);
+      serverLogger.error("Failed to send connected apps info to devtools frontend", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "Missing frontend connection or message data",
+          connectionName,
+          hasFrontendConnection: !!this.devtoolsFrontendConnection,
+          hasMessage: !!message,
+          activeConnections: Object.keys(this.connections),
+        },
+      });
       return;
     }
     this.devtoolsFrontendConnection.send(
@@ -43,7 +53,16 @@ export class ConnectionHandler {
       throw new Error(`No connection exists for the connectionName ${devtoolsConnectionName}`);
     }
     if (!this.connections[devtoolsConnectionName].ws) {
-      console.error(`No websocket connection exists for the connectionName ${devtoolsConnectionName}`);
+      serverLogger.error("Failed to send message to devtools plugin", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "WebSocket connection is not available",
+          connectionName: devtoolsConnectionName,
+          connectionStatus: this.connections[devtoolsConnectionName].status,
+          frontendStatus: this.connections[devtoolsConnectionName].frontendStatus,
+          messageType: JSON.parse(message)?.data?.messageType,
+        },
+      });
       return;
     }
     this.connections[devtoolsConnectionName].ws.send(message);
@@ -55,7 +74,14 @@ export class ConnectionHandler {
 
   handleDevtoolsFrontendInitialization = (connectionName: string) => {
     if (!this.connections[connectionName]) {
-      console.error(`CONNECTION ${connectionName} DOES NOT EXIST`);
+      serverLogger.error("Failed to initialize devtools frontend", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "Connection not found in active connections",
+          connectionName,
+          activeConnections: Object.keys(this.connections),
+        },
+      });
       return;
     }
     this.sendMessageToDevtoolsPlugin(
@@ -102,7 +128,16 @@ export class ConnectionHandler {
       hangupConnection.status = "hangup";
 
       if (!this.devtoolsFrontendConnection) {
-        console.error(`Something went wrong. Connection to devtools frontend and devtools plugin lost.`);
+        serverLogger.error("Connection termination failed", {
+          context: "ConnectionHandler",
+          details: {
+            reason: "Devtools frontend connection is not available",
+            connectionName,
+            connectionStatus: hangupConnection.status,
+            frontendStatus: hangupConnection.frontendStatus,
+            activeConnections: Object.keys(this.connections),
+          },
+        });
         return;
       }
 
