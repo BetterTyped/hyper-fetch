@@ -11,7 +11,8 @@ import { createMenu } from "./src/menu";
 import { appLogger } from "../utils/logger";
 
 Sentry.init({
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+  dsn: import.meta.env.VITE_SENTRY_DNS,
+  environment: import.meta.env.VITE_ENVIRONMENT,
 });
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.

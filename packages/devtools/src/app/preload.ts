@@ -3,6 +3,17 @@
 
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import * as Sentry from "@sentry/electron/renderer";
+import { init } from "@sentry/react";
+
+Sentry.init(
+  {
+    dsn: import.meta.env.VITE_SENTRY_DNS,
+    environment: import.meta.env.VITE_ENVIRONMENT,
+    integrations: [Sentry.browserTracingIntegration()],
+  },
+  init as any,
+);
 
 type StoreAPI = {
   get(key: string): Promise<any>;

@@ -85,6 +85,7 @@
     "@sentry/node": "^9.15.0",
     "@sentry/react": "^9.15.0",
     "@sentry/electron": "^6.5.0",
+    "@sentry/vite-plugin": "^3.3.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.9",
     "chalk": "^5.3.0",

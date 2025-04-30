@@ -21,8 +21,8 @@ class Logger {
 
   private constructor(location: LogLocation) {
     this.location = location;
-    this.isDebugEnabled = process.env.NODE_ENV === "development";
-    this.isProduction = process.env.NODE_ENV === "production";
+    this.isDebugEnabled = import.meta.env.VITE_ENVIRONMENT === "development";
+    this.isProduction = import.meta.env.VITE_ENVIRONMENT === "production";
   }
 
   public static getInstance(location: LogLocation): Logger {
@@ -50,7 +50,10 @@ class Logger {
   private formatMessage(message: string, options: LogOptions = {}): string {
     const { level = "info", timestamp = true, context } = options;
     const timestampStr = timestamp ? chalk.gray(`[${this.getTimestamp()}]`) : "";
-    const locationStr = chalk.magenta(`[${this.location.toUpperCase()}]`);
+    const locationStr =
+      this.location === "app"
+        ? chalk.hex("#FFD700")(`[APPLICATION]`)
+        : chalk.hex("#4ECDC4")(`[${this.location.toUpperCase()}]`);
     const contextStr = context ? chalk.cyan(`[${context}]`) : "";
     const levelStr = this.getLevelStyle(level);
     const emoji = this.getEmoji(level);
@@ -80,11 +83,11 @@ class Logger {
     return colors[level];
   }
 
-  private formatDetails(details: any, color: (text: string) => string): string {
+  private formatDetails(details: any): string {
     if (typeof details === "object") {
-      return color(JSON.stringify(details, null, 2));
+      return chalk.white(JSON.stringify(details, null, 2));
     }
-    return color(details);
+    return chalk.white(details);
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -99,7 +102,7 @@ class Logger {
     const formattedMessage = this.formatMessage(message, { ...options, level: "info" });
     console.log(this.getColor("info")(formattedMessage));
     if (options?.details) {
-      console.log(this.formatDetails(options.details, this.getColor("info")));
+      console.log(this.formatDetails(options.details));
     }
   }
 
@@ -108,7 +111,7 @@ class Logger {
     const formattedMessage = this.formatMessage(message, { ...options, level: "success" });
     console.log(this.getColor("success")(formattedMessage));
     if (options?.details) {
-      console.log(this.formatDetails(options.details, this.getColor("success")));
+      console.log(this.formatDetails(options.details));
     }
   }
 
@@ -117,7 +120,7 @@ class Logger {
     const formattedMessage = this.formatMessage(message, { ...options, level: "warning" });
     console.log(this.getColor("warning")(formattedMessage));
     if (options?.details) {
-      console.log(this.formatDetails(options.details, this.getColor("warning")));
+      console.log(this.formatDetails(options.details));
     }
   }
 

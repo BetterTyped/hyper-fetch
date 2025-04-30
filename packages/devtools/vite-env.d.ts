@@ -3,6 +3,9 @@
 interface ImportMetaEnv {
   readonly VITE_PUBLIC_POSTHOG_HOST: string;
   readonly VITE_PUBLIC_POSTHOG_KEY: string;
+  readonly VITE_ENVIRONMENT: string;
+  readonly VITE_SENTRY_DNS: string;
+  readonly SENTRY_AUTH_TOKEN: string;
 }
 
 interface ImportMeta {
