@@ -9,6 +9,5 @@
     "paths": {
       "@hyper-fetch/sockets": ["../src"]
     }
-  },
-  "include": ["../jest.config.ts", "./"]
+  }
 }

@@ -1,4 +1,3 @@
-import { useMemo, useRef } from "react";
 import {
   ExtractAdapterResolvedType,
   RequestInstance,
@@ -12,6 +11,7 @@ import {
 } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
+import { useMemo, useRef } from "react";
 
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
 import { useTrackedState, useRequestEvents } from "helpers";

@@ -6,6 +6,5 @@
     "jsx": "react-jsx",
     "moduleResolution": "nodenext",
     "module": "nodenext"
-  },
-  "include": ["../jest.config.ts", "./"]
+  }
 }

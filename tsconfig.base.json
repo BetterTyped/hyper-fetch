@@ -20,13 +20,10 @@
       "path": "./packages/core"
     },
     {
-      "path": "./packages/devtools-plugin"
+      "path": "./packages/flow"
     },
     {
-      "path": "./packages/devtools"
-    },
-    {
-      "path": "./packages/devtools-standalone/"
+      "path": "./packages/plugin-devtools/"
     },
     {
       "path": "./packages/plugin-eslint"

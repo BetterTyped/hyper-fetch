@@ -3,14 +3,13 @@ import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } f
 import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter";
-import { getStatus } from "utils";
+import { getStatus, applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "utils";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
-import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 
 type DataType = {
   constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];

@@ -3,8 +3,7 @@ import { Database, get, push, query, ref, remove, set, update } from "firebase/d
 import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
-import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
-import { getStatus, isDocOrQuery } from "utils";
+import { mapRealtimeConstraint, getOrderedResultRealtime, getStatus, isDocOrQuery } from "./utils";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,

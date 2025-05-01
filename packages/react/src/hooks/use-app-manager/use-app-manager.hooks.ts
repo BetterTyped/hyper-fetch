@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { ClientInstance } from "@hyper-fetch/core";
+import { useState } from "react";
 
 import { UseAppManagerReturnType } from "hooks/use-app-manager";
 

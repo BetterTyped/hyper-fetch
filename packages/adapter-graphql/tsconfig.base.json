@@ -8,6 +8,5 @@
       "@server-adapter": ["./adapter/http-adapter.browser.ts"]
     }
   },
-  "include": ["./src/index.ts", "__tests__/*"],
   "exclude": ["dist", "jest.config.ts"]
 }

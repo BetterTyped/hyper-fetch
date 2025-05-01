@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import {
@@ -7,6 +6,7 @@ import {
   ExtractAdapterType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
+import { useRef } from "react";
 
 import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";

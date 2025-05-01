@@ -1,6 +1,6 @@
-import { useRef } from "react";
 import { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
 import { useDidUpdate } from "@better-hooks/lifecycle";
+import { useRef } from "react";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";

@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import {
   ExtractErrorType,
   ExtractResponseType,
@@ -10,6 +9,7 @@ import {
   RequestResponseEventType,
 } from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-hooks/lifecycle";
+import { useRef } from "react";
 
 import {
   OnErrorCallbackType,

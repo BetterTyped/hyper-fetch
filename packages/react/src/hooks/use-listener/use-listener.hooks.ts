@@ -1,6 +1,6 @@
-import { useRef } from "react";
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
 import { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import { useRef } from "react";
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";

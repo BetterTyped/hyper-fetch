@@ -1,5 +1,5 @@
-import React from "react";
 import { RequestInstance } from "@hyper-fetch/core";
+import React from "react";
 
 import { UseSubmitOptionsType } from "hooks/use-submit";
 import { UseCacheOptionsType } from "hooks/use-cache";

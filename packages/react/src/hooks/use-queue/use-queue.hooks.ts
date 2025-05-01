@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
 import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType } from "@hyper-fetch/core";
+import { useState, useEffect, useCallback } from "react";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useProvider } from "provider";

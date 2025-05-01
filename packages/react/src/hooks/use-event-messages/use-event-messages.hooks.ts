@@ -1,6 +1,6 @@
-import { useRef } from "react";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import { SocketInstance } from "@hyper-fetch/sockets";
+import { useRef } from "react";
 
 import { useSocketState } from "helpers";
 import { UseEventMessagesOptionsType } from "hooks/use-event-messages";

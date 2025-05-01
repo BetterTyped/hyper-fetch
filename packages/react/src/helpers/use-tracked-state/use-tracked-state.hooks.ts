@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 import {
   ExtractErrorType,
@@ -9,6 +8,7 @@ import {
   ExtractAdapterType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
+import { useRef } from "react";
 
 import { isEqual } from "utils";
 import {

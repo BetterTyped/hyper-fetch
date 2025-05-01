@@ -9,6 +9,5 @@
     "paths": {
       "@hyper-fetch/graphql": ["../src"]
     }
-  },
-  "include": ["../jest.config.ts", "./"]
+  }
 }

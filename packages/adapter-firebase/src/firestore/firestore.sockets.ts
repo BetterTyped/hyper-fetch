@@ -11,8 +11,7 @@ import {
 } from "firebase/firestore";
 import { DocumentSnapshot } from "@firebase/firestore";
 
-import { getStatus, isDocOrQuery } from "utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore, mapConstraint } from "./utils";
+import { getStatus, isDocOrQuery, getGroupedResultFirestore, getOrderedResultFirestore, mapConstraint } from "utils";
 import { FirestoreOnSnapshotExtra, FirestoreQueryParams, FirestoreSocketAdapterType } from "adapter";
 import { FirestoreDocOrQuery, FirestoreSnapshotType } from "./firestore.types";
 import { FirestorePermittedMethods } from "../constraints";

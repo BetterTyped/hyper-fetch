@@ -1,6 +1,6 @@
-import { useRef } from "react";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
+import { useRef } from "react";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useRequestEvents, useTrackedState } from "helpers";

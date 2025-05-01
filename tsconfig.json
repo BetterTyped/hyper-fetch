@@ -30,10 +30,7 @@
     "strict": true,
     "baseUrl": ".",
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "paths": {
-      "storybook": ["storybook/src/index.ts"]
-    }
+    "noUnusedParameters": true
   },
   "exclude": ["node_modules/**/*", "**/node_modules/**/*", "dist/**/*", "**/dist/**/*", "*.js"],
   "ts-node": {

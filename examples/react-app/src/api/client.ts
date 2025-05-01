@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
-import { devtoolsPlugin } from "@hyper-fetch/devtools-plugin";
+import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
 export const client = new Client({ url: "http://localhost:5000" })
   .addPlugin(devtoolsPlugin({ appName: "react-app" }))

@@ -20,8 +20,7 @@ import {
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
-import { getStatus } from "utils";
-import { getOrderedResultFirestore, mapConstraint } from "./utils";
+import { getStatus, getOrderedResultFirestore, mapConstraint } from "utils";
 
 type DataType = {
   constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];

@@ -8,8 +8,13 @@ import {
 } from "firebase-admin/firestore";
 import { SocketAdapter } from "@hyper-fetch/sockets";
 
-import { getGroupedResultFirestore, getOrderedResultFirestore, getRef, applyFireStoreAdminConstraints } from "./utils";
-import { getStatus } from "utils";
+import {
+  getGroupedResultFirestore,
+  getOrderedResultFirestore,
+  getRef,
+  applyFireStoreAdminConstraints,
+  getStatus,
+} from "./utils";
 import { FirestoreAdminSocketAdapterType } from "adapter";
 
 export const firestoreAdminSockets = (database: Firestore) => {

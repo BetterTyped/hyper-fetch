@@ -9,6 +9,5 @@
     "paths": {
       "@hyper-fetch/core": ["../src"]
     }
-  },
-  "include": ["../jest.config.ts", "./"]
+  }
 }
