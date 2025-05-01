@@ -1,7 +1,8 @@
 import { SocketAdapter } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapRealtimeConstraint, getStatus, isDocOrQuery } from "./utils";
+import { getOrderedResultRealtime, mapRealtimeConstraint } from "./utils";
+import { getStatus, isDocOrQuery } from "utils";
 import { RealtimeDbOnValueMethodExtra, RealtimeDBQueryParams, RealtimeSocketAdapterType } from "adapter";
 import { RealtimePermittedMethods } from "../constraints";
 

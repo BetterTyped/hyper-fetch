@@ -3,7 +3,8 @@ import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } f
 import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter";
-import { getStatus, applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "utils";
+import { getStatus } from "utils";
+import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
