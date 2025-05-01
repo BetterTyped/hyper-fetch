@@ -11,6 +11,8 @@ import { Viewer } from "../../components/viewer";
 
 const initialDate = +new Date();
 
+// getUsers.send();
+
 export const ListPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");

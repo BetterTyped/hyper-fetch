@@ -16,6 +16,7 @@ export const WebsocketsPage: React.FC = () => {
   const { emit } = useEmitter(sendMessage, {});
 
   onEvent((event) => {
+    console.log("I RECEIVED A MESSAGE", event);
     setMessages((prev) => [...prev, event.data]);
   });
 

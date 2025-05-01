@@ -51,16 +51,14 @@ export const Integrations = () => {
       </div>
       <section className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="pt-6 md:pt-12">
-          <div className="text-center pb-4 md:pb-8">
+          <div className="text-left pb-4 md:pb-8">
             <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
               Integrations & Add-ons
             </div>
             <Title>Make it uniquely yours</Title>
-            <div className="max-w-xl mx-auto">
-              <Description className="text-lg text-slate-400">
-                Unlock the full potential of your workflow, ensuring a cohesive and productive environment.
-              </Description>
-            </div>
+            <Description className="text-lg text-slate-400">
+              Unlock the full potential of your workflow, ensuring a cohesive and productive environment.
+            </Description>
           </div>
           <PromotedCarousel />
         </div>

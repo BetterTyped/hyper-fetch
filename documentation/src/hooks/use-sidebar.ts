@@ -64,7 +64,10 @@ export const useSidebar = (options?: {
     return Object.values(currentVersion.sidebars)
       .filter((value) => {
         if (!value.link?.path) {
-          console.log(value);
+          // eslint-disable-next-line no-console
+          console.log("You must update the sidebars. Missing path for the following item:");
+          // eslint-disable-next-line no-console
+          console.log(value, currentVersion.sidebars);
         }
         if (showAllPackages) return value.link.path.includes("/docs/api");
         // eslint-disable-next-line no-nested-ternary

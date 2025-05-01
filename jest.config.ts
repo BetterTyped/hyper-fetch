@@ -11,7 +11,7 @@ export const getJestConfig = (): Config.InitialOptions => ({
   verbose: true,
   testEnvironment: "jsdom",
   testTimeout: 1000000,
-  testRegex: [".spec.ts"],
+  testRegex: [".spec.ts", ".spec.tsx"],
   roots: ["<rootDir>/__tests__", "<rootDir>/src"],
   coverageProvider: "babel",
   coverageReporters: [["lcov", { projectRoot: "../.." }], "clover", "json", "text"],
@@ -26,12 +26,16 @@ export const getJestConfig = (): Config.InitialOptions => ({
     `${__dirname}/jest.polyfills.js`,
   ],
   moduleNameMapper: {
-    "@browser-adapter": ["<rootDir>/src/http-adapter/http-adapter.browser.ts"],
-    "@server-adapter": ["<rootDir>/src/http-adapter/http-adapter.server.ts"],
+    "@browser-adapter": [
+      "<rootDir>/src/http-adapter/http-adapter.browser.ts",
+      "<rootDir>/src/adapter/http-adapter.browser.ts",
+    ],
+    "@server-adapter": [
+      "<rootDir>/src/http-adapter/http-adapter.server.ts",
+      "<rootDir>/src/adapter/http-adapter.server.ts",
+    ],
   },
-  testEnvironmentOptions: {
-    customExportConditions: [""],
-  },
+  transformIgnorePatterns: ["node_modules/(?!(chalk)/)"],
   transform: {
     "^.+\\.[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
   },

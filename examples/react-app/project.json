@@ -10,7 +10,7 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/examples/adjusted-react-app"
+        "outputPath": "dist/examples/react-app"
       },
       "configurations": {
         "development": {

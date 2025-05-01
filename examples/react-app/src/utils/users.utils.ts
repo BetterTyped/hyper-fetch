@@ -11,17 +11,6 @@ export const getRandomUser = (): UserModel => {
     age: Math.round(Math.random() * 100),
     admin: false,
     permissions: ["read", "write", "delete", "update"],
-    nestedValue: {
-      otherNestedValue: {
-        otherNestedValue2: {
-          otherNestedValue3: {
-            otherNestedValue4: {
-              otherNestedValue5: `Lorem ipsum dolor sit amet consectetur adipisicing elit.`,
-            },
-          },
-        },
-      },
-    },
   };
 };
 

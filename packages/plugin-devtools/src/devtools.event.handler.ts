@@ -14,10 +14,7 @@ export class DevtoolsEventHandler {
   eventQueue: any[] = [];
   connectionName: string;
 
-  constructor(
-    client: ClientInstance,
-    { socketAddress = "ws://localhost", socketPort = 2137, appName, debug = false }: DevtoolsPluginOptions,
-  ) {
+  constructor(client: ClientInstance, { appName, url = "ws://localhost:2137", debug = false }: DevtoolsPluginOptions) {
     this.isConnected = false;
     this.isInitialized = false;
     this.eventQueue = [];
@@ -25,7 +22,7 @@ export class DevtoolsEventHandler {
     this.unmountHooks = this.initializeHooks();
     this.connectionName = appName;
     this.socket = new Socket({
-      url: `${socketAddress}:${socketPort}`,
+      url,
       adapterOptions: { autoConnect: false },
       reconnect: 100,
       reconnectTime: 3000,

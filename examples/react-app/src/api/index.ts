@@ -7,4 +7,6 @@ export * from "./client";
 export * from "./files/files.api";
 export * from "./users/users.api";
 
-setupWorker(...handlers).start();
+setupWorker(...handlers).start({
+  onUnhandledRequest: "bypass",
+});

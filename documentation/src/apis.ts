@@ -5,6 +5,7 @@ import { Section } from "./modules";
 export const apiOverviewSection: Section = {
   label: "Getting Started",
   description: "",
+  category: "Docs",
   isPackage: false,
   dir: "getting-started",
   paths: ["getting-started"],

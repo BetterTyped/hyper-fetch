@@ -38,7 +38,7 @@ const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "plugin-devtools", "devtools", "testing"].includes(p))
+    .filter((p) => ![".DS_Store", "plugin-devtools", "flow", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });
@@ -221,9 +221,9 @@ const config: Config = {
           activeBaseRegex: `/docs/api/`,
         },
         {
-          to: "/docs/devtools",
+          to: "/docs/hyper-flow",
           position: "left",
-          html: "Devtools <span class='new-feature'>New</span>",
+          html: "Hyper Flow <span class='new-feature'>New</span>",
         },
         {
           to: "/examples/playground/",

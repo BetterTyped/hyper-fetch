@@ -27,6 +27,7 @@ export const patchUser = client.createRequest<{ response: UserModel; payload: Po
   endpoint: "/api/user/:userId",
   method: "PATCH",
   cancelable: false,
+  cache: false,
 });
 
 export const deleteUser = client.createRequest()({

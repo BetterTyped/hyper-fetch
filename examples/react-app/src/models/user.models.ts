@@ -5,7 +5,6 @@ export type UserModel = {
   age: number;
   admin?: boolean;
   permissions: string[];
-  nestedValue: any;
 };
 
 export type PostUserModel = {
