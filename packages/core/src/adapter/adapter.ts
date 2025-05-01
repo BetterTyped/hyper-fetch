@@ -436,7 +436,7 @@ export class Adapter<
         });
 
         if (request.unsafe_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
-          return await mocker<
+          return mocker<
             Adapter<
               AdapterOptions,
               MethodType,

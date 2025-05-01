@@ -1,5 +1,6 @@
-"use client";
-
+/* eslint-disable no-plusplus */
+/* eslint-disable no-param-reassign */
+/* eslint-disable @typescript-eslint/no-shadow */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "frontend/lib/utils";
@@ -37,6 +38,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         return `rgba(0, 0, 0,`;
       }
       const canvas = document.createElement("canvas");
+      // eslint-disable-next-line no-multi-assign
       canvas.width = canvas.height = 1;
       const ctx = canvas.getContext("2d");
       if (!ctx) return "rgba(255, 0, 0,";
@@ -88,6 +90,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       rows: number,
       squares: Float32Array,
       dpr: number,
+      // eslint-disable-next-line max-params
     ) => {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = "transparent";

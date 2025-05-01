@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 
