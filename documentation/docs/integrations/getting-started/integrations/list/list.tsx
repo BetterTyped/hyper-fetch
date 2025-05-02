@@ -35,7 +35,7 @@ export function IntegrationsList() {
     <section>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="pb-6 md:pb-10">
-          <div className="flex justify-between items-center py-6 border-b [border-image:linear-gradient(to_right,transparent,theme(colors.slate.300),transparent)1] dark:[border-image:linear-gradient(to_right,transparent,theme(colors.slate.800),transparent)1] space-x-8 overflow-x-scroll no-scrollbar">
+          <div className="flex justify-between items-center py-6 border-b-0 [border-image:linear-gradient(to_right,transparent,theme(colors.slate.300),transparent)1] dark:[border-image:linear-gradient(to_right,transparent,theme(colors.slate.800),transparent)1] space-x-8 overflow-x-scroll no-scrollbar">
             <div className="flex flex-wrap items-center text-md font-medium space-x-8">
               {categoriesKeys.map((category, index) => {
                 const Icon = icons[category];

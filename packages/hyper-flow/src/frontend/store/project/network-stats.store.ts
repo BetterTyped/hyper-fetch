@@ -216,7 +216,7 @@ export const useNetworkStatsStore = create<{
         draft.projects[project].networkStats = getNetworkStats(draft.projects[project].networkStats, data, perf);
         const existingEntry = draft.projects[project].networkEntries.get(globalEndpointAndMethod);
         draft.projects[project].networkEntries.set(globalEndpointAndMethod, {
-          endpoint: data.request.endpoint,
+          endpoint: data.request.requestOptions.endpoint,
           method: data.request.method,
           stats: getNetworkStats(existingEntry?.stats ?? initialNetworkStats, data, perf),
         });
