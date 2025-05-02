@@ -27,11 +27,13 @@ describe("SSE Mocking [ Base ]", () => {
   it("should emit and receive error event", async () => {
     const spy = jest.fn();
     socket.events.onError(spy);
-    emitError();
+    emitError({ code: 1004, reason: "Some reason", wasClean: true });
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(new Error());
+      expect(spy).toHaveBeenCalledWith({
+        error: new Error("Reserved. The specific meaning might be defined in the future."),
+      });
     });
   });
 

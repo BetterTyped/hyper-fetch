@@ -4,8 +4,8 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { WebSocketServer } from "ws";
 import waitForExpect from "wait-for-expect";
 
-import { BackendDevtools } from "../../src/index";
-import { initializeWebsocketServer } from "../../websockets.initialize";
+// import { BackendDevtools } from "../../src/index";
+import { initializeWebsocketServer } from "../websockets.initialize";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -15,7 +15,7 @@ describe("Backend Devtools - Socket Test", () => {
   const socketListener = socket.createListener()({ topic: "test" });
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
-  let backendDevtools = new BackendDevtools(client);
+  // let backendDevtools = new BackendDevtools(client);
 
   beforeAll(() => {
     wss = initializeWebsocketServer(1234);
