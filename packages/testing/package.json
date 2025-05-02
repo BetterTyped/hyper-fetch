@@ -1,7 +1,7 @@
 {
   "name": "@hyper-fetch/testing",
   "version": "0.0.0",
-  "description": "Testing utilities for Hyper Fetch",
+  "description": "Internal testing utilities for Hyper Fetch",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
@@ -52,8 +52,7 @@
   "devDependencies": {
     "abortcontroller-polyfill": "^1.7.6",
     "eventsourcemock": "2.0.0",
-    "jest-websocket-mock": "2.5.0",
-    "msw": "2.7.0"
+    "jest-websocket-mock": "2.5.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

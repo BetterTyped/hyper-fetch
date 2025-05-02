@@ -1,4 +1,4 @@
-import { Client, getErrorMessage } from "@hyper-fetch/core";
+import { createClient, getErrorMessage } from "@hyper-fetch/core";
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
 import { createGraphqlMockingServer } from "../../src/graphql";
@@ -7,9 +7,9 @@ import { LoginMutationVariables, loginMutation } from "../constants/mutations.co
 
 describe("Graphql Mocking [ Base ]", () => {
   const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
-  let client = new Client({
+  let client = createClient({
     url: "https://shared-base-url/graphql",
-  }).setAdapter(GraphqlAdapter);
+  }).setAdapter(GraphqlAdapter());
   let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
@@ -20,9 +20,9 @@ describe("Graphql Mocking [ Base ]", () => {
   });
 
   beforeEach(async () => {
-    client = new Client({
+    client = createClient({
       url: "https://shared-base-url/graphql",
-    }).setAdapter(GraphqlAdapter);
+    }).setAdapter(GraphqlAdapter());
     request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
     mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,
@@ -65,12 +65,12 @@ describe("Graphql Mocking [ Base ]", () => {
   });
 
   it("should mock the error status", async () => {
-    const expected = mockRequest(request, { status: 200, error: [{ message: "Some Error" }] });
+    const expected = mockRequest(request, { status: 400, error: [{ message: "Some Error" }] });
 
     const { data, error, status, extra } = await request.send();
 
     expect(data).toBe(null);
-    expect(status).toBe(200);
+    expect(status).toBe(400);
     expect(expected.errors).toStrictEqual(error);
     expect(extra).toStrictEqual({
       headers: { "content-type": "application/json", "content-length": "47" },

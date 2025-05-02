@@ -2,10 +2,13 @@ dist
 coverage
 
 dist/**/*
+**/dist/**/*
 coverage/**/*
+**/coverage/**/*
 
 node_modules
 node_modules/**/*
+**/node_modules/**/*
 jest.config.js
 jest.config.ts
 jest.setup.ts

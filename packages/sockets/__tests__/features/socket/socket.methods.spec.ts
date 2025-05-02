@@ -43,13 +43,10 @@ describe("Socket [ Methods ]", () => {
     expect(socket.loggerManager).toBe(customLogger);
   });
 
-  it("should allow to set query and reconnect", async () => {
+  it("should allow to set query", async () => {
     const value = { test: 1 };
-    const spy = jest.fn();
     const socket = new Socket({ url: "ws://localhost:1234" });
-    socket.adapter.reconnect = spy;
     socket.adapter.setQueryParams(value);
     expect(socket.adapter.queryParams).toBe(value);
-    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

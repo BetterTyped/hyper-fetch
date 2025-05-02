@@ -8,20 +8,21 @@
     "target": "ESNext",
     "module": "ESNext",
     "allowJs": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "jsx": "preserve",
     "baseUrl": "./src",
     "outDir": "dist",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "strict": true,
     "lib": ["esnext"],
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "isolatedModules": true,
     "incremental": true
-  }
+  },
+  "include": ["src", "__tests__", "configs", "forge.config.ts", "vite-env.d.ts", "forge.env.d.ts", "electron.d.ts"]
 }

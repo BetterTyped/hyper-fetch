@@ -40,7 +40,7 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
 }
 
 export function Request({ name, children, result }: Props) {
-  const { data, error, timestamp } = result;
+  const { data, error, responseTimestamp } = result;
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -214,7 +214,9 @@ export function Request({ name, children, result }: Props) {
             <Divider orientation="vertical" flexItem sx={{ margin: "0 20px 0 10px" }} />
             <ListItemText
               secondary={
-                mounted && timestamp ? `${timestamp?.toDateString()} ${timestamp?.toLocaleTimeString()}` : "---"
+                mounted && responseTimestamp
+                  ? `${responseTimestamp?.toDateString()} ${responseTimestamp?.toLocaleTimeString()}`
+                  : "---"
               }
             />
           </ListItemButton>

@@ -64,21 +64,6 @@
           "dev": false
         }
       }
-    },
-    "app-test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/examples/react-app"],
-      "options": {
-        "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/examples/react-app"
-      }
-    },
-    "app-lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["examples/react-app/**/*.{ts,tsx,js,jsx}"]
-      }
     }
   }
 }

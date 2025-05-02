@@ -4,6 +4,5 @@
     "baseUrl": "./src",
     "module": "commonjs",
     "moduleResolution": "node"
-  },
-  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
+  }
 }

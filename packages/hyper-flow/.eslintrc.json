@@ -7,5 +7,5 @@
     "react/jsx-props-no-spreading": 0,
     "react/require-default-props": 0
   },
-  "ignorePatterns": ["dist/", "coverage/", "jest.config.ts", "/*.js"]
+  "ignorePatterns": ["out/", "dist/", "coverage/", "jest.config.ts", "/*.js"]
 }

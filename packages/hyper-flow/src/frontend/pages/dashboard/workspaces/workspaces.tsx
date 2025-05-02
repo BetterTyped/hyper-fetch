@@ -70,7 +70,7 @@ export const Workspaces = () => {
         <KpiCardFeed
           value={messageCount}
           label="Requests"
-          subtitle="Reads from active projects"
+          // subtitle="Reads from active projects"
           data={pulseHistory}
           name="value"
           icon={<ActivityIcon className="h-3.5 w-3.5 text-blue-500" />}

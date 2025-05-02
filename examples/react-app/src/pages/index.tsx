@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 import { Viewer } from "../components/viewer";
@@ -49,4 +48,5 @@ export function Index() {
   );
 }
 
+// eslint-disable-next-line import/no-default-export
 export default Index;

@@ -36,6 +36,10 @@ export const getJestConfig = (): Config.InitialOptions => ({
     ],
   },
   transformIgnorePatterns: ["node_modules/(?!(chalk)/)"],
+  // Fixes msw https://github.com/mswjs/msw/issues/1786
+  testEnvironmentOptions: {
+    customExportConditions: [""],
+  },
   transform: {
     "^.+\\.[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
   },

@@ -15,7 +15,7 @@ export const Label = ({
   expandable: boolean;
   getRaw: () => string;
 }) => {
-  const ref = useRef<ReturnType<typeof setTimeout>>();
+  const ref = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [copied, setCopied] = useState(false);
 
   const { copy } = useClipboard({
