@@ -3,6 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "module": "commonjs",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "moduleResolution": "node"
-  }
+  },
+  "include": ["./src", "./jest.config.ts", "./__tests__", "typings.d.ts"]
 }
