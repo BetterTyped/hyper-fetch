@@ -62,17 +62,6 @@ If you want more fine-grained configuration, you can instead add a snippet like 
     // ...
     "hyper-fetch"
   ],
-}
-```
-
-or
-
-```js
-{
-  "plugins": [
-    // ...
-    "hyper-fetch"
-  ],
   "rules": {
     // ...
     "hyper-fetch/client-generic-types": "error",
