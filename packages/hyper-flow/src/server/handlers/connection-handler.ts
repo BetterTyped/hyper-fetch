@@ -3,8 +3,8 @@ import { WebSocket } from "ws";
 import { ConnectionMap } from "../types/connection.type";
 import { ConnectionName } from "../../frontend/constants/connection.name";
 import { SocketTopics } from "../../frontend/constants/topics";
-import { DevtoolsClientHandshakeMessage, EmitableCustomEvents, MessageType } from "../../types/messages.types";
-import { serverLogger } from "utils/logger";
+import { DevtoolsClientHandshakeMessage, EmitableCustomEvents, MessageType } from "../../shared/types/messages.types";
+import { serverLogger } from "shared/utils/logger";
 
 export class ConnectionHandler {
   connections: ConnectionMap = {};

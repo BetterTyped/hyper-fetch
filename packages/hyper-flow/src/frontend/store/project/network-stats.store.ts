@@ -93,6 +93,7 @@ const getNetworkInitialState = (): NetworkStatsStore => ({
 });
 
 const getAvgValue = (currentAvg: number, newValue: number, enabled = true) => {
+  if (!currentAvg) return newValue;
   return enabled ? parseFloat(((currentAvg + newValue) / 2).toFixed(2)) : currentAvg;
 };
 

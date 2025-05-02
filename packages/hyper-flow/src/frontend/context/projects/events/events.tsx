@@ -2,7 +2,7 @@ import { ClientInstance } from "@hyper-fetch/core";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { useDidMount } from "@reins/hooks";
 
-import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "types/messages.types";
+import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "shared/types/messages.types";
 import { useConnectionStore } from "frontend/store/project/connection.store";
 
 // TODO - standardize emitter events functions to always start with <emit>

@@ -4,10 +4,12 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { MakerDMG } from "@electron-forge/maker-dmg";
-import { PublisherGithub } from "@electron-forge/publisher-github";
+import { PublisherS3 } from "@electron-forge/publisher-s3";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
+
+import { bucket } from "./src/shared/constants/auto-updater";
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -17,30 +19,34 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
+    new MakerZIP({}, ["darwin"]),
+    new MakerRpm({}),
+    // Windows
     new MakerSquirrel({
-      authors: "Maciej Pyrc, Kacper Skawina",
+      name: "Hyper Flow",
+      authors: "BetterTyped",
       setupExe: "hyper-flow.exe",
       setupIcon: "./src/app/images/icon.ico",
     }),
-    new MakerZIP({}, ["darwin"]),
-    new MakerRpm({}),
+    // Linux
     new MakerDeb({
       options: {
+        name: "hyper-flow",
+        productName: "Hyper Flow",
         icon: "./src/app/images/icon.png",
       },
     }),
+    // Mac OS
     new MakerDMG({
+      name: "Hyper Flow",
       format: "ULFO",
       icon: "./src/app/images/icon.icns",
     }),
   ],
   publishers: [
-    new PublisherGithub({
-      repository: {
-        owner: "prc5",
-        name: "@BetterTyped/hyper-fetch",
-      },
-      draft: true,
+    new PublisherS3({
+      bucket,
+      public: true,
     }),
   ],
   plugins: [

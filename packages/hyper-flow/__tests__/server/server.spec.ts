@@ -3,7 +3,7 @@
  */
 import { waitFor } from "@testing-library/react";
 
-import { MessageType } from "types/messages.types";
+import { MessageType } from "shared/types/messages.types";
 import { StartServer, startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 

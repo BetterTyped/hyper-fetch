@@ -7,9 +7,9 @@ import { NavTertiary } from "./_components/nav-tertiary";
 // import { NavOrg } from "./_components/nav-org";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
 import { RoutingLocations } from "frontend/routing/router";
-import { Badge } from "frontend/components/ui/badge";
 import { cn } from "frontend/lib/utils";
 import icon from "frontend/assets/images/icon.png";
+import { CurrentVersion } from "frontend/components/ui/current-version";
 
 const primary: Array<{
   title: string;
@@ -109,9 +109,7 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 Flow
               </span>
             </div>
-            <Badge variant="outline" className="ml-auto">
-              v0.0.1
-            </Badge>
+            <CurrentVersion className="ml-auto" />
           </div>
         </SidebarHeader>
         <SidebarContent className="mb-2">

@@ -5,7 +5,7 @@ import * as net from "net";
 import { startServer, StartServer } from "../../server";
 import { store } from "./persistent-store";
 import type { Settings } from "frontend/store/app/settings.store";
-import { appLogger } from "../../utils/logger";
+import { appLogger } from "../../shared/utils/logger";
 
 // Store server instance for control
 let serverInstance: StartServer | null = null;

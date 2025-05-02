@@ -2,7 +2,7 @@ import { ClientInstance } from "@hyper-fetch/core";
 import { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
 import { create } from "zustand";
 
-import { BaseMessage } from "types/messages.types";
+import { BaseMessage } from "shared/types/messages.types";
 
 export type Connection = {
   name: string;

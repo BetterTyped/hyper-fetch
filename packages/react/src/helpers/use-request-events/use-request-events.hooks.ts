@@ -114,7 +114,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(req.queryKey);
       if (loading || canDisableLoading) {
-        actions.setLoading(loading, false);
+        actions.setLoading(loading);
       }
     };
   };

@@ -3,12 +3,14 @@ import path from "node:path";
 import started from "electron-squirrel-startup";
 import * as Sentry from "@sentry/electron/main";
 
+import { appLogger } from "../shared/utils/logger";
 import { setupWindowControls } from "./src/window-controls";
 import { persistentStore } from "./src/persistent-store";
 import { copyToClipboard } from "./src/clipboard";
 import { closeServer, setupServerControl } from "./src/server-control";
 import { createMenu } from "./src/menu";
-import { appLogger } from "../utils/logger";
+import { autoUpdater } from "./src/auto-updater";
+import { setupWindowVariablesIPC } from "./src/window-variables";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DNS,
@@ -62,6 +64,8 @@ const createWindow = () => {
   });
 };
 
+autoUpdater();
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -70,6 +74,7 @@ app.on("ready", () => {
   createWindow();
   createMenu();
   setupServerControl();
+  setupWindowVariablesIPC();
 });
 
 app.whenReady().then(async () => {

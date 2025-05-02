@@ -4,7 +4,7 @@
 @import "./components.css" layer(components);
 
 body {
-  @apply bg-gray-900/90 text-gray-300;
+  @apply bg-[rgb(17,23,40)] text-gray-300;
 }
 
 html,
@@ -294,21 +294,21 @@ body,
       background-position: bottom center;
     }
   }
-  --animate-meteor: meteor 5s linear infinite
-;
+  --animate-meteor: meteor 5s linear infinite;
   @keyframes meteor {
-  0% {
-    transform: rotate(var(--angle)) translateX(0);
-    opacity: 1;
+    0% {
+      transform: rotate(var(--angle)) translateX(0);
+      opacity: 1;
     }
-  70% {
-    opacity: 1;
+    70% {
+      opacity: 1;
     }
-  100% {
-    transform: rotate(var(--angle)) translateX(-500px);
-    opacity: 0;
+    100% {
+      transform: rotate(var(--angle)) translateX(-500px);
+      opacity: 0;
     }
-  }}
+  }
+}
 
 @layer base {
   * {

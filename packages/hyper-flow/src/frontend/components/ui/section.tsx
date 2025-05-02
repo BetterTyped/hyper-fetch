@@ -63,7 +63,7 @@ export const SectionTitle = ({ children, className, ...props }: React.ComponentP
   return (
     <h3
       className={cn(
-        "text-lg font-medium mb-0 leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500",
+        "text-lg font-medium mb-1 leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500",
         className,
       )}
       {...props}

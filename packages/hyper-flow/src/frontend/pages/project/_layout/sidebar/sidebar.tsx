@@ -18,7 +18,7 @@ import {
 import { Link, RoutingLocations, useMatchedName, useRoute } from "frontend/routing/router";
 import { useProjects } from "frontend/store/project/projects.store";
 import { cn } from "frontend/lib/utils";
-import Logo from "../../../../assets/images/logo.svg?react";
+import logo from "../../../../assets/images/icon.png";
 
 // import Logo from "frontend/assets/images/logo.svg?react";
 
@@ -91,7 +91,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
               <SidebarMenuButton
                 size="lg"
                 asChild
-                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 hover:bg-yellow-500/80 text-sidebar-primary-foreground"
+                className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 hover:bg-yellow-500/80 active:bg-yellow-500/60 text-sidebar-primary-foreground"
               >
                 <Link to="dashboard">
                   <Home className="!size-5" />
@@ -119,7 +119,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <Logo className="size-10 mx-auto mb-2" />
+          <img src={logo} alt="Hyper Flow" className="size-10 mx-auto mb-2" />
         </SidebarFooter>
       </Sidebar>
     </SidebarProvider>

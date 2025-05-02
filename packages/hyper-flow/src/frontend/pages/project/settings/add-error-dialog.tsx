@@ -62,7 +62,7 @@ export const AddErrorDialog = ({ onAddError, initialError, isEdit }: AddErrorDia
     if (initialError) {
       form.reset({
         name: initialError.name,
-        status: initialError.status.toString(),
+        status: initialError.status,
         body: stringifyBody(initialError.body),
       });
       setIsNumericStatus(typeof initialError.status === "number");
