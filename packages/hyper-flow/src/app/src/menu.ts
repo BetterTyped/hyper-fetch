@@ -58,6 +58,7 @@ export const createMenu = () => {
       submenu: [
         {
           label: "Take screenshot",
+          accelerator: "CmdOrCtrl+Shift+I",
           click(item: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
             if (focusedWindow)
               focusedWindow.capturePage().then((image) => {

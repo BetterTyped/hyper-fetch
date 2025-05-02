@@ -37,6 +37,7 @@
     "events": "^3.3.0",
     "gsap": "3.12.5",
     "lucide-react": "^0.453.0",
+    "motion": "^12.9.4",
     "postcss": "^8.4.31",
     "prismjs": "^1.29.0",
     "react": "link:../node_modules/react",

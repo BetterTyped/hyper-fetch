@@ -5,12 +5,11 @@ import { Highlighter } from "@site/src/components/highlighter";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import { Stage } from "@react-theater/scroll";
 import { Description, Title } from "@site/src/components";
+import App from "@site/static/img/previews/app.png";
 
 import { BigBlock } from "./big-block/big-block";
 import { MediumBlock } from "./medium-block/medium-block";
-import { SmallBlock } from "./small-block/small-block";
 
-const FeatureImg01 = "/img/feature-ecosystem.png";
 const FeatureImg02 = "/img/feature-integrations.png";
 const FeatureImg03 = "/img/feature-image-03.png";
 
@@ -51,7 +50,10 @@ export const Blocks = () => {
                 </Stage>
               </div>
               <FadeIn start={0.3} end={0.4}>
-                <Description className="text-lg text-zinc-400">Description of the tool</Description>
+                <Description className="text-lg text-zinc-400">
+                  Hyper Fetch provides a powerful, type-safe, backend & framework agnostic architecture for efficient
+                  data exchange.
+                </Description>
               </FadeIn>
             </div>
           </div>
@@ -78,16 +80,14 @@ export const Blocks = () => {
               </svg>
             </div>
             <Highlighter className="grid md:grid-cols-12 gap-6 group">
-              <Link to="/docs/documentation" className="!no-underline md:col-span-12">
+              <Link to="/docs/hyper-flow" className="!no-underline md:col-span-12">
                 <BigBlock
-                  title="Devtools Explorer"
-                  description="We want to revolutionize the way building application is made. We want to make it easier, faster and more fun at the same time saving a lot of resources for business."
+                  title="Hyper Flow"
+                  description="Inspect, debug, and manage your requests in real-time. Gain full visibility into caching, queuing, and the entire request lifecycle."
                   img={
                     <img
-                      className="absolute bottom-0 left-1/2 -translate-x-1/2 mx-auto max-w-none md:relative md:left-0 md:translate-x-0 py-8"
-                      src={FeatureImg01}
-                      width="504"
-                      height="400"
+                      className="absolute top-0 left-0 w-[160%] max-w-[160%] h-auto mt-12 rounded-md overflow-hidden"
+                      src={App}
                       alt="Feature 01"
                     />
                   }
@@ -95,8 +95,8 @@ export const Blocks = () => {
               </Link>
               <Link to="/docs/documentation" className="!no-underline md:col-span-7">
                 <MediumBlock
-                  title="Built for Type Safety"
-                  description="Use it for new or already existing projects. It's built to integrate with any APIs and React frameworks of your choice."
+                  title="Designed for Type Safety"
+                  description="Leverage TypeScript to its full potential with automatic type generation, robust error handling, and enhanced developer confidence."
                   img={
                     <img
                       className="absolute w-[240%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
@@ -108,8 +108,8 @@ export const Blocks = () => {
               </Link>
               <Link to="/docs/documentation" className="!no-underline md:col-span-5">
                 <MediumBlock
-                  title="Open sourced"
-                  description="We believe in the open source and transparency. Feel free to contribute, raise issues and submit pull requests."
+                  title="Flexible & Open Source"
+                  description="Framework agnostic, built almost zero dependencies. Integrate seamlessly into any project and contribute to its growth."
                   img={
                     <img
                       className="absolute w-[160%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
@@ -118,18 +118,6 @@ export const Blocks = () => {
                     />
                   }
                 />
-              </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-3">
-                <SmallBlock title="Type Safety" description="Use it for new or already existing projects." index={0} />
-              </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-3">
-                <SmallBlock title="Type Safety" description="Use it for new or already existing projects." index={1} />
-              </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-3">
-                <SmallBlock title="Type Safety" description="Use it for new or already existing projects." index={2} />
-              </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-3">
-                <SmallBlock title="Type Safety" description="Use it for new or already existing projects." index={3} />
               </Link>
             </Highlighter>
           </div>

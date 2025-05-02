@@ -26,15 +26,15 @@ export const Cards = () => {
                 <div className="flex flex-col p-6 h-full">
                   <div className="flex items-center space-x-3 mb-3">
                     <div
-                      className={`${item.section.icon} ${item.section.iconHover} flex items-center h-6 w-6 min-h-6 min-w-6 justify-center mr-2 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 dark:highlight-white/10`}
+                      className={`${item.section.icon} ${item.section.iconHover} flex items-center h-8 w-8 min-h-8 min-w-8 justify-center mr-2 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 dark:highlight-white/10`}
                     >
-                      <item.img className="group-hover:brightness-120 w-4 h-4" />
+                      <item.img className="group-hover:brightness-120 w-6 h-6" />
                     </div>
                   </div>
                   <Title
                     size="none"
-                    className="font-semibold !leading-[1.]"
-                    wrapperClass="flex flex-wrap !leading-6 mb-2"
+                    className="font-bold !leading-[1.] text-lg"
+                    wrapperClass="flex flex-wrap !leading-6 mb-1"
                   >
                     {item.name}
                   </Title>

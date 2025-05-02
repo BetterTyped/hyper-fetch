@@ -8,10 +8,10 @@ import { Clients } from "./clients";
 import { Blocks } from "./blocks";
 import { CallToAction } from "./call-to-action";
 import { Modules } from "./modules/modules";
-import { Integrations } from "./integrations/integrations";
+// import { Integrations } from "./integrations/integrations";
 import { Features } from "./features/features";
 import { Example } from "./example/example";
-// import { Preview } from "./preview/preview";
+import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
 
 export const Landing = () => {
@@ -37,19 +37,17 @@ export const Landing = () => {
 
   return (
     <Layout title="Seamless Requests and Real-Time Connectivity" description={siteConfig.tagline}>
-      <div className="w-[100vw] max-w-[100vw]">
-        <div className="relative z-10">
-          <Hero />
-          {/* <Preview /> */}
-          <Clients />
-          <Modules />
-          <Features />
-          <Integrations />
-          <Blocks />
-          <Example />
-          <Sponsors />
-          <CallToAction />
-        </div>
+      <div className="relative z-10 w-[100vw] max-w-[100vw] overflow-x-hidden translate-y-[-88px]">
+        <Hero />
+        <Clients />
+        <Modules />
+        <Preview />
+        <Features />
+        {/* <Integrations /> */}
+        <Blocks />
+        <Example />
+        <Sponsors />
+        <CallToAction />
       </div>
     </Layout>
   );

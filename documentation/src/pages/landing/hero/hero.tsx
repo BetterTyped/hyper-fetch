@@ -3,33 +3,16 @@
 import { Particles } from "@site/src/components/particles";
 import { Description, Title } from "@site/src/components";
 import Link from "@docusaurus/Link";
-import { useClipboard, useIsMounted, useWindowSize } from "@reins/hooks";
-import { useState } from "react";
-import { ArrowRight, Copy, Sparkles } from "lucide-react";
+import { useWindowSize } from "@reins/hooks";
+import { ArrowRight, Download, Sparkles } from "lucide-react";
 
 import { Paths } from "./paths/paths";
 
-const installationCommand = "npm install @hyper-fetch/core";
-
 export const Hero = () => {
-  const isMounted = useIsMounted();
-  const [done, setDone] = useState(false);
   const [width] = useWindowSize();
 
-  const { copy } = useClipboard({
-    onSuccess: () => {
-      setDone(true);
-      setTimeout(() => {
-        if (isMounted) {
-          setDone(false);
-        }
-      }, 1000);
-    },
-    onError: () => {},
-  });
-
   return (
-    <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[158px] pb-[68px] -mt-[88px]">
+    <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[158px] pb-[68px]">
       {/* Illustrations */}
       <Paths />
 
@@ -58,7 +41,7 @@ export const Hero = () => {
           className="font-extrabold text-4xl md:text-6xl leading-[1.1] md:!leading-[1.3] lg:text-[3.5rem] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
         >
           Connect to any API. <br />
-          Simply, TypeSafe, Perfected.
+          Simply, TypeSafe, Fast.
         </Title>
         <Description
           size="none"
@@ -81,34 +64,12 @@ export const Hero = () => {
           >
             Get Started <ArrowRight className="w-[16px] ml-2" />
           </Link>
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => copy(installationCommand)}
-              className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
-            >
-              {!done && (
-                <span
-                  className=" group-hover:dark:text-white group-hover:text-black transition duration-150 ease-in-out"
-                  style={{
-                    fontSize: "inherit",
-                  }}
-                >
-                  npm install hyper-fetch
-                </span>
-              )}
-              {done && (
-                <span
-                  style={{
-                    fontSize: "inherit",
-                  }}
-                >
-                  Copied to clipboard!
-                </span>
-              )}
-              <Copy className="w-[15px] ml-3 stroke-zinc-500 dark:stroke-zinc-300 transition duration-150 ease-in-out" />
-            </button>
-          </div>
+          <Link
+            to="docs/hyper-flow/download"
+            className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
+          >
+            <Download className="w-[16px] mr-2" /> Download HyperFlow
+          </Link>
         </div>
       </div>
     </section>

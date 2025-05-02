@@ -1,22 +1,23 @@
-import { FadeIn, HighlighterItem, Title, Description } from "@site/src/components";
+import { Particles, FadeIn, HighlighterItem, Title, Description } from "@site/src/components";
 
 export const BigBlock = ({ title, description, img }: { title: string; description: string; img: React.ReactNode }) => {
   return (
     <FadeIn className="w-full overflow-hidden" start={0.2} end={0.5} translateY={40}>
       <HighlighterItem>
         <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+          <Particles className="absolute inset-0" />
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             {/* Blurred shape */}
             <div className="absolute right-0 top-0 blur-2xl opacity-50 dark:opacity-100" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="342" height="393">
                 <defs>
                   <linearGradient id="bs-a" x1="19.609%" x2="50%" y1="14.544%" y2="100%">
-                    <stop offset="0%" stopColor="#fbc646" />
-                    <stop offset="100%" stopColor="#fbc646" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#dbaa37" />
+                    <stop offset="100%" stopColor="#e1a824" stopOpacity="0" />
                   </linearGradient>
                 </defs>
                 <path
-                  className="dark:fill-yellow-700 fill-yellow-300"
+                  className="dark:fill-amber-700 fill-amber-300"
                   fillRule="evenodd"
                   d="m104 .827 461 369-284 58z"
                   transform="translate(0 -112.827)"
@@ -54,7 +55,7 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
               </div>
             </div>
             {/* Image */}
-            <div className="relative w-full h-48 md:h-auto overflow-hidden">{img}</div>
+            <div className="relative w-full min-h-[300px] overflow-hidden">{img}</div>
           </div>
         </div>
       </HighlighterItem>

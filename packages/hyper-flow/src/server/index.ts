@@ -65,6 +65,13 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
 
     wsConn.on("message", (msg: MessageTypes) => {
       const message = JSON.parse(msg.toString()) as MessageTypes;
+      serverLogger.info("Received message from devtools plugin", {
+        context: "WebSocketServer",
+        details: {
+          connectionName,
+          messageType: message.data.messageType,
+        },
+      });
       switch (message.data.messageType) {
         // Received info from connected plugin and informing devtools frontend
         case MessageType.PLUGIN_INITIALIZED: {

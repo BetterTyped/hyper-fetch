@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import Link from "@docusaurus/Link";
 import { Description, Title } from "@site/src/components";
+import { ArrowRight, Download } from "lucide-react";
 
 export const CallToAction = () => {
   return (
@@ -46,9 +47,18 @@ export const CallToAction = () => {
               Build with HyperFetch
             </Title>
             <Description className="text-lg text-zinc-400 mb-8">Try it for yourself!</Description>
-            <div>
-              <Link className="shiny-btn px-3 py-2" to="/docs/getting-started">
-                Get started
+            <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
+              <Link
+                to="docs/getting-started"
+                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"
+              >
+                Get Started <ArrowRight className="w-[16px] ml-2" />
+              </Link>
+              <Link
+                to="docs/hyper-flow/download"
+                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
+              >
+                <Download className="w-[16px] mr-2" /> Download HyperFlow
               </Link>
             </div>
           </div>

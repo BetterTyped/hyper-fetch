@@ -45,6 +45,42 @@ const tools: Array<{ name: string; dotClassName: string }> = [
     name: "stream",
     dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
   },
+  {
+    name: "form data",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "rest",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "websockets",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "sse",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "firebase",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "realtime",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "upload",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "download",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
+  {
+    name: "stream",
+    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
+  },
 ];
 
 const paths = [

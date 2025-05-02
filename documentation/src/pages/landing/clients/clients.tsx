@@ -9,6 +9,7 @@ import Client05 from "@site/static/img/client-05.svg";
 import Client06 from "@site/static/img/client-06.svg";
 import "swiper/swiper.min.css";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 Swiper.use([Autoplay]);
 
 export const Clients = () => {
@@ -33,9 +34,9 @@ export const Clients = () => {
 
   return (
     <section className="container mx-auto px-4 sm:px-6 flex flex-col justify-center h-[220px]">
-      <div className="text-center text-base mb-10 max-w-[460px] mx-auto font-normal">
+      <div className="text-center text-base mb-10 max-w-[460px] mx-auto font-normal !text-gray-400">
         Companies that use{" "}
-        <a href="https://bettertyped.com" className="text-blue-500 font-semibold">
+        <a href="https://bettertyped.com" className="font-medium text-gray-400">
           BetterTyped
         </a>{" "}
         open-source software.

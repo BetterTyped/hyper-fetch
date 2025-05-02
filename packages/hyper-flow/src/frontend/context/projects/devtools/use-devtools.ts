@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { createClient } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
@@ -12,11 +13,17 @@ export const useDevtools = () => {
   const project = useProjects(useShallow((state) => state.projects[projectName]));
   const { connections } = useConnectionStore();
 
-  const { client } = connections[projectName as keyof typeof connections] || {
-    client: createClient({
+  const { client } = useMemo(() => {
+    if (connections[projectName as keyof typeof connections]) {
+      return connections[projectName as keyof typeof connections];
+    }
+    const newClient = createClient({
       url: project.url,
-    }),
-  };
+    });
+    return {
+      client: newClient,
+    };
+  }, [connections, projectName, project.url]);
 
   return {
     client,
