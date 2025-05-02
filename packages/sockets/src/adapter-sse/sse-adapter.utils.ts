@@ -4,7 +4,12 @@ import { SSEAdapterOptionsType } from "./sse-adapter.types";
 
 export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
   /** istanbul ignore next */
-  if (!window?.EventSource) return null;
+  try {
+    /** istanbul ignore next */
+    if (!window?.EventSource) return null;
+  } catch (error) {
+    return null;
+  }
 
   class HyperFetchEventSource extends EventSource {
     public listeners: Map<

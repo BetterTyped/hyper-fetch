@@ -132,7 +132,7 @@ describe("Mocker [ Base ]", () => {
 
   it("should allow for retrying request", async () => {
     let response: RequestResponseEventType<RequestInstance>;
-    const index = { current: 0 };
+    let index = 0;
     const fixtures = [
       { data: { data: [1, 2, 3] }, status: 400, success: false },
       { data: { data: [1, 2, 3] }, status: 200 },
@@ -142,16 +142,18 @@ describe("Mocker [ Base ]", () => {
       .setRetry(1)
       .setRetryTime(50)
       .setMock(() => {
-        if (index.current === 1) {
-          index.current = 0;
+        if (index === 1) {
+          index = 0;
           return fixtures[1];
         }
-        index.current = 1;
+        index = 1;
         return fixtures[0];
       });
 
     client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (event) => {
-      response = event;
+      if (event.details.retries) {
+        response = event;
+      }
     });
     dispatcher.add(requestWithRetry);
 

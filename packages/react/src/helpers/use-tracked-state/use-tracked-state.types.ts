@@ -78,42 +78,48 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
 
 export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
-   * Action to set custom data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option.
+   * Action to set custom data. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update(). method.
    */
-  setData: (data: CacheSetState<ExtractResponseType<T> | null>, emitToCache?: boolean) => void;
+  setData: (data: CacheSetState<ExtractResponseType<T> | null>) => void;
   /**
-   * Action to set custom error. We can do it locally(inside hook state) or in all hooks with 'emitToCache' option.
+   * Action to set custom error. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setError: (error: CacheSetState<ExtractErrorType<T> | null>, emitToCache?: boolean) => void;
+  setError: (error: CacheSetState<ExtractErrorType<T> | null>) => void;
   /**
-   * Action to set custom loading. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom loading. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setLoading: (loading: CacheSetState<boolean>, emitToHooks?: boolean) => void;
+  setLoading: (loading: CacheSetState<boolean>) => void;
   /**
-   * Action to set custom status. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom status. We can do it locally(inside hook state).
+   * If you need to turn on loading for all listening hooks use client.requestManager.events.emitLoading() method.
    */
-  setStatus: (status: CacheSetState<ExtractAdapterStatusType<ExtractAdapterType<T>>>, emitToCache?: boolean) => void;
+  setStatus: (status: CacheSetState<ExtractAdapterStatusType<ExtractAdapterType<T>>>) => void;
   /**
-   * Action to set custom success. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom success. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setSuccess: (success: CacheSetState<boolean>, emitToCache?: boolean) => void;
+  setSuccess: (success: CacheSetState<boolean>) => void;
   /**
-   * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom additional data. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setExtra: (
-    extra: CacheSetState<ExtractAdapterExtraType<ExtractAdapterType<T>> | null>,
-    emitToCache?: boolean,
-  ) => void;
+  setExtra: (extra: CacheSetState<ExtractAdapterExtraType<ExtractAdapterType<T>> | null>) => void;
   /**
-   * Action to set custom retries count. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom retries count. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setRetries: (retries: CacheSetState<number>, emitToCache?: boolean) => void;
+  setRetries: (retries: CacheSetState<number>) => void;
   /**
-   * Action to set custom timestamp. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom timestamp. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setResponseTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
+  setResponseTimestamp: (timestamp: CacheSetState<Date>) => void;
   /**
-   * Action to set custom timestamp. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom timestamp. We can do it locally(inside hook state).
+   * If you need to update cache data use client.cache.update() method.
    */
-  setRequestTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
+  setRequestTimestamp: (timestamp: CacheSetState<Date>) => void;
 };

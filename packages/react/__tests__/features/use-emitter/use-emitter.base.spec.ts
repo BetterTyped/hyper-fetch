@@ -45,18 +45,18 @@ describe("useEmitter [ Base ]", () => {
     it("should handle emit error correctly", async () => {
       const error = new Error("Emit error");
       const view = renderUseEmitter(emitter);
-      let capturedError: Error | null = null;
+      let capturedError: { error: Error } | null = null;
 
       view.result.current.onEmitError((err) => {
         capturedError = err;
       });
 
       act(() => {
-        emitter.socket.events.emitEmitterError(error, emitter);
+        emitter.socket.events.emitEmitterError({ error, emitter });
       });
 
       await waitFor(() => {
-        expect(capturedError).toEqual(error);
+        expect(capturedError).toEqual({ error });
       });
     });
 
@@ -85,7 +85,7 @@ describe("useEmitter [ Base ]", () => {
 
       // Should not throw when callback is undefined
       act(() => {
-        myEmitter.socket.events.emitEmitterStartEvent(myEmitter);
+        myEmitter.socket.events.emitEmitterStartEvent({ emitter: myEmitter });
       });
 
       // No assertion needed - test passes if no error is thrown

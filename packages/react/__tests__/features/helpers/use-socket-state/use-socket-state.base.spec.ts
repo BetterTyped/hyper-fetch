@@ -75,12 +75,14 @@ describe("useSocketState [ Base ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should call onError callback", async () => {
-      const value = {} as MessageEvent;
+      const value = {
+        error: new Error("Test error"),
+      };
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitError({ error: value });
+        socket.events.emitError(value);
         callbacks.onError(spy);
-        socket.events.emitError({ error: value });
+        socket.events.emitError(value);
       });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(value);
@@ -103,7 +105,7 @@ describe("useSocketState [ Base ]", () => {
         socket.events.emitReconnecting({ attempts: value });
       });
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(value);
+      expect(spy).toHaveBeenCalledWith({ attempts: value });
     });
     it("should call onReconnectingFailed callback", async () => {
       const value = 2;
@@ -114,7 +116,7 @@ describe("useSocketState [ Base ]", () => {
         socket.events.emitReconnectingFailed({ attempts: value });
       });
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(value);
+      expect(spy).toHaveBeenCalledWith({ attempts: value });
     });
   });
 

@@ -16,9 +16,9 @@ export const Hero = () => {
       {/* Illustrations */}
       <Paths />
 
-      <div className="absolute w-[100vw] h-full pointer-events-none p-10 inset-0" aria-hidden="true">
+      <div className="absolute w-[100vw] min-w-[1200px] h-full pointer-events-none p-10 inset-0" aria-hidden="true">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10">
-          <img src="/img/glow-main.svg" className="max-w-none min-w-[100vw]" width={2546} alt="glow" />
+          <img src="/img/glow-main.svg" className="max-w-none min-w-full" width={2546} alt="glow" />
         </div>
       </div>
 

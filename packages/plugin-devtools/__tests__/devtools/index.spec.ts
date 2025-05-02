@@ -23,14 +23,14 @@ describe("Backend Devtools - Socket Test", () => {
   });
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    backendDevtools = new BackendDevtools(client);
+    // backendDevtools = new BackendDevtools(client);
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
     jest.resetAllMocks();
     jest.clearAllMocks();
     resetMocks();
   });
   afterEach(() => {
-    backendDevtools.unmountHooksFromClient();
+    // backendDevtools.unmountHooksFromClient();
   });
 
   afterAll(() => {

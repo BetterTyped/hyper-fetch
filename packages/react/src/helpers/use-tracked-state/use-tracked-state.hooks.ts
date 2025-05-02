@@ -37,7 +37,7 @@ export const useTrackedState = <T extends RequestInstance>({
   revalidate,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queryKey, staleTime, unsafe_responseMapper } = request;
-  const { cache, requestManager } = client;
+  const { cache } = client;
 
   const forceUpdate = useForceUpdate();
 
@@ -205,104 +205,61 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const actions: UseTrackedStateActions<T> = {
-    setData: (data, emitToHooks = true) => {
-      if (emitToHooks) {
-        cache.update(request, (prev) => ({ data: data instanceof Function ? data(prev?.data || null) : data }));
-      }
+    setData: (data) => {
       state.current.data = data instanceof Function ? data(state.current.data || null) : data;
       renderKeyTrigger(["data"]);
     },
-    setError: (error, emitToCache = true) => {
-      if (emitToCache) {
-        cache.update(request, (prev) => {
-          const value = error instanceof Function ? error(prev?.error || null) : error;
-          return {
-            error: value,
-            success: !value,
-          };
-        });
-      }
+    setError: (error) => {
       state.current.error = error instanceof Function ? error(state.current.error || null) : error;
       renderKeyTrigger(["error"]);
     },
-    setLoading: (loading, emitToHooks = true) => {
+    setLoading: (loading) => {
       const value = loading instanceof Function ? loading(state.current.loading) : loading;
-      if (emitToHooks) {
-        requestManager.events.emitLoading({
-          request,
-          requestId: "",
-          loading: value,
-          isRetry: false,
-          isOffline: false,
-        });
-      }
+      if (value === state.current.loading) return;
       state.current.loading = value;
       renderKeyTrigger(["loading"]);
     },
-    setStatus: (status, emitToCache = true) => {
-      if (emitToCache) {
-        cache.update(request, (prev) => ({
-          status: status instanceof Function ? status((prev?.status as any) || null) : status,
-        }));
-      }
+    setStatus: (status) => {
+      const value = status instanceof Function ? status(state.current.status) : status;
+      if (value === state.current.status) return;
       state.current.status = status instanceof Function ? status(state.current.status || null) : status;
       renderKeyTrigger(["status"]);
     },
-    setSuccess: (success, emitToCache = true) => {
-      if (emitToCache) {
-        cache.update(request, (prev) => ({
-          success: success instanceof Function ? success(prev?.success || false) : success,
-        }));
-      }
+    setSuccess: (success) => {
+      const value = success instanceof Function ? success(state.current.success || false) : success;
+      if (value === state.current.success) return;
       state.current.success = success instanceof Function ? success(state.current.success || false) : success;
       renderKeyTrigger(["success"]);
     },
-    setExtra: (extra, emitToCache = true) => {
-      if (emitToCache) {
-        cache.update(request, (prev) => ({
-          extra: extra instanceof Function ? extra(prev?.extra || null) : extra,
-        }));
-      }
+    setExtra: (extra) => {
+      const value = extra instanceof Function ? extra(state.current.extra) : extra;
+      if (value === state.current.extra) return;
       state.current.extra = extra instanceof Function ? extra(state.current.extra) : extra;
       renderKeyTrigger(["extra"]);
     },
-    setRetries: (retries, emitToCache = true) => {
-      if (emitToCache) {
-        cache.update(request, (prev) => ({
-          retries: retries instanceof Function ? retries(prev?.retries || 0) : retries,
-        }));
-      }
+    setRetries: (retries) => {
+      const value = retries instanceof Function ? retries(state.current.retries || 0) : retries;
+      if (value === state.current.retries) return;
       state.current.retries = retries instanceof Function ? retries(state.current.retries || 0) : retries;
       renderKeyTrigger(["retries"]);
     },
-    setResponseTimestamp: (timestamp, emitToCache = true) => {
+    setResponseTimestamp: (timestamp) => {
+      const value = timestamp instanceof Function ? timestamp(state.current.responseTimestamp) : timestamp;
+      if (value === state.current.responseTimestamp) return;
       const getTimestamp = (prev: Date | null) => {
         return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
       };
-
-      if (emitToCache) {
-        cache.update(request, (prev) => {
-          const responseTimestamp = +getTimestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null);
-
-          return {
-            responseTimestamp,
-          };
-        });
-      }
 
       state.current.responseTimestamp = getTimestamp(state.current.responseTimestamp);
       renderKeyTrigger(["responseTimestamp"]);
     },
-    setRequestTimestamp: (timestamp, emitToCache = true) => {
+    setRequestTimestamp: (timestamp) => {
+      const value = timestamp instanceof Function ? timestamp(state.current.requestTimestamp) : timestamp;
+      if (value === state.current.requestTimestamp) return;
       const getTimestamp = (prev: Date | null) => {
         return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
       };
 
-      if (emitToCache) {
-        cache.update(request, (prev) => ({
-          requestTimestamp: +getTimestamp(prev?.requestTimestamp ? new Date(prev.requestTimestamp) : null),
-        }));
-      }
       state.current.requestTimestamp = getTimestamp(state.current.requestTimestamp);
       renderKeyTrigger(["requestTimestamp"]);
     },

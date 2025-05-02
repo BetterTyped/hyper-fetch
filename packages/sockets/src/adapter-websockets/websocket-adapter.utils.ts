@@ -4,7 +4,12 @@ import { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
   /** istanbul ignore next */
-  if (typeof window === "undefined" || !window?.WebSocket) return null;
+  try {
+    /** istanbul ignore next */
+    if (!window?.WebSocket) return null;
+  } catch (error) {
+    return null;
+  }
 
   class HyperFetchWebsocket extends WebSocket {
     public listeners: Map<
