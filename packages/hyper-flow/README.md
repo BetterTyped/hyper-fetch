@@ -57,7 +57,7 @@ optimal performance.
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/flow/overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/flow)

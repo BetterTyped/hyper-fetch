@@ -9,7 +9,7 @@
 Framework for fetching and realtime data exchange.
 
 **[Documentation](https://hyperfetch.bettertyped.com/) |
-[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) |
+[Quick Start](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start) |
 [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
 
 </div>
@@ -72,11 +72,11 @@ all while facilitating **real-time data exchange**.
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
@@ -90,7 +90,7 @@ all while facilitating **real-time data exchange**.
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
-#### [Core](https://hyperfetch.bettertyped.com/docs/documentation/core/overview)
+#### [Core](https://hyperfetch.bettertyped.com/docs/core/overview)
 
 ```bash
 npm install --save @hyper-fetch/core
@@ -98,7 +98,7 @@ or
 yarn add @hyper-fetch/core
 ```
 
-#### [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview)
+#### [Sockets](https://hyperfetch.bettertyped.com/docs/sockets/overview)
 
 ```bash
 npm install --save @hyper-fetch/sockets
@@ -106,7 +106,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### [React](https://hyperfetch.bettertyped.com/docs/documentation/react/overview)
+#### [React](https://hyperfetch.bettertyped.com/docs/react/overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react

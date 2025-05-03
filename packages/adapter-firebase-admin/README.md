@@ -44,17 +44,17 @@ from the convenience and efficiency of Hyper Fetch for your Firebase-powered pro
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
 
 🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
+🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
@@ -66,7 +66,7 @@ from the convenience and efficiency of Hyper Fetch for your Firebase-powered pro
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase)

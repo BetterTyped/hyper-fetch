@@ -79,7 +79,7 @@ const features: FeatureItem[] = [
     description: "Automatically caches responses and reuses them when making the same request again.",
     icon: Database,
     link: (
-      <Link className="text-sm" to="/docs/documentation/core/cache">
+      <Link className="text-sm" to="/docs/core/cache">
         Read more
       </Link>
     ),
@@ -99,7 +99,7 @@ const features: FeatureItem[] = [
     description: "Supports server-side rendering and server components out of the box.",
     icon: Server,
     link: (
-      <Link className="text-sm" to="/docs/documentation/getting-started/environment">
+      <Link className="text-sm" to="/docs/getting-started/environment">
         Read more
       </Link>
     ),
@@ -259,7 +259,7 @@ export function Features(): JSX.Element {
           <FadeIn start={0.05} end={0.2}>
             <p className="text-md text-zinc-400">
               You can find more details in{" "}
-              <Link className="text-yellow-500" to="/docs/documentation/getting-started/comparison">
+              <Link className="text-yellow-500" to="/docs/getting-started/comparison">
                 Comparison
               </Link>
             </p>

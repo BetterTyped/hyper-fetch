@@ -53,7 +53,7 @@ wsServer.on("connection", (connection, request) => {
     console.log(`Received message from ${username}`);
     const value = JSON.parse(data.toString());
 
-    // Acknowledge the message (https://hyperfetch.bettertyped.com/docs/documentation/sockets/emitter/#acknowledgements)
+    // Acknowledge the message (https://hyperfetch.bettertyped.com/docs/sockets/emitter/#acknowledgements)
     sendMessage({
       connection,
       id: value.id,

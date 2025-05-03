@@ -245,11 +245,7 @@ const config: Config = {
           items: [
             {
               label: "Documentation",
-              to: "/docs/documentation",
-            },
-            {
-              label: "License",
-              to: "/license",
+              to: "/docs/getting-started",
             },
           ],
         },

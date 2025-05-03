@@ -93,7 +93,7 @@ export const Blocks = () => {
                   }
                 />
               </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-7">
+              <Link to="/docs/getting-started" className="!no-underline md:col-span-7">
                 <MediumBlock
                   title="Designed for Type Safety"
                   description="Leverage TypeScript to its full potential with automatic type generation, robust error handling, and enhanced developer confidence."
@@ -106,7 +106,7 @@ export const Blocks = () => {
                   }
                 />
               </Link>
-              <Link to="/docs/documentation" className="!no-underline md:col-span-5">
+              <Link to="/docs/getting-started" className="!no-underline md:col-span-5">
                 <MediumBlock
                   title="Flexible & Open Source"
                   description="Framework agnostic, built almost zero dependencies. Integrate seamlessly into any project and contribute to its growth."

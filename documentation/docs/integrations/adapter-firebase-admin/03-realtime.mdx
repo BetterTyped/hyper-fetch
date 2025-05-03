@@ -6,24 +6,26 @@ sidebar_label: Realtime Database
 
 ## Available methods
 
-Our Realtime Database adapter provides all the methods the original offers. Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in standard adapter.
-For the `onValue`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+Our Realtime Database adapter provides all the methods the original offers. Due to its nature, we've solved the realtime
+listening a bit differently, and thus - this method is not allowed in standard adapter. For the `onValue`-like usage,
+please check how to **[listen to queries](/docs/integrations/adapter-firebase-admin/realtime-queries)**.
 
 ### get
 
 ```tsx
-import {firebaseAdapter} from "@hyper-fetch/firebase";
+import { firebaseAdapter } from "@hyper-fetch/firebase";
 
 const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(realtimeDbWeb));
- const req = client.createRequest<Tea[]>()({
-    endpoint: "",
-    method: "get",
-  });
+const req = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "get",
+});
 
 const { data, status, extra, success, error } = await req.send();
 ```
 
 `extra`:
+
 1. `ref` - reference to the endpoint
 2. `snapshot` - 'raw' snapshot from the result
 
@@ -44,16 +46,19 @@ const { data, status, extra, success, error } = await req.send();
 In case of `set` - data returned is the same data as passed for setting.
 
 `extra`:
+
 1. ref - database reference to the path
 
 You can also **remove data** via set by sending the `{data: null}` object:
+
 ```tsx
-const setReq = client.createRequest<Tea, {data: null}>()({
-  endpoint: ":teaId",
-  method: "set",
-})
-.setParams({ teaId: 1 })
-.setData({data: null});
+const setReq = client
+  .createRequest<Tea, { data: null }>()({
+    endpoint: ":teaId",
+    method: "set",
+  })
+  .setParams({ teaId: 1 })
+  .setData({ data: null });
 ```
 
 ### push
@@ -68,9 +73,11 @@ const pushReq = client
   .setData(newData);
 ```
 
-In case of `push` - data returned is the same data as passed for setting + the `__key` param that equals id of a newly created document.
+In case of `push` - data returned is the same data as passed for setting + the `__key` param that equals id of a newly
+created document.
 
 `extra`:
+
 1. ref - database reference to the path
 2. key - key of the newly created resource
 
@@ -88,6 +95,7 @@ const updateReq = client
 In case of `update` - data returned is the same data as passed for setting.
 
 `extra`:
+
 1. ref - database reference to the path
 
 ### remove

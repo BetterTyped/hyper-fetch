@@ -76,7 +76,7 @@ If you want more fine-grained configuration, you can instead add a snippet like 
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/react)
