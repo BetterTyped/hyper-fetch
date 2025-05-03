@@ -10,9 +10,9 @@ sidebar_label: Setup
 
 ### Initialize Client
 
-The first step is to initialize the **[Client](/documentation/02-core/client.mdx)**. It manage the basic configuration
-for connection to the server and all the elements that make up Hyper Fetch, which are instances of - **dispatchers**,
-**cache** and **app managers**. We start by determining the `url` of our server.
+The first step is to initialize the **[Client](/core/client.mdx)**. It manage the basic configuration for connection to
+the server and all the elements that make up Hyper Fetch, which are instances of - **dispatchers**, **cache** and **app
+managers**. We start by determining the `url` of our server.
 
 ```tsx title="/src/server/client.ts"
 import { Client } from "@hyper-fetch/core";
@@ -23,7 +23,7 @@ export const client = new Client({ url: "http://localhost:3000" });
 ### Create Request
 
 Then, having already prepared connection setup for the server, we use the client method to create
-**[requests](/documentation/02-core/request.mdx)** and assign types to them.
+**[requests](/core/request.mdx)** and assign types to them.
 
 :::caution
 
@@ -39,7 +39,10 @@ import { client } from "../client.ts";
 type ResponseType = { token: string; refreshToken: string };
 type RequestType = { email: string; password: string };
 
-const postLogin = client.createRequest<{response: ResponseType, payload: RequestType}>()({ method: "POST", endpoint: "/auth/login" });
+const postLogin = client.createRequest<{ response: ResponseType; payload: RequestType }>()({
+  method: "POST",
+  endpoint: "/auth/login",
+});
 ```
 
 ## Simple Requests

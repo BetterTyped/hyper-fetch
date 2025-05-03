@@ -10,7 +10,7 @@ sidebar_label: useEmitter
   <div class="api-link-title">useEmitter</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/React/Hook/useEmitter.mdx)
+[Read the API Reference »](/api/react/Hooks/useEmitter.mdx)
 
   </div>
 </div>
@@ -20,10 +20,10 @@ sidebar_label: useEmitter
 ## Introduction
 
 This hook **send events** to the server. The minimum requirement for `useEmitter` is a prepared
-[`Emitter`](/documentation/03-sockets/emitter.mdx).
+[`Emitter`](/sockets/emitter.mdx).
 
 If you intend to `listen` to events from the server, we recommend choosing the
-[`useListener`](/documentation/04-react/03-sockets/use-listener.mdx) hook.
+[`useListener`](/react/04-sockets/use-listener.mdx) hook.
 
 ---
 
@@ -104,7 +104,7 @@ const MessageComponent: React.FC = () => {
 ## Passing data and params
 
 Data and parameters can be passed in several ways. One option is to use `setData` method on the
-[`Emitter`](/documentation/03-sockets/emitter.mdx).
+[`Emitter`](/sockets/emitter.mdx).
 
 ```tsx
 const { emit } = useEmitter(emitMessage.setData({ message: "New message" }));

@@ -10,7 +10,7 @@ sidebar_label: useSubmit
   <div class="api-link-title">useSubmit</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/React/Hook/useSubmit.mdx)
+[Read the API Reference »](/api/react/Hooks/useSubmit.mdx)
 
   </div>
 </div>
@@ -20,13 +20,13 @@ sidebar_label: useSubmit
 ## Introduction
 
 This hook **mutates data** on the server and supports controlling requests. It uses the
-[`Submit Dispatcher`](/documentation/02-core/dispatcher.mdx) to handle requests and the
-[`Cache`](/documentation/02-core/cache.mdx) to manage the overall state of the data.
+[`Submit Dispatcher`](/core/dispatcher.mdx) to handle requests and the [`Cache`](/core/cache.mdx) to manage the overall
+state of the data.
 
-The minimum requirement for `useSubmit` is a prepared [`Request`](/documentation/02-core/request.mdx).
+The minimum requirement for `useSubmit` is a prepared [`Request`](/core/request.mdx).
 
-If you intend to `retrieve` data from the server, we recommend choosing the
-[`useFetch`](/documentation/04-react/02-core/use-fetch.mdx) hook.
+If you intend to `retrieve` data from the server, we recommend choosing the [`useFetch`](/react/03-hooks/use-fetch.mdx)
+hook.
 
 ---
 
@@ -97,8 +97,8 @@ const LoginPage: React.FC = () => {
 
 ## Passing data and params
 
-Data and parameters can be passed in several ways. One option is to use methods on the
-[`Request`](/documentation/02-core/request.mdx), such as `setData` or `setParams`.
+Data and parameters can be passed in several ways. One option is to use methods on the [`Request`](/core/request.mdx),
+such as `setData` or `setParams`.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));

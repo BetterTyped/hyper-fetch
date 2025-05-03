@@ -12,12 +12,13 @@ sidebar_label: Data Mapping
 
 We often encounter the need to `map` data before sending it to the server. This is usually required for two reasons.
 
-One of them is `breaking changes to the server API`. This may require many updates to our existing code,
-which can be dangerous for the application and introduce **regression**.
+One of them is `breaking changes to the server API`. This may require many updates to our existing code, which can be
+dangerous for the application and introduce **regression**.
 
 Another case is sending `FormData`, which is impossible to represent in the form of an exact interface in terms of the
 fields it contains. In order not to send something that is equivalent to the type `any`, we can specify the correct type
-in the request and then map everything to `FormData` just before it gets added to the **[Dispatcher](/documentation/02-core/dispatcher.mdx)**.
+in the request and then map everything to `FormData` just before it gets added to the
+**[Dispatcher](/core/dispatcher.mdx)**.
 
 This ensures very `type-safe` and `flexible` application development.
 
@@ -27,7 +28,7 @@ The following example shows the implementation for `FormData`:
 
 ```ts
 export const postUserProfile = client
-  .createRequest<{response: boolean, payload: UserProfile}>()({
+  .createRequest<{ response: boolean; payload: UserProfile }>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
   })
@@ -47,13 +48,13 @@ export const postUserProfile = client
 ### Map whole request
 
 The example below shows the implementation of request mapping. We can make each `postUserProfile` request add custom
-headers (or any other value) to the request before sending it later (when we use it in our application).
-This allows us to implement mappers, validators, and any async logic. Throwing an error makes the request class return an error,
-just as we’d get from the "real" query.
+headers (or any other value) to the request before sending it later (when we use it in our application). This allows us
+to implement mappers, validators, and any async logic. Throwing an error makes the request class return an error, just
+as we’d get from the "real" query.
 
 ```ts
 export const postUserProfile = client
-  .createRequest<{response: boolean, payload: UserProfile}>()({
+  .createRequest<{ response: boolean; payload: UserProfile }>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
   })

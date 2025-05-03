@@ -10,7 +10,7 @@ sidebar_label: useCache
   <div class="api-link-title">useCache</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/React/Hook/useCache.mdx)
+[Read the API Reference »](/api/react/Hooks/useCache.mdx)
 
   </div>
 </div>
@@ -19,9 +19,9 @@ sidebar_label: useCache
 
 ## Introduction
 
-This hook allows us to manipulate the passed request’s [`Cache`](/documentation/02-core/managers.mdx) and receive change
-callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable
-connection between the hook's request and the cache.
+This hook allows us to manipulate the passed request’s [`Cache`](/core/managers.mdx) and receive change callbacks. It is
+important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable connection between
+the hook's request and the cache.
 
 ```tsx
 const { data, error, loading, refetch, onSuccess, onError, onFinished } = useCache(getUsers);

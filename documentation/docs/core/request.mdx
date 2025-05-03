@@ -8,7 +8,7 @@ sidebar_label: Request
   <div class="api-link-title">Request</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/Hyper-Fetch/Class/Request.mdx)
+[Read the API Reference »](/api/core/Classes/Request.mdx)
 
   </div>
 </div>
@@ -200,7 +200,7 @@ getUsers.setQueryParams({ search: "John", sort: "age" }).send();
 const { data, error } = await getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
 ```
 
-#### For usage with **`React`** checkout our [hooks docs](/documentation/04-react/01-overview.mdx).
+#### For usage with **`React`** checkout our [hooks docs](/react/01-overview.mdx).
 
 ---
 
@@ -259,9 +259,9 @@ const { data, error } = await requestWithParams.send(); // Success
 ## Keys
 
 Each request gets its identifiers – `queryKey`, `cacheKey`, `abortKey`, and `effectKey`. They are needed to determine
-under which key items will be cached, queued, canceled or handled by [Effects](/documentation/02-core/effect.mdx). By
-default, keys are auto-generated based on the current parameters and endpoint and method values. However, you can
-overwrite these values with other methods as needed.
+under which key items will be cached, queued, canceled or handled by [Effects](/core/effect.mdx). By default, keys are
+auto-generated based on the current parameters and endpoint and method values. However, you can overwrite these values
+with other methods as needed.
 
 ---
 
