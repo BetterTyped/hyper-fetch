@@ -5,6 +5,7 @@ import useGlobalData from "@docusaurus/useGlobalData";
 import { useVersion } from "./use-version";
 import { modules, Section } from "../modules";
 import { integrations } from "../integrations";
+import { guides } from "../guides";
 import { apiOverviewSection } from "../apis";
 
 type SidebarElement = {
@@ -61,76 +62,91 @@ export const useSidebar = (options?: {
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
 
+    const isApiPage = location.pathname.includes("/docs/api");
+    const isIntegrationsPage = location.pathname.includes("/docs/integrations");
+    const isGuidesPage = location.pathname.includes("/docs/guides");
+
     return Object.values(currentVersion.sidebars)
       .filter((value) => {
         if (!value.link?.path) {
           // eslint-disable-next-line no-console
-          console.log("You must update the sidebars. Missing path for the following item:");
-          // eslint-disable-next-line no-console
-          console.log(value, currentVersion.sidebars);
+          console.log("You must update the sidebars. Missing path for the following item:", value);
+          return false; // Ensure items without a path are filtered out
         }
-        if (showAllPackages) return value.link.path.includes("/docs/api");
-        // eslint-disable-next-line no-nested-ternary
-        return location.pathname.includes("/docs/api")
-          ? value.link.path.includes("/api")
-          : location.pathname.includes("/docs/integrations")
-            ? value.link.path.includes("/integrations")
-            : !value.link.path.includes("/docs/api") && !value.link.path.includes("/docs/integrations");
+
+        const linkPath = value.link.path;
+        if (showAllPackages) {
+          return linkPath.includes("/docs/api");
+        }
+        if (isApiPage) {
+          return linkPath.includes("/api");
+        }
+        if (isIntegrationsPage) {
+          return linkPath.includes("/integrations");
+        }
+        if (isGuidesPage) {
+          return linkPath.includes("/guides");
+        }
+        return (
+          !linkPath.includes("/docs/api") &&
+          !linkPath.includes("/docs/integrations") &&
+          !linkPath.includes("/docs/guides")
+        );
       })
       .map((value) => {
         /**
          * DO NOT CHANGE!
          * @caution If it fails - you made mistake in the sidebar config :)
          */
-        const componentName =
+        const pathParts = value.link.path.split("/");
+        const isNonDocs =
           value.link.path.includes("/integrations") ||
-          value.link.path.includes("/plugins") ||
-          value.link.path.includes("/api")
-            ? value.link.path.split("/")[3]
-            : value.link.path.split("/")[2];
+          value.link.path.includes("/guides") ||
+          value.link.path.includes("/api");
+        const componentName = isNonDocs ? pathParts[3] : pathParts[2];
         const component = componentName.toLocaleLowerCase();
+
         const allPackages = [
           apiOverviewSection,
           ...modules.filter((item) => item.isPackage),
           ...integrations.filter((item) => item.isPackage),
         ];
 
-        const pkgIndex = modules.findIndex((item) =>
-          item.paths.find((itemName) => itemName.toLowerCase() === component),
-        );
-        const integrationIndex = integrations.findIndex((item) =>
-          item.paths.find((itemName) => itemName.toLowerCase() === component),
-        );
-        const packageIndex = allPackages.findIndex((item) =>
-          item.paths.find((itemName) => itemName.toLowerCase() === component),
-        );
+        const findIndex = (items: Section[], comp: string) =>
+          items.findIndex((item) => item.paths.find((itemName) => itemName.toLowerCase() === comp));
 
-        // eslint-disable-next-line no-nested-ternary
-        const section: Section = showAllPackages
-          ? allPackages[packageIndex]
-          : // eslint-disable-next-line no-nested-ternary
-            location.pathname.includes("/docs/integrations")
-            ? integrations[integrationIndex]
-            : location.pathname.includes("/docs/api")
-              ? allPackages[packageIndex]
-              : modules[pkgIndex];
+        let section: Section | undefined;
+        let index: number;
+        let prefix: string;
 
-        // eslint-disable-next-line no-nested-ternary
-        const index: number = showAllPackages
-          ? packageIndex
-          : // eslint-disable-next-line no-nested-ternary
-            location.pathname.includes("/docs/integrations")
-            ? integrationIndex
-            : location.pathname.includes("/docs/api")
-              ? packageIndex
-              : pkgIndex;
-
-        // eslint-disable-next-line no-nested-ternary
-        const prefix = location.pathname.includes("/docs/integrations")
-          ? "integrations"
-          : location.pathname.includes("/docs/api")
-            ? "api"
-            : "docs";
+        if (showAllPackages) {
+          const packageIndex = findIndex(allPackages, component);
+          section = allPackages[packageIndex];
+          index = packageIndex;
+          // Prefix determination might need refinement based on showAllPackages logic,
+          // defaulting to 'docs' or inferring from section path if needed.
+          prefix = "docs"; // Or determine more dynamically if required
+        } else if (isIntegrationsPage) {
+          const integrationIndex = findIndex(integrations, component);
+          section = integrations[integrationIndex];
+          index = integrationIndex;
+          prefix = "integrations";
+        } else if (isApiPage) {
+          const packageIndex = findIndex(allPackages, component);
+          section = allPackages[packageIndex];
+          index = packageIndex;
+          prefix = "api";
+        } else if (isGuidesPage) {
+          const pkgIndex = findIndex(guides, component);
+          section = guides[pkgIndex];
+          index = pkgIndex;
+          prefix = "guides";
+        } else {
+          const pkgIndex = findIndex(modules, component);
+          section = modules[pkgIndex];
+          index = pkgIndex;
+          prefix = "docs";
+        }
 
         const active =
           location.pathname.includes(`${prefix}/${component}/`) || location.pathname.endsWith(`${prefix}/${component}`);

@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import { Description, Title } from "@site/src/components";
+import { Description, DocsCard, Title } from "@site/src/components";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { Section } from "@site/src/modules";
 import clsx from "clsx";
@@ -15,14 +15,8 @@ export function IntegrationCard({ section, className }: CardProps) {
   const item = sidebar.find((element) => element.section.label === section.label);
 
   return (
-    <Link
-      to={item.link.path}
-      className={clsx(
-        className,
-        "flex !no-underline bg-gradient-to-tr from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-800 rounded-3xl border dark:border-zinc-800 dark:hover:border-zinc-700 transition-colors group relative",
-      )}
-    >
-      <div className="flex flex-col p-5 h-full">
+    <Link to={item.link.path} className={clsx(className)}>
+      <DocsCard className="flex flex-col p-5 h-full">
         <div className="flex items-center space-x-3 mb-2">
           {item.section.img && (
             <div className="relative mr-2">
@@ -53,7 +47,7 @@ export function IntegrationCard({ section, className }: CardProps) {
             {item.description}
           </Description>
         </div>
-      </div>
+      </DocsCard>
     </Link>
   );
 }

@@ -15,7 +15,7 @@ export const apiOverviewSection: Section = {
   textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
   icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
   iconHover:
-    "hover:group-hover:shadow-yellow-200 hover:dark:group-hover:bg-yellow-500 hover:bg-yellow-400 hover:dark:bg-yellow-500",
+    "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500 group-hover:!bg-opacity-40",
   border: "border-yellow-500 dark:border-yellow-400",
   borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
 };

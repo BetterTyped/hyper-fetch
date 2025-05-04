@@ -1,7 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
 import { SidebarItem, useSidebar } from "@site/src/hooks/use-sidebar";
-import VersionDropdown from "@theme/NavbarItem/DocsVersionDropdownNavbarItem";
+import { cn } from "@site/src/lib/utils";
+import Search from "@theme/NavbarItem/SearchNavbarItem";
 
 const getColor = (item: SidebarItem) => {
   return item.active
@@ -22,13 +23,9 @@ export const SidebarMenu = () => {
   return (
     <div className="px-4 min-w-[250px]">
       <div className="docs_sidebar">
-        <VersionDropdown
-          className="nav_versioning shadow-zinc-500/20 dark:shadow-zinc-200/20 shadow-[inset_0_1px_1px_rgba(0,0,0,0.6)] text-black/50 dark:text-white/60 py-1 px-4 font-bold leading-5 bg-zinc-400/20 dark:bg-zinc-400/10 rounded-full flex items-center space-x-2 w-fit hover:opacity-80"
-          items={undefined}
-          docsPluginId="default"
-          dropdownItemsBefore={[]}
-          dropdownItemsAfter={[]}
-        />
+        <div className="flex items-center justify-between gap-2">
+          <Search className="!px-0" />
+        </div>
         {activeItem && (
           <div className="mt-4">
             <ul>
@@ -38,10 +35,24 @@ export const SidebarMenu = () => {
                   <li key={index}>
                     <Link
                       to={item.link.path}
-                      className={`${color.text} ${color.textAction} ${color.textHover} !no-underline group flex items-center lg:text-sm lg:leading-6 mb-4 font-semibold capitalize`}
+                      className={cn(
+                        "group !no-underline flex items-center lg:text-sm lg:leading-6",
+                        "mb-4 font-semibold capitalize",
+                        color.text,
+                        color.textAction,
+                        color.textHover,
+                      )}
                     >
                       <div
-                        className={`${color.icon} ${color.iconHover} flex items-center h-6 w-6 justify-center mr-4 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 dark:highlight-white/10`}
+                        className={cn(
+                          "flex items-center justify-center h-6 w-6 ",
+                          "mr-4 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow",
+                          "group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none",
+                          "dark:group-hover:shadow-none dark:group-hover:highlight-white/10",
+                          "dark:highlight-white/10",
+                          color.icon,
+                          color.iconHover,
+                        )}
                       >
                         <item.img
                           className={`${item.active ? "brightness-110" : ""} group-hover:brightness-110  w-4 h-4`}

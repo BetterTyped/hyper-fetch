@@ -1,48 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ComponentType, SVGProps } from "react";
-import { Book, LucideProps } from "lucide-react";
+import { Book, FlaskConical } from "lucide-react";
 
+import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
 
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
 
-export type Section = {
-  label: string;
-  description: string;
-  isPackage: boolean;
-  dir: string;
-  /**
-   * @important
-   * Names provides backwards compatibility with the old sidebars
-   * This way we can add more paths if we rename something
-   */
-  paths: string[];
-  img:
-    | React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>
-    | ComponentType<SVGProps<SVGSVGElement> & { title?: string }>;
-  text: string;
-  textAction: string;
-  textHover: string;
-  icon: string;
-  iconHover: string;
-  border: string;
-  borderHover: string;
-  category: string;
-  featured?: boolean;
-};
-
-/**
- * This sections list must support backward compatibility with the old sidebars and sections
- * To extend it or change the order, you must update the paths or the order of these sections in the array
- *
- * @Example Matching of the sidebar and folders are done through the paths array, it should include the name of folder
- */
-export const modules: Section[] = [
+export const guides: Section[] = [
   {
     label: "Getting Started",
-    description: "Documentation for the library",
+    description: "Overview of the available integrations",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -53,15 +22,15 @@ export const modules: Section[] = [
     textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
     icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
     iconHover:
-      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500",
+      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500 group-hover:!bg-opacity-40",
     border: "border-yellow-500 dark:border-yellow-400",
     borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
-    category: "docs",
+    category: "Guides",
   },
   {
     label: "Core",
-    description: "Core package of the library containing the core functionality",
-    isPackage: true,
+    description: "Overview of the available integrations",
+    isPackage: false,
     dir: "core",
     paths: ["core"],
     img: HFIcon,
@@ -73,29 +42,12 @@ export const modules: Section[] = [
       "group-hover:shadow-green-200 dark:group-hover:bg-green-500 group-hover:bg-green-400 group-hover:dark:bg-green-500 !bg-opacity-40",
     border: "border-green-500 dark:border-green-400",
     borderHover: "hover:border-green-500 hover:dark:border-green-400",
-    category: "Framework",
-  },
-  {
-    label: "Sockets",
-    description: "Sockets package of the library containing the socket functionality",
-    isPackage: true,
-    dir: "sockets",
-    paths: ["sockets"],
-    img: SocketsIcon,
-    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
-    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
-    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
-    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500 !bg-opacity-30",
-    iconHover:
-      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
-    border: "border-blue-500 dark:border-blue-400",
-    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
-    category: "Framework",
+    category: "Guides",
   },
   {
     label: "React",
-    description: "React integration package of the library",
-    isPackage: true,
+    description: "Overview of the available integrations",
+    isPackage: false,
     dir: "react",
     paths: ["react"],
     img: ReactIcon,
@@ -107,6 +59,41 @@ export const modules: Section[] = [
       "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
     border: "border-sky-500 dark:border-sky-400",
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
-    category: "Framework",
+    category: "Guides",
+  },
+  {
+    label: "Sockets",
+    description: "Overview of the available integrations",
+    isPackage: false,
+    dir: "sockets",
+    paths: ["sockets"],
+    img: SocketsIcon,
+    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
+    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
+    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
+    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
+    border: "border-blue-500 dark:border-blue-400",
+    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
+    category: "Guides",
+  },
+  {
+    label: "Testing",
+    description: "Overview of the available integrations",
+    isPackage: false,
+    dir: "testing",
+    paths: ["testing"],
+    img: FlaskConical,
+    text: "drop-shadow-sm !text-purple-500 dark:!text-purple-400",
+    textAction:
+      "focus:!text-purple-500 focus:dark:!text-purple-400 active:!text-purple-600 active:dark:!text-purple-300",
+    textHover: "hover:!text-purple-500 hover:dark:!text-purple-400",
+    icon: "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 bg-purple-400 dark:bg-purple-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 group-hover:bg-purple-400 group-hover:dark:bg-purple-500 !bg-opacity-40",
+    border: "border-purple-500 dark:border-purple-400",
+    borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
+    category: "Guides",
   },
 ];

@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+.tabs-container {
+  @apply !w-full !flex !flex-col;
+}
+.tabs-container ul {
+  @apply !bg-zinc-100 dark:bg-zinc-800 !text-zinc-500 dark:!text-zinc-400 !inline-flex !h-9 !w-fit !items-center !justify-center !rounded-lg !p-1 !m-0 !important;
+  list-style: none;
+  border: none;
+  box-shadow: none;
+}
+.tabs-container ul li {
+  @apply flex-1 !font-[600];
+  @apply !cursor-pointer !inline-flex !flex-1 !items-center !justify-center !gap-1.5;
+  @apply !rounded-md !px-2 !py-1 !text-sm !whitespace-nowrap !transition-colors;
+  @apply focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-yellow-400;
+  @apply focus-visible:!ring-offset-2 disabled:!pointer-events-none disabled:!opacity-50;
+  @apply !shadow-none !border-none !bg-transparent !text-zinc-500 dark:!text-zinc-400;
+  position: relative !important;
+  z-index: 1 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.tabs-container ul li[aria-selected="true"] {
+  @apply !bg-white dark:!bg-zinc-900 !text-zinc-900 dark:!text-white !shadow-sm;
+}
+.tabs-container ul li a:not(.active):hover,
+.tabs-container ul li .tab-trigger:not(.active):hover {
+  @apply !text-zinc-700 dark:!text-zinc-200;
+}
+
 :root {
   --doc-sidebar-width: 235px !important;
 }
@@ -635,7 +666,7 @@ main blockquote {
   @apply border-l-0 pl-0 mt-8;
 }
 .docs-wrapper main blockquote > p {
-  @apply font-medium italic text-lg bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
+  @apply font-medium italic text-xl bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
 }
 .docs-wrapper .dark main blockquote > p {
   @apply from-zinc-200/60 via-zinc-200 to-zinc-200/60;
@@ -710,9 +741,11 @@ body .theme-code-block span {
 }
 
 .theme-code-block > div:first-child {
-  @apply text-zinc-400 text-[0.8rem] font-semibold;
-  @apply relative text-zinc-300 hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
-  border: 0px;
+  @apply text-zinc-400 text-[0.8rem] font-semibold border-zinc-400/10;
+  @apply relative text-zinc-300 hover:text-white;
+  @apply [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important];
+  @apply before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1] transition-all duration-150 ease-in-out;
+  border: 0px 0px 1px 0px;
   border-radius: 0px;
 }
 .theme-code-block > div:first-child::before {
@@ -752,6 +785,10 @@ pre[class*="language-"] {
   margin: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
+
+pre[class*="language-"] > code {
+  @apply bg-zinc-700/20;
 }
 
 .alert *:not(pre) > code {
@@ -921,7 +958,6 @@ body {
   }
 
   .docs_sidebar {
-    @apply pt-3;
   }
 
   .docs-wrapper .main-wrapper {
@@ -978,6 +1014,10 @@ body {
   @apply text-zinc-900 dark:text-white;
 }
 
+.nav_versioning {
+  @apply shiny-btn !rounded-md px-3 h-[43px];
+}
+
 /* .nav_versioning {
   @apply font-bold text-opacity-80;
 }
@@ -987,6 +1027,14 @@ body {
   color: var(--ifm-color-primary);
   margin-left: 5px;
 } */
+
+.navbar__items--right {
+  @apply !gap-0;
+}
+
+.navbar__items--right > * {
+  @apply !p-0 !m-0;
+}
 
 .navbar__logo:hover {
   opacity: 0.7;
@@ -1101,9 +1149,12 @@ body {
   width: 18px;
 }
 
+nav button.DocSearch-Button {
+  @apply hidden;
+}
+
 button.DocSearch-Button {
-  @apply !pl-3 shiny-btn;
-  border-radius: 10000px !important;
+  @apply !pl-3 shiny-btn !rounded-md;
   height: 32px;
   border: 1px solid transparent !important;
 }

@@ -4,7 +4,7 @@ import ProjectPerformance from "@site/static/img/previews/project-performance.pn
 import ProjectCache from "@site/static/img/previews/project-cache.png";
 import NetworkDetails from "@site/static/img/previews/network-details.png";
 import CacheDetails from "@site/static/img/previews/cache-details.png";
-import { Description, Particles, Title } from "@site/src/components";
+import { Description, Title } from "@site/src/components";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import Link from "@docusaurus/Link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -85,8 +85,8 @@ export function Preview(): JSX.Element {
   const currentSection = sections[currentSlide];
 
   return (
-    <section className="relative pb-20 pt-4 -z-10 group">
-      <Particles className="absolute inset-0 -z-10" />
+    <section className="relative pb-20 pt-4 -z-10 group mb-48">
+      {/* <Particles className="absolute inset-0 -z-10" /> */}
 
       {/* Section header */}
       <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
@@ -129,7 +129,7 @@ export function Preview(): JSX.Element {
               <BorderBeam duration={8} size={400} />
               <img src={currentSection.image} alt={currentSection.title} className="transition-opacity duration-500" />
               {/* bottom gradient */}
-              <div className="absolute bottom-0 left-0 right-0 h-[80%] bg-gradient-to-t from-[var(--background)] to-transparent from-30% to-100%" />
+              <div className="absolute bottom-0 left-0 right-0 h-[80%] bg-gradient-to-t from-[var(--background)] to-transparent from-5% to-20%" />
 
               {/* Previous Button - Positioned absolutely */}
               <button
@@ -156,14 +156,11 @@ export function Preview(): JSX.Element {
       </div>
 
       {/* Bottom section with active slide info (no buttons) */}
-      <div className="relative max-w-6xl mx-auto -translate-y-6 px-4 sm:px-6">
-        {/* Slide Content: Number + Title + Progress Bar */}
-        <div className="text-center">
+      <div className="relative max-w-6xl mx-auto -translate-y-6 px-4 sm:px-6 mb-24">
+        {/* <div className="text-center">
           <div className="mb-4 p-3 bg-zinc-800/50 rounded-full mx-auto max-w-[50px]">
-            {/* index of current slide */}
             <div className="text-zinc-400 text-xl">{currentSlide + 1}</div>
           </div>
-          {/* Progress Bar for current slide */}
           <div className="relative w-full h-0.5 mb-3 bg-zinc-700/50 rounded-full mx-auto max-w-[200px]">
             <div
               className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-[width] duration-1000 ease-linear"
@@ -172,7 +169,7 @@ export function Preview(): JSX.Element {
           </div>
           <Title size="md">{currentSection.title}</Title>
           <Description className="max-w-xl mx-auto">{currentSection.description}</Description>
-        </div>
+        </div> */}
       </div>
     </section>
   );

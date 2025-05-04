@@ -18,7 +18,7 @@ export const Noise = (props: ComponentProps<"div"> & { visibility?: keyof typeof
         "absolute inset-0 w-full h-full scale-[1.2] transform",
         visibilityMap[visibility],
         "[mask-image:radial-gradient(#fff,transparent,75%)]",
-        "pointer-events-none",
+        "pointer-events-none z-10",
         // eslint-disable-next-line react/destructuring-assignment
         props.className || "",
       )}

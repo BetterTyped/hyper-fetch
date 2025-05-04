@@ -11,7 +11,7 @@ export const Cards = () => {
         return (
           <a href={item.link.path} key={index} style={{ textDecoration: "none" }}>
             <DocsCard className="h-full">
-              <Noise />
+              <Noise visibility="medium" />
               <div className="flex flex-col p-6 h-full">
                 <div className="flex items-center space-x-3 mb-3">
                   <div

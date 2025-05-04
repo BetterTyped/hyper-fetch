@@ -1,7 +1,9 @@
+/* eslint-disable no-param-reassign */
 import siteConfig from "@generated/docusaurus.config";
 import type * as PrismNamespace from "prismjs";
 import type { Optional } from "utility-types";
 
+// eslint-disable-next-line import/no-default-export
 export default function prismIncludeLanguages(PrismObject: typeof PrismNamespace): void {
   const {
     themeConfig: { prism },
@@ -20,7 +22,7 @@ export default function prismIncludeLanguages(PrismObject: typeof PrismNamespace
 
   additionalLanguages.forEach((lang) => {
     if (lang === "php") {
-      // eslint-disable-next-line global-require
+      // eslint-disable-next-line global-require, import/extensions
       require("prismjs/components/prism-markup-templating.js");
     }
     // eslint-disable-next-line global-require, import/no-dynamic-require
@@ -49,7 +51,6 @@ export default function prismIncludeLanguages(PrismObject: typeof PrismNamespace
           innerToken.type = "constructor";
         }
       });
-      return;
     }
   });
 

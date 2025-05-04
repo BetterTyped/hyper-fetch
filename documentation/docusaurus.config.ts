@@ -206,7 +206,7 @@ const config: Config = {
           position: "left",
           label: "Docs",
           to: "/docs/getting-started",
-          activeBaseRegex: `^/docs((?!examples|integrations|api|hyper-flow).)*$`,
+          activeBaseRegex: `^/docs((?!examples|integrations|guides|api|hyper-flow).)*$`,
         },
         {
           to: "/docs/integrations/getting-started",
@@ -215,15 +215,16 @@ const config: Config = {
           activeBaseRegex: `/docs/integrations/`,
         },
         {
+          to: "/docs/guides/getting-started",
+          position: "left",
+          label: "Guides",
+          activeBaseRegex: `/docs/guides/`,
+        },
+        {
           to: "/docs/api/getting-started",
           position: "left",
           label: "Api",
           activeBaseRegex: `/docs/api/`,
-        },
-        {
-          to: "/docs/hyper-flow",
-          position: "left",
-          html: "Hyper Flow <span class='new-feature'>New</span>",
         },
         {
           to: "/examples/playground/",
@@ -234,6 +235,18 @@ const config: Config = {
           to: "/blog",
           position: "left",
           label: "Blog",
+        },
+        {
+          type: "docsVersionDropdown",
+          position: "right",
+          dropdownActiveClassDisabled: true,
+          docsPluginId: "default",
+          className: "nav_versioning",
+        },
+        {
+          to: "/docs/hyper-flow",
+          position: "right",
+          html: `<span class='shiny-btn flex items-center gap-2 !rounded-lg px-4 py-2'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download w-[16px]"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>Get Hyper Flow</span>`,
         },
       ],
     },
