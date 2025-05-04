@@ -189,7 +189,7 @@ const config: Config = {
     },
     colorMode: {
       defaultMode: "dark",
-      // disableSwitch: true,
+      disableSwitch: true,
       respectPrefersColorScheme: false,
     },
     liveCodeBlock: {

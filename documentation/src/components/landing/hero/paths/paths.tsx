@@ -65,22 +65,6 @@ const tools: Array<{ name: string; dotClassName: string }> = [
     name: "firebase",
     dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
   },
-  {
-    name: "realtime",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "upload",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "download",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "stream",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
 ];
 
 const paths = [
@@ -232,7 +216,7 @@ export const Paths = () => {
         viewBox="0 0 2000 1000"
         fill="none"
         preserveAspectRatio="none"
-        className="absolute w-[100vw] h-full opacity-30 pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-[1] stroke-zinc-400 dark:stroke-zinc-600"
+        className="absolute min-w-[2000px] min-h-[1000px] h-full w-full opacity-30 pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-[1]"
       >
         <g id="rect" clipPath="url(#item)">
           {paths.map((path, i) => (
@@ -241,8 +225,7 @@ export const Paths = () => {
               id={`path${i}`}
               opacity="0.54"
               d={path}
-              stroke="inherit"
-              strokeWidth="1.05833"
+              stroke="url(#paint0_radial_242_278)"
               strokeMiterlimit="10"
             />
           ))}
@@ -259,6 +242,24 @@ export const Paths = () => {
           <clipPath id="item">
             <rect width="2000" height="1000" fill="white" transform="matrix(-1 0 0 1 2000 0)" />
           </clipPath>
+          <radialGradient
+            id="paint0_radial_242_278"
+            cx="1"
+            cy="-0.4"
+            r="1.4"
+            gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(352 34) rotate(90) scale(555 1560.62)"
+            className="text-zinc-400 dark:text-zinc-600"
+          >
+            <stop offset="0.0666667" stopColor="currentColor" className="" />
+            <stop offset="0.243243" stopColor="currentColor" />
+            <stop
+              offset="0.43594"
+              stopColor="currentColor"
+              stopOpacity="0"
+              className="text-zinc-200 dark:text-zinc-400"
+            />
+          </radialGradient>
         </defs>
       </svg>
     </>

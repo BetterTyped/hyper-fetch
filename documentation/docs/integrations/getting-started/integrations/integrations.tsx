@@ -10,11 +10,13 @@ main > div > .row > .col {
   width: 100%!important;
   max-width: none!important;
 }
+
+
 `;
 
 export const Integrations = () => {
   return (
-    <>
+    <div>
       <style>{styles}</style>
       <div className="relative opacity-90 dark:opacity-100 -z-10">
         {/* Graphic 02 */}
@@ -48,7 +50,7 @@ export const Integrations = () => {
           <img src="/img/page-illustration.svg" width={1440} height={427} alt="Page Graphic" />
         </div>
       </div>
-      <section className="max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="">
         <div className="pt-2">
           <div className="text-left">
             <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
@@ -64,7 +66,7 @@ export const Integrations = () => {
 
       <IntegrationsList />
 
-      <div className="px-4 mb-20 flex flex-col items-center">
+      <div className="mb-20 flex flex-col items-center">
         <Title size="sm" className="text-center">
           Have an idea for new integrations?
         </Title>
@@ -81,6 +83,6 @@ export const Integrations = () => {
           </a>
         </div>
       </div>
-    </>
+    </div>
   );
 };

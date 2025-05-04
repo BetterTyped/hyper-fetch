@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --doc-sidebar-width: 235px !important;
+}
+
 /*********************************************************
 * Tokens
 */
@@ -598,7 +602,16 @@ main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
 }
 
 main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li {
-  list-style: decimal-leading-zero;
+  @apply relative mb-4 pl-3;
+  list-style: decimal;
+}
+
+main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::before {
+  @apply absolute left-[-24px] top-[0px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::marker {
+  @apply text-zinc-200 dark:text-zinc-400 text-sm;
 }
 
 main .col:not(.col--3) ul:not(.toc):not(.table-of-contents) li {
@@ -643,6 +656,7 @@ body .col .nav-tabs li {
   height: 100%;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .theme-doc-footer-edit-meta-row a,

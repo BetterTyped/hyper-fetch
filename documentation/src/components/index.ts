@@ -10,3 +10,5 @@ export * from "./scale-in";
 export * from "./scale-out";
 export * from "./soon";
 export * from "./title";
+export * from "./ui/noise";
+export * from "./ui/docs-card";
