@@ -4,7 +4,7 @@ import ProjectPerformance from "@site/static/img/previews/project-performance.pn
 import ProjectCache from "@site/static/img/previews/project-cache.png";
 import NetworkDetails from "@site/static/img/previews/network-details.png";
 import CacheDetails from "@site/static/img/previews/cache-details.png";
-import { Description, Title } from "@site/src/components";
+import { Title } from "@site/src/components";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import Link from "@docusaurus/Link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -47,7 +47,7 @@ const SLIDE_DURATION = 4000;
 
 export function Preview(): JSX.Element {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(SLIDE_DURATION);
+  const [, setTimeLeft] = useState(SLIDE_DURATION);
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = () => {

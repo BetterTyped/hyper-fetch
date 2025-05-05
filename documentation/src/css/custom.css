@@ -627,8 +627,13 @@ body.dark .title * {
   max-height: none;
 }
 
+main > div.container {
+  @apply !pt-0;
+}
+
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ol,
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
+  padding-top: 10px;
   padding-left: 30px;
 }
 
@@ -1004,6 +1009,57 @@ body {
     @apply text-sm;
   }
 }
+/* Github icon */
+
+.github {
+  padding: var(--ifm-navbar-item-padding-vertical);
+}
+
+.github::before {
+  display: block;
+  background-image: url("/img/github.svg");
+  background-size: contain;
+  content: "";
+  width: 30px;
+  height: 30px;
+}
+
+.github svg {
+  display: none;
+}
+
+.github:hover {
+  opacity: 0.7;
+}
+
+html[data-theme="dark"] .github::before {
+  filter: invert(100%);
+}
+
+html[data-theme="dark"] .navbar-sidebar .github {
+  filter: invert(0%);
+  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
+}
+
+.navbar-sidebar .github::before {
+  width: 18px;
+  height: 18px;
+}
+
+.navbar-sidebar .github {
+  display: flex;
+  gap: 5px;
+}
+
+.navbar-sidebar--show .github {
+  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
+}
+
+.navbar__inner .github {
+  @apply !ml-3;
+  font-size: 0 !important;
+}
+
 .navbar__items--right {
   flex-direction: row-reverse;
 }
@@ -1015,7 +1071,7 @@ body {
 }
 
 .nav_versioning {
-  @apply shiny-btn !rounded-md px-3 h-[43px];
+  @apply px-2 h-[34px] border border-zinc-800 bg-zinc-900/80 rounded-md;
 }
 
 /* .nav_versioning {
@@ -1210,6 +1266,7 @@ button.DocSearch-Button {
 .breadcrumbs {
   flex-wrap: wrap;
   padding-left: 0 !important;
+  padding-top: 0 !important;
 }
 
 .breadcrumbs,
@@ -1584,6 +1641,25 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .translate-z-0 {
   transform: translateZ(0);
+}
+
+.api-link {
+  @apply border border-zinc-200 dark:border-zinc-800 rounded-md px-5 py-3 w-fit;
+  @apply bg-gradient-to-br from-zinc-50 to-zinc-100 border-zinc-200 text-zinc-900;
+  @apply dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-800 dark:border-zinc-700;
+  @apply dark:text-zinc-100 h-full;
+}
+
+.api-link-title {
+  @apply text-lg font-semibold text-zinc-700 dark:text-zinc-200;
+}
+
+.api-link-sub-title p {
+  @apply m-0;
+}
+
+.api-link-sub-title a {
+  @apply text-sm;
 }
 
 /**

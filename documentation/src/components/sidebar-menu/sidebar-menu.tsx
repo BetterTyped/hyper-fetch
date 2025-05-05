@@ -24,7 +24,7 @@ export const SidebarMenu = () => {
     <div className="px-4 min-w-[250px]">
       <div className="docs_sidebar">
         <div className="flex items-center justify-between gap-2">
-          <Search className="!px-0" />
+          <Search className="!px-0 !pt-0" />
         </div>
         {activeItem && (
           <div className="mt-4">

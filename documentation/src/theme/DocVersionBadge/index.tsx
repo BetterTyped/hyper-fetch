@@ -1,10 +1,10 @@
 import React from "react";
-import clsx from "clsx";
 import Translate from "@docusaurus/Translate";
 import { ThemeClassNames } from "@docusaurus/theme-common";
 import { useDocsVersion } from "@docusaurus/plugin-content-docs/client";
 import type { Props } from "@theme/DocVersionBadge";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
+import { cn } from "@site/src/lib/utils";
 
 // eslint-disable-next-line import/no-default-export
 export default function DocVersionBadge({ className }: Props): JSX.Element | null {
@@ -16,11 +16,12 @@ export default function DocVersionBadge({ className }: Props): JSX.Element | nul
   if (versionMetadata.badge) {
     return (
       <span
-        className={clsx(
+        className={cn(
           className,
           ThemeClassNames.docs.docVersionBadge,
-          isCurrent ? activeItem?.section?.icon || "bg-yellow-500" : "bg-zinc-400/20",
-          "badge badge--secondary !text-white border-0 mb-5 !bg-opacity-100",
+          isCurrent ? activeItem?.section?.icon || "bg-yellow-500" : "bg-zinc-400",
+          "block text-xs px-2 py-1 rounded-md w-fit !font-semibold",
+          "!text-white/80 border-0 !mb-6 !bg-opacity-30",
         )}
       >
         <Translate id="theme.docs.versionBadge.label" values={{ versionLabel: versionMetadata.label }}>

@@ -1,4 +1,5 @@
 import { Description, DocsCard, Particles, Title } from "@site/src/components";
+import PageIllustration02 from "@site/static/img/page-illustration-02.svg";
 
 import { IntegrationsList } from "./list/list";
 
@@ -24,7 +25,7 @@ export const Integrations = () => {
           className="md:block absolute left-1/2 -translate-x-1/2 bottom-0 -mb-16 blur-2xl opacity-90 pointer-events-none -z-10 max-w-[100vw]"
           aria-hidden="true"
         >
-          <img src="/img/page-illustration-02.svg" width={1440} height={427} alt="Page Graphic 02" />
+          <PageIllustration02 width={1440} height={427} className="text-blue-400" />
         </div>
 
         {/* Opacity layer */}
@@ -35,8 +36,8 @@ export const Integrations = () => {
           className="absolute flex items-center justify-center top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-[800px] aspect-square max-w-[100vw]"
           aria-hidden="true"
         >
-          <div className="absolute inset-0 translate-z-0 bg-yellow-500 dark:bg-yellow-700 rounded-full blur-[120px] opacity-30" />
-          <div className="absolute w-64 h-64 translate-z-0 bg-yellow-400 dark:bg-yellow-900 rounded-full blur-[80px] opacity-60" />
+          <div className="absolute inset-0 translate-z-0 bg-blue-500 dark:bg-blue-700 rounded-full blur-[120px] opacity-30" />
+          <div className="absolute w-64 h-64 translate-z-0 bg-blue-400 dark:bg-blue-900 rounded-full blur-[80px] opacity-60" />
         </div>
 
         {/* Particles animation */}
@@ -53,7 +54,7 @@ export const Integrations = () => {
       <section className="">
         <div className="pt-2">
           <div className="text-left">
-            <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
+            <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-blue-500 to-orange-500 dark:from-blue-500 dark:to-blue-200 pb-3">
               Integrations & Add-ons
             </div>
             <Title>Make it your own</Title>
@@ -77,7 +78,7 @@ export const Integrations = () => {
         <div>
           <a
             href="https://github.com/BetterTyped/hyper-fetch/issues"
-            className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"
+            className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-blue-400 via-blue-500 to-blue-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-blue-500 hover:to-blue-400 dark:hover:from-blue-500 dark:hover:to-blue-400 hover:text-white hover:dark:text-zinc-900 transition-all"
           >
             Let us know!
           </a>

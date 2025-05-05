@@ -25,6 +25,7 @@ const FirebaseIcon = isBrowser() ? require("../static/img/integration-firebase.s
 // const GoogleMapsIcon = isBrowser() ? require("../static/img/integration-google-maps.svg").default : () => null;
 const OpenApiIcon = isBrowser() ? require("../static/img/integration-openapi.svg").default : () => null;
 const EslintIcon = isBrowser() ? require("../static/img/integration-eslint.svg").default : () => null;
+const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
 
 export const integrations: Section[] = [
   {
@@ -34,15 +35,14 @@ export const integrations: Section[] = [
     dir: "getting-started",
     paths: ["getting-started"],
     img: Book,
-    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-400",
-    textAction:
-      "focus:!text-yellow-500 focus:dark:!text-yellow-400 active:!text-yellow-600 active:dark:!text-yellow-300",
-    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
-    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
+    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
+    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
+    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
+    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500",
     iconHover:
-      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500 group-hover:!bg-opacity-40",
-    border: "border-yellow-500 dark:border-yellow-400",
-    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 group-hover:!bg-opacity-40",
+    border: "border-blue-500 dark:border-blue-400",
+    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
     category: "docs",
   },
   {
@@ -60,6 +60,25 @@ export const integrations: Section[] = [
       "group-hover:shadow-zinc-200 dark:group-hover:bg-zinc-200 group-hover:bg-zinc-400 group-hover:dark:bg-zinc-200 !bg-opacity-40",
     border: "border-zinc-500 dark:border-zinc-300",
     borderHover: "hover:border-zinc-500 hover:dark:border-zinc-200",
+    featured: true,
+    category: "Plugin",
+  },
+  {
+    label: "Devtools",
+    description: "Devtools to help you debug your code",
+    dir: "plugin-devtools",
+    isPackage: true,
+    paths: ["plugin-devtools"],
+    img: HFIcon,
+    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-300",
+    textAction:
+      "focus:!text-yellow-500 focus:dark:!text-yellow-300 active:!text-yellow-600 active:dark:!text-yellow-200",
+    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
+    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-300 bg-yellow-400 dark:bg-yellow-300 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-200 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-200 !bg-opacity-40",
+    border: "border-yellow-500 dark:border-yellow-300",
+    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-200",
     featured: true,
     category: "Plugin",
   },
