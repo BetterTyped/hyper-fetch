@@ -21,6 +21,7 @@
     "@docusaurus/faster": "^3.7.0",
     "@docusaurus/preset-classic": "^3.7.0",
     "@docusaurus/theme-live-codeblock": "^3.7.0",
+    "@docusaurus/theme-mermaid": "^3.7.0",
     "@hyper-fetch/core": "^5.7.3",
     "@hyper-fetch/react": "^5.7.3",
     "@mdx-js/react": "^3.0.0",

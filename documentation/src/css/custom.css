@@ -470,7 +470,7 @@ pre {
 
 .api-docs__table pre {
   overflow-x: auto !important;
-  @apply w-fit rounded-none !py-0 !px-2 !bg-[#1c1c1d] mb-0;
+  @apply w-fit rounded-none !py-0 !px-2 !bg-[#232326] mb-0;
 }
 .api-docs_table .codeBlock {
   @apply md:max-w-[300px] lg:max-w-[400px];
@@ -793,7 +793,7 @@ pre[class*="language-"] {
 }
 
 pre[class*="language-"] > code {
-  @apply bg-zinc-700/20;
+  @apply bg-[#232326];
 }
 
 .alert *:not(pre) > code {

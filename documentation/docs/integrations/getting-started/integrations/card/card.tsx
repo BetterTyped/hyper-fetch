@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import { Description, DocsCard, Title } from "@site/src/components";
+import { Description, DocsCard, Noise, Title } from "@site/src/components";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { Section } from "@site/src/modules";
 import clsx from "clsx";
@@ -17,6 +17,7 @@ export function IntegrationCard({ section, className }: CardProps) {
   return (
     <Link to={item.link.path} className={clsx(className)}>
       <DocsCard className="flex flex-col p-5 h-full">
+        <Noise visibility="medium" />
         <div className="flex items-center space-x-3 mb-2">
           {item.section.img && (
             <div className="relative mr-2">
