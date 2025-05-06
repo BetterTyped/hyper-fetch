@@ -883,10 +883,13 @@ pre[class*="language-"] > code {
   background-position: center;
   background-repeat: repeat;
   content: "";
-  @apply absolute inset-0 -z-10 opacity-[0.01];
+  @apply absolute inset-0 -z-10 opacity-[0.01] pointer-events-none;
+}
+.alert::after {
+  @apply inset-0 absolute [background-image:radial-gradient(88%_100%_at_top,rgba(255,255,255,0.5),rgba(255,255,255,0))] z-[1] opacity-30 pointer-events-none;
 }
 .alert > div:first-child {
-  @apply mb-3 text-2xl capitalize font-extrabold;
+  @apply mb-3 text-2xl capitalize font-extrabold flex items-center;
 }
 .alert > div:first-child svg {
   @apply -mt-1;

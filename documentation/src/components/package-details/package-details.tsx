@@ -1,4 +1,5 @@
 import { useClipboard, useIsMounted } from "@reins/hooks";
+import { cn } from "@site/src/lib/utils";
 import { Copy } from "lucide-react";
 import { useState } from "react";
 
@@ -16,25 +17,15 @@ export const PackageDetails = ({
   const isMounted = useIsMounted();
   const [done, setDone] = useState(false);
 
-  const { copy } = useClipboard({
-    onSuccess: () => {
-      setDone(true);
-      setTimeout(() => {
-        if (isMounted) {
-          setDone(false);
-        }
-      }, 1000);
-    },
-    onError: () => {},
-  });
+  const { copy } = useClipboard();
 
   const npmInstall = `${Array.isArray(pkg) ? pkg.join(" ") : pkg}`;
   const names = name || (Array.isArray(pkg) ? pkg.map((el) => el.split("/")[1]).join(", ") : pkg.split("/")[1]);
 
   return (
     <div className="package-wrapper mb-6">
-      <div className="package-details w-full max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/30 dark:to-zinc-900/5 rounded-3xl border dark:border-zinc-800">
-        <div className="px-2 pt-4 pb-6">
+      <div className="package-details w-full max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/50 dark:to-zinc-900/25 rounded-3xl border dark:border-zinc-800">
+        <div className="px-2 pt-5 pb-6">
           <div className="text-center">
             <div className="relative inline-flex">
               <Icon className="w-10 h-10" />
@@ -52,16 +43,36 @@ export const PackageDetails = ({
             <div className="text-zinc-500 dark:text-zinc-300 font-medium capitalize mb-1">{names}</div>
             <button
               type="button"
-              onClick={() => copy(npmInstall)}
-              className="flex justify-between items-center shiny-btn mb-2 !py-1 !px-3 text-zinc-300 hover:text-white transition duration-150 ease-in-out group max-w-[90%] mx-auto"
+              onClick={() => {
+                copy(npmInstall);
+                setDone(true);
+                setTimeout(() => {
+                  if (isMounted) {
+                    setDone(false);
+                  }
+                }, 1000);
+              }}
+              className={cn(
+                "relative flex justify-between items-center mb-2 !py-1 !px-3",
+                "text-zinc-300 hover:text-white transition duration-150",
+                "ease-in-out group max-w-[90%] mx-auto group !cursor-pointer",
+                "bg-zinc-900/40 rounded-md border border-zinc-800",
+                "hover:bg-zinc-900/50",
+              )}
             >
-              <span className="relative inline-flex items-center hover:text-white text-[13px] overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap">
+              <span
+                className={cn(
+                  "relative inline-flex items-center group-hover:text-white text-[13px]",
+                  "overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap",
+                  done && "opacity-0",
+                )}
+              >
                 {npmInstall}
               </span>
-              <Copy className="w-[12px] ml-2 stroke-yellow-500 transition duration-150 ease-in-out" />
+              <Copy className={cn("w-[12px] ml-2 stroke-yellow-500 transition duration-150 ease-in-out")} />
               {done && (
-                <div className="absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 text-[13px] opacity-60 ml-2 whitespace-nowrap">
-                  Copied to clipboard!
+                <div className="absolute inset-0 flex items-center justify-start text-[13px] opacity-60 ml-3 whitespace-nowrap">
+                  Copied!
                 </div>
               )}
             </button>
