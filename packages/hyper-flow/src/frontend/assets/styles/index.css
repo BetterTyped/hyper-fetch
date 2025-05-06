@@ -4,7 +4,7 @@
 @import "./components.css" layer(components);
 
 body {
-  @apply bg-[rgb(17,23,40)] text-gray-300;
+  @apply bg-[rgb(17,23,40)] text-gray-300 rounded-lg overflow-hidden;
 }
 
 html,
