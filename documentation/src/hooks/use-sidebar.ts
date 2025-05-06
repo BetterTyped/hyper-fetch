@@ -70,7 +70,7 @@ export const useSidebar = (options?: {
       .filter((value) => {
         if (!value.link?.path) {
           // eslint-disable-next-line no-console
-          console.log("You must update the sidebars. Missing path for the following item:", value);
+          console.log("You must update the sidebars. Missing path for the following item");
           return false; // Ensure items without a path are filtered out
         }
 

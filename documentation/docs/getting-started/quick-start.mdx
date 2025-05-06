@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 title: Quick Start
 sidebar_label: Quick Start
 ---
@@ -42,9 +42,12 @@ resolved.
 import { client } from "../client.ts";
 
 type ResponseType = { token: string; refreshToken: string };
-type RequestType = { email: string; password: string };
+type PayloadType = { email: string; password: string };
 
-const postLogin = client.createRequest<{ response: ResponseType; request: RequestType }>()({
+const postLogin = client.createRequest<{
+  response: ResponseType;
+  payload: PayloadType;
+}>()({
   method: "POST",
   endpoint: "/auth/login",
 });

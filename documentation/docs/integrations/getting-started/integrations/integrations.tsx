@@ -19,7 +19,7 @@ export const Integrations = () => {
   return (
     <div>
       <style>{styles}</style>
-      <div className="relative opacity-90 dark:opacity-100 -z-10">
+      <div className="relative opacity-90 dark:opacity-100 -z-10 max-w-screen w-screen overflow-x-hidden">
         {/* Graphic 02 */}
         <div
           className="md:block absolute left-1/2 -translate-x-1/2 bottom-0 -mb-16 blur-2xl opacity-90 pointer-events-none -z-10 max-w-[100vw]"

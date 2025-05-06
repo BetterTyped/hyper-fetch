@@ -21,6 +21,8 @@ Sentry.init({
 if (started) {
   app.quit();
 }
+// Need root permissions or can disable sandboxing
+app.commandLine.appendSwitch("no-sandbox");
 
 const createWindow = () => {
   // Create the browser window.

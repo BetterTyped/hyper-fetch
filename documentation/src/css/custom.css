@@ -291,6 +291,54 @@ pre[class*="language-"] > code[class*="language-"] {
   @apply dark:bg-yellow-600 bg-yellow-600 !text-white;
 }
 
+/* table */
+
+::root {
+  /* --ifm-table-head-background:  */
+}
+
+table:not(.api-docs__table) {
+  @apply !w-full !rounded-md !m-0 !text-sm !caption-bottom;
+}
+
+table:not(.api-docs__table) * {
+  @apply !text-sm;
+}
+
+/* Style table header */
+table:not(.api-docs__table) thead tr {
+  @apply !border-b !border-zinc-400/10; /* Horizontal line below header row */
+}
+
+/* Style table body rows */
+table:not(.api-docs__table) tbody tr {
+  @apply !border-b !border-zinc-400/10 !transition-colors; /* Horizontal line below body rows */
+}
+
+/* Remove border from the last row in the body */
+table:not(.api-docs__table) tbody tr:last-child {
+  @apply !border-0;
+}
+
+/* Style header cells */
+table:not(.api-docs__table) th {
+  @apply !h-12 !px-4 !text-left !align-middle !font-medium !text-zinc-500; /* Adjusted text color */
+}
+
+/* Style data cells */
+table:not(.api-docs__table) td {
+  @apply !p-4 !align-middle;
+}
+
+/* Style table caption */
+table:not(.api-docs__table) caption {
+  @apply !mt-4 !text-sm !text-zinc-500; /* Adjusted text color */
+}
+
+table:not(.api-docs__table) * {
+  @apply !border-t-0 !border-x-0 !border-zinc-400/10;
+}
+
 /* Docgen */
 
 #__docusaurus > div[role="banner"] {
@@ -619,6 +667,14 @@ body.dark .title * {
 }
 
 /**
+ * Mermaid
+ */
+
+.docusaurus-mermaid-container .edge {
+  opacity: 0.2;
+}
+
+/**
  * Docs page
  */
 
@@ -633,7 +689,7 @@ main > div.container {
 
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ol,
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
-  padding-top: 10px;
+  margin-top: 10px;
   padding-left: 30px;
 }
 

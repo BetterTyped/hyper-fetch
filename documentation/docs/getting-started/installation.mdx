@@ -6,6 +6,7 @@ sidebar_label: Installation
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import { LinkCard } from "@site/src/components/link-card/link-card";
 
 An installation of Hyper Fetch can be run `clean` or for a specific environment. However, we only currently support
 React.
@@ -18,27 +19,47 @@ The main `@hyper-fetch/core` package is required for other sub packages to work.
 
 ---
 
-## Typescript
+## Install Core packages
 
-TypeScript is used especially when you want to deploy pure Hyper Fetch logic, without an additional layer of abstraction
-for a specific environment, library, or framework. This gives you access to Hyper Fetch’s base features.
+For minimal installation, you need to install the core package and eslint plugin.
 
 <Tabs>
-  <TabItem value="Npm" label="Npm" default>
+  <TabItem value="npm" label="npm" default>
 
 ```bash npm2yarn
-npm install --save @hyper-fetch/core
+npm install --save @hyper-fetch/core eslint-plugin-hyper-fetch
 ```
 
   </TabItem>
-  <TabItem value="Yarn" label="Yarn">
+  <TabItem value="yarn" label="yarn">
 
 ```bash npm2yarn
-yarn add @hyper-fetch/core
+yarn add @hyper-fetch/core eslint-plugin-hyper-fetch
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```bash npm2yarn
+pnpm add @hyper-fetch/core eslint-plugin-hyper-fetch
+```
+
+  </TabItem>
+  <TabItem value="bun" label="bun">
+
+```bash npm2yarn
+bun add @hyper-fetch/core eslint-plugin-hyper-fetch
 ```
 
   </TabItem>
 </Tabs>
+
+:::warning
+
+[Eslint plugin](../integrations/plugin-eslint/) is required for maximum type safety. It enhances the abilities of the
+typescript via checking the object generic types to match exact schema.
+
+:::
 
 ---
 
@@ -47,17 +68,31 @@ yarn add @hyper-fetch/core
 Sockets is created for handling websockets or server sent events.
 
 <Tabs>
-  <TabItem value="Npm" label="Npm" default>
+  <TabItem value="npm" label="npm" default>
 
 ```bash npm2yarn
 npm install --save @hyper-fetch/sockets
 ```
 
   </TabItem>
-  <TabItem value="Yarn" label="Yarn">
+  <TabItem value="yarn" label="yarn">
 
 ```bash npm2yarn
 yarn add @hyper-fetch/sockets
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```bash npm2yarn
+pnpm add @hyper-fetch/sockets
+```
+
+  </TabItem>
+  <TabItem value="bun" label="bun">
+
+```bash npm2yarn
+bun add @hyper-fetch/sockets
 ```
 
   </TabItem>
@@ -71,75 +106,43 @@ React allows the installation of the base library with hooks, offering interface
 support the application lifecycle.
 
 <Tabs>
-  <TabItem value="Npm" label="Npm" default>
+  <TabItem value="npm" label="npm" default>
 
 ```bash npm2yarn
 npm install --save @hyper-fetch/core @hyper-fetch/react
 ```
 
   </TabItem>
-  <TabItem value="Yarn" label="Yarn">
+  <TabItem value="yarn" label="yarn">
 
 ```bash npm2yarn
 yarn add @hyper-fetch/core @hyper-fetch/react
 ```
 
   </TabItem>
-</Tabs>
-
-## Firebase adapter
-
-<Tabs>
-  <TabItem value="Npm" label="Npm" default>
+  <TabItem value="pnpm" label="pnpm">
 
 ```bash npm2yarn
-npm install --save @hyper-fetch/core @hyper-fetch/firebase
+pnpm add @hyper-fetch/core @hyper-fetch/react
 ```
 
   </TabItem>
-  <TabItem value="Yarn" label="Yarn">
+  <TabItem value="bun" label="bun">
 
 ```bash npm2yarn
-yarn add @hyper-fetch/core @hyper-fetch/firebase
+bun add @hyper-fetch/core @hyper-fetch/react
 ```
 
   </TabItem>
 </Tabs>
 
-## GraphQL adapter
+---
 
-<Tabs>
-  <TabItem value="Npm" label="Npm" default>
+## Integrations
 
-```bash npm2yarn
-npm install --save @hyper-fetch/core @hyper-fetch/graphql
-```
-
-  </TabItem>
-  <TabItem value="Yarn" label="Yarn">
-
-```bash npm2yarn
-yarn add @hyper-fetch/core @hyper-fetch/graphql
-```
-
-  </TabItem>
-</Tabs>
-
-## Axios adapter
-
-<Tabs>
-  <TabItem value="Npm" label="Npm" default>
-
-```bash npm2yarn
-npm install --save @hyper-fetch/core @hyper-fetch/axios
-```
-
-  </TabItem>
-  <TabItem value="Yarn" label="Yarn">
-
-```bash npm2yarn
-yarn add @hyper-fetch/core @hyper-fetch/axios
-```
-
-  </TabItem>
-</Tabs>
+<LinkCard
+  type="docs"
+  title="Integrations"
+  description="Find out how to integrate Hyper Fetch with your favorite libraries"
+  to="/docs/integrations/getting-started"
+/>

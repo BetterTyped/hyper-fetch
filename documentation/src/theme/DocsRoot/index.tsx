@@ -38,7 +38,7 @@ export default function DocsRoot(props: Props): JSX.Element {
   const colors = getColors(location.pathname);
   return (
     <HtmlClassNameProvider className={clsx(ThemeClassNames.wrapper.docsPages)}>
-      <div className="blur-2xl">
+      <div className="absolute blur-2xl w-screen max-w-screen h-screen overflow-hidden">
         <div
           className="md:block absolute left-1/2 -translate-x-1/2 top-0 -translate-y-1/2 -mb-16 blur-2xl opacity-90 pointer-events-none -z-10 max-w-[100vw]"
           aria-hidden="true"
