@@ -21,7 +21,7 @@ export default function TOC({ className, ...props }: Props): JSX.Element {
 
   return (
     <div className={clsx("toc", styles.tocWrapper)}>
-      {activeItem.section.isPackage && (
+      {activeItem?.section?.isPackage && (
         <PackageDetails
           icon={activeItem.img}
           name={activeItem.name}
