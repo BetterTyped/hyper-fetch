@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import { waitFor } from "@testing-library/react";
 
 import { MessageType } from "shared/types/messages.types";
@@ -21,7 +18,7 @@ describe("Devtools Socket Server", () => {
       const { connections, DEVTOOLS_FRONTEND_WS_CONNECTION } = serverObject || {};
       await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 1234,
+        socketPort: 2137,
       });
       await connectDevtoolsClient();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
@@ -35,7 +32,7 @@ describe("Devtools Socket Server", () => {
 
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 1234,
+        socketPort: 2137,
       });
       socket.onMessage((message) => {
         receivedMessage = message;
@@ -69,7 +66,7 @@ describe("Devtools Socket Server", () => {
       const { connections } = serverObject || {};
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 1234,
+        socketPort: 2137,
       });
       socket.onMessage((message) => {
         clientReceivedMessages.push(message);
@@ -89,7 +86,7 @@ describe("Devtools Socket Server", () => {
       const { connections } = serverObject || {};
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 1234,
+        socketPort: 2137,
       });
 
       connectDevtoolsClient();

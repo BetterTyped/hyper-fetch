@@ -5,10 +5,10 @@ import { Socket } from "@hyper-fetch/sockets";
 import { ConnectionName } from "frontend/constants/connection.name";
 
 export const connectDevtoolsClient = ({
-  baseUrl = "http://localhost:1234",
+  baseUrl = "http://localhost:2137",
   clientName = "test-client",
   socketAddress = "ws:localhost",
-  socketPort = 1234,
+  socketPort = 2137,
 }: {
   baseUrl?: string;
   clientName?: string;
@@ -19,7 +19,7 @@ export const connectDevtoolsClient = ({
 
   const plugin = devtoolsPlugin({
     appName: clientName,
-    url: `ws://${socketAddress}:${socketPort}`,
+    url: `${socketAddress}:${socketPort}`,
   });
 
   client.addPlugin(plugin);
@@ -29,16 +29,17 @@ export const connectDevtoolsClient = ({
 
 export const connectDevtoolsFrontend = async ({
   socketAddress = "localhost",
-  socketPort = 1234,
+  socketPort = 2137,
 }: {
   socketAddress?: string;
   socketPort?: number;
 }) => {
-  let initSocket = new Socket({
+  const initSocket = new Socket({
     url: `ws://${socketAddress}:${socketPort}`,
     adapterOptions: { autoConnect: false },
-  }).setDebug(true);
-  initSocket = initSocket.setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND });
+  })
+    .setDebug(true)
+    .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND });
 
   await initSocket.connect();
   return initSocket;

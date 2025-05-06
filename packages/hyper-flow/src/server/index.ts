@@ -164,13 +164,15 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       });
     });
 
-  const isReady = new Promise((resolve) => {
+  const startingServer = new Promise((resolve) => {
     server.on(`listening`, () => {
       resolve(true);
     });
   });
 
-  if (await isReady) {
+  const isReady = await startingServer;
+
+  if (isReady) {
     return {
       server,
       wss,
@@ -178,5 +180,12 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.devtoolsFrontendConnection,
     };
   }
+  serverLogger.error("Server failed to start", {
+    context: "Server",
+    details: {
+      port,
+      error: "Server failed to start",
+    },
+  });
   return { server: null, wss: null, connections: {}, DEVTOOLS_FRONTEND_WS_CONNECTION: null };
 };
