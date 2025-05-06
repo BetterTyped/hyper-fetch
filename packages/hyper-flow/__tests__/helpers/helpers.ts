@@ -19,7 +19,7 @@ export const connectDevtoolsClient = ({
 
   const plugin = devtoolsPlugin({
     appName: clientName,
-    url: `${socketAddress}:${socketPort}`,
+    url: `ws://${socketAddress}:${socketPort}`,
   });
 
   client.addPlugin(plugin);

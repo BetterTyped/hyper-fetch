@@ -37,7 +37,7 @@ export type SidebarItem = {
   link: SidebarElement["link"];
   img: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active: boolean;
-  section: (typeof modules)[number];
+  section: Section;
 };
 
 export const useSidebar = (options?: {

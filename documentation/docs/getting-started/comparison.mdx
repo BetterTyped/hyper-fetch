@@ -4,6 +4,7 @@ title: Why Hyper Fetch is Unique
 sidebar_label: Comparison
 ---
 
+import { Info } from "lucide-react";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
@@ -132,9 +133,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Server Connection Setup{" "}
           <Tippy content="Being able to prepare global setup for server connection">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Server Connection Setup
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -144,9 +147,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Shared Request{" "}
           <Tippy content="Being able to prepare requests to be reused in the application">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Shared Request
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -156,9 +161,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Dependency tracking{" "}
           <Tippy content="It allows to limit re-rendering only to the dependent key changes">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Dependency tracking
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -175,9 +182,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Requests Persistence{" "}
           <Tippy content="Possibility to keep data prepared for request in persistent storage and resend it on new session">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Requests Persistence
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -187,9 +196,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Download ETA{" "}
           <Tippy content="Tracking of the download progress to being able to access size left and time ETA">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Download ETA
+            </div>
           </Tippy>
         </td>
         <td>✅ </td>
@@ -199,9 +210,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Uploading ETA{" "}
           <Tippy content="Tracking of the upload progress to being able to access size left and time ETA">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Uploading ETA
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -211,9 +224,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Pooling{" "}
           <Tippy content="Fetch new data at interval">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Pooling
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -223,9 +238,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Dependent Queries{" "}
           <Tippy content="Being able to hold on one request until another is finished">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Dependent Queries
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -242,9 +259,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Query Params Parsing{" "}
           <Tippy content="Built-in query parsing from object or string">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Query Params Parsing
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -254,9 +273,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Queueing{" "}
           <Tippy content="Allows to group requests in queues and control sending process">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Queueing
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -266,9 +287,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Retries{" "}
           <Tippy content="When request fails try again to trigger it">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Retries
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -278,9 +301,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Default Adapter{" "}
           <Tippy content="Library includes prepared adapter for requesting">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Default Adapter
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -290,9 +315,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Infinite Queries{" "}
           <Tippy content="When we want to dynamically 'load more' content on the list">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Infinite Queries
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -302,9 +329,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          SSR{" "}
           <Tippy content="Server Side Rendering">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              SSR
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -314,9 +343,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Initial Data{" "}
           <Tippy content="Initialize with prepared placeholder data">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Initial Data
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -326,9 +357,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Cache Hydration{" "}
           <Tippy content="Allows to hydrate cache storage with data from other sources">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Cache Hydration
+            </div>
           </Tippy>
         </td>
         <td>✅ </td>
@@ -338,9 +371,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Garbage Collecting{" "}
           <Tippy content="Stale data gets removed from memory">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Garbage Collecting
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -350,9 +385,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Pre Request Intercepting{" "}
           <Tippy content="Intercept and modify every request before being triggered">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Pre Request Intercepting
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -362,9 +399,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Post Request Intercepting{" "}
           <Tippy content="Intercept and modify every response before being saved and emitted">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Post Request Intercepting
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -374,9 +413,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Prefetching{" "}
           <Tippy content="Prefetch your data before your components being mounted">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Prefetching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -386,9 +427,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Cancellation{" "}
           <Tippy content="Cancel ongoing request">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Cancellation
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -398,9 +441,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Queue Cancellation{" "}
           <Tippy content="Cancel group of ongoing requests by their queue key">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Queue Cancellation
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -410,9 +455,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Authentication{" "}
           <Tippy content="Has built-in solutions for authentication like intercepting and possibilities to turn on/off">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Authentication
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -422,9 +469,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Stale While Revalidate{" "}
           <Tippy content="Load cache data and refresh it in background">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Stale While Revalidate
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -441,9 +490,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Offline Request Pause{" "}
           <Tippy content="When app goes offline, it waits until connection is back and retries paused requests">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Offline Request Pause
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -453,9 +504,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Network Status Re-fetching{" "}
           <Tippy content="Trigger re-fetch when your app goes online">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Network Status Re-fetching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -465,9 +518,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Window Focus Re-fetching{" "}
           <Tippy content="Trigger re-fetch when you switch tabs or windows">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Window Focus Re-fetching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -477,9 +532,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Normalized Caching{" "}
           <Tippy content="Storing cached data in flat architecture to prevent duplication">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Normalized Caching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -489,9 +546,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Automatic Re-fetch After Mutation{" "}
           <Tippy content="Refresh cache data once you post mutation request">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Automatic Re-fetch After Mutation
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -501,9 +560,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Query Matching{" "}
           <Tippy content="Make operations on queued queries by their keys - you can cancel, stop or delete them from queue.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Query Matching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -513,9 +574,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Cache Matching{" "}
           <Tippy content="Make operations on queries by their keys. Re-fetch groups of requests with partial names/regex or full keys.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Cache Matching
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -525,9 +588,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Query Lifecycle Events{" "}
           <Tippy content="Receive every lifecycle response for any request. Request start, progress, response start, success, error, finished.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Query Lifecycle Events
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -537,9 +602,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Data Flow Standard{" "}
           <Tippy content="Having standardized format for data exchange and for easy reading/dumping">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Data Flow Standard
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -549,9 +616,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Request Start/Stop{" "}
           <Tippy content="Possibility to control particular request in a queue.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Request Start/Stop
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -561,9 +630,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Request Queue Start/Stop/Pause{" "}
           <Tippy content="Possibility to control all queued requests.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Request Queue Start/Stop/Pause
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -573,9 +644,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Request Data Mapping{" "}
           <Tippy content="Before we send a request we can map the data it's transferring to different format before it gets to server">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Request Data Mapping
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -585,9 +658,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Cache Invalidation{" "}
           <Tippy content="Invalidate cache data to re-fetch it.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Cache Invalidation
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -597,9 +672,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          File Uploading{" "}
           <Tippy content="File upload with built-in adapter">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              File Uploading
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -609,9 +686,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Global Response Side-Effects{" "}
           <Tippy content="We can hook global listeners on a particular request to listen and trigger side effects while it's being send">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Global Response Side-Effects
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -621,9 +700,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Scroll Recovery{" "}
           <Tippy content="Going back to previous cache will restore scroll as data will be imminently shown to the user.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Scroll Recovery
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -633,9 +714,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Simple Request Execution{" "}
           <Tippy content="Possibility to trigger requests requests">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Simple Request Execution
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -645,9 +728,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Requests Manager{" "}
           <Tippy content="Possibility to show requests being uploaded throughout the whole system. Works like uploading managers, but much more advanced.">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Requests Manager
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -657,9 +742,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Tabs Storages Synchronization{" "}
           <Tippy content="Being able to synchronize tabs data">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Tabs Storages Synchronization
+            </div>
           </Tippy>
         </td>
         <td>🚧</td>
@@ -669,9 +756,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Tabs Dispatching Synchronization{" "}
           <Tippy content="Being able to synchronize not sent queries queues between tabs which is required to present full persistence in browser">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Tabs Dispatching Synchronization
+            </div>
           </Tippy>
         </td>
         <td>🚧</td>
@@ -681,9 +770,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Websocket{" "}
           <Tippy content="Being able to listen and emit events">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Websocket
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -693,9 +784,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Server Sent Events{" "}
           <Tippy content="Being able to listen to server sent events">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Server Sent Events
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -733,9 +826,11 @@ data needs to be corrected, please let us know by opening an issue.
     <tbody>
       <tr>
         <td>
-          Response types{" "}
           <Tippy content="What data type you expect to receive from server">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Response types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -745,9 +840,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Request data types{" "}
           <Tippy content="Pass the type to specify the data schema to be send">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Request data types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -757,21 +854,25 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Global error types{" "}
           <Tippy content="Specify possible error responses for all requests in the system">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Global error types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
         <td>🔴</td>
         <td>🔴</td>
-        <td>🔴</td>
+        <td>✅</td>
       </tr>
       <tr>
         <td>
-          Local error types{" "}
           <Tippy content="Being able to specify particular endpoint errors apart from global error type">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Local error types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -781,9 +882,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Query params types{" "}
           <Tippy content="Being able to pass type checking for endpoint query params">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Query params types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -793,9 +896,11 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Params types{" "}
           <Tippy content="Being able to automatically track the record of endpoint string">
-            <span>ℹ️</span>
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Params types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>
@@ -805,9 +910,14 @@ data needs to be corrected, please let us know by opening an issue.
       </tr>
       <tr>
         <td>
-          Request state tracking types{" "}
-          <Tippy content="Types to check if you already set the data/params/query params on given request to prevent data corruption">
-            <span>ℹ️</span>
+          <Tippy
+            showOnCreate
+            content="Types to check if you already set the data/params/query params on given request to prevent data corruption"
+          >
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              Request state tracking types
+            </div>
           </Tippy>
         </td>
         <td>✅</td>

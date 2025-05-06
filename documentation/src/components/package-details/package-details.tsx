@@ -2,26 +2,17 @@ import { useClipboard, useIsMounted } from "@reins/hooks";
 import { Copy } from "lucide-react";
 import { useState } from "react";
 
-const styles = `
-@media (min-width: 1200px) {
-  article {
-    position: relative;
-    padding-right: 350px;
-  }
-  .package-wrapper {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: calc(100% - 150px);
-  }
-  .package-details {
-    position: sticky;
-    top: 120px;
-  }
-}
-`;
-
-export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
+export const PackageDetails = ({
+  icon: Icon,
+  name,
+  pkg,
+  featured = false,
+}: {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  name?: string;
+  pkg: string | string[];
+  featured?: boolean;
+}) => {
   const isMounted = useIsMounted();
   const [done, setDone] = useState(false);
 
@@ -37,89 +28,57 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
     onError: () => {},
   });
 
-  const npmInstall = `npm i ${Array.isArray(pkg) ? pkg.join(" ") : pkg}`;
-  const names = Array.isArray(pkg) ? pkg.map((el) => el.split("/")[1]).join(", ") : pkg.split("/")[1];
+  const npmInstall = `${Array.isArray(pkg) ? pkg.join(" ") : pkg}`;
+  const names = name || (Array.isArray(pkg) ? pkg.map((el) => el.split("/")[1]).join(", ") : pkg.split("/")[1]);
 
   return (
-    <div className="package-wrapper">
-      <div className="package-details w-[320px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800 dark:to-zinc-800/25 rounded-3xl border dark:border-zinc-800">
-        <style>{styles}</style>
-        <div className="px-5 py-6">
-          <div className="text-center mb-5">
-            <div className="mb-4">
-              <div className="relative inline-flex">
-                <img src="/img/github-logo.svg" width={80} height={80} alt="Icon 08" />
+    <div className="package-wrapper mb-6">
+      <div className="package-details w-full max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/30 dark:to-zinc-900/5 rounded-3xl border dark:border-zinc-800">
+        <div className="px-2 pt-4 pb-6">
+          <div className="text-center">
+            <div className="relative inline-flex">
+              <Icon className="w-10 h-10" />
+              {featured && (
                 <img
-                  className="absolute top-0 -right-1"
+                  className="absolute -top-1 -right-1"
                   src="/img/star.svg"
-                  width={24}
-                  height={24}
+                  width={16}
+                  height={16}
                   alt="Star"
                   aria-hidden="true"
                 />
-              </div>
+              )}
             </div>
+            <div className="text-zinc-500 dark:text-zinc-300 font-medium capitalize mb-1">{names}</div>
             <button
               type="button"
               onClick={() => copy(npmInstall)}
-              className="flex justify-between items-center shiny-btn mb-2 !py-2 !px-4 text-zinc-300 hover:text-white transition duration-150 ease-in-out group max-w-[90%] mx-auto"
+              className="flex justify-between items-center shiny-btn mb-2 !py-1 !px-3 text-zinc-300 hover:text-white transition duration-150 ease-in-out group max-w-[90%] mx-auto"
             >
-              <span className="relative inline-flex items-center hover:text-white overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap">
+              <span className="relative inline-flex items-center hover:text-white text-[13px] overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap">
                 {npmInstall}
               </span>
-              <Copy className="w-[15px] ml-2 stroke-yellow-500 transition duration-150 ease-in-out" />
+              <Copy className="w-[12px] ml-2 stroke-yellow-500 transition duration-150 ease-in-out" />
               {done && (
-                <div className="absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 text-xs opacity-60 ml-2 whitespace-nowrap">
+                <div className="absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 text-[13px] opacity-60 ml-2 whitespace-nowrap">
                   Copied to clipboard!
                 </div>
               )}
             </button>
+            <div className="relative flex justify-center items-center z-10">
+              <a
+                className="text-blue-500 font-medium flex items-center space-x-1 text-xs"
+                href={`https://www.npmjs.com/package/${pkg}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="text-xs">npm.com</span>
+                <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="9" height="9">
+                  <path d="m1.285 8.514-.909-.915 5.513-5.523H1.663l.01-1.258h6.389v6.394H6.794l.01-4.226z" />
+                </svg>
+              </a>
+            </div>
           </div>
-          <ul className="text-sm !pl-0">
-            <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-zinc-400">Name</span>
-              <span className="text-zinc-500 dark:text-zinc-300 font-medium capitalize">{names}</span>
-            </li>
-            <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-zinc-400">Npm</span>
-              {Array.isArray(pkg) ? (
-                <div className="flex flex-wrap gap-3">
-                  {pkg.map((el, index) => (
-                    <a
-                      className="text-blue-500 font-medium flex items-center space-x-1 mr-2"
-                      href={`https://www.npmjs.com/package/${el}`}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      <span className="capitalize">{names.split(", ")[index]}</span>
-                      <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="9" height="9">
-                        <path d="m1.285 8.514-.909-.915 5.513-5.523H1.663l.01-1.258h6.389v6.394H6.794l.01-4.226z" />
-                      </svg>
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <a
-                  className="text-blue-500 font-medium flex items-center space-x-1"
-                  href={`https://www.npmjs.com/package/${pkg}`}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <span>npm.com</span>
-                  <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="9" height="9">
-                    <path d="m1.285 8.514-.909-.915 5.513-5.523H1.663l.01-1.258h6.389v6.394H6.794l.01-4.226z" />
-                  </svg>
-                </a>
-              )}
-            </li>
-            {/* <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-zinc-400">Installs</span>
-              <span className="text-zinc-500 dark:text-zinc-300 font-medium relative p3">
-                {loading && <div className="dot-elastic mr-3" />}
-                {!loading && (data?.downloads || "--")}
-              </span>
-            </li> */}
-          </ul>
         </div>
       </div>
     </div>

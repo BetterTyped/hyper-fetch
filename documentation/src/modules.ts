@@ -11,7 +11,6 @@ const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg
 export type Section = {
   label: string;
   description: string;
-  isPackage: boolean;
   dir: string;
   /**
    * @important
@@ -31,7 +30,17 @@ export type Section = {
   borderHover: string;
   category: string;
   featured?: boolean;
-};
+  isPackage: boolean;
+} & (
+  | {
+      isPackage: false;
+      package?: string;
+    }
+  | {
+      isPackage: true;
+      package: string;
+    }
+);
 
 /**
  * This sections list must support backward compatibility with the old sidebars and sections
@@ -74,6 +83,7 @@ export const modules: Section[] = [
     border: "border-green-500 dark:border-green-400",
     borderHover: "hover:border-green-500 hover:dark:border-green-400",
     category: "Framework",
+    package: "core",
   },
   {
     label: "Sockets",
@@ -91,6 +101,7 @@ export const modules: Section[] = [
     border: "border-blue-500 dark:border-blue-400",
     borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
     category: "Framework",
+    package: "sockets",
   },
   {
     label: "React",
@@ -108,5 +119,6 @@ export const modules: Section[] = [
     border: "border-sky-500 dark:border-sky-400",
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
     category: "Framework",
+    package: "react",
   },
 ];

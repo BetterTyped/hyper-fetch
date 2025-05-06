@@ -9,17 +9,17 @@ import TabItem from "@theme/TabItem";
 
 :::info
 
-The basic version of Hyper Fetch is not associated with any framework or library that is required for it to work.
+Hyper Fetch's core is framework-agnostic, requiring no external libraries to function.
 
 :::
 
 ### 1. Initialize the Client
 
-The first step in implementing Hyper Fetch is to initialize the **[Client](/core/client.mdx)**. It manages the basic
-configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of **dispatchers**,
-**cache**, and **app managers**). Start by determining the `url` of your server.
+The first step is to initialize the **[Client](/core/client.mdx)**. It manages the basic server connection configuration
+and all of Hyper Fetch's essential elements, such as **dispatchers**, **cache**, and **app managers**. Begin by
+specifying the `url` of your server.
 
-```tsx title="/src/server/client.ts"
+```tsx title="client.ts"
 import { Client } from "@hyper-fetch/core";
 
 export const client = new Client({ url: "http://localhost:3000" });
@@ -27,8 +27,8 @@ export const client = new Client({ url: "http://localhost:3000" });
 
 ### 2. Create Requests
 
-Then, having already prepared a connection to the server, we use the client method to create
-**[requests](/core/request.mdx)** and assign types to them.
+Once the client is set up, use its `createRequest` method to define **[requests](/core/request.mdx)** and their
+associated types.
 
 :::caution
 
@@ -38,67 +38,111 @@ resolved.
 
 :::
 
-```tsx title="/src/server/auth/auth.ts"
+```tsx title="requests.ts"
 import { client } from "../client.ts";
 
 type ResponseType = { token: string; refreshToken: string };
 type PayloadType = { email: string; password: string };
 
-const postLogin = client.createRequest<{
+const login = client.createRequest<{
   response: ResponseType;
   payload: PayloadType;
 }>()({
   method: "POST",
   endpoint: "/auth/login",
 });
+
+const getUsers = client.createRequest<{
+  response: User[];
+  queryParams?: { page?: number; limit?: number; search?: string };
+}>()({
+  method: "GET",
+  endpoint: "/users",
+});
 ```
 
-### 3. Use Requests
+### 3. Interact with server
 
-When you prepare request instances the next step is to use them. You can do it in two ways:
+Once you have your request instances, you can interact with the server. This can be done in two primary ways:
 
 <Tabs>
   <TabItem value="React" label="React" default>
 
-```tsx
-import { useSubmit, useFetch } from "@hyper-fetch/react";
+```tsx title="users.ts"
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "requests";
 
-import { postUser, getUsers } from "server/auth";
+const UsersListPage = () => {
+  // Fetching
+  const { data, error, loading } = useFetch(getUsers);
 
-// Submitting (mutation)
-const { submit, submitting } = useSubmit(postUser.setData({ name: "John" }));
+  return (
+    <div>
+      <h1>Users</h1>
+      <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>
+    </div>
+  );
+};
+```
 
-// Trigger submit
-const { data } = await submit();
+```tsx title="login.ts"
+import { useSubmit } from "@hyper-fetch/react";
 
-// Fetching
-const { data, error, loading } = useFetch(getUsers);
+import { login } from "requests";
+
+const LoginPage = () => {
+  const { submit, submitting } = useSubmit(login);
+
+  const handleSubmit = async (values: { email: string; password: string }) => {
+    const { data, error, status } = await submit({ data: values });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" name="email" />
+      <input type="password" name="password" />
+      <button type="submit">Login</button>
+    </form>
+  );
+};
 ```
 
   </TabItem>
   <TabItem value="Typescript" label="Typescript">
 
-```tsx
-import { postLogin } from "server/auth";
+```tsx title="users.ts"
+import { getUsers } from "requests";
 
-...
+const fetchUsers = async () => {
+  const { data, error, status } = await getUsers.send();
 
-const handleLogin = async (values: {email: string, password: string}) => {
-  const { data, error, status } = await postLogin.send({data: values})
-
-  if(data) {
-    // perform login
-    ...
+  if (data) {
+    // work with User[] data
+    // e.g., console.log(data);
   } else {
     // handle error
-    ...
+    // e.g., console.error(error, status);
   }
+};
+```
 
-}
+```tsx title="login.ts"
+import { login } from "requests";
 
-...
+const handleLogin = async (values: { email: string; password: string }) => {
+  const { data, error, status } = await login.send({ data: values });
 
+  if (data) {
+    // perform login
+    // e.g., store data.token
+  } else {
+    // handle error
+    // e.g., console.error(error, status);
+  }
+};
 ```
 
   </TabItem>
 </Tabs>
+
+### That's it! You've seen how straightforward it is to get started with Hyper Fetch.

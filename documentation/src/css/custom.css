@@ -322,7 +322,7 @@ table:not(.api-docs__table) tbody tr:last-child {
 
 /* Style header cells */
 table:not(.api-docs__table) th {
-  @apply !h-12 !px-4 !text-left !align-middle !font-medium !text-zinc-500; /* Adjusted text color */
+  @apply !h-12 !px-4 !text-left !align-middle !font-medium !text-zinc-400; /* Adjusted text color */
 }
 
 /* Style data cells */
@@ -782,6 +782,24 @@ strong {
   @apply my-4 text-lg;
 }
 
+.docs-wrapper table p {
+  @apply my-0;
+}
+
+.docs-wrapper table:not(.api-docs__table) {
+  display: table !important;
+  @apply w-full rounded-3xl pt-2 bg-gradient-to-tr from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-800/25 border dark:border-zinc-800 overflow-hidden;
+}
+.docs-wrapper table:not(.api-docs__table) thead {
+  @apply bg-transparent;
+}
+.docs-wrapper table:not(.api-docs__table) tbody tr:nth-child(2n) {
+  @apply bg-zinc-600/10;
+}
+.docs-wrapper table:not(.api-docs__table) tbody tr:last-child td {
+  @apply border-b-0;
+}
+
 main a > span,
 main a > div,
 main a > p,
@@ -857,7 +875,15 @@ pre[class*="language-"] > code {
 }
 
 .alert {
-  @apply px-6 md:px-8 py-8 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
+  @apply relative px-6 md:px-8 py-8 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
+}
+.alert::before {
+  background-image: url("/img/noise.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+  content: "";
+  @apply absolute inset-0 -z-10 opacity-[0.01];
 }
 .alert > div:first-child {
   @apply mb-3 text-2xl capitalize font-extrabold;
@@ -1808,4 +1834,111 @@ input[type="search"]::-webkit-search-results-decoration {
   100% {
     transform: scale(1, 1);
   }
+}
+
+/* Mermaid */
+
+/* Center */
+
+.docusaurus-mermaid-container .section-root circle,
+.docusaurus-mermaid-container .section-root polygon {
+  @apply !fill-zinc-400;
+}
+
+/* Arrow lines */
+.docusaurus-mermaid-container .lineWrapper line {
+  @apply !stroke-zinc-500;
+}
+.docusaurus-mermaid-container #arrowhead {
+  @apply !fill-zinc-500;
+}
+
+/* Timeline  */
+.docusaurus-mermaid-container .section--1 path {
+  @apply !fill-yellow-600;
+}
+.docusaurus-mermaid-container .section--1 line {
+  @apply !stroke-yellow-400;
+}
+.docusaurus-mermaid-container .section-edge--1 {
+  @apply !stroke-yellow-400;
+}
+
+.docusaurus-mermaid-container .section-0 path {
+  @apply !fill-indigo-600;
+}
+.docusaurus-mermaid-container .section-0 line {
+  @apply !stroke-indigo-400;
+}
+.docusaurus-mermaid-container .section-edge-0 {
+  @apply !stroke-indigo-400;
+}
+
+.docusaurus-mermaid-container .section-1 path {
+  @apply !fill-blue-500;
+}
+.docusaurus-mermaid-container .section-1 line {
+  @apply !stroke-blue-400;
+}
+.docusaurus-mermaid-container .section-edge-1 {
+  @apply !stroke-blue-400;
+}
+
+.docusaurus-mermaid-container .section-2 path {
+  @apply !fill-teal-600;
+}
+.docusaurus-mermaid-container .section-2 line {
+  @apply !stroke-teal-400;
+}
+.docusaurus-mermaid-container .section-edge-2 {
+  @apply !stroke-teal-400;
+}
+
+.docusaurus-mermaid-container .section-3 path {
+  @apply !fill-green-600;
+}
+.docusaurus-mermaid-container .section-3 line {
+  @apply !stroke-green-400;
+}
+.docusaurus-mermaid-container .section-edge-3 {
+  @apply !stroke-green-400;
+}
+
+.docusaurus-mermaid-container .section-4 path {
+  @apply !fill-pink-600;
+}
+.docusaurus-mermaid-container .section-4 line {
+  @apply !stroke-pink-400;
+}
+.docusaurus-mermaid-container .section-edge-4 {
+  @apply !stroke-pink-400;
+}
+
+.docusaurus-mermaid-container .section-5 path {
+  @apply !fill-cyan-600;
+}
+.docusaurus-mermaid-container .section-5 line {
+  @apply !stroke-cyan-400;
+}
+.docusaurus-mermaid-container .section-edge-5 {
+  @apply !stroke-cyan-400;
+}
+
+.docusaurus-mermaid-container .section-6 path {
+  @apply !fill-emerald-600;
+}
+.docusaurus-mermaid-container .section-6 line {
+  @apply !stroke-emerald-400;
+}
+.docusaurus-mermaid-container .section-edge-6 {
+  @apply !stroke-emerald-400;
+}
+
+/* Tippy */
+
+.tippy-box {
+  @apply !bg-zinc-900;
+}
+.tippy-box .tippy-arrow {
+  @apply text-zinc-900;
 }

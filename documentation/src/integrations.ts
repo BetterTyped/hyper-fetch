@@ -62,6 +62,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-zinc-500 hover:dark:border-zinc-200",
     featured: true,
     category: "Plugin",
+    package: "plugin-eslint",
   },
   {
     label: "Devtools",
@@ -81,6 +82,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-yellow-500 hover:dark:border-yellow-200",
     featured: true,
     category: "Plugin",
+    package: "plugin-devtools",
   },
   {
     label: "Axios",
@@ -99,6 +101,7 @@ export const integrations: Section[] = [
     border: "border-purple-500 dark:border-purple-400",
     borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
     category: "Adapter",
+    package: "axios",
   },
   {
     label: "Graphql",
@@ -117,6 +120,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-pink-500 hover:dark:border-pink-400",
     featured: true,
     category: "Adapter",
+    package: "graphql",
   },
   {
     label: "Firebase",
@@ -136,6 +140,7 @@ export const integrations: Section[] = [
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     featured: true,
     category: "Service",
+    package: "firebase",
   },
   {
     label: "Firebase Admin",
@@ -153,6 +158,7 @@ export const integrations: Section[] = [
     border: "border-red-500 dark:border-red-400",
     borderHover: "hover:border-red-500 hover:dark:border-red-400",
     category: "Service",
+    package: "firebase-admin",
   },
   {
     label: "Codegen Openapi",
@@ -171,5 +177,6 @@ export const integrations: Section[] = [
     borderHover: "hover:border-lime-500 hover:dark:border-lime-400",
     featured: true,
     category: "Codegen",
+    package: "codegen-openapi",
   },
 ];

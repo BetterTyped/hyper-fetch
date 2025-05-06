@@ -4,6 +4,7 @@ import TOCItems from "@theme/TOCItems";
 import type { Props } from "@theme/TOC";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { modules } from "@site/src/modules";
+import { PackageDetails } from "@site/src/components";
 
 import styles from "./styles.module.css";
 
@@ -20,6 +21,14 @@ export default function TOC({ className, ...props }: Props): JSX.Element {
 
   return (
     <div className={clsx("toc", styles.tocWrapper)}>
+      {activeItem.section.isPackage && (
+        <PackageDetails
+          icon={activeItem.img}
+          name={activeItem.name}
+          featured={activeItem.section.featured}
+          pkg={`@hyper-fetch/${activeItem.section.package}`}
+        />
+      )}
       <h6>On this page</h6>
       <div
         className={clsx(
