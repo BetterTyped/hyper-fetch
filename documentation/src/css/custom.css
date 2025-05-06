@@ -694,12 +694,12 @@ main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
 }
 
 main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li {
-  @apply relative mb-4 pl-3;
+  @apply relative mb-4 pl-3 text-lg;
   list-style: decimal;
 }
 
 main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::before {
-  @apply absolute left-[-24px] top-[0px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  @apply absolute left-[-24px] top-[1.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::marker {
