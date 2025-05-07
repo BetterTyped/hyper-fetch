@@ -80,9 +80,7 @@ export const createMenu = () => {
             return "Ctrl+Shift+I";
           })(),
           click(item: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (focusedWindow) focusedWindow.toggleDevTools();
+            if (focusedWindow) focusedWindow.webContents.openDevTools();
           },
         },
       ].filter(Boolean),
