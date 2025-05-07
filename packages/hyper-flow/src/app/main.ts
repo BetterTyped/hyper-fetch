@@ -29,7 +29,7 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     title: "Hyper Flow",
     transparent: true,
-    // frame: false,
+    frame: false,
     width: 1200,
     height: 800,
     minWidth: 800,
