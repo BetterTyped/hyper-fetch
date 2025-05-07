@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { enableMapSet, setAutoFreeze } from "immer";
 import * as Sentry from "@sentry/react";
 
+import { Providers } from "./context/providers";
 import { Application } from "./routing/router";
 
 setAutoFreeze(false);
@@ -19,6 +20,8 @@ createRoot(document.getElementById("root") as HTMLElement, {
   onRecoverableError: Sentry.reactErrorHandler(),
 }).render(
   <React.StrictMode>
-    <Application />
+    <Providers>
+      <Application />
+    </Providers>
   </React.StrictMode>,
 );
