@@ -74,7 +74,7 @@ autoUpdater();
 app.on("ready", () => {
   appLogger.success("App is ready");
   createWindow();
-  createMenu();
+  if (process.platform !== "darwin") createMenu();
   setupServerControl();
   setupWindowVariablesIPC();
 });
