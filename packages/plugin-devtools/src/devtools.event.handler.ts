@@ -193,7 +193,6 @@ export class DevtoolsEventHandler {
   };
   unmountOnCacheInvalidate = () => {
     return this.client.cache.events.onInvalidate(() => {
-      // TODO - on invalidate <missing data>
       this.sendEvent(EmitableCoreEvents.ON_CACHE_INVALIDATE, {});
     });
   };
