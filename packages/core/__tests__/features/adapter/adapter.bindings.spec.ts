@@ -489,11 +489,11 @@ describe("Adapter [ Bindings ]", () => {
       });
     });
     describe("when handling payload mapping", () => {
-      it("should use adapter's unsafe_payloadMapper if no request mapper exists", async () => {
+      it("should use adapter's unstable_payloadMapper if no request mapper exists", async () => {
         const mappedPayload = "mapped_by_adapter";
         const spy = jest.fn().mockReturnValue(mappedPayload);
 
-        client.adapter.unsafe_payloadMapper = spy;
+        client.adapter.unstable_payloadMapper = spy;
 
         const { payload } = await getAdapterBindings({
           request,
@@ -507,15 +507,15 @@ describe("Adapter [ Bindings ]", () => {
         expect(payload).toBe(mappedPayload);
       });
 
-      it("should prioritize request's unsafe_payloadMapper over adapter's mapper", async () => {
+      it("should prioritize request's unstable_payloadMapper over adapter's mapper", async () => {
         const adapterMappedPayload = "mapped_by_adapter";
         const requestMappedPayload = "mapped_by_request";
 
         const adapterSpy = jest.fn().mockReturnValue(adapterMappedPayload);
         const requestSpy = jest.fn().mockReturnValue(requestMappedPayload);
 
-        client.adapter.unsafe_payloadMapper = adapterSpy;
-        request.unsafe_payloadMapper = requestSpy;
+        client.adapter.unstable_payloadMapper = adapterSpy;
+        request.unstable_payloadMapper = requestSpy;
 
         const { payload } = await getAdapterBindings({
           request,
@@ -547,9 +547,9 @@ describe("Adapter [ Bindings ]", () => {
         expect(payload).toBe(JSON.stringify(testData));
       });
 
-      it("should skip adapter's unsafe_payloadMapper when it is undefined", async () => {
-        request.unsafe_payloadMapper = undefined;
-        client.adapter.unsafe_payloadMapper = undefined as any;
+      it("should skip adapter's unstable_payloadMapper when it is undefined", async () => {
+        request.unstable_payloadMapper = undefined;
+        client.adapter.unstable_payloadMapper = undefined as any;
 
         const { payload } = await getAdapterBindings({
           request,
@@ -756,13 +756,13 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        client.unsafe_onResponseCallbacks.push(() => ({
+        client.unstable_onResponseCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess({ data, status: 200, extra: xhrExtra });
-        client.unsafe_onResponseCallbacks = [];
+        client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
@@ -773,13 +773,13 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        client.unsafe_onSuccessCallbacks.push(() => ({
+        client.unstable_onSuccessCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess({ data, status: 200, extra: xhrExtra });
-        client.unsafe_onSuccessCallbacks = [];
+        client.unstable_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
@@ -799,15 +799,15 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
-        client.unsafe_onResponseCallbacks.push(() => ({
+        client.unstable_onResponseCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        client.unsafe_onSuccessCallbacks.push(() => newData);
+        client.unstable_onSuccessCallbacks.push(() => newData);
         const response = await onSuccess({ data, status: 200, extra: xhrExtra });
-        client.unsafe_onResponseCallbacks = [];
-        client.unsafe_onSuccessCallbacks = [];
+        client.unstable_onResponseCallbacks = [];
+        client.unstable_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(newData));
         expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
@@ -853,16 +853,16 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        client.unsafe_onResponseCallbacks.push(() => ({
+        client.unstable_onResponseCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError({ error: data, status: 400, extra: xhrExtra });
-        client.unsafe_onResponseCallbacks = [];
+        client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
-      it("should return data transformed by unsafe_modifyErrorResponse", async () => {
+      it("should return data transformed by unstable_modifyErrorResponse", async () => {
         const { onError } = await getAdapterBindings({
           request,
           requestId,
@@ -870,16 +870,16 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        client.unsafe_onErrorCallbacks.push(() => ({
+        client.unstable_onErrorCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError({ error: data, status: 400, extra: xhrExtra });
-        client.unsafe_onErrorCallbacks = [];
+        client.unstable_onErrorCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
-      it("should execute unsafe_modifyErrorResponse as last modifier", async () => {
+      it("should execute unstable_modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings({
           request,
           requestId,
@@ -896,15 +896,15 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
-        client.unsafe_onResponseCallbacks.push(() => ({
+        client.unstable_onResponseCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        client.unsafe_onErrorCallbacks.push(() => newData);
+        client.unstable_onErrorCallbacks.push(() => newData);
         const response = await onError({ error: data, status: 400, extra: xhrExtra });
-        client.unsafe_onErrorCallbacks = [];
-        client.unsafe_onResponseCallbacks = [];
+        client.unstable_onErrorCallbacks = [];
+        client.unstable_onResponseCallbacks = [];
         expect(response).toEqual(newData);
         expect(onErrorSpy).toHaveBeenCalledWith({ response: newData, request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });

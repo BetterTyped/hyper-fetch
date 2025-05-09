@@ -10,6 +10,7 @@ export type ClientGenericType = {
 export function createClient<
   ClientProperties extends ClientGenericType = {
     error?: ClientErrorType;
+    // TODO: Kacper - adapter type should be always auto-populated? maybe we should remove it from the options and leave only setAdapter method
     adapter?: AdapterInstance;
   },
 >(

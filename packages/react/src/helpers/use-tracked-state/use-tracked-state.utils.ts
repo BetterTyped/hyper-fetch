@@ -108,7 +108,7 @@ export const getInitialState = <T extends RequestInstance>({
   disabled?: boolean; // useFetch only
   revalidate?: boolean; // useFetch only
 }): UseTrackedStateType<T> => {
-  const { client, cacheKey, unsafe_responseMapper } = request;
+  const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
   const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
@@ -123,7 +123,7 @@ export const getInitialState = <T extends RequestInstance>({
   });
 
   if (cacheState) {
-    const mappedData = unsafe_responseMapper ? unsafe_responseMapper(cacheState) : cacheState;
+    const mappedData = unstable_responseMapper ? unstable_responseMapper(cacheState) : cacheState;
     if (mappedData instanceof Promise) {
       // For the async mapper we cannot return async values
       // So we have return the initial state instead

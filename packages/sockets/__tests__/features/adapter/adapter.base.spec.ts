@@ -74,7 +74,7 @@ describe("Socket Adapter [ Base ]", () => {
     };
 
     adapter.setQueryParamsMapperConfig(queryParamsConfig);
-    // Using any here since unsafe_queryParamsMapperConfig is an internal property
-    expect((adapter as any).unsafe_queryParamsMapperConfig).toEqual(queryParamsConfig);
+    // Using any here since unstable_queryParamsMapperConfig is an internal property
+    expect((adapter as any).unstable_queryParamsMapperConfig).toEqual(queryParamsConfig);
   });
 });

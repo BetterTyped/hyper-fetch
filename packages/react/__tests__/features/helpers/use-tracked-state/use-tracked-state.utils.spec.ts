@@ -186,7 +186,7 @@ describe("useTrackedState [ Utils ]", () => {
         },
         queryKey: "test",
         cacheKey: "test",
-        unsafe_responseMapper: () => Promise.resolve({ data: "test" }),
+        unstable_responseMapper: () => Promise.resolve({ data: "test" }),
       } as any;
 
       const mockDispatcher = {
@@ -221,7 +221,7 @@ describe("useTrackedState [ Utils ]", () => {
 
       const client = createClient({ url: "http://localhost:3000" });
       const mockRequest = client.createRequest()({ endpoint: "/test" });
-      mockRequest.unsafe_responseMapper = (data: any) => ({
+      mockRequest.unstable_responseMapper = (data: any) => ({
         ...data,
         data: `mapped-${data.data}`,
       });

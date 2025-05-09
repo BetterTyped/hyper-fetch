@@ -20,30 +20,30 @@ describe("Adapter [ Base ]", () => {
     it("should set query params mapper config", () => {
       const config = { test: true };
       adapter.setQueryParamsMapperConfig(config);
-      expect(adapter.unsafe_queryParamsMapperConfig).toBe(config);
+      expect(adapter.unstable_queryParamsMapperConfig).toBe(config);
     });
 
     it("should set header mapper config", () => {
       const config = { test: true };
       adapter.setHeaderMapperConfig(config);
-      expect(adapter.unsafe_headerMapperConfig).toBe(config);
+      expect(adapter.unstable_headerMapperConfig).toBe(config);
     });
 
     it("should set endpoint mapper config", () => {
       const config = { test: true };
       adapter.setEndpointMapperConfig(config);
-      expect(adapter.unsafe_endpointMapperConfig).toBe(config);
+      expect(adapter.unstable_endpointMapperConfig).toBe(config);
     });
 
     it("should set payload mapper config", () => {
       const config = { test: true };
       adapter.setPayloadMapperConfig(config);
-      expect(adapter.unsafe_payloadMapperConfig).toBe(config);
+      expect(adapter.unstable_payloadMapperConfig).toBe(config);
     });
     it("should set devtools endpoint getter", () => {
       const mapper = (req: RequestInstance) => req.endpoint;
       adapter.setDevtoolsEndpointGetter(mapper);
-      expect(adapter.unsafe_devtoolsEndpointGetter).toBe(mapper);
+      expect(adapter.unstable_devtoolsEndpointGetter).toBe(mapper);
     });
   });
 
@@ -56,7 +56,7 @@ describe("Adapter [ Base ]", () => {
       adapter.initialize(client);
 
       expect(spy).toHaveBeenCalledWith({ client });
-      expect(adapter.unsafe_onInitializeCallback).toBe(spy);
+      expect(adapter.unstable_onInitializeCallback).toBe(spy);
     });
 
     it("should handle initialization without callback", () => {
@@ -64,7 +64,7 @@ describe("Adapter [ Base ]", () => {
 
       // Initialize without setting onInitialize callback
       expect(() => adapter.initialize(client)).not.toThrow();
-      expect(adapter.unsafe_onInitializeCallback).toBeUndefined();
+      expect(adapter.unstable_onInitializeCallback).toBeUndefined();
       expect(adapter.initialized).toBe(true);
       expect(adapter.client).toBe(client);
     });
@@ -73,9 +73,9 @@ describe("Adapter [ Base ]", () => {
       const client = new Client({ url: "test" });
 
       // Initialize without setting onInitialize callback
-      adapter.unsafe_onInitializeCallback = undefined;
+      adapter.unstable_onInitializeCallback = undefined;
       expect(() => adapter.initialize(client)).not.toThrow();
-      expect(adapter.unsafe_onInitializeCallback).toBeUndefined();
+      expect(adapter.unstable_onInitializeCallback).toBeUndefined();
       expect(adapter.initialized).toBe(true);
       expect(adapter.client).toBe(client);
     });
@@ -89,7 +89,7 @@ describe("Adapter [ Base ]", () => {
       };
 
       adapter.setFetcher(fetcher);
-      const result = adapter.unsafe_fetcher({} as any);
+      const result = adapter.unstable_fetcher({} as any);
 
       expect(result).toBe(mock);
     });
@@ -102,7 +102,7 @@ describe("Adapter [ Base ]", () => {
 
       adapter.setHeaderMapperConfig(config);
       adapter.setHeaderMapper(headerMapper);
-      adapter.unsafe_headerMapper({} as any);
+      adapter.unstable_headerMapper({} as any);
 
       expect(headerMapper).toHaveBeenCalledWith({}, config);
     });
@@ -113,7 +113,7 @@ describe("Adapter [ Base ]", () => {
 
       adapter.setPayloadMapperConfig(config);
       adapter.setPayloadMapper(payloadMapper);
-      adapter.unsafe_payloadMapper({} as any);
+      adapter.unstable_payloadMapper({} as any);
 
       expect(payloadMapper).toHaveBeenCalledWith({}, config);
     });
@@ -124,7 +124,7 @@ describe("Adapter [ Base ]", () => {
 
       adapter.setEndpointMapperConfig(config);
       adapter.setEndpointMapper(endpointMapper);
-      adapter.unsafe_endpointMapper("test");
+      adapter.unstable_endpointMapper("test");
 
       expect(endpointMapper).toHaveBeenCalledWith("test", config);
     });
@@ -135,7 +135,7 @@ describe("Adapter [ Base ]", () => {
 
       adapter.setQueryParamsMapperConfig(config);
       adapter.setQueryParamsMapper(queryParamsMapper);
-      adapter.unsafe_queryParamsMapper({} as any);
+      adapter.unstable_queryParamsMapper({} as any);
 
       expect(queryParamsMapper).toHaveBeenCalledWith({}, config);
     });
@@ -147,7 +147,7 @@ describe("Adapter [ Base ]", () => {
       const callback = jest.fn().mockReturnValue(defaults);
 
       adapter.setRequestDefaults(callback);
-      const result = adapter.unsafe_getRequestDefaults?.({} as any);
+      const result = adapter.unstable_getRequestDefaults?.({} as any);
 
       expect(callback).toHaveBeenCalledWith({});
       expect(result).toBe(defaults);
@@ -158,7 +158,7 @@ describe("Adapter [ Base ]", () => {
       const callback = jest.fn().mockReturnValue(defaults);
 
       adapter.setAdapterDefaults(callback);
-      const result = adapter.unsafe_getAdapterDefaults?.({} as any);
+      const result = adapter.unstable_getAdapterDefaults?.({} as any);
 
       expect(callback).toHaveBeenCalledWith({});
       expect(result).toBe(defaults);
@@ -170,17 +170,17 @@ describe("Adapter [ Base ]", () => {
 
       adapter.setInternalErrorMapping(callback);
 
-      expect(adapter.unsafe_internalErrorMapping).toBe(callback);
+      expect(adapter.unstable_internalErrorMapping).toBe(callback);
     });
   });
 
   describe("when checking default mappers", () => {
     it("should have default header mapper", () => {
-      expect(adapter.unsafe_headerMapper).toBe(getAdapterHeaders);
+      expect(adapter.unstable_headerMapper).toBe(getAdapterHeaders);
     });
 
     it("should have default payload mapper", () => {
-      expect(adapter.unsafe_payloadMapper).toBe(getAdapterPayload);
+      expect(adapter.unstable_payloadMapper).toBe(getAdapterPayload);
     });
   });
 

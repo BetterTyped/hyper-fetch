@@ -24,7 +24,7 @@ export const createAdapter = (props?: {
   adapter.logger = new LoggerManager().initialize({ debug: false }, "Adapter");
   httpAdapter.logger = new LoggerManager().initialize({ debug: false }, "Adapter");
 
-  adapter.unsafe_fetcher = httpAdapter.unsafe_fetcher as any;
+  adapter.unstable_fetcher = httpAdapter.unstable_fetcher as any;
   adapter.fetch = async (request, requestId) => {
     if (sleepTime) {
       await sleep(sleepTime);

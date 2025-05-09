@@ -31,13 +31,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   autoConnect: boolean;
 
   // Callbacks
-  unsafe_onConnectedCallbacks: OpenCallbackType[] = [];
-  unsafe_onDisconnectCallbacks: CloseCallbackType[] = [];
-  unsafe_onReconnectCallbacks: ReconnectCallbackType[] = [];
-  unsafe_onReconnectFailedCallbacks: ReconnectFailedCallbackType[] = [];
-  unsafe_onMessageCallbacks: MessageCallbackType<any>[] = [];
-  unsafe_onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
-  unsafe_onErrorCallbacks: ErrorCallbackType<any>[] = [];
+  unstable_onConnectedCallbacks: OpenCallbackType[] = [];
+  unstable_onDisconnectCallbacks: CloseCallbackType[] = [];
+  unstable_onReconnectCallbacks: ReconnectCallbackType[] = [];
+  unstable_onReconnectFailedCallbacks: ReconnectFailedCallbackType[] = [];
+  unstable_onMessageCallbacks: MessageCallbackType<any>[] = [];
+  unstable_onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
+  unstable_onErrorCallbacks: ErrorCallbackType<any>[] = [];
 
   // Config
   adapter: Adapter;
@@ -125,7 +125,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onConnected(callback: OpenCallbackType) {
-    this.unsafe_onConnectedCallbacks.push(callback);
+    this.unstable_onConnectedCallbacks.push(callback);
     return this;
   }
   /**
@@ -134,7 +134,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onDisconnected(callback: CloseCallbackType) {
-    this.unsafe_onDisconnectCallbacks.push(callback);
+    this.unstable_onDisconnectCallbacks.push(callback);
     return this;
   }
 
@@ -144,7 +144,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onReconnect(callback: ReconnectCallbackType) {
-    this.unsafe_onReconnectCallbacks.push(callback);
+    this.unstable_onReconnectCallbacks.push(callback);
     return this;
   }
 
@@ -154,7 +154,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onReconnectFailed(callback: ReconnectFailedCallbackType) {
-    this.unsafe_onReconnectFailedCallbacks.push(callback);
+    this.unstable_onReconnectFailedCallbacks.push(callback);
     return this;
   }
 
@@ -164,7 +164,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onMessage<Event>(callback: MessageCallbackType<Event>) {
-    this.unsafe_onMessageCallbacks.push(callback);
+    this.unstable_onMessageCallbacks.push(callback);
     return this;
   }
 
@@ -174,7 +174,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onSend(callback: SendCallbackType<EmitterInstance>) {
-    this.unsafe_onSendCallbacks.push(callback);
+    this.unstable_onSendCallbacks.push(callback);
     return this;
   }
 
@@ -184,7 +184,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   onError<Event>(callback: ErrorCallbackType<Event>) {
-    this.unsafe_onErrorCallbacks.push(callback);
+    this.unstable_onErrorCallbacks.push(callback);
     return this;
   }
 
@@ -194,12 +194,12 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * ********************
    */
 
-  unsafe__modifySend = (emitter: EmitterInstance) => {
-    return interceptEmitter(this.unsafe_onSendCallbacks, emitter);
+  unstable__modifySend = (emitter: EmitterInstance) => {
+    return interceptEmitter(this.unstable_onSendCallbacks, emitter);
   };
 
-  unsafe__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
-    return interceptListener(this.unsafe_onMessageCallbacks, data);
+  unstable__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
+    return interceptListener(this.unstable_onMessageCallbacks, data);
   };
 
   /**

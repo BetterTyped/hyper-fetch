@@ -50,7 +50,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     disconnect: () => Promise<any>;
     connect: () => Promise<any>;
   }): Promise<boolean> => {
-    socket.unsafe_onReconnectCallbacks.forEach((callback) => {
+    socket.unstable_onReconnectCallbacks.forEach((callback) => {
       callback();
     });
     socket.events.emitReconnecting({ attempts: adapter.reconnectionAttempts });
@@ -72,7 +72,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       type: "system",
       extra: { reconnectionAttempts: adapter.reconnectionAttempts },
     });
-    socket.unsafe_onReconnectFailedCallbacks.forEach((callback) => {
+    socket.unstable_onReconnectFailedCallbacks.forEach((callback) => {
       callback();
     });
     socket.events.emitReconnectingFailed({ attempts: adapter.reconnectionAttempts });
@@ -109,9 +109,11 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     }
 
     // eslint-disable-next-line no-param-reassign
-    emitter.payload = emitter.unsafe_payloadMapper ? emitter.unsafe_payloadMapper(emitter.payload) : emitter.payload;
+    emitter.payload = emitter.unstable_payloadMapper
+      ? emitter.unstable_payloadMapper(emitter.payload)
+      : emitter.payload;
 
-    const emitterInstance = await socket.unsafe__modifySend(emitter);
+    const emitterInstance = await socket.unstable__modifySend(emitter);
     socket.events.emitEmitterStartEvent({ emitter: emitterInstance });
 
     return emitterInstance;
@@ -129,7 +131,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     adapter.setConnecting(false);
     socket.events.emitConnecting({ connecting: false });
     socket.events.emitConnected();
-    socket.unsafe_onConnectedCallbacks.forEach((callback) => {
+    socket.unstable_onConnectedCallbacks.forEach((callback) => {
       callback();
     });
   };
@@ -140,14 +142,14 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     adapter.setConnecting(false);
     socket.events.emitConnecting({ connecting: false });
     socket.events.emitDisconnected();
-    socket.unsafe_onDisconnectCallbacks.forEach((callback) => {
+    socket.unstable_onDisconnectCallbacks.forEach((callback) => {
       callback();
     });
   };
 
   const onError = ({ error }: { error: Error }) => {
     logger.info({ title: "Error message", type: "system", extra: { error } });
-    socket.unsafe_onErrorCallbacks.forEach((callback) => {
+    socket.unstable_onErrorCallbacks.forEach((callback) => {
       callback({ error });
     });
     socket.events.emitError({ error });
@@ -156,13 +158,13 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
   const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
     logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
-    const { data: modifiedData, extra: modifiedExtra } = socket.unsafe__modifyResponse({ data, extra });
+    const { data: modifiedData, extra: modifiedExtra } = socket.unstable__modifyResponse({ data, extra });
     socket.adapter.triggerListeners({ topic, data: modifiedData, extra: modifiedExtra });
     socket.events.emitListenerEvent({ topic, data: modifiedData, extra: modifiedExtra });
   };
 
   const getQueryParams = () =>
-    socket.adapter.unsafe_queryParamsMapper(socket.adapter.queryParams, socket.adapter.queryParamsConfig);
+    socket.adapter.unstable_queryParamsMapper(socket.adapter.queryParams, socket.adapter.queryParamsConfig);
 
   return {
     socket,

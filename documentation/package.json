@@ -15,8 +15,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docsgen/core": "1.2.3",
-    "@docsgen/docusaurus": "1.2.3",
+    "@docsgen/core": "^1.2.6",
+    "@docsgen/docusaurus": "^1.2.6",
     "@docusaurus/core": "^3.7.0",
     "@docusaurus/faster": "^3.7.0",
     "@docusaurus/preset-classic": "^3.7.0",
@@ -34,9 +34,11 @@
     "@tippyjs/react": "^4.2.6",
     "autoprefixer": "^10.4.16",
     "clsx": "^1.2.1",
+    "codehike": "^1.0.6",
     "docusaurus-plugin-sass": "^0.2.5",
     "events": "^3.3.0",
     "gsap": "3.12.5",
+    "link": "^2.1.1",
     "lucide-react": "^0.453.0",
     "motion": "^12.9.4",
     "postcss": "^8.4.31",

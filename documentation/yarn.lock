@@ -1999,6 +1999,13 @@
   resolved "https://registry.yarnpkg.com/@chevrotain/utils/-/utils-11.0.3.tgz#e39999307b102cff3645ec4f5b3665f5297a2224"
   integrity sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==
 
+"@code-hike/lighter@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@code-hike/lighter/-/lighter-1.0.1.tgz#da0a8dc0230ce93897fe891bab73745eabd3a7dd"
+  integrity sha512-mccvcsk5UTScRrE02oBz1/qzckyhD8YE3VQlQv++2bSVVZgNuCUX8MpokSCi5OmfRAAxbj6kmNiqq1Um8eXPrw==
+  dependencies:
+    ansi-sequence-parser "1.1.1"
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
@@ -2346,10 +2353,10 @@
     "@docsearch/css" "3.8.2"
     algoliasearch "^5.14.2"
 
-"@docsgen/core@1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@docsgen/core/-/core-1.2.3.tgz#5e64d8d5e83b1f49c1c3d84496590a1222eb14d9"
-  integrity sha512-BtHZoqDuTuizVkf551QrPFh/R+/YYobEF+1t/w3hZLs1twRAGmLDW5XrSxYkF9UXf5irBJPpi+4zQs7QfLNosQ==
+"@docsgen/core@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@docsgen/core/-/core-1.2.6.tgz#234100bbbf92de2a34f4100e693fd60b6e73aca2"
+  integrity sha512-WrjDlhDd6vfE16439hGS8W/3uU3Fx6QSEdRS1Q/woDAYB+eDAGCxWwF8Dg621TehSd0HysMa6tkKrbZSQmFX7Q==
   dependencies:
     "@reins/query-params" "^0.1.1"
     fs-extra "^11.2.0"
@@ -2374,10 +2381,10 @@
     unist-util-visit "5.0.0"
     unist-util-visit-parents "^6.0.1"
 
-"@docsgen/docusaurus@1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@docsgen/docusaurus/-/docusaurus-1.2.3.tgz#ed5b5b57fadbfff5cdce5c7d0008e99718fe0bb1"
-  integrity sha512-6Gw6MmeRd4kiFvLiqsrthirbRmBLqy5Dz7LGjNUa9si49oYEr7C1ZygKAqRaylmxnWRB+n6a5UfZkbG/ztzV6w==
+"@docsgen/docusaurus@^1.2.6":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@docsgen/docusaurus/-/docusaurus-1.2.6.tgz#ee9924c45d712f3cd53291cae3e4953ee6e0bcb7"
+  integrity sha512-zAoLU2sd2F+QYMxa88Gmm1BH0VVgnWBXNNyLQGArHpPUNvvITqN0EQCWox+qJ+9Yu3Qi2iqiCLZB6S/t/hs2zQ==
   dependencies:
     "@reins/query-params" "^0.1.1"
     fs-extra "^11.2.0"
@@ -4799,7 +4806,7 @@ ansi-regex@^5.0.1:
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-5.0.1.tgz#082cb2c89c9fe8659a311a53bd6a4dc5301db304"
   integrity sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==
 
-ansi-sequence-parser@^1.1.0:
+ansi-sequence-parser@1.1.1, ansi-sequence-parser@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ansi-sequence-parser/-/ansi-sequence-parser-1.1.1.tgz#e0aa1cdcbc8f8bb0b5bca625aac41f5f056973cf"
   integrity sha512-vJXt3yiaUL4UU546s3rPXlsry/RnM730G1+HkpKE012AN0sx1eOrxSu95oKDIonskeLTijMgqWZ3uDEe3NFvyg==
@@ -5430,6 +5437,17 @@ clsx@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
   integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
+
+codehike@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/codehike/-/codehike-1.0.6.tgz#08413bcfec35984dfccfdcb60f3012d9522e8a4c"
+  integrity sha512-cyZmaMGp0FaAW2CyAxtHpsccD5a8CiCvq9l0K9oiQF9kSFJqr3Bi9lYSPiX5oSlbbqt0JarcdtvwjqC/1N712g==
+  dependencies:
+    "@code-hike/lighter" "1.0.1"
+    diff "^5.1.0"
+    estree-util-visit "^2.0.0"
+    mdast-util-mdx-jsx "^3.0.0"
+    unist-util-visit "^5.0.0"
 
 collapse-white-space@^2.0.0:
   version "2.1.0"
@@ -6417,7 +6435,7 @@ didyoumean@^1.2.2:
   resolved "https://registry.yarnpkg.com/didyoumean/-/didyoumean-1.2.2.tgz#989346ffe9e839b4555ecf5666edea0d3e8ad037"
   integrity sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==
 
-diff@^5.0.0:
+diff@^5.0.0, diff@^5.1.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-5.2.0.tgz#26ded047cd1179b78b9537d5ef725503ce1ae531"
   integrity sha512-uIFDxqpRZGZ6ThOk84hEfqWoHx2devRFvpTZcTHur85vImfaxUbTW9Ryh4CpCuDnToOP1CEtXKIgytHBPVff5A==
@@ -8624,6 +8642,11 @@ lines-and-columns@^1.1.6:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
+
+link@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/link/-/link-2.1.1.tgz#c5db408c295fcc75c9f7ff44ae62607e9b836dfa"
+  integrity sha512-NV3AUVYBovJ6eVQcTeRoPnZSxzt2LOijNd+ugEZKRy/XeQlpTRhVRkuDv5kOlXwMAUx30vfUc7asRFb9RT65yg==
 
 loader-runner@^4.2.0:
   version "4.3.0"
@@ -11570,11 +11593,11 @@ react-dev-utils@^12.0.1:
     text-table "^0.2.0"
 
 "react-dom@>= 16.8.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.0.0.tgz#43446f1f01c65a4cd7f7588083e686a6726cfb57"
-  integrity sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.1.0.tgz#133558deca37fa1d682708df8904b25186793623"
+  integrity sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==
   dependencies:
-    scheduler "^0.25.0"
+    scheduler "^0.26.0"
 
 "react-dom@link:../node_modules/react-dom":
   version "0.0.0"
@@ -11699,9 +11722,9 @@ react-slick@^0.29.0:
     resize-observer-polyfill "^1.5.0"
 
 "react@>= 16.8.0":
-  version "19.0.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-19.0.0.tgz#6e1969251b9f108870aa4bff37a0ce9ddfaaabdd"
-  integrity sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==
+  version "19.1.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
+  integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
 
 "react@link:../node_modules/react":
   version "0.0.0"
@@ -12207,6 +12230,11 @@ scheduler@^0.25.0:
   version "0.25.0"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.25.0.tgz#336cd9768e8cceebf52d3c80e3dcf5de23e7e015"
   integrity sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==
+
+scheduler@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.26.0.tgz#4ce8a8c2a2095f13ea11bf9a445be50c555d6337"
+  integrity sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==
 
 schema-utils@2.7.0:
   version "2.7.0"

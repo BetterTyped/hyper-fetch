@@ -2,7 +2,7 @@ import Link from "@docusaurus/Link";
 import { ComponentProps } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { GuidesIcon, DocsIcon, PromoIcon, ExternalLinkIcon } from "./icons";
+import { GuidesIcon, DocsIcon, PromoIcon, ExternalLinkIcon, ApiIcon, IntegrationsIcon } from "./icons";
 import { Noise } from "../ui/noise";
 
 const linkCardVariants = cva(
@@ -15,10 +15,12 @@ const linkCardVariants = cva(
   {
     variants: {
       type: {
-        guides: ["bg-gradient-to-br from-zinc-900 to-zinc-800 border-zinc-700 ring-zinc-700"].join(" "),
         docs: ["bg-gradient-to-br from-zinc-950 to-zinc-900 border-zinc-700 ring-zinc-700"].join(" "),
+        integrations: ["bg-green-900 border-green-500/30 ring-green-400"].join(" "),
+        guides: ["bg-gradient-to-br from-zinc-900 to-zinc-800 border-zinc-700 ring-zinc-700"].join(" "),
         promo: ["bg-blue-900 border-blue-500/30 ring-blue-400"].join(),
         external: ["bg-pink-900 border-pink-500/30 ring-pink-400"].join(" "),
+        api: ["bg-orange-900 border-orange-500/30 ring-orange-400"].join(" "),
       },
     },
     defaultVariants: {
@@ -27,7 +29,7 @@ const linkCardVariants = cva(
   },
 );
 
-type CardType = "guides" | "docs" | "promo" | "external";
+type CardType = "guides" | "docs" | "promo" | "external" | "api" | "integrations";
 
 interface LinkCardProps extends ComponentProps<typeof Link>, VariantProps<typeof linkCardVariants> {
   title: string;
@@ -40,6 +42,8 @@ const iconMap: Record<CardType, React.FC<React.SVGProps<SVGSVGElement>>> = {
   docs: DocsIcon,
   promo: PromoIcon,
   external: ExternalLinkIcon,
+  api: ApiIcon,
+  integrations: IntegrationsIcon,
 };
 
 const typesNoiseOpacity = {
@@ -47,6 +51,8 @@ const typesNoiseOpacity = {
   docs: "!opacity-[0.03]",
   promo: "!opacity-[0.05]",
   external: "!opacity-[0.05]",
+  api: "!opacity-[0.05]",
+  integrations: "!opacity-[0.05]",
 };
 
 export const LinkCard = ({ title, description, type = "docs", className, ...props }: LinkCardProps) => {

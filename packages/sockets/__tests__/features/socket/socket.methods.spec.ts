@@ -19,7 +19,7 @@ describe("Socket [ Methods ]", () => {
     const method = () => "testing";
     const socket = new Socket({ url: "ws://localhost:1234" });
     socket.adapter.setQueryParamsMapper(method);
-    const queryParams = socket.adapter.unsafe_queryParamsMapper({ test: 1 });
+    const queryParams = socket.adapter.unstable_queryParamsMapper({ test: 1 });
     expect(queryParams).toBe("testing");
   });
 

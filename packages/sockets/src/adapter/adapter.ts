@@ -30,9 +30,9 @@ export class SocketAdapter<
   public queryParamsConfig?: QueryStringifyOptionsType;
 
   /** Config for the query params mapper */
-  public unsafe_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
+  public unstable_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
   /** Method to get request data and transform them to the required format.  */
-  public unsafe_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
+  public unstable_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
 
   public adapterOptions: AdapterOptions | EmptyTypes;
   public listenerOptions: ListenerOptions | EmptyTypes;
@@ -128,7 +128,7 @@ export class SocketAdapter<
   public setQueryParamsMapperConfig = <NewQueryParamsMapperConfig extends Parameters<QueryParamsMapperType>[1]>(
     config: NewQueryParamsMapperConfig,
   ) => {
-    this.unsafe_queryParamsMapperConfig = config;
+    this.unstable_queryParamsMapperConfig = config;
     return this;
   };
 
@@ -138,10 +138,10 @@ export class SocketAdapter<
   public setQueryParamsMapper = <NewQueryParamsMapper extends QueryParamsMapper<QueryParams>>(
     queryParamsMapper: NewQueryParamsMapper,
   ) => {
-    this.unsafe_queryParamsMapper = ((queryParams: Parameters<NewQueryParamsMapper>[0]) =>
+    this.unstable_queryParamsMapper = ((queryParams: Parameters<NewQueryParamsMapper>[0]) =>
       queryParamsMapper(
         queryParams,
-        this.unsafe_queryParamsMapperConfig as Parameters<NewQueryParamsMapper>[1],
+        this.unstable_queryParamsMapperConfig as Parameters<NewQueryParamsMapper>[1],
       )) as unknown as QueryParamsMapperType;
     return this as unknown as SocketAdapter<
       Extra,

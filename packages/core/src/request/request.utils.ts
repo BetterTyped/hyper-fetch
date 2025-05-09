@@ -147,7 +147,7 @@ export const sendRequest = <Request extends RequestInstance>(
       const { details, response } = values;
       isResolved = true;
 
-      const mapping = request.unsafe_responseMapper?.(response);
+      const mapping = request.unstable_responseMapper?.(response);
 
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);

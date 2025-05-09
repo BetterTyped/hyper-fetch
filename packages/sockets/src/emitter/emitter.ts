@@ -16,7 +16,7 @@ export class Emitter<
   timeout: number;
   payload: Payload | undefined;
   options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
-  unsafe_payloadMapper?: PayloadMapperType<any>;
+  unstable_payloadMapper?: PayloadMapperType<any>;
 
   constructor(
     readonly socket: Socket,
@@ -53,7 +53,7 @@ export class Emitter<
   setPayloadMapper = <DataMapper extends (payload: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
     const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
 
-    cloned.unsafe_payloadMapper = payloadMapper;
+    cloned.unstable_payloadMapper = payloadMapper;
 
     return cloned;
   };
@@ -95,7 +95,7 @@ export class Emitter<
       snapshot,
     );
 
-    newInstance.unsafe_payloadMapper = this.unsafe_payloadMapper;
+    newInstance.unstable_payloadMapper = this.unstable_payloadMapper;
 
     return newInstance;
   }

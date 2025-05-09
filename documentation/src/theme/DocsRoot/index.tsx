@@ -20,7 +20,7 @@ import PageIllustration02 from "@site/static/img/page-illustration-02.svg";
 
 const getColors = (location: string) => {
   if (location.includes("integrations")) {
-    return { 1: "bg-blue-500", 2: "bg-blue-400", 3: "text-blue-400" };
+    return { 1: "bg-green-500", 2: "bg-green-400", 3: "text-green-400" };
   }
   if (location.includes("guides")) {
     return { 1: "bg-indigo-500", 2: "bg-indigo-400", 3: "text-indigo-400" };

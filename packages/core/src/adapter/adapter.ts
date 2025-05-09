@@ -34,7 +34,7 @@ export class Adapter<
   PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
 > {
   /** Fetching function */
-  public unsafe_fetcher: AdapterFetcherType<
+  public unstable_fetcher: AdapterFetcherType<
     Adapter<
       AdapterOptions,
       MethodType,
@@ -66,12 +66,12 @@ export class Adapter<
   public initialized = false;
   public client: ClientInstance;
 
-  public unsafe_onInitializeCallback?: (options: { client: ClientInstance }) => void;
+  public unstable_onInitializeCallback?: (options: { client: ClientInstance }) => void;
 
-  public unsafe_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
-  public unsafe_headerMapperConfig: Parameters<HeaderMapperType>[1];
-  public unsafe_payloadMapperConfig: Parameters<PayloadMapperType>[1];
-  public unsafe_endpointMapperConfig: Parameters<EndpointMapperType>[1];
+  public unstable_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
+  public unstable_headerMapperConfig: Parameters<HeaderMapperType>[1];
+  public unstable_payloadMapperConfig: Parameters<PayloadMapperType>[1];
+  public unstable_endpointMapperConfig: Parameters<EndpointMapperType>[1];
 
   constructor(
     public options: {
@@ -96,12 +96,12 @@ export class Adapter<
     this.initialized = true;
     this.client = client;
 
-    this.unsafe_onInitializeCallback?.({ client });
+    this.unstable_onInitializeCallback?.({ client });
     return this;
   };
 
   onInitialize = (callback: (options: { client: ClientInstance }) => void) => {
-    this.unsafe_onInitializeCallback = callback;
+    this.unstable_onInitializeCallback = callback;
     return this;
   };
 
@@ -111,17 +111,17 @@ export class Adapter<
    * ********************
    */
 
-  public unsafe_internalErrorMapping: (error: ReturnType<typeof getErrorMessage>) => any = (error) => error;
+  public unstable_internalErrorMapping: (error: ReturnType<typeof getErrorMessage>) => any = (error) => error;
   /** Method to get default headers and to map them based on the data format exchange, by default it handles FormData / JSON formats. */
-  public unsafe_headerMapper: HeaderMapperType = getAdapterHeaders as HeaderMapperType;
+  public unstable_headerMapper: HeaderMapperType = getAdapterHeaders as HeaderMapperType;
   /** Method to get request data and transform them to the required format. It handles FormData and JSON by default. */
-  public unsafe_payloadMapper: PayloadMapperType = getAdapterPayload as PayloadMapperType;
+  public unstable_payloadMapper: PayloadMapperType = getAdapterPayload as PayloadMapperType;
   /** Method to get the endpoint for the adapter request. */
-  public unsafe_endpointMapper: EndpointMapperType = defaultMapper as EndpointMapperType;
+  public unstable_endpointMapper: EndpointMapperType = defaultMapper as EndpointMapperType;
   /** Method to get request data and transform them to the required format.  */
-  public unsafe_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
+  public unstable_queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
   /** Get default adapter options for the request. */
-  public unsafe_getAdapterDefaults?: (
+  public unstable_getAdapterDefaults?: (
     request: ExtendRequest<
       RequestInstance,
       {
@@ -145,14 +145,14 @@ export class Adapter<
     >,
   ) => AdapterOptions;
   /** Get default request options for the request. */
-  public unsafe_getRequestDefaults?: (
+  public unstable_getRequestDefaults?: (
     options: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
   ) => Partial<RequestOptionsType<EndpointType, AdapterOptions, MethodType>>;
   /**
    * Get formatted endpoint name of the request.
    * Helpful in displaying long endpoints like in case of graphql schemas etc.
    */
-  public unsafe_devtoolsEndpointGetter: (endpoint: string) => string = (endpoint) => endpoint;
+  public unstable_devtoolsEndpointGetter: (endpoint: string) => string = (endpoint) => endpoint;
 
   /**
    * ********************
@@ -171,15 +171,15 @@ export class Adapter<
   };
 
   setDevtoolsEndpointGetter = (callback: (endpoint: string) => string) => {
-    this.unsafe_devtoolsEndpointGetter = callback;
+    this.unstable_devtoolsEndpointGetter = callback;
     return this;
   };
 
   /**
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
-  setRequestDefaults = (callback: typeof this.unsafe_getRequestDefaults): this => {
-    this.unsafe_getRequestDefaults = callback;
+  setRequestDefaults = (callback: typeof this.unstable_getRequestDefaults): this => {
+    this.unstable_getRequestDefaults = callback;
     return this;
   };
 
@@ -212,12 +212,12 @@ export class Adapter<
       >,
     ) => AdapterOptions,
   ): this => {
-    this.unsafe_getAdapterDefaults = callback;
+    this.unstable_getAdapterDefaults = callback;
     return this;
   };
 
   setInternalErrorMapping = (callback: (error: ReturnType<typeof getErrorMessage>) => any) => {
-    this.unsafe_internalErrorMapping = callback;
+    this.unstable_internalErrorMapping = callback;
     return this;
   };
 
@@ -225,8 +225,8 @@ export class Adapter<
    * Set the custom header mapping function
    */
   setHeaderMapper = <NewMapper extends HeaderMappingType>(headerMapper: NewMapper) => {
-    this.unsafe_headerMapper = ((req: Parameters<NewMapper>[0]) =>
-      headerMapper(req, this.unsafe_headerMapperConfig as Parameters<NewMapper>[1])) as unknown as HeaderMapperType;
+    this.unstable_headerMapper = ((req: Parameters<NewMapper>[0]) =>
+      headerMapper(req, this.unstable_headerMapperConfig as Parameters<NewMapper>[1])) as unknown as HeaderMapperType;
     return this as unknown as Adapter<
       AdapterOptions,
       MethodType,
@@ -246,8 +246,11 @@ export class Adapter<
    * Set the request payload mapping function which gets triggered before request is send
    */
   setPayloadMapper = <NewMapper extends AdapterPayloadMappingType>(payloadMapper: NewMapper) => {
-    this.unsafe_payloadMapper = ((req: Parameters<NewMapper>[0]) =>
-      payloadMapper(req, this.unsafe_payloadMapperConfig as Parameters<NewMapper>[1])) as unknown as PayloadMapperType;
+    this.unstable_payloadMapper = ((req: Parameters<NewMapper>[0]) =>
+      payloadMapper(
+        req,
+        this.unstable_payloadMapperConfig as Parameters<NewMapper>[1],
+      )) as unknown as PayloadMapperType;
     return this as unknown as Adapter<
       AdapterOptions,
       MethodType,
@@ -267,10 +270,10 @@ export class Adapter<
    * Set the request payload mapping function which get triggered before request get sent
    */
   setEndpointMapper = <NewEndpointMapper extends EndpointMapper<EndpointType>>(endpointMapper: NewEndpointMapper) => {
-    this.unsafe_endpointMapper = ((endpoint: Parameters<NewEndpointMapper>[0]) =>
+    this.unstable_endpointMapper = ((endpoint: Parameters<NewEndpointMapper>[0]) =>
       endpointMapper(
         endpoint,
-        this.unsafe_endpointMapperConfig as Parameters<NewEndpointMapper>[1],
+        this.unstable_endpointMapperConfig as Parameters<NewEndpointMapper>[1],
       )) as unknown as EndpointMapperType;
     return this as unknown as Adapter<
       AdapterOptions,
@@ -293,10 +296,10 @@ export class Adapter<
   setQueryParamsMapper = <NewQueryParamsMapper extends QueryParamsMapper<QueryParams>>(
     queryParamsMapper: NewQueryParamsMapper,
   ) => {
-    this.unsafe_queryParamsMapper = ((queryParams: Parameters<NewQueryParamsMapper>[0]) =>
+    this.unstable_queryParamsMapper = ((queryParams: Parameters<NewQueryParamsMapper>[0]) =>
       queryParamsMapper(
         queryParams,
-        this.unsafe_queryParamsMapperConfig as Parameters<NewQueryParamsMapper>[1],
+        this.unstable_queryParamsMapperConfig as Parameters<NewQueryParamsMapper>[1],
       )) as unknown as QueryParamsMapperType;
     return this as unknown as Adapter<
       AdapterOptions,
@@ -316,28 +319,28 @@ export class Adapter<
   setQueryParamsMapperConfig = <NewQueryParamsMapperConfig extends Parameters<QueryParamsMapperType>[1]>(
     config: NewQueryParamsMapperConfig,
   ) => {
-    this.unsafe_queryParamsMapperConfig = config;
+    this.unstable_queryParamsMapperConfig = config;
     return this;
   };
 
   setHeaderMapperConfig = <NewHeaderMapperConfig extends Parameters<HeaderMapperType>[1]>(
     config: NewHeaderMapperConfig,
   ) => {
-    this.unsafe_headerMapperConfig = config;
+    this.unstable_headerMapperConfig = config;
     return this;
   };
 
   setEndpointMapperConfig = <NewEndpointMapperConfig extends Parameters<EndpointMapperType>[1]>(
     config: NewEndpointMapperConfig,
   ) => {
-    this.unsafe_endpointMapperConfig = config;
+    this.unstable_endpointMapperConfig = config;
     return this;
   };
 
   setPayloadMapperConfig = <NewPayloadMapperConfig extends Parameters<PayloadMapperType>[1]>(
     config: NewPayloadMapperConfig,
   ) => {
-    this.unsafe_payloadMapperConfig = config;
+    this.unstable_payloadMapperConfig = config;
     return this;
   };
 
@@ -364,7 +367,7 @@ export class Adapter<
       >
     >,
   ) {
-    this.unsafe_fetcher = fetcher.bind(this);
+    this.unstable_fetcher = fetcher.bind(this);
     return this;
   }
 
@@ -401,7 +404,7 @@ export class Adapter<
           throw new RequestProcessingError(`Adapter ${this.options.name} is not initialized`);
         }
 
-        if (!this.unsafe_fetcher) {
+        if (!this.unstable_fetcher) {
           throw new RequestProcessingError(`Fetcher for ${this.options.name} adapter is not set`);
         }
 
@@ -429,13 +432,13 @@ export class Adapter<
           request,
           requestId,
           resolve,
-          internalErrorMapping: this.unsafe_internalErrorMapping,
+          internalErrorMapping: this.unstable_internalErrorMapping,
           onStartTime: (time) => {
             startTime = time;
           },
         });
 
-        if (request.unsafe_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
+        if (request.unstable_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
           return mocker<
             Adapter<
               AdapterOptions,
@@ -453,7 +456,7 @@ export class Adapter<
           >(bindings);
         }
 
-        return this.unsafe_fetcher(bindings);
+        return this.unstable_fetcher(bindings);
       } catch (error) {
         const onError = getAdapterOnError({
           request,
@@ -464,7 +467,7 @@ export class Adapter<
         });
 
         return onError({
-          error: this.unsafe_internalErrorMapping(error as ReturnType<typeof getErrorMessage>),
+          error: this.unstable_internalErrorMapping(error as ReturnType<typeof getErrorMessage>),
           status: this.options.systemErrorStatus,
           extra: this.options.systemErrorExtra,
         });

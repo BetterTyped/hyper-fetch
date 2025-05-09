@@ -603,16 +603,16 @@ h2 {
   @apply text-4xl font-bold;
 }
 h3 {
-  @apply text-3xl font-semibold;
-}
-h4 {
   @apply text-2xl font-semibold;
 }
+h4 {
+  @apply text-xl font-semibold;
+}
 h5 {
-  @apply text-xl font-medium;
+  @apply text-lg font-medium;
 }
 h6 {
-  @apply text-lg font-medium;
+  @apply text-base font-medium;
 }
 
 .shiny-btn {
@@ -698,7 +698,7 @@ main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li {
   list-style: decimal;
 }
 
-main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::before {
+main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) > li::before {
   @apply absolute left-[-24px] top-[1.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
@@ -1848,6 +1848,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !fill-zinc-400;
 }
 
+.docusaurus-mermaid-container p {
+  @apply !text-inherit;
+}
+
 /* Arrow lines */
 .docusaurus-mermaid-container .lineWrapper line {
   @apply !stroke-zinc-500;
@@ -1856,18 +1860,30 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !fill-zinc-500;
 }
 
-/* Timeline  */
-.docusaurus-mermaid-container .section--1 path {
+/* Root */
+.docusaurus-mermaid-container .section-root text {
+  @apply !fill-zinc-200;
+}
+
+/* Main section */
+.docusaurus-mermaid-container .section--1 path,
+.docusaurus-mermaid-container .section--1 polygon,
+.docusaurus-mermaid-container .section--1 rect,
+.docusaurus-mermaid-container .section--1 circle {
   @apply !fill-yellow-600;
 }
 .docusaurus-mermaid-container .section--1 line {
-  @apply !stroke-yellow-400;
+  @apply !stroke-yellow-500;
 }
 .docusaurus-mermaid-container .section-edge--1 {
   @apply !stroke-yellow-400;
 }
 
-.docusaurus-mermaid-container .section-0 path {
+/* Other sections */
+.docusaurus-mermaid-container .section-0 path,
+.docusaurus-mermaid-container .section-0 polygon,
+.docusaurus-mermaid-container .section-0 rect,
+.docusaurus-mermaid-container .section-0 circle {
   @apply !fill-indigo-600;
 }
 .docusaurus-mermaid-container .section-0 line {
@@ -1877,7 +1893,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-indigo-400;
 }
 
-.docusaurus-mermaid-container .section-1 path {
+.docusaurus-mermaid-container .section-1 path,
+.docusaurus-mermaid-container .section-1 polygon,
+.docusaurus-mermaid-container .section-1 rect,
+.docusaurus-mermaid-container .section-1 circle {
   @apply !fill-blue-500;
 }
 .docusaurus-mermaid-container .section-1 line {
@@ -1887,7 +1906,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-blue-400;
 }
 
-.docusaurus-mermaid-container .section-2 path {
+.docusaurus-mermaid-container .section-2 path,
+.docusaurus-mermaid-container .section-2 polygon,
+.docusaurus-mermaid-container .section-2 rect,
+.docusaurus-mermaid-container .section-2 circle {
   @apply !fill-teal-600;
 }
 .docusaurus-mermaid-container .section-2 line {
@@ -1897,7 +1919,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-teal-400;
 }
 
-.docusaurus-mermaid-container .section-3 path {
+.docusaurus-mermaid-container .section-3 path,
+.docusaurus-mermaid-container .section-3 polygon,
+.docusaurus-mermaid-container .section-3 rect,
+.docusaurus-mermaid-container .section-3 circle {
   @apply !fill-green-600;
 }
 .docusaurus-mermaid-container .section-3 line {
@@ -1907,7 +1932,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-green-400;
 }
 
-.docusaurus-mermaid-container .section-4 path {
+.docusaurus-mermaid-container .section-4 path,
+.docusaurus-mermaid-container .section-4 polygon,
+.docusaurus-mermaid-container .section-4 rect,
+.docusaurus-mermaid-container .section-4 circle {
   @apply !fill-pink-600;
 }
 .docusaurus-mermaid-container .section-4 line {
@@ -1917,7 +1945,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-pink-400;
 }
 
-.docusaurus-mermaid-container .section-5 path {
+.docusaurus-mermaid-container .section-5 path,
+.docusaurus-mermaid-container .section-5 polygon,
+.docusaurus-mermaid-container .section-5 rect,
+.docusaurus-mermaid-container .section-5 circle {
   @apply !fill-cyan-600;
 }
 .docusaurus-mermaid-container .section-5 line {
@@ -1927,7 +1958,10 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply !stroke-cyan-400;
 }
 
-.docusaurus-mermaid-container .section-6 path {
+.docusaurus-mermaid-container .section-6 path,
+.docusaurus-mermaid-container .section-6 polygon,
+.docusaurus-mermaid-container .section-6 rect,
+.docusaurus-mermaid-container .section-6 circle {
   @apply !fill-emerald-600;
 }
 .docusaurus-mermaid-container .section-6 line {

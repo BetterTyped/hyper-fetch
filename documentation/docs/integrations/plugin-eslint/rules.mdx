@@ -1,0 +1,104 @@
+---
+sidebar_position: 4
+title: Rules
+---
+
+# Rules
+
+The Hyper Fetch ESLint plugin includes several rules to help you catch common issues when working with Hyper Fetch. This
+page describes each rule, explains what it checks for, and provides examples of code that would trigger the rule.
+
+## client-generic-types
+
+This rule ensures proper generic types are used when creating clients with Hyper Fetch. It extends TypeScript's
+functionality to trace issues with object-like generic types that might otherwise be missed.
+
+### Description
+
+The rule checks for:
+
+- Unexpected generic type properties that don't match the expected interface
+- Empty generic type objects (`{}`)
+- Generic types that don't match the expected object-like format
+
+### Examples of Issues Caught
+
+**Unexpected generic type:**
+
+```tsx
+// ❌ Error: Unexpected generic type(s) found: nonExistingGenericType
+import { createClient } from "@hyper-fetch/core";
+const someClient = createClient<{ nonExistingGenericType: any }>({ url: "http://localhost:3000" });
+```
+
+**Empty generic type:**
+
+```tsx
+// ❌ Error: Generic type provided to createClient is empty
+import { createClient } from "@hyper-fetch/core";
+const someClient = createClient<{}>({ url: "http://localhost:3000" });
+```
+
+**Non-object-like generic type:**
+
+```tsx
+// ❌ Error: Generic type provided to createClient is not matching the expected object-like format
+import { createClient } from "@hyper-fetch/core";
+const someClient = createClient<unknown>({ url: "http://localhost:3000" });
+```
+
+### Configuration
+
+Default severity: `"error"`
+
+## request-generic-types
+
+This rule ensures proper generic types are used when creating requests with Hyper Fetch. It extends TypeScript's
+functionality to trace issues with object-like generic types that might otherwise be missed.
+
+### Description
+
+The rule checks for:
+
+- Unexpected generic type properties that don't match the expected interface
+- Empty generic type objects (`{}`)
+- Generic types that don't match the expected object-like format
+
+### Examples of Issues Caught
+
+**Unexpected generic type:**
+
+```tsx
+// ❌ Error: Unexpected generic type(s) found: nonExistingGenericType
+import { client } from "./client";
+const request = client.createRequest<{ nonExistingGenericType: any }>({ endpoint: "/api/users" });
+```
+
+**Empty generic type:**
+
+```tsx
+// ❌ Error: Generic type provided to createRequest is empty
+import { client } from "./client";
+const request = client.createRequest<{}>({ endpoint: "/api/users" });
+```
+
+**Non-object-like generic type:**
+
+```tsx
+// ❌ Error: Generic type provided to createRequest is not matching the expected object-like format
+import { client } from "./client";
+const request = client.createRequest<unknown>({ endpoint: "/api/users" });
+```
+
+### Configuration
+
+Default severity: `"error"`
+
+## When to Use These Rules
+
+These rules are particularly useful for:
+
+1. Large codebases where multiple developers might be working with Hyper Fetch
+2. Projects where type safety is critical
+3. Applications where you want to ensure consistent usage of Hyper Fetch
+4. Preventing subtle type-related bugs that might only manifest at runtime

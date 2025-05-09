@@ -41,11 +41,11 @@ export class Client<
   public debug: boolean;
 
   // Private
-  unsafe_onErrorCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
-  unsafe_onSuccessCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
-  unsafe_onResponseCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
-  unsafe_onAuthCallbacks: RequestInterceptorType[] = [];
-  unsafe_onRequestCallbacks: RequestInterceptorType[] = [];
+  unstable_onErrorCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
+  unstable_onSuccessCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
+  unstable_onResponseCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
+  unstable_onAuthCallbacks: RequestInterceptorType[] = [];
+  unstable_onRequestCallbacks: RequestInterceptorType[] = [];
 
   // Managers
   loggerManager: LoggerManager = new LoggerManager();
@@ -62,9 +62,14 @@ export class Client<
   // Registered requests effect
   plugins: PluginInstance[] = [];
 
-  unsafe_abortKeyMapper: (request: RequestInstance) => string = getSimpleKey;
-  unsafe_cacheKeyMapper: (request: RequestInstance) => string = getRequestKey;
-  unsafe_queryKeyMapper: (request: RequestInstance) => string = getRequestKey;
+  /** @internal */
+  unstable_abortKeyMapper: (request: RequestInstance) => string = getSimpleKey;
+
+  /** @internal */
+  unstable_cacheKeyMapper: (request: RequestInstance) => string = getRequestKey;
+
+  /** @internal */
+  unstable_queryKeyMapper: (request: RequestInstance) => string = getRequestKey;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Client");
@@ -134,7 +139,7 @@ export class Client<
    * Method of manipulating requests before sending the request. We can for example add custom header with token to the request which request had the auth set to true.
    */
   onAuth = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onAuthCallbacks.push(callback);
+    this.unstable_onAuthCallbacks.push(callback);
     return this;
   };
 
@@ -142,7 +147,7 @@ export class Client<
    * Method for removing listeners on auth.
    * */
   removeOnAuthInterceptors = (callbacks: RequestInterceptorType[]): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onAuthCallbacks = this.unsafe_onAuthCallbacks.filter((callback) => !callbacks.includes(callback));
+    this.unstable_onAuthCallbacks = this.unstable_onAuthCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
@@ -152,7 +157,7 @@ export class Client<
   onError = <ErrorType = null>(
     callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onErrorCallbacks.push(callback);
+    this.unstable_onErrorCallbacks.push(callback);
     return this;
   };
 
@@ -162,7 +167,7 @@ export class Client<
   removeOnErrorInterceptors = (
     callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onErrorCallbacks = this.unsafe_onErrorCallbacks.filter((callback) => !callbacks.includes(callback));
+    this.unstable_onErrorCallbacks = this.unstable_onErrorCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
@@ -172,7 +177,7 @@ export class Client<
   onSuccess = <ErrorType = null>(
     callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onSuccessCallbacks.push(callback);
+    this.unstable_onSuccessCallbacks.push(callback);
     return this;
   };
 
@@ -182,7 +187,9 @@ export class Client<
   removeOnSuccessInterceptors = (
     callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onSuccessCallbacks = this.unsafe_onSuccessCallbacks.filter((callback) => !callbacks.includes(callback));
+    this.unstable_onSuccessCallbacks = this.unstable_onSuccessCallbacks.filter(
+      (callback) => !callbacks.includes(callback),
+    );
     return this;
   };
 
@@ -190,7 +197,7 @@ export class Client<
    * Method of manipulating requests before sending the request.
    */
   onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onRequestCallbacks.push(callback);
+    this.unstable_onRequestCallbacks.push(callback);
     return this;
   };
 
@@ -198,7 +205,9 @@ export class Client<
    * Method for removing listeners on request.
    * */
   removeOnRequestInterceptors = (callbacks: RequestInterceptorType[]): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onRequestCallbacks = this.unsafe_onRequestCallbacks.filter((callback) => !callbacks.includes(callback));
+    this.unstable_onRequestCallbacks = this.unstable_onRequestCallbacks.filter(
+      (callback) => !callbacks.includes(callback),
+    );
     return this;
   };
 
@@ -208,7 +217,7 @@ export class Client<
   onResponse = <ErrorType = null>(
     callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onResponseCallbacks.push(callback);
+    this.unstable_onResponseCallbacks.push(callback);
     return this;
   };
 
@@ -218,7 +227,7 @@ export class Client<
   removeOnResponseInterceptors = (
     callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
-    this.unsafe_onResponseCallbacks = this.unsafe_onResponseCallbacks.filter(
+    this.unstable_onResponseCallbacks = this.unstable_onResponseCallbacks.filter(
       (callback) => !callbacks.includes(callback),
     );
     return this;
@@ -267,51 +276,52 @@ export class Client<
    */
 
   setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
-    this.unsafe_abortKeyMapper = callback;
+    this.unstable_abortKeyMapper = callback;
   };
   setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
-    this.unsafe_cacheKeyMapper = callback;
+    this.unstable_cacheKeyMapper = callback;
   };
   setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
-    this.unsafe_queryKeyMapper = callback;
+    this.unstable_queryKeyMapper = callback;
   };
 
   /**
    * Helper used by http adapter to apply the modifications on response error
    * @private
    */
-  unsafe_modifyAuth = async (request: RequestInstance) => interceptRequest(this.unsafe_onAuthCallbacks, request);
+  unstable_modifyAuth = async (request: RequestInstance) => interceptRequest(this.unstable_onAuthCallbacks, request);
 
   /**
    * Private helper to run async pre-request processing
    * @private
    */
-  unsafe_modifyRequest = async (request: RequestInstance) => interceptRequest(this.unsafe_onRequestCallbacks, request);
+  unstable_modifyRequest = async (request: RequestInstance) =>
+    interceptRequest(this.unstable_onRequestCallbacks, request);
 
   /**
    * Private helper to run async on-error response processing
    * @private
    */
-  unsafe_modifyErrorResponse = async (
+  unstable_modifyErrorResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
     request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onErrorCallbacks, response, request);
+  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onErrorCallbacks, response, request);
 
   /**
    * Private helper to run async on-success response processing
    * @private
    */
-  unsafe_modifySuccessResponse = async (
+  unstable_modifySuccessResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
     request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onSuccessCallbacks, response, request);
+  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onSuccessCallbacks, response, request);
 
   /**
    * Private helper to run async response processing
    * @private
    */
-  unsafe_modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
-    interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onResponseCallbacks, response, request);
+  unstable_modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
+    interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onResponseCallbacks, response, request);
 
   /**
    * Clears the Client instance and remove all listeners on it's dependencies
@@ -425,7 +435,7 @@ export class Client<
     ) => {
       type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", EndpointType>;
 
-      const endpoint = this.adapter.unsafe_endpointMapper(params.endpoint);
+      const endpoint = this.adapter.unstable_endpointMapper(params.endpoint);
 
       // Splitting this type prevents "Type instantiation is excessively deep and possibly infinite" error
       type ExtractedAdapter = ExtractUnionAdapter<

@@ -49,6 +49,35 @@ will use the node http module.
 
 ---
 
+### Header Mapper
+
+By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
+headers to the request. You can create much more advanced setups with the `setHeaderMapper`. It allows you to define
+custom logic that will be triggered before every request made in the client.
+
+### Payload Mapper
+
+The payload mapper's default responsibility is to check if data is an instance of FormData or not. Based on this, you
+can stringify non-FormData values or just pass the FormData to the request to be made. This allows file upload to be
+supported out of the box.
+
+---
+
+### 3. Query Params
+
+Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
+`setQueryParamsConfig` method and the options listed below.
+
+(@import core QueryStringifyOptionsType type=returns)
+
+To change the encoding function, use the `setStringifyQueryParams` method.
+
+```tsx
+client.setStringifyQueryParams((value: string) => encode(value));
+```
+
+---
+
 ## Related guides
 
 - [Custom adapter](/guides/02-advanced/custom-adapter.mdx)

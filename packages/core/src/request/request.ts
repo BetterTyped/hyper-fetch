@@ -88,7 +88,7 @@ export class Request<
 
   isMockerEnabled = false;
 
-  unsafe_mock?: {
+  unstable_mock?: {
     fn: (options: {
       request: RequestInstance;
       requestId: string;
@@ -96,11 +96,11 @@ export class Request<
     config: MockerConfigType;
   };
   /** @internal */
-  unsafe_payloadMapper?: PayloadMapperType<Payload>;
+  unstable_payloadMapper?: PayloadMapperType<Payload>;
   /** @internal */
-  unsafe_requestMapper?: RequestMapper<any, any>;
+  unstable_requestMapper?: RequestMapper<any, any>;
   /** @internal */
-  unsafe_responseMapper?: ResponseMapper<this, any, any>;
+  unstable_responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -129,7 +129,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     > = {
-      ...(this.client.adapter.unsafe_getRequestDefaults?.(requestOptions) as RequestOptionsType<
+      ...(this.client.adapter.unstable_getRequestDefaults?.(requestOptions) as RequestOptionsType<
         Endpoint,
         ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
         ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
@@ -172,9 +172,9 @@ export class Request<
     this.staleTime = initialRequestConfiguration?.staleTime ?? staleTime;
     this.queued = initialRequestConfiguration?.queued ?? queued;
     this.offline = initialRequestConfiguration?.offline ?? offline;
-    this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.unsafe_abortKeyMapper(this);
-    this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.unsafe_cacheKeyMapper(this);
-    this.queryKey = initialRequestConfiguration?.queryKey ?? queryKey ?? this.client.unsafe_queryKeyMapper(this);
+    this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.unstable_abortKeyMapper(this);
+    this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.unstable_cacheKeyMapper(this);
+    this.queryKey = initialRequestConfiguration?.queryKey ?? queryKey ?? this.client.unstable_queryKeyMapper(this);
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
@@ -305,13 +305,13 @@ export class Request<
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>,
     config: MockerConfigType = {},
   ) => {
-    this.unsafe_mock = { fn, config } as typeof this.unsafe_mock;
+    this.unstable_mock = { fn, config } as typeof this.unstable_mock;
     this.isMockerEnabled = true;
     return this;
   };
 
   public clearMock = () => {
-    this.unsafe_mock = undefined;
+    this.unstable_mock = undefined;
     this.isMockerEnabled = false;
     return this;
   };
@@ -335,7 +335,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.unsafe_payloadMapper = payloadMapper as typeof this.unsafe_payloadMapper;
+    cloned.unstable_payloadMapper = payloadMapper as typeof this.unstable_payloadMapper;
 
     return cloned;
   };
@@ -348,7 +348,7 @@ export class Request<
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.unsafe_requestMapper = requestMapper;
+    cloned.unstable_requestMapper = requestMapper;
 
     return cloned;
   };
@@ -367,7 +367,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
-    cloned.unsafe_responseMapper = responseMapper;
+    cloned.unstable_responseMapper = responseMapper;
 
     return cloned as unknown as Request<
       TypeWithDefaults<Properties, "response", Response>,
@@ -431,7 +431,7 @@ export class Request<
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
       isMockerEnabled: this.isMockerEnabled,
-      hasMock: !!this.unsafe_mock,
+      hasMock: !!this.unstable_mock,
     };
   }
 
@@ -485,11 +485,11 @@ export class Request<
     >(this.client, this.requestOptions, initialRequestConfiguration);
 
     // Inherit methods
-    cloned.unsafe_payloadMapper = this.unsafe_payloadMapper;
-    cloned.unsafe_responseMapper = this.unsafe_responseMapper;
-    cloned.unsafe_requestMapper = this.unsafe_requestMapper;
+    cloned.unstable_payloadMapper = this.unstable_payloadMapper;
+    cloned.unstable_responseMapper = this.unstable_responseMapper;
+    cloned.unstable_requestMapper = this.unstable_requestMapper;
 
-    cloned.unsafe_mock = this.unsafe_mock;
+    cloned.unstable_mock = this.unstable_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
 
     return cloned;
@@ -607,8 +607,8 @@ export class Request<
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);
 
-    if (request.unsafe_responseMapper) {
-      return request.unsafe_responseMapper(response);
+    if (request.unstable_responseMapper) {
+      return request.unstable_responseMapper(response);
     }
 
     return response;

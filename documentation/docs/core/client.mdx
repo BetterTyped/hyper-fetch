@@ -4,158 +4,347 @@ title: Client
 sidebar_label: Client
 ---
 
+import { ShowMore, LinkCard } from "@site/src/components";
+
 [Read the API Reference »](/api/core/Classes/Client.mdx)
+
+**`Client`** is the central class for configuring your server connection in Hyper Fetch. It initializes all core
+subsystems—such as queues, cache, and interceptors—and provides a unified way to create and manage requests based on its
+configuration. By keeping all data and logic encapsulated within a single client instance, you ensure that each client
+remains isolated and independent from others.
+
+:::info Builder approach
+
+The `Client` is designed to be used as a builder of requests, serving as the global entry point for server communication
+throughout your application. This approach prevents duplicated logic, promotes a consistent architecture, and makes it
+easier to maintain and test your code by centralizing configuration and types.
+
+:::
+
+```mermaid
+mindmap
+  root)Client(
+    )Requests(
+      {{Query Params}}
+      {{Payload}}
+      {{Headers}}
+      {{Body}}
+      {{Method}}
+      {{URL}}
+    )Dispatchers(
+      {{Queues}}
+      {{Cancellation}}
+      {{Deduplication}}
+    )Cache(
+      {{Storages}}
+      {{Garbage Collection}}
+    )Adapter(
+      {{HTTP}}
+      {{GraphQL}}
+      {{Firebase}}
+      {{Axios}}
+    )Managers(
+      {{Request Lifecycle}}
+      {{Window Focus}}
+      {{Network Status}}
+      {{Abort Controllers}}
+      {{Logger}}
+    )Plugins(
+      {{Devtools}}
+      {{Observers}}
+```
 
 ---
 
-## Introduction
+## Initialization 🚀
 
-**`Client`** is a class that allows you to configure the server connection. It initializes the entire library’s
-subsystems, such as `queues`, `caches`, and `interceptors`. It also allows you to create (based on its settings) the
-requests necessary to execute requests. This way the data and information flow remains locked inside a given client; it
-is isolated and does not affect other clients.
+The client is initialized with the `createClient` function.
 
-It was designed to be used as a singleton, where `Client` helps us create a global structure for making server requests
-without duplicating logic in different parts of the application. In this approach, we can easily create a solid
-structure and architecture for an application. This also facilitates test maintenance by dividing the necessary
-configurations and types.
+```tsx
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "http://localhost:3000" });
+```
+
+<LinkCard
+  type="guides"
+  title="More about setup"
+  description="Learn different ways and options to initialize the client"
+  to="/docs/guides/core/01-basic/setup.mdx"
+/>
 
 ---
 
 ## Purpose
 
-- Orchestrates the components and flow of the library
-- Creates requests to provide global setup and environment
-- Isolates clients from other clients and their events
+1. **Builder for all of the requests**
+2. Central place for all the default **settings**
+3. Handles **authentication** and **interceptors**
+4. Place where all sub-modules are initialized
 
 ---
 
-## Related guides
+## Available methods
 
-- [Setup](/guides/01-basic/setup.mdx)
-- [Global Defaults](/guides/01-basic/global-defaults.mdx)
-- [Intercepting](/guides/02-advanced/intercepting.mdx)
+(@import core Client type=methods&display=table)
+
+<LinkCard
+  type="api"
+  title="Detailed methods docs"
+  description="Check all available methods and their descriptions"
+  to="/docs/api/core/Classes/Client#methods"
+/>
 
 ---
 
-## Initialization
+## Features ✨
+
+Here are some of the most important features available in the Client class.
+
+### 1. Authentication
+
+To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
+**true**.
 
 ```tsx
-import { Client } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
+import { store } from "./store"; // Your state management store
 
-export const client = new Client({ url: "http://localhost:3000" });
-```
+export const client = createClient({ url: "http://localhost:3000" }).onAuth((request) => {
+  // Get the auth token from your store
+  const state = store.getState();
+  const authToken = state.auth.token;
 
----
+  // Add the token to the request headers
+  return request.setHeaders({
+    ...request.headers,
+    Authorization: `Bearer ${authToken}`,
+  });
+});
 
-## Setting defaults
-
-Because Hyper Fetch components are created inside Client, you can set global or default system values on it.
-
-### Request default setup
-
-We can use the `setRequestDefaultOptions` method to specify the defaults for every created request.
-
-(@import core RequestOptionsType type=returns)
-
-Add them by:
-
-```ts
-const request = client.setRequestDefaultOptions((options) => {
-  if (options.method === "POST") {
-    return { timeout: 1000, withCredentials: true };
-  } else {
-    return options;
-  }
+// Create an authenticated request
+export const getUsers = client.createRequest()({
+  endpoint: "/users",
+  auth: true, // This enables the onAuth interceptor
 });
 ```
 
-### Adapter defaults setup
-
-:::info
-
-Adapter options may vary depending on the adapter you use.
-
-:::
-
-We can use the `setAdapterDefaultOptions` method to specify the defaults for every request.
-
-Default HTTP adapter options:
-
-```ts
-{
-  timeout: number;
-  withCredentials: boolean;
-  responseType: "text" | "document" | "arraybuffer" | "blob" | "json";
-}
-```
-
-Add them by:
-
-```ts
-const request = client.setAdapterDefaultOptions({ timeout: 1000, withCredentials: true });
-```
+<LinkCard
+  type="guides"
+  title="Authentication guide"
+  description="Learn how to set up authentication for your application"
+  to="/docs/guides/core/01-basic/authentication.mdx"
+/>
 
 ---
 
-## Features
+### 2. Interceptors
 
-### Authentication
+Interceptors are a powerful feature that allows you to modify requests before they're sent or responses before they are
+processed within other core modules.
 
-To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
-**true**. Read more about authentication here.
+They can modify the request before it's sent or the response after it's received, depending on the type of interceptor.
 
-[Read More](/guides/01-basic/authentication.mdx)
+#### Request Interceptor
 
-### Pre-Request Interceptor
+1. `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
+2. `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
+   headers or other any options
 
-Use the `onRequest` client method if you need to use the pre-request interceptor to modify the request before it’s sent.
-
-### Post-Request Interceptors
+#### Response Interceptor
 
 There are several methods for intercepting a response from a request:
 
-- `onError` which is triggered on request error response.
-- `onSuccess` which is triggered on request success response.
-- `onResponse` which is triggered on any response.
+1. `onResponse()` - intercepts any response after it's received to modify it's body
+2. `onError()` - intercepts the error response after it's received to modify it's body
+3. `onSuccess()` - intercepts the success response after it's received to modify it's body
 
 We can modify received data with these interceptors before it will be emitted to other sub-systems.
 
-### Query Params
-
-Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
-`setQueryParamsConfig` method and the options listed below.
-
-(@import core QueryStringifyOptionsType type=returns)
-
-To change the encoding function, use the `setStringifyQueryParams` method.
-
 ```tsx
-client.setStringifyQueryParams((value: string) => encode(value));
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "http://localhost:3000" })
+  // Add request interceptor
+  .onRequest((request) => {
+    // Add custom headers to all requests
+    return request.setHeaders({
+      ...request.headers,
+      "x-custom-header": "custom-value",
+    });
+  })
+  // Add response interceptor
+  .onResponse(async (response, request) => {
+    // Log all responses
+    console.log(`Response for ${request.endpoint}:`, response);
+    return response;
+  })
+  // Add error interceptor
+  .onError(async (errorResponse, request) => {
+    // Handle specific error responses
+    if (errorResponse.status === 401 && !request.used) {
+      // Implement token refresh logic
+      return request.setUsed(true).send();
+    }
+    return errorResponse;
+  });
 ```
 
-### Header Mapper
-
-By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
-headers to the request. You can create much more advanced setups with the `setHeaderMapper`. It allows you to define
-custom logic that will be triggered before every request made in the client.
-
-### Payload Mapper
-
-The payload mapper’s default responsibility is to check if data is an instance of FormData or not. Based on this, you
-can stringify non-FormData values or just pass the FormData to the request to be made. This allows file upload to be
-supported out of the box.
+<LinkCard
+  type="guides"
+  title="Interceptors guide"
+  description="Learn how to set up interceptors for your application and when they can be used"
+  to="/docs/guides/core/01-basic/interceptors.mdx"
+/>
 
 ---
 
-## Typescript
+### 3. Global settings
 
-Client has three generic types that can be passed when initializing a client.
+Every module is initialized inside of the `Client` class. This is a perfect place to store and control global settings
+for the adapter, cache, requests or other modules.
 
 ```tsx
-import { ClientErrorType, Client, AdapterType, DefaultEndpointMapper } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
-const client = new Client<{ error: ClientErrorType; adapter: AdapterType; mapper: DefaultEndpointMapper }>();
+export const client = createClient({
+  url: "http://localhost:3000",
+  // Global settings for all requests
+  requestConfig: {
+    timeout: 10000, // 10 seconds timeout for all requests
+    retries: 3, // Retry failed requests 3 times
+    retry: {
+      methods: ["GET", "POST"], // Only retry GET and POST requests
+    },
+  },
+  // Cache settings
+  cache: {
+    cacheTime: 5 * 60 * 1000, // Cache data for 5 minutes
+    staleTime: 60 * 1000, // Data becomes stale after 1 minute
+  },
+});
+
+// These global settings can be overridden for specific requests
+export const getUser = client.createRequest()({
+  endpoint: "/users/:id",
+  method: "GET",
+  timeout: 5000, // Override the global timeout for this request
+});
+```
+
+<LinkCard
+  type="guides"
+  title="Global defaults guide"
+  description="Learn how to set global defaults for the client and requests"
+  to="/docs/guides/core/01-basic/global-defaults.mdx"
+/>
+
+---
+
+### 4. Plugins
+
+Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
+the events happening inside of the Hyper Fetch.
+
+```tsx
+import { createClient } from "@hyper-fetch/core";
+import { Plugin } from "@hyper-fetch/core";
+import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+// Add the official devtools plugin
+export const client = createClient({ url: "http://localhost:3000" })
+  .setDebug(true)
+  .addPlugin(
+    devtoolsPlugin({
+      appName: "My Application",
+    }),
+  );
+
+// Create a custom plugin
+const loggingPlugin = new Plugin({
+  name: "logging-plugin",
+})
+  .onRequestStart(({ request }) => {
+    console.log(`Request started: ${request.method} ${request.endpoint}`);
+  })
+  .onRequestSuccess(({ response, request }) => {
+    console.log(`Request succeeded: ${request.method} ${request.endpoint}`, response.data);
+  })
+  .onRequestError(({ response, request }) => {
+    console.error(`Request failed: ${request.method} ${request.endpoint}`, response.error);
+  });
+
+// Add the custom plugin to the client
+client.addPlugin(loggingPlugin);
+```
+
+---
+
+### 5. Hydration
+
+We can hydrate the client with the data from the server. This is a powerful feature that allows us to pass the data from
+the server to the client for the SSR use cases.
+
+```tsx
+// Server-side code
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "http://localhost:3000" });
+const userRequest = client.createRequest()({ endpoint: "/users/1" });
+
+// Fetch data on the server
+const response = await userRequest.send();
+
+// Dehydrate the response for client hydration
+const dehydratedData = userRequest.dehydrate({ response });
+
+// Pass dehydratedData to the client (e.g., as props or through a global state)
+
+// Client-side code
+import { createClient } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
+
+export const client = createClient({ url: "http://localhost:3000" });
+
+// Hydrate the client with server data
+client.hydrate([dehydratedData]);
+
+// In your React component
+function UserProfile() {
+  // Data will be available immediately from cache, no loading state needed
+  const { data } = useFetch(client.createRequest()({ endpoint: "/users/1" }), {
+    revalidate: false, // Prevent automatic refetching
+  });
+
+  return <div>{data?.name}</div>;
+}
+```
+
+---
+
+## TypeScript functionality
+
+Most important type passed to the `createClient` is the error type. It is a global error type, being used like a default
+for any request errors. It is later combined with the "local error" type of the requests creating the union. This way we
+handle generic errors from the server (global) as well as some validation/business (local) errors for given endpoint.
+
+:::warning Enhancing TypeScript DX
+
+It is important to use the [eslint plugin](/docs/integrations/plugin-eslint/index.mdx) to get the best typescript
+experience. We enhance the abilities of the object generics to provide you with the best possible DX.
+
+:::
+
+```tsx
+import { createClient, AdapterType } from "@hyper-fetch/core";
+
+// Define your global error type
+interface ClientErrorType {
+  message: string;
+  code: number;
+}
+
+const client = createClient<{ error: ClientErrorType }>();
 ```
 
 - `error` defines the global/default error type used in all the requests. It should consist of an `Error` type and your
@@ -163,58 +352,43 @@ const client = new Client<{ error: ClientErrorType; adapter: AdapterType; mapper
   `globalError` type.
 
 - `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it only
-  when you provide [your custom adapter](/guides/02-advanced/custom-adapter.mdx).
+  when you provide [your custom adapter](/docs/guides/core/02-advanced/custom-adapter.mdx).
 
-- `mapper` -
+## Modules 🧩
 
----
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Handles request template creation and execution."
+  to="/docs/core/request.mdx"
+/>
 
-## Components
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="Handles data storages and persistence. Can be adjusted with options when initializing Client."
+  to="/docs/core/cache.mdx"
+/>
 
-### [Cache](/api/core/Classes/Cache.mdx)
+<LinkCard
+  type="docs"
+  title="Adapter"
+  description="Handles all requests within Client. Can be replaced with setAdapter method."
+  to="/docs/core/adapter.mdx"
+/>
 
-Handles data storages and persistence. Can be adjusted with options when initializing `Client`.
+<LinkCard
+  type="docs"
+  title="Dispatcher"
+  description="Handles the mutation requests and queueing. Can be adjusted with options when initializing the client."
+  to="/docs/core/dispatcher.mdx"
+/>
 
----
-
-### [Adapter](/api/core/Classes/Adapter.mdx)
-
-Handles all requests within `Client`. Can be replaced with `setAdapter` method.
-
----
-
-### [SubmitDispatcher](/api/core/Classes/Dispatcher.mdx)
-
-Handles the mutation requests and queueing. Can be adjusted with options when initializing the client.
-
----
-
-### [FetchDispatcher](/api/core/Classes/Dispatcher.mdx)
-
-Handles the fetching requests and queueing. Can be adjusted with options when initializing the client.
-
----
-
-### [AppManager](/api/core/Classes/AppManager.mdx)
-
-Handles the app focus and online state. Can be adjusted with options when initializing the client.
-
----
-
-### [RequestManager](/api/core/Classes/RequestManager.mdx)
-
-Handles additional events and cancellation of requests. Can be adjusted with options when initializing the client.
+<LinkCard
+  type="docs"
+  title="Managers"
+  description="Handles the logging systems, app focus and online state, additional events and cancellation of requests."
+  to="/docs/core/managers.mdx"
+/>
 
 ---
-
-### [LoggerManager](/api/core/Classes/LoggerManager.mdx)
-
-Handles the logging systems for debugging.
-
----
-
-## Parameters
-
-Configuration options
-
-(@import core ClientOptionsType type=returns)

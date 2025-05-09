@@ -35,36 +35,36 @@ describe("Client [ Interceptor ]", () => {
       const callback = interceptorCallback();
       client.onError(callback).onError(callback);
 
-      expect(client.unsafe_onErrorCallbacks).toHaveLength(2);
-      expect(client.unsafe_onErrorCallbacks[0]).toEqual(callback);
-      expect(client.unsafe_onErrorCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onErrorCallbacks).toHaveLength(2);
+      expect(client.unstable_onErrorCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onErrorCallbacks[1]).toEqual(callback);
     });
     it("should assign onSuccess interceptors", async () => {
       const callback = interceptorCallback();
       client.onSuccess(callback).onSuccess(callback);
 
-      expect(client.unsafe_onSuccessCallbacks).toHaveLength(2);
-      expect(client.unsafe_onSuccessCallbacks[0]).toEqual(callback);
-      expect(client.unsafe_onSuccessCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onSuccessCallbacks).toHaveLength(2);
+      expect(client.unstable_onSuccessCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onSuccessCallbacks[1]).toEqual(callback);
     });
     it("should assign onResponse interceptors", async () => {
       const callback = interceptorCallback();
       client.onResponse(callback).onResponse(callback);
 
-      expect(client.unsafe_onResponseCallbacks).toHaveLength(2);
-      expect(client.unsafe_onResponseCallbacks[0]).toEqual(callback);
-      expect(client.unsafe_onResponseCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onResponseCallbacks).toHaveLength(2);
+      expect(client.unstable_onResponseCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onResponseCallbacks[1]).toEqual(callback);
     });
   });
 
   describe("When interceptor callbacks go into the execution loop", () => {
-    it("should trigger unsafe_modifyErrorResponse async loop", async () => {
+    it("should trigger unstable_modifyErrorResponse async loop", async () => {
       const callbackAsync = interceptorCallback({ callback: spy1, sleepTime: 20 });
       const callbackSync = interceptorCallback({ callback: spy2 });
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onError(callbackAsync).onError(callbackSync).onError(callbackLast);
-      await client.unsafe_modifyErrorResponse(
+      await client.unstable_modifyErrorResponse(
         {
           data: null,
           error: null,
@@ -85,7 +85,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onSuccess(callbackAsync).onSuccess(callbackSync).onSuccess(callbackLast);
-      await client.unsafe_modifySuccessResponse(
+      await client.unstable_modifySuccessResponse(
         {
           data: null,
           error: null,
@@ -106,7 +106,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onResponse(callbackAsync).onResponse(callbackSync).onResponse(callbackLast);
-      await client.unsafe_modifyResponse(
+      await client.unstable_modifyResponse(
         {
           data: null,
           error: null,
@@ -128,7 +128,7 @@ describe("Client [ Interceptor ]", () => {
       client.onError(() => undefined as any);
 
       await expect(
-        client.unsafe_modifyErrorResponse(
+        client.unstable_modifyErrorResponse(
           {
             data: null,
             error: null,
@@ -146,7 +146,7 @@ describe("Client [ Interceptor ]", () => {
       client.onSuccess(() => undefined as any);
 
       await expect(
-        client.unsafe_modifySuccessResponse(
+        client.unstable_modifySuccessResponse(
           {
             data: null,
             error: null,
@@ -164,7 +164,7 @@ describe("Client [ Interceptor ]", () => {
       client.onResponse(() => undefined as any);
 
       await expect(
-        client.unsafe_modifyResponse(
+        client.unstable_modifyResponse(
           {
             data: null,
             error: null,

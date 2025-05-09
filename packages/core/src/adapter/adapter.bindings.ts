@@ -32,7 +32,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 }) => {
   const { requestManager, loggerManager } = baseRequest.client;
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { unsafe_payloadMapper } = baseRequest.client.adapter;
+  const { unstable_payloadMapper } = baseRequest.client.adapter;
 
   const logger = loggerManager.initialize(baseRequest.client, "Adapter");
 
@@ -56,14 +56,14 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     },
   });
 
-  request = await request.client.unsafe_modifyRequest(request);
+  request = await request.client.unstable_modifyRequest(request);
 
   if (request.auth) {
-    request = await request.client.unsafe_modifyAuth(request);
+    request = await request.client.unstable_modifyAuth(request);
   }
 
-  if (request.unsafe_requestMapper) {
-    request = await request.unsafe_requestMapper(request, requestId);
+  if (request.unstable_requestMapper) {
+    request = await request.unstable_requestMapper(request, requestId);
   }
 
   // Request Setup
@@ -72,10 +72,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
 
-  if (request.unsafe_payloadMapper) {
-    payload = await request.unsafe_payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
-  } else if (unsafe_payloadMapper) {
-    payload = await unsafe_payloadMapper(payload);
+  if (request.unstable_payloadMapper) {
+    payload = await request.unstable_payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
+  } else if (unstable_payloadMapper) {
+    payload = await unstable_payloadMapper(payload);
   }
 
   const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
@@ -261,8 +261,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       requestTimestamp: startTime,
       responseTimestamp: +new Date(),
     };
-    response = (await request.client.unsafe_modifyResponse?.(response, request)) as typeof data;
-    response = (await request.client.unsafe_modifySuccessResponse?.(response, request)) as typeof data;
+    response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
+    response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
 
     client.triggerPlugins("onRequestSuccess", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });
@@ -397,9 +397,9 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     },
   });
 
-  const queryParams = baseRequest.client.adapter.unsafe_queryParamsMapper(request.queryParams);
-  const endpoint = baseRequest.client.adapter.unsafe_endpointMapper(request.endpoint);
-  const headers = baseRequest.client.adapter.unsafe_headerMapper(request);
+  const queryParams = baseRequest.client.adapter.unstable_queryParamsMapper(request.queryParams);
+  const endpoint = baseRequest.client.adapter.unstable_endpointMapper(request.endpoint);
+  const headers = baseRequest.client.adapter.unstable_headerMapper(request);
   const { url } = baseRequest.client;
 
   return {
@@ -465,8 +465,8 @@ export function getAdapterOnError<T extends AdapterInstance>({
       responseTimestamp: +new Date(),
     };
 
-    response = (await client.unsafe_modifyResponse(response, request)) as typeof response;
-    response = (await client.unsafe_modifyErrorResponse(response, request)) as typeof response;
+    response = (await client.unstable_modifyResponse(response, request)) as typeof response;
+    response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
 
     client.triggerPlugins("onRequestError", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });

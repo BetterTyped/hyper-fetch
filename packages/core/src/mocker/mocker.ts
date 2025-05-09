@@ -17,7 +17,7 @@ export const mocker = async <T extends AdapterInstance>({
   onSuccess,
   adapter,
 }: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
-  if (!request.unsafe_mock) {
+  if (!request.unstable_mock) {
     throw new RequestProcessingError("Mock should be defined when calling mocker");
   }
 
@@ -27,8 +27,8 @@ export const mocker = async <T extends AdapterInstance>({
     totalUploaded = 1,
     totalDownloaded = 1,
     timeout = false,
-  } = request.unsafe_mock.config;
-  const result = await request.unsafe_mock.fn({ request, requestId });
+  } = request.unstable_mock.config;
+  const result = await request.unstable_mock.fn({ request, requestId });
 
   const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
 
