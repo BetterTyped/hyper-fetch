@@ -534,14 +534,20 @@ pre {
 
 /* Playground */
 
-.api-playground__more .api-playground__presentation,
-.api-playground__switch {
-  @apply flex bg-zinc-300/10 dark:bg-zinc-700/10 p-4 border dark:border-zinc-300/10 rounded-3xl;
+.live-code-block {
+  @apply mt-4 mb-6;
 }
-.api-playground__preview:not(button) {
-  @apply w-full h-full rounded-2xl bg-zinc-900 shadow-md flex flex-col justify-center items-center gap-5 p-8;
-  flex: 1 1 auto;
-  /* background-image: url(/static/img/background.png); */
+
+.api-playground {
+  @apply min-h-[350px] max-h-[350px] overflow-y-auto relative;
+}
+
+.api-playground__preview {
+  @apply w-full h-full p-4;
+}
+
+.api-playground__preview:not(.api-playground__preview--log) > * {
+  @apply bg-slate-700 rounded-md shadow-md p-4;
 }
 
 .api-playground__label {
@@ -551,10 +557,23 @@ pre {
   @apply flex w-2 h-2 me-3 bg-red-500 rounded-full ml-2;
 }
 .api-playground__error {
+  @apply absolute bottom-0 left-0 right-0;
   @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200 text-sm;
 }
+.api-playground__editor-wrapper {
+  @apply min-h-[350px] max-h-[350px] overflow-y-auto translate-y-[-1px] xl:rounded-bl-md;
+}
+.api-playground__editor-wrapper > div:first-child {
+  @apply z-10 sticky !h-0 flex items-center justify-end;
+}
+.api-playground__editor-wrapper:hover button {
+  @apply !opacity-100;
+}
 .api-playground__editor {
-  @apply relative bg-[#1c1c1d] !rounded-b-xl overflow-hidden;
+  @apply bg-[#1c1c1d] border border-transparent min-h-[350px];
+}
+.api-playground__editor * {
+  @apply !text-sm;
 }
 button.api-playground__more {
   @apply absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-white font-semibold bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-full text-sm px-3 py-1 text-center me-2 mb-2 dark:focus:ring-blue-900;
@@ -579,19 +598,36 @@ button.api-playground__more {
 }
 
 .api-playground__controls {
-  @apply flex gap-2 justify-start mb-4;
+  @apply flex gap-2 justify-start;
 }
-.api-playground__controls button {
-  @apply flex items-center py-2 px-4 text-sm rounded-xl;
+.api-playground__header {
+  @apply border-b border-zinc-500/30;
 }
-.api-playground__controls button:not(.api-playground__active) {
-  @apply hover:bg-zinc-600/20;
+
+.api-playground__log-row * {
+  @apply text-xs;
 }
-.api-playground__controls button.api-playground__active {
-  @apply shiny-btn;
+.api-playground__log-row {
+  @apply -mx-4;
 }
-.api-playground__controls svg {
-  @apply w-4 h-4 mr-2 dark:fill-white;
+.api-playground__log-row:nth-child(2n) {
+  @apply bg-zinc-600/15;
+}
+.api-playground__log-row pre {
+  @apply p-2 bg-transparent;
+}
+
+.api-playground__preview--log {
+  @apply !p-4;
+}
+.api-playground__log-row__index div {
+  @apply flex items-center justify-center w-6 h-6 mt-1 mb-1 ml-2 bg-zinc-700/70;
+}
+.api-playground__log-row:nth-child(2n) .api-playground__log-row__index div {
+  @apply bg-zinc-600;
+}
+.api-playground__no-logs {
+  @apply !text-zinc-400/70;
 }
 
 /* Main */
@@ -2027,4 +2063,21 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 .tippy-box .tippy-arrow {
   @apply text-zinc-900;
+}
+
+/* Tailwind-like shine animation for direct CSS use */
+@keyframes border-shine {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.shine-animate {
+  animation: border-shine var(--duration, 2s) infinite linear;
 }

@@ -145,7 +145,6 @@ const config: Config = {
 
   plugins: [
     "docusaurus-plugin-sass",
-    "@docusaurus/theme-live-codeblock",
     async function tailwindPlugin() {
       return {
         name: "docusaurus-tailwindcss",
