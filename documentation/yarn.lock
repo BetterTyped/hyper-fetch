@@ -1935,7 +1935,7 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
-"@better-hooks/lifecycle@^1.1.1", "@better-hooks/lifecycle@^1.1.2":
+"@better-hooks/lifecycle@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-1.1.2.tgz#474ba9ea72c74acc1d522819733aa44e35e1db7c"
   integrity sha512-dyFNHMtLJzJ0eY9u6iprPEMeWsgveIE8U3CtqaV3EG6DwsEyb1ICnooBap7mAG+Curr26OzO9/n6+gCUQ85gWg==
@@ -1944,11 +1944,6 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-2.0.0.tgz#efa2961d1496d67357726e0923d5b191f4018b1a"
   integrity sha512-VACrnIj/rrHwIiwIMqt7zijtpluhqIOeU3ivZgn2QC9OXGIKvi4vOhPo159NxmJVw+RonwOfNc25EXHAvAJvoA==
-
-"@better-hooks/performance@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-1.1.1.tgz#fde0f8a26ecacc5b48f06a6b090a78d023949e4a"
-  integrity sha512-32IPpMaVgE8aVT/6liXxfETIOO5zTL5VySxiK8qA8F140s89UuV6BUknLPQEPsniJoxZdXYSkVx79hLrk8GPug==
 
 "@better-hooks/performance@^2.0.0":
   version "2.0.0"
@@ -2736,6 +2731,17 @@
     "@docusaurus/theme-search-algolia" "3.7.0"
     "@docusaurus/types" "3.7.0"
 
+"@docusaurus/remark-plugin-npm2yarn@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@docusaurus/remark-plugin-npm2yarn/-/remark-plugin-npm2yarn-3.7.0.tgz#ccbd81c0990dce2862240211897e45a1d63c6859"
+  integrity sha512-2QkZh75vZzPefW5Ljt8gwc1i0ERuS0MRZTEwHsSXSi6vc2NpLVbcmfIuHhwR8o0PcGVTxmBEhQRP0NN1vHdOAA==
+  dependencies:
+    mdast-util-mdx "^3.0.0"
+    npm-to-yarn "^3.0.0"
+    tslib "^2.6.0"
+    unified "^11.0.3"
+    unist-util-visit "^5.0.0"
+
 "@docusaurus/theme-classic@3.7.0":
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/@docusaurus/theme-classic/-/theme-classic-3.7.0.tgz#b483bd8e2923b6994b5f47238884b9f8984222c5"
@@ -2924,20 +2930,13 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@hyper-fetch/core@^5.7.3":
-  version "5.7.5"
-  resolved "https://registry.yarnpkg.com/@hyper-fetch/core/-/core-5.7.5.tgz#35264ba92227852c0fb1a2959220b8b97cbe9384"
-  integrity sha512-8BorcX7uoWd3UuJ60uHfR6qxaDJLBxnownY1BjzKjuO6PLHIriAGF9eYyI/1K7b6LU780mbDo8Lv4p+Co6A2Pg==
-  dependencies:
-    events "^3.3.0"
+"@hyper-fetch/core@link:../node_modules/@hyper-fetch/core":
+  version "0.0.0"
+  uid ""
 
-"@hyper-fetch/react@^5.7.3":
-  version "5.7.5"
-  resolved "https://registry.yarnpkg.com/@hyper-fetch/react/-/react-5.7.5.tgz#b22c64221a55eb2a6b10487a5ca5386e726edafb"
-  integrity sha512-yhjHivOkTMB/PXvApIdC1YVGajtSk6sNgLBgxc6pIvb6xXz5xd7RmJdT+o/aBkWjf39VU/jYFfaI6ds89sRWuQ==
-  dependencies:
-    "@better-hooks/lifecycle" "^1.1.1"
-    "@better-hooks/performance" "^1.1.1"
+"@hyper-fetch/react@link:../node_modules/@hyper-fetch/react":
+  version "0.0.0"
+  uid ""
 
 "@iconify/types@^2.0.0":
   version "2.0.0"
@@ -3517,6 +3516,15 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@rspack/lite-tapable/-/lite-tapable-1.0.1.tgz#d4540a5d28bd6177164bc0ba0bee4bdec0458591"
   integrity sha512-VynGOEsVw2s8TAlLf/uESfrgfrq2+rcXB1muPJYBWbsm1Oa6r5qVQhjA5ggM6z/coYPrsVMgovl3Ff7Q7OCp1w==
+
+"@sapphire/docusaurus-plugin-npm2yarn2pnpm@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@sapphire/docusaurus-plugin-npm2yarn2pnpm/-/docusaurus-plugin-npm2yarn2pnpm-2.0.2.tgz#8bdef502dd01cac2894a1bd0d6c3c1d6a4aabb56"
+  integrity sha512-hJ8t9mWuCTppMfC3PC6mMbRVPVqEqA1Tthz2ImoIwM5Xd53Hv9pOaAhTYFsMm10J/zOJYU7933iwG2WnkguOWg==
+  dependencies:
+    mdast-util-mdx "^3.0.0"
+    unified "^11.0.4"
+    unist-util-visit "^5.0.0"
 
 "@sideway/address@^4.1.5":
   version "4.1.5"
@@ -10275,6 +10283,11 @@ npm-run-path@^4.0.1:
   integrity sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==
   dependencies:
     path-key "^3.0.0"
+
+npm-to-yarn@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/npm-to-yarn/-/npm-to-yarn-3.0.1.tgz#d1ed47551321ad5cd51342729fe21c8146644529"
+  integrity sha512-tt6PvKu4WyzPwWUzy/hvPFqn+uwXO0K1ZHka8az3NnrhWJDmSqI8ncWq0fkL0k/lmmi5tAC11FXwXuh0rFbt1A==
 
 nprogress@^0.2.0:
   version "0.2.0"

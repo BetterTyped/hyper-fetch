@@ -870,6 +870,54 @@ pre[class*="language-"] > code {
   @apply bg-[#232326];
 }
 
+.code-block-diff-add-line {
+  @apply bg-green-400/20;
+  display: block;
+  margin: 0 -40px;
+  padding: 0 40px;
+}
+
+.code-block-diff-add-line::before {
+  position: absolute;
+  left: 8px;
+  padding-right: 8px;
+  content: "+";
+}
+
+.code-block-diff-remove-line {
+  @apply bg-red-400/20;
+  display: block;
+  margin: 0 -40px;
+  padding: 0 40px;
+}
+
+.code-block-diff-remove-line::before {
+  position: absolute;
+  left: 8px;
+  padding-right: 8px;
+  content: "-";
+}
+
+.code-block-error-line {
+  @apply bg-red-400/20;
+  display: block;
+  margin: 0 -40px;
+  padding: 0 40px;
+}
+
+/**
+ * use magic comments to mark diff blocks
+ */
+pre code:has(.code-block-diff-add-line) {
+  padding-left: 40px !important;
+}
+
+pre code:has(.code-block-diff-remove-line) {
+  padding-left: 40px !important;
+}
+
+/* Alerts */
+
 .alert *:not(pre) > code {
   @apply bg-zinc-400/20 border-zinc-600/5 dark:bg-zinc-50/10 dark:border-zinc-50/5 border;
 }
@@ -889,6 +937,7 @@ pre[class*="language-"] > code {
   @apply inset-0 absolute [background-image:radial-gradient(88%_100%_at_top,rgba(255,255,255,0.5),rgba(255,255,255,0))] z-[1] opacity-30 pointer-events-none;
 }
 .alert > div:first-child {
+  line-height: 1.9;
   @apply mb-3 text-2xl capitalize font-extrabold flex items-center;
 }
 .alert > div:first-child svg {

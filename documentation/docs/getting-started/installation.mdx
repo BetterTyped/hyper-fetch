@@ -4,10 +4,6 @@ title: Installation
 sidebar_label: Installation
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import { LinkCard } from "@site/src/components";
-
 An installation of Hyper Fetch can be run `clean` or for a specific environment. However, we only currently support
 React.
 
@@ -23,36 +19,9 @@ The main `@hyper-fetch/core` package is required for other sub packages to work.
 
 For minimal installation, you need to install the core package and eslint plugin.
 
-<Tabs>
-  <TabItem value="npm" label="npm" default>
-
-```bash npm2yarn
+```bash npm2yarn2pnpm
 npm install --save @hyper-fetch/core eslint-plugin-hyper-fetch
 ```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```bash npm2yarn
-yarn add @hyper-fetch/core eslint-plugin-hyper-fetch
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```bash npm2yarn
-pnpm add @hyper-fetch/core eslint-plugin-hyper-fetch
-```
-
-  </TabItem>
-  <TabItem value="bun" label="bun">
-
-```bash npm2yarn
-bun add @hyper-fetch/core eslint-plugin-hyper-fetch
-```
-
-  </TabItem>
-</Tabs>
 
 :::warning
 
@@ -67,36 +36,9 @@ typescript via checking the object generic types to match exact schema.
 
 Sockets is created for handling websockets or server sent events.
 
-<Tabs>
-  <TabItem value="npm" label="npm" default>
-
-```bash npm2yarn
+```bash npm2yarn2pnpm
 npm install --save @hyper-fetch/sockets
 ```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```bash npm2yarn
-yarn add @hyper-fetch/sockets
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```bash npm2yarn
-pnpm add @hyper-fetch/sockets
-```
-
-  </TabItem>
-  <TabItem value="bun" label="bun">
-
-```bash npm2yarn
-bun add @hyper-fetch/sockets
-```
-
-  </TabItem>
-</Tabs>
 
 ---
 
@@ -105,36 +47,9 @@ bun add @hyper-fetch/sockets
 React allows the installation of the base library with hooks, offering interfaces that facilitate library usage and
 support the application lifecycle.
 
-<Tabs>
-  <TabItem value="npm" label="npm" default>
-
-```bash npm2yarn
-npm install --save @hyper-fetch/core @hyper-fetch/react
-```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```bash npm2yarn
-yarn add @hyper-fetch/core @hyper-fetch/react
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```bash npm2yarn
-pnpm add @hyper-fetch/core @hyper-fetch/react
-```
-
-  </TabItem>
-  <TabItem value="bun" label="bun">
-
-```bash npm2yarn
+```bash npm2yarn2pnpm
 bun add @hyper-fetch/core @hyper-fetch/react
 ```
-
-  </TabItem>
-</Tabs>
 
 ---
 

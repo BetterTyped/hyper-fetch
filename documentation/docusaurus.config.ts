@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import plugin from "@docsgen/docusaurus";
 import { importer } from "@docsgen/core";
+import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yarn2pnpm";
 
 import docsVersions from "./versions.json";
 
@@ -124,6 +125,7 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
           remarkPlugins: [
+            convertNpmToPackageManagers,
             importer({
               packageRoute: apiDocs,
               apiDir: apiDocsDir,
@@ -306,6 +308,28 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} BetterTyped.`,
     },
     prism: {
+      magicComments: [
+        {
+          className: "code-block-diff-add-line",
+          line: "diff-add-next-line",
+          block: { start: "diff-add-start", end: "diff-add-end" },
+        },
+        {
+          className: "code-block-diff-remove-line",
+          line: "diff-remove-next-line",
+          block: { start: "diff-remove-start", end: "diff-remove-end" },
+        },
+        {
+          className: "theme-code-block-highlighted-line",
+          line: "highlight-next-line",
+          block: { start: "highlight-start", end: "highlight-end" },
+        },
+        {
+          className: "code-block-error-line",
+          line: "error-next-line",
+          block: { start: "error-start", end: "error-end" },
+        },
+      ],
       theme: {
         plain: {},
         styles: [

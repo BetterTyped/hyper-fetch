@@ -8,6 +8,7 @@ alwaysApply: false
 
 ## General Guidelines
 
+- We're using docusaurus and its features to build our documentation
 - Keep documentation clear, concise, and up-to-date
 - Use consistent language and tone throughout
 - Write for your audience (developers, end-users, etc.)
@@ -15,6 +16,25 @@ alwaysApply: false
 - Use active voice and present tense
 - Include examples for complex concepts
 - Limit each document to a single topic or concern
+
+## Inspirations
+
+The documentation approach in this project is inspired by the best practices found in the React and Stripe
+documentation. Both of these projects are renowned for their:
+
+- **Clarity and Simplicity**: Information is presented in a clear, concise, and approachable manner, making it easy for
+  developers of all experience levels to understand and use.
+- **Logical Structure**: Content is organized with a strong hierarchy, intuitive navigation, and consistent formatting,
+  helping users quickly find what they need.
+- **Comprehensive Examples**: Both documentations provide real-world, copy-pastable code examples that are always
+  up-to-date and verified against the latest version of the library.
+- **Developer-Centric Focus**: The needs of developers are prioritized, with detailed guides, API references, and
+  troubleshooting sections that address common use cases and pain points.
+- **Visual Aids and Interactivity**: Use of diagrams, interactive elements, and visual cues to enhance understanding of
+  complex concepts.
+
+By drawing inspiration from React and Stripe, this project aims to deliver documentation that is not only technically
+accurate but also highly usable, discoverable, and enjoyable for all users.
 
 ## Markdown Usage
 
@@ -100,20 +120,17 @@ The documentation supports two primary ways to create links between pages:
 
    - Always use relative paths from the root
    - All paths should start with `/documentation/docs/`
-   - Include the file extension (`.md` or `.mdx`)
    - Use descriptive link text that indicates the target content
 
 2. **LinkCard Component**
 
    ```jsx
-   import { LinkCard } from "@site/src/components";
-
    <LinkCard
      type="guides" // guides | docs | integrations | promo | api
      title="Guide Title"
      description="Brief description of the linked content"
-     to="/documentation/docs/guides/specific-guide.md"
-   />;
+     to="/documentation/docs/guides/specific-guide"
+   />
    ```
 
    - Use for featured or important links that deserve visual emphasis
@@ -137,52 +154,6 @@ The documentation supports two primary ways to create links between pages:
 - **File extension is mandatory** - always include either `.md` or `.mdx` at the end of every link
 - Never omit the file extension, as this can break documentation navigation and versioning
 - This applies to both standard Markdown links and LinkCard component paths
-
-## Code Examples
-
-- Provide complete, working code examples
-- Use syntax highlighting with proper language tags
-- Make examples copy-pastable when possible
-- Include comments to explain complex parts
-- Show both basic and advanced use cases
-- Update examples when the API changes
-- Test all code examples to ensure they work
-- Ensure examples are highly accessible by using appropriate syntax highlighting, clear formatting, and sufficient color
-  contrast for improved readability
-- **Keep examples brief and focused** - Each example should demonstrate a single concept or feature rather than trying
-  to showcase multiple capabilities at once
-- **Base examples on actual code** - All code examples must be based on the actual implementation in the `/packages`
-  directory
-- **Do not create hypothetical examples** - Don't create examples that haven't been verified against the actual codebase
-- **Reference existing implementations** - If unsure how something works, examine the source code in the packages
-  directory first
-- **Request clarification when needed** - If you need more information about implementation details, ask for specific
-  paths or reference code
-- **Test all examples** - Verify that code examples actually work with the current library version before including them
-- **Include imports** - Always show the necessary imports for the examples to work
-
-### Code Example Accuracy Requirements
-
-- **Never hallucinate code examples** - All examples must be based on real, working code from the `/packages` directory
-- **Examine the source code first** - Before writing an example, thoroughly review the actual implementation in the
-  codebase, search for the tests which can give you better idea on how something works
-- **Reproduce real-world usage patterns** - Follow the patterns and conventions used in the actual codebase
-- **Respect types and signatures** - Ensure all parameter types and return values match the actual implementation
-- **When in doubt, ask** - If you're unsure how a feature works, ask for specific paths to reference code instead of
-  guessing
-- **Document limitations** - Be clear about any constraints or edge cases in the implementation
-- **Indicate version compatibility** - Note which versions of the library the example works with
-
-### Example Verification Process
-
-1. Locate the relevant code in the `/packages` directory, each have `__tests__` directory with many examples of the code
-2. Understand the implementation and API surface
-3. Create a minimal working example that demonstrates the feature
-4. Test the example to ensure it works as expected
-5. Document any dependencies or prerequisites
-6. Include complete import statements and configuration
-7. Add explanatory comments for complex parts
-8. Verify the example against the latest version of the library
 
 ## Documentation Types and Locations
 
@@ -254,3 +225,142 @@ The documentation supports two primary ways to create links between pages:
 - Write in plain language, avoiding jargon when possible
 - Define acronyms and technical terms
 - Ensure documentation is responsive for mobile devices
+
+## Code Examples
+
+- Provide complete, working code examples
+- Use syntax highlighting with proper language tags
+- Make examples copy-pastable when possible
+- Include comments to explain complex parts
+- Show both basic and advanced use cases
+- Update examples when the API changes
+- Test all code examples to ensure they work
+- Ensure examples are highly accessible by using appropriate syntax highlighting, clear formatting, code diffs and
+  sufficient color contrast for improved readability
+
+- **Keep examples brief and focused** - Each example should demonstrate a single concept or feature rather than trying
+  to showcase multiple capabilities at once
+- **Base examples on actual code** - All code examples must be based on the actual implementation in the `/packages`
+  directory
+- **Do not create hypothetical examples** - Don't create examples that haven't been verified against the actual codebase
+- **Reference existing implementations** - If unsure how something works, examine the source code in the packages
+  directory first
+- **Request clarification when needed** - If you need more information about implementation details, ask for specific
+  paths or reference code
+- **Test all examples** - Verify that code examples actually work with the current library version before including them
+- **Include imports** - Always show the necessary imports for the examples to work
+
+### Code Example Accuracy Requirements
+
+- **Never hallucinate code examples** - All examples must be based on real, working code from the `/packages` directory
+- **Examine the source code first** - Before writing an example, thoroughly review the actual implementation in the
+  codebase, search for the tests which can give you better idea on how something works
+- **Reproduce real-world usage patterns** - Follow the patterns and conventions used in the actual codebase
+- **Respect types and signatures** - Ensure all parameter types and return values match the actual implementation
+- **When in doubt, ask** - If you're unsure how a feature works, ask for specific paths to reference code instead of
+  guessing
+- **Document limitations** - Be clear about any constraints or edge cases in the implementation
+- **Indicate version compatibility** - Note which versions of the library the example works with
+
+### Example Verification Process
+
+1. Locate the relevant code in the `/packages` directory, each have `__tests__` directory with many examples of the code
+2. Understand the implementation and API surface
+3. Create a minimal working example that demonstrates the feature
+4. Test the example to ensure it works as expected
+5. Document any dependencies or prerequisites
+6. Include complete import statements and configuration
+7. Add explanatory comments for complex parts
+8. Verify the example against the latest version of the library
+
+### Code Highlighting in Examples
+
+To emphasize specific lines or sections in code examples, use the following comment markers:
+
+```js
+// highlight-start
+// ... code to highlight ...
+// highlight-end
+
+// highlight-next-line
+const important = true;
+```
+
+- Place `// highlight-start` before the code you want to highlight and `// highlight-end` after.
+- Use `// highlight-next-line` to highlight only the line immediately following the comment.
+- This works for JavaScript, TypeScript, and other languages that support `//` comments. For other languages, use the
+  appropriate comment syntax (e.g., `#` for Python).
+- Use highlighting sparingly to draw attention to the most important parts of an example, such as key logic,
+  configuration, or changes.
+- Do not use highlighting for entire code blocks unless every line is essential.
+- Always ensure highlighted code is accurate and up-to-date with the actual implementation.
+
+### Red Highlighting for Errors
+
+To visually indicate lines that will cause an error (red highlight), use the following comment:
+
+```js
+// error-next-line
+throw new Error(1);
+// Throws the Error(1)
+
+// error-start
+function error() {
+  throw new Error(1);
+}
+// error-end
+// Throws the Error(1)
+```
+
+- Place `// error-...` directly above the line that should be highlighted in red as an error.
+- Use this only for lines that are expected to throw or demonstrate incorrect usage.
+- This helps readers quickly identify problematic code in examples.
+- Leave helpful comments with error details under it
+
+### Showing Code Diffs in Examples
+
+To illustrate code changes (diffs) in examples, use the following comment markers:
+
+```js
+// diff-add-next-line
+const newValue = 2;
+
+// diff-remove-next-line
+const oldValue = 1;
+
+// diff-add-start
+const foo = 1;
+const bar = 2;
+// diff-add-end
+
+// diff-remove-start
+const oldFoo = 0;
+const oldBar = 0;
+// diff-remove-end
+```
+
+- Use `// diff-remove-...` to indicate a line that should be shown as removed in a diff.
+- Use `// diff-add-...` to indicate a line that should be shown as added in a diff.
+- Place the comments directly above the relevant lines.
+- This helps readers quickly understand what has changed between code versions or in upgrade guides.
+- Only use these markers when demonstrating code changes, migrations, or upgrade steps.
+
+### Creating Live Code Examples
+
+To provide interactive, live-editable code examples in the documentation, use the `live` option in your code block:
+
+```tsx live
+function Example() {
+  return <div>Hello, world!</div>;
+}
+```
+
+```ts live
+console.log(123);
+```
+
+- Add `live` after the language identifier (e.g., `{lang} live`) to enable live editing and preview.
+- Use this for React or TypeScript code that benefits from interactive demonstration.
+- Keep live examples minimal and focused on a single concept.
+- Ensure all live examples are functional and error-free.
+- Only use live examples where interactivity adds value for the reader.
