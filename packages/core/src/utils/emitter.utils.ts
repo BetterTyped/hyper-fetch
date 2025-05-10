@@ -3,7 +3,7 @@ import Emitter from "events";
 const getListenName = (event: string | symbol) => `listen_${String(event)}`;
 
 export class EventEmitter extends Emitter {
-  emitCallbacks?: Array<(event: string, data: any, isTriggeredExternally: boolean) => void>;
+  emitCallbacks: Array<(event: string, data: any, isTriggeredExternally: boolean) => void> = [];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(options?: ConstructorParameters<typeof Emitter>[0]) {
