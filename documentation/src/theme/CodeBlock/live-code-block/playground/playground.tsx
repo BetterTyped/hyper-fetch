@@ -2,9 +2,11 @@ import React from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/ui/tabs";
 
 import { globalScope } from "./global-scope";
 import { createGlobalRequests } from "./create-global-requests";
+import { ClientRequests } from "../components/client-requests";
 
 const RENDER_PREFIX = "render(";
 
@@ -66,7 +68,7 @@ export const transformCode = (code: string): string => {
 
     return (
       <div className="w-full h-full">
-        <div className="text-sm font-semibold text-zinc-400 mb-2">Output:</div>
+        <div className="text-lg font-semibold text-zinc-400 mb-2">Output:</div>
         {!logs?.length && (
           <div className="api-playground__no-logs flex items-center gap-2">
             <TinyLoader />
@@ -125,7 +127,7 @@ export const transformCode = (code: string): string => {
 };
 
 const pipeline = [removeImports, transformCode];
-export const Playground = ({ code }: { code: string }) => {
+export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "playground" | "requests" }) => {
   const stringifiedCode = pipeline.reduce((transformedCode, fn) => fn(transformedCode), code);
 
   const client = createClient({
@@ -135,24 +137,34 @@ export const Playground = ({ code }: { code: string }) => {
   const requests = createGlobalRequests(client);
 
   const isLog = stringifiedCode.includes("const [logs, setLogs] = React.useState<Array<Array<any>>>([]);");
+  const tab = defaultTab ?? (isLog ? "requests" : "playground");
 
   return (
-    <div className={cn(`api-playground`)}>
-      <LiveProvider
-        code={transformCode(stringifiedCode)}
-        scope={{
-          ...globalScope,
-          ...requests,
-          client,
-          // So console.log can be used in the playground and override to render logs
-          // This way we are isolating the console.log to the playground
-          console: deepClone(window.console),
-        }}
-        noInline
-      >
-        <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
-        <LiveError className="api-playground__error" />
-      </LiveProvider>
-    </div>
+    <Tabs defaultValue={tab} className={cn("api-playground w-full")}>
+      <TabsList className="ml-3 mt-2">
+        <TabsTrigger value="playground">{isLog ? "Console" : "Playground"}</TabsTrigger>
+        <TabsTrigger value="requests">Requests</TabsTrigger>
+      </TabsList>
+      <TabsContent value="playground" className="w-full data-[state=inactive]:hidden" forceMount>
+        <LiveProvider
+          code={transformCode(stringifiedCode)}
+          scope={{
+            ...globalScope,
+            ...requests,
+            client,
+            // So console.log can be used in the playground and override to render logs
+            // This way we are isolating the console.log to the playground
+            console: deepClone(window.console),
+          }}
+          noInline
+        >
+          <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
+          <LiveError className="api-playground__error" />
+        </LiveProvider>
+      </TabsContent>
+      <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
+        <ClientRequests client={client} />
+      </TabsContent>
+    </Tabs>
   );
 };

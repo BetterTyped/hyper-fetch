@@ -26,6 +26,7 @@
     "@hyper-fetch/core": "link:../node_modules/@hyper-fetch/core",
     "@hyper-fetch/react": "link:../node_modules/@hyper-fetch/react",
     "@mdx-js/react": "^3.0.0",
+    "@radix-ui/react-tabs": "^1.1.11",
     "@react-theater/scroll": "^1.0.0",
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.17.10",

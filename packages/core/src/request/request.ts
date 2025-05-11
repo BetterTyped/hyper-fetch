@@ -322,10 +322,6 @@ export class Request<
   };
 
   /**
-   * Mappers
-   */
-
-  /**
    * Map data before it gets send to the server
    * @param payloadMapper
    * @returns

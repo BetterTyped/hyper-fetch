@@ -2,9 +2,14 @@ import { ProgressType, RequestInstance, QueueItemType, Dispatcher } from "@hyper
 
 export type UseQueueOptionsType = {
   queueType?: "auto" | "fetch" | "submit";
+  keepFinishedRequests?: boolean;
 };
 
 export type QueueRequest<Request extends RequestInstance> = QueueItemType<Request> & {
+  failed?: boolean;
+  canceled?: boolean;
+  removed?: boolean;
+  success?: boolean;
   /**
    * Uploading progress for given request
    */

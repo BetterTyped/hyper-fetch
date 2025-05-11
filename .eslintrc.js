@@ -60,6 +60,7 @@ module.exports = {
         "react/jsx-props-no-spreading": 0,
         "react/function-component-definition": 0,
         "react/require-default-props": 0,
+        "spaced-comment": 0,
         "@typescript-eslint/ban-types": [
           "error",
           {

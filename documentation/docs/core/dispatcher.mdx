@@ -84,6 +84,30 @@ client.fetchDispatcher.stopRequest("my-queue-key", "requestId");
 client.fetchDispatcher.startRequest("my-queue-key", "requestId");
 ```
 
+```tsx live clickToRun
+const getUserCancelable = getUser.setQueued(true);
+
+let response1 = getUserCancelable.send();
+getUserCancelable.send();
+getUserCancelable.send();
+
+const response = await response1;
+
+console.log(response);
+```
+
+```tsx live
+const MyApp = () => {
+  const { data, loading } = useFetch(getUser);
+  return (
+    <div>
+      {data && <div>{JSON.stringify(data)}</div>}
+      {loading && <Loader />}
+    </div>
+  );
+};
+```
+
 ### Offline
 
 When the connection is lost, the queue is stopped and the failed or interrupted requests will wait for the connection to

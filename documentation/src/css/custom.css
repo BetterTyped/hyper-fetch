@@ -618,7 +618,7 @@ button.api-playground__more {
 }
 
 .api-playground__preview--log {
-  @apply !p-4;
+  @apply !p-4 !pt-0;
 }
 .api-playground__log-row__index div {
   @apply flex items-center justify-center w-6 h-6 mt-1 mb-1 ml-2 bg-zinc-700/70;

@@ -15,11 +15,14 @@ export const mocker = async <T extends AdapterInstance>({
   onBeforeRequest,
   onRequestStart,
   onSuccess,
+  onAbortError,
   adapter,
 }: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
   if (!request.unstable_mock) {
     throw new RequestProcessingError("Mock should be defined when calling mocker");
   }
+
+  let aborted = false;
 
   const {
     requestTime = 20,
@@ -32,7 +35,13 @@ export const mocker = async <T extends AdapterInstance>({
 
   const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
 
-  createAbortListener({ status: adapter.systemErrorStatus, extra: adapter.systemErrorExtra, onAbort: () => {} });
+  createAbortListener({
+    status: adapter.systemErrorStatus,
+    extra: adapter.systemErrorExtra,
+    onAbort: () => {
+      aborted = true;
+    },
+  });
 
   onBeforeRequest();
   onRequestStart();
@@ -43,31 +52,53 @@ export const mocker = async <T extends AdapterInstance>({
     progressFunction: typeof onResponseProgress | typeof onRequestProgress,
   ) =>
     new Promise((resolveProgress) => {
+      if (aborted) {
+        resolveProgress(true);
+        return;
+      }
+
       const interval = 20;
       const dataStart = +new Date();
-      const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
+      const intervals = Math.ceil(totalTime / interval);
+      const chunkSize = Math.ceil(totalSize / intervals);
       let currentlyLoaded = 0;
       const timer = setInterval(function handleProgressInterval() {
+        if (aborted) {
+          resolveProgress(true);
+          clearInterval(timer);
+        }
+
         const currentTime = Math.min(totalTime, +new Date() - dataStart);
         currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
+        progressFunction({
+          total: totalSize,
+          loaded: currentTime >= totalTime ? totalSize : currentlyLoaded,
+        });
+
         if (currentTime >= totalTime) {
           resolveProgress(true);
           clearInterval(timer);
-        } else {
-          progressFunction({
-            total: totalSize,
-            loaded: currentlyLoaded,
-          });
         }
       }, interval);
     });
 
   const getResponse = async () => {
-    await progress(requestTime, totalUploaded, onRequestProgress);
-    onRequestEnd();
-    onResponseStart();
-    await progress(responseTime, totalDownloaded, onResponseProgress);
-    if (success || (error && data)) {
+    if (!aborted) {
+      await progress(requestTime, totalUploaded, onRequestProgress);
+    }
+    if (!aborted) {
+      onRequestEnd();
+      onResponseStart();
+    }
+    if (!aborted) {
+      await progress(responseTime, totalDownloaded, onResponseProgress);
+    }
+    if (aborted) {
+      onAbortError({
+        status: adapter.systemErrorStatus,
+        extra: adapter.systemErrorExtra,
+      });
+    } else if (success || (error && data)) {
       onSuccess({
         data,
         error,
@@ -81,6 +112,9 @@ export const mocker = async <T extends AdapterInstance>({
         extra: extra as ExtractAdapterExtraType<T>,
       });
     }
+    if (!aborted) {
+      onResponseEnd();
+    }
   };
 
   if (timeout) {
@@ -93,8 +127,6 @@ export const mocker = async <T extends AdapterInstance>({
       1,
     );
   } else {
-    setTimeout(getResponse, requestTime + responseTime + 1);
+    await getResponse();
   }
-
-  onResponseEnd();
 };

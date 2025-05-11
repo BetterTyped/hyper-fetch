@@ -11,7 +11,8 @@ export const LiveCodeBlock = ({
   children,
   className,
   clickToRun = false,
-}: CodeBlockProps & { clickToRun?: boolean }) => {
+  defaultTab,
+}: CodeBlockProps & { clickToRun?: boolean; defaultTab?: "playground" | "requests" }) => {
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
   const [isRunning, setIsRunning] = useState(false);
@@ -55,7 +56,7 @@ export const LiveCodeBlock = ({
             </button>
           </div>
         ) : (
-          <Playground code={code} key={key} />
+          <Playground code={code} key={key} defaultTab={defaultTab} />
         )}
       </div>
     </div>
