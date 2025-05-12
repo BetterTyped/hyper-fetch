@@ -6,6 +6,8 @@ import { ShineBorder } from "@site/src/components/ui/shine-beam";
 
 import { Editor } from "./editor/editor";
 import { Playground } from "./playground/playground";
+import { ShinyButton } from "@site/src/components/ui/shiny-btn";
+import { DotPattern } from "@site/src/components/ui/dot-pattern";
 
 export const LiveCodeBlock = ({
   children,
@@ -27,7 +29,7 @@ export const LiveCodeBlock = ({
       )}
     >
       <ShineBorder duration={12} shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
-      <div className="api-playground__header flex items-center p-2 text-gray-400 justify-between border-b">
+      <div className="api-playground__header">
         <span className="text-sm font-bold">Live results</span>
         <div className="api-playground__controls">
           <button
@@ -45,19 +47,22 @@ export const LiveCodeBlock = ({
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2">
         <Editor code={code} setCode={setCode} />
-        {clickToRun && !isRunning ? (
-          <div className="api-playground__run-example min-h-[350px] w-full flex items-center justify-center">
-            <button
-              type="button"
-              className="shiny-btn flex gap-2 items-center py-1 px-3"
-              onClick={() => setIsRunning(true)}
-            >
-              <Play className="w-4 h-4" /> Run Example
-            </button>
+        <div className="api_playground_wrapper relative">
+          <DotPattern
+            className={cn("[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50")}
+          />
+          <div className="relative z-10">
+            {clickToRun && !isRunning ? (
+              <div className="api-playground__run-example min-h-[400px] w-full flex items-center justify-center">
+                <ShinyButton onClick={() => setIsRunning(true)}>
+                  <Play className="w-4 h-4" /> Run Example
+                </ShinyButton>
+              </div>
+            ) : (
+              <Playground code={code} key={key} defaultTab={defaultTab} />
+            )}
           </div>
-        ) : (
-          <Playground code={code} key={key} defaultTab={defaultTab} />
-        )}
+        </div>
       </div>
     </div>
   );

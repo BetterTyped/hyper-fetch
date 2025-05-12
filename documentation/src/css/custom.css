@@ -35,6 +35,38 @@
 
 :root {
   --doc-sidebar-width: 235px !important;
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 85.7% 97.3%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 240 4.9% 83.9%;
 }
 
 /*********************************************************
@@ -538,8 +570,17 @@ pre {
   @apply mt-4 mb-6;
 }
 
+.api-playground__header {
+  @apply flex items-center py-2 px-4 text-gray-400 justify-between border-b;
+  @apply dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-800 dark:border-zinc-700 dark:text-zinc-100;
+}
+
+.api_playground_wrapper {
+  @apply relative;
+}
+
 .api-playground {
-  @apply min-h-[350px] max-h-[350px] overflow-y-auto relative;
+  @apply min-h-[400px] max-h-[400px] overflow-y-auto relative;
 }
 
 .api-playground__preview {
@@ -561,7 +602,7 @@ pre {
   @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200 text-sm;
 }
 .api-playground__editor-wrapper {
-  @apply min-h-[350px] max-h-[350px] overflow-y-auto translate-y-[-1px] xl:rounded-bl-md;
+  @apply min-h-[400px] max-h-[400px] overflow-y-auto translate-y-[-1px] xl:rounded-bl-md;
 }
 .api-playground__editor-wrapper > div:first-child {
   @apply z-10 sticky !h-0 flex items-center justify-end;
@@ -570,7 +611,7 @@ pre {
   @apply !opacity-100;
 }
 .api-playground__editor {
-  @apply bg-[#1c1c1d] border border-transparent min-h-[350px];
+  @apply bg-[#1c1c1d] border border-transparent min-h-[400px];
 }
 .api-playground__editor * {
   @apply !text-sm;

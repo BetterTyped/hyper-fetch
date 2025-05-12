@@ -140,7 +140,7 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
   const tab = defaultTab ?? (isLog ? "requests" : "playground");
 
   return (
-    <Tabs defaultValue={tab} className={cn("api-playground w-full")}>
+    <Tabs defaultValue={tab} className={cn("api-playground w-full relative")}>
       <TabsList className="ml-3 mt-2">
         <TabsTrigger value="playground">{isLog ? "Console" : "Playground"}</TabsTrigger>
         <TabsTrigger value="requests">Requests</TabsTrigger>

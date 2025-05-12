@@ -74,6 +74,35 @@ client.fetchDispatcher.pause("my-queue-key");
 client.fetchDispatcher.start("my-queue-key");
 ```
 
+```tsx live clickToRun
+// Trigger the request
+getUser.send();
+
+// Stop the queue
+client.fetchDispatcher.pause(getUser.queryKey);
+
+// Trigger another request
+getUser.send();
+
+// Start the queue
+setTimeout(() => {
+  client.fetchDispatcher.start(getUser.queryKey);
+}, 3000);
+```
+
+```tsx live clickToRun
+// Trigger the request
+const request = getUser.send();
+
+// Stop the queue
+client.fetchDispatcher.stop(getUser.queryKey);
+
+// Start the queue
+setTimeout(() => {
+  client.fetchDispatcher.start(getUser.queryKey);
+}, 3000);
+```
+
 ### Request - Stopping / Starting
 
 You can stop and start individual requests with the `stopRequest` and `startRequest` methods. A stopped request is
@@ -82,30 +111,6 @@ canceled and must wait in the dispatch queue until it is started again.
 ```tsx
 client.fetchDispatcher.stopRequest("my-queue-key", "requestId");
 client.fetchDispatcher.startRequest("my-queue-key", "requestId");
-```
-
-```tsx live clickToRun
-const getUserCancelable = getUser.setQueued(true);
-
-let response1 = getUserCancelable.send();
-getUserCancelable.send();
-getUserCancelable.send();
-
-const response = await response1;
-
-console.log(response);
-```
-
-```tsx live
-const MyApp = () => {
-  const { data, loading } = useFetch(getUser);
-  return (
-    <div>
-      {data && <div>{JSON.stringify(data)}</div>}
-      {loading && <Loader />}
-    </div>
-  );
-};
 ```
 
 ### Offline
