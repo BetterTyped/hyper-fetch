@@ -1,5 +1,6 @@
 import React, { type ReactNode } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
+import { parseCodeBlockTitle } from "@docusaurus/theme-common/internal";
 
 import OriginalCodeBlock from "../OriginalCodeBlock";
 import { LiveCodeBlock } from "./live-code-block";
@@ -22,9 +23,10 @@ export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const { metastring } = props;
   const clickToRun = metastring?.includes("clickToRun");
   const defaultTab = metastring?.includes("tabConsole") ? "playground" : undefined;
+  const title = parseCodeBlockTitle(metastring);
 
   return isLiveCodeBlock(props) ? (
-    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} />
+    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} title={title} />
   ) : (
     <OriginalCodeBlock {...props} />
   );

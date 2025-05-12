@@ -74,7 +74,7 @@ client.fetchDispatcher.pause("my-queue-key");
 client.fetchDispatcher.start("my-queue-key");
 ```
 
-```tsx live clickToRun
+```tsx live clickToRun title="Requests Pausing and Starting"
 // Trigger the request
 getUser.send();
 
@@ -90,7 +90,7 @@ setTimeout(() => {
 }, 3000);
 ```
 
-```tsx live clickToRun
+```tsx live clickToRun title="Requests Stopping and Starting"
 // Trigger the request
 getUser.send();
 
@@ -121,7 +121,7 @@ client.fetchDispatcher.startRequest("my-queue-key", "requestId");
 When the connection is lost, the queue is stopped and the failed or interrupted requests will wait for the connection to
 recover. This prevents data loss.
 
-```tsx live clickToRun
+```tsx live clickToRun title=Offline handling
 // Simulate the connection loss
 client.appManager.setOnline(false);
 
@@ -152,6 +152,16 @@ default mode for requests.
 
 Enable this mode by setting the request `queued` prop to false.
 
+```tsx live clickToRun
+import { getUser } from "./api";
+
+// First request
+getUser.send();
+
+// Second request
+getUser.send();
+```
+
 ```mermaid
 flowchart TD;
     subgraph Client
@@ -178,6 +188,20 @@ the user is triggering new requests with rapidly changing pagination.
 
 Enable this mode by setting the request `cancelable` prop to true.
 
+```tsx live clickToRun
+import { getUser } from "./api";
+
+const getUserCancelable = getUser.setCancelable(true);
+
+// First request
+getUserCancelable.send();
+
+setTimeout(() => {
+  // Second request
+  getUserCancelable.send();
+}, 500);
+```
+
 ```mermaid
 flowchart TD;
     subgraph Client
@@ -202,6 +226,17 @@ This mode is ideal for a `one-by-one` sending solution. It allows you to combine
 will be resolved one item at a time. In this mode, you can `start`, `stop`, or `pause` the entire queue.
 
 Enable this mode by setting the request `queued` prop to true.
+
+```tsx live clickToRun
+import { postFile } from "./api";
+
+const postFileQueued = postFile.setQueued(true);
+
+// First request
+postFileQueued.send();
+postFileQueued.send();
+postFileQueued.send();
+```
 
 ```mermaid
 flowchart TD;
@@ -230,6 +265,23 @@ Deduplication optimizes the data exchange with the server. If we ask the server 
 with different requests, this mode will perform one call and propagate the request to both sources.
 
 Enable this mode by setting the request `deduplication` prop to true.
+
+```tsx live clickToRun
+import { getUser } from "./api";
+
+const getUserDeduplicated = getUser.setDeduplicate(true);
+
+// First request
+getUserDeduplicated.send();
+
+// Second request (Deduplicated - it will never be triggered)
+getUserDeduplicated.send();
+
+// Third request (Deduplicated - it will never be triggered)
+setTimeout(() => {
+  getUserDeduplicated.send();
+}, 500);
+```
 
 ```mermaid
 flowchart TD;

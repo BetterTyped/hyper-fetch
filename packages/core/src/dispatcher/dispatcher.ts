@@ -534,6 +534,7 @@ export class Dispatcher {
 
     const response: RequestResponseType<any> = await adapter.fetch(request, requestId);
 
+    // TODO: improve this
     // eslint-disable-next-line no-param-reassign
     storageItem.resolved = true;
     // Stop listening for aborting

@@ -76,8 +76,6 @@ export const useQueue = <Request extends RequestInstance>(
         }));
 
       if (keepFinishedRequests && prevRequests) {
-        console.log(prevRequests.map((el) => [el.requestId, el.uploading?.progress]));
-        console.log(newRequests.map((el) => [el.requestId, el.uploading?.progress]));
         return [...prevRequests, ...newRequests];
       }
 
@@ -143,14 +141,12 @@ export const useQueue = <Request extends RequestInstance>(
 
     const unmountDownload = requestManager.events.onDownloadProgress(
       ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
-        console.log("download", requestId, progress);
         mergePayloadType(requestId, { downloading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
       },
     );
 
     const unmountUpload = requestManager.events.onUploadProgress(
       ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
-        console.log("upload", requestId, progress);
         mergePayloadType(requestId, { uploading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
       },
     );

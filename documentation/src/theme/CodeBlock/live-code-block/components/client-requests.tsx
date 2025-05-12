@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useQueue } from "@hyper-fetch/react";
 import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 import { DocsCard } from "@site/src/components/ui/docs-card";
+import { Title } from "@site/src/components";
+import { Pause, WifiOff } from "lucide-react";
 
 import { TinyLoader } from "./tiny-loader";
-import { Pause, WifiOff } from "lucide-react";
 import { OnlineWidget } from "./online-widget";
-import { Title } from "@site/src/components";
 
 const ProgressBar = ({ progress, color = "#38BDF8" }: { progress: number; color?: string }) => {
   return (
@@ -149,7 +149,7 @@ export const ClientRequests = ({ client }: { client: ClientInstance }) => {
         return [...prevState, requestToAdd];
       });
     });
-    const unmountSubmit = client.fetchDispatcher.events.onQueueChange((queue) => {
+    const unmountSubmit = client.submitDispatcher.events.onQueueChange((queue) => {
       setQueueRequests((prevState) => {
         if (prevState.some((request) => request.queryKey === queue.queryKey)) {
           return prevState;

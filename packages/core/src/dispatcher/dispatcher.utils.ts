@@ -38,9 +38,16 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
   return false;
 };
 
+const isInDeduplicateRange = (request: RequestInstance, latestRequest: QueueItemType) => {
+  if (request.deduplicateTime) {
+    return +new Date() - latestRequest.timestamp <= request.deduplicateTime;
+  }
+  return true;
+};
+
 export const getRequestType = (request: RequestInstance, latestRequest: QueueItemType | undefined) => {
   const { queued, cancelable, deduplicate } = request;
-  const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
+  const canDeduplicate = latestRequest ? isInDeduplicateRange(request, latestRequest) : false;
 
   if (queued) {
     return DispatcherRequestType.ONE_BY_ONE;

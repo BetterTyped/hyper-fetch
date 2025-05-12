@@ -1,13 +1,16 @@
-import { ClientInstance } from "@hyper-fetch/core";
+import { Client, HttpAdapterType } from "@hyper-fetch/core";
 
-export const createGlobalRequests = (client: ClientInstance) => {
+export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => {
   return {
     getUser: client
       .createRequest<{
         response: { name: string; age: number };
       }>()({
-        endpoint: "/users/1",
+        endpoint: "/users/:userId",
         method: "GET",
+      })
+      .setParams({
+        userId: 1,
       })
       .setMock(
         () => ({
@@ -36,10 +39,10 @@ export const createGlobalRequests = (client: ClientInstance) => {
           status: 200,
         }),
         {
-          requestTime: 3500,
-          responseTime: 3500,
-          totalUploaded: 10000,
-          totalDownloaded: 10000,
+          requestTime: 2000,
+          responseTime: 2000,
+          totalUploaded: 1000,
+          totalDownloaded: 1000,
         },
       ),
   };

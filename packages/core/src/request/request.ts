@@ -84,7 +84,7 @@ export class Request<
   queryKey: string;
   used: boolean;
   deduplicate: boolean;
-  deduplicateTime: number;
+  deduplicateTime: number | null;
 
   isMockerEnabled = false;
 
@@ -154,7 +154,7 @@ export class Request<
       cacheKey,
       queryKey,
       deduplicate = false,
-      deduplicateTime = 10,
+      deduplicateTime = null,
     } = configuration;
     this.endpoint = initialRequestConfiguration?.endpoint ?? endpoint;
     this.headers = initialRequestConfiguration?.headers ?? headers;

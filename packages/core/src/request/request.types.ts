@@ -62,7 +62,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   updatedCacheKey: boolean;
   updatedQueueKey: boolean;
   deduplicate: boolean;
-  deduplicateTime: number;
+  deduplicateTime: number | null;
   isMockerEnabled: boolean;
   hasMock: boolean;
 };

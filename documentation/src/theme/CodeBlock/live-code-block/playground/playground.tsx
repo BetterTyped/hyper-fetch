@@ -1,6 +1,6 @@
 import React from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
-import { createClient } from "@hyper-fetch/core";
+import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/ui/tabs";
 
@@ -134,7 +134,7 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
     url: "http://localhost:3000",
   });
 
-  const requests = createGlobalRequests(client);
+  const requests = createGlobalRequests(client as ClientInstance);
 
   const isLog = stringifiedCode.includes("const [logs, setLogs] = React.useState<Array<Array<any>>>([]);");
   const tab = defaultTab ?? (isLog ? "requests" : "playground");

@@ -1,19 +1,20 @@
 import { useState } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { cn } from "@site/src/lib/utils";
-import { Play, RotateCcw } from "lucide-react";
+import { FileCode, Play, RotateCcw } from "lucide-react";
 import { ShineBorder } from "@site/src/components/ui/shine-beam";
+import { ShinyButton } from "@site/src/components/ui/shiny-btn";
+import { DotPattern } from "@site/src/components/ui/dot-pattern";
 
 import { Editor } from "./editor/editor";
 import { Playground } from "./playground/playground";
-import { ShinyButton } from "@site/src/components/ui/shiny-btn";
-import { DotPattern } from "@site/src/components/ui/dot-pattern";
 
 export const LiveCodeBlock = ({
   children,
   className,
   clickToRun = false,
   defaultTab,
+  title,
 }: CodeBlockProps & { clickToRun?: boolean; defaultTab?: "playground" | "requests" }) => {
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
@@ -30,7 +31,12 @@ export const LiveCodeBlock = ({
     >
       <ShineBorder duration={12} shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />
       <div className="api-playground__header">
-        <span className="text-sm font-bold">Live results</span>
+        <div className="text-sm flex items-center gap-1">
+          <FileCode className="w-4 h-4" />
+          <span className="text-sm font-semibold flex items-center gap-1 !text-transparent bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60">
+            {title || "Live results"}
+          </span>
+        </div>
         <div className="api-playground__controls">
           <button
             type="button"
