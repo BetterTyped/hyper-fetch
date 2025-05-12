@@ -78,10 +78,10 @@ client.fetchDispatcher.start("my-queue-key");
 // Trigger the request
 getUser.send();
 
-// Stop the queue
+// Pause the queue, this will complete the in-progress request and hold all others
 client.fetchDispatcher.pause(getUser.queryKey);
 
-// Trigger another request
+// Trigger another request, that will be stopped
 getUser.send();
 
 // Start the queue
@@ -92,15 +92,18 @@ setTimeout(() => {
 
 ```tsx live clickToRun
 // Trigger the request
-const request = getUser.send();
+getUser.send();
 
-// Stop the queue
+// Stop the queue, this will cancel the in-progress request and hold all others
 client.fetchDispatcher.stop(getUser.queryKey);
 
-// Start the queue
+// Trigger another request, that will be stopped
+getUser.send();
+
+// Start the queue, will resume the in-progress request and allow the others to be sent
 setTimeout(() => {
   client.fetchDispatcher.start(getUser.queryKey);
-}, 3000);
+}, 2000);
 ```
 
 ### Request - Stopping / Starting
@@ -117,6 +120,19 @@ client.fetchDispatcher.startRequest("my-queue-key", "requestId");
 
 When the connection is lost, the queue is stopped and the failed or interrupted requests will wait for the connection to
 recover. This prevents data loss.
+
+```tsx live clickToRun
+// Simulate the connection loss
+client.appManager.setOnline(false);
+
+// Trigger the request being offline
+getUser.send();
+
+// Return back online and the request will be resumed
+setTimeout(() => {
+  client.appManager.setOnline(true);
+}, 2000);
+```
 
 ### Lifecycle
 

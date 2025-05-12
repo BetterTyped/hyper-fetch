@@ -7,7 +7,7 @@ import { useProvider } from "provider";
 const canUpdate = (
   item: Pick<QueueRequest<RequestInstance>, "success" | "failed" | "canceled" | "removed" | "resolved">,
 ) => {
-  if (item.success || item.failed || item.canceled || item.removed || item.resolved) {
+  if (item.success || item.failed) {
     return false;
   }
   return true;

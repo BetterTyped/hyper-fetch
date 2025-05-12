@@ -18,6 +18,7 @@ export const Title = forwardRef(
       lg: "text-4xl sm:text-5xl md:text-5xl lg:text-6xl",
       md: "text-4xl sm:text-4xl md:text-5xl lg:text-5xl",
       sm: "text-3xl sm:text-3xl md:text-4xl lg:text-4xl",
+      xs: "text-xl",
       none: "",
     }[size];
 

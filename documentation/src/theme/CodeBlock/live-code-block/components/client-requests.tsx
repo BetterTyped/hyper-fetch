@@ -4,7 +4,9 @@ import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 import { DocsCard } from "@site/src/components/ui/docs-card";
 
 import { TinyLoader } from "./tiny-loader";
-import { Pause } from "lucide-react";
+import { Pause, WifiOff } from "lucide-react";
+import { OnlineWidget } from "./online-widget";
+import { Title } from "@site/src/components";
 
 const ProgressBar = ({ progress, color = "#38BDF8" }: { progress: number; color?: string }) => {
   return (
@@ -21,6 +23,9 @@ const QueueStatusIcon = ({ status }: { status: string }) => {
   }
   if (status === "Stopped") {
     return <Pause className="w-4 h-4 text-white" />;
+  }
+  if (status === "Offline") {
+    return <WifiOff className="w-4 h-4 text-white" />;
   }
   if (status === "Completed") {
     return (
@@ -68,6 +73,8 @@ const Queue = ({ request }: { request: RequestInstance }) => {
         );
         const isRunning = isRunningInFetchQueue || isRunningInSubmitQueue;
 
+        const isOffline = !queueRequest.request.client.appManager.isOnline;
+
         // Type-safe status detection:
         // - 'Canceled' if stopped and not resolved
         // - 'Failed' if resolved but not completed (progress < 100)
@@ -81,6 +88,9 @@ const Queue = ({ request }: { request: RequestInstance }) => {
           color = "#8e8e8e";
         } else if (stopped && !isRunning) {
           status = "Stopped";
+          color = "#8e8e8e";
+        } else if (isOffline && !isRunning) {
+          status = "Offline";
           color = "#8e8e8e";
         } else if (queueRequest.failed) {
           status = "Failed";
@@ -158,7 +168,12 @@ export const ClientRequests = ({ client }: { client: ClientInstance }) => {
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-4">
-      <h3 className="text-zinc-900 dark:text-zinc-100 text-lg font-semibold">Requests:</h3>
+      <div className="flex items-center !m-0 gap-2 justify-between">
+        <Title size="none" className="&>*:text-lg font-semibold flex items-center">
+          Requests:
+        </Title>
+        <OnlineWidget client={client} />
+      </div>
       {queueRequests.length === 0 ? (
         <div className="text-zinc-400 text-center">No requests queues detected.</div>
       ) : (
