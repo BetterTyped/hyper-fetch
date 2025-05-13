@@ -6,7 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/u
 
 import { globalScope } from "./global-scope";
 import { createGlobalRequests } from "./create-global-requests";
-import { ClientRequests } from "../components/client-requests";
+import { ClientRequests } from "../components/client-requests/client-requests";
+import { ToasterProvider } from "../../../../hooks/use-toast";
 
 const RENDER_PREFIX = "render(";
 
@@ -76,7 +77,7 @@ export const transformCode = (code: string): string => {
           </div>
         )}
         {logs.map((log, index) => (
-          <div key={index} className="api-playground__log-row flex gap-1">
+          <div key={"log"+index} className="api-playground__log-row flex gap-1">
             <div className="api-playground__log-row__index">
               <div className="text-xs text-zinc-400">
                 {index}
@@ -98,7 +99,7 @@ export const transformCode = (code: string): string => {
                 }
                 return (
                   <Highlight
-                    key={i}
+                    key={"row"+i}
                     code={formatted}
                     language="tsx"
                     theme={themes.vsDark}
@@ -106,9 +107,9 @@ export const transformCode = (code: string): string => {
                     {({ className, style, tokens, getLineProps, getTokenProps }) => (
                       <>
                         {tokens.map((line, j) => (
-                          <span key={j} {...getLineProps({ line })}>
+                          <span key={"line"+j} {...getLineProps({ line })}>
                             {line.map((token, key) => (
-                              <span key={key} {...getTokenProps({ token })} />
+                              <span key={"token"+key} {...getTokenProps({ token })} />
                             ))}
                             <br />
                           </span>
@@ -140,31 +141,33 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
   const tab = defaultTab ?? (isLog ? "requests" : "playground");
 
   return (
-    <Tabs defaultValue={tab} className={cn("api-playground w-full relative")}>
-      <TabsList className="ml-3 mt-2">
-        <TabsTrigger value="playground">{isLog ? "Console" : "Playground"}</TabsTrigger>
-        <TabsTrigger value="requests">Requests</TabsTrigger>
-      </TabsList>
-      <TabsContent value="playground" className="w-full data-[state=inactive]:hidden" forceMount>
-        <LiveProvider
-          code={transformCode(stringifiedCode)}
-          scope={{
-            ...globalScope,
-            ...requests,
-            client,
-            // So console.log can be used in the playground and override to render logs
-            // This way we are isolating the console.log to the playground
-            console: deepClone(window.console),
-          }}
-          noInline
-        >
-          <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
-          <LiveError className="api-playground__error" />
-        </LiveProvider>
-      </TabsContent>
-      <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
-        <ClientRequests client={client} />
-      </TabsContent>
-    </Tabs>
+    <ToasterProvider>
+      <Tabs defaultValue={tab} className={cn("api-playground w-full relative")}>
+        <TabsList className="ml-3 mt-2">
+          <TabsTrigger value="playground">{isLog ? "Console" : "Playground"}</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
+        </TabsList>
+        <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
+          <ClientRequests client={client} />
+        </TabsContent>
+        <TabsContent value="playground" className="w-full data-[state=inactive]:hidden" forceMount>
+          <LiveProvider
+            code={transformCode(stringifiedCode)}
+            scope={{
+              ...globalScope,
+              ...requests,
+              client,
+              // So console.log can be used in the playground and override to render logs
+              // This way we are isolating the console.log to the playground
+              console: deepClone(window.console),
+            }}
+            noInline
+          >
+            <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
+            <LiveError className="api-playground__error" />
+          </LiveProvider>
+        </TabsContent>
+      </Tabs>
+    </ToasterProvider>
   );
 };

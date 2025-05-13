@@ -7,6 +7,7 @@ import { patchUser, postUser, postFile } from "../../api";
 import { Request } from "../../components/request";
 import { Viewer } from "../../components/viewer";
 import { RequestCard } from "../../components/request.card";
+import { QueuedRequestsList } from "../../components/queued-requests-list";
 
 export const FormPage: React.FC = () => {
   // Post
@@ -50,14 +51,7 @@ export const FormPage: React.FC = () => {
           </Button>
         )}
       </Request>
-      <Box sx={{ mb: 20 }}>
-        <Typography>
-          <b>Queued requests:</b> {requests.length}
-        </Typography>
-        {requests.map((request) => (
-          <RequestCard key={request.requestId} request={request} />
-        ))}
-      </Box>
+      <QueuedRequestsList requests={requests} />
     </Viewer>
   );
 };

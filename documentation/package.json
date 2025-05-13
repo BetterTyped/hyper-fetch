@@ -27,6 +27,7 @@
     "@hyper-fetch/react": "link:../node_modules/@hyper-fetch/react",
     "@mdx-js/react": "^3.0.0",
     "@radix-ui/react-tabs": "^1.1.11",
+    "@radix-ui/react-toast": "^1.2.13",
     "@react-theater/scroll": "^1.0.0",
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.17.10",
@@ -51,6 +52,7 @@
     "react-slick": "^0.29.0",
     "sass": "^1.80.5",
     "slick-carousel": "^1.8.1",
+    "sonner": "^2.0.3",
     "swiper": "^8.4.7",
     "tailwindcss": "^3.3.5",
     "three": "^0.170.0"

@@ -25,15 +25,15 @@ export const Title = forwardRef(
     const Component = as;
     const newChildren = Children.map(props.children, (child) => {
       if (typeof child === "string") {
-        return child
-          .split(" ")
-          .map((part) => (
-            <span
-              className={`!text-transparent font-extrabold bg-clip-text bg-gradient-to-b ${colorClass} ${sizeClass} ${className} `}
-            >
-              {part}{" "}
-            </span>
-          ));
+        return child.split(" ").map((part, index) => (
+          <span
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            className={`!text-transparent font-extrabold bg-clip-text bg-gradient-to-b ${colorClass} ${sizeClass} ${className} `}
+          >
+            {part}{" "}
+          </span>
+        ));
       }
       return child;
     });

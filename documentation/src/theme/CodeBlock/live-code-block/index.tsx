@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { cn } from "@site/src/lib/utils";
 import { FileCode, Play, RotateCcw } from "lucide-react";
@@ -16,12 +16,14 @@ export const LiveCodeBlock = ({
   defaultTab,
   title,
 }: CodeBlockProps & { clickToRun?: boolean; defaultTab?: "playground" | "requests" }) => {
+  const id = useId();
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
   const [isRunning, setIsRunning] = useState(false);
 
   return (
     <div
+      id={id}
       className={cn(
         "live-code-block relative",
         "w-full flex flex-col border border-gray-500/60 bg-zinc-800 rounded-md",

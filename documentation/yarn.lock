@@ -3349,11 +3349,30 @@
   resolved "https://registry.yarnpkg.com/@radix-ui/react-direction/-/react-direction-1.1.1.tgz#39e5a5769e676c753204b792fbe6cf508e550a14"
   integrity sha512-1UEWRX6jnOA2y4H5WczZ44gOOjTEmlqv1uNW4GAJEO5+bauCBhv8snY65Iw5/VOS/ghKN9gr2KjnLKxrsvoMVw==
 
+"@radix-ui/react-dismissable-layer@1.1.9":
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-dismissable-layer/-/react-dismissable-layer-1.1.9.tgz#46e025ba6e6f403677e22fbb7d99b63cf7b32bca"
+  integrity sha512-way197PiTvNp+WBP7svMJasHl+vibhWGQDb6Mgf5mhEWJkgb85z7Lfl9TUdkqpWsf8GRNmoopx9ZxCyDzmgRMQ==
+  dependencies:
+    "@radix-ui/primitive" "1.1.2"
+    "@radix-ui/react-compose-refs" "1.1.2"
+    "@radix-ui/react-primitive" "2.1.2"
+    "@radix-ui/react-use-callback-ref" "1.1.1"
+    "@radix-ui/react-use-escape-keydown" "1.1.1"
+
 "@radix-ui/react-id@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-id/-/react-id-1.1.1.tgz#1404002e79a03fe062b7e3864aa01e24bd1471f7"
   integrity sha512-kGkGegYIdQsOb4XjsfM97rXsiHaBwco+hFI66oO4s9LU+PLAC5oJ7khdOVFxkhsmlbpUqDAvXw11CluXP+jkHg==
   dependencies:
+    "@radix-ui/react-use-layout-effect" "1.1.1"
+
+"@radix-ui/react-portal@1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-portal/-/react-portal-1.1.8.tgz#0181e85bc0d8c67229dd8cf198204f5f4cc7c09c"
+  integrity sha512-hQsTUIn7p7fxCPvao/q6wpbxmCwgLrlz+nOrJgC+RwfZqWY/WN+UMqkXzrtKbPrF82P43eCTl3ekeKuyAQbFeg==
+  dependencies:
+    "@radix-ui/react-primitive" "2.1.2"
     "@radix-ui/react-use-layout-effect" "1.1.1"
 
 "@radix-ui/react-presence@1.1.4":
@@ -3407,6 +3426,24 @@
     "@radix-ui/react-roving-focus" "1.1.9"
     "@radix-ui/react-use-controllable-state" "1.2.2"
 
+"@radix-ui/react-toast@^1.2.13":
+  version "1.2.13"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-toast/-/react-toast-1.2.13.tgz#e2b27456b52d1b1629becb0299912fd842dc5afe"
+  integrity sha512-e/e43mQAwgYs8BY4y9l99xTK6ig1bK2uXsFLOMn9IZ16lAgulSTsotcPHVT2ZlSb/ye6Sllq7IgyDB8dGhpeXQ==
+  dependencies:
+    "@radix-ui/primitive" "1.1.2"
+    "@radix-ui/react-collection" "1.1.6"
+    "@radix-ui/react-compose-refs" "1.1.2"
+    "@radix-ui/react-context" "1.1.2"
+    "@radix-ui/react-dismissable-layer" "1.1.9"
+    "@radix-ui/react-portal" "1.1.8"
+    "@radix-ui/react-presence" "1.1.4"
+    "@radix-ui/react-primitive" "2.1.2"
+    "@radix-ui/react-use-callback-ref" "1.1.1"
+    "@radix-ui/react-use-controllable-state" "1.2.2"
+    "@radix-ui/react-use-layout-effect" "1.1.1"
+    "@radix-ui/react-visually-hidden" "1.2.2"
+
 "@radix-ui/react-use-callback-ref@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-use-callback-ref/-/react-use-callback-ref-1.1.1.tgz#62a4dba8b3255fdc5cc7787faeac1c6e4cc58d40"
@@ -3427,10 +3464,24 @@
   dependencies:
     "@radix-ui/react-use-layout-effect" "1.1.1"
 
+"@radix-ui/react-use-escape-keydown@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-use-escape-keydown/-/react-use-escape-keydown-1.1.1.tgz#b3fed9bbea366a118f40427ac40500aa1423cc29"
+  integrity sha512-Il0+boE7w/XebUHyBjroE+DbByORGR9KKmITzbR7MyQ4akpORYP/ZmbhAr0DG7RmmBqoOnZdy2QlvajJ2QA59g==
+  dependencies:
+    "@radix-ui/react-use-callback-ref" "1.1.1"
+
 "@radix-ui/react-use-layout-effect@1.1.1":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-use-layout-effect/-/react-use-layout-effect-1.1.1.tgz#0c4230a9eed49d4589c967e2d9c0d9d60a23971e"
   integrity sha512-RbJRS4UWQFkzHTTwVymMTUv8EqYhOp8dOOviLj2ugtTiXRaRQS7GLGxZTLL1jWhMeoSCf5zmcZkqTl9IiYfXcQ==
+
+"@radix-ui/react-visually-hidden@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-visually-hidden/-/react-visually-hidden-1.2.2.tgz#aa6d0f95b0cd50f08b02393d25132f52ca7861dc"
+  integrity sha512-ORCmRUbNiZIv6uV5mhFrhsIKw4UX/N3syZtyqvry61tbGm4JlgQuSn0hk5TwCARsCjkcnuRkSdCE3xfb+ADHew==
+  dependencies:
+    "@radix-ui/react-primitive" "2.1.2"
 
 "@react-spring/animated@~9.6.1":
   version "9.6.1"
@@ -12664,6 +12715,11 @@ socks@^2.8.3:
   dependencies:
     ip-address "^9.0.5"
     smart-buffer "^4.2.0"
+
+sonner@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-2.0.3.tgz#de7cdbc4b6a25ac3f0a9e0aed3748e0b3d6e092e"
+  integrity sha512-njQ4Hht92m0sMqqHVDL32V2Oun9W1+PHO9NDv9FHfJjT3JT22IG4Jpo3FPQy+mouRKCXFWO+r67v6MrHX2zeIA==
 
 sort-css-media-queries@2.2.0:
   version "2.2.0"

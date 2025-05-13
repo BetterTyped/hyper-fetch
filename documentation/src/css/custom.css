@@ -566,6 +566,14 @@ pre {
 
 /* Playground */
 
+.live-code-block .toaster {
+  position: absolute !important;
+}
+.live-code-block .toaster [data-sonner-toast][data-styled="true"] [data-content],
+.live-code-block .toaster [data-sonner-toast][data-styled="true"] [data-title] {
+  @apply w-full;
+}
+
 .live-code-block {
   @apply mt-4 mb-6;
 }
@@ -770,20 +778,20 @@ main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
   padding-left: 30px;
 }
 
-main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li {
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li {
   @apply relative mb-4 pl-3 text-lg;
   list-style: decimal;
 }
 
-main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) > li::before {
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li::before {
   @apply absolute left-[-24px] top-[1.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
-main .col:not(.col--3) ol:not(.toc):not(.table-of-contents) li::marker {
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li::marker {
   @apply text-zinc-200 dark:text-zinc-400 text-sm;
 }
 
-main .col:not(.col--3) ul:not(.toc):not(.table-of-contents) li {
+main .col:not(.col--3) ul:not(.toc):not(.toaster):not(.table-of-contents) li {
   list-style: initial;
 }
 
