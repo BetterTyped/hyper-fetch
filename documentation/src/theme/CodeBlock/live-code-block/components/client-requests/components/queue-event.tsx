@@ -11,7 +11,7 @@ interface QueueEventProps {
 const iconMap: Record<string, React.ReactNode> = {
   Running: <Play className="w-4 h-4 text-green-500" />,
   Paused: <Pause className="w-4 h-4 text-yellow-500" />,
-  Stopped: <Pause className="w-4 h-4 text-zinc-400" />,
+  Stopped: <Pause className="w-4 h-4 text-yellow-500" />,
 };
 
 export const QueueEvent: React.FC<QueueEventProps> = ({ event }) => {

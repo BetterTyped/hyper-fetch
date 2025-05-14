@@ -78,32 +78,40 @@ client.fetchDispatcher.start("my-queue-key");
 // Trigger the request
 getUser.send();
 
-// Pause the queue, this will complete the in-progress request and hold all others
-client.fetchDispatcher.pause(getUser.queryKey);
+setTimeout(() => {
+  // Pause the queue, this will complete the in-progress request and hold all others
+  client.fetchDispatcher.pause(getUser.queryKey);
+}, 500);
 
-// Trigger another request, that will be stopped
-getUser.send();
+setTimeout(() => {
+  // Trigger another request, that will be stopped
+  getUser.send();
+}, 1000);
 
 // Start the queue
 setTimeout(() => {
   client.fetchDispatcher.start(getUser.queryKey);
-}, 3000);
+}, 4000);
 ```
 
 ```tsx live clickToRun title="Requests Stopping and Starting"
 // Trigger the request
 getUser.send();
 
-// Stop the queue, this will cancel the in-progress request and hold all others
-client.fetchDispatcher.stop(getUser.queryKey);
+setTimeout(() => {
+  // Stop the queue, this will cancel the in-progress request and hold all others
+  client.fetchDispatcher.stop(getUser.queryKey);
+}, 500);
 
-// Trigger another request, that will be stopped
-getUser.send();
+setTimeout(() => {
+  // Trigger another request, that will be stopped
+  getUser.send();
+}, 1000);
 
 // Start the queue, will resume the in-progress request and allow the others to be sent
 setTimeout(() => {
   client.fetchDispatcher.start(getUser.queryKey);
-}, 2000);
+}, 4000);
 ```
 
 ### Request - Stopping / Starting

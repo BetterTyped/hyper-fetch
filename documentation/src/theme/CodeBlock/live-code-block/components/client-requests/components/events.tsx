@@ -50,7 +50,7 @@ export type ItemType = Omit<
 
 export const Events: React.FC<QueueProps> = ({ client }) => {
   const [requests, setRequests] = useState<ItemType[]>([]);
-  const [, setStopped] = useState<Record<string, boolean>>({});
+  const [stopped, setStopped] = useState<Record<string, boolean>>({});
 
   const { toast } = useToast();
 
@@ -232,7 +232,14 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
   return (
     <div className="flex flex-col gap-3">
       {requests.map((event) => {
-        return <RequestEvent key={event.requestId} queueRequest={event} />;
+        return (
+          <RequestEvent
+            key={event.requestId}
+            client={client}
+            queueRequest={event}
+            stopped={stopped[event.request.queryKey]}
+          />
+        );
       })}
     </div>
   );

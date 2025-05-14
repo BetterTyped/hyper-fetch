@@ -1,23 +1,34 @@
+import { ClientInstance } from "@hyper-fetch/core";
 import { DocsCard } from "@site/src/components/ui/docs-card";
 
 import { ProgressBar } from "./progress-bar";
 import { QueueStatusIcon } from "./queue-status-icon";
 import { ItemType } from "./events";
 
-export const RequestEvent = ({ queueRequest }: { queueRequest: ItemType }) => {
+export const RequestEvent = ({
+  client,
+  queueRequest,
+  stopped,
+}: {
+  client: ClientInstance;
+  queueRequest: ItemType;
+  stopped: boolean;
+}) => {
   let status = "Pending";
   let color = "#A1A1AA";
   const uploading = queueRequest.uploading?.progress ?? 0;
   const downloading = queueRequest.downloading?.progress ?? 0;
   const progress = (uploading + downloading) / 2;
-  const fetchRunningRequests = queueRequest.request.client.fetchDispatcher.getRunningRequests(queueRequest.requestId);
-  const submitRunningRequests = queueRequest.request.client.submitDispatcher.getRunningRequests(queueRequest.requestId);
+  const fetchRunningRequests = client.fetchDispatcher.getRunningRequests(queueRequest.request.queryKey);
+  const submitRunningRequests = client.submitDispatcher.getRunningRequests(queueRequest.request.queryKey);
 
   const isRunningInFetchQueue = fetchRunningRequests.some(({ requestId }) => requestId === queueRequest.requestId);
   const isRunningInSubmitQueue = submitRunningRequests.some(({ requestId }) => requestId === queueRequest.requestId);
   const isRunning = isRunningInFetchQueue || isRunningInSubmitQueue;
 
-  const isOffline = !queueRequest.request.client.appManager.isOnline;
+  const isOffline = !client.appManager.isOnline;
+  // Queue or single request can be stopped
+  const isStopped = queueRequest.stopped || stopped;
 
   if (queueRequest.canceled) {
     status = "Canceled";
@@ -25,18 +36,18 @@ export const RequestEvent = ({ queueRequest }: { queueRequest: ItemType }) => {
   } else if (queueRequest.removed) {
     status = "Removed";
     color = "#8e8e8e";
-  } else if (queueRequest.stopped && !isRunning) {
-    status = "Stopped";
-    color = "#8e8e8e";
-  } else if (isOffline && !isRunning) {
-    status = "Offline";
-    color = "#8e8e8e";
   } else if (queueRequest.failed) {
     status = "Failed";
     color = "#F87171";
   } else if (progress === 100) {
     status = "Completed";
     color = "#22C55E";
+  } else if (isStopped && !isRunning) {
+    status = "Stopped";
+    color = "#8e8e8e";
+  } else if (isOffline && !isRunning) {
+    status = "Offline";
+    color = "#8e8e8e";
   } else if (progress < 50) {
     status = "Uploading";
     color = "#38BDF8";
