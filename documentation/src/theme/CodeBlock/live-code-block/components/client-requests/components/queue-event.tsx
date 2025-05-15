@@ -23,7 +23,7 @@ export const QueueEvent: React.FC<QueueEventProps> = ({ event }) => {
           {iconMap[event.name] || <Loader className="w-4 h-4 text-blue-400 animate-spin" />}
         </span>
         <div className="flex flex-col">
-          <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{event.name}</span>
+          <span className="font-semibold text-base text-zinc-900 dark:text-zinc-100">{event.name}</span>
           <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
         </div>
       </div>
