@@ -1,8 +1,10 @@
 /* eslint-disable react/no-array-index-key */
 import React, { useCallback, useEffect, useState } from "react";
 import { QueueRequest } from "@hyper-fetch/react";
+import { AnimatePresence } from "motion/react";
 import { ClientInstance, QueueDataType, QueueItemType, RequestInstance } from "@hyper-fetch/core";
 import { useToast } from "@site/src/hooks/use-toast";
+import { AnimatedListItem } from "@site/src/components/ui/animated-list-item";
 
 import { RequestEvent } from "./request-event";
 import { QueueEvent } from "./queue-event";
@@ -231,16 +233,15 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      {requests.map((event) => {
-        return (
-          <RequestEvent
-            key={event.requestId}
-            client={client}
-            queueRequest={event}
-            stopped={stopped[event.request.queryKey]}
-          />
-        );
-      })}
+      <AnimatePresence>
+        {requests.map((event) => {
+          return (
+            <AnimatedListItem key={event.requestId}>
+              <RequestEvent client={client} queueRequest={event} stopped={stopped[event.request.queryKey]} />
+            </AnimatedListItem>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 };

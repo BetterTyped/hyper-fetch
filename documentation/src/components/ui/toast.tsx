@@ -6,6 +6,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { X } from "lucide-react";
 import { cn } from "@site/src/lib/utils";
 import { useToast } from "@site/src/hooks/use-toast";
+import { AnimatePresence } from "motion/react";
+
+import { AnimatedListItem } from "./animated-list-item";
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -70,7 +73,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border !bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
       className,
     )}
     {...props}
@@ -135,14 +138,19 @@ export function Toaster() {
 
   return (
     <ToastProvider>
-      {toasts?.map(function ({ id, message, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1 z-0 relative">{message}</div>
-            <ToastClose />
-          </Toast>
-        );
-      })}
+      <AnimatePresence>
+        {toasts?.map(({ id, message, timestamp, ...props }) => {
+          return (
+            <ToastPrimitives.Root {...props} forceMount asChild key={id}>
+              <AnimatedListItem position="bottom" className="relative mb-1" open={props.open}>
+                <div className="grid gap-1 z-0 relative">{message}</div>
+                <ToastClose />
+              </AnimatedListItem>
+            </ToastPrimitives.Root>
+          );
+        })}
+      </AnimatePresence>
+      <div style={{ position: "absolute", inset: 0, zIndex: 200, pointerEvents: "none" }} />
       <ToastViewport />
     </ToastProvider>
   );

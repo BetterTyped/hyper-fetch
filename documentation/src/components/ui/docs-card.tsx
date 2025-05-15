@@ -24,6 +24,10 @@ const linkCardVariants = cva(
         ].join(" "),
         false: "",
       },
+      animateIn: {
+        true: "animate-in fade-in-0 duration-300 scale-90 animate-scale-in",
+        false: "",
+      },
     },
   },
 );
