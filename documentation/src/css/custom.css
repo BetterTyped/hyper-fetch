@@ -579,7 +579,7 @@ pre {
 }
 
 .api-playground__editor-wrapper,
-.api-playground__preview {
+.api-playground {
   @apply min-h-[500px] max-h-[500px];
 }
 
