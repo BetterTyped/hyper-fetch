@@ -32,6 +32,11 @@ import {
   RequestResponseEventType,
   RequestRemovedEventType,
   getLoadingByCacheKey,
+  RequestDeduplicatedEventType,
+  getRequestDeduplicatedKey,
+  getRequestDeduplicatedByIdKey,
+  getRequestDeduplicatedByCacheKey,
+  getRequestDeduplicatedByQueueKey,
 } from "managers";
 import { AdapterInstance } from "adapter";
 import { RequestInstance } from "request";
@@ -42,6 +47,14 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
    * Emiter
    */
+
+  // Deduplicated
+  emitDeduplicated: (data: RequestDeduplicatedEventType<RequestInstance>): void => {
+    emitter.emit(getRequestDeduplicatedKey(), data);
+    emitter.emit(getRequestDeduplicatedByIdKey(data.requestId), data);
+    emitter.emit(getRequestDeduplicatedByCacheKey(data.request.cacheKey), data);
+    emitter.emit(getRequestDeduplicatedByQueueKey(data.request.queryKey), data);
+  },
 
   // Loading
   emitLoading: (data: RequestLoadingEventType<RequestInstance>): void => {
@@ -101,6 +114,35 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
    * Listeners
    */
+
+  // Deduplicated
+  onDeduplicated: <T extends RequestInstance>(
+    callback: (data: RequestDeduplicatedEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRequestDeduplicatedKey(), callback);
+    return () => emitter.removeListener(getRequestDeduplicatedKey(), callback);
+  },
+  onDeduplicatedByQueue: <T extends RequestInstance>(
+    queryKey: string,
+    callback: (data: RequestDeduplicatedEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRequestDeduplicatedByQueueKey(queryKey), callback);
+    return () => emitter.removeListener(getRequestDeduplicatedByQueueKey(queryKey), callback);
+  },
+  onDeduplicatedByCache: <T extends RequestInstance>(
+    cacheKey: string,
+    callback: (data: RequestDeduplicatedEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRequestDeduplicatedByCacheKey(cacheKey), callback);
+    return () => emitter.removeListener(getRequestDeduplicatedByCacheKey(cacheKey), callback);
+  },
+  onDeduplicatedById: <T extends RequestInstance>(
+    requestId: string,
+    callback: (data: RequestDeduplicatedEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRequestDeduplicatedByIdKey(requestId), callback);
+    return () => emitter.removeListener(getRequestDeduplicatedByIdKey(requestId), callback);
+  },
 
   // Loading
   onLoading: <T extends RequestInstance>(callback: (data: RequestLoadingEventType<T>) => void): VoidFunction => {

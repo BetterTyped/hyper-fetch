@@ -9,6 +9,7 @@ import { AnimatedListItem } from "@site/src/components/ui/animated-list-item";
 import { RequestEvent } from "./request-event";
 import { QueueEvent } from "./queue-event";
 import { AppEvent } from "./app-event";
+import { MessageEvent } from "./message-event";
 
 interface QueueProps {
   client: ClientInstance;
@@ -125,7 +126,6 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
       } as const;
       toast({
         message: <QueueEvent event={event} />,
-        duration: 4000,
       });
     });
     const unmountSubmit = client.submitDispatcher.events.onQueueStatusChange((queue) => {
@@ -139,7 +139,6 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
       } as const;
       toast({
         message: <QueueEvent event={event} />,
-        duration: 4000,
       });
     });
 
@@ -151,7 +150,6 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
       } as const;
       toast({
         message: <AppEvent event={event} />,
-        duration: 4000,
       });
     });
 
@@ -163,7 +161,6 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
       } as const;
       toast({
         message: <AppEvent event={event} />,
-        duration: 4000,
       });
     });
 
@@ -172,6 +169,16 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
     const unmountSubmitChange = client.submitDispatcher.events.onQueueChange<RequestInstance>(updateQueueState);
     const unmountSubmitStatus = client.submitDispatcher.events.onQueueStatusChange<RequestInstance>(updateQueueState);
 
+    const unmountDeduplicated = client.requestManager.events.onDeduplicated(({ request }) => {
+      toast({
+        message: (
+          <MessageEvent
+            name="New request deduplicated"
+            message={`Deduplicated with ongoing "${request.endpoint}" request`}
+          />
+        ),
+      });
+    });
     const unmountStart = client.requestManager.events.onRequestStart(({ requestId }) => {
       setRequests((prev) =>
         prev.map((el) =>
@@ -208,6 +215,7 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
     );
 
     return () => {
+      unmountDeduplicated();
       unmountFetch();
       unmountSubmit();
       unmountApp();

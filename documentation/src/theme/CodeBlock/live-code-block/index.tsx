@@ -59,17 +59,15 @@ export const LiveCodeBlock = ({
           <DotPattern
             className={cn("[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50")}
           />
-          <div className="relative z-10">
-            {clickToRun && !isRunning ? (
-              <div className="api-playground__run-example min-h-[400px] w-full flex items-center justify-center">
-                <ShinyButton onClick={() => setIsRunning(true)}>
-                  <Play className="w-4 h-4" /> Run Example
-                </ShinyButton>
-              </div>
-            ) : (
-              <Playground code={code} key={key} defaultTab={defaultTab} />
-            )}
-          </div>
+          {clickToRun && !isRunning ? (
+            <div className="api-playground__run-example w-full flex items-center justify-center">
+              <ShinyButton onClick={() => setIsRunning(true)}>
+                <Play className="w-4 h-4" /> Run Example
+              </ShinyButton>
+            </div>
+          ) : (
+            <Playground code={code} key={key} defaultTab={defaultTab} />
+          )}
         </div>
       </div>
     </div>

@@ -12,15 +12,15 @@ import {
 import { RequestInstance } from "request";
 
 export const getDispatcherEvents = (emitter: EventEmitter) => ({
-  setDrained: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
+  emitDrained: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherDrainedKey(), values);
     emitter.emit(getDispatcherDrainedByKey(values.queryKey), values);
   },
-  setQueueStatusChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
+  emitQueueStatusChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherStatusKey(), values);
     emitter.emit(getDispatcherStatusByKey(values.queryKey), values);
   },
-  setQueueChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
+  emitQueueChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherChangeKey(), values);
     emitter.emit(getDispatcherChangeByKey(values.queryKey), values);
   },

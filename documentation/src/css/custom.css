@@ -578,6 +578,15 @@ pre {
   @apply mt-4 mb-6;
 }
 
+.api-playground__editor-wrapper,
+.api-playground__preview {
+  @apply min-h-[500px] max-h-[500px];
+}
+
+.api-playground__run-example {
+  @apply h-full;
+}
+
 .api-playground__header {
   @apply flex items-center py-2 pr-4 pl-3 text-gray-400 justify-between border-b;
   @apply dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-800 dark:border-zinc-700 dark:text-zinc-100;
@@ -588,7 +597,7 @@ pre {
 }
 
 .api-playground {
-  @apply min-h-[400px] max-h-[400px] overflow-y-auto relative;
+  @apply h-full overflow-y-auto relative;
 }
 
 .api-playground__preview {
@@ -610,7 +619,7 @@ pre {
   @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200 text-sm;
 }
 .api-playground__editor-wrapper {
-  @apply min-h-[400px] max-h-[400px] overflow-y-auto translate-y-[-1px] xl:rounded-bl-md;
+  @apply overflow-y-auto translate-y-[-1px] xl:rounded-bl-md  h-full;
 }
 .api-playground__editor-wrapper > div:first-child {
   @apply z-10 sticky !h-0 flex items-center justify-end;
@@ -619,7 +628,7 @@ pre {
   @apply !opacity-100;
 }
 .api-playground__editor {
-  @apply bg-[#1c1c1d] border border-transparent min-h-[400px];
+  @apply bg-[#1c1c1d] border border-transparent h-full;
 }
 .api-playground__editor * {
   @apply !text-sm;

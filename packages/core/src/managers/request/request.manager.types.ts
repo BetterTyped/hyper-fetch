@@ -30,6 +30,10 @@ export type RequestResponseEventType<T extends RequestInstance> = {
   details: ResponseDetailsType;
 };
 
+export type RequestDeduplicatedEventType<T extends RequestInstance> = RequestEventType<T> & {
+  deduplicatedRequest: T;
+};
+
 export type ResponseDetailsType = {
   /** If it's retry request we can see which attempt is it */
   retries: number;

@@ -23,7 +23,7 @@ export const AppEvent: React.FC<AppEventProps> = ({ event }) => {
           {iconMap[event.name] || <Wifi className="w-4 h-4 text-zinc-400" />}
         </span>
         <div className="flex flex-col">
-          <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{event.name}</span>
+          <span className="font-semibold text-base text-zinc-900 dark:text-zinc-100">{event.name}</span>
           <span className="text-xs text-zinc-500 dark:text-zinc-400">App Event</span>
         </div>
       </div>

@@ -69,7 +69,7 @@ export class Dispatcher {
     this.setQueue(queryKey, queue);
     this.flushQueue(queryKey);
     this.client.triggerPlugins("onDispatcherQueueRunning", { dispatcher: this, queue, status: "running" });
-    this.events.setQueueStatusChanged(queue);
+    this.events.emitQueueStatusChanged(queue);
   };
 
   /**
@@ -82,7 +82,7 @@ export class Dispatcher {
     queue.stopped = true;
     this.setQueue(queryKey, queue);
     this.client.triggerPlugins("onDispatcherQueueRunning", { dispatcher: this, queue, status: "paused" });
-    this.events.setQueueStatusChanged(queue);
+    this.events.emitQueueStatusChanged(queue);
   };
 
   /**
@@ -98,7 +98,7 @@ export class Dispatcher {
     // Cancel running requests
     this.cancelRunningRequests(queryKey);
     this.client.triggerPlugins("onDispatcherQueueRunning", { dispatcher: this, queue, status: "stopped" });
-    this.events.setQueueStatusChanged(queue);
+    this.events.emitQueueStatusChanged(queue);
   };
 
   /**
@@ -161,7 +161,7 @@ export class Dispatcher {
 
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherQueueCreated", { dispatcher: this, queue });
-    this.events.setQueueChanged(queue);
+    this.events.emitQueueChanged(queue);
 
     return queue;
   };
@@ -176,7 +176,7 @@ export class Dispatcher {
 
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherQueueCleared", { dispatcher: this, queue: newQueue });
-    this.events.setQueueChanged(newQueue);
+    this.events.emitQueueChanged(newQueue);
 
     return newQueue;
   };
@@ -258,7 +258,7 @@ export class Dispatcher {
       request.stopped = false;
       this.setQueue(queryKey, queue);
       this.flushQueue(queryKey);
-      this.events.setQueueStatusChanged(queue);
+      this.events.emitQueueStatusChanged(queue);
     }
   };
 
@@ -276,7 +276,7 @@ export class Dispatcher {
 
       // Cancel running requests
       this.cancelRunningRequest(queryKey, requestId);
-      this.events.setQueueStatusChanged(queue);
+      this.events.emitQueueStatusChanged(queue);
     }
   };
 
@@ -441,8 +441,13 @@ export class Dispatcher {
         return requestId;
       }
       case DispatcherRequestType.DEDUPLICATED: {
+        this.client.requestManager.events.emitDeduplicated({
+          request: latestRequest.request,
+          requestId,
+          deduplicatedRequest: request,
+        });
         // Return the running requestId to fulfill the events
-        return queue.requests[0].requestId;
+        return latestRequest.requestId;
       }
       default: {
         this.addQueueItem(queryKey, storageItem);
@@ -474,7 +479,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherItemDeleted", { queue, dispatcher: this, queueItem });
 
-    this.events.setQueueChanged(queue);
+    this.events.emitQueueChanged(queue);
     this.client.requestManager.events.emitRemove({
       requestId,
       request: queueItem.request,
@@ -483,7 +488,7 @@ export class Dispatcher {
 
     if (!queue.requests.length) {
       this.client.triggerPlugins("onDispatcherQueueDrained", { queue, dispatcher: this });
-      this.events.setDrained(queue);
+      this.events.emitDrained(queue);
     }
 
     return queue;
