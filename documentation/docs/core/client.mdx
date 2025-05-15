@@ -70,10 +70,10 @@ easier to maintain and test your code by centralizing configuration and types.
 
 ### 1. createRequest()
 
-The `createRequest` method is the main method for creating requests. We use the builder pattern to create a request
-object.
+The `createRequest` method is the main method for creating templates for the API connectivity. We use the builder
+pattern to create a request object which contain crucial information about the request - endpoint, method, etc.
 
-Each request keep the reference to the client, so it can access the global settings and interceptors.
+Each request keep the reference to the client, so it can access the global settings.
 
 ```tsx
 import { createClient } from "@hyper-fetch/core";

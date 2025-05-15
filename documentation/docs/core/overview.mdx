@@ -138,7 +138,7 @@ when a response begins, or when the process completes.
 ```mermaid
     timeline
         title Request Lifecycle
-          1. Pre-Request : Cache Reads : Interceptors : Deduplication : Queueing
+          1. Pre-Request : Cache Reads : Deduplication : Queueing : Interceptors
           2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
           3. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
           4. Side Effects : onAbort() : onRemoved() : responseMapper()
