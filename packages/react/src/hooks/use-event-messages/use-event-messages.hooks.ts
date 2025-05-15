@@ -1,10 +1,10 @@
-import { useRef } from "react";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import { SocketInstance } from "@hyper-fetch/sockets";
+import { useRef } from "react";
 
 import { useSocketState } from "helpers";
 import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 /**
  * Allow to listen to all event messages received with sockets
@@ -12,21 +12,21 @@ import { useConfigProvider } from "config-provider";
  * @param options
  * @returns
  */
-export const useEventMessages = <ResponsesType extends { endpoint: string }>(
+export const useEventMessages = <ResponsesType extends { topic: string }>(
   socket: SocketInstance,
-  options: UseEventMessagesOptionsType<ResponsesType>,
+  options?: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
-  const [globalConfig] = useConfigProvider();
-  const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
+  const { config: globalConfig } = useProvider();
+  const { dependencyTracking, filter } = { ...globalConfig.useEventMessages, ...options };
 
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, { dependencyTracking });
 
   useDidUpdate(
     () => {
-      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ endpoint, data, extra }) => {
-        const filterFn = typeof filter === "function" ? () => filter(endpoint, data) : () => filter.includes(endpoint);
-        const isFiltered = filter ? filterFn() : false;
+      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ topic, data, extra }) => {
+        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => !filter?.includes(topic);
+        const isFiltered = filter ? !filterFn() : false;
         if (!isFiltered) {
           onEventCallback.current?.(data, extra);
           actions.setData(data);

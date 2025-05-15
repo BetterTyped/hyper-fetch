@@ -4,31 +4,31 @@ import { AppEvents } from "managers";
 
 export const getAppManagerEvents = (emitter: EventEmitter) => ({
   emitFocus: (): void => {
-    emitter.emit(AppEvents.focus);
+    emitter.emit(AppEvents.FOCUS);
   },
   emitBlur: (): void => {
-    emitter.emit(AppEvents.blur);
+    emitter.emit(AppEvents.BLUR);
   },
   emitOnline: (): void => {
-    emitter.emit(AppEvents.online);
+    emitter.emit(AppEvents.ONLINE);
   },
   emitOffline: (): void => {
-    emitter.emit(AppEvents.offline);
+    emitter.emit(AppEvents.OFFLINE);
   },
   onFocus: (callback: () => void): VoidFunction => {
-    emitter.on(AppEvents.focus, callback);
-    return () => emitter.removeListener(AppEvents.focus, callback);
+    emitter.on(AppEvents.FOCUS, callback);
+    return () => emitter.removeListener(AppEvents.FOCUS, callback);
   },
   onBlur: (callback: () => void): VoidFunction => {
-    emitter.on(AppEvents.blur, callback);
-    return () => emitter.removeListener(AppEvents.blur, callback);
+    emitter.on(AppEvents.BLUR, callback);
+    return () => emitter.removeListener(AppEvents.BLUR, callback);
   },
   onOnline: (callback: () => void): VoidFunction => {
-    emitter.on(AppEvents.online, callback);
-    return () => emitter.removeListener(AppEvents.online, callback);
+    emitter.on(AppEvents.ONLINE, callback);
+    return () => emitter.removeListener(AppEvents.ONLINE, callback);
   },
   onOffline: (callback: () => void): VoidFunction => {
-    emitter.on(AppEvents.offline, callback);
-    return () => emitter.removeListener(AppEvents.offline, callback);
+    emitter.on(AppEvents.OFFLINE, callback);
+    return () => emitter.removeListener(AppEvents.OFFLINE, callback);
   },
 });

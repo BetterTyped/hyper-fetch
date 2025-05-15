@@ -1,9 +1,11 @@
 import { act, waitFor } from "@testing-library/react";
-import { AdapterType, ResponseReturnType, xhrExtra } from "@hyper-fetch/core";
+import { AdapterInstance, ResponseType, xhrExtra } from "@hyper-fetch/core";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
+import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testClientIsolation } from "../../shared";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Base ]", () => {
   let request = createRequest();
@@ -13,7 +15,7 @@ describe("useFetch [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -29,17 +31,27 @@ describe("useFetch [ Base ]", () => {
   describe("when hook is initialized", () => {
     it("should initialize in loading state", async () => {
       await testClientIsolation(client);
-      createRequestInterceptor(request);
+      mockRequest(request);
       const view = renderUseFetch(request);
 
       testInitialState(view);
     });
     it("should load cached data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const [cache] = createCacheData(request, {
-        data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
-        details: { retries: 2 },
+        data: {
+          data: mock,
+          error: null,
+          status: 200,
+          success: true,
+          extra: xhrExtra,
+          responseTimestamp: +new Date(),
+          requestTimestamp: +new Date(),
+        },
+        details: {
+          retries: 2,
+        },
       });
       const view = renderUseFetch(request);
       await testCacheState(cache, view);
@@ -47,71 +59,99 @@ describe("useFetch [ Base ]", () => {
     it("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
-      const mock = createRequestInterceptor(request, { delay: 50 });
+      const mock = mockRequest(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
-          data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
-          details: { timestamp, retries: 3 },
+          data: {
+            data: mock,
+            error: null,
+            status: 200,
+            success: true,
+            extra: xhrExtra,
+            responseTimestamp: timestamp,
+            requestTimestamp: timestamp,
+          },
+          details: {
+            triggerTimestamp: timestamp,
+            responseTimestamp: timestamp,
+            requestTimestamp: timestamp,
+            retries: 3,
+          },
         });
       });
 
-      const view = renderUseFetch(request.setCacheTime(10));
+      const view = renderUseFetch(request.setStaleTime(10));
 
-      await testCacheState({ data: null, error: null, status: null, success: true, extra: xhrExtra }, view);
+      await testCacheState(
+        {
+          data: null,
+          error: null,
+          status: null,
+          success: true,
+          extra: xhrExtra,
+          responseTimestamp: timestamp,
+          requestTimestamp: timestamp,
+        },
+        view,
+      );
     });
     it("should allow to use initial data", async () => {
       await testClientIsolation(client);
-      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+      const initialResponse: ResponseType<unknown, Error, AdapterInstance> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json" } },
+        responseTimestamp: +new Date(),
+        requestTimestamp: +new Date(),
       };
-      const view = renderUseFetch(request, { disabled: true, initialData });
+      const view = renderUseFetch(request, { disabled: true, initialResponse });
 
-      expect(view.result.current.data).toEqual(initialData.data);
-      await testSuccessState(initialData.data, view);
+      expect(view.result.current.data).toEqual(initialResponse.data);
+      await testSuccessState(initialResponse.data, view);
     });
     it("should allow to use initial data while requesting", async () => {
       await testClientIsolation(client);
-      createRequestInterceptor(request);
-      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+      mockRequest(request);
+      const initialResponse: ResponseType<unknown, Error, AdapterInstance> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json" } },
+        responseTimestamp: +new Date(),
+        requestTimestamp: +new Date(),
       };
-      const view = renderUseFetch(request, { initialData });
-      expect(view.result.current.data).toEqual(initialData.data);
+      const view = renderUseFetch(request, { initialResponse });
+      expect(view.result.current.data).toEqual(initialResponse.data);
     });
     it("should prefer cache data over initial data", async () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
       await act(async () => {
         await sleep(50);
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe("when hook get success response", () => {
     it("should set state with success data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
     });
     it("should map the data on deps change", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
       const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
 
@@ -140,11 +180,11 @@ describe("useFetch [ Base ]", () => {
     });
     it("should clear previous error state once success response is returned", async () => {
       await testClientIsolation(client);
-      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const errorMock = mockRequest(request, { status: 400 });
       const view = renderUseFetch(request);
 
       await testErrorState(errorMock, view);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
 
       act(() => {
         view.result.current.refetch();
@@ -161,7 +201,7 @@ describe("useFetch [ Base ]", () => {
         ...response,
         data: mappedData,
       }));
-      createRequestInterceptor(mappedRequest);
+      mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest);
 
       await testSuccessState(mappedData, view);
@@ -173,7 +213,7 @@ describe("useFetch [ Base ]", () => {
         ...response,
         data: mappedData,
       }));
-      createRequestInterceptor(mappedRequest);
+      mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest, { disabled: true });
 
       act(() => {
@@ -185,7 +225,7 @@ describe("useFetch [ Base ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       await testSuccessState(mappedData, view);
     });
@@ -193,19 +233,19 @@ describe("useFetch [ Base ]", () => {
   describe("when hook get error response", () => {
     it("should set state with error data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request, { status: 400 });
+      const mock = mockRequest(request, { status: 400 });
       const view = renderUseFetch(request);
 
       await testErrorState(mock, view);
     });
     it("should keep previous success state once error response is returned", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
 
-      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const errorMock = mockRequest(request, { status: 400 });
 
       act(() => {
         view.result.current.refetch();
@@ -222,7 +262,7 @@ describe("useFetch [ Base ]", () => {
     it("should fetch data when disabled prop changes", async () => {
       const spy = jest.fn();
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request, { disabled: true });
 
       act(() => {
@@ -230,12 +270,12 @@ describe("useFetch [ Base ]", () => {
       });
 
       await sleep(20);
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
 
       view.rerender({ disabled: false });
 
       await testSuccessState(mock, view);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should fetch when dependencies change", async () => {
       // Todo

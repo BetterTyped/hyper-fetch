@@ -19,7 +19,7 @@ export const addQueueElement = <T extends RequestInstance>(
 ) => {
   const { stop = false, queueType = "auto" } = options || {};
   const [dispatcher] = getRequestDispatcher(request, queueType);
-  if (stop) dispatcher.stop(request.queueKey);
+  if (stop) dispatcher.stop(request.queryKey);
   return dispatcher.add(request);
 };
 
@@ -36,7 +36,8 @@ export const emitDownloadProgress = <T extends RequestInstance>(
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
-  request.client.requestManager.events.emitDownloadProgress(request.queueKey, requestId, progress, {
+  request.client.requestManager.events.emitDownloadProgress({
+    ...progress,
     requestId,
     request,
   });
@@ -57,7 +58,8 @@ export const emitUploadProgress = <T extends RequestInstance>(
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
-  request.client.requestManager.events.emitUploadProgress(request.queueKey, requestId, progress, {
+  request.client.requestManager.events.emitUploadProgress({
+    ...progress,
     requestId,
     request,
   });

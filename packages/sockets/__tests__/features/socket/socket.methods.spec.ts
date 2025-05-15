@@ -1,6 +1,7 @@
 import { LoggerManager } from "@hyper-fetch/core";
 
-import { createSocket } from "../../utils/socket.utils";
+import { Socket } from "socket";
+import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
 
 describe("Socket [ Methods ]", () => {
   beforeEach(() => {
@@ -9,53 +10,43 @@ describe("Socket [ Methods ]", () => {
 
   it("should allow to set new query params config", async () => {
     const settings = { skipEmptyString: true };
-    const socket = createSocket({ queryParamsConfig: settings });
-    expect(socket.queryParamsConfig).toBe(settings);
+    const adapter = WebsocketAdapter().setQueryParamsConfig(settings);
+    const socket = new Socket({ url: "ws://localhost:1234", adapter });
+    expect(socket.adapter.queryParamsConfig).toBe(settings);
   });
 
   it("should allow to set new query params stringify", async () => {
-    const method = () => "";
-    const socket = createSocket({ queryParamsStringify: method });
-    expect(socket.queryParamsStringify).toBe(method);
+    const method = () => "testing";
+    const socket = new Socket({ url: "ws://localhost:1234" });
+    socket.adapter.setQueryParamsMapper(method);
+    const queryParams = socket.adapter.unstable_queryParamsMapper({ test: 1 });
+    expect(queryParams).toBe("testing");
   });
 
   it("should allow to activate debug", async () => {
-    const socket = createSocket();
+    const socket = new Socket({ url: "ws://localhost:1234" });
     socket.setDebug(true);
     expect(socket.debug).toBeTrue();
   });
 
   it("should allow to set log severity", async () => {
-    const socket = createSocket();
-    socket.setLoggerSeverity(3);
-    expect(socket.loggerManager.severity).toBe(3);
+    const socket = new Socket({ url: "ws://localhost:1234" });
+    socket.setLogLevel("info");
+    expect(socket.loggerManager.level).toBe("info");
   });
 
   it("should allow to set logger", async () => {
-    const customLogger = new LoggerManager({ debug: true });
+    const customLogger = new LoggerManager();
     const method = () => customLogger;
-    const socket = createSocket();
+    const socket = new Socket({ url: "ws://localhost:1234" });
     socket.setLogger(method);
     expect(socket.loggerManager).toBe(customLogger);
   });
 
-  it("should allow to set auth and reconnect", async () => {
+  it("should allow to set query", async () => {
     const value = { test: 1 };
-    const spy = jest.fn();
-    const socket = createSocket();
-    socket.adapter.reconnect = spy;
-    socket.setAuth(value);
-    expect(socket.auth).toBe(value);
-    expect(spy).toBeCalledTimes(1);
-  });
-
-  it("should allow to set query and reconnect", async () => {
-    const value = { test: 1 };
-    const spy = jest.fn();
-    const socket = createSocket();
-    socket.adapter.reconnect = spy;
-    socket.setQuery(value);
-    expect(socket.queryParams).toBe(value);
-    expect(spy).toBeCalledTimes(1);
+    const socket = new Socket({ url: "ws://localhost:1234" });
+    socket.adapter.setQueryParams(value);
+    expect(socket.adapter.queryParams).toBe(value);
   });
 });

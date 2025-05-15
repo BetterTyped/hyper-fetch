@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": "../src",
+    "jsx": "react-jsx",
+    "moduleResolution": "nodenext",
+    "module": "nodenext"
+  }
+}

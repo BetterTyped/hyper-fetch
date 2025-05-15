@@ -1,15 +1,15 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client
-        .createRequest<Tea[]>()({
+        .createRequest<{ response: Tea[] }>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
@@ -32,7 +32,7 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should return emptyResource status for non existing resource", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(adapterFunction());
       const req = client
-        .createRequest<Tea[]>()({
+        .createRequest<{ response: Tea[] }>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
@@ -48,7 +48,7 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const request = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "getDoc",
         })

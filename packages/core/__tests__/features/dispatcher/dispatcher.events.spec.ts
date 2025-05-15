@@ -1,16 +1,19 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { ResponseReturnType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
+import { AdapterInstance, ResponseType, getErrorMessage } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { createDispatcher, createAdapter, sleep } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
+import { xhrExtra } from "http-adapter";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   let dispatcher = createDispatcher(client);
 
@@ -19,13 +22,13 @@ describe("Dispatcher [ Events ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
-    createRequestInterceptor(request);
+    mockRequest(request, { status: 200, delay: 0 });
   });
 
   afterAll(() => {
@@ -35,106 +38,139 @@ describe("Dispatcher [ Events ]", () => {
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
       const spy = jest.fn();
-      const unmount = client.requestManager.events.onLoading(request.queueKey, spy);
+      const unmount = client.requestManager.events.onLoadingByQueue(request.queryKey, spy);
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit drained event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onDrained(request.queueKey, spy);
-      dispatcher.add(request.setQueued(true));
+      const unmount = dispatcher.events.onDrainedByKey(request.queryKey, spy);
+      const requestId = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, requestId, request.abortKey);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       unmount();
-      dispatcher.add(request.setQueued(true));
+      const requestId2 = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, requestId2, request.abortKey);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueStatus(request.queueKey, spy);
-      dispatcher.stop(request.queueKey);
-      expect(spy).toBeCalledTimes(1);
+      const unmount = dispatcher.events.onQueueStatusChangeByKey(request.queryKey, spy);
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
-      dispatcher.stop(request.queueKey);
-      expect(spy).toBeCalledTimes(1);
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit queue change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueChange(request.queueKey, spy);
+      const unmount = dispatcher.events.onQueueChangeByKey(request.queryKey, spy);
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it("should handle listen change events correctly", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.emitter.onListener(request.queryKey, spy);
+
+      const listener = () => {};
+      // Should be called when a new listener is added
+      dispatcher.emitter.on(request.queryKey, listener);
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(1);
+      expect(spy).toHaveBeenCalledWith(1);
+
+      dispatcher.emitter.off(request.queryKey, listener);
+
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(0);
+      expect(spy).toHaveBeenCalledWith(0);
+
+      // Should be called when a listener is removed
+      unmount();
+
+      dispatcher.emitter.addListener(request.queryKey, listener);
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(1);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should emit proper data response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      const mock = createRequestInterceptor(request);
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
+      const mock = mockRequest(request);
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: mock,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper failed response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      const mock = createRequestInterceptor(request, { status: 400 });
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
+      const mock = mockRequest(request, { status: 400 });
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: null,
         error: mock,
         status: 400,
         success: false,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "19" } },
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper retry response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
-      createRequestInterceptor(requestWithRetry, { status: 400, delay: 0 });
+      mockRequest(requestWithRetry, { status: 400, delay: 0 });
 
-      client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
-        response = rest;
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+      client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (data) => {
+        response = [data.response, data.details];
       });
       dispatcher.add(requestWithRetry);
 
@@ -142,53 +178,127 @@ describe("Dispatcher [ Events ]", () => {
         expect(response).toBeDefined();
       });
 
-      const mock = createRequestInterceptor(requestWithRetry);
+      const mock = mockRequest(requestWithRetry);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: mock,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper cancel response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      createRequestInterceptor(request, { status: 400 });
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
+      mockRequest(request, { status: 400 });
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
       });
       dispatcher.add(request);
       await sleep(1);
       client.requestManager.abortAll();
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
         success: false,
         extra: xhrExtra,
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: true,
         isOffline: false,
+        addedTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        triggerTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
+    });
+    it("should emit and unsubscribe from global drained event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onDrained(spy);
+
+      // Add and complete multiple requests to trigger drain
+      const request1 = dispatcher.add(request.setQueued(true));
+      const request2 = dispatcher.add(request.setQueued(true));
+
+      dispatcher.delete(request.queryKey, request1, request.abortKey);
+      dispatcher.delete(request.queryKey, request2, request.abortKey);
+
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+
+      // Test unsubscribe
+      unmount();
+
+      const request3 = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, request3, request.abortKey);
+
+      await sleep(10); // Give time for potential unwanted events
+      expect(spy).toHaveBeenCalledTimes(1); // Should not be called again
+    });
+    it("should emit and unsubscribe from global queue status change event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onQueueStatusChange(spy);
+
+      // Trigger queue status change
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ stopped: true, requests: [], queryKey: request.queryKey }),
+      );
+
+      // Test unsubscribe
+      unmount();
+
+      // Should not trigger spy after unmount
+      dispatcher.stop(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it("should emit and unsubscribe from global queue change event", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.events.onQueueChange(spy);
+
+      // Add request to trigger queue change
+      dispatcher.add(request);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requests: expect.any(Array),
+          queryKey: request.queryKey,
+        }),
+      );
+
+      // Test unsubscribe
+      unmount();
+
+      // Should not trigger spy after unmount
+      dispatcher.add(request);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });
