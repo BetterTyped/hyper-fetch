@@ -103,9 +103,25 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
 
   const toggleLoading = () => {
     if (!item || !latestItem) return;
+    const request = client.createRequest()({ cacheKey: item.cacheKey, endpoint: "" });
+    console.log("TOGGLE LOADING HERE!");
     if (!hasInProgressRequest) {
+      client.requestManager.events.emitLoading({
+        request,
+        loading: true,
+        isRetry: false,
+        isOffline: false,
+        requestId: "",
+      });
       addLoadingKeys({ project: project.name, cacheKey: item.cacheKey });
     } else {
+      client.requestManager.events.emitLoading({
+        request,
+        loading: false,
+        isRetry: false,
+        isOffline: false,
+        requestId: "",
+      });
       removeLoadingKeys({ project: project.name, cacheKey: item.cacheKey });
     }
   };

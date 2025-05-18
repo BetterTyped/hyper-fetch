@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-params */
 import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
-import { HttpResponse, http, HttpResponseResolver, delay } from "msw";
+import { HttpResponse, http, HttpResponseResolver, delay, StrictResponse } from "msw";
 
 import { MockRequestOptions } from "./http";
 import { errorResponses } from "./http.constants";
@@ -113,6 +113,30 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     // Todo: something generic?
     const timeoutTime = (request.options as any)?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;
+
+    if (options?.streamResponse) {
+      console.log("STREAMING RESPONSE");
+      console.log(data);
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          for (const chunk of data) {
+            controller.enqueue(encoder.encode(chunk));
+          }
+          controller.close();
+        },
+      });
+      const transformStream = new TransformStream({
+        start() {},
+        async transform(chunk, controller) {
+          await delay();
+          controller.enqueue(chunk);
+        },
+      });
+      return new HttpResponse(stream.pipeThrough(transformStream), {
+        headers: { "Content-Type": "text/plain" },
+      }) as StrictResponse<ReadableStream>;
+    }
 
     if (abortController && abortController?.[1].signal.aborted) {
       const error = getErrorMessage("abort");

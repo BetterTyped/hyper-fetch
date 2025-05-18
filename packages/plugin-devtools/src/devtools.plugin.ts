@@ -18,7 +18,11 @@ export const devtoolsPlugin = (options: DevtoolsPluginOptions) => {
 
   plugin.onRequestCreate(({ request }) => {
     plugin.data.requests.push(request);
-    plugin.data.eventHandler?.sendEvent(EmitableCustomEvents.REQUEST_CREATED, plugin.data.requests);
+    plugin.data.eventHandler?.sendEvent("customEvent")(
+      EmitableCustomEvents.REQUEST_CREATED,
+      plugin.data.requests,
+      true,
+    );
   });
 
   return plugin;

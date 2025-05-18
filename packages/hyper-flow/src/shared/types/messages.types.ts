@@ -31,7 +31,8 @@ export type BaseMessage = {
   data: {
     messageType: MessageType;
     connectionName: string;
-    eventType?: EmitableCoreEvents | EmitableCustomEvents;
+    eventName: string;
+    eventSource: "requestManager" | "appManager" | "cache" | "submitDispatcher" | "fetchDispatcher" | "customEvent";
     eventData?: any;
   };
 };

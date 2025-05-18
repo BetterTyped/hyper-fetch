@@ -15,9 +15,9 @@ describe("Http Adapter [ Server ]", () => {
   const abortKey = "abort-key";
   const requestCopy = http.request;
 
-  let client = new Client({ url: "http://shared-base-url" });
+  let client = new Client({ url: "https://nickdesaulniers.github.io" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/netfix/demo/frag_bunny.mp4", abortKey });
   let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
   beforeAll(() => {
@@ -25,12 +25,12 @@ describe("Http Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "http://shared-base-url" });
+    client = new Client({ url: "https://nickdesaulniers.github.io" });
     clientHttps = new Client({ url: "https://shared-base-url" });
     client.appManager.isBrowser = false;
     clientHttps.appManager.isBrowser = false;
 
-    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/netfix/demo/frag_bunny.mp4", abortKey });
     requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
     client.requestManager.addAbortController(abortKey, requestId);
@@ -102,6 +102,15 @@ describe("Http Adapter [ Server ]", () => {
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("timeout").message);
+  });
+
+  it("should return complete response when chunked stream", async () => {
+    const streamedRequest = request.setOptions({ responseType: "stream" });
+
+    const { data: response } = await HttpAdapter().initialize(client).fetch(streamedRequest, requestId);
+    for await (const chunk of response) {
+      console.log(chunk);
+    }
   });
 
   it("should allow to make post request with json data", async () => {

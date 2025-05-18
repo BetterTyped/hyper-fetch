@@ -19,55 +19,20 @@ const handleEvent = ({
   project: string;
 }) => {
   // TODO change to more generic event handling
-  // { entity, eventType, eventData } // => client[entity].events[eventType](eventData)
-  const { eventType, eventData } = event.data;
-  switch (eventType) {
-    case EmitableCoreEvents.ON_REQUEST_START:
-      client.requestManager.events.emitRequestStart(eventData);
-      return;
-    case EmitableCoreEvents.ON_REQUEST_REMOVE:
-      client.requestManager.events.emitRemove(eventData);
-      return;
-    case EmitableCoreEvents.ON_REQUEST_PAUSE:
-      client.requestManager.events.emitAbort(eventData);
-      return;
-    case EmitableCoreEvents.ON_RESPONSE:
-      client.requestManager.events.emitResponse(eventData);
-      return;
-    case EmitableCoreEvents.ON_FETCH_QUEUE_CHANGE: {
-      client.fetchDispatcher.events.setQueueChanged(eventData);
+  const { eventData, eventName, eventSource } = event.data;
+  switch (eventSource) {
+    case "customEvent": {
       return;
     }
-    case EmitableCoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE: {
-      client.fetchDispatcher.events.setQueueStatusChanged(eventData);
-      return;
-    }
-    case EmitableCoreEvents.ON_SUBMIT_QUEUE_CHANGE: {
-      client.submitDispatcher.events.setQueueChanged(eventData);
-      return;
-    }
-    case EmitableCoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE: {
-      client.submitDispatcher.events.setQueueStatusChanged(eventData);
-      return;
-    }
-    case EmitableCoreEvents.ON_CACHE_CHANGE: {
-      client.cache.events.emitCacheData(eventData);
-      return;
-    }
-    case EmitableCoreEvents.ON_CACHE_INVALIDATE: {
-      client.cache.events.emitInvalidation(eventData);
-      return;
-    }
-    case EmitableCoreEvents.ON_CACHE_DELETE: {
-      client.cache.events.emitDelete(eventData);
+    default: {
+      const { data, isTriggeredExternally } = eventData;
+      client[eventSource].emitter.emit(eventName, data, isTriggeredExternally);
       return;
     }
     case EmitableCustomEvents.REQUEST_CREATED: {
       setRequestList(project, eventData);
       return;
     }
-    default:
-      console.error(`Unknown event received: ${eventType}`);
   }
 };
 
@@ -98,6 +63,10 @@ export const Events = ({ project }: { project: string }) => {
           },
         });
       }
+    });
+
+    const unmountOnLoading = client.requestManager.events.onLoading((data) => {
+      console.log(data);
     });
 
     return () => {

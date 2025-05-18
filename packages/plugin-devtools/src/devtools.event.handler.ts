@@ -1,7 +1,7 @@
 import { CacheValueType, ClientInstance } from "@hyper-fetch/core";
 import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
-import { EmitableCoreEvents, EmitableCustomEvents, DevtoolsPluginOptions, MessageTypes } from "devtools.types";
+import { DevtoolsPluginOptions, MessageTypes } from "devtools.types";
 
 export class DevtoolsEventHandler {
   client: ClientInstance;
@@ -82,29 +82,62 @@ export class DevtoolsEventHandler {
     });
   }
 
-  sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
-    if (this.isConnected && this.isInitialized) {
-      try {
-        this.socketEmitter.emit({
+  sendEvent =
+    (eventSource: "requestManager" | "appManager" | "cache" | "submitDispatcher" | "fetchDispatcher" | "customEvent") =>
+    (eventName: string, data: any, isTriggeredExternally: boolean) => {
+      if (this.isConnected && this.isInitialized) {
+        try {
+          this.socketEmitter.emit({
+            payload: {
+              messageType: "HF_APP_EVENT",
+              eventSource,
+              eventName: eventName,
+              eventData: { ...data, isTriggeredExternally },
+              connectionName: this.connectionName,
+            },
+          });
+        } catch (e) {
+          console.error("ERROR", e);
+        }
+      } else {
+        this.eventQueue.push({
+          messageType: "HF_APP_EVENT",
           payload: {
             messageType: "HF_APP_EVENT",
-            eventType,
-            eventData: data,
+            parent,
+            eventName: eventName,
+            eventData: { ...data, isTriggeredExternally },
             connectionName: this.connectionName,
           },
+          eventData: data,
+          connectionName: this.connectionName,
         });
-      } catch (e) {
-        console.error("ERROR", e);
       }
-    } else {
-      this.eventQueue.push({
-        messageType: "HF_APP_EVENT",
-        eventType,
-        eventData: data,
-        connectionName: this.connectionName,
-      });
-    }
-  };
+    };
+
+  // sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
+  //   if (this.isConnected && this.isInitialized) {
+  //     try {
+  //       this.socketEmitter.emit({
+  //         payload: {
+  //           messageType: "HF_APP_EVENT",
+  //           eventType,
+  //           eventData: data,
+  //           connectionName: this.connectionName,
+  //         },
+  //       });
+  //     } catch (e) {
+  //       console.error("ERROR", e);
+  //     }
+  //   } else {
+  //     this.eventQueue.push({
+  //       messageType: "HF_APP_EVENT",
+  //       eventType,
+  //       eventData: data,
+  //       connectionName: this.connectionName,
+  //     });
+  //   }
+  // };
 
   handleDevtoolsMessage = (message: any) => {
     switch (message.data.eventType) {
@@ -129,90 +162,18 @@ export class DevtoolsEventHandler {
   };
 
   initializeHooks = () => {
-    return {
-      unmountOnRequestStart: this.unmountOnRequestStart(),
-      unmountOnResponse: this.unmountOnResponse(),
-      unmountOnRequestPause: this.unmountOnRequestPause(),
-      unmountOnFetchQueueChange: this.unmountOnFetchQueueChange(),
-      unmountOnFetchQueueStatusChange: this.unmountOnFetchQueueStatusChange(),
-      unmountOnSubmitQueueChange: this.unmountOnSubmitQueueChange(),
-      unmountOnSubmitQueueStatusChange: this.unmountOnSubmitQueueStatusChange(),
-      unmountOnRemove: this.unmountOnRemove(),
-      unmountOnCacheChange: this.unmountOnCacheChange(),
-      unmountOnCacheInvalidate: this.unmountOnCacheInvalidate(),
-      unmountCacheDelete: this.unmountCacheDelete(),
-    };
-  };
-
-  unmountOnRequestStart = () => {
-    return this.client.requestManager.events.onRequestStart((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_REQUEST_START, data);
-    });
-  };
-  unmountOnResponse = () => {
-    return this.client.requestManager.events.onResponse((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_RESPONSE, data);
-    });
-  };
-  unmountOnRequestPause = () => {
-    return this.client.requestManager.events.onAbort((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_REQUEST_PAUSE, data);
-    });
-  };
-  unmountOnFetchQueueChange = () => {
-    return this.client.fetchDispatcher.events.onQueueChange((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_FETCH_QUEUE_CHANGE, data);
-    });
-  };
-  unmountOnFetchQueueStatusChange = () => {
-    return this.client.fetchDispatcher.events.onQueueStatusChange((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE, data);
-    });
-  };
-  unmountOnSubmitQueueChange = () => {
-    return this.client.submitDispatcher.events.onQueueChange((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_SUBMIT_QUEUE_CHANGE, data);
-    });
-  };
-  unmountOnSubmitQueueStatusChange = () => {
-    return this.client.submitDispatcher.events.onQueueStatusChange((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE, data);
-    });
-  };
-  unmountOnRemove = () => {
-    return this.client.requestManager.events.onRemove((data) => {
-      this.sendEvent(EmitableCoreEvents.ON_REQUEST_REMOVE, data);
-    });
-  };
-  unmountOnCacheChange = () => {
-    return this.client.cache.events.onData((data) => {
-      if (!data.isTriggeredExternally) {
-        this.sendEvent(EmitableCoreEvents.ON_CACHE_CHANGE, { ...data, isTriggeredExternally: true });
-      }
-    });
-  };
-  unmountOnCacheInvalidate = () => {
-    return this.client.cache.events.onInvalidate(() => {
-      this.sendEvent(EmitableCoreEvents.ON_CACHE_INVALIDATE, {});
-    });
-  };
-  unmountCacheDelete = () => {
-    return this.client.cache.events.onDelete(() => {
-      this.sendEvent(EmitableCoreEvents.ON_CACHE_DELETE, {});
-    });
-  };
-
-  unmountHooksFromClient = () => {
-    this.unmountHooks.unmountOnRequestStart();
-    this.unmountHooks.unmountOnResponse();
-    this.unmountHooks.unmountOnRequestPause();
-    this.unmountHooks.unmountOnFetchQueueChange();
-    this.unmountHooks.unmountOnFetchQueueStatusChange();
-    this.unmountHooks.unmountOnSubmitQueueChange();
-    this.unmountHooks.unmountOnSubmitQueueStatusChange();
-    this.unmountHooks.unmountOnRemove();
-    this.unmountHooks.unmountOnCacheChange();
-    this.unmountHooks.unmountOnCacheInvalidate();
-    this.unmountHooks.unmountCacheDelete();
+    this.client.requestManager.emitter.onEmit(this.sendEvent("requestManager"));
+    this.client.appManager.emitter.onEmit(this.sendEvent("appManager"));
+    this.client.cache.emitter.onEmit(this.sendEvent("cache"));
+    this.client.fetchDispatcher.emitter.onEmit(this.sendEvent("fetchDispatcher"));
+    this.client.submitDispatcher.emitter.onEmit(this.sendEvent("submitDispatcher"));
+    //
+    // unmountOnCacheChange = () => {
+    //   return this.client.cache.events.onData((data) => {
+    //     if (!data.isTriggeredExternally) {
+    //       this.hookOnEvent(EmitableCoreEvents.ON_CACHE_CHANGE, { ...data, isTriggeredExternally: true });
+    //     }
+    //   });
+    // };
   };
 }
