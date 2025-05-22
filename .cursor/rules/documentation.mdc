@@ -229,6 +229,7 @@ The documentation supports two primary ways to create links between pages:
 ## Code Examples
 
 - Provide complete, working code examples
+- Avoid large code example blocks or mixing multiple examples in a single snippet
 - Use syntax highlighting with proper language tags
 - Make examples copy-pastable when possible
 - Include comments to explain complex parts

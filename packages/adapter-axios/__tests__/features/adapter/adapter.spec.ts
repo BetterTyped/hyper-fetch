@@ -85,7 +85,7 @@ describe("Axios Adapter [ Base ]", () => {
     const spyResponse = jest.fn();
 
     await request.send({
-      onSettle: spySettle,
+      onBeforeSent: spySettle,
       onRequestStart: spyReqStart,
       onResponseStart: spyResStart,
       onUploadProgress: spyUpload,

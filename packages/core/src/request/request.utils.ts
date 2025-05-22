@@ -124,7 +124,7 @@ export const sendRequest = <Request extends RequestInstance>(
   >((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    options?.onSettle?.({ requestId, request });
+    options?.onBeforeSent?.({ requestId, request });
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
       options?.onRequestStart?.(data),

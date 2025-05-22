@@ -154,9 +154,6 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    * Time of pooling for the deduplication to be active (default 10ms)
    */
   deduplicateTime?: number;
-
-  responseType?: "stream";
-  responseEncoding?: string;
 };
 
 export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;
@@ -244,13 +241,13 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
   RequestDynamicSendOptionsType<Request>;
 
 export type RequestSendActionsType<Request extends RequestInstance> = {
-  onSettle?: (eventData: RequestEventType<Request>) => void;
+  onBeforeSent?: (eventData: RequestEventType<Request>) => void;
   onRequestStart?: (eventData: RequestEventType<Request>) => void;
   onResponseStart?: (eventData: RequestEventType<Request>) => void;
   onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
   onDownloadProgress?: (eventData: RequestProgressEventType<Request>) => void;
   onResponse?: (eventData: RequestResponseEventType<Request>) => void;
-  onRemove?: (details: RequestEventType<Request>) => void;
+  onRemove?: (eventData: RequestEventType<Request>) => void;
 };
 
 type IsNegativeType<T> = undefined extends T ? EmptyTypes : null extends T ? EmptyTypes : T;

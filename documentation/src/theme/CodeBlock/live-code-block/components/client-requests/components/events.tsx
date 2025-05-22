@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { QueueRequest } from "@hyper-fetch/react";
 import { AnimatePresence } from "motion/react";
+import { AppWindowMac } from "lucide-react";
 import { ClientInstance, QueueDataType, QueueItemType, RequestInstance } from "@hyper-fetch/core";
 import { useToast } from "@site/src/hooks/use-toast";
 import { AnimatedListItem } from "@site/src/components/ui/animated-list-item";
@@ -241,6 +242,12 @@ export const Events: React.FC<QueueProps> = ({ client }) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {!requests.length && (
+        <div className="!text-zinc-400 font-medium flex items-center gap-2">
+          <AppWindowMac />
+          No requests yet
+        </div>
+      )}
       <AnimatePresence>
         {requests.map((event) => {
           return (

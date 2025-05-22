@@ -11,6 +11,8 @@ subsystems—such as queues, cache, and interceptors—and provides a unified wa
 configuration. By keeping all data and logic encapsulated within a single client instance, you ensure that each client
 remains isolated and independent from others.
 
+---
+
 :::info Purpose
 
 1. **Builder for all of the requests**
@@ -45,7 +47,11 @@ export const client = createClient({ url: "http://localhost:3000" });
 
 ## Available methods
 
+<ShowMore>
+
 (@import core Client type=methods&display=table)
+
+</ShowMore>
 
 <LinkCard
   type="api"
@@ -81,7 +87,9 @@ import { createClient } from "@hyper-fetch/core";
 const client = createClient({ url: "http://localhost:3000" });
 
 // highlight-next-line
-export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/1" });
+const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/1" });
+
+console.log(getUser);
 ```
 
 <LinkCard type="docs" title="Request" description="More about the request and how to use it" to="/docs/core/request" />
@@ -122,7 +130,7 @@ export const getUsers = client.createRequest()({
   type="guides"
   title="Authentication guide"
   description="Learn how to set up authentication for your application"
-  to="/docs/guides/core/01-basic/authentication.mdx"
+  to="/docs/guides/core/basic/authentication"
 />
 
 ---

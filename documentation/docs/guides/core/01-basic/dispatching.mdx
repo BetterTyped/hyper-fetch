@@ -77,7 +77,7 @@ const handleSend = async (values: ValuesType) => {
 
 ```ts
 const { data, error, status } = await getData.send({
-  onSettle: (requestId) => {
+  onBeforeSent: (requestId) => {
     console.log(`Starting request: ${requestId}`);
   },
   onDownloadProgress: (values) => {

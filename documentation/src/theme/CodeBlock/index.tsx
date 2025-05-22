@@ -22,7 +22,7 @@ function isLiveCodeBlock(props: CodeBlockProps): boolean {
 export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const { metastring } = props;
   const clickToRun = metastring?.includes("clickToRun");
-  const defaultTab = metastring?.includes("tabConsole") ? "playground" : undefined;
+  const defaultTab = metastring?.includes("console") ? "playground" : undefined;
   const title = parseCodeBlockTitle(metastring);
 
   return isLiveCodeBlock(props) ? (

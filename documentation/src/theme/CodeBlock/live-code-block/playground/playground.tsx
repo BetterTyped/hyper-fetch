@@ -80,7 +80,7 @@ export const transformCode = (code: string): string => {
           <div key={"log"+index} className="api-playground__log-row flex gap-1">
             <div className="api-playground__log-row__index">
               <div className="text-xs text-zinc-400">
-                {index}
+                <Terminal />
               </div>
             </div>
             <pre>

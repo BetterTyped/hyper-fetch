@@ -666,10 +666,10 @@ button.api-playground__more {
   @apply text-xs;
 }
 .api-playground__log-row {
-  @apply -mx-4;
+  @apply -ml-4 -mr-[12px] bg-zinc-800 border-t border-zinc-500/30;
 }
-.api-playground__log-row:nth-child(2n) {
-  @apply bg-zinc-600/15;
+.api-playground__log-row:nth-child(2n + 1) {
+  @apply bg-[#2e2e2e];
 }
 .api-playground__log-row pre {
   @apply p-2 bg-transparent;
@@ -679,10 +679,7 @@ button.api-playground__more {
   @apply !p-4 !pt-0;
 }
 .api-playground__log-row__index div {
-  @apply flex items-center justify-center w-6 h-6 mt-1 mb-1 ml-2 bg-zinc-700/70;
-}
-.api-playground__log-row:nth-child(2n) .api-playground__log-row__index div {
-  @apply bg-zinc-600;
+  @apply flex items-center justify-center w-6 h-6 mt-2 mb-1 ml-2;
 }
 .api-playground__no-logs {
   @apply !text-zinc-400/70;
