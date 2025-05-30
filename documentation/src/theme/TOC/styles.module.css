@@ -37,6 +37,12 @@
   @apply !text-zinc-400;
 }
 
+/* Enable if you want to hide empty sidebar */
+/* 
+:global(.docs .container .row:last-child:has(.col) .col) {
+  max-width: 100% !important;
+} */
+
 @media (max-height: 650px) {
   :global(.docs .container .row .col) {
     max-width: 100% !important;

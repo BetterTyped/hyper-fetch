@@ -1602,6 +1602,8 @@ h5,
 h6 {
   font-family: Inter;
   color: var(--text-primary);
+  line-height: 1.4 !important;
+  @apply !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
 }
 
 button,
