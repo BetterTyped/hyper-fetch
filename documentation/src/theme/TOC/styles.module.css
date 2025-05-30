@@ -1,5 +1,20 @@
+.tocWrapper {
+  position: relative;
+  overflow: visible !important;
+  height: 100%;
+}
+
+.tocContent {
+  position: sticky;
+  top: 100px;
+}
+
 .tocWrapper h6 {
-  padding-left: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 2px;
+  font-weight: 700;
 }
 
 .tocWrapper ul {
@@ -10,10 +25,8 @@
 }
 
 .tableOfContents {
-  max-height: calc(100vh - (var(--ifm-navbar-height) + 2rem));
-  overflow-y: auto;
-  position: sticky;
-  top: calc(var(--ifm-navbar-height) + 1rem);
+  /* position: sticky;
+  top: calc(var(--ifm-navbar-height) + 1rem); */
 }
 
 .tocWrapper :global(.table-of-contents__link--active) {
@@ -22,6 +35,12 @@
 
 .tocWrapper :global(a:not(.table-of-contents__link--active)) {
   @apply !text-zinc-400;
+}
+
+@media (max-height: 650px) {
+  .tocWrapper {
+    display: none;
+  }
 }
 
 @media (max-width: 996px) {

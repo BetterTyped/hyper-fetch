@@ -786,11 +786,6 @@ body.dark .title * {
  * Docs page
  */
 
-.toc > div {
-  height: auto;
-  max-height: none;
-}
-
 main > div.container {
   @apply !pt-0;
 }
@@ -824,7 +819,7 @@ main .col:not(.col--3) ol li {
 }
 
 .theme-doc-toc-mobile {
-  @apply shiny-btn;
+  @apply hidden;
 }
 
 .theme-doc-toc-mobile .table-of-contents {
@@ -887,7 +882,8 @@ strong {
 }
 
 .docs-wrapper p {
-  @apply my-4 text-lg;
+  @apply my-4 text-[17px];
+  line-height: 1.8;
 }
 
 .docs-wrapper table p {
@@ -1537,7 +1533,9 @@ button.DocSearch-Button {
 }
 
 .table-of-contents__link {
-  font-weight: 600;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  font-weight: 500 !important;
 }
 
 .table-of-contents {

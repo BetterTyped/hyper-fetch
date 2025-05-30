@@ -5,6 +5,7 @@ import type { Props } from "@theme/TOC";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { modules } from "@site/src/modules";
 import { PackageDetails } from "@site/src/components";
+import { Book } from "lucide-react";
 
 import styles from "./styles.module.css";
 
@@ -29,18 +30,22 @@ export default function TOC({ className, ...props }: Props): JSX.Element {
           pkg={`@hyper-fetch/${activeItem.section.package}`}
         />
       )}
-      <h6>On this page</h6>
-      <div
-        className={clsx(
-          styles.tableOfContents,
-          "thin-scrollbar",
-          color.text,
-          color.textAction,
-          color.textHover,
-          className,
-        )}
-      >
-        <TOCItems {...props} linkClassName={LINK_CLASS_NAME} linkActiveClassName={LINK_ACTIVE_CLASS_NAME} />
+      <div className={styles.tocContent}>
+        <h6>
+          <Book className="w-4 h-4" /> On this page
+        </h6>
+        <div
+          className={clsx(
+            styles.tableOfContents,
+            "thin-scrollbar",
+            color.text,
+            color.textAction,
+            color.textHover,
+            className,
+          )}
+        >
+          <TOCItems {...props} linkClassName={LINK_CLASS_NAME} linkActiveClassName={LINK_ACTIVE_CLASS_NAME} />
+        </div>
       </div>
     </div>
   );

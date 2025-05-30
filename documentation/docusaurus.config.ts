@@ -217,6 +217,10 @@ const config: Config = {
     liveCodeBlock: {
       playgroundPosition: "bottom",
     },
+    tableOfContents: {
+      minHeadingLevel: 2,
+      maxHeadingLevel: 2,
+    },
     navbar: {
       title: "",
       logo: {

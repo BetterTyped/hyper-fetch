@@ -217,6 +217,66 @@ Adapter options may vary depending on the adapter you use.
 
 ---
 
+## Methods
+
+The `Request` class offers a suite of methods to configure and interact with a request instance. You can find a
+comprehensive list of these methods and their detailed descriptions in the API reference.
+
+<ShowMore>
+
+(@import core Request type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed Request API Methods"
+  description="Explore all available methods, their parameters, and return values for the Request class."
+  to="/docs/api/core/Classes/Request.mdx#methods"
+/>
+
+It is crucial to understand how these methods operate to ensure predictable behavior:
+
+:::danger Methods Return Clones
+
+Most methods on a `Request` instance (e.g., `setParams`, `setData`, `setHeaders`) do not modify the original request
+instance in place. Instead, they return a **new, cloned instance** of the request with the specified modifications
+applied. The original request instance remains unchanged.
+
+Always use the returned new instance for subsequent operations or for sending the request. This immutable approach
+ensures isolation between different request configurations and is fundamental to how Hyper Fetch manages request states
+for features like caching and queueing.
+
+:::
+
+```tsx
+// ❌ WRONG - Original request (getUser) remains unchanged
+const initialRequest = getUser;
+initialRequest.setParams({ userId: 1 }); // This call returns a *new* request instance, but it's not assigned.
+// 'initialRequest' still refers to the original getUser without params.
+
+const { data, error } = await initialRequest.send(); // Sends the original request without params, likely leading to an error.
+```
+
+```tsx
+// ✅ CORRECT - Use the returned (cloned) instance
+const originalRequest = getUser;
+
+// Assign the new, cloned request with parameters to a new variable
+const requestWithParams = originalRequest.setParams({ userId: 1 });
+
+// Send the correctly configured request
+const { data, error } = await requestWithParams.send(); // Success!
+
+// ✅ Also correct (method chaining creates and passes clones implicitly)
+const { data: chainedData, error: chainedError } = await getUser
+  .setParams({ userId: 1 }) // .setParams returns a clone
+  .setQueryParams({ includeDetails: true }) // .setQueryParams operates on that clone and returns another clone
+  .send(); // .send operates on the final configured clone
+```
+
+---
+
 ### Keys
 
 Each `Request` instance is assigned several unique identifiers, known as **keys**. These keys are essential for internal
@@ -279,66 +339,6 @@ const effectLinkedRequest = request.setEffectKey("my-effect-key");
 
 > **Note:** Overriding keys is an advanced feature. Make sure you understand the implications for caching,
 > deduplication, and request management.
-
----
-
-## Methods
-
-The `Request` class offers a suite of methods to configure and interact with a request instance. You can find a
-comprehensive list of these methods and their detailed descriptions in the API reference.
-
-<ShowMore>
-
-(@import core Request type=methods&display=table)
-
-</ShowMore>
-
-<LinkCard
-  type="api"
-  title="Detailed Request API Methods"
-  description="Explore all available methods, their parameters, and return values for the Request class."
-  to="/docs/api/core/Classes/Request.mdx#methods"
-/>
-
-It is crucial to understand how these methods operate to ensure predictable behavior:
-
-:::danger Methods Return Clones
-
-Most methods on a `Request` instance (e.g., `setParams`, `setData`, `setHeaders`) do not modify the original request
-instance in place. Instead, they return a **new, cloned instance** of the request with the specified modifications
-applied. The original request instance remains unchanged.
-
-Always use the returned new instance for subsequent operations or for sending the request. This immutable approach
-ensures isolation between different request configurations and is fundamental to how Hyper Fetch manages request states
-for features like caching and queueing.
-
-:::
-
-```tsx
-// ❌ WRONG - Original request (getUser) remains unchanged
-const initialRequest = getUser;
-initialRequest.setParams({ userId: 1 }); // This call returns a *new* request instance, but it's not assigned.
-// 'initialRequest' still refers to the original getUser without params.
-
-const { data, error } = await initialRequest.send(); // Sends the original request without params, likely leading to an error.
-```
-
-```tsx
-// ✅ CORRECT - Use the returned (cloned) instance
-const originalRequest = getUser;
-
-// Assign the new, cloned request with parameters to a new variable
-const requestWithParams = originalRequest.setParams({ userId: 1 });
-
-// Send the correctly configured request
-const { data, error } = await requestWithParams.send(); // Success!
-
-// ✅ Also correct (method chaining creates and passes clones implicitly)
-const { data: chainedData, error: chainedError } = await getUser
-  .setParams({ userId: 1 }) // .setParams returns a clone
-  .setQueryParams({ includeDetails: true }) // .setQueryParams operates on that clone and returns another clone
-  .send(); // .send operates on the final configured clone
-```
 
 ---
 
