@@ -28,9 +28,6 @@ jobs:
       - name: Typecheck
         run: yarn typecheck
 
-      - name: Clear Jest
-        run: yarn jest --clearCache
-
       - name: Test
         run: yarn test --coverage
 

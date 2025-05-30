@@ -35,19 +35,19 @@ const handleEvent = ({
       client.requestManager.events.emitResponse(eventData);
       return;
     case EmitableCoreEvents.ON_FETCH_QUEUE_CHANGE: {
-      client.fetchDispatcher.events.setQueueChanged(eventData);
+      client.fetchDispatcher.events.emitQueueChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE: {
-      client.fetchDispatcher.events.setQueueStatusChanged(eventData);
+      client.fetchDispatcher.events.emitQueueStatusChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_SUBMIT_QUEUE_CHANGE: {
-      client.submitDispatcher.events.setQueueChanged(eventData);
+      client.submitDispatcher.events.emitQueueChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE: {
-      client.submitDispatcher.events.setQueueStatusChanged(eventData);
+      client.submitDispatcher.events.emitQueueStatusChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_CACHE_CHANGE: {
