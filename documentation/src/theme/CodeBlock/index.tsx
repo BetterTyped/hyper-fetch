@@ -1,4 +1,4 @@
-import React, { type ReactNode } from "react";
+import React, { useMemo, type ReactNode } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { parseCodeBlockTitle } from "@docusaurus/theme-common/internal";
 
@@ -25,8 +25,14 @@ export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const defaultTab = metastring?.includes("console") ? "playground" : undefined;
   const title = parseCodeBlockTitle(metastring);
 
+  const size = useMemo(() => {
+    if (metastring?.includes("sm")) return "sm";
+    if (metastring?.includes("lg")) return "lg";
+    return "md";
+  }, [metastring]);
+
   return isLiveCodeBlock(props) ? (
-    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} title={title} />
+    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} title={title} size={size} />
   ) : (
     <OriginalCodeBlock {...props} />
   );

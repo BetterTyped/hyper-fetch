@@ -578,10 +578,21 @@ pre {
   @apply mt-4 mb-6;
 }
 
-.api-playground__editor-wrapper,
-.api-playground,
-.api_playground_wrapper {
+.live-code-block-size-lg .api-playground__editor-wrapper,
+.live-code-block-size-lg .api-playground,
+.live-code-block-size-lg .api_playground_wrapper {
+  @apply min-h-[700px] max-h-[700px];
+}
+
+.live-code-block-size-md .api-playground__editor-wrapper,
+.live-code-block-size-md .api-playground,
+.live-code-block-size-md .api_playground_wrapper {
   @apply min-h-[500px] max-h-[500px];
+}
+.live-code-block-size-sm .api-playground__editor-wrapper,
+.live-code-block-size-sm .api-playground,
+.live-code-block-size-sm .api_playground_wrapper {
+  @apply min-h-[300px] max-h-[300px];
 }
 
 .api_playground_wrapper > svg {

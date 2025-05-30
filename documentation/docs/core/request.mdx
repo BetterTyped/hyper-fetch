@@ -40,6 +40,12 @@ const getUser = client.createRequest()({
 });
 ```
 
+```tsx live clickToRun title="Simple fetch" size="small"
+const response = await getUser.send({ params: { userId: 1 } });
+
+console.log(response);
+```
+
 :::caution TypeScript Currying Note
 
 The `createRequest` method currently employs a currying pattern to facilitate auto-generated TypeScript types for
@@ -68,13 +74,6 @@ const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
 
 // Passing options
 const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
-```
-
-```tsx live clickToRun
-const { data, error } = await getUser.send({ params: { userId: 1 } });
-
-console.log(data);
-console.log(error);
 ```
 
 Difference between `send` and `exec` methods:
