@@ -592,7 +592,7 @@ pre {
 .live-code-block-size-sm .api-playground__editor-wrapper,
 .live-code-block-size-sm .api-playground,
 .live-code-block-size-sm .api_playground_wrapper {
-  @apply min-h-[300px] max-h-[300px];
+  @apply min-h-[320px] max-h-[320px];
 }
 
 .api_playground_wrapper > svg {
