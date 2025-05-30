@@ -704,25 +704,6 @@ button.api-playground__more {
 
 /* Main */
 
-h1 {
-  @apply text-5xl font-bold;
-}
-h2 {
-  @apply text-4xl font-bold;
-}
-h3 {
-  @apply text-2xl font-semibold;
-}
-h4 {
-  @apply text-xl font-semibold;
-}
-h5 {
-  @apply text-lg font-medium;
-}
-h6 {
-  @apply text-base font-medium;
-}
-
 .shiny-btn {
   border: 1px solid transparent !important;
   @apply relative text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.100),_theme(colors.zinc.50))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.200)_25%,_theme(colors.zinc.200)_75%,_theme(colors.zinc.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
@@ -961,7 +942,7 @@ body .theme-code-block {
 }
 
 *:not(pre) > code {
-  @apply font-semibold py-[3px] px-1.5 text-[0.8em];
+  @apply py-[3px] px-1.5 text-[0.8em] text-white bg-zinc-500/20;
 }
 
 pre[class*="language-"] {
@@ -1632,20 +1613,23 @@ a {
 }
 
 /* Typography */
-.h1 {
+h1 {
   @apply text-5xl font-extrabold;
 }
-
-.h2 {
-  @apply text-4xl font-extrabold;
+h2 {
+  @apply text-4xl font-bold;
 }
-
-.h3 {
-  @apply text-3xl font-extrabold;
+h3 {
+  @apply text-2xl font-bold;
 }
-
-.h4 {
-  @apply text-2xl font-extrabold;
+h4 {
+  @apply text-xl font-bold;
+}
+h5 {
+  @apply text-lg font-semibold;
+}
+h6 {
+  @apply text-base font-semibold;
 }
 
 @screen md {

@@ -11,7 +11,7 @@ export const PackageDetails = ({
 
   return (
     <div className="package-wrapper mb-6">
-      <div className="package-details w-fit min-w-[180px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/90 dark:to-zinc-900/85 rounded-lg border dark:border-zinc-800">
+      <div className="package-details w-fit min-w-[220px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/90 dark:to-zinc-900/85 rounded-lg border dark:border-zinc-800">
         <div className="pl-5 pr-8 pt-2 pb-2">
           <div className="text-start w-fit">
             <div className="relative inline-flex items-center gap-2 text-lg w-fit">

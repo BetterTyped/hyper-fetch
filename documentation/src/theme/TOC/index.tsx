@@ -5,7 +5,6 @@ import type { Props } from "@theme/TOC";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { modules } from "@site/src/modules";
 import { PackageDetails } from "@site/src/components";
-import { Book } from "lucide-react";
 
 import styles from "./styles.module.css";
 
@@ -26,14 +25,11 @@ export default function TOC({ className, ...props }: Props): JSX.Element {
         <PackageDetails
           icon={activeItem.img}
           name={activeItem.name}
-          featured={activeItem.section.featured}
           pkg={`@hyper-fetch/${activeItem.section.package}`}
         />
       )}
       <div className={styles.tocContent}>
-        <h6>
-          <Book className="w-4 h-4" /> On this page
-        </h6>
+        <h6>On this page</h6>
         <div
           className={clsx(
             styles.tableOfContents,

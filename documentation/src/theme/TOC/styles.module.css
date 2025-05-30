@@ -13,8 +13,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding-left: 2px;
-  font-weight: 700;
+  padding-left: 20px;
+  font-weight: 600;
 }
 
 .tocWrapper ul {
@@ -38,7 +38,19 @@
 }
 
 @media (max-height: 650px) {
-  .tocWrapper {
+  :global(.docs .container .row .col) {
+    max-width: 100% !important;
+  }
+  :global(.docs .container .row .col--3) {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  :global(.docs .container .row .col) {
+    max-width: 100% !important;
+  }
+  :global(.docs .container .row .col--3) {
     display: none;
   }
 }
@@ -47,7 +59,6 @@
   .tableOfContents {
     display: none;
   }
-
   .docItemContainer {
     padding: 0 0.3rem;
   }
