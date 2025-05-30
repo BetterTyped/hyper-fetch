@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { cn } from "@site/src/lib/utils";
 import { FileCode, Play, RotateCcw } from "lucide-react";
@@ -20,6 +20,12 @@ export const LiveCodeBlock = ({
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
   const [isRunning, setIsRunning] = useState(false);
+
+  const initialCode = useRef(code);
+
+  const onCodeChange = (value: string) => {
+    setCode(value);
+  };
 
   return (
     <div
@@ -45,6 +51,7 @@ export const LiveCodeBlock = ({
             className="flex items-center gap-1 text-xs hover:underline focus:underline"
             onClick={() => {
               setKey((prev) => prev + 1);
+              setCode(initialCode.current);
               setIsRunning(false);
             }}
           >
@@ -54,7 +61,7 @@ export const LiveCodeBlock = ({
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2">
-        <Editor code={code} setCode={setCode} />
+        <Editor code={code} setCode={onCodeChange} />
         <div className="api_playground_wrapper relative">
           <DotPattern
             className={cn("[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50")}
@@ -66,7 +73,7 @@ export const LiveCodeBlock = ({
               </ShinyButton>
             </div>
           ) : (
-            <Playground code={code} key={key} defaultTab={defaultTab} />
+            <Playground key={key} code={code} defaultTab={defaultTab} />
           )}
         </div>
       </div>

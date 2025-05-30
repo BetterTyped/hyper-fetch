@@ -1,8 +1,9 @@
-import React from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/ui/tabs";
+import { useDebounce } from "@reins/hooks";
 
 import { globalScope } from "./global-scope";
 import { createGlobalRequests } from "./create-global-requests";
@@ -23,6 +24,13 @@ function deepClone<T>(obj: T): T {
   return cloned as T;
 }
 
+const isComponent = (code: string): boolean => {
+  // Regex to find function declarations or arrow functions with uppercase first letter
+  const componentRegex = /(?:function|const|let|var)\s+([A-Z][A-Za-z0-9_]*)\s*(=|\()/;
+  const match = code.match(componentRegex);
+  return !!match;
+};
+
 // Removes all import statements (default and named) from the code string
 export const removeImports = (code: string): string => {
   // Matches ES6 import statements (default, named, namespace, side-effect)
@@ -32,10 +40,7 @@ export const removeImports = (code: string): string => {
 export const transformCode = (code: string): string => {
   if (code.includes(RENDER_PREFIX)) return code;
 
-  // Regex to find function declarations or arrow functions with uppercase first letter
-  const componentRegex = /(?:function|const|let|var)\s+([A-Z][A-Za-z0-9_]*)\s*(=|\()/;
-  const match = code.match(componentRegex);
-
+  const match = isComponent(code);
   if (match) {
     const componentName = match[1];
     // Check if render(ComponentName) is already present
@@ -50,17 +55,33 @@ export const transformCode = (code: string): string => {
   // If no component found, wrap code in render(() => { ... }) with console.log override
   return `render(() => {
     const [logs, setLogs] = React.useState<Array<Array<any>>>([]);
+    const [error, setError] = useState<Error | null>(null);
     const originalLog = console.log;
-    
-    React.useEffect(() => {
+
+
+    useEffect(() => {
+      if(error) {
+        throw error;
+      }
+    }, [error]);
+
+
+    useEffect(() => {
       console.log = (...args) => {
         setLogs(logs => [...logs, [...args]]);
+        onNewLog();
         originalLog(...args);
       };
 
-      (async () => {
-        ${code}
-      })()
+      const execute = async () => {
+        try {
+          ${code}
+        } catch (error) {
+          setError(error);
+        }
+      };
+      
+      execute()
 
       return () => {
         console.log = originalLog;
@@ -69,18 +90,16 @@ export const transformCode = (code: string): string => {
 
     return (
       <div className="w-full h-full">
-        <div className="text-lg font-semibold text-zinc-400 mb-2">Output:</div>
         {!logs?.length && (
-          <div className="api-playground__no-logs flex items-center gap-2">
-            <TinyLoader />
-            No console output yet, waiting for logs to appear here.
+          <div className="api-playground__no-logs flex items-center gap-2 px-4">
+            <AppWindowMac className="size-6 text-zinc-400" /> No console output yet.
           </div>
         )}
         {logs.map((log, index) => (
           <div key={"log"+index} className="api-playground__log-row flex gap-1">
             <div className="api-playground__log-row__index">
               <div className="text-xs text-zinc-400">
-                <Terminal />
+                <Terminal className="size-4" />
               </div>
             </div>
             <pre>
@@ -128,44 +147,108 @@ export const transformCode = (code: string): string => {
 };
 
 const pipeline = [removeImports, transformCode];
+
+const Content = memo(({ code, scope, isLog }: { code: string; scope: any; isLog: boolean }) => {
+  return (
+    <LiveProvider code={code} scope={scope} noInline>
+      <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
+      <LiveError className="api-playground__error" />
+    </LiveProvider>
+  );
+});
+
 export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "playground" | "requests" }) => {
-  const stringifiedCode = pipeline.reduce((transformedCode, fn) => fn(transformedCode), code);
-
-  const client = createClient({
-    url: "http://localhost:3000",
+  const { debounce } = useDebounce({
+    delay: 200,
   });
+  const [stringifiedCode, setStringifiedCode] = useState("");
+  const [codeKey, setCodeKey] = useState(0);
+  const isLog = !isComponent(code);
 
-  const requests = createGlobalRequests(client as ClientInstance);
+  const [unreadLogs, setUnreadLogs] = useState(0);
+  const [tab, setTab] = useState(defaultTab ?? (isLog ? "requests" : "playground"));
+  const [client, setClient] = useState<ClientInstance | null>(
+    createClient({
+      url: "http://localhost:3000",
+    }),
+  );
 
-  const isLog = stringifiedCode.includes("const [logs, setLogs] = React.useState<Array<Array<any>>>([]);");
-  const tab = defaultTab ?? (isLog ? "requests" : "playground");
+  const scope = useMemo(() => {
+    const requests = createGlobalRequests(client as ClientInstance);
+
+    const onNewLog = () => {
+      setUnreadLogs((prev) => prev + 1);
+    };
+
+    return {
+      ...globalScope,
+      ...requests,
+      client,
+      onNewLog,
+      // So console.log can be used in the playground and override to render logs
+      // This way we are isolating the console.log to the playground
+      console: deepClone(window.console),
+    };
+  }, [client]);
+
+  const onTabChange = (value: "playground" | "requests") => {
+    setTab(value);
+    // Change to zero when switching to or out of console tab
+    setUnreadLogs(0);
+  };
+
+  useEffect(() => {
+    if (codeKey) {
+      setUnreadLogs(0);
+      client?.clear();
+      setClient(
+        createClient({
+          url: "http://localhost:3000",
+        }),
+      );
+    }
+  }, [codeKey]);
+
+  useEffect(() => {
+    debounce(() => {
+      client?.clear();
+      setCodeKey((prev) => prev + 1);
+      setStringifiedCode(pipeline.reduce((transformedCode, fn) => fn(transformedCode), code));
+    });
+  }, [code]);
 
   return (
     <ToasterProvider>
-      <Tabs defaultValue={tab} className={cn("api-playground w-full relative")}>
+      <Tabs
+        className={cn("api-playground w-full relative")}
+        value={tab}
+        onValueChange={(value) => onTabChange(value as "playground" | "requests")}
+      >
         <TabsList className="ml-3 mt-2">
-          <TabsTrigger value="playground">{isLog ? "Console" : "Playground"}</TabsTrigger>
+          <TabsTrigger value="playground" className="relative">
+            {isLog ? (
+              <>
+                Console
+                <span
+                  className={cn(
+                    "absolute -top-0 right-1 flex items-center justify-center rounded-full",
+                    "text-white text-xs w-2 h-2 shadow-md z-10 bg-orange-500",
+                    unreadLogs > 0 && tab !== "playground" ? "opacity-100" : "!opacity-0",
+                    "animate-pulse transition-opacity duration-300",
+                  )}
+                />
+              </>
+            ) : (
+              "Playground"
+            )}
+          </TabsTrigger>
           <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
-        <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
-          <ClientRequests client={client} />
-        </TabsContent>
         <TabsContent value="playground" className="w-full data-[state=inactive]:hidden" forceMount>
-          <LiveProvider
-            code={transformCode(stringifiedCode)}
-            scope={{
-              ...globalScope,
-              ...requests,
-              client,
-              // So console.log can be used in the playground and override to render logs
-              // This way we are isolating the console.log to the playground
-              console: deepClone(window.console),
-            }}
-            noInline
-          >
-            <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
-            <LiveError className="api-playground__error" />
-          </LiveProvider>
+          {stringifiedCode && <Content key={codeKey} code={stringifiedCode} scope={scope} isLog={isLog} />}
+        </TabsContent>
+        <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
+          <ClientRequests key={codeKey} client={client} />
         </TabsContent>
       </Tabs>
     </ToasterProvider>

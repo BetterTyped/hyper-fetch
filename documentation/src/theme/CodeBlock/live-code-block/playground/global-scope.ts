@@ -2,7 +2,7 @@ import React from "react";
 import { createClient } from "@hyper-fetch/core";
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { Highlight, themes } from "prism-react-renderer";
-import { Terminal } from "lucide-react";
+import { Terminal, AppWindowMac } from "lucide-react";
 
 import { Loader } from "../components/loader";
 import { NoContent } from "../components/no-content";
@@ -16,6 +16,7 @@ export const globalScope = {
   useSubmit,
   Highlight,
   Terminal,
+  AppWindowMac,
   Loader,
   TinyLoader,
   NoContent,

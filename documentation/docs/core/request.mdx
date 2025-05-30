@@ -70,6 +70,13 @@ const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
 const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
 ```
 
+```tsx live clickToRun
+const { data, error } = await getUser.send({ params: { userId: 1 } });
+
+console.log(data);
+console.log(error);
+```
+
 Difference between `send` and `exec` methods:
 
 - `send(options)` triggers the request's lifecycle, including queueing, deduplication, and response handling, and

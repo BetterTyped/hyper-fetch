@@ -579,8 +579,13 @@ pre {
 }
 
 .api-playground__editor-wrapper,
-.api-playground {
+.api-playground,
+.api_playground_wrapper {
   @apply min-h-[500px] max-h-[500px];
+}
+
+.api_playground_wrapper > svg {
+  @apply h-full;
 }
 
 .api-playground__run-example {
@@ -616,7 +621,8 @@ pre {
 }
 .api-playground__error {
   @apply absolute bottom-0 left-0 right-0;
-  @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200 text-sm;
+  @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200;
+  @apply p-4 text-sm;
 }
 .api-playground__editor-wrapper {
   @apply overflow-y-auto translate-y-[-1px] xl:rounded-bl-md  h-full;
@@ -628,7 +634,7 @@ pre {
   @apply !opacity-100;
 }
 .api-playground__editor {
-  @apply bg-[#1c1c1d] border border-transparent h-full;
+  @apply bg-[#1c1c1d] border border-transparent h-full !overflow-y-auto;
 }
 .api-playground__editor * {
   @apply !text-sm;
@@ -666,7 +672,7 @@ button.api-playground__more {
   @apply text-xs;
 }
 .api-playground__log-row {
-  @apply -ml-4 -mr-[12px] bg-zinc-800 border-t border-zinc-500/30;
+  @apply bg-zinc-800 border-t border-zinc-500/30;
 }
 .api-playground__log-row:nth-child(2n + 1) {
   @apply bg-[#2e2e2e];
@@ -676,10 +682,10 @@ button.api-playground__more {
 }
 
 .api-playground__preview--log {
-  @apply !p-4 !pt-0;
+  @apply p-0 !pb-4 w-[calc(100%-4px)] ml-[2px] xl:w-[calc(100%-2px)] xl:ml-0;
 }
 .api-playground__log-row__index div {
-  @apply flex items-center justify-center w-6 h-6 mt-2 mb-1 ml-2;
+  @apply flex items-center justify-center w-6 h-6 mt-1 mb-1 ml-2;
 }
 .api-playground__no-logs {
   @apply !text-zinc-400/70;
