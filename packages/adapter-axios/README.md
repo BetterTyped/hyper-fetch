@@ -10,7 +10,7 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
     <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
@@ -43,17 +43,17 @@ retrieval and manipulation of data. Benefit from the convenience and efficiency 
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
 
 🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
+🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
@@ -65,7 +65,7 @@ retrieval and manipulation of data. Benefit from the convenience and efficiency 
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/axios)

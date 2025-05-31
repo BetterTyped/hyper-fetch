@@ -4,4 +4,5 @@ import { UseQueueOptionsType } from "hooks/use-queue";
 
 export const useQueueDefaultOptions: RequiredKeys<UseQueueOptionsType> = {
   queueType: "auto",
+  keepFinishedRequests: false,
 };

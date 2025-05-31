@@ -1,67 +1,70 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+import { Socket } from "socket";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
 describe("Socket Adapter [ Connection ]", () => {
-  let socket = createSocket(socketOptions);
+  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  let socket: ReturnType<typeof createSocket>;
 
-  beforeEach(() => {
-    createWsServer();
-    socket.emitter.removeAllListeners();
-    socket = createSocket(socketOptions);
+  beforeEach(async () => {
     jest.resetAllMocks();
+    startServer();
+    socket = createSocket(socketOptions);
+  });
+
+  afterAll(() => {
+    stopServer();
   });
 
   it("should auto connect", async () => {
     const spy = jest.fn();
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(socket.adapter.connected).toBe(true);
     });
   });
 
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
-    socket = createSocket({ autoConnect: false });
-    socket.events.onOpen(spy);
-    await waitFor(() => {
-      expect(spy).toBeCalledTimes(0);
-    });
+    const newSocket = new Socket({ url, adapterOptions: { autoConnect: false } });
+    newSocket.events.onConnected(spy);
+    await sleep(20);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
 
   it("should reconnect when going online", async () => {
     const spy = jest.fn();
+    await waitForConnection(socket);
     socket.appManager.setOnline(false);
-    socket.adapter.disconnect();
-    socket.onClose(() => {
-      socket.adapter.open = false;
-      socket.events.onOpen(spy);
+    socket.onDisconnected(() => {
+      socket.adapter.connected = false;
+      socket.events.onConnected(spy);
       socket.appManager.setOnline(true);
     });
+    await socket.disconnect();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
-    const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 5, autoConnect: false });
+    const newUrl = "ws://test";
+    socket = createSocket({ url: newUrl, reconnectTime: 1 });
     socket.events.onReconnecting(spy);
-    socket.adapter.connect();
-    const server = createWsServer({ url });
-
-    await server.connected;
+    await socket.adapter.connect();
 
     await waitFor(() => {
       return !!socket.adapter.reconnectionAttempts;
     });
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

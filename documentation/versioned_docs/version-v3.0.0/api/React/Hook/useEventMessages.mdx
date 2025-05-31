@@ -1,0 +1,88 @@
+# useEventMessages
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { useEventMessages } from "@hyper-fetch/react";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[react/src/hooks/use-event-messages/use-event-messages.hooks.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-event-messages/use-event-messages.hooks.ts#L15)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+useEventMessages<ResponsesType>(socket, options);
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="socket"><td class="api-docs__param-name required">
+
+### socket
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SocketInstance`
+
+</td></tr><tr param-data="options"><td class="api-docs__param-name required">
+
+### options
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`UseEventMessagesOptionsType<ResponsesType>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  connected: boolean;
+  connecting: boolean;
+  data: unknown;
+  onClose: (callback: VoidFunction) => void;
+  onConnecting: (callback: VoidFunction) => void;
+  onError: (callback: (event: ErrorType) => void) => void;
+  onEvent: (callback: (data: ResponsesType, event: MessageEvent<ResponsesType>) => void) => void;
+  onOpen: (callback: VoidFunction) => void;
+  onReconnecting: (callback: (attempts: number) => void) => void;
+  onReconnectingStop: (callback: (attempts: number) => void) => void;
+  setConnected: (connected: boolean) => void;
+  setConnecting: (connecting: boolean) => void;
+  setData: (data: unknown) => void;
+  setTimestamp: (timestamp: number) => void;
+  timestamp: number;
+}
+```
+
+</div>

@@ -1,0 +1,63 @@
+{
+  "name": "next-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/next-app",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "app-build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "root": "examples/next-app",
+        "outputPath": "dist/examples/next-app"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "examples/next-app"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "next:app-build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "next:app-build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "next:app-build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "next:app-build:production"
+      }
+    },
+    "app-test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "examples/next/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "app-lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/next/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

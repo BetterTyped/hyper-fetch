@@ -1,5 +1,4 @@
-import EventEmitter from "events";
-
+import { EventEmitter } from "utils";
 import { getRequestManagerEvents } from "managers";
 
 /**
@@ -9,6 +8,10 @@ import { getRequestManagerEvents } from "managers";
 export class RequestManager {
   emitter = new EventEmitter();
   events = getRequestManagerEvents(this.emitter);
+
+  constructor() {
+    this.emitter?.setMaxListeners(1000);
+  }
 
   abortControllers = new Map<string, Map<string, AbortController>>();
 

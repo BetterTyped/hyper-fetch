@@ -1,11 +1,8 @@
-import { useMemo, useRef } from "react";
 import {
-  Request,
-  getRequestKey,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   RequestInstance,
   sendRequest,
-  ResponseReturnType,
+  ResponseType,
   ExtractResponseType,
   ExtractErrorType,
   RequestSendOptionsType,
@@ -14,12 +11,12 @@ import {
 } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
+import { useMemo, useRef } from "react";
 
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
 import { useTrackedState, useRequestEvents } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 import { getBounceData } from "utils";
-import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -29,10 +26,10 @@ import { InvalidationKeyType } from "types";
  */
 export const useSubmit = <RequestType extends RequestInstance>(
   request: RequestType,
-  options: UseSubmitOptionsType<RequestType> = useSubmitDefaultOptions,
+  options?: UseSubmitOptionsType<RequestType>,
 ): UseSubmitReturnType<RequestType> => {
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const mergedOptions: UseSubmitOptionsType<RequestType> = useMemo(
     () => ({
       ...useSubmitDefaultOptions,
@@ -40,18 +37,18 @@ export const useSubmit = <RequestType extends RequestInstance>(
       ...options,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [globalConfig.useSubmitConfig, JSON.stringify(options), options.deepCompare],
+    [globalConfig.useSubmitConfig, JSON.stringify(options), options?.deepCompare],
   );
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
+  const { disabled, dependencyTracking, initialResponse, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 
   /**
-   * Because of the dynamic cacheKey / queueKey signing within the request we need to store it's latest instance
+   * Because of the dynamic cacheKey / queryKey signing within the request we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
    */
   const { client } = request;
   const { cache, submitDispatcher: dispatcher, loggerManager } = client;
 
-  const logger = useRef(loggerManager.init("useSubmit")).current;
+  const logger = useRef(loggerManager.initialize(client, "useSubmit")).current;
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({
     interval: bounceTime,
@@ -59,7 +56,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   });
   const bounceResolver = useRef<
     (
-      value: ResponseReturnType<
+      value: ResponseType<
         ExtractResponseType<RequestType>,
         ExtractErrorType<RequestType>,
         ExtractAdapterType<RequestType>
@@ -77,9 +74,9 @@ export const useSubmit = <RequestType extends RequestInstance>(
     logger,
     request,
     dispatcher,
-    initialData,
-    deepCompare,
-    dependencyTracking,
+    initialResponse,
+    deepCompare: deepCompare as boolean,
+    dependencyTracking: dependencyTracking as boolean,
   });
 
   /**
@@ -101,46 +98,45 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // ******************
 
   const handleSubmit: RequestSendType<RequestType> = (submitOptions?: RequestSendOptionsType<RequestType>) => {
-    const requestClone = request.clone(submitOptions as any) as RequestType;
+    const requestClone = request.clone(submitOptions as any) as unknown as RequestType;
 
     if (disabled) {
-      logger.warning(`Cannot submit request`, { disabled, submitOptions });
+      logger.warning({ title: `Cannot submit request`, type: "system", extra: { disabled, submitOptions } });
       return Promise.resolve({
         data: null,
         error: new Error("Cannot submit request. Option 'disabled' is enabled"),
         status: null,
-        extra: request.client.defaultExtra,
+        extra: request.client.adapter.defaultExtra,
       }) as Promise<
-        ResponseReturnType<
-          ExtractResponseType<RequestType>,
-          ExtractErrorType<RequestType>,
-          ExtractAdapterType<RequestType>
-        >
+        ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>, ExtractAdapterType<RequestType>>
       >;
     }
 
     const triggerRequest = () => {
       addCacheDataListener(requestClone);
-      return sendRequest(requestClone, {
+
+      const configuration: RequestSendOptionsType<RequestType> = {
         dispatcherType: "submit",
-        ...submitOptions,
-        onSettle: (requestId, cmd) => {
-          addLifecycleListeners(requestClone, requestId);
-          submitOptions?.onSettle?.(requestId, cmd);
+        ...(submitOptions as RequestSendOptionsType<RequestType>),
+        onBeforeSent: (data) => {
+          addLifecycleListeners(requestClone, data.requestId);
+          submitOptions?.onBeforeSent?.(data);
         },
-      });
+      };
+
+      return sendRequest(requestClone, configuration);
     };
 
-    return new Promise<ExtractAdapterReturnType<RequestType>>((resolve) => {
+    return new Promise<ExtractAdapterResolvedType<RequestType>>((resolve) => {
       const performSubmit = async () => {
-        logger.debug(`Submitting request`, { disabled, submitOptions });
+        logger.debug({ title: `Submitting request`, type: "system", extra: { disabled, submitOptions } });
         if (bounce) {
           const bouncedResolve = bounceResolver.current;
           // We need to keep the resolve of debounced requests to prevent memory leaks - we need to always resolve promise.
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (
-            value: ResponseReturnType<
+            value: ResponseType<
               ExtractResponseType<RequestType>,
               ExtractErrorType<RequestType>,
               ExtractAdapterType<RequestType>
@@ -175,22 +171,8 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // Invalidation
   // ******************
 
-  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.invalidate(invalidateKey);
-    }
-  };
-
-  const refetch = (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => {
-    if (!invalidateKey) return;
-
-    if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleInvalidation);
-    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleInvalidation(invalidateKey);
-    }
+  const refetch = () => {
+    cache.invalidate(request);
   };
 
   // ******************
@@ -247,9 +229,13 @@ export const useSubmit = <RequestType extends RequestInstance>(
       setRenderKey("retries");
       return state.retries;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
+    get responseTimestamp() {
+      setRenderKey("responseTimestamp");
+      return state.responseTimestamp;
+    },
+    get requestTimestamp() {
+      setRenderKey("requestTimestamp");
+      return state.requestTimestamp;
     },
     abort: callbacks.abort,
     ...actions,

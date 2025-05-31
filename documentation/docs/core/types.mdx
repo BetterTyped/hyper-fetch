@@ -1,0 +1,43 @@
+---
+sidebar_position: 10
+title: Types
+sidebar_label: Types
+---
+
+Before `Hyper Fetch 6.0` generic types were passed in a 'standard' typescript way, e.g.:
+
+```typescript
+const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```
+
+This would lead to somewhat problematic and redundant default type passing. When we wanted to pass the query params type without specifying the `LocalErrorType` and `PayloadType`, it would look like this:
+
+```typescript
+const getUsers = client.createRequest<ResponseType, null, null, QueryParamsType>()({
+  endpoint: "/users",
+});
+```
+
+Starting from `Hyper Fetch 6.0`, all the types for the `Client` class and the `createRequest` method are passed as objects. This way, user always has to specify **only** what they want to override:
+
+```typescript
+const client = new Client<{error: ErrorType}>({url})
+
+const getUsers = client.createRequest<{response: ResponseType, queryParams: QueryParamsType}>()({
+  endpoint: "/users",
+});
+```
+
+:::caution
+
+We firmly believe that it is more readable approach. Yet, it comes at a cost - currently, TypeScript does not handle well
+the autosuggestions for the extended generics (https://github.com/microsoft/TypeScript/issues/28662). Fear not - the types are working correctly.
+However, when writing a request, e.g.:
+```typescript
+const postUser = client.createRequest<{res...}>()({endpoint: '/'}) // started writing the response word
+```
+
+the typescript will not autosuggest that `res` comes from the `response` type.

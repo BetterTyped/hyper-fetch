@@ -1,0 +1,140 @@
+---
+sidebar_position: 6
+title: Mocking
+sidebar_label: Mocking
+---
+
+## Introduction
+
+**`Request Mocking`** is a feature that allows for stubbing/mocking the response for a given endpoint,
+ **keeping the complete request lifecycle and events**.
+
+---
+
+## Initialization
+
+You can mock the response via the `request.setMock` method:
+
+```tsx
+const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });
+```
+
+This way, the `mockedRequest` will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`.
+The `setMock` method accepts an object with the following keys:
+- `data` - data to be returned from request
+- `status` -  Sets the response status. This can be a number or a string; the default is `**200**`.
+- `success` - Informs if the request should be successful or not; the default is `**true**`.
+- `config` - Sets additional parameters that tweak the mock even further.
+---
+
+
+## Config
+
+The `setMock` method accepts the `config` object, which allows for tweaking our response.
+
+```tsx
+    const request = client
+      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .setMock({
+        data: {mocking: 'is fun'},
+        status: 200,
+        config: {
+          requestTime: 40,
+          responseTime: 60,
+          totalUploaded: 1000,
+          totalDownloaded: 1000,
+        },
+      });
+
+```
+- `timeout` - **boolean** - informs whether it should return a timeout error.
+ - `requestTime` - Simulates how long the request to the server should take (in milliseconds).
+ - `responseTime` - Indicates how long the response from the server should take (in milliseconds).
+If their combined total takes longer than provided timeout, each value will be automatically adjusted to last half of the timeout time.
+- `totalUploaded` - total number of 'kilobytes' to be uploaded.
+- `totalDownloaded` - total number of 'kilobytes' to be downloaded.
+
+In the example above - the request phase will take 40 milliseconds and during this phase 1000 'kilobytes' will be uploaded (and `onUploadProgress` events will be emitted).
+The response phase will take 60 millisecond and during this phase 1000 'kilobytes' will be downloaded (and `onDownloadProgress` events will be emitted).
+The word `kilobytes` is written in quotation marks as no real data exchange occurs - it is simply to mock events and allow for data stream mocking.
+
+
+## Usage and use cases
+
+The mocker can be used in a few ways.
+1. It can accept an object:
+```tsx
+const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });  // Always returns data: { test: 1, array: [200, 300, 404]
+```
+2. It can accept an array of values. In this case, values will be iterated over cyclically and applied each time a request is executed:
+
+```tsx
+  request.setMock([
+    { data: { data: [1, 2, 3] }, config: { status: 400, success: false } },
+    { data: { data: [1, 2, 3] }, config: { status: 200 } },
+  ]);
+
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 200 } }
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
+```
+3. It also accepts methods that have access to the `request` itself. This allows for dynamic mocking, dependent on the passed arguments during execution:
+```tsx
+    const mockedRequest = client
+      .createRequest()({ endpoint: "/users/:id" })
+      .setMock((r) => {
+        const { params } = r;
+        if (params.id === 11) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
+```
+4. The passed method may be asynchronous:
+```tsx
+    const mockedRequest = client
+      .createRequest<{response: Record<string, any>}>()({ endpoint: "users/:id" })
+      .setMock(async (r) => {
+        if (r?.params?.id === 1) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
+```
+You can also pass a list of functions; the mocker will cycle over them and execute the correct one each time a request is executed.
+
+## Removal
+
+If you need to remove the mocker from a request, use the `removeMock` method. This way mocker is disabled and mock data is removed.
+```tsx
+mockedRequest.removeMock();
+```
+
+
+## Disabling single mocker
+
+Instead of removing mocker, you can also disable mocker and enable mocker at will with the `request.setEnableMocking` method.
+This way if you set mocking data, it will be kept and not removed as in the `removeMock` case.
+
+```tsx
+const mockedRequest = request.setMock({ data: fixture }); // mock is set
+... // Here mocker works as usual
+mockedRequest.setEnableMocking(false); // Mocker is disabled
+... // Request works as usual
+mockedRequest.setEnableMocking(true); // Mocker is enabled once again
+```
+
+## Disabling mocking for all requests
+
+If you want to disable mocking for all requests of a given `client` instance - you can use the `client.setEnableMocking` method.
+This way all related requests will behave 'as usual' and setting/enabling mocks on single requests will not have any effect.
+
+```tsx
+const client = new Client(...);
+const mockedRequest_1 = newClient.createRequest()({ ... }).setMock({ data: fixture1 });
+const mockedRequest_2 = newClient.createRequest()({ ... }).setMock({ data: fixture2 });
+... // Here mocked requests return mocked data.
+client.setEnableMocking(false) // All mocks are disabled
+... // Here requests work as usual
+client.setEnableMocking(true) // All mocks are enabled once again
+```

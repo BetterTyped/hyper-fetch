@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const pushTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("push", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
     beforeEach(() => {
@@ -13,17 +13,17 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof firebaseA
 
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-      const getReq = client.createRequest<Tea[]>()({
+      const getReq = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "push",
           options: {},
         })
-        .setData(newData);
+        .setPayload(newData);
       const { data: pushedData, extra } = await pushReq.send();
       const { data } = await getReq.send();
 
@@ -35,11 +35,11 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof firebaseA
       const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
       const pushReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "teas/",
           method: "push",
         })
-        .setData(newData);
+        .setPayload(newData);
 
       await testLifecycleEvents(pushReq);
     });

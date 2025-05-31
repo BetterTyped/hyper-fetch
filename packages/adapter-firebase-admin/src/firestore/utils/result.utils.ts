@@ -1,13 +1,19 @@
-export const getOrderedResultFirestore = (snapshot: any) => {
-  const result = [];
+import { QuerySnapshot, DocumentData } from "firebase-admin/firestore";
+
+export const getOrderedResultFirestore = (snapshot: QuerySnapshot) => {
+  const result: (DocumentData & { __key: string })[] = [];
   snapshot.docs.forEach((d) => {
     result.push({ ...d.data(), __key: d.id });
   });
   return result.length > 0 ? result : null;
 };
 
-export const getGroupedResultFirestore = (snapshot: any) => {
-  const groupedResult = { added: [], modified: [], removed: [] };
+export const getGroupedResultFirestore = (snapshot: QuerySnapshot) => {
+  const groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } = {
+    added: [],
+    modified: [],
+    removed: [],
+  };
   snapshot.docChanges().forEach((change) => {
     groupedResult[change.type].push(change.doc.data());
   });

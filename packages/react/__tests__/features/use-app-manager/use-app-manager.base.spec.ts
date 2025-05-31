@@ -1,7 +1,9 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer } from "../../server";
 import { client, renderUseAppManager } from "../../utils";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useAppManager [ Base ]", () => {
   beforeAll(() => {
@@ -9,7 +11,7 @@ describe("useAppManager [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

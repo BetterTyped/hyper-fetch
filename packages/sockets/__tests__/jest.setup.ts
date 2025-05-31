@@ -3,6 +3,5 @@ import EventSource from "eventsourcemock";
 
 Object.defineProperty(window, "EventSource", {
   value: EventSource,
+  writable: true,
 });
-
-jest.retryTimes(2);

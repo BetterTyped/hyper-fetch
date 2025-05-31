@@ -1,20 +1,24 @@
 import { xhrExtra } from "@hyper-fetch/core";
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ refetch ]", () => {
   let request = createRequest();
-  let mock = createRequestInterceptor(request);
+  let mock = mockRequest(request, {
+    data: { someData: 12345 },
+  });
 
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -25,10 +29,12 @@ describe("useFetch [ refetch ]", () => {
     jest.resetModules();
     request = createRequest();
     client.clear();
-    mock = createRequestInterceptor(request);
+    mock = mockRequest(request, {
+      data: { someData: 12345 },
+    });
   });
 
-  it("should allow to prevent invalidation on mount", async () => {
+  it("should allow to prevent invalidation on mount with cache data", async () => {
     const spy = jest.fn();
     const customMock = { something: "123" };
     client.cache.set(request, {
@@ -36,9 +42,12 @@ describe("useFetch [ refetch ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      extra: { headers: { "content-type": "application/json" } },
       retries: 0,
-      timestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
     });
@@ -50,9 +59,9 @@ describe("useFetch [ refetch ]", () => {
 
     await testSuccessState(customMock, response);
     await sleep(50);
-    expect(spy).toBeCalledTimes(0);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
-  it("should allow to prevent invalidation on mount", async () => {
+  it("should allow invalidation on mount", async () => {
     const spy = jest.fn();
     const response = renderUseFetch(request, { revalidate: false });
 
@@ -65,7 +74,7 @@ describe("useFetch [ refetch ]", () => {
     renderUseFetch(request, { revalidate: false });
 
     await waitForRender(50);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
   it("should allow to refetch on mount", async () => {
     const customMock = { something: "123" };
@@ -76,95 +85,118 @@ describe("useFetch [ refetch ]", () => {
       success: true,
       extra: xhrExtra,
       retries: 0,
-      timestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
     });
 
     const response = renderUseFetch(request, { revalidate: true });
 
-    await testSuccessState(mock, response);
+    await waitFor(async () => {
+      await testSuccessState(mock, response);
+    });
   });
   it("should allow to refetch current hook", async () => {
     const response = renderUseFetch(request);
 
-    await testSuccessState(mock, response);
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    await waitFor(async () => {
+      await testSuccessState(mock, response);
+    });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       response.result.current.refetch();
     });
 
-    await testSuccessState(customMock, response);
+    await waitFor(async () => {
+      await testSuccessState(customMock, response);
+    });
   });
   it("should allow to refetch hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
-
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await testSuccessState(mock, responseOne);
-    await testSuccessState(mock, responseTwo);
-
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    await waitFor(async () => {
+      await testSuccessState(mock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(regexp);
+      client.cache.invalidate(regexp);
     });
 
-    await testSuccessState(customMock, responseOne);
-    await testSuccessState(customMock, responseTwo);
+    await waitFor(async () => {
+      await testSuccessState(customMock, responseOne);
+      await testSuccessState(customMock, responseTwo);
+    });
   });
   it("should allow to refetch hook by keys array", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await testSuccessState(mock, responseOne);
-    await testSuccessState(mock, responseTwo);
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    await waitFor(async () => {
+      await testSuccessState(mock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(["Maciej"]);
+      client.cache.invalidate(["Maciej"]);
     });
 
-    await testSuccessState(customMock, responseOne);
-    await testSuccessState(mock, responseTwo);
+    await waitFor(async () => {
+      await testSuccessState(customMock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
   });
   it("should allow to refetch hook by key", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await testSuccessState(mock, responseOne);
-    await testSuccessState(mock, responseTwo);
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    await waitFor(async () => {
+      await testSuccessState(mock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch("Maciej");
+      client.cache.invalidate("Maciej");
     });
 
-    await testSuccessState(customMock, responseOne);
-    await testSuccessState(mock, responseTwo);
+    await waitFor(async () => {
+      await testSuccessState(customMock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
   });
   it("should allow to refetch hook by request", async () => {
     const responseOne = renderUseFetch(request.setQueryParams("?something=123"));
     const responseTwo = renderUseFetch(request.setQueryParams("?other=999"));
 
-    await testSuccessState(mock, responseOne);
-    await testSuccessState(mock, responseTwo);
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    await waitFor(async () => {
+      await testSuccessState(mock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(request.setQueryParams("?something=123"));
+      client.cache.invalidate(request.setQueryParams("?something=123"));
     });
 
-    await testSuccessState(customMock, responseOne);
-    await testSuccessState(mock, responseTwo);
+    await waitFor(async () => {
+      await testSuccessState(customMock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
   });
   it("should not refetch while toggling query", async () => {
     const spy = jest.fn();
 
     const revalidateRequest = createRequest({ endpoint: "123-revalidate" });
-    const revalidateMock = createRequestInterceptor(revalidateRequest, { fixture: { something: 123 } });
+    const revalidateMock = mockRequest(revalidateRequest, { data: { something: 123 } });
 
     // First request
     const response = renderUseFetch(request, { revalidate: false });
@@ -174,7 +206,7 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(mock, response);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     act(() => {
       // Second request
@@ -182,15 +214,15 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     // Check revalidation
-
     act(() => {
       // Third request
       response.rerender({ request, revalidate: false });
     });
     await testSuccessState(mock, response);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     act(() => {
       // Fourth request
@@ -198,6 +230,6 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,4 +1,4 @@
-# 🪄 Hyper Fetch Openapi Request Generator 
+# 🪄 Hyper Fetch Openapi Request Generator
 
 <p>
   <a href="https://bettertyped.com/">
@@ -29,17 +29,17 @@
 
 ## About
 
-**`Hyper Fetch Generator-Openapi`** is our request generator from openapi (V3) json schema. Just provide a file path or link and generate all the requests. 
+**`Hyper Fetch Generator-Openapi`** is our request generator from openapi (V3) json schema. Just provide a file path or
+link and generate all the requests.
 
 ## Features
 
-✨ Generate code from **OpenApi V3** schema - both types and actual requests.
-✨ **Flexible** - after generation you can edit Hyper Fetch client and all related requests.
-✨ **No additional boilerplate** - if you know Hyper Fetch, you don't need anything else.
-✨ **Simplicity**:
+✨ Generate code from **OpenApi V3** schema - both types and actual requests. ✨ **Flexible** - after generation you can
+edit Hyper Fetch client and all related requests. ✨ **No additional boilerplate** - if you know Hyper Fetch, you don't
+need anything else. ✨ **Simplicity**:
 
 ```tsx
-npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json 
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
 ```
 
 ...and it works! All code generated and ready to use.
@@ -50,7 +50,7 @@ npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/op
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/codegen-openapi)
@@ -58,5 +58,5 @@ npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/op
 
 ## Disclaimer
 
-This package is heavily inspired by [Openapi Client Axios](https://www.npmjs.com/package/openapi-client-axios). 
-Thanks `anttiviljami` for all his hard work!
+This package is heavily inspired by [Openapi Client Axios](https://www.npmjs.com/package/openapi-client-axios). Thanks
+`anttiviljami` for all his hard work!

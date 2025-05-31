@@ -1,5 +1,9 @@
-import { Client, stringifyDefaultOptions, stringifyQueryParams } from "client";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+import { Client, interceptRequest, interceptResponse, stringifyDefaultOptions } from "client";
+import { stringifyQueryParams } from "http-adapter";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 const options = {
   ...stringifyDefaultOptions,
@@ -7,17 +11,19 @@ const options = {
 };
 
 describe("Client [ Utils ]", () => {
-  let client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-  let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+  let client = new Client({ url: "shared-base-url" });
+  client.adapter.setQueryParamsMapperConfig(options);
+  let request = client.createRequest<{ payload: FormData; response: any }>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-    request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
-    resetInterceptors();
+    client = new Client({ url: "shared-base-url" });
+    client.adapter.setQueryParamsMapperConfig(options);
+    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
+    resetMocks();
   });
 
   afterAll(() => {
@@ -26,15 +32,16 @@ describe("Client [ Utils ]", () => {
 
   describe("When using stringifyQueryParams util", () => {
     it("should encode falsy values", async () => {
-      const newClient = new Client({ url: "shared-base-url" }).setQueryParamsConfig({
+      const newClient = new Client({ url: "shared-base-url" });
+      newClient.adapter.setQueryParamsMapperConfig({
         encode: false,
         arrayFormat: "bracket",
       });
-      expect(newClient.stringifyQueryParams({ value: { test: new Date("9,9,2020").toISOString() } })).toBe(
-        `?value={"test":"${new Date("9,9,2020").toISOString()}"}`,
-      );
       expect(
-        newClient.stringifyQueryParams({
+        newClient.adapter.unstable_queryParamsMapper({ value: { test: new Date("9,9,2020").toISOString() } }),
+      ).toBe(`?value={"test":"${new Date("9,9,2020").toISOString()}"}`);
+      expect(
+        newClient.adapter.unstable_queryParamsMapper({
           page: 0,
           status: ["status1", "status2"],
           lastFreeDay: '{"from":"2023-06-20T10:37:27.508Z","to":"2023-06-24T10:37:27.508Z"}',
@@ -145,22 +152,22 @@ describe("Client [ Utils ]", () => {
   describe("When using headerMapper", () => {
     it("should assign default headers with headers mapper", async () => {
       const defaultHeaders = { "Content-Type": "application/json" };
-      const headers = client.headerMapper(request);
+      const headers = client.adapter.unstable_headerMapper(request, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
     it("should assign form data headers", async () => {
       const defaultHeaders = {};
       const data = new FormData();
-      const formDataRequest = request.setData(data);
-      const headers = client.headerMapper(formDataRequest);
+      const formDataRequest = request.setPayload(data);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
     it("should not re-assign form data headers", async () => {
       const defaultHeaders = { "Content-Type": "some-custom-format" };
       const formDataRequest = request.setHeaders(defaultHeaders);
-      const headers = client.headerMapper(formDataRequest);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -169,29 +176,29 @@ describe("Client [ Utils ]", () => {
   describe("When using payloadMapper", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.payloadMapper(undefined);
+      const payload = client.adapter.unstable_payloadMapper(undefined, undefined);
 
       expect(payload).toBeUndefined();
     });
     it("should not stringify invalid payload", async () => {
-      const payload = client.payloadMapper(() => null);
+      const payload = client.adapter.unstable_payloadMapper(() => null, undefined);
       expect(payload).toBeUndefined();
     });
   });
@@ -199,24 +206,24 @@ describe("Client [ Utils ]", () => {
   describe("When using stringifyValue util", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.payloadMapper(undefined);
+      const payload = client.adapter.unstable_payloadMapper(undefined, undefined);
 
       expect(payload).toBeUndefined();
     });
@@ -224,8 +231,54 @@ describe("Client [ Utils ]", () => {
       const data: Record<string, unknown> = {};
       data.a = { b: data };
 
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unstable_payloadMapper(data, undefined);
       expect(payload).toBe("");
+    });
+  });
+
+  describe("when interceptors are disabled", () => {
+    it("should skip request interceptors when disabled", async () => {
+      const mockInterceptor = jest.fn((req) => req);
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableRequestInterceptors: true,
+      });
+
+      const result = await interceptRequest([mockInterceptor], req);
+
+      expect(mockInterceptor).not.toHaveBeenCalled();
+      expect(result).toBe(req);
+    });
+
+    it("should skip response interceptors when disabled", async () => {
+      const mockInterceptor = jest.fn((res) => res);
+      const response = {
+        data: { test: "data" },
+        status: 200,
+        success: true,
+      } as any;
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableResponseInterceptors: true,
+      });
+
+      const result = await interceptResponse([mockInterceptor], response, req);
+
+      expect(mockInterceptor).not.toHaveBeenCalled();
+      expect(result).toBe(response);
+    });
+
+    it("should run interceptors when not disabled", async () => {
+      const mockInterceptor = jest.fn((req) => req);
+
+      const req = client.createRequest<{ response: any }>()({
+        endpoint: "shared-base-endpoint",
+        disableRequestInterceptors: false,
+      });
+
+      await interceptRequest([mockInterceptor], req);
+
+      expect(mockInterceptor).toHaveBeenCalledWith(req);
     });
   });
 });

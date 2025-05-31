@@ -1,0 +1,85 @@
+---
+sidebar_position: 3
+title: Adapter
+sidebar_label: Adapter
+---
+
+[Read the API Reference »](/api/core/Classes/Adapter.mdx)
+
+---
+
+:::info
+
+`HyperFetch` ships with predefined adapters for the browser and node environments. You do not need to install any
+additional dependencies or event setting up the adapter. **It is ready to use out of the box, with zero configuration
+needed**.
+
+:::
+
+## Introduction
+
+**`Adapter`** is a function that is responsible for communication with the server. The default adapter is used to
+communicate with the REST server. However, there is nothing to prevent you from changing this and creating the adapter
+you need. Thanks to event communication, you can set your own adapter as you wish.
+
+By default, the adapter is responsible for requests, but its role is very significant for many other elements – such as
+tracking the progress of requests, listening for cancellation, and mapping payloads and headers. It also applies to all
+the interceptors in the requesting lifecycle.
+
+:::caution
+
+If there is no XHR in the window object or the XHR object is a polyfill in your environment, you’ll have to install the
+npm package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object. Otherwise we
+will use the node http module.
+
+:::
+
+---
+
+## Preview
+
+{/* (@import core adapter type=preview) */}
+
+---
+
+## Purpose
+
+- Requests handler for client dispatchers
+- Provides flexibility via handler changeability
+
+---
+
+### Header Mapper
+
+By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
+headers to the request. You can create much more advanced setups with the `setHeaderMapper`. It allows you to define
+custom logic that will be triggered before every request made in the client.
+
+### Payload Mapper
+
+The payload mapper's default responsibility is to check if data is an instance of FormData or not. Based on this, you
+can stringify non-FormData values or just pass the FormData to the request to be made. This allows file upload to be
+supported out of the box.
+
+---
+
+### 3. Query Params
+
+Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
+`setQueryParamsConfig` method and the options listed below.
+
+(@import core QueryStringifyOptionsType type=returns)
+
+To change the encoding function, use the `setStringifyQueryParams` method.
+
+```tsx
+client.setStringifyQueryParams((value: string) => encode(value));
+```
+
+---
+
+## Related guides
+
+- [Custom adapter](/guides/02-advanced/custom-adapter.mdx)
+
+---
