@@ -65,7 +65,7 @@ Here is a quick start guide to help you get started with Requests.
 
 There are two main methods to send a request with Hyper Fetch - `send(options)` and `exec(options)`.
 
-1. ### `.send(options)`
+1. #### `.send(options)`
 
 You can perform a request with the `send(options)` method. This is the most common way to send a request with Hyper
 Fetch. It triggers the request's lifecycle, including queueing, deduplication, and response handling, and returns the
@@ -82,7 +82,7 @@ const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
 const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
 ```
 
-2. ### `.exec(options)`
+2. #### `.exec(options)`
 
 This method is very similar to `send` but it ignores the built-in features - like for example deduplication or caching.
 It is useful when you want to execute a request outside of the normal flow or when you want to bypass the cache
@@ -488,7 +488,7 @@ const effectLinkedRequest = request.setEffectKey("my-effect-key");
 The `Request` class is packed with features to streamline your data fetching and management. Here are some key
 capabilities:
 
-### 1. Cancellation
+1. ### Cancellation
 
 Cancellation allows you to abort an in-progress request before it completes. This is useful in scenarios where the
 result of a request is no longer needed, such as when a user navigates away from a page or changes a filter before the
@@ -539,7 +539,7 @@ setTimeout(() => {
 
 ---
 
-### 2. Queueing
+2. ### Queueing
 
 Queueing ensures that requests are sent one after another, rather than in parallel. When enabled, each request waits for
 the previous one to finish before starting. This is important for operations that must be performed in order, or when
@@ -564,7 +564,7 @@ queuedRequest.send();
 
 ---
 
-### 3. Offline Support
+3. ### Offline Support
 
 Offline support allows requests to be stored when the application is offline. These requests are automatically retried
 once the network connection is restored. This feature is useful for applications that need to function reliably in
@@ -594,7 +594,7 @@ setTimeout(() => {
 
 ---
 
-### 4. Deduplication
+4. ### Deduplication
 
 Deduplication prevents multiple identical requests from being sent at the same time. If a request is already in
 progress, additional requests with the same parameters will reuse the ongoing request and share its response. This
@@ -626,7 +626,7 @@ setTimeout(() => {
 
 ---
 
-### 5. Authentication
+5. ### Authentication
 
 Authentication integrates the request with the client's authentication mechanism. When enabled, authentication tokens or
 credentials are automatically included with the request. This is necessary for accessing protected resources or APIs
@@ -659,30 +659,53 @@ authRequest.send();
 
 ---
 
-### 6. Data Mapping
+6. ### Mapping
 
-Data mapping allows you to transform the request payload before sending it, or the response data after receiving it.
-This is useful for adapting data formats between your application and external APIs, or for preprocessing data for
+**Response mapping** allows you to transform the request payload before sending it, or the response data after receiving
+it. This is useful for adapting data formats between your application and external APIs, or for preprocessing data for
 validation or display.
 
 ```tsx
 // Map response data to a new structure
-const mappedRequest = client
+const { data: mappedResponse } = await client
   .createRequest<{ response: { name: string } }>()({ endpoint: "/user" })
-  .setResponseMapper((res) => ({ ...res, data: { displayName: res.data.name } }));
-const { data } = await mappedRequest.send();
+  .setResponseMapper((res) => ({ ...res, data: { displayName: res.data.name } }))
+  .send();
+
+console.log(mappedResponse); // { displayName: "John" }
 ```
 
 <LinkCard
   type="guides"
-  title="Data Mapping Guide"
+  title="Response Mapping Guide"
   description="Discover how to map and transform data effectively."
   to="docs/guides/core/basic/data-mapping"
 />
 
+**Request mapping** provides hooks for custom transformations of payloads, requests, and responses. This allows for
+complex data processing scenarios, such as chaining multiple transformations, integrating with third-party services, or
+adapting to evolving API contracts.
+
+```tsx
+// Advanced mapping: transform payload before sending
+const request = client
+  .createRequest<{ payload: { name: string } }>()({ endpoint: "/advanced" })
+  .setPayloadMapper((payload) => ({ ...payload, name: payload.name.toUpperCase() }));
+
+// Will send the request with the payload { name: "JOHN" }
+const mappedRequest = request.setPayload({ name: "john" }).send();
+```
+
+<LinkCard
+  type="guides"
+  title="Request Mapping Guide"
+  description="Explore advanced data mapping techniques for complex scenarios."
+  to="/docs/guides/core/advanced/mapping"
+/>
+
 ---
 
-### 7. Retries
+7. ### Retries
 
 Retries automatically resend a request if it fails due to network errors or server issues. You can configure the number
 of retry attempts and the delay between them. This feature helps improve reliability in the face of transient errors.
@@ -702,7 +725,7 @@ retryRequest.send(); // Will retry up to 2 times on failure
 
 ---
 
-### 8. Error handling
+8. ### Error handling
 
 Error handling provides mechanisms to detect and respond to errors that occur during the request lifecycle. You can
 define callbacks for different error types, such as network failures, validation errors, or server responses, allowing
@@ -732,7 +755,7 @@ await errorRequest.send({
 
 ---
 
-### 9. Validation
+9. ### Validation
 
 Validation enables you to check the request data before it is sent, and the response data after it is received. This
 helps ensure that only valid data is processed by your application, and that errors are caught early in the data flow.
@@ -756,42 +779,6 @@ console.log(error); // Error: Must be 18+
   description="Learn about validating request data before sending and response data upon receipt."
   to="/docs/guides/core/advanced/validation"
 />
-
----
-
-### 10. Mapping
-
-Advanced mapping provides hooks for custom transformations of payloads, requests, and responses. This allows for complex
-data processing scenarios, such as chaining multiple transformations, integrating with third-party services, or adapting
-to evolving API contracts.
-
-```tsx
-// Advanced mapping: transform payload before sending
-const advancedRequest = client
-  .createRequest<{ payload: { name: string } }>()({ endpoint: "/advanced" })
-  .setPayloadMapper((payload) => ({ ...payload, name: payload.name.toUpperCase() }));
-advancedRequest.setPayload({ name: "john" }).send();
-```
-
-<LinkCard
-  type="guides"
-  title="Mapping"
-  description="Explore advanced data mapping techniques for complex scenarios."
-  to="/docs/guides/core/advanced/mapping"
-/>
-
----
-
-## Typescript
-
-When creating a request with `client.createRequest`, you can specify up to four generic types to ensure type safety and
-enhance the developer experience throughout the request lifecycle:
-
-- **`Response`**: The expected type of the successful response data from the server.
-- **`Payload`**: The type of the data to be sent in the request body (e.g., for `POST` or `PUT` requests).
-- **`Error`**: The type for errors specific to this request, often used for local validation or business logic errors,
-  complementing the global error type defined on the `Client`.
-- **`QueryParams`**: The expected structure and types for the request's query parameters.
 
 ---
 
@@ -839,7 +826,7 @@ When creating a request with `client.createRequest`, you can specify up to four 
 enhance the developer experience throughout the request lifecycle:
 
 - **`response`**: The expected type of the successful response data from the server.
-- **`payload`**: The type of the data to be sent in the request body (e.g., for `POST` or `PUT` requests).
+- **`payload`**: The type of the data to be sent in the request body.
 - **`error`**: The type for errors specific to this request, often used for local validation or business logic errors,
   complementing the global error type defined on the `Client`.
 - **`queryParams`**: The expected structure and types for the request's query parameters.
@@ -857,3 +844,13 @@ const { data, error } = await request.send();
 console.log(data); // { name: "John" }
 console.log(error); // undefined
 ```
+
+:::warning Install Eslint plugin
+
+To ensure type safety, we recommend installing the
+[eslint-plugin-hyper-fetch](https://www.npmjs.com/package/eslint-plugin-hyper-fetch) plugin. It will help you catch type
+errors early and build robust, maintainable data flows.
+
+Learn how to install and configure the plugin in the [Eslint plugin guide](/docs/integrations/plugin-eslint).
+
+:::

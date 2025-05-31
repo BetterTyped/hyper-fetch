@@ -219,7 +219,7 @@ const config: Config = {
     },
     tableOfContents: {
       minHeadingLevel: 2,
-      maxHeadingLevel: 2,
+      maxHeadingLevel: 3,
     },
     navbar: {
       title: "",
