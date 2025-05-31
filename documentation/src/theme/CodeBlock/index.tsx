@@ -21,14 +21,14 @@ function isLiveCodeBlock(props: CodeBlockProps): boolean {
 // eslint-disable-next-line import/no-default-export
 export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const { metastring } = props;
-  const clickToRun = metastring?.includes("clickToRun");
+  const clickToRun = !metastring?.includes("autoPlay");
   const defaultTab = metastring?.includes("console") ? "playground" : undefined;
   const title = parseCodeBlockTitle(metastring);
 
   const size = useMemo(() => {
-    if (metastring?.includes("sm")) return "sm";
+    if (metastring?.includes("md")) return "md";
     if (metastring?.includes("lg")) return "lg";
-    return "md";
+    return "sm";
   }, [metastring]);
 
   return isLiveCodeBlock(props) ? (

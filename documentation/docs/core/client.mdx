@@ -24,7 +24,7 @@ remains isolated and independent from others.
 
 ---
 
-## Initialization 🚀
+## Initialization
 
 The client is initialized with the `createClient` function.
 
@@ -62,7 +62,7 @@ export const client = createClient({ url: "http://localhost:3000" });
 
 ---
 
-## Features ✨
+## Features
 
 Here are some of the most important features available in the Client class.
 
@@ -74,7 +74,7 @@ easier to maintain and test your code by centralizing configuration and types.
 
 :::
 
-### 1. createRequest()
+1. ### createRequest()
 
 The `createRequest` method is the main method for creating templates for the API connectivity. We use the builder
 pattern to create a request object which contain crucial information about the request - endpoint, method, etc.
@@ -94,7 +94,7 @@ console.log(getUser);
 
 <LinkCard type="docs" title="Request" description="More about the request and how to use it" to="/docs/core/request" />
 
-### 2. Authentication
+2. ### Authentication
 
 To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
 **true**.
@@ -135,7 +135,7 @@ export const getUsers = client.createRequest()({
 
 ---
 
-### 3. Interceptors
+3. ### Interceptors
 
 Interceptors are a powerful feature that allows you to modify requests before they're sent or responses before they are
 processed within other core modules.
@@ -144,17 +144,17 @@ They can modify the request before it's sent or the response after it's received
 
 #### Request Interceptor
 
-1. `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
-2. `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
-   headers or other any options
+- `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
+- `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
+  headers or other any options
 
 #### Response Interceptor
 
 There are several methods for intercepting a response from a request:
 
-1. `onResponse()` - intercepts any response after it's received to modify it's body
-2. `onError()` - intercepts the error response after it's received to modify it's body
-3. `onSuccess()` - intercepts the success response after it's received to modify it's body
+- `onResponse()` - intercepts any response after it's received to modify it's body
+- `onError()` - intercepts the error response after it's received to modify it's body
+- `onSuccess()` - intercepts the success response after it's received to modify it's body
 
 We can modify received data with these interceptors before it will be emitted to other sub-systems.
 
@@ -202,7 +202,7 @@ export const client = createClient({ url: "http://localhost:3000" })
 
 ---
 
-### 4. Global settings
+4. ### Global settings
 
 Every module is initialized inside of the `Client` class. This is a perfect place to store and control global settings
 for the adapter, cache, requests or other modules.
@@ -247,7 +247,7 @@ export const getUser = client.createRequest()({
 
 ---
 
-### 5. Plugins
+5. ### Plugins
 
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
 the events happening inside of the Hyper Fetch.
@@ -292,7 +292,7 @@ client.addPlugin(loggingPlugin);
 
 ---
 
-### 6. Hydration
+6. ### Hydration
 
 We can hydrate the client with the data from the server. This is a powerful feature that allows us to pass the data from
 the server to the client for the SSR use cases.
@@ -339,7 +339,7 @@ function UserProfile() {
 
 ---
 
-## TypeScript functionality
+## TypeScript
 
 Most important type passed to the `createClient` is the error type. It is a global error type, being used like a default
 for any request errors. It is later combined with the "local error" type of the requests creating the union. This way we
@@ -373,7 +373,7 @@ const client = createClient<{ error: ClientErrorType }>();
 - `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it only
   when you provide [your custom adapter](/docs/guides/core/02-advanced/custom-adapter.mdx).
 
-## Modules 🧩
+## Modules
 
 ```mermaid
 mindmap

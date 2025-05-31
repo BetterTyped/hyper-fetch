@@ -782,14 +782,64 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li {
   list-style: decimal;
 }
 
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li::before {
-  @apply absolute left-[-24px] top-[1.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+main
+  .col:not(.col--3)
+  ol:not(.toc):not(.toaster):not(.table-of-contents)
+  > li:has(> :first-child:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6))::before {
+  @apply absolute left-[-24px] top-[2px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li::marker {
   @apply text-zinc-200 dark:text-zinc-400 text-sm;
 }
 
+/* h1 */
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h1:first-child)::marker {
+  @apply text-3xl;
+}
+/* h2 */
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h2:first-child)::before {
+  @apply absolute left-[-36px] top-[10px] w-[40px] h-[40px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h2:first-child)::marker {
+  @apply text-2xl;
+}
+/* h3 */
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h3:first-child)::before {
+  @apply absolute left-[-31px] top-[1px] w-[35px] h-[35px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h3:first-child)::marker {
+  @apply text-xl;
+}
+/* h4 */
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h4:first-child)::before {
+  @apply absolute left-[-27px] top-[0px] w-[30px] h-[30px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h4:first-child)::marker {
+  @apply text-lg;
+}
+/* h5 */
+
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h5:first-child)::before {
+  @apply absolute left-[-25px] top-[0px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h5:first-child)::marker {
+  @apply text-base;
+}
+/* h6 */
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h6:first-child)::before {
+  @apply absolute left-[-23px] top-[-1px] w-[26px] h-[26px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  content: "";
+}
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h6:first-child)::marker {
+  @apply text-sm;
+}
+
+/* else */
 main .col:not(.col--3) ul:not(.toc):not(.toaster):not(.table-of-contents) li {
   list-style: initial;
 }

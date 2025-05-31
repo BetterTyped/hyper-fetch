@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useInsertionEffect, useMemo, useState } from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
@@ -8,7 +8,8 @@ import { useDebounce } from "@reins/hooks";
 import { globalScope } from "./global-scope";
 import { createGlobalRequests } from "./create-global-requests";
 import { ClientRequests } from "../components/client-requests/client-requests";
-import { ToasterProvider } from "../../../../hooks/use-toast";
+import { ToasterProvider, usePreviewToast } from "../../../../hooks/use-toast";
+import { MessageEvent } from "../components/client-requests/components/message-event";
 
 const RENDER_PREFIX = "render(";
 
@@ -149,8 +150,22 @@ export const transformCode = (code: string): string => {
 const pipeline = [removeImports, transformCode];
 
 const Content = memo(({ code, scope, isLog }: { code: string; scope: any; isLog: boolean }) => {
+  const toast = usePreviewToast();
+
+  const values = useMemo(() => {
+    const handleToast = ({ title = "New notification", message }: { title?: string; message: string }) => {
+      toast({
+        message: <MessageEvent name={title} message={message} />,
+      });
+    };
+    return {
+      ...scope,
+      toast: handleToast,
+    };
+  }, [scope, toast]);
+
   return (
-    <LiveProvider code={code} scope={scope} noInline>
+    <LiveProvider code={code} scope={values} noInline>
       <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
       <LiveError className="api-playground__error" />
     </LiveProvider>
@@ -209,12 +224,16 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
     }
   }, [codeKey]);
 
-  useEffect(() => {
-    debounce(() => {
-      client?.clear();
-      setCodeKey((prev) => prev + 1);
+  useInsertionEffect(() => {
+    if (!stringifiedCode) {
       setStringifiedCode(pipeline.reduce((transformedCode, fn) => fn(transformedCode), code));
-    });
+    } else {
+      debounce(() => {
+        client?.clear();
+        setCodeKey((prev) => prev + 1);
+        setStringifiedCode(pipeline.reduce((transformedCode, fn) => fn(transformedCode), code));
+      });
+    }
   }, [code]);
 
   return (

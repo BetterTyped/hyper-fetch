@@ -40,7 +40,7 @@ const getUser = client.createRequest()({
 });
 ```
 
-```tsx live clickToRun title="Simple fetch" size="small"
+```tsx live  title="Simple fetch" size="small"
 const response = await getUser.send({ params: { userId: 1 } });
 
 console.log(response);
@@ -63,7 +63,13 @@ Here is a quick start guide to help you get started with Requests.
 
 ### Fetching
 
-You can perform a request with the `send` method.
+There are two main methods to send a request with Hyper Fetch - `send(options)` and `exec(options)`.
+
+1. ### `.send(options)`
+
+You can perform a request with the `send(options)` method. This is the most common way to send a request with Hyper
+Fetch. It triggers the request's lifecycle, including queueing, deduplication, and response handling, and returns the
+server's response in a developer-friendly format.
 
 ```tsx
 // Simple fetch
@@ -76,22 +82,15 @@ const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
 const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
 ```
 
-Difference between `send` and `exec` methods:
+2. ### `.exec(options)`
 
-- `send(options)` triggers the request's lifecycle, including queueing, deduplication, and response handling, and
-  returns the server's response in a developer-friendly format.
+This method is very similar to `send` but it ignores the built-in features - like for example deduplication or caching.
+It is useful when you want to execute a request outside of the normal flow or when you want to bypass the cache
+interactions - for example while using in SSR environments.
 
-  ```tsx
-  const { data, error } = await getUser.send();
-  ```
-
-- `exec(options)` method is very similar to `send` but it ignores the built-in features - like for example deduplication
-  or caching. It is useful when you want to execute a request outside of the normal flow or when you want to bypass the
-  cache interactions - for example while using in SSR environments.
-
-  ```tsx
-  const { data, error } = await getUser.exec();
-  ```
+```tsx
+const { data, error } = await getUser.exec();
+```
 
 <LinkCard
   type="guides"
@@ -102,43 +101,108 @@ Difference between `send` and `exec` methods:
 
 ---
 
+### Request Options
+
+Each request can be configured with options. We can specify things like `endpoint`, `method`, `caching strategy`,
+`deduplication`, etc. This information is stored as a template for later use.
+
+```ts
+const request = client.createRequest()({
+  // Here are some basic options
+  // highlight-start
+  endpoint: "/some-endpoint",
+  method: "POST",
+  deduplicate: true,
+  // highlight-end
+});
+```
+
+(@import core RequestOptionsType type=returns)
+
+---
+
 ### Payload
 
-Use the `setPayload` method to assign data for the request body. This can be a plain JavaScript object or an instance of
-`FormData` for scenarios like file uploads or when a specific `multipart/form-data` structure is required.
+When you want to send some data along with the request, you can use the `setPayload` method. This can be a json,
+FormData or other format - depending on the adapter you use.
+
+First we define request expecting proper type.
+
+```ts
+const postUser = client.createRequest<{
+  response: UserModel;
+  // highlight-start
+  payload: UserPostDataType;
+  // highlight-end
+}>()({
+  method: "POST",
+  endpoint: "/users",
+});
+
+const postFile = client.createRequest<{
+  // highlight-start
+  payload: FormData;
+  // highlight-end
+}>()({
+  method: "POST",
+  endpoint: "/files",
+});
+```
 
 ```ts
 // Regular data
-postUser.setPayload({ name: "John", age: 18 });
+const response = await postUser.setPayload({ name: "John", age: 18 }).send();
+```
 
-// Form data
-const data = new FormData();
-...
-postFile.setPayload(data);
+You can also pass payload directly to the `send` method.
+
+```ts
+const response = await postFile.send({ payload: data });
 ```
 
 <LinkCard
   type="guides"
   title="Payload"
-  description="Understand how to send payload data with your POST, PUT, or PATCH requests."
+  description="Understand how to send payload data with your requests."
   to="/docs/guides/core/basic/payload"
+/>
+
+#### Payload with files
+
+When you want to send a file, you can use the `FormData`.
+
+```ts
+// Form data
+const data = new FormData();
+const file = new File([], "file.txt");
+data.append("file", file);
+
+const response = await postFile.setPayload(data).send();
+```
+
+<LinkCard
+  type="guides"
+  title="Data Mapping Guide"
+  description="Discover how to map and transform data effectively."
+  to="docs/guides/core/basic/data-mapping"
 />
 
 ---
 
 ### Parameters
 
-Parameters must be defined in request endpoint using `:`
+Parameters are the URL parts used to identify a specific resource. In HyperFetch they are defined in the endpoint part
+with `:` prefix. For example:
 
 ```ts
 const getNote = client.createRequest()({
-  endpoint: "/note/:noteId",
+  endpoint: "/note/:noteId", // noteId is a parameter
 });
 const getCategory = client.createRequest()({
-  endpoint: "/category/:categoryId",
+  endpoint: "/category/:categoryId", // categoryId is a parameter
 });
 const getCategoryNote = client.createRequest()({
-  endpoint: "/category/:categoryId/note/:noteId",
+  endpoint: "/category/:categoryId/note/:noteId", // categoryId and noteId are parameters
 });
 ```
 
@@ -152,6 +216,12 @@ getCategory.setParams({ categoryId: 2 });
 getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
 ```
 
+You can also pass parameters directly to the `send` method.
+
+```ts
+const response = await getCategoryNote.send({ params: { categoryId: 1, noteId: 2 } });
+```
+
 <LinkCard
   type="guides"
   title="Parameters"
@@ -163,9 +233,66 @@ getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
 
 ### Query parameters
 
-You can set query params with the `setQueryParams` method. With TypeScript, you can set it up to be accepted as strings,
-objects, or a strict interface. The encoding type for arrays and other options can be set up in the Client. You can also
-provide your own encoding logic.
+Query parameters are used to filter or sort the data. In Http requests they are defined in the endpoint part with `?`
+prefix. For example `?search=John&sort=age`.
+
+We can set query params with the `setQueryParams` method.
+
+```ts
+const getUsers = client.createRequest<{
+  // highlight-start
+  queryParams?: { search?: string; sort?: string };
+  // highlight-end
+}>()({
+  endpoint: "/users",
+});
+```
+
+```tsx
+const response = await getUsers.setQueryParams({ search: "John" }).send();
+```
+
+Note that we use `?:` prefix to make query params optional. We can make it required as a whole but also particular
+params from the set.
+
+:::note Required Query Params
+
+You can make query params required by specifying them without `?:` prefix.
+
+```ts
+// All params are required before request is sent
+const getUsers = client.createRequest<{
+  // highlight-start
+  queryParams: { search: string; sort: string };
+  // highlight-end
+}>()({
+  endpoint: "/users",
+});
+
+// Typescript error - sort is required
+// error-start
+const response = await getUsers.setQueryParams({ search: "John" }).send();
+// error-end
+
+// Typescript error - search is required
+// error-start
+const response = await getUsers.setQueryParams({ sort: "age" }).send();
+// error-end
+
+// Typescript error - query params are required
+// error-start
+const response = await getUsers.send();
+// error-end
+```
+
+:::
+
+```tsx
+getUsers.setQueryParams({ search: "John", sort: "age" });
+```
+
+The encoding type for arrays and other options can be set up in the Client. You can also provide your own encoding
+logic.
 
 ```tsx
 getUsers.setQueryParams({ search: "John", sort: "age" });
@@ -180,32 +307,17 @@ getUsers.setQueryParams({ search: "John", sort: "age" });
 
 ---
 
-### Options
-
-Request contains all the necessary information to make a request. We can use it later to send them with already prepared
-setup saving time and improving our architecture.
-
-`Options are crucial to the successful data exchange.` We have to provide at least the `endpoint` to fulfill minimum
-requirements.
-
-#### Here you can find some examples of possible configurations.
-
-<ShowMore>
-
-(@import core RequestOptionsType type=returns)
-
-</ShowMore>
-
----
-
 ### Adapter Options
 
-You can pass adapter options to the request.
+You can pass adapter options down with the request options.
 
 ```ts
 const request = client.createRequest()({
   endpoint: "/some-endpoint",
+  // highlight-start
+  // Here are adapter options for the Http adapter (default one)
   options: { timeout: 1000, withCredentials: true },
+  // highlight-end
 });
 ```
 
@@ -250,12 +362,13 @@ for features like caching and queueing.
 :::
 
 ```tsx
-// ❌ WRONG - Original request (getUser) remains unchanged
 const initialRequest = getUser;
-initialRequest.setParams({ userId: 1 }); // This call returns a *new* request instance, but it's not assigned.
+// ❌ WRONG - Original request (getUser) remains unchanged
+initialRequest.setParams({ userId: 1 }); // setParams returns a new request instance
 // 'initialRequest' still refers to the original getUser without params.
 
-const { data, error } = await initialRequest.send(); // Sends the original request without params, likely leading to an error.
+// Sends the original request without params, likely leading to an error.
+const { data, error } = await initialRequest.send();
 ```
 
 ```tsx
@@ -271,7 +384,6 @@ const { data, error } = await requestWithParams.send(); // Success!
 // ✅ Also correct (method chaining creates and passes clones implicitly)
 const { data: chainedData, error: chainedError } = await getUser
   .setParams({ userId: 1 }) // .setParams returns a clone
-  .setQueryParams({ includeDetails: true }) // .setQueryParams operates on that clone and returns another clone
   .send(); // .send operates on the final configured clone
 ```
 
@@ -295,25 +407,47 @@ keys include only endpoint and method.
 
 The main keys are:
 
-1. **`queryKey`**: General identifier for the request, used for query management (e.g., refetching, optimistic updates,
-   invalidation).
+1. #### `queryKey`
 
-   ```ts
-   const key = request.queryKey;
-   ```
+General identifier for the request, used for query management (e.g., refetching, optimistic updates, invalidation).
 
-2. **`cacheKey`**: Determines how the response is stored and retrieved from the cache. Ensures correct data is cached
-   and served.
+```ts
+const key = request.queryKey;
+```
 
-   ```ts
-   const key = request.cacheKey;
-   ```
+Set custom key with `setQueryKey` method.
 
-3. **`abortKey`**: Identifies and manages ongoing requests for cancellation (e.g., aborting in-flight requests).
+```ts
+const customRequest = request.setQueryKey("custom-key");
+```
 
-   ```ts
-   const key = request.abortKey;
-   ```
+2. #### `cacheKey`
+
+Determines how the response is stored and retrieved from the cache. Ensures correct data is cached and served.
+
+```ts
+const key = request.cacheKey;
+```
+
+Set custom key with `setCacheKey` method.
+
+```ts
+const customRequest = request.setCacheKey("custom-key");
+```
+
+3. #### `abortKey`
+
+Identifies and manages ongoing requests for cancellation (e.g., aborting in-flight requests).
+
+```ts
+const key = request.abortKey;
+```
+
+Set custom key with `setAbortKey` method.
+
+```ts
+const customRequest = request.setAbortKey("custom-key");
+```
 
 By default, these keys are auto-generated based on the request's endpoint, method, and parameters. This ensures that
 each unique request configuration is tracked separately.
@@ -340,13 +474,16 @@ const effectLinkedRequest = request.setEffectKey("my-effect-key");
 > **Note:** Overriding keys is an advanced feature. Make sure you understand the implications for caching,
 > deduplication, and request management.
 
+<LinkCard
+  type="guides"
+  title="Keys"
+  description="Learn how to override keys for your requests."
+  to="/docs/guides/core/advanced/keys"
+/>
+
 ---
 
-## More Guides
-
----
-
-## Features ✨
+## Features
 
 The `Request` class is packed with features to streamline your data fetching and management. Here are some key
 capabilities:
@@ -358,12 +495,39 @@ result of a request is no longer needed, such as when a user navigates away from
 previous request finishes. Aborting a request helps prevent unnecessary processing and side effects from outdated
 responses.
 
-```tsx
-// Cancel an ongoing request
-const request = client.createRequest()({ endpoint: "/users" }).setCancelable(true);
-const promise = request.send();
-// Cancel the request if needed
-request.abort();
+1. #### Manual cancellation
+
+Triggered by the `.abort()` request method, allow us to stop the request execution.
+
+```tsx live title="Manual cancellation"
+import { getUser } from "./api";
+
+// Start the request
+const response = getUser.send();
+
+setTimeout(() => {
+  // Cancel the request by its abortKey
+  getUser.abort();
+  // Show a toast notification
+  toast({ title: "Cancelled", message: "This request was cancelled manually" });
+}, 1000);
+```
+
+2. #### Automatic cancellation
+
+It is automatically executed when we send two identical requests at the same time. Older request will be cancelled and
+the new one will be sent.
+
+```tsx live title="Automatic cancellation"
+import { getUser } from "./api";
+
+const cancelableRequest = getUser.setCancelable(true);
+
+cancelableRequest.send();
+
+setTimeout(() => {
+  cancelableRequest.send();
+}, 1000);
 ```
 
 <LinkCard
@@ -381,11 +545,14 @@ Queueing ensures that requests are sent one after another, rather than in parall
 the previous one to finish before starting. This is important for operations that must be performed in order, or when
 interacting with APIs that require serialized access.
 
-```tsx
+```tsx live title="Queueing"
+import { postFile } from "./api";
+
 // Queue requests to be sent one-by-one
-const queuedRequest = client.createRequest()({ endpoint: "/tasks", queued: true });
+const queuedRequest = postFile.setQueued(true);
 queuedRequest.send();
-queuedRequest.send(); // This will wait until the previous one finishes
+// This will wait until the previous with th same queryKey one finishes
+queuedRequest.send();
 ```
 
 <LinkCard
@@ -403,10 +570,19 @@ Offline support allows requests to be stored when the application is offline. Th
 once the network connection is restored. This feature is useful for applications that need to function reliably in
 environments with intermittent connectivity.
 
-```tsx
-// Persist request while offline, auto-retry when online
-const offlineRequest = client.createRequest()({ endpoint: "/sync", offline: true });
-offlineRequest.send(); // Will retry automatically when connection is restored
+```tsx live  title=Offline handling
+import { client, getUser } from "./api";
+
+// Simulate the connection loss
+client.appManager.setOnline(false);
+
+// Trigger the request being offline
+getUser.setOffline(true).send();
+
+// Return back online and the request will be resumed
+setTimeout(() => {
+  client.appManager.setOnline(true);
+}, 2000);
 ```
 
 <LinkCard
@@ -424,11 +600,21 @@ Deduplication prevents multiple identical requests from being sent at the same t
 progress, additional requests with the same parameters will reuse the ongoing request and share its response. This
 reduces redundant network traffic and ensures consistent results.
 
-```tsx
-// Deduplicate multiple identical requests
-const dedupeRequest = client.createRequest()({ endpoint: "/users", deduplicate: true });
-dedupeRequest.send();
-dedupeRequest.send(); // Only one network request will be sent
+```tsx live
+import { getUser } from "./api";
+
+const getUserDeduplicated = getUser.setDeduplicate(true);
+
+// First request
+getUserDeduplicated.send();
+
+// Second request (Deduplicated - it will never be triggered)
+getUserDeduplicated.send();
+
+// Third request (Deduplicated - it will never be triggered)
+setTimeout(() => {
+  getUserDeduplicated.send();
+}, 500);
 ```
 
 <LinkCard
@@ -447,8 +633,20 @@ credentials are automatically included with the request. This is necessary for a
 that require user identity.
 
 ```tsx
+// Add the onAuth interceptor
+client.onAuth(({ request }) => {
+  // Modify request - by adding the auth token to the headers
+  request.setHeaders({
+    Authorization: `Bearer ${auth.token}`,
+  });
+
+  return request;
+});
+
 // Authenticated request (uses Client's auth setup)
-const authRequest = client.createRequest()({ endpoint: "/profile" }).setAuth(true);
+const authRequest = client.createRequest()({ endpoint: "/profile", auth: true });
+
+// it will authenticate the request
 authRequest.send();
 ```
 
@@ -479,7 +677,7 @@ const { data } = await mappedRequest.send();
   type="guides"
   title="Data Mapping Guide"
   description="Discover how to map and transform data effectively."
-  to="/docs/guides/basic/data-mapping"
+  to="docs/guides/core/basic/data-mapping"
 />
 
 ---
@@ -513,7 +711,12 @@ your application to handle failures appropriately.
 ```tsx
 // Handle errors with onError callback
 const errorRequest = client.createRequest()({ endpoint: "/fail" });
-errorRequest.send({
+
+// Will return error without throwing it
+const { error } = await errorRequest.send();
+
+// You can also handle the error with callback
+await errorRequest.send({
   onError: ({ response }) => {
     console.error("Request failed:", response.error);
   },
@@ -542,7 +745,9 @@ const validatedRequest = client
     if (req.payload.age < 18) throw new Error("Must be 18+");
     return req;
   });
-validatedRequest.setPayload({ age: 16 }).send(); // Will throw validation error
+const { error } = await validatedRequest.setPayload({ age: 16 }).send();
+
+console.log(error); // Error: Must be 18+
 ```
 
 <LinkCard
@@ -628,129 +833,27 @@ await someRequest.send({
 
 ---
 
-## Usage Examples
+## TypeScript
 
-Few examples of how to use the `Request`.
+When creating a request with `client.createRequest`, you can specify up to four generic types to ensure type safety and
+enhance the developer experience throughout the request lifecycle:
 
-#### User Data Models and Payload Types
+- **`response`**: The expected type of the successful response data from the server.
+- **`payload`**: The type of the data to be sent in the request body (e.g., for `POST` or `PUT` requests).
+- **`error`**: The type for errors specific to this request, often used for local validation or business logic errors,
+  complementing the global error type defined on the `Client`.
+- **`queryParams`**: The expected structure and types for the request's query parameters.
 
-```ts
-interface UserModel {
-  id: number;
-  name: string;
-  email: string;
-}
+```tsx
+const request = client.createRequest<{
+  response: { name: string };
+  payload: { age: number };
+  error: { message: string };
+  queryParams: { search: string };
+}>()({ endpoint: "/user" });
 
-interface UserPostDataType {
-  name: string;
-  email: string;
-}
+const { data, error } = await request.send();
 
-interface UserPatchDataType {
-  name?: string;
-  email?: string;
-}
-```
-
-### Fetch all users
-
-```ts
-export const getUsers = client.createRequest<{
-  response: UserModel[];
-  queryParams?: { page?: number; limit?: number };
-}>()({
-  method: "GET",
-  endpoint: "/users",
-});
-```
-
-```ts
-async function fetchAllUsers() {
-  const { data, error } = await getUsers.send({ queryParams: { page: 1, limit: 10 } });
-  if (data) {
-    console.log("Fetched Users:", data);
-  } else if (error) {
-    console.error("Error fetching users:", error);
-  }
-}
-```
-
-### Fetch a single user by ID
-
-```ts
-export const getUser = client.createRequest<{ response: UserModel }>()({
-  method: "GET",
-  endpoint: "/users/:userId",
-});
-```
-
-```ts
-async function fetchSingleUser(id: number) {
-  const { data, error } = await getUser.send({ params: { userId: id } });
-  if (data) {
-    console.log("Fetched User:", data);
-  } else if (error) {
-    console.error(`Error fetching user ${id}:`, error);
-  }
-}
-```
-
-### Create a new user
-
-```ts
-export const postUser = client.createRequest<{ response: UserModel; payload: UserPostDataType }>()({
-  method: "POST",
-  endpoint: "/users",
-});
-```
-
-```ts
-async function createNewUser(userData: UserPostDataType) {
-  const { data, error } = await postUser.send({ data: userData });
-  if (data) {
-    console.log("Created User:", data);
-  } else if (error) {
-    console.error("Error creating user:", error);
-  }
-}
-```
-
-### Update an existing user
-
-```ts
-export const patchUser = client.createRequest<{ response: UserModel; payload: UserPatchDataType }>()({
-  method: "PATCH",
-  endpoint: "/users/:userId",
-});
-```
-
-```ts
-async function updateExistingUser(id: number, userData: UserPatchDataType) {
-  const { data, error } = await patchUser.send({ params: { userId: id }, data: userData });
-  if (data) {
-    console.log("Updated User:", data);
-  } else if (error) {
-    console.error(`Error updating user ${id}:`, error);
-  }
-}
-```
-
-### Delete a user
-
-```ts
-export const deleteUser = client.createRequest<{ response: null }>()({
-  method: "DELETE",
-  endpoint: "/users/:userId",
-});
-```
-
-```ts
-async function removeExistingUser(id: number) {
-  const { data, error } = await deleteUser.send({ params: { userId: id } });
-  if (error) {
-    console.error(`Error deleting user ${id}:`, error);
-  } else {
-    console.log(`User ${id} deleted successfully.`);
-  }
-}
+console.log(data); // { name: "John" }
+console.log(error); // undefined
 ```

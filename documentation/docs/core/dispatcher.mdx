@@ -74,7 +74,7 @@ client.fetchDispatcher.pause("my-queue-key");
 client.fetchDispatcher.start("my-queue-key");
 ```
 
-```tsx live clickToRun title="Requests Pausing and Starting"
+```tsx live  title="Requests Pausing and Starting"
 // Trigger the request
 getUser.send();
 
@@ -94,7 +94,7 @@ setTimeout(() => {
 }, 4000);
 ```
 
-```tsx live clickToRun title="Requests Stopping and Starting"
+```tsx live  title="Requests Stopping and Starting"
 // Trigger the request
 getUser.send();
 
@@ -129,7 +129,7 @@ client.fetchDispatcher.startRequest("my-queue-key", "requestId");
 When the connection is lost, the queue is stopped and the failed or interrupted requests will wait for the connection to
 recover. This prevents data loss.
 
-```tsx live clickToRun title=Offline handling
+```tsx live  title=Offline handling
 // Simulate the connection loss
 client.appManager.setOnline(false);
 
@@ -160,7 +160,7 @@ default mode for requests.
 
 Enable this mode by setting the request `queued` prop to false.
 
-```tsx live clickToRun
+```tsx live
 import { getUser } from "./api";
 
 // First request
@@ -196,7 +196,7 @@ the user is triggering new requests with rapidly changing pagination.
 
 Enable this mode by setting the request `cancelable` prop to true.
 
-```tsx live clickToRun
+```tsx live
 import { getUser } from "./api";
 
 const getUserCancelable = getUser.setCancelable(true);
@@ -235,7 +235,7 @@ will be resolved one item at a time. In this mode, you can `start`, `stop`, or `
 
 Enable this mode by setting the request `queued` prop to true.
 
-```tsx live clickToRun
+```tsx live
 import { postFile } from "./api";
 
 const postFileQueued = postFile.setQueued(true);
@@ -274,7 +274,7 @@ with different requests, this mode will perform one call and propagate the reque
 
 Enable this mode by setting the request `deduplication` prop to true.
 
-```tsx live clickToRun
+```tsx live
 import { getUser } from "./api";
 
 const getUserDeduplicated = getUser.setDeduplicate(true);
