@@ -94,6 +94,8 @@ console.log(getUser);
 
 <LinkCard type="docs" title="Request" description="More about the request and how to use it" to="/docs/core/request" />
 
+---
+
 2. ### Authentication
 
 To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
@@ -375,6 +377,8 @@ const client = createClient<{ error: ClientErrorType }>();
 
 ## Modules
 
+Client is a place where all the subsystems are initialized. Here is a diagram of the client and its subsystems:
+
 ```mermaid
 mindmap
   root)Client(
@@ -407,6 +411,10 @@ mindmap
       {{Devtools}}
       {{Observers}}
 ```
+
+---
+
+## See Also
 
 <LinkCard
   type="docs"

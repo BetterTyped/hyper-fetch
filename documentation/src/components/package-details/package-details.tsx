@@ -12,13 +12,11 @@ export const PackageDetails = ({
   return (
     <div className="package-wrapper mb-6">
       <div className="package-details w-fit min-w-[220px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/90 dark:to-zinc-900/85 rounded-lg border dark:border-zinc-800">
-        <div className="pl-5 pr-8 pt-2 pb-2">
+        <div className="pl-4 pr-4 pt-2 pb-2 flex items-center gap-3">
+          <Icon className="w-8 h-8 mt-0.5" />
           <div className="text-start w-fit">
-            <div className="relative inline-flex items-center gap-2 text-lg w-fit">
-              <Icon className="w-6 h-6" />
-              {names}
-            </div>
-            <div className="relative flex justify-start items-center z-10 pl-8 -mt-1">
+            <div className="relative inline-flex items-center gap-2 text-lg w-fit">{names}</div>
+            <div className="relative flex justify-start items-center z-10 -mt-1">
               <a
                 className="text-blue-500 font-medium flex items-center space-x-1 text-xs"
                 href={`https://www.npmjs.com/package/${pkg}`}

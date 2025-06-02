@@ -277,12 +277,15 @@ export class Client<
 
   setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_abortKeyMapper = callback;
+    return this;
   };
   setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_cacheKeyMapper = callback;
+    return this;
   };
   setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_queryKeyMapper = callback;
+    return this;
   };
 
   /**
