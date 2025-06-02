@@ -139,7 +139,7 @@ export const integrations: Section[] = [
     border: "border-orange-500 dark:border-orange-400",
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     featured: true,
-    category: "Service",
+    category: "Adapter",
     package: "firebase",
   },
   {
@@ -157,7 +157,7 @@ export const integrations: Section[] = [
       "group-hover:shadow-red-200 dark:group-hover:bg-red-500 group-hover:bg-red-400 group-hover:dark:bg-red-500 !bg-opacity-40",
     border: "border-red-500 dark:border-red-400",
     borderHover: "hover:border-red-500 hover:dark:border-red-400",
-    category: "Service",
+    category: "Adapter",
     package: "firebase-admin",
   },
   {

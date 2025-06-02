@@ -22,6 +22,7 @@ export default function DocVersionBadge({ className }: Props): JSX.Element | nul
           isCurrent ? activeItem?.section?.icon || "bg-yellow-500" : "bg-zinc-400",
           "block text-xs px-2 py-1 rounded-md w-fit !font-semibold",
           "!text-white/80 border-0 !mb-6 !bg-opacity-30",
+          "sm:absolute sm:top-2 sm:right-0",
         )}
       >
         <Translate id="theme.docs.versionBadge.label" values={{ versionLabel: versionMetadata.label }}>

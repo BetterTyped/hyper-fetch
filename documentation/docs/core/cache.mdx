@@ -4,93 +4,116 @@ title: Cache
 sidebar_label: Cache
 ---
 
-[Read the API Reference »](/api/core/Classes/Cache.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Cache.mdx)
+
+> The `Cache` class is a core subsystem in Hyper Fetch, responsible for storing and managing response data from
+> requests. It provides a flexible, event-driven system for data retention, validation, and propagation throughout your
+> application. By default, it uses an in-memory `Map` for storage, but you can easily swap in persistent storage
+> solutions like `localStorage` or `IndexedDB`.
 
 ---
 
-## Introduction
+:::info Purpose
 
-**`Cache`** stores response data from requests. It uses an event system that successively transmits data and takes care
-of validation in the system. Data is stored under `cacheKey` in the storage (which by default is a Map object, but can
-be replaced by any other compatible interface).
+1. **Store and manage request results** for fast, reliable data access.
+2. **Emit events** to keep your app in sync with cache changes.
+3. **Support flexible storage**—from in-memory to persistent solutions.
+4. **Integrate seamlessly** with the Client and Request systems for a unified data flow.
 
----
-
-## Purpose
-
-- Stores request results
-- Manages stored data
-- Emits storage events
+:::
 
 ---
 
-## CacheKey
+## Quick Start
 
-The cache stores data on a `key-value` basis. The key is always specified inside the request as `cacheKey`; it
-determines where the data is stored and is used in propagation of data handling events.
+Here's how to get started with the Cache in Hyper Fetch:
 
-By default, the cacheKey value is auto-determined based on the **method**, **endpoint**, and **query params** of the
-given request. However, there is nothing to prevent you manually adding the key when setting the request or using one of
-its methods.
+```tsx title="Basic Cache Usage"
+import { createClient, Cache } from "@hyper-fetch/core";
 
-Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the data –
-everything will happen automatically.
+// Initialize the client with default cache
+const client = createClient({ url: "http://localhost:3000" });
 
----
+// Read from cache
+const data = client.cache.get("key");
 
-## Events
+// Write to cache
+client.cache.set("key", { data: "value" });
+```
 
-Available cache events.
+You can also customize the cache storage:
 
-(@import core getCacheEvents type=returns)
-
----
-
-## Storage
-
-By default, the cache uses Map as a data retention location. However, you can also choose where the data is stored in
-the system – i.e. local storage or IndexedDB – regardless if the source works synchronously or asynchronously. This
-allows you to set up persistent storage across sessions.
-
-```tsx
-export const client = new Client<{ error: ServerErrorType }>({
-  url: "localhost:3000",
-  cache: (instance) =>
-    new Cache(instance, {
-      storage,
-    }),
+```tsx title="Custom Cache Storage"
+const client = createClient({
+  url: "http://localhost:3000",
+  cache: (instance) => new Cache(instance, { storage: localStorage }),
 });
 ```
 
+<LinkCard
+  type="docs"
+  title="Client"
+  description="Learn how to configure the Client and its subsystems."
+  to="/docs/core/client"
+/>
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Understand how requests interact with the cache."
+  to="/docs/core/request"
+/>
+
 ---
 
-## Read Cache
+## Features
 
-The cache can be read using the `get` method. It returns the data stored under the given key.
+- **Key-based storage**: Data is stored and retrieved using unique cache keys, auto-generated from request details.
+- **Flexible storage**: Use in-memory, localStorage, IndexedDB, or any compatible storage interface.
+- **Event-driven**: Emits events on cache changes for real-time updates.
+- **Persistence**: Easily enable persistent cache across sessions.
+- **Fine-grained control**: Read, write, update, delete, and invalidate cache entries with simple methods.
+- **Integration**: Works seamlessly with the Client and Request systems.
+
+---
+
+## How Cache Works
+
+The cache stores data on a **key-value** basis. The key (usually `cacheKey`) is auto-generated from the request's
+method, endpoint, and query params, but you can override it for advanced scenarios.
 
 ```tsx
-const data = client.cache.get("key");
-
-// OR
-
 const getUsers = client.createRequest()({
   method: "GET",
   endpoint: "/users",
 });
 const data = client.cache.get(getUsers.cacheKey);
+```
 
-// OR
+You can also set a custom cache key:
 
+```tsx
 const getUsers = client.createRequest()({
   method: "GET",
   endpoint: "/users",
   cacheKey: "CUSTOM_CACHE_KEY",
 });
 const data = client.cache.get("CUSTOM_CACHE_KEY");
-const data = client.cache.get(getUsers.cacheKey);
+```
 
-// OR Dynamic
+---
 
+## Reading from Cache
+
+Use the `get` method to read data stored under a given key:
+
+```tsx
+const data = client.cache.get("key");
+```
+
+Or with a request instance:
+
+```tsx
 const getNote = client.createRequest()({
   method: "GET",
   endpoint: "/notes/:noteId",
@@ -100,13 +123,9 @@ const data = client.cache.get(getNote.setParams({ noteId: 1 }).cacheKey);
 
 ---
 
-## Write Cache
+## Writing to Cache
 
-The cache can be written using the `set` method. It stores the data under the given key. We MUST pass the whole request
-to the set method as it stores configuration related to cache time, garbage colletion, etc.
-
-`You can set everything you want, error states, extra data, etc.` The cache will take care of the rest and will emit all
-necessary events. This way our subsystems will receive it and will be able to react to it.
+Use the `set` method to store data under a given key. Pass the request instance to ensure correct configuration:
 
 ```tsx
 const getNote = client.createRequest()({
@@ -122,8 +141,7 @@ client.cache.set(getNote.setParams({ noteId: 1 }), {
   extra: xhrExtra,
 });
 
-// You can also use callback to read previous data
-
+// Or use a callback to update previous data
 client.cache.set(getNote.setParams({ noteId: 1 }), (prevData) => ({
   ...prevData,
   data: { text: "Hello World" },
@@ -132,23 +150,13 @@ client.cache.set(getNote.setParams({ noteId: 1 }), (prevData) => ({
 
 ---
 
-## Update Cache
+## Updating Cache
 
-We can update cache by using the `update` method. It updates the data under the given key. We pass the whole request to
-method in similar way as we did it with `set` method.
+Update existing cache entries with the `update` method. The cache will **not** update if the initial data is missing.
 
-:::info
-
-Cache will be **NOT** updated if the initial data is not present in the cache.
-
-:::
+:::info Cache will **NOT** update if the initial data is not present in the cache. :::
 
 ```tsx
-const getNote = client.createRequest()({
-  method: "GET",
-  endpoint: "/notes/:noteId",
-});
-
 client.cache.update(getNote.setParams({ noteId: 1 }), {
   data: { text: "Hello World" },
   error: null,
@@ -157,8 +165,7 @@ client.cache.update(getNote.setParams({ noteId: 1 }), {
   extra: xhrExtra,
 });
 
-// You can also use callback to read previous data
-
+// Or with a callback
 client.cache.update(getNote.setParams({ noteId: 1 }), (prevData) => ({
   ...prevData,
   data: { text: "Hello World" },
@@ -167,44 +174,28 @@ client.cache.update(getNote.setParams({ noteId: 1 }), (prevData) => ({
 
 ---
 
-## Delete Cache
+## Deleting from Cache
 
-To delete data from the cache, we can use the `delete` method. It deletes the data under the given key.
+Remove data from the cache using the `delete` method:
 
 ```tsx
-const getNote = client.createRequest()({
-  method: "GET",
-  endpoint: "/notes/:noteId",
-});
-
 client.cache.delete(getNote.setParams({ noteId: 1 }).cacheKey);
-
 // OR
-
 client.cache.delete("CUSTOM_CACHE_KEY");
 ```
 
 ---
 
-## Invalidate Cache
+## Invalidating Cache
 
-You can also invalidate the cache by using the `invalidate` method. It deletes the data under the given key and emits
-event, so **in case of using it with for example React, it will refetch the data**.
+Invalidate cache entries with the `invalidate` method. This deletes the data and emits an event, triggering refetches in
+UI frameworks like React.
 
 ```tsx
-const getNote = client.createRequest()({
-  method: "GET",
-  endpoint: "/notes/:noteId",
-});
-
 client.cache.invalidate(getNote.setParams({ noteId: 1 }).cacheKey);
-
 // OR
-
 client.cache.invalidate("CUSTOM_CACHE_KEY");
-
 // OR via RegExp
-
 client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
 ```
 
@@ -212,27 +203,63 @@ client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
 
 ## Persistence
 
-We can achieve the persistence of stored data by changing the cache storage to persistent. It must match the provided
-interface.
+Enable persistent cache by providing a compatible storage interface (e.g., localStorage, IndexedDB):
 
-#### [Read More](/guides/02-advanced/persistence.mdx)
+```tsx
+const client = createClient({
+  url: "http://localhost:3000",
+  cache: (instance) => new Cache(instance, { storage: localStorage }),
+});
+```
 
-:::info
+[Read more about persistence](/docs/guides/02-advanced/persistence.mdx)
 
-Currently there is no cross-tab synchronization. It's planned for a future release.
-
-:::
-
----
-
-## Lifecycle
-
-Cache options can be provided with some lifecycle methods. These are events such as `onInitialization`.
+:::info Currently, there is no cross-tab synchronization. This is planned for a future release. :::
 
 ---
 
-## Parameters
+## Events & Lifecycle
 
-Configuration options
+The cache emits events on changes, allowing you to react to updates in real time. See all available events:
+
+(@import core getCacheEvents type=returns)
+
+---
+
+## Configuration Options
+
+You can configure the cache with various options:
 
 (@import core CacheOptionsType type=returns)
+
+---
+
+## TypeScript
+
+The Cache system is fully typed and integrates with your Client and Request types. When using TypeScript, you get full
+type safety for cache operations, including data, error, and extra fields.
+
+```tsx
+const getUser = client.createRequest<{ response: { name: string } }>()({ endpoint: "/users/:id" });
+
+const data = client.cache.get(getUser.setParams({ id: 1 }).cacheKey);
+// data is fully typed as { name: string }
+```
+
+---
+
+## See Also
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="Central configuration and entry point for all requests."
+  to="/docs/core/client"
+/>
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="How requests interact with the cache and other subsystems."
+  to="/docs/core/request"
+/>

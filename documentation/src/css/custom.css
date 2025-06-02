@@ -862,10 +862,10 @@ main .col:not(.col--3) ol li {
 }
 
 main blockquote {
-  line-height: 1.5;
   @apply border-l-0 pl-0 mt-8;
 }
 .docs-wrapper main blockquote > p {
+  line-height: 1.7 !important;
   @apply font-medium italic text-xl bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
 }
 .docs-wrapper .dark main blockquote > p {
@@ -915,6 +915,10 @@ strong {
 
 strong {
   @apply font-bold;
+}
+
+.docs-wrapper h1 {
+  @apply !mb-0;
 }
 
 .docs-wrapper p {
@@ -1135,6 +1139,10 @@ pre code:has(.code-block-diff-remove-line) {
 }
 
 /* Blog */
+
+article {
+  @apply relative;
+}
 
 article .markdown p:first-of-type img {
   @apply bg-gradient-to-br from-transparent via-zinc-300/20 to-transparent rounded-3xl p-px mb-8;
