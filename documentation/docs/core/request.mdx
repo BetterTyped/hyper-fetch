@@ -856,3 +856,37 @@ errors early and build robust, maintainable data flows.
 Learn how to install and configure the plugin in the [Eslint plugin guide](/docs/integrations/plugin-eslint).
 
 :::
+
+---
+
+### Generics
+
+Starting from `Hyper Fetch v7.0.0`, all the types for the `Client` class and the `createRequest` method are passed as
+objects. This way, user can specify **only** what they want, in any order, in very a readable way.
+
+```ts
+const client = new Client<{ error: ErrorType }>({ url });
+
+const getUsers = client.createRequest<{ response: ResponseType; queryParams: QueryParamsType }>()({
+  endpoint: "/users",
+});
+```
+
+:::caution
+
+We firmly believe that it is more readable approach. Yet, it comes at a cost - currently, TypeScript does not handle
+well the autosuggestions and type inference for the extended object-like generics
+(https://github.com/microsoft/TypeScript/issues/28662). Fear not - the types are working correctly and we found a way to
+make it work with our own eslint plugin.
+
+For example, when writing a request, e.g.:
+
+```ts
+const postUser = client.createRequest<{ invalidGeneric: string }>()({ endpoint: "/" });
+```
+
+TypeScript will not throw an error if you use an invalid key like `invalidGeneric` that isn't part of our API. To catch
+these issues early, we recommend using our custom ESLint plugin. This approach combines the benefits of type safety and
+readability, while ensuring your code uses the correct API syntax.
+
+:::

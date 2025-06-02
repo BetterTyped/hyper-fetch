@@ -6,10 +6,6 @@ sidebar_label: Dispatcher
 
 [Read the API Reference »](/api/core/Classes/Dispatcher.mdx)
 
----
-
-## Introduction
-
 All requests in this library (except those triggered directly in the adapter) go to the `dispatcher` before being sent.
 The dispatcher handles request dispatch and manages retries, queueing, offline handling, canceling, deduplicating, and
 sending the received data to the cache.
