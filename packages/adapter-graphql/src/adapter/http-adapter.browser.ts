@@ -2,7 +2,7 @@ import { getResponseHeaders, parseResponse, getErrorMessage, Adapter, QueryParam
 
 import {
   gqlExtra,
-  GraphQLAdapterType,
+  GraphqlAdapterType,
   defaultTimeout,
   getRequestValues,
   GraphqlMethod,
@@ -11,7 +11,7 @@ import {
   gqlEndpointMapper,
 } from "adapter";
 
-export const getGqlAdapter = (): GraphQLAdapterType =>
+export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
     Partial<XMLHttpRequest>,
     GraphqlMethod,

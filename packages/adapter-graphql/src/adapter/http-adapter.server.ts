@@ -5,7 +5,7 @@ import https from "https";
 import {
   gqlExtra,
   defaultTimeout,
-  GraphQLAdapterType,
+  GraphqlAdapterType,
   getRequestValues,
   GraphQlExtraType,
   GraphqlMethod,
@@ -13,7 +13,7 @@ import {
   gqlEndpointMapper,
 } from "adapter";
 
-export const getGqlAdapter = (): GraphQLAdapterType =>
+export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
     Partial<XMLHttpRequest>,
     GraphqlMethod,

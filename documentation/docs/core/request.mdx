@@ -19,9 +19,11 @@ TypeScript, helps you catch errors early and build robust, maintainable data flo
 
 :::info Purpose
 
-1. You can define and reuse **consistent API request templates**.
-2. All requests and responses follow the same **structured format**.
-3. The Request class **holds instructions** on how requests should be sent, queued, retried, or cancelled.
+1. Requests role is to create **consistent API request templates**.
+2. All requests "templates" are **reusable** and share the data structure.
+3. They behave in the same way no matter what the adapter is, to improve reusability.
+4. Request class **holds instructions** on how requests should be sent, queued, retried, or cancelled.
+5. Responses are **typed** and **structured** to make it easy to work with the data.
 
 :::
 
@@ -184,7 +186,7 @@ const response = await postFile.setPayload(data).send();
   type="guides"
   title="Data Mapping Guide"
   description="Discover how to map and transform data effectively."
-  to="docs/guides/core/basic/data-mapping"
+  to="/docs/guides/core/basic/data-mapping"
 />
 
 ---
@@ -679,7 +681,7 @@ console.log(mappedResponse); // { displayName: "John" }
   type="guides"
   title="Response Mapping Guide"
   description="Discover how to map and transform data effectively."
-  to="docs/guides/core/basic/data-mapping"
+  to="/docs/guides/core/basic/data-mapping"
 />
 
 **Request mapping** provides hooks for custom transformations of payloads, requests, and responses. This allows for

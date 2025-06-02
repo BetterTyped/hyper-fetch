@@ -1,9 +1,9 @@
 import * as browser from "@browser-adapter";
 import * as server from "@server-adapter";
 
-import { GraphQLAdapterType } from "./adapter.types";
+import { GraphqlAdapterType } from "./adapter.types";
 
-export const GraphqlAdapter = (): GraphQLAdapterType => {
+export const GraphqlAdapter = (): GraphqlAdapterType => {
   if (typeof XMLHttpRequest !== "undefined") {
     return browser.getGqlAdapter();
   }

@@ -802,6 +802,9 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:h
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h2:first-child)::marker {
   @apply text-2xl;
 }
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h2:first-child {
+  @apply translate-y-[3px];
+}
 /* h3 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h3:first-child)::before {
   @apply absolute left-[-31px] top-[1px] w-[35px] h-[35px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
@@ -810,6 +813,10 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:h
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h3:first-child)::marker {
   @apply text-xl;
 }
+main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h3:first-child {
+  @apply translate-y-[2px];
+}
+
 /* h4 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h4:first-child)::before {
   @apply absolute left-[-27px] top-[0px] w-[30px] h-[30px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
@@ -855,6 +862,7 @@ main .col:not(.col--3) ol li {
 }
 
 main blockquote {
+  line-height: 1.5;
   @apply border-l-0 pl-0 mt-8;
 }
 .docs-wrapper main blockquote > p {

@@ -10,7 +10,7 @@ export type GraphQlExtraType = { headers: HeadersInit; extensions: Record<string
 
 export type GraphQlEndpointType = string | DocumentNode;
 
-export type GraphQLAdapterType = Adapter<
+export type GraphqlAdapterType = Adapter<
   Partial<XMLHttpRequest>,
   GraphqlMethod,
   number,

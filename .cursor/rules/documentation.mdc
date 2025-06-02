@@ -145,13 +145,10 @@ The documentation supports two primary ways to create links between pages:
 - Use standard markdown links for inline references within text
 - Keep link text descriptive and meaningful (avoid "click here" or "read more")
 - Consider adding a brief context about what the reader will find in the linked document
-- **Always include the file extension** - all links must end with `.md` or `.mdx` to maintain proper versioning and
-  navigation
 
 ### Link Path Requirements
 
-- All link paths must follow this pattern: `/documentation/docs/[path]/[filename].[md|mdx]`
-- **File extension is mandatory** - always include either `.md` or `.mdx` at the end of every link
+- All link paths must follow this pattern: `/documentation/docs/[path]/[filename]`
 - Never omit the file extension, as this can break documentation navigation and versioning
 - This applies to both standard Markdown links and LinkCard component paths
 

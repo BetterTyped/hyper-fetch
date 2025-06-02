@@ -4,82 +4,243 @@ title: Adapter
 sidebar_label: Adapter
 ---
 
-[Read the API Reference »](/api/core/Classes/Adapter.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Adapter.mdx)
+
+> The `Adapter` class is the backbone of Hyper Fetch's communication system. It abstracts the details of how requests
+> are executed, allowing you to swap between HTTP, GraphQL, Firebase, or any custom transport layer with ease. Adapters
+> are responsible for executing requests, mapping payloads and headers, handling query parameters, and integrating with
+> the request lifecycle—including progress tracking, cancellation, and error handling.
 
 ---
 
-:::info
+:::info Purpose
 
-`HyperFetch` ships with predefined adapters for the browser and node environments. You do not need to install any
-additional dependencies or event setting up the adapter. **It is ready to use out of the box, with zero configuration
-needed**.
-
-:::
-
-## Introduction
-
-**`Adapter`** is a function that is responsible for communication with the server. The default adapter is used to
-communicate with the REST server. However, there is nothing to prevent you from changing this and creating the adapter
-you need. Thanks to event communication, you can set your own adapter as you wish.
-
-By default, the adapter is responsible for requests, but its role is very significant for many other elements – such as
-tracking the progress of requests, listening for cancellation, and mapping payloads and headers. It also applies to all
-the interceptors in the requesting lifecycle.
-
-:::caution
-
-If there is no XHR in the window object or the XHR object is a polyfill in your environment, you’ll have to install the
-npm package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object. Otherwise we
-will use the node http module.
+1. **Handles the network communication** for all requests.
+2. Provides **hooks for mapping** headers, payloads, endpoints, and **query parameters**.
+3. Allows you to switch between HTTP, GraphQL, Firebase, and more by swapping adapters.
+4. Enables progress tracking, cancellation and error handling.
+5. **Allows** you to **override default behaviors** for advanced scenarios.
 
 :::
 
 ---
 
-## Preview
+## Initialization
 
-{/* (@import core adapter type=preview) */}
+By default, Hyper Fetch provides an HTTP adapter for both browser and Node environments. You can also create your own
+adapters to support other protocols or advanced use cases.
 
----
+```ts title="GraphQL Adapter"
+import { createClient } from "@hyper-fetch/core";
+// highlight-start
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
+// highlight-end
 
-## Purpose
-
-- Requests handler for client dispatchers
-- Provides flexibility via handler changeability
-
----
-
-### Header Mapper
-
-By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
-headers to the request. You can create much more advanced setups with the `setHeaderMapper`. It allows you to define
-custom logic that will be triggered before every request made in the client.
-
-### Payload Mapper
-
-The payload mapper's default responsibility is to check if data is an instance of FormData or not. Based on this, you
-can stringify non-FormData values or just pass the FormData to the request to be made. This allows file upload to be
-supported out of the box.
-
----
-
-### 3. Query Params
-
-Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
-`setQueryParamsConfig` method and the options listed below.
-
-(@import core QueryStringifyOptionsType type=returns)
-
-To change the encoding function, use the `setStringifyQueryParams` method.
-
-```tsx
-client.setStringifyQueryParams((value: string) => encode(value));
+const client = createClient({
+  url: "https://api.example.com",
+  // Change the adapter to GraphQL
+  // highlight-start
+  adapter: GraphqlAdapter(),
+  // highlight-end
+});
 ```
 
 ---
 
-## Related guides
+## Quick Start
 
-- [Custom adapter](/guides/02-advanced/custom-adapter.mdx)
+You can customize the adapter's behavior by using its configuration methods. For example, to set a custom header mapper:
+
+```ts
+client.adapter.setHeaderMapper((headers, config) => {
+  // Add custom logic for headers
+  return { ...headers, "X-Custom-Header": "value" };
+});
+```
+
+Or to change how payloads are processed:
+
+```ts
+client.adapter.setPayloadMapper((payload, config) => {
+  // Transform payload before sending
+  return JSON.stringify(payload);
+});
+```
 
 ---
+
+## Available Methods
+
+<ShowMore>
+
+(@import core Adapter type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed methods docs"
+  description="Check all available methods and their descriptions"
+  to="/docs/api/core/Classes/Adapter#methods"
+/>
+
+---
+
+## Features
+
+1. ### Header Mapper
+
+The header mapper determines how headers are set for each request. By default, it handles FormData and JSON content
+types automatically. You can override this logic for advanced scenarios.
+
+```ts
+client.adapter.setHeaderMapper((headers, config) => {
+  if (config.isAuth) {
+    return { ...headers, Authorization: `Bearer ${config.token}` };
+  }
+  return headers;
+});
+```
+
+---
+
+2. ### Payload Mapper
+
+The payload mapper transforms the request body before it is sent. By default, it handles FormData and JSON. You can
+provide your own logic for custom serialization or encryption.
+
+```ts
+client.adapter.setPayloadMapper((payload, config) => {
+  // Encrypt or transform payload
+  return encryptPayload(payload);
+});
+```
+
+---
+
+3. ### Query Params Mapper
+
+The query params mapper encodes query parameters for the request URL. You can customize the encoding or provide your own
+function.
+
+```ts
+client.adapter.setQueryParamsMapper((params, config) => {
+  // Custom query string encoding
+  return customStringify(params);
+});
+```
+
+You can also set configuration for the query params mapper:
+
+```ts
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "bracket" });
+```
+
+---
+
+4. ### Endpoint Mapper
+
+The endpoint mapper allows you to transform or format the endpoint before the request is sent. Useful for multi-tenant
+APIs or dynamic routing.
+
+```ts
+client.adapter.setEndpointMapper((endpoint, config) => {
+  return `/v2${endpoint}`;
+});
+```
+
+---
+
+5. ### Defaults
+
+Set **adapter default options** for all requests sent through this adapter:
+
+```ts
+// HTTP adapter options
+client.adapter.setAdapterDefaults((request) => ({
+  timeout: 5000,
+  withCredentials: true,
+}));
+```
+
+:::warning
+
+Each adapter has its own options. Check the API reference for the available options.
+
+:::
+
+---
+
+Set global defaults for **request configuration** (method, auth, deduplication, etc.).
+
+```ts
+client.adapter.setRequestDefaults((options) => ({ ...options, deduplicate: true }));
+```
+
+---
+
+6. ### HyperFetch internal error mapping
+
+Customize how Hyper Fetch internal errors are mapped and handled:
+
+```ts
+client.adapter.setInternalErrorMapping((error) => {
+  // Map or transform error
+  return { ...error, internal: true };
+});
+```
+
+---
+
+:::info Devtools Endpoint Getter
+
+Customize how endpoints of your adapter are displayed in devtools. It allows for nice formatting of the endpoint.
+
+```ts
+client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
+```
+
+:::
+
+---
+
+## TypeScript Generics
+
+When you create custom adapter, you need to specify the types for the requests templates. Each adapter may have
+different statuses, endpoints, params, additional data returned or required. With generic types you can handle specific
+cases to ensure absolute type-safety and flexibility across different protocols and use cases.
+
+```ts
+class Adapter<
+  AdapterOptions,
+  MethodType extends string,
+  StatusType extends number | string,
+  Extra extends Record<string, any>,
+  QueryParams = unknown,
+  // ...other generics
+> {
+  /* ... */
+}
+```
+
+Each option describe the type template for requests to be created within client using your adapter.
+
+Refer to the API reference for detailed type parameters and usage examples.
+
+<LinkCard
+  type="api"
+  title="Detailed Adapter API"
+  description="Explore all available methods, their parameters, and return values for the Adapter class."
+  to="/docs/api/core/Classes/Adapter"
+/>
+
+---
+
+## Related Guides & API Docs
+
+<LinkCard
+  type="guides"
+  title="Custom Adapter Guide"
+  description="Learn how to create your own adapter for Hyper Fetch."
+  to="/docs/guides/02-advanced/custom-adapter"
+/>
