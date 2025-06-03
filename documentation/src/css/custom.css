@@ -550,18 +550,19 @@ pre {
 
 .api-docs__table pre {
   overflow-x: auto !important;
-  @apply w-fit rounded-none !py-0 !px-2 !bg-[#232326] mb-0;
+  @apply w-fit rounded-none !py-0 !px-0 !bg-[#232326] mb-0;
 }
+
 .api-docs_table .codeBlock {
   @apply md:max-w-[300px] lg:max-w-[400px];
 }
 
 .api-docs__table pre code {
-  @apply !py-2 !px-1;
-  max-width: 250px;
+  @apply !py-2 !px-2;
+  max-width: 270px;
 }
 .api-docs__table pre * {
-  @apply text-[0.8rem];
+  @apply !text-[0.7rem];
 }
 
 /* Playground */
@@ -592,7 +593,7 @@ pre {
 .live-code-block-size-sm .api-playground__editor-wrapper,
 .live-code-block-size-sm .api-playground,
 .live-code-block-size-sm .api_playground_wrapper {
-  @apply min-h-[320px] max-h-[320px];
+  @apply min-h-[325px] max-h-[325px];
 }
 
 .api_playground_wrapper > svg {
@@ -613,7 +614,7 @@ pre {
 }
 
 .api-playground {
-  @apply h-full overflow-y-auto relative;
+  @apply h-full relative;
 }
 
 .api-playground__preview {
@@ -683,13 +684,24 @@ button.api-playground__more {
   @apply text-xs;
 }
 .api-playground__log-row {
-  @apply bg-zinc-800 border-t border-zinc-500/30;
+  @apply !bg-[#1f1f20] border-t border-zinc-500/30;
 }
 .api-playground__log-row:nth-child(2n + 1) {
-  @apply bg-[#2e2e2e];
+  @apply !bg-[#1e1e1f];
+}
+.api-playground__log-row:last-child {
+  @apply !border-b border-zinc-500/30;
 }
 .api-playground__log-row pre {
   @apply p-2 bg-transparent;
+}
+.api-playground__preview.api-playground__preview--log {
+  @apply !pb-0;
+}
+
+.api-playground__content {
+  max-height: calc(100% - 51px);
+  @apply overflow-y-auto rounded-b-md xl:rounded-b-none xl:rounded-br-md;
 }
 
 .api-playground__preview--log {
@@ -963,14 +975,15 @@ body .theme-code-block span {
   @apply text-sm;
 }
 
-.theme-code-block > div:first-child {
-  @apply text-zinc-400 text-[0.8rem] font-semibold border-zinc-400/10;
+.theme-code-block > div:first-child:not(:last-child) {
+  @apply flex items-center text-gray-400 justify-between;
+  @apply dark:bg-gradient-to-br dark:from-zinc-900 dark:to-zinc-800 dark:border-zinc-700 dark:text-zinc-100;
+  @apply !text-[rgba(255,255,255,0.7)] text-[0.9rem] font-semibold border-zinc-400/10;
   @apply relative text-zinc-300 hover:text-white;
-  @apply [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important];
   @apply before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1] transition-all duration-150 ease-in-out;
-  border: 0px 0px 1px 0px;
-  border-radius: 0px;
+  @apply rounded-none py-2;
 }
+
 .theme-code-block > div:first-child::before {
   @apply mr-2;
   content: "➥";
@@ -1011,7 +1024,7 @@ pre[class*="language-"] {
 }
 
 pre[class*="language-"] > code {
-  @apply bg-[#232326];
+  @apply bg-[#1c1c1d];
 }
 
 .code-block-diff-add-line {

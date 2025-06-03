@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useInsertionEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useInsertionEffect, useLayoutEffect, useMemo, useState } from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
@@ -172,7 +172,15 @@ const Content = memo(({ code, scope, isLog }: { code: string; scope: any; isLog:
   );
 });
 
-export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "playground" | "requests" }) => {
+export const Playground = ({
+  code,
+  defaultTab,
+  setOuterTab,
+}: {
+  code: string;
+  defaultTab?: "playground" | "requests";
+  setOuterTab: (tab: "playground" | "requests" | "console") => void;
+}) => {
   const { debounce } = useDebounce({
     delay: 200,
   });
@@ -207,6 +215,7 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
   }, [client]);
 
   const onTabChange = (value: "playground" | "requests") => {
+    setOuterTab(isLog && value === "playground" ? "console" : value);
     setTab(value);
     // Change to zero when switching to or out of console tab
     setUnreadLogs(0);
@@ -236,6 +245,10 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
     }
   }, [code]);
 
+  useLayoutEffect(() => {
+    setOuterTab(isLog && tab === "playground" ? "console" : tab);
+  }, []);
+
   return (
     <ToasterProvider>
       <Tabs
@@ -263,10 +276,18 @@ export const Playground = ({ code, defaultTab }: { code: string; defaultTab?: "p
           </TabsTrigger>
           <TabsTrigger value="requests">Requests</TabsTrigger>
         </TabsList>
-        <TabsContent value="playground" className="w-full data-[state=inactive]:hidden" forceMount>
+        <TabsContent
+          value="playground"
+          className="api-playground__content w-full data-[state=inactive]:hidden"
+          forceMount
+        >
           {stringifiedCode && <Content key={codeKey} code={stringifiedCode} scope={scope} isLog={isLog} />}
         </TabsContent>
-        <TabsContent value="requests" className="w-full data-[state=inactive]:hidden" forceMount>
+        <TabsContent
+          value="requests"
+          className="api-playground__content w-full data-[state=inactive]:hidden"
+          forceMount
+        >
           <ClientRequests key={codeKey} client={client} />
         </TabsContent>
       </Tabs>

@@ -21,11 +21,19 @@ export const LiveCodeBlock = ({
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
   const [isRunning, setIsRunning] = useState(false);
+  const [outerTab, setOuterTab] = useState<"playground" | "requests" | "console">("playground");
 
   const initialCode = useRef(code);
 
   const onCodeChange = (value: string) => {
     setCode(value);
+  };
+
+  const onReset = () => {
+    setKey((prev) => prev + 1);
+    setCode(initialCode.current);
+    setIsRunning(false);
+    setOuterTab("playground");
   };
 
   return (
@@ -43,18 +51,14 @@ export const LiveCodeBlock = ({
       <div className="api-playground__header">
         <div className="text-sm flex items-center gap-1">
           <FileCode className="w-4 h-4" />
-          <span className="text-[15px] font-semibold flex items-center gap-1 !text-transparent bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60">
-            {title || "Live results"}
-          </span>
+          <span className="!text-[rgba(255,255,255,0.7)] text-[0.9rem] font-semibold">{title || "Live results"}</span>
         </div>
         <div className="api-playground__controls">
           <button
             type="button"
             className="flex items-center gap-1 text-xs hover:underline focus:underline"
             onClick={() => {
-              setKey((prev) => prev + 1);
-              setCode(initialCode.current);
-              setIsRunning(false);
+              onReset();
             }}
           >
             <RotateCcw className="w-3 h-3" />
@@ -66,7 +70,10 @@ export const LiveCodeBlock = ({
         <Editor code={code} setCode={onCodeChange} />
         <div className="api_playground_wrapper relative">
           <DotPattern
-            className={cn("[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50")}
+            className={cn(
+              "[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50 transition-opacity duration-300",
+              outerTab === "console" && "opacity-0",
+            )}
           />
           {clickToRun && !isRunning ? (
             <div className="api-playground__run-example w-full flex items-center justify-center">
@@ -75,7 +82,7 @@ export const LiveCodeBlock = ({
               </ShinyButton>
             </div>
           ) : (
-            <Playground key={key} code={code} defaultTab={defaultTab} />
+            <Playground key={key} code={code} defaultTab={defaultTab} setOuterTab={setOuterTab} />
           )}
         </div>
       </div>

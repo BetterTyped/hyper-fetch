@@ -67,6 +67,16 @@ Here is a quick start guide to help you get started with Requests.
 
 There are two main methods to send a request with Hyper Fetch - `send(options)` and `exec(options)`.
 
+```mermaid
+    timeline
+        title Request Lifecycle
+          1. Pre-Request : Deduplication : Queueing : Interceptors
+          2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
+          3. Side Effects : onAbort() : onRemoved() : Stop() : Start()
+          4. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
+          5. Result : Interceptors : onSuccess() : onError() : onFinish()
+```
+
 1. #### `.send(options)`
 
 You can perform a request with the `send(options)` method. This is the most common way to send a request with Hyper

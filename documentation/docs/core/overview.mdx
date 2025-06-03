@@ -138,11 +138,11 @@ when a response begins, or when the process completes.
 ```mermaid
     timeline
         title Request Lifecycle
-          1. Pre-Request : Cache Reads : Deduplication : Queueing : Interceptors
+          1. Pre-Request : Deduplication : Queueing : Interceptors
           2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
-          3. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
-          4. Side Effects : onAbort() : onRemoved() : responseMapper()
-          5. Result : onSuccess() : onError() : onFinish()
+          3. Side Effects : onAbort() : onRemoved() : Stop() : Start()
+          4. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
+          5. Result : Interceptors : onSuccess() : onError() : onFinish()
 ```
 
 As a result, powerful features like integrated devtools, detailed analytics, and enhanced logging are readily available,

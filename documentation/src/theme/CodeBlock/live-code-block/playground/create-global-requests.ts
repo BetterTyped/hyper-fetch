@@ -15,6 +15,11 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
       .setMock(
         () => ({
           data: { name: "John Doe", age: 20 },
+          extra: {
+            headers: {
+              "x-custom-header": "custom-value",
+            },
+          },
           status: 200,
         }),
         {
@@ -35,6 +40,11 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
         () => ({
           data: {
             message: "File uploaded successfully",
+          },
+          extra: {
+            headers: {
+              "x-custom-header": "custom-value-2",
+            },
           },
           status: 200,
         }),
