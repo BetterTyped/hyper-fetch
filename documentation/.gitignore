@@ -3,13 +3,14 @@
 
 # Production
 /build
+/docs/api/*
+!/docs/api/getting-started/
+
+
 
 # Generated files
 .docusaurus
 .cache-loader
-.docgen
-docs/api/*
-
 
 # Misc
 .DS_Store
@@ -21,3 +22,4 @@ docs/api/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+

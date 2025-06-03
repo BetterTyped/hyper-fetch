@@ -1,4 +1,6 @@
-import { startServer, resetInterceptors, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useCache [ Helpers ]", () => {
   beforeAll(() => {
@@ -6,7 +8,7 @@ describe("useCache [ Helpers ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

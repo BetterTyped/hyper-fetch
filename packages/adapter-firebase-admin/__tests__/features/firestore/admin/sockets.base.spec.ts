@@ -5,7 +5,7 @@
 import { seedFirestoreDatabaseAdmin } from "../../../utils";
 import { firestoreDbAdmin } from "../../../utils/initialize.firestore.admin";
 import { socketsMethodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseSocketsAdminAdapter, firebaseAdminAdapter } from "adapter";
+import { FirebaseSocketsAdminAdapter, FirebaseAdminAdapter } from "adapter";
 
 describe("Firestore Admin [ Sockets ]", () => {
   beforeEach(async () => {
@@ -13,5 +13,5 @@ describe("Firestore Admin [ Sockets ]", () => {
     await seedFirestoreDatabaseAdmin(firestoreDbAdmin);
   });
 
-  socketsMethodsSharedTestCases(firebaseSocketsAdminAdapter(firestoreDbAdmin), firebaseAdminAdapter(firestoreDbAdmin));
+  socketsMethodsSharedTestCases(FirebaseSocketsAdminAdapter(firestoreDbAdmin), FirebaseAdminAdapter(firestoreDbAdmin));
 });

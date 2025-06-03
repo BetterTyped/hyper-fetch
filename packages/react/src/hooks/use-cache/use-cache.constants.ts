@@ -1,5 +1,5 @@
 export const useCacheDefaultOptions = {
   dependencyTracking: true,
-  initialData: null,
+  initialResponse: null,
   deepCompare: true,
 };

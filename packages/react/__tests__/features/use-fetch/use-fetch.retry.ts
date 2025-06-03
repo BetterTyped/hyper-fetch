@@ -1,4 +1,6 @@
-import { startServer, resetInterceptors, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useFetch [ Retry ]", () => {
   beforeAll(() => {
@@ -6,7 +8,7 @@ describe("useFetch [ Retry ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

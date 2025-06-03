@@ -1,16 +1,15 @@
-import { RequestInstance, HttpMethodsEnum } from "@hyper-fetch/core";
+import { RequestInstance, HttpMethods, stringifyQueryParams } from "@hyper-fetch/core";
+import { print } from "graphql/language/printer";
 
-export const getRequestValues = (request: RequestInstance) => {
-  const { method } = request;
+import { GraphQlEndpointType } from "adapter";
 
-  const isPostRequest = request.method === HttpMethodsEnum.post;
+export const getRequestValues = <R extends RequestInstance>(request: R) => {
+  const isPostRequest = request.method === HttpMethods.POST;
 
   const query = request.endpoint;
-  const variables = request.data;
+  const variables = request.payload;
 
-  const fullUrl = isPostRequest
-    ? request.client.url
-    : request.client.url + request.client.stringifyQueryParams({ query, variables });
+  const fullUrl = isPostRequest ? request.client.url : request.client.url + stringifyQueryParams({ query, variables });
 
   const payload = isPostRequest
     ? JSON.stringify({
@@ -19,5 +18,12 @@ export const getRequestValues = (request: RequestInstance) => {
       })
     : null;
 
-  return { fullUrl, payload, method };
+  return { fullUrl, payload };
+};
+
+export const gqlEndpointMapper = <E extends GraphQlEndpointType>(endpoint: E): string => {
+  if (typeof endpoint === "string") {
+    return endpoint;
+  }
+  return print(endpoint);
 };

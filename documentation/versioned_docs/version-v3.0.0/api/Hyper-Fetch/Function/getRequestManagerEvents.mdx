@@ -1,0 +1,87 @@
+# getRequestManagerEvents
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { getRequestManagerEvents } from "@hyper-fetch/core";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[managers/request/request.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.events.ts#L27)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+getRequestManagerEvents(emitter);
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="emitter"><td class="api-docs__param-name required">
+
+### emitter
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`EventEmitter`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  emitAbort: (abortKey: string, requestId: string, request: RequestInstance) => void;
+  emitDownloadProgress: (queueKey: string, requestId: string, values: ProgressType, details: RequestEventType<RequestInstance>) => void;
+  emitLoading: (queueKey: string, requestId: string, values: RequestLoadingEventType) => void;
+  emitRemove: (queueKey: string, requestId: string, details: RequestEventType<T>) => void;
+  emitRequestStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>) => void;
+  emitResponse: (cacheKey: string, requestId: string, response: ResponseReturnType<unknown, unknown, AdapterType>, details: ResponseDetailsType) => void;
+  emitResponseStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>) => void;
+  emitUploadProgress: (queueKey: string, requestId: string, values: ProgressType, details: RequestEventType<RequestInstance>) => void;
+  onAbort: (abortKey: string, callback: (request: RequestInstance) => void) => VoidFunction;
+  onAbortById: (requestId: string, callback: (request: RequestInstance) => void) => VoidFunction;
+  onDownloadProgress: (queueKey: string, callback: (values: ProgressType, details: RequestEventType<T>) => void) => VoidFunction;
+  onDownloadProgressById: (requestId: string, callback: (values: ProgressType, details: RequestEventType<T>) => void) => VoidFunction;
+  onLoading: (queueKey: string, callback: (values: RequestLoadingEventType) => void) => VoidFunction;
+  onLoadingById: (requestId: string, callback: (values: RequestLoadingEventType) => void) => VoidFunction;
+  onRemove: (queueKey: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onRemoveById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onRequestStart: (queueKey: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onRequestStartById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onResponse: (cacheKey: string, callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void) => VoidFunction;
+  onResponseById: (requestId: string, callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void) => VoidFunction;
+  onResponseStart: (queueKey: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onResponseStartById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
+  onUploadProgress: (queueKey: string, callback: (values: ProgressType, details: RequestEventType<T>) => void) => VoidFunction;
+  onUploadProgressById: (requestId: string, callback: (values: ProgressType, details: RequestEventType<T>) => void) => VoidFunction;
+}
+```
+
+</div>

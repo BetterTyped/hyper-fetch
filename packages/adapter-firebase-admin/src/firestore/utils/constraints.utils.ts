@@ -1,12 +1,9 @@
-import { CollectionReference } from "firebase-admin/lib/firestore";
+import { Query } from "firebase-admin/firestore";
 import { OrderByDirection } from "firebase/firestore";
 
 import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
-export const applyFireStoreAdminConstraint = (
-  collectionRef: CollectionReference,
-  { type, values }: FirestorePermittedMethods,
-) => {
+export const applyFireStoreAdminConstraint = (collectionRef: Query, { type, values }: FirestorePermittedMethods) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -14,7 +11,7 @@ export const applyFireStoreAdminConstraint = (
     }
     case FirestoreQueryConstraints.ORDER_BY: {
       const [field, ord] = values;
-      return collectionRef.orderBy(field, ord as OrderByDirection);
+      return collectionRef.orderBy(field!, ord as OrderByDirection);
     }
     case FirestoreQueryConstraints.LIMIT: {
       const [limitValue] = values;
@@ -41,10 +38,7 @@ export const applyFireStoreAdminConstraint = (
   }
 };
 
-export const applyFireStoreAdminConstraints = (
-  collectionRef: CollectionReference,
-  constraints: FirestorePermittedMethods[],
-) => {
+export const applyFireStoreAdminConstraints = (collectionRef: Query, constraints: FirestorePermittedMethods[]) => {
   return constraints.reduce((collection, constraint) => {
     return applyFireStoreAdminConstraint(collection, constraint);
   }, collectionRef);

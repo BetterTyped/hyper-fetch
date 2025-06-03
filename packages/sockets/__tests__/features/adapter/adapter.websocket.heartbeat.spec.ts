@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   adapterOptions: {
@@ -13,11 +13,13 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ Heartbeat ]", () => {
-  let server = createWsServer();
-  let socket = createSocket(socketOptions);
+  const { getServer, startServer } = createWebsocketMockingServer();
+  let socket: ReturnType<typeof createSocket>;
+  let server: ReturnType<typeof getServer>;
 
-  beforeEach(() => {
-    server = createWsServer();
+  beforeEach(async () => {
+    startServer();
+    server = getServer();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
   });
@@ -25,8 +27,7 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should send heartbeat to server", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
-        endpoint: "heartbeat",
+        topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
@@ -35,16 +36,14 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should receive heartbeat to keep the connection", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
-        endpoint: "heartbeat",
+        topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
-    server.send(JSON.stringify({ endpoint: "heartbeat", data: new Date().toISOString() }));
+    server.send(JSON.stringify({ topic: "heartbeat", data: new Date().toISOString() }));
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
-        endpoint: "heartbeat",
+        topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
@@ -52,13 +51,12 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should close connection when no heartbeat event sent", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
-        endpoint: "heartbeat",
+        topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
     await waitFor(() => {
-      expect(socket.adapter.open).toBeFalse();
+      expect(socket.adapter.connected).toBeFalse();
     });
   });
 });
