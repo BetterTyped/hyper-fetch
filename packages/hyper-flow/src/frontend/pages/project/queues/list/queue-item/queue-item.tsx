@@ -13,9 +13,9 @@ import { cn } from "frontend/lib/utils";
 
 export const Item = ({ queue }: { queue: QueueDataType }) => {
   const { project } = useDevtools();
-  const { detailsQueueKey, openDetails } = useQueueStore(
+  const { detailsQueryKey, openDetails } = useQueueStore(
     useShallow((state) => ({
-      detailsQueueKey: state.projects[project.name].detailsId,
+      detailsQueryKey: state.projects[project.name].detailsId,
       openDetails: state.openDetails,
     })),
   );
@@ -31,7 +31,7 @@ export const Item = ({ queue }: { queue: QueueDataType }) => {
   )[status];
 
   const total = queueStats?.totalRequests || 0;
-  const isActive = detailsQueueKey === queue.queryKey && !queue.stopped;
+  const isActive = detailsQueryKey === queue.queryKey && !queue.stopped;
   const color = getQueueStatusColor({ queue, active: isActive });
 
   return (

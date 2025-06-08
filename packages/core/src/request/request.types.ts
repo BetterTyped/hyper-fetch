@@ -60,7 +60,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   used: boolean;
   updatedAbortKey: boolean;
   updatedCacheKey: boolean;
-  updatedQueueKey: boolean;
+  updatedQueryKey: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
   isMockerEnabled: boolean;
@@ -175,7 +175,7 @@ export type RequestConfigurationType<
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
-  updatedQueueKey?: boolean;
+  updatedQueryKey?: boolean;
   updatedEffectKey?: boolean;
 } & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 

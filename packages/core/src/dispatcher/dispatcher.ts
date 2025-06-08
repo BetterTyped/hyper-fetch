@@ -3,14 +3,14 @@ import {
   getRequestType,
   canRetryRequest,
   getDispatcherEvents,
-  DispatcherRequestType,
+  DispatcherMode,
   DispatcherOptionsType,
   DispatcherStorageType,
   QueueItemType,
   RunningRequestValueType,
 } from "dispatcher";
 import { ClientInstance } from "client";
-import { EventEmitter, getUniqueRequestId } from "utils";
+import { EventEmitter } from "utils";
 import { ResponseDetailsType, LoggerMethods } from "managers";
 import { RequestInstance } from "request";
 import { getErrorMessage, RequestResponseType } from "adapter";
@@ -390,7 +390,7 @@ export class Dispatcher {
    */
   // eslint-disable-next-line class-methods-use-this
   createStorageItem = <Request extends RequestInstance>(request: Request) => {
-    const requestId = getUniqueRequestId(request.queryKey);
+    const requestId = this.client.unstable_requestIdMapper(request);
     const storageItem: QueueItemType<Request> = {
       requestId,
       timestamp: +new Date(),
@@ -426,13 +426,13 @@ export class Dispatcher {
     this.logger.debug({ title: "Adding request to queue", type: "system", extra: { requestType, request, requestId } });
 
     switch (requestType) {
-      case DispatcherRequestType.ONE_BY_ONE: {
+      case DispatcherMode.ONE_BY_ONE: {
         // Requests will go one by one
         this.addQueueItem(queryKey, storageItem);
         this.flushQueue(queryKey);
         return requestId;
       }
-      case DispatcherRequestType.PREVIOUS_CANCELED: {
+      case DispatcherMode.PREVIOUS_CANCELED: {
         // Cancel all previous on-going requests
         this.cancelRunningRequests(queryKey);
         this.clearQueue(queryKey);
@@ -440,7 +440,7 @@ export class Dispatcher {
         this.flushQueue(queryKey);
         return requestId;
       }
-      case DispatcherRequestType.DEDUPLICATED: {
+      case DispatcherMode.DEDUPLICATED: {
         this.client.requestManager.events.emitDeduplicated({
           request: latestRequest.request,
           requestId,

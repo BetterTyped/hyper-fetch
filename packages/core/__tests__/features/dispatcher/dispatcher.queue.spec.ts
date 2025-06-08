@@ -149,9 +149,9 @@ describe("Dispatcher [ Queue ]", () => {
 
       const spy = jest.spyOn(client.adapter, "fetch");
       client.appManager.setOnline(false);
-      dispatcher.add(request.setQueueKey("test1"));
-      dispatcher.add(request.setQueueKey("test2"));
-      dispatcher.add(request.setQueueKey("test3"));
+      dispatcher.add(request.setQueryKey("test1"));
+      dispatcher.add(request.setQueryKey("test2"));
+      dispatcher.add(request.setQueryKey("test3"));
 
       await sleep(5);
 

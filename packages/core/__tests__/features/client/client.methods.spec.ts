@@ -178,7 +178,7 @@ describe("Client [ Methods ]", () => {
       const callback = () => "";
       client.setAbortKeyMapper(callback);
       client.setCacheKeyMapper(callback);
-      client.setQueueKeyMapper(callback);
+      client.setQueryKeyMapper(callback);
 
       expect(client.unstable_abortKeyMapper).toEqual(callback);
       expect(client.unstable_cacheKeyMapper).toEqual(callback);

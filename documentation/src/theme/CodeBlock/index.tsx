@@ -26,8 +26,8 @@ export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const title = parseCodeBlockTitle(metastring);
 
   const size = useMemo(() => {
-    if (metastring?.includes("md")) return "md";
-    if (metastring?.includes("lg")) return "lg";
+    if (metastring?.includes("size=md")) return "md";
+    if (metastring?.includes("size=lg")) return "lg";
     return "sm";
   }, [metastring]);
 

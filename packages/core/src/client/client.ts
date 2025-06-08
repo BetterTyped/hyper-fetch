@@ -26,6 +26,7 @@ import {
   HydrationOptions,
   ExtractAdapterDefaultQueryParamsType,
 } from "types";
+import { getUniqueRequestId } from "utils";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -70,6 +71,9 @@ export class Client<
 
   /** @internal */
   unstable_queryKeyMapper: (request: RequestInstance) => string = getRequestKey;
+
+  /** @internal */
+  unstable_requestIdMapper: (request: RequestInstance) => string = getUniqueRequestId;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Client");
@@ -283,8 +287,12 @@ export class Client<
     this.unstable_cacheKeyMapper = callback;
     return this;
   };
-  setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setQueryKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_queryKeyMapper = callback;
+    return this;
+  };
+  setRequestIdMapper = (callback: (request: RequestInstance) => string) => {
+    this.unstable_requestIdMapper = callback;
     return this;
   };
 

@@ -4,88 +4,115 @@ title: Mocking
 sidebar_label: Mocking
 ---
 
-We have first class support for mocking requests. It is a feature that allows for stubbing/mocking the response for a
-given endpoint, **keeping the complete request lifecycle and events**. It is a great way to test your code in isolation,
-without relying on external services.
+[Read the API Reference »](/api/core/Classes/Request.mdx#setmock)
+
+Mocking is a built-in feature of [Request](/docs/core/Request). It is a feature that allows for mock the response for a
+given endpoint at the same time keeping the **complete request lifecycle** and events. Thanks to the design of the
+library, we can also micro-manage things like upload/download progresses, timings, trigger all kinds of errors for
+amazing developer experience. It is a great way to test your code in isolation, without relying on external services and
+keeping the **full type safety** of your code.
 
 ---
 
-## Initialization
+## How it works?
 
-You can mock the response via the `request.setMock` method:
+To add a mock to a request, we need to use the `setMock` method. It accepts a function that returns a mock response.
+With this simple concept you're able to introduce any mocking approach of your choice.
 
-```tsx
-const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });
+:::warning Reference change
+
+Method `setMock()` is the only method modifying the Request reference.
+
+This will allow us to mock every request in given group.
+
+:::
+
+```tsx live
+const getNotes = client.createRequest()({
+  endpoint: "/notes",
+});
+
+getNotes.setMock(({ request, requestId }) => {
+  return { data: { items: [{ text: "This is mocked note" }] } };
+});
+
+const response = await getNotes.send();
+console.log(response);
 ```
 
-This way, the `mockedRequest` will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`. The
-`setMock` method accepts an object with the following keys:
+## Options
 
-- `data` - data to be returned from request
-- `status` - Sets the response status. This can be a number or a string; the default is `**200**`.
-- `success` - Informs if the request should be successful or not; the default is `**true**`.
-- `config` - Sets additional parameters that tweak the mock even further.
+What you return from the mocker is used to generate the output and behavior of the mocker.
 
----
+### Response
 
-## Config
+The base API requires you to return the response for the mocked request. This part defines how our data will look like.
 
-The `setMock` method accepts the `config` object, which allows for tweaking our response.
+(@import core MockResponseType type=returns&display=table)
+
+### Config
+
+There is also additional config which can specify behavioral aspect of the mocker. How long it should be processed,
+should it throw timeout error or how much of a data we want to mock for the transfer updates.
+
+(@import core MockerConfigType type=returns&display=table)
 
 ```tsx
 const request = client
   .createRequest()({ endpoint: "shared-base-endpoint" })
   .setMock({
+    // Data part
     data: { mocking: "is fun" },
     status: 200,
-    config: {
-      requestTime: 40,
-      responseTime: 60,
-      totalUploaded: 1000,
-      totalDownloaded: 1000,
-    },
+    // Config part
+    requestTime: 40,
+    responseTime: 60,
+    totalUploaded: 1000,
+    totalDownloaded: 1000,
   });
 ```
 
-- `timeout` - **boolean** - informs whether it should return a timeout error.
-- `requestTime` - Simulates how long the request to the server should take (in milliseconds).
-- `responseTime` - Indicates how long the response from the server should take (in milliseconds). If their combined
-  total takes longer than provided timeout, each value will be automatically adjusted to last half of the timeout time.
-- `totalUploaded` - total number of 'kilobytes' to be uploaded.
-- `totalDownloaded` - total number of 'kilobytes' to be downloaded.
-
-In the example above - the request phase will take 40 milliseconds and during this phase 1000 'kilobytes' will be
-uploaded (and `onUploadProgress` events will be emitted). The response phase will take 60 millisecond and during this
-phase 1000 'kilobytes' will be downloaded (and `onDownloadProgress` events will be emitted). The word `kilobytes` is
-written in quotation marks as no real data exchange occurs - it is simply to mock events and allow for data stream
-mocking.
+In the example above - the request phase will take 40 milliseconds and during this phase 1000 'bytes' will be "uploaded"
+(and `onUploadProgress` events will be emitted). The response phase will take 60 millisecond and during this phase 1000
+'bytes' will be "downloaded" (and `onDownloadProgress` events will be emitted). In fact no data-exchange occurs, but we
+will make sure to simulate it for you.
 
 ## Usage and use cases
 
-The mocker can be used in a few ways.
+#### Request context
 
-1. It can accept an object:
+{/* Getting the (request) => */}
 
-```tsx
-const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } }); // Always returns data: { test: 1, array: [200, 300, 404]
+#### Aborting
+
+#### Timeout
+
+You can simulate timeout error by setting `timeout` to `true` in the config.
+
+```tsx live
+const request = client.createRequest()({
+  endpoint: "shared-base-endpoint",
+});
+
+request.setMock(() => {
+  return {
+    data: { mocking: "is fun" },
+    status: 200,
+    // Response will take 100ms to be processed
+    responseTime: 100,
+    // Timeout error will be thrown after 50ms
+    timeout: true,
+  };
+});
+
+const response = await request.send();
+console.log(response);
 ```
 
-2. It can accept an array of values. In this case, values will be iterated over cyclically and applied each time a
-   request is executed:
+#### Request context
 
-```tsx
-request.setMock([
-  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } },
-  { data: { data: [1, 2, 3] }, config: { status: 200 } },
-]);
-
-await request.send(); // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
-await request.send(); // returns  { data: { data: [1, 2, 3] }, config: { status: 200 } }
-await request.send(); // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
-```
-
-3. It also accepts methods that have access to the `request` itself. This allows for dynamic mocking, dependent on the
-   passed arguments during execution:
+The mocker is now used by passing a callback function to `setMock`. This function receives the request context and
+returns the mock response. This allows for dynamic mocking, dependent on the passed arguments during execution.
 
 ```tsx
 const mockedRequest = client
@@ -99,7 +126,7 @@ const mockedRequest = client
   });
 ```
 
-4. The passed method may be asynchronous:
+The passed method may also be asynchronous:
 
 ```tsx
 const mockedRequest = client
@@ -112,8 +139,8 @@ const mockedRequest = client
   });
 ```
 
-You can also pass a list of functions; the mocker will cycle over them and execute the correct one each time a request
-is executed.
+> **Note:** Only the callback function form is supported. Passing objects, arrays, or lists of functions is no longer
+> available.
 
 ## Removal
 

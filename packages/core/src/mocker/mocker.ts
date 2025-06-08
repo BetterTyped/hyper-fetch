@@ -29,7 +29,7 @@ export const mocker = async <T extends AdapterInstance>({
     responseTime = 20,
     totalUploaded = 1,
     totalDownloaded = 1,
-    timeout = false,
+    timeout,
   } = request.unstable_mock.config;
   const result = await request.unstable_mock.fn({ request, requestId });
 
@@ -117,14 +117,14 @@ export const mocker = async <T extends AdapterInstance>({
     }
   };
 
-  if (timeout) {
+  if (typeof timeout === "number") {
     setTimeout(
       () =>
         onTimeoutError({
           status: 0 as ExtractAdapterStatusType<T>,
           extra: extra as ExtractAdapterExtraType<T>,
         }),
-      1,
+      timeout,
     );
   } else {
     await getResponse();

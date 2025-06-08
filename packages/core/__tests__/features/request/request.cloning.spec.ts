@@ -30,14 +30,14 @@ describe("Request [ Cloning ]", () => {
       expect(clone.cacheKey).not.toBe(request.cacheKey);
     });
     it("should not generate new keys when we set custom ones", async () => {
-      const clone = request.setAbortKey("test").setCacheKey("test").setQueueKey("test").clone().clone();
+      const clone = request.setAbortKey("test").setCacheKey("test").setQueryKey("test").clone().clone();
 
       expect(clone.abortKey).toBe("test");
       expect(clone.queryKey).toBe("test");
       expect(clone.cacheKey).toBe("test");
     });
     it("should not generate new keys when we set custom ones", async () => {
-      const clone = request.setAbortKey("test").setCacheKey("test").setQueueKey("test").clone().clone();
+      const clone = request.setAbortKey("test").setCacheKey("test").setQueryKey("test").clone().clone();
 
       expect(clone.abortKey).toBe("test");
       expect(clone.queryKey).toBe("test");

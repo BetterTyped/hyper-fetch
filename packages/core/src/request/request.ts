@@ -15,7 +15,6 @@ import {
   ExtractRouteParams,
 } from "request";
 import { ClientInstance, RequestGenericType } from "client";
-import { getUniqueRequestId } from "utils";
 import { ResponseType } from "adapter";
 import {
   ExtractAdapterType,
@@ -104,7 +103,7 @@ export class Request<
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
-  private updatedQueueKey: boolean;
+  private updatedQueryKey: boolean;
 
   constructor(
     readonly client: Client,
@@ -180,7 +179,7 @@ export class Request<
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
-    this.updatedQueueKey = initialRequestConfiguration?.updatedQueueKey ?? false;
+    this.updatedQueryKey = initialRequestConfiguration?.updatedQueryKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -277,8 +276,8 @@ export class Request<
     return this.clone({ cacheKey });
   };
 
-  public setQueueKey = (queryKey: string) => {
-    this.updatedQueueKey = true;
+  public setQueryKey = (queryKey: string) => {
+    this.updatedQueryKey = true;
     return this.clone({ queryKey });
   };
 
@@ -423,7 +422,7 @@ export class Request<
       disableRequestInterceptors: this.requestOptions.disableRequestInterceptors,
       updatedAbortKey: this.updatedAbortKey,
       updatedCacheKey: this.updatedCacheKey,
-      updatedQueueKey: this.updatedQueueKey,
+      updatedQueryKey: this.updatedQueryKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
       isMockerEnabled: this.isMockerEnabled,
@@ -459,7 +458,7 @@ export class Request<
       options: configuration?.options || this.options,
       abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
-      queryKey: this.updatedQueueKey ? configuration?.queryKey || this.queryKey : undefined,
+      queryKey: this.updatedQueryKey ? configuration?.queryKey || this.queryKey : undefined,
       endpoint: this.paramsMapper(configuration?.params || this.params),
       queryParams: configuration?.queryParams || this.queryParams,
       payload: configuration?.payload || this.payload,
@@ -593,7 +592,7 @@ export class Request<
     const { adapter, requestManager } = this.client;
     const request = this.clone(options);
 
-    const requestId = getUniqueRequestId(this.queryKey);
+    const requestId = this.client.unstable_requestIdMapper(this);
 
     // Listen for aborting
     requestManager.addAbortController(this.abortKey, requestId);

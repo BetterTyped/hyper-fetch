@@ -141,7 +141,7 @@ const data = getUsers.read();
 ## Cache Key
 
 The `cacheKey` is a unique identifier for the cache entry. By default it is auto-generated from the request's endpoint,
-url params and query params, but you can override it with custom key or even generic generator function.
+url params and query params but you can still add the key manually when setting the Request or generic generator.
 
 ```tsx
 const getUser = client.createRequest()({
@@ -152,11 +152,11 @@ const getUser = client.createRequest()({
 // highlight-start
 const cacheKey = getUser.cacheKey; // "/users/:userId"
 const cacheKeyWithParams = getUser.setParams({ userId: 1 }).cacheKey; // "/users/1"
-const cacheKeyWithQueryParams = getUser.setQueryParams({ page: 1 }).cacheKey; // "/users?page=1"
+const cacheKeyWithQueryParams = getUser.setQueryParams({ page: 1 }).cacheKey; // "/users/:userId?page=1"
 // highlight-end
 ```
 
-### Custom cache key
+### Custom cacheKey
 
 You can also set a custom cache key:
 
@@ -174,7 +174,7 @@ console.log(getUser.cacheKey); // "CUSTOM_CACHE_KEY"
 // highlight-end
 ```
 
-### Generic cache key
+### Generic cacheKey
 
 You can also set a generic cache key:
 
@@ -248,7 +248,7 @@ client.cache.set(getNote.setParams({ noteId: 1 }), {
 
 ---
 
-1. ### Updating Cache
+3. ### Updating Cache
 
 Update existing cache entries with the `update` method. The cache will **not** update if the initial data is missing.
 
@@ -276,7 +276,7 @@ client.cache.update(getNote.setParams({ noteId: 1 }), (prevData) => ({
 
 ---
 
-3. ### Deleting from Cache
+4. ### Deleting from Cache
 
 Remove data from the cache using the `delete` method:
 
@@ -288,7 +288,7 @@ client.cache.delete("CUSTOM_CACHE_KEY");
 
 ---
 
-4. ### Invalidating Cache
+5. ### Invalidating Cache
 
 Invalidate cache entries with the `invalidate` method. This sets the `staleTime` to 0, so the next request will refetch
 the data. It also emits an event, triggering refetching in dedicated frameworks integrations like for example in React.

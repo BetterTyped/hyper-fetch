@@ -55,7 +55,7 @@ organize data with your own key mappers.
 Note: Keys must be a string value.
 
 ```ts
-client.setQueueKeyMapper((request) => `Custom_Key_${request.method}_${request.endpoint}`);
+client.setQueryKeyMapper((request) => `Custom_Key_${request.method}_${request.endpoint}`);
 client.setAbortKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);
 client.setCacheKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);
 client.setEffectKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);

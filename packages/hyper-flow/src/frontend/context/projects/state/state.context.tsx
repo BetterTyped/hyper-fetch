@@ -119,7 +119,7 @@ export type ProjectState = {
   processingSearchTerm: string;
   processingSort: Sort | null;
   queues: QueueDataType[];
-  detailsQueueKey: string | null;
+  detailsQueryKey: string | null;
   stats: {
     // TODO: change to methodAndEndpoint
     [queryKey: string]: DevtoolsRequestQueueStats;
@@ -225,7 +225,7 @@ export const initialProjectState: ProjectState = {
   processingSearchTerm: "",
   processingSort: null,
   queues: [],
-  detailsQueueKey: null,
+  detailsQueryKey: null,
   stats: {},
 };
 
