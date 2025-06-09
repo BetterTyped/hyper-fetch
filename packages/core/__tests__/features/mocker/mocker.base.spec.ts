@@ -21,7 +21,7 @@ describe("Mocker [ Base ]", () => {
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
-  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
   beforeAll(() => {
     startServer();
@@ -32,7 +32,7 @@ describe("Mocker [ Base ]", () => {
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
-    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
     jest.resetAllMocks();
   });
@@ -408,10 +408,10 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 }));
     const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
     expect(mockedRequest.isMockerEnabled).toBe(true);
-    mockedRequest.setEnableMocking(false);
+    mockedRequest.setMockingEnabled(false);
     expect(mockedRequest.isMockerEnabled).toBe(false);
     const notMockedData = await mockedRequest.send({});
-    mockedRequest.setEnableMocking(true);
+    mockedRequest.setMockingEnabled(true);
     const mockedData = await mockedRequest.send({});
 
     expect(notMockedData).toStrictEqual({

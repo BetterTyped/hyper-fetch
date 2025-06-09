@@ -1,5 +1,5 @@
 import React from "react";
-import { createClient } from "@hyper-fetch/core";
+import { createClient, Request } from "@hyper-fetch/core";
 import { useFetch, useSubmit } from "@hyper-fetch/react";
 import { Highlight, themes } from "prism-react-renderer";
 import { Terminal, AppWindowMac } from "lucide-react";
@@ -12,6 +12,7 @@ export const globalScope = {
   React,
   ...React,
   createClient,
+  Request,
   useFetch,
   useSubmit,
   Highlight,

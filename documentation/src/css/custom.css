@@ -1080,7 +1080,7 @@ pre code:has(.code-block-diff-remove-line) {
 }
 
 .alert {
-  @apply relative px-6 md:px-8 py-8 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
+  @apply relative px-6 md:px-8 py-8 rounded-2xl mt-6 border-0;
 }
 .alert::before {
   background-image: url("/img/noise.webp");
@@ -1095,10 +1095,30 @@ pre code:has(.code-block-diff-remove-line) {
 }
 .alert > div:first-child {
   line-height: 1.9;
-  @apply mb-3 text-2xl capitalize font-extrabold flex items-center;
+  @apply mb-3 text-2xl capitalize font-extrabold flex items-center gap-2;
 }
 .alert > div:first-child svg {
-  @apply -mt-1;
+  @apply -mt-1 -mr-2 w-8 h-8;
+}
+.alert > div:last-child > ul,
+.alert > div:last-child > ol {
+  @apply -ml-1;
+}
+.alert > div:last-child > p {
+  @apply px-2;
+}
+
+.alert--learn {
+  @apply bg-zinc-200 dark:bg-zinc-600/50 text-[#ebecf0] !border-zinc-500;
+}
+.alert--learn > div:first-child {
+  @apply text-[#f6f7f9];
+}
+.alert--learn > div:first-child svg {
+  @apply stroke-[#f6f7f9] fill-transparent;
+}
+.alert--learn > div:last-child {
+  @apply text-white text-opacity-80;
 }
 
 .alert--secondary {
@@ -1108,7 +1128,13 @@ pre code:has(.code-block-diff-remove-line) {
   @apply text-teal-600 dark:text-teal-500;
 }
 .alert--secondary > div:first-child svg {
-  @apply fill-teal-600 dark:fill-teal-500;
+  @apply stroke-teal-600 dark:stroke-teal-500 fill-transparent;
+}
+.alert--secondary > div:last-child {
+  @apply text-teal-50 text-opacity-80;
+}
+.alert--secondary > div:last-child a {
+  @apply text-teal-400 decoration-teal-400 text-opacity-80;
 }
 
 .alert--success {
@@ -1118,7 +1144,13 @@ pre code:has(.code-block-diff-remove-line) {
   @apply text-green-600 dark:text-green-400;
 }
 .alert--success > div:first-child svg {
-  @apply fill-green-600 dark:fill-green-400;
+  @apply stroke-green-600 dark:stroke-green-400 fill-transparent;
+}
+.alert--success > div:last-child {
+  @apply text-green-50 text-opacity-80;
+}
+.alert--success > div:last-child a {
+  @apply text-green-400 decoration-green-400 text-opacity-80;
 }
 
 .alert--info {
@@ -1128,7 +1160,13 @@ pre code:has(.code-block-diff-remove-line) {
   @apply text-blue-600 dark:text-blue-500;
 }
 .alert--info > div:first-child svg {
-  @apply fill-blue-600 dark:fill-blue-500;
+  @apply stroke-blue-600 dark:stroke-blue-500 fill-transparent;
+}
+.alert--info > div:last-child {
+  @apply text-blue-50 text-opacity-80;
+}
+.alert--info > div:last-child a {
+  @apply text-blue-400 decoration-blue-400 text-opacity-80;
 }
 
 .alert--warning {
@@ -1138,7 +1176,29 @@ pre code:has(.code-block-diff-remove-line) {
   @apply text-yellow-600 dark:text-yellow-400;
 }
 .alert--warning > div:first-child svg {
-  @apply fill-yellow-600 dark:fill-yellow-400;
+  @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
+}
+.alert--warning > div:last-child {
+  @apply text-yellow-50 text-opacity-70;
+}
+.alert--warning > div:last-child a {
+  @apply text-yellow-400 decoration-yellow-400 text-opacity-80;
+}
+
+.alert--caution {
+  @apply bg-yellow-400 dark:bg-yellow-700 bg-opacity-40 dark:bg-opacity-40;
+}
+.alert--caution > div:first-child {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+.alert--caution > div:first-child svg {
+  @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
+}
+.alert--caution > div:last-child {
+  @apply text-yellow-50 text-opacity-80;
+}
+.alert--caution > div:last-child a {
+  @apply text-yellow-400 decoration-yellow-400 text-opacity-80;
 }
 
 .alert--danger {
@@ -1148,7 +1208,13 @@ pre code:has(.code-block-diff-remove-line) {
   @apply text-red-600 dark:text-red-300;
 }
 .alert--danger > div:first-child svg {
-  @apply fill-red-600 dark:fill-red-300;
+  @apply stroke-red-600 dark:stroke-red-300 fill-transparent;
+}
+.alert--danger > div:last-child {
+  @apply text-red-50 text-opacity-80;
+}
+.alert--danger > div:last-child a {
+  @apply text-red-400 decoration-red-400 text-opacity-80;
 }
 
 /* Blog */

@@ -1,11 +1,10 @@
 import { AdapterInstance, ResponseType } from "adapter";
-import { SyncOrAsync } from "types";
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type MockerConfigType = {
-  /** Informs how long the timeout error should be thrown after (in milliseconds) */
-  timeout?: number;
+  /** Informs whether it should return a timeout error */
+  timeout?: boolean;
   /** Simulates how long the request to the server should take (in milliseconds) */
   requestTime?: number;
   /** Indicates how long the response from the server should take (in milliseconds).
@@ -18,19 +17,17 @@ export type MockerConfigType = {
   totalDownloaded?: number;
 };
 
-export type MockResponseType<Response, Error, AdapterType extends AdapterInstance> = SyncOrAsync<
-  PartialBy<
-    Omit<ResponseType<Response, Error, AdapterType>, "data" | "error" | "responseTimestamp" | "requestTimestamp">,
-    "extra" | "success"
-  > &
-    (
-      | {
-          data: Response;
-          error?: Error;
-        }
-      | {
-          data?: Response;
-          error: Error;
-        }
-    )
->;
+export type MockResponseType<Response, Error, AdapterType extends AdapterInstance> = PartialBy<
+  Omit<ResponseType<Response, Error, AdapterType>, "data" | "error" | "responseTimestamp" | "requestTimestamp">,
+  "extra" | "success"
+> &
+  (
+    | {
+        data: Response;
+        error?: Error;
+      }
+    | {
+        data?: Response;
+        error: Error;
+      }
+  );

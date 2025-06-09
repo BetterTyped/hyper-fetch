@@ -4,7 +4,13 @@ title: Managers
 sidebar_label: Managers
 ---
 
-The library contains several managers, they are mainly used to support smaller subsystems and features.
+**Managers** are core subsystems in Hyper Fetch that handle essential app-wide concerns—like network status, request
+lifecycle, and logging. They provide powerful, centralized APIs for managing state, events, and behaviors across your
+application, making advanced features like offline support, cancellation, and debugging easy to implement and maintain
+in other environments like React, Node.js, etc.
+
+The library contains several managers, each supporting a specific subsystem or feature. Understanding these managers
+helps you unlock advanced capabilities and build robust, maintainable applications.
 
 ---
 
@@ -12,33 +18,57 @@ The library contains several managers, they are mainly used to support smaller s
 
 [Read the API Reference »](/api/core/Classes/AppManager.mdx)
 
-<br />
+The **AppManager** detects and manages your application's online/offline state, tracks window focus and blur events, and
+allows integration with custom event sources (such as React Native or Electron). It provides unmount callbacks for easy
+cleanup, making it simple to handle app-wide lifecycle events in any environment.
 
-This class is responsible for the application’s `online` or `offline` state and whether the application window is
-`focused` or `blurred`.
+:::tip Purpose
 
-For example, suppose you want to use Hyper Fetch in a React Native environment and the default web browser events won't
-work. In that case, you need to set the events that are most optimal for the current environment.
-
-:::info
-
-Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+1. Track **online/offline** status of the app
+2. Detect **window focus** and **blur** events
+3. **Allow custom event** sources for different environments
 
 :::
 
-```tsx
-const unmountFocusListener = client.requestManager.events.onFocus(console.log);
-const unmountOfflineListener = client.requestManager.events.onOffline(console.log);
+```tsx title="Listening to App Events"
+// highlight-start
+const unmountFocusListener = client.appManager.events.onFocus(() => {
+  console.log("App is focused!");
+});
+const unmountOfflineListener = client.appManager.events.onOffline(() => {
+  console.log("App is offline!");
+});
+// highlight-end
 
-...
+// ... later, to clean up:
+unmountFocusListener();
+unmountOfflineListener();
+```
 
-unmountFocusListener()
-unmountOfflineListener()
+:::info
+
+Hyper Fetch event listeners always return unmounting callbacks for easier cleanup handling.
+
+:::
+
+#### Customizing Events
+
+If you're using a non-browser environment (like React Native), you can set custom event handlers:
+
+```ts
+client.appManager.setFocusEvents({
+  onFocus: myCustomFocusHandler,
+  onBlur: myCustomBlurHandler,
+});
 ```
 
 ### Events
 
+<ShowMore>
+
 (@import core getAppManagerEvents type=returns)
+
+</ShowMore>
 
 ---
 
@@ -46,42 +76,65 @@ unmountOfflineListener()
 
 [Read the API Reference »](/api/core/Classes/RequestManager.mdx)
 
-<br />
+The **RequestManager** manages cancellation tokens for requests, emits events throughout the request lifecycle
+(including start, upload, download, response, and abort), and supports aborting requests by requestId or custom
+abortKey. It enables granular progress tracking and advanced cancellation scenarios for robust request handling.
 
-The `RequestManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
-events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
+:::tip Purpose
 
-:::info
-
-Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+1. Manage cancellation tokens for requests
+2. Emit events for request lifecycle (start, upload, download, response, abort)
+3. Support aborting by requestId or abortKey
 
 :::
 
-```tsx
+```tsx title="Tracking Upload/Download Progress"
+// highlight-start
+const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, (progress) => {
+  console.log("Upload progress:", progress);
+});
+const unmountDownloadListener = client.requestManager.events.onDownloadProgressById(requestId, (progress) => {
+  console.log("Download progress:", progress);
+});
+// highlight-end
 
-const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, console.log);
-const unmountDownloadListener = client.requestManager.events.onDownloadProgressById(requestId, console.log);
-
-...
-
-unmountUploadListener()
-unmountDownloadListener()
+// ... later, to clean up:
+unmountUploadListener();
+unmountDownloadListener();
 ```
 
-### AbortKey
+:::info
 
-Every request added to the dispatcher creates an abort controller for itself. This controller is stored in the Map
-object under abort key with the `requestId`. This lets you abort whole groups of requests using `abortKey` or single
-requests using their `requestId`. By default, `abortKey` is automatically created on request out of its endpoint and
-method, but you can set custom values.
+You can abort requests by their `requestId` or by a custom `abortKey` to cancel groups of requests at once.
+
+:::
+
+#### AbortKey
+
+Every request added to the dispatcher creates an abort controller, stored in a Map under its abort key (usually the
+`requestId`). This lets you abort single requests or groups of requests easily.
+
+```ts
+// Abort a single request
+client.requestManager.abort(requestId);
+
+// Abort a group of requests
+client.requestManager.abortByKey("my-abort-key");
+// OR
+client.requestManager.abortByKey(request.abortKey);
+```
 
 ### Events
 
+<ShowMore>
+
 (@import core getRequestManagerEvents type=returns)
+
+</ShowMore>
 
 ```ts
 client.requestManager.events.onResponse((response, details) => {
-  // ...
+  // Handle response
 });
 ```
 
@@ -91,14 +144,66 @@ client.requestManager.events.onResponse((response, details) => {
 
 [Read the API Reference »](/api/core/Classes/LoggerManager.mdx)
 
-<br />
+The **LoggerManager** centralizes logging for all subsystems, enables creation of custom loggers for different modules
+or features, and ensures consistent logging by inheriting parent configuration. It offers flexible log levels and output
+formatting to keep logs organized and actionable.
 
-LoggerManager is the main instance of the Hyper Fetch logging system. You can initiate single loggers based on it in
-subsystems; this allows you to isolate these loggers but still give them access to the parent configuration in the
-Client.
+:::tip Purpose
 
-```ts
-const logger = client.loggerManager.init("My Module")
+1. Centralize logging for all subsystems
+2. Enable creation of custom loggers for modules/features
+3. Inherit parent configuration for consistent logging
 
-logger.error(...) // output in console => [My Module] Some message
+:::
+
+```ts title="Custom Logger Example"
+// highlight-start
+const logger = client.loggerManager.init("My Module");
+logger.error("Something went wrong!"); // Output: [My Module] Something went wrong!
+// highlight-end
 ```
+
+---
+
+:::info Best Practices
+
+- Always clean up event listeners using the returned unmount callbacks to avoid memory leaks.
+- Use custom abort keys for advanced cancellation scenarios (e.g., aborting all requests for a specific feature).
+- Leverage custom loggers to keep logs organized and actionable.
+
+:::
+
+---
+
+## See Also
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="The central hub for configuration and manager access."
+  to="/documentation/docs/core/client.mdx"
+/>
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn how requests interact with managers."
+  to="/documentation/docs/core/request.mdx"
+/>
+<LinkCard
+  type="api"
+  title="API Reference: Managers"
+  description="Autogenerated API documentation for Manager classes."
+  to="/documentation/docs/api/core/Classes/Manager.mdx"
+/>
+<LinkCard
+  type="guides"
+  title="Advanced Cancellation"
+  description="Guide to advanced request cancellation techniques."
+  to="/documentation/docs/guides/core/advanced/cancellation.mdx"
+/>
+<LinkCard
+  type="guides"
+  title="Logging"
+  description="Guide to advanced logging strategies."
+  to="/documentation/docs/guides/core/advanced/logging.mdx"
+/>

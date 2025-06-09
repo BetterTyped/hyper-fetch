@@ -29,6 +29,7 @@ import {
   ExtractAdapterMethodType,
   ExtractAdapterOptionsType,
   HydrateDataType,
+  SyncOrAsync,
 } from "types";
 import { Time } from "constants/time.constants";
 import { MockerConfigType, MockResponseType } from "mocker";
@@ -301,7 +302,9 @@ export class Request<
     fn: (options: {
       request: Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>;
       requestId: string;
-    }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>,
+    }) => SyncOrAsync<
+      MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>
+    >,
     config: MockerConfigType = {},
   ) => {
     this.unstable_mock = { fn, config } as typeof this.unstable_mock;
@@ -315,7 +318,7 @@ export class Request<
     return this;
   };
 
-  public setEnableMocking = (isMockerEnabled: boolean) => {
+  public setMockingEnabled = (isMockerEnabled: boolean) => {
     this.isMockerEnabled = isMockerEnabled;
     return this;
   };
@@ -624,5 +627,44 @@ export class Request<
 
     const request = this.clone(configuration);
     return sendRequest(request as unknown as this, options);
+  };
+
+  static fromJSON = <
+    NewResponse,
+    NewPayload,
+    NewQueryParams,
+    NewLocalError,
+    NewEndpoint extends string,
+    NewClient extends ClientInstance,
+    NewHasPayload extends true | false = false,
+    NewHasParams extends true | false = false,
+    NewHasQuery extends true | false = false,
+  >(
+    client: NewClient,
+    json: RequestJSON<
+      Request<
+        NewResponse,
+        NewPayload,
+        NewQueryParams,
+        NewLocalError,
+        NewEndpoint,
+        NewClient,
+        NewHasPayload,
+        NewHasParams,
+        NewHasQuery
+      >
+    >,
+  ) => {
+    return new Request<
+      NewResponse,
+      NewPayload,
+      NewQueryParams,
+      NewLocalError,
+      NewEndpoint,
+      NewClient,
+      NewHasPayload,
+      NewHasParams,
+      NewHasQuery
+    >(client, json.requestOptions, json);
   };
 }

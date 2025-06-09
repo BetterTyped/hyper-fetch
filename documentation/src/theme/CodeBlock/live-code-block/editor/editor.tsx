@@ -1,5 +1,4 @@
-/* eslint-disable react/no-array-index-key */
-import EditorImport from "react-simple-code-editor";
+import CodeEditor from "react-simple-code-editor";
 import { Highlight, themes } from "prism-react-renderer";
 
 import CopyButton from "../../../OriginalCodeBlock/CopyButton";
@@ -12,10 +11,12 @@ const highlightLines = (input: string) => {
       {({ tokens, getLineProps, getTokenProps }) => (
         <>
           {tokens.map((line, lineIndex) => (
+            // eslint-disable-next-line react/no-array-index-key
             <span key={`line-${lineIndex}`} {...getLineProps({ line })}>
               {line
                 .filter((token) => !token.empty)
                 .map((token, tokenIndex) => (
+                  // eslint-disable-next-line react/no-array-index-key
                   <span key={`token-${tokenIndex}`} {...getTokenProps({ token })} />
                 ))}
               <br />
@@ -28,10 +29,6 @@ const highlightLines = (input: string) => {
 };
 
 export const Editor = ({ code, setCode }: { code: string; setCode: (code: string) => void }) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const CodeEditor = EditorImport?.default || EditorImport;
-
   return (
     <div className="p-[1px]">
       <div className="api-playground__editor-wrapper relative">
