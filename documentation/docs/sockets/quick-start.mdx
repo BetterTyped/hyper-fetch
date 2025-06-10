@@ -7,6 +7,14 @@ sidebar_label: Quick Start
 > Hyper Fetch's Sockets module enables real-time, bidirectional communication using WebSockets or other adapters. It's
 > framework-agnostic and requires no external libraries to function.
 
+:::secondary What you'll learn
+
+- How to initialize the socket client
+- How to create emitters and listeners
+- How to interact with the server
+
+:::
+
 ---
 
 1. ### Initialize the Socket Client
@@ -83,17 +91,11 @@ import { sendChatMessage } from "./emitters";
 sendChatMessage.emit({ data: { message: "Hello world" } });
 ```
 
-:::success That's it!
-
-You've seen how straightforward it is to get started with Hyper Fetch Sockets for real-time communication.
-
-:::
-
 ---
 
-## Changing the adapter: WebSocket, SSE, and Beyond
+## Additional: Changing the adapter
 
-By default, Sockets uses WebSocket adapter, but you can switch to SSE or provide your own adapter for maximum
+By default, Sockets uses **WebSocket** adapter, but you can switch to SSE or provide your own adapter for maximum
 flexibility.
 
 ```tsx
@@ -101,3 +103,13 @@ import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
 socket.setAdapter(ServerSentEventsAdapter());
 ```
+
+---
+
+:::success That's it!
+
+You've seen how straightforward it is to get started with Hyper Fetch Sockets for real-time communication.
+
+:::
+
+---

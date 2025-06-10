@@ -6,6 +6,16 @@ sidebar_label: Quick Start
 
 Hyper Fetch's core is framework-agnostic, requiring no external libraries to function.
 
+:::secondary What you'll learn
+
+- How to initialize the client
+- How to create requests
+- How to interact with the server
+
+:::
+
+---
+
 ### 1. Initialize the Client
 
 The first step is to initialize the **[Client](/core/client.mdx)**. It manages the basic server connection configuration
@@ -17,6 +27,8 @@ import { Client } from "@hyper-fetch/core";
 
 export const client = new Client({ url: "http://localhost:3000" });
 ```
+
+---
 
 ### 2. Create Requests
 
@@ -53,6 +65,8 @@ const getUsers = client.createRequest<{
   endpoint: "/users",
 });
 ```
+
+---
 
 ### 3. Interact with server
 
@@ -137,6 +151,8 @@ const handleLogin = async (values: { email: string; password: string }) => {
 
   </TabItem>
 </Tabs>
+
+---
 
 :::success That's it!
 

@@ -1113,6 +1113,7 @@ pre code:has(.code-block-diff-remove-line) {
 }
 
 .alert--learn {
+  border: 1px solid;
   @apply bg-zinc-200 dark:bg-zinc-600/50 text-[#ebecf0] !border-zinc-500;
 }
 .alert--learn > div:first-child {
