@@ -10,18 +10,20 @@ sidebar_label: Socket
 
 ## Introduction
 
-**`Socket`** is a class that allows you to configure the server connection. It initializes the entire library’s
-subsystems, such as `offline`, `events`, and `interceptors`. It also allows to create (based on its settings) the
-listeners and emitters necessary to execute requests. This way the data and information flow remains locked inside a
-given socket - it is isolated and does not affect other sockets.
+**`Socket`** is the central class for configuring your server connection in the Hyper Fetch sockets module. It
+initializes all core subsystems—such as `offline`, `events`, and `interceptors`—and provides a unified way to create and
+manage listeners and emitters based on its configuration. By keeping all data and logic encapsulated within a single
+socket instance, you ensure that each socket remains isolated and independent from others.
 
 ---
 
-## Purpose
+:::tip Purpose
 
-- Orchestrates the components and flow of the sockets library
-- Creates listeners and emitters to provide global setup and environment
-- Isolates sockets from other sockets and their events
+1. **Orchestrates** the components and flow of the sockets library
+2. Creates **listeners** and **emitters** to provide global setup and environment
+3. Isolates sockets from each other and their events
+
+:::
 
 ---
 
@@ -37,41 +39,62 @@ export const socket = new Socket({ url: "ws://localhost:3000" });
 
 ## Features
 
-### Mode
+Here are the main features of the `Socket` class.
 
-You can pick between two built-in modes for the data exchange.
+### Adapters
 
-1. Websocket mode (default)
-2. Server Sent Events mode
+You can pick between two built-in modes for the data exchange:
 
-You can change it with `SSE` adapter.
+1. **WebSocket mode** (default)
+2. **Server Sent Events (SSE) mode**
+
+You can change it with the `SSE` adapter:
 
 ```tsx
 import { sseAdapter } from "@hyper-fetch/sockets";
 
-new Sockets({ url: "ws://localhost:3000" }).setAdapter(sseAdapter);
+new Socket({ url: "ws://localhost:3000" }).setAdapter(sseAdapter);
 ```
 
-### Authentication
+---
 
-To exchange authenticated events, set up the `auth` parameter with authentication query params. Later on, you can change
-the `auth` value with `setAuth` method, which after setting up the new data will reconnect the socket server. Read more
-about authentication here.
+### Interceptors
 
-[Read More](/guides/03-sockets/authentication.mdx)
+There are a few methods for intercepting a response from a request:
 
-### On-Emitting Interceptors
+- `onSend` — triggered before sending an event.
 
-Use the `onSend` socket method if you need to use the pre-emitting interceptor to modify the `Emitter` before it’s sent.
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onSend((event) => {
+  // Modify the event before it is sent
+  event.payload = { ...event.payload, token: "1234567890" };
+  return event;
+});
+```
 
-### On-Message Interceptors
+- `onError` — triggered on error from socket.
 
-There are few methods for intercepting a response from a request:
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onError((error) => {
+  // Modify the error before it is emitted to other sub-systems
+  error.message = "An error occurred";
+  return error;
+});
+```
 
-- `onError` which is triggered on error from socket.
-- `onMessage` which is triggered on any received message.
+- `onMessage` — triggered on any received message.
 
-We can modify received data with this interceptor before it will be emitted to other sub-systems.
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onMessage((message) => {
+  // Modify the message before it is emitted to other sub-systems
+  message.data = { ...message.data, token: "1234567890" };
+  return message;
+});
+```
+
+You can modify received data or payload with these interceptors before it is emitted to other sub-systems.
+
+---
 
 ### Query Params
 
@@ -80,10 +103,10 @@ Sockets has a built-in query params encoding function; you can modify its option
 
 (@import core QueryStringifyOptionsType type=returns)
 
-To change the encoding function, use the `queryParamsStringify` method.
+To change the encoding function, use the `queryParamsStringify` method:
 
 ```tsx
-export const socket = new Sockets({
+export const socket = new Socket({
   url: "ws://localhost:3000",
   queryParams: { param1: [1, 2, 3], param2: "test" },
   queryParamsStringify: (value: string) => encode(value),
@@ -92,17 +115,31 @@ export const socket = new Sockets({
 
 ---
 
-## Typescript
+### Authentication
 
-Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
-adapter type.
+To exchange authenticated events, set up the `queryParams` parameter with authentication parameter.
 
 ```tsx
-class Sockets<SocketAdapterType>
+export const socket = new Socket({
+  url: "ws://localhost:3000",
+  queryParams: { authToken: "1234567890" },
+});
 ```
 
-It needs to fulfill the `SocketAdapterType` interface.
-
-{/* (@import sockets SocketAdapterType type=returns) */}
+<LinkCard
+  type="guides"
+  title="Authentication guide"
+  description="Learn how to set up authentication for your sockets."
+  to="/guides/03-sockets/authentication.mdx"
+/>
 
 ---
+
+## TypeScript
+
+Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
+adapter type and **will automatically change** to any new adapter type you pass to the `Socket` class.
+
+---
+
+{/* ## See More */}

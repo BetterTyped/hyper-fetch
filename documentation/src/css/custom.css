@@ -881,7 +881,7 @@ main blockquote {
   @apply font-medium italic text-xl bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
 }
 .docs-wrapper .dark main blockquote > p {
-  @apply from-zinc-200/60 via-zinc-200 to-zinc-200/60;
+  @apply from-zinc-200/90 via-zinc-50 to-zinc-200/80;
 }
 
 body .col .nav-tabs li {
@@ -1117,7 +1117,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--learn > div:first-child svg {
   @apply stroke-[#f6f7f9] fill-transparent;
 }
-.alert--learn > div:last-child {
+.alert--learn > div:last-child * {
   @apply text-white text-opacity-80;
 }
 
@@ -1130,27 +1130,43 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--secondary > div:first-child svg {
   @apply stroke-teal-600 dark:stroke-teal-500 fill-transparent;
 }
-.alert--secondary > div:last-child {
+.alert--secondary > div:last-child * {
   @apply text-teal-50 text-opacity-80;
 }
 .alert--secondary > div:last-child a {
   @apply text-teal-400 decoration-teal-400 text-opacity-80;
 }
 
-.alert--success {
+.alert--tip {
   @apply bg-green-200 dark:bg-green-700 bg-opacity-40 dark:bg-opacity-40;
 }
-.alert--success > div:first-child {
+.alert--tip > div:first-child {
   @apply text-green-600 dark:text-green-400;
 }
-.alert--success > div:first-child svg {
+.alert--tip > div:first-child svg {
   @apply stroke-green-600 dark:stroke-green-400 fill-transparent;
 }
-.alert--success > div:last-child {
+.alert--tip > div:last-child * {
   @apply text-green-50 text-opacity-80;
 }
-.alert--success > div:last-child a {
+.alert--tip > div:last-child a {
   @apply text-green-400 decoration-green-400 text-opacity-80;
+}
+
+.alert--success {
+  @apply bg-cyan-200 dark:bg-cyan-700 bg-opacity-40 dark:bg-opacity-40;
+}
+.alert--success > div:first-child {
+  @apply text-amber-600 dark:text-amber-400;
+}
+.alert--success > div:first-child svg {
+  @apply stroke-amber-600 dark:stroke-amber-400 fill-transparent;
+}
+.alert--success > div:last-child * {
+  @apply text-amber-100;
+}
+.alert--success > div:last-child a {
+  @apply text-cyan-400 decoration-cyan-400 text-opacity-80;
 }
 
 .alert--info {
@@ -1162,7 +1178,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--info > div:first-child svg {
   @apply stroke-blue-600 dark:stroke-blue-500 fill-transparent;
 }
-.alert--info > div:last-child {
+.alert--info > div:last-child * {
   @apply text-blue-50 text-opacity-80;
 }
 .alert--info > div:last-child a {
@@ -1178,7 +1194,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--warning > div:first-child svg {
   @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
 }
-.alert--warning > div:last-child {
+.alert--warning > div:last-child * {
   @apply text-yellow-50 text-opacity-70;
 }
 .alert--warning > div:last-child a {
@@ -1194,7 +1210,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--caution > div:first-child svg {
   @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
 }
-.alert--caution > div:last-child {
+.alert--caution > div:last-child * {
   @apply text-yellow-50 text-opacity-80;
 }
 .alert--caution > div:last-child a {
@@ -1210,7 +1226,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--danger > div:first-child svg {
   @apply stroke-red-600 dark:stroke-red-300 fill-transparent;
 }
-.alert--danger > div:last-child {
+.alert--danger > div:last-child * {
   @apply text-red-50 text-opacity-80;
 }
 .alert--danger > div:last-child a {

@@ -7,6 +7,7 @@ import AdmonitionTypeCaution from "@theme/Admonition/Type/Caution";
 import type AdmonitionTypes from "@theme/Admonition/Types";
 
 import AdmonitionTypeLearn from "./Type/Learn";
+import AdmonitionTypeSuccess from "./Type/Success";
 
 const admonitionTypes: typeof AdmonitionTypes = {
   learn: AdmonitionTypeLearn,
@@ -23,7 +24,7 @@ const admonitionTypes: typeof AdmonitionTypes = {
 const admonitionAliases: typeof AdmonitionTypes = {
   secondary: AdmonitionTypeLearn,
   important: AdmonitionTypeInfo,
-  success: AdmonitionTypeTip,
+  success: AdmonitionTypeSuccess,
   caution: AdmonitionTypeCaution,
 };
 

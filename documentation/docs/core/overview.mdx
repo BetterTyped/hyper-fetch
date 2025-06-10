@@ -1,5 +1,5 @@
 ---
-sidebar_position: 0
+sidebar_position: 1
 title: Core - Overview
 sidebar_label: Overview
 ---
@@ -14,7 +14,7 @@ import { LinkCard } from "@site/src/components";
 
 > These are the core principles that shape the design of Hyper Fetch.
 
-### Consistency within projects
+### Consistency for projects
 
 In many projects, fetching data from APIs is handled differently, leading to a lack of consistency across codebases.
 This inconsistency makes it harder for developers to onboard and understand the code, increasing both learning time and
@@ -168,34 +168,6 @@ as you only need to implement a simple adapter interface to add new integrations
 
 This approach keeps your code clean, easy to understand, and highly maintainable, while also enabling rapid adoption of
 new technologies as they emerge.
-
-### Typesafe realtime
-
-Handling realtime data exchange such as with WebSockets or Server-Sent Events (SSE) presents unique challenges,
-particularly around maintaining type safety as your application grows. The library addresses this by exposing dedicated
-Listener and Emitter classes, each with their own explicit types for responses and payloads.
-
-This means that when you use a listener, such as `useChatMessage`, you always know the exact type of data being handled.
-Similarly, when emitting data, you have clear expectations for the payload structure.
-
-This approach is especially powerful in projects with multiple listeners and emitters, ensuring type safety and
-maintainability even as your application scales.
-
-```tsx
-import { socketClient } from "./socket-client";
-
-const chatMessageListener = socketClient.createListener<{ message: string }>({
-  url: "/api/chat-message",
-});
-
-chatMessageListener.listen({
-  // message is type string
-  callback: (message) => {
-    // message have type ChatMessageType
-    console.log(message);
-  },
-});
-```
 
 ### Event-driven architecture
 

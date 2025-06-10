@@ -1,0 +1,103 @@
+---
+sidebar_position: 2
+title: Quick Start
+sidebar_label: Quick Start
+---
+
+> Hyper Fetch's Sockets module enables real-time, bidirectional communication using WebSockets or other adapters. It's
+> framework-agnostic and requires no external libraries to function.
+
+---
+
+1. ### Initialize the Socket Client
+
+The first step is to initialize the **Socket client**. This manages the WebSocket connection and all real-time
+communication. Specify the `url` of your WebSocket server.
+
+```tsx title="socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+export const socket = new Socket({ url: "ws://localhost:3000" });
+```
+
+---
+
+2. ### Create Emitters and Listeners
+
+With your socket client set up, you can define **emitters** (to send events) and **listeners** (to receive events) for
+real-time communication.
+
+#### Creating Listeners
+
+Listeners subscribe to server events and provide type-safe callbacks.
+
+```ts
+import { socket } from "./socket";
+
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // event name or endpoint
+});
+```
+
+#### Creating Emitters
+
+Emitters send events to the server, optionally handling acknowledgements.
+
+```tsx
+import { socket } from "./socket";
+
+export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  endpoint: "chat-message", // event name or endpoint
+});
+```
+
+:::tip
+
+Both listeners and emitters are fully typed, ensuring you always know the shape of your data.
+
+:::
+
+---
+
+3. ### Interact with the Server
+
+Once you have your emitters and listeners, you can send and receive real-time events.
+
+#### Listen to events
+
+Just use the `listen` method and pass the callback function.
+
+```ts
+import { onChatMessage } from "./listeners";
+
+onChatMessage.listen({ callback: (data) => console.log(data) });
+```
+
+#### Emit events
+
+Just use the `emit` method and pass the data you want to send.
+
+```ts
+import { sendChatMessage } from "./emitters";
+
+sendChatMessage.emit({ data: { message: "Hello world" } });
+```
+
+:::success That's it!
+
+You've seen how straightforward it is to get started with Hyper Fetch Sockets for real-time communication.
+
+:::
+
+---
+
+## Changing the adapter: WebSocket, SSE, and Beyond
+
+By default, Sockets uses WebSocket adapter, but you can switch to SSE or provide your own adapter for maximum
+flexibility.
+
+```tsx
+import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+socket.setAdapter(ServerSentEventsAdapter());
+```
