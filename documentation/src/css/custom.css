@@ -1107,6 +1107,10 @@ pre code:has(.code-block-diff-remove-line) {
 .alert > div:last-child > p {
   @apply px-2;
 }
+.alert > div:last-child b,
+.alert > div:last-child strong {
+  @apply !text-white;
+}
 
 .alert--learn {
   @apply bg-zinc-200 dark:bg-zinc-600/50 text-[#ebecf0] !border-zinc-500;
