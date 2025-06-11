@@ -2,6 +2,42 @@ import { Client, HttpAdapterType } from "@hyper-fetch/core";
 
 export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => {
   return {
+    getUsers: client
+      .createRequest<{
+        response: { name: string; age: number }[];
+        queryParams?: { search: string };
+      }>()({
+        endpoint: "/users",
+        method: "GET",
+      })
+      .setMock(
+        ({ request }) => ({
+          data: [
+            { name: "John Doe", age: 20 },
+            { name: "Jane Doe", age: 21 },
+            { name: "Jim Doe", age: 22 },
+            { name: "Jill Doe", age: 23 },
+            { name: "Jack Doe", age: 24 },
+          ].filter((user) => {
+            if (request.queryParams?.search) {
+              return user.name.toLowerCase().includes(request.queryParams.search.toLowerCase());
+            }
+            return true;
+          }),
+          extra: {
+            headers: {
+              "x-custom-header": "custom-value",
+            },
+          },
+          status: 200,
+        }),
+        {
+          requestTime: 200,
+          responseTime: 200,
+          totalUploaded: 200,
+          totalDownloaded: 300,
+        },
+      ),
     getUser: client
       .createRequest<{
         response: { name: string; age: number };
@@ -33,8 +69,9 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
       .createRequest<{
         response: { message: string };
       }>()({
-        endpoint: "/upload",
+        endpoint: "/upload-file",
         method: "POST",
+        queryKey: "postFile",
       })
       .setMock(
         () => ({

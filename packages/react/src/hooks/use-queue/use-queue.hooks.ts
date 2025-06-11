@@ -25,7 +25,7 @@ export const useQueue = <Request extends RequestInstance>(
 ): UseQueueReturnType<Request> => {
   // Build the configuration options
   const { config: globalConfig } = useProvider();
-  const { queueType, keepFinishedRequests } = {
+  const { dispatcherType, keepFinishedRequests } = {
     ...useQueueDefaultOptions,
     ...globalConfig.useQueueConfig,
     ...options,
@@ -34,7 +34,7 @@ export const useQueue = <Request extends RequestInstance>(
   const { abortKey, queryKey, client } = request;
   const { requestManager } = client;
 
-  const [dispatcher] = getRequestDispatcher(request, queueType);
+  const [dispatcher] = getRequestDispatcher(request, dispatcherType);
 
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Request>[]>([]);

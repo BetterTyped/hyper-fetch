@@ -1014,7 +1014,7 @@ body .theme-code-block {
 }
 
 *:not(pre) > code {
-  @apply py-[3px] px-1.5 text-[0.8em] text-white bg-zinc-500/20;
+  @apply pt-[3px] pb-[2px] px-1.5 text-[0.8em] text-white bg-zinc-600/60 !border-0 !border-b-2 border-zinc-500/30;
 }
 
 pre[class*="language-"] {

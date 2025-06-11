@@ -1,9 +1,10 @@
-import React, { memo, useEffect, useInsertionEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/ui/tabs";
 import { useDebounce } from "@reins/hooks";
+import { Toaster } from "@site/src/components/ui/toast";
 
 import { globalScope } from "./global-scope";
 import { createGlobalRequests } from "./create-global-requests";
@@ -25,11 +26,11 @@ function deepClone<T>(obj: T): T {
   return cloned as T;
 }
 
-const isComponent = (code: string): boolean => {
+const isComponent = (code: string) => {
   // Regex to find function declarations or arrow functions with uppercase first letter
   const componentRegex = /(?:function|const|let|var)\s+([A-Z][A-Za-z0-9_]*)\s*(=|\()/;
   const match = code.match(componentRegex);
-  return !!match;
+  return match;
 };
 
 // Removes all import statements (default and named) from the code string
@@ -50,7 +51,10 @@ export const transformCode = (code: string): string => {
       return code;
     }
     // Append render(<ComponentName />) at the end
-    return `${code}\n\nrender(<${componentName} />)`;
+    return `
+      ${code}
+      render(<${componentName} />);
+    `;
   }
 
   // If no component found, wrap code in render(() => { ... }) with console.log override
@@ -153,9 +157,17 @@ const Content = memo(({ code, scope, isLog }: { code: string; scope: any; isLog:
   const toast = usePreviewToast();
 
   const values = useMemo(() => {
-    const handleToast = ({ title = "New notification", message }: { title?: string; message: string }) => {
+    const handleToast = ({
+      title = "New notification",
+      message,
+      type = "default",
+    }: {
+      title?: string;
+      message: string;
+      type?: "default" | "success" | "error";
+    }) => {
       toast({
-        message: <MessageEvent name={title} message={message} />,
+        message: <MessageEvent name={title} message={message} type={type} />,
       });
     };
     return {
@@ -168,6 +180,7 @@ const Content = memo(({ code, scope, isLog }: { code: string; scope: any; isLog:
     <LiveProvider code={code} scope={values} noInline>
       <LivePreview className={cn("api-playground__preview", isLog && "api-playground__preview--log")} />
       <LiveError className="api-playground__error" />
+      {!isLog && <Toaster />}
     </LiveProvider>
   );
 });
@@ -233,7 +246,7 @@ export const Playground = ({
     }
   }, [codeKey]);
 
-  useInsertionEffect(() => {
+  useLayoutEffect(() => {
     if (!stringifiedCode) {
       setStringifiedCode(pipeline.reduce((transformedCode, fn) => fn(transformedCode), code));
     } else {

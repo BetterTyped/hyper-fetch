@@ -8,68 +8,205 @@ sidebar_label: useFetch
 
 [Read the API Reference »](/api/react/Hooks/useFetch.mdx)
 
+The `useFetch` hook is your main tool for **fetching and reading data** from a server in React components. It integrates
+seamlessly with Hyper Fetch's core systems, such as the [`Dispatcher`](/docs/core/dispatcher) and
+[`Cache`](/docs/core/cache), to deliver a robust, reactive, and efficient data-fetching experience.
+
+:::tip Purpose
+
+1. **Declarative data fetching**: Provide a `Request` and let the hook manage the process.
+2. **Automatic state management**: Handles `loading`, `error`, and `data` states for you.
+3. **Built-in reactivity**: Automatically re-fetches data when dependencies change.
+4. **Lifecycle callbacks**: Easily run side effects on success, error, or completion.
+5. **Deep cache integration**: Uses a central cache to avoid redundant requests and boost performance.
+
+:::
+
+> To send data to the server (such as creating, updating, or deleting resources), use the
+> [`useSubmit`](/react/03-hooks/use-submit.mdx) hook instead.
+
 ---
 
-## Introduction
+## Quick Start
 
-This hook is created to **retrieve data** from the server. It uses the [`Fetch Dispatcher`](/core/dispatcher.mdx) to
-handle requests and the [`Cache`](/core/cache.mdx) to manage the overall state of the data.
+To use `useFetch`, provide a prepared [`Request`](/docs/core/request) instance. The hook returns the current state of
+that request, including the fetched `data`, `loading` status, and any `error` that may have occurred.
 
-A prepared Request is the minimum requirement for useFetch.
+```tsx live title="Fetching a list of users" size=md
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
 
-If you intend to `mutate` data stored on the server, we recommend choosing the
-[`useSubmit`](/react/03-hooks/use-submit.mdx) hook.
+function App() {
+  const { data, loading, error } = useFetch(getUsers);
 
----
+  if (loading) {
+    return <CircularProgress />;
+  }
 
-## Initialization
+  if (error) {
+    return (
+      <Alert severity="error">
+        <span>{error.message}</span>
+      </Alert>
+    );
+  }
 
-```tsx
-const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+  return (
+    <div>
+      <h3 className="mb-4">Users:</h3>
+      <div className="flex flex-wrap gap-2">
+        {data.map((user) => {
+          return <Chip>{user.name}</Chip>;
+        })}
+      </div>
+    </div>
+  );
+}
 ```
 
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn more about creating and configuring requests."
+  to="/docs/core/request"
+/>
+
 ---
 
-## How it works?
+## Dependencies
 
-**`useFetch`** executes a request when a component is mounted or when its dependencies array changes. It uses dependency
-tracking to limit re-rendering and help with performance.
+`useFetch` can automatically re-fetch data when its request or dependency array changes. Pass a dependency array in the
+options object (the second argument). When any value in the array changes, the hook triggers a new request.
 
-Under the hood, communication with the core systems is established by event emitters. There are many `"helper hooks"`
-that get returned from the hook, like `onSuccess`, `onError`, and `onFinished` (among others). They will help you handle
-various events in the request flow and lifecycle.
+This is especially useful for fetching data based on props, state, or other dynamic values.
 
-We used this approach to avoid overloading the base hook with callback logic, which causes low code readability and
-increases complexity.
-
-```tsx
+```tsx live title="Re-fetching on dependency change" size=md
 import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "server";
+import { getUsers } from "./api/users";
 
-const UsersListPage: React.FC = () => {
-  const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
-
-  onSuccess(({ response }) => {
-    console.log(response); // [ User, User, User ]
-  });
-
-  onError(({ response }) => {
-    console.log(response); // { message: string }
-  });
-
-  onFinished(({ response }) => {
-    const [payload, error, status] = response;
-    console.log(payload); // [ User, User, User ] | null
-    console.log(error); // { message: string } | null
-    console.log(status); // 200 / 400 / 404 / 500 ...
+function App() {
+  const [search, setSearch] = useState("");
+  const { data, loading, error } = useFetch(getUsers.setQueryParams({ search }), {
+    // This will debounce the request for 400ms
+    bounce: true,
+    bounceTime: 400,
+    bounceType: "debounce",
   });
 
   return (
     <div>
-        {loading && <Loader>}
-        {!loading && error && <Alert severity="error">{error.error_message}</Alert>}
-        {!loading && !error && !data.length && <div>List is empty</div>}
-        {!loading && !error && data.length && <div>{data.map(user => <div>{user.name}</div>)}</div>}
+      <TextField label="Search" placeholder="Type to search by name" onChange={(e) => setSearch(e.target.value)} />
+      {data && (
+        <div>
+          <h3 className="mb-4">Users:</h3>
+          <div className="flex flex-wrap gap-2">
+            {data.map((user) => {
+              return <Chip>{user.name}</Chip>;
+            })}
+          </div>
+        </div>
+      )}
+      {data && !data.length && <div>No users found</div>}
+      {loading && <CircularProgress />}
+    </div>
+  );
+}
+```
+
+---
+
+## Event Handlers
+
+To handle side effects such as notifications, logging, or triggering other actions, `useFetch` provides a set of event
+handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
+
+1. `onSuccess`: Fires when the request completes successfully. The callback receives the success `response`.
+2. `onError`: Fires when the request results in an error. The callback receives the `error` object.
+3. `onFinished`: Fires when the request finishes, regardless of the outcome.
+
+```tsx live title="Using Event Handlers" size=md
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+const UsersListPage = () => {
+  const { data, onSuccess, onError, onFinished } = useFetch(getUsers);
+
+  onSuccess(({ response }) => {
+    toast({
+      title: "Success",
+      message: "Users fetched successfully",
+      type: "success",
+    });
+  });
+
+  onError(({ error }) => {
+    toast({
+      title: "Error",
+      message: error.message,
+      type: "error",
+    });
+  });
+
+  onFinished(() => {
+    toast({
+      title: "Finished",
+      message: "Finished request",
+      type: "default",
+    });
+  });
+
+  return (
+    <div>
+      <h3 className="mb-4">Users:</h3>
+      <div className="flex flex-wrap gap-2">
+        {data?.map((user) => {
+          return <Chip>{user.name}</Chip>;
+        })}
+      </div>
+    </div>
+  );
+};
+```
+
+---
+
+## Download and Upload Progress
+
+`useFetch` provides two event handlers for tracking download and upload progress:
+
+- `onDownloadProgress`: Fires when the request is downloading data.
+- `onUploadProgress`: Fires when the request is uploading data.
+
+:::success Rich progress tracking
+
+We are providing advanced progress tracking for both download and upload - with ETA, size left, total size, loaded size,
+and more.
+
+:::
+
+```tsx live title="Using Download and Upload Progress" size=md
+import { useFetch } from "@hyper-fetch/react";
+import { postFile } from "./api/files";
+
+const UsersListPage = () => {
+  const { data, onDownloadProgress, onUploadProgress } = useFetch(postFile);
+  const { requests } = useQueue(postFile);
+  console.log(requests);
+
+  onDownloadProgress((progress) => {
+    // Do something with the progress data
+  });
+
+  onUploadProgress((progress) => {
+    // Do something with the progress data
+  });
+
+  return (
+    <div>
+      <h3 className="mb-4">Request Progress</h3>
+      {/* Custom component to visualize progress */}
+      {/* Uses 'useQueue' under the hood */}
+      <RequestsLifecycle request={postFile} dispatcherType="fetch" />
     </div>
   );
 };
@@ -79,22 +216,86 @@ const UsersListPage: React.FC = () => {
 
 ## Options
 
-Configuration options for `useFetch` must be provided as the second parameter.
+Customize the behavior of `useFetch` by passing an options object as the second argument.
 
 ```tsx
-const { ... } = useFetch(request, options)
+const { ... } = useFetch(request, {
+  disabled: false,
+  dependencies: [],
+  revalidate: true,
+  // ... and more
+});
 ```
+
+Below is a full list of available options.
+
+<ShowMore>
 
 (@import react UseFetchOptionsType type=returns)
 
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="UseFetchOptionsType API Reference"
+  description="Learn more about the useFetch hook."
+  to="/docs/api/react/Types/UseFetchOptionsType"
+/>
+
 ---
 
-## Returns
+## State and Methods
 
-Returned values from this hook.
+`useFetch` returns an object containing the request's state, helper methods, and event handlers.
 
 ```tsx
-const values = useFetch(request);
+const {
+  data,
+  error,
+  loading,
+  status,
+  refetch,
+  onSuccess,
+  // ... and more
+} = useFetch(request);
 ```
 
+Below is a full list of returned values.
+
+<ShowMore>
+
 (@import react UseFetchReturnType type=returns)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="useFetch API Reference"
+  description="Learn more about the useFetch hook."
+  to="/docs/api/react/Hooks/useFetch"
+/>
+
+---
+
+## See More
+
+<LinkCard
+  type="guides"
+  title="Fetching data"
+  description="Learn more about fetching data with useFetch."
+  to="/docs/react/fetching"
+/>
+
+<LinkCard
+  type="docs"
+  title="useSubmit"
+  description="Learn more about the useSubmit hook."
+  to="/docs/react/hooks/use-submit"
+/>
+
+<LinkCard
+  type="docs"
+  title="useCache"
+  description="Learn more about the useCache hook."
+  to="/docs/react/hooks/use-cache"
+/>

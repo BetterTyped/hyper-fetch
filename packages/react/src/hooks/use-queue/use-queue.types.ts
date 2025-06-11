@@ -1,7 +1,7 @@
 import { ProgressType, RequestInstance, QueueItemType, Dispatcher } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
-  queueType?: "auto" | "fetch" | "submit";
+  dispatcherType?: "auto" | "fetch" | "submit";
   keepFinishedRequests?: boolean;
 };
 
