@@ -29,26 +29,6 @@ experience. It extends these ideas to the world of real-time data.
 
 ---
 
-## Architecture at a Glance
-
-The Sockets module is centered around the `Socket` class, which manages the connection and orchestrates listeners and
-emitters. You can:
-
-- Initialize a socket connection
-- Create listeners for incoming events
-- Create emitters for sending events
-- Swap adapters (WebSocket, SSE, or custom)
-
-```tsx
-import { Socket } from "@hyper-fetch/sockets";
-
-export const socket = new Socket({
-  url: "ws://localhost:3000",
-});
-```
-
----
-
 ## Typesafe realtime
 
 Handling realtime data exchange such as with WebSockets or Server-Sent Events (SSE) presents unique challenges,
@@ -64,16 +44,75 @@ maintainability even as your application scales.
 ```tsx
 import { socketClient } from "./socket-client";
 
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
 const chatMessageListener = socketClient.createListener<{ message: string }>({
-  url: "/api/chat-message",
+  url: "chat-message",
 });
 
 chatMessageListener.listen({
-  // message is type string
-  callback: (message) => {
-    // message have type ChatMessageType
-    console.log(message);
+  callback: ({ data }) => {
+    console.log(data); // { message: string }
   },
+});
+```
+
+---
+
+## Use listener templates instead of `on()` methods
+
+Usual approach to sockets it to use the `.on()` method where you have to define the topic and the callback. Our approach
+is a bit different. Just like in the core-package we prefer to create reusable templates for the listeners. They keep
+the information about expected message data type and other. This way you can use the listener template in multiple
+places with full type-safety.
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+// 1. Initialize the socket
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+// 2. Create the listener template
+const chatMessageListener = socket.createListener<{ message: string }>({
+  topic: "chat-message",
+});
+
+// 3. Listen to the chat message
+chatMessageListener.listen({
+  callback: ({ data }) => {
+    console.log(data); // { message: string }
+  },
+});
+```
+
+---
+
+## Use emitter templates instead of `emit()` methods
+
+To incorporate full type-safety and readability we also have emitter templates. They are used to send messages to the
+realtime servers. This way we keep very clear data-exchange between the client and the server. It is reusable and very
+easy to use.
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+// 1. Initialize the socket
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+// 2. Create the emitter template
+const chatMessageEmitter = socket.createEmitter<{ text: string }>({
+  topic: "new-message",
+});
+
+// 3. Send the chat message
+chatMessageEmitter.emit({
+  data: { text: "Hello, world!" },
 });
 ```
 
@@ -83,16 +122,6 @@ chatMessageListener.listen({
 
 Sockets exposes all events, making it easy to build custom devtools, analytics, or advanced integrations. The
 event-driven approach ensures your app can react to every stage of the connection lifecycle.
-
-### Core Principles
-
-1. **Neutral standard for data exchange**: Works with any backend or protocol supporting open connections.
-2. **Composable architecture**: Integrates with existing clients (socket.io, Firebase, etc.) via adapters.
-3. **Type safety**: Listeners and emitters are fully typed, reducing runtime errors.
-4. **Separation of concerns**: Listeners (receiving) and emitters (sending) are distinct, making logic clear and
-   maintainable.
-5. **Extensible by design**: Easily add your own adapters or extend existing ones.
-6. **Event-driven**: Built for reactive, real-time workflows.
 
 ---
 

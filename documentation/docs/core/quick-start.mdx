@@ -72,51 +72,6 @@ const getUsers = client.createRequest<{
 
 Once you have your request instances, you can interact with the server. This can be done in two primary ways:
 
-<Tabs>
-  <TabItem value="React" label="React" default>
-
-```tsx title="users.ts"
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "requests";
-
-const UsersListPage = () => {
-  // Fetching
-  const { data, error, loading } = useFetch(getUsers);
-
-  return (
-    <div>
-      <h1>Users</h1>
-      <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>
-    </div>
-  );
-};
-```
-
-```tsx title="login.ts"
-import { useSubmit } from "@hyper-fetch/react";
-
-import { login } from "requests";
-
-const LoginPage = () => {
-  const { submit, submitting } = useSubmit(login);
-
-  const handleSubmit = async (values: { email: string; password: string }) => {
-    const { data, error, status } = await submit({ data: values });
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input type="email" name="email" />
-      <input type="password" name="password" />
-      <button type="submit">Login</button>
-    </form>
-  );
-};
-```
-
-  </TabItem>
-  <TabItem value="Typescript" label="Typescript">
-
 ```tsx title="users.ts"
 import { getUsers } from "requests";
 
@@ -148,9 +103,6 @@ const handleLogin = async (values: { email: string; password: string }) => {
   }
 };
 ```
-
-  </TabItem>
-</Tabs>
 
 ---
 

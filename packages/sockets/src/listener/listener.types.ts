@@ -17,7 +17,6 @@ export type ListenerInstance = Listener<any, any, SocketInstance, any>;
 
 export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
-  params?: ExtractRouteParams<Topic>;
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
 

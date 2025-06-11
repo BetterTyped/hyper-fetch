@@ -1649,6 +1649,7 @@ button.DocSearch-Button {
   flex-wrap: wrap;
   padding-left: 0 !important;
   padding-top: 0 !important;
+  margin-top: 0px !important;
 }
 
 .breadcrumbs,

@@ -109,20 +109,68 @@ You can abort requests by their `requestId` or by a custom `abortKey` to cancel 
 
 :::
 
-#### AbortKey
+### AbortKey
 
 Every request added to the dispatcher creates an abort controller, stored in a Map under its abort key (usually the
 `requestId`). This lets you abort single requests or groups of requests easily.
 
-```ts
-// Abort a single request
-client.requestManager.abort(requestId);
+```tsx
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
 
-// Abort a group of requests
-client.requestManager.abortByKey("my-abort-key");
-// OR
-client.requestManager.abortByKey(request.abortKey);
+// highlight-start
+const abortKey = getUser.abortKey; // "/users/:userId"
+const abortKeyWithParams = getUser.setParams({ userId: 1 }).abortKey; // "/users/1"
+const abortKeyWithQueryParams = getUser.setQueryParams({ page: 1 }).abortKey; // "/users/:userId"
+// highlight-end
 ```
+
+#### Custom abortKey
+
+You can also set a custom abort key:
+
+```tsx
+import { client } from "./api";
+
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+  abortKey: "CUSTOM_ABORT_KEY",
+});
+
+// highlight-start
+console.log(getUser.abortKey); // "CUSTOM_ABORT_KEY"
+// highlight-end
+```
+
+#### Generic abortKey
+
+You can also set a generic abort key:
+
+```tsx
+import { client } from "./api";
+
+// highlight-start
+client.setQueryKeyMapper((request) => {
+  if (request.requestOptions.endpoint === "/users/:userId") {
+    return `CUSTOM_ABORT_KEY_${request.params?.userId || "unknown"}`;
+  }
+});
+// highlight-end
+
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
+
+// highlight-start
+console.log(getUser.setParams({ userId: 1 }).queryKey); // "CUSTOM_QUERY_KEY_1"
+// highlight-end
+```
+
+---
 
 ### Events
 
@@ -132,7 +180,7 @@ client.requestManager.abortByKey(request.abortKey);
 
 </ShowMore>
 
-```ts
+```ts title=Example
 client.requestManager.events.onResponse((response, details) => {
   // Handle response
 });

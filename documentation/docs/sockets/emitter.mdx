@@ -1,52 +1,52 @@
 ---
 sidebar_position: 5
-title: Socket Emitter
+title: Emitter
 sidebar_label: Emitter
 ---
 
-[Read the API Reference »](/api/sockets/Classes/Emitter.mdx)
+[Read the API Reference »](/docs/api/sockets/Classes/Emitter.mdx)
+
+The `Emitter` class is a core component of Hyper Fetch's real-time communication layer, built on top of WebSockets. It
+provides a **structured, type-safe way to define, configure, and send events to a server**. By encapsulating all the
+details for an event—such as its topic and data payload—`Emitter` ensures consistency and predictability in your
+real-time data interactions.
 
 ---
 
-## Introduction
+:::tip Purpose
 
-**`Emitter`** is a class that creates a template for sending events and stores all the necessary information needed for
-their creation. Its strength is its strict and predictable data structure.
+- Define **reusable event templates** to create standardized event structures.
+- Enforce a **consistent data schema** for all events.
+- Reliably **send events** to your WebSocket server.
 
-You can trigger a event with the `emit` method, which send data to sever.
-
----
-
-## Purpose
-
-- Configures events templates
-- Standardizes the system’s data schema
-- Sends events to server
+:::
 
 ---
 
 ## Initialization
 
-Emitter should be initialized from the Socket instance with `createEmitter` method. This passes a shared reference to
+Emitter should be initialized from the `Socket` instance with `createEmitter` method. This passes a shared reference to
 the place that manages communication in the application.
 
-```tsx
+```tsx title="Example of Emitter initialization"
 import { socket } from "./socket";
 
-export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  endpoint: "chat-message", // endpoint of the event
+export const sendChatMessage = socket.createEmitter<MessageType>()({
+  topic: "new-message", // topic of the event
 });
 
-export const sendUserStatus = socket.createEmitter<UserStatusType, AcknowledgementResponseType>()({
-  endpoint: "status", // endpoint of the event
+export const sendUserStatus = socket.createEmitter<UserStatusType>()({
+  topic: "user-status", // topic of the event
 });
 ```
 
 ---
 
-## Usage
+## Emitting Events
 
-### Request Data
+You can trigger an event with the `emit` method, which sends data to the server.
+
+### Sending Data
 
 Use the `setData` method to instruct any data to be sent to the server.
 
@@ -66,56 +66,12 @@ sendChatMessage.emit({ message: "message" });
 sendChatMessage.setData({ message: "message" }).emit();
 ```
 
-### Acknowledgements
-
-Use the `acknowledgements` by passing the second parameter to the emitting method.
-
-:::caution
-
-**Make sure your server is supporting the acknowledgements!** When using default adapter, make sure you pass the id of
-the event in returning event, when using custom adapters, you have to implement according to it's specification.
-
-:::
-
-```tsx
-sendChatMessage.emit({ data: { messsage: "some message" } }, (error, data) => {
-  if (error) {
-    alert("No server response!");
-  } else {
-    alert("Message received on server.");
-  }
-});
-```
-
-#### Implementation on sever
-
-After acknowledging the event, the server should **return the event with message id in the response**.
-
-```ts
-import { WebsocketEvent } from "@hyper-socket/sockets";
-
-const message = {
-  title: string;
-  description: string;
-}
-
-// On browser
-emitter.emit({
-  data: message,
-  ack: (data) => {
-    console.log(data);
-  },
-});
-
-// On server
-socket.on("chat-message", (message: WebsocketEvent) => {
-  // Do something with message
-  console.log(message.data);
-
-  // Emitting acknowledgement event
-  socket.emit({ id: message.id, endpoint: message.endpoint, data: { success: true } })
-});
-```
+<LinkCard
+  type="guides"
+  title="Emitting Events"
+  description="Learn the basics of emitting events to your server."
+  to="/docs/guides/sockets/emitting"
+/>
 
 ---
 
@@ -127,7 +83,7 @@ the cache.
 
 :::danger
 
-Using any method on emitter returns its clone! `We don't return a reference!`
+Using any method on emitter returns its clone! `We do not return a reference!`
 
 :::
 
@@ -151,10 +107,69 @@ const emitterWithData = emitter.setData({ message: "some message" }); // Returns
 emitterWithData.emit(); // Success
 ```
 
+<ShowMore>
+
+(@import sockets Emitter type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed Emitter API Methods"
+  description="Explore all available methods, their parameters, and return values for the Emitter class."
+  to="/docs/api/sockets/Classes/Emitter.mdx#methods"
+/>
+
 ---
 
 ## Parameters
 
-Configuration options
+Configuration options for the emitter.
+
+```tsx
+const emitter = socket.createEmitter<MessageType>()({
+  topic: "chat-message",
+  options: {
+    withCredentials: true,
+  },
+});
+```
 
 (@import sockets EmitterOptionsType type=returns)
+
+---
+
+## TypeScript
+
+When creating an emitter with `socket.createEmitter`, you can specify up to generic type to ensure type safety.
+**`PayloadType`** is the expected type of the data payload sent with the event.
+
+```tsx
+import { socket } from "./socket";
+
+const sendChatMessage = socket.createEmitter<{ message: string; author: string }>()({
+  topic: "chat-message",
+});
+
+sendChatMessage.emit({
+  data: { message: "Hello!", author: "Me" }, // Typed payload
+});
+```
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Learn more about the Listener class and its configuration options."
+  to="/docs/sockets/listener"
+/>
