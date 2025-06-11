@@ -27,6 +27,8 @@ experience. It extends these ideas to the world of real-time data.
 
 :::
 
+---
+
 ## Architecture at a Glance
 
 The Sockets module is centered around the `Socket` class, which manages the connection and orchestrates listeners and
@@ -44,6 +46,8 @@ export const socket = new Socket({
   url: "ws://localhost:3000",
 });
 ```
+
+---
 
 ## Typesafe realtime
 
@@ -73,12 +77,14 @@ chatMessageListener.listen({
 });
 ```
 
+---
+
 ## Event-Driven and Extensible
 
 Sockets exposes all events, making it easy to build custom devtools, analytics, or advanced integrations. The
 event-driven approach ensures your app can react to every stage of the connection lifecycle.
 
-## Core Principles
+### Core Principles
 
 1. **Neutral standard for data exchange**: Works with any backend or protocol supporting open connections.
 2. **Composable architecture**: Integrates with existing clients (socket.io, Firebase, etc.) via adapters.
@@ -88,7 +94,9 @@ event-driven approach ensures your app can react to every stage of the connectio
 5. **Extensible by design**: Easily add your own adapters or extend existing ones.
 6. **Event-driven**: Built for reactive, real-time workflows.
 
-## What's Next?
+---
+
+## See More
 
 <LinkCard
   type="docs"

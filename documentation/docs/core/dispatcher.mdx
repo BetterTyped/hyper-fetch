@@ -159,6 +159,8 @@ const getUser = client.createRequest()({
 const response = await getUser.send();
 ```
 
+---
+
 2. ### Queues
 
 Dispatchers stores requests in queues. Thank to this we have more and better control over the request flow. With this
@@ -290,6 +292,8 @@ setTimeout(() => {
 }, 3000);
 ```
 
+---
+
 3. ### Offline
 
 When the connection is lost, the queue is stopped and the failed or interrupted requests will wait for the connection to
@@ -341,6 +345,15 @@ getUser.send();
 getUser.send();
 ```
 
+:::tip When it could be useful?
+
+This is default mode for the requests execution. You can easily send multiple requests at the same time and get the
+responses in parallel.
+
+:::
+
+---
+
 ### Deduplication
 
 Deduplication optimizes the data exchange with the server. If we ask the server for the same data twice at the same time
@@ -348,7 +361,7 @@ with different requests, this mode will perform one call and propagate the reque
 
 Enable this mode by setting the request `deduplication` prop to true.
 
-```tsx live size=lg
+```tsx live size=md
 import { getUser } from "./api";
 
 const getUserDeduplicated = getUser.setDeduplicate(true);
@@ -374,6 +387,16 @@ setTimeout(async () => {
 // Wait for the requests to be resolved
 ```
 
+:::tip When it could be useful?
+
+Imagine different components using the same requests. Instead of sending the same request multiple times, you can group
+them into one and listen to it's response. This way you can avoid over-fetching and improve the performance of your
+application.
+
+:::
+
+---
+
 ### Cancelable
 
 Cancelable mode avoids race-conditioning when multiple requests are sent simultaneously but only the last request
@@ -396,6 +419,15 @@ setTimeout(() => {
 }, 500);
 ```
 
+:::tip When it could be useful?
+
+Cancelable mode is very useful for the paginated data. You can cancel previous requests and send the new one without
+over-fetching.
+
+:::
+
+---
+
 ### Queued
 
 This mode is ideal for a `one-by-one` sending solution. It allows you to combine requests into one ordered list that
@@ -413,5 +445,12 @@ postFileQueued.send();
 postFileQueued.send();
 postFileQueued.send();
 ```
+
+:::tip When it could be useful?
+
+This mode is useful when you transfer a lot of data and you want to control the order of the requests. This way, when
+you lose connection, you don't lose all transferred data at once.
+
+:::
 
 ---

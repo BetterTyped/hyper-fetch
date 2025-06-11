@@ -1122,7 +1122,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--learn > div:first-child svg {
   @apply stroke-[#f6f7f9] fill-transparent;
 }
-.alert--learn > div:last-child * {
+.alert--learn > div:last-child > * {
   @apply text-white text-opacity-80;
 }
 
@@ -1135,7 +1135,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--secondary > div:first-child svg {
   @apply stroke-teal-600 dark:stroke-teal-500 fill-transparent;
 }
-.alert--secondary > div:last-child * {
+.alert--secondary > div:last-child > * {
   @apply text-teal-50 text-opacity-80;
 }
 .alert--secondary > div:last-child a {
@@ -1151,7 +1151,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--tip > div:first-child svg {
   @apply stroke-green-600 dark:stroke-green-400 fill-transparent;
 }
-.alert--tip > div:last-child * {
+.alert--tip > div:last-child > * {
   @apply text-green-50 text-opacity-80;
 }
 .alert--tip > div:last-child a {
@@ -1167,7 +1167,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--success > div:first-child svg {
   @apply stroke-amber-600 dark:stroke-amber-400 fill-transparent;
 }
-.alert--success > div:last-child * {
+.alert--success > div:last-child > * {
   @apply text-amber-100;
 }
 .alert--success > div:last-child a {
@@ -1183,7 +1183,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--info > div:first-child svg {
   @apply stroke-blue-600 dark:stroke-blue-500 fill-transparent;
 }
-.alert--info > div:last-child * {
+.alert--info > div:last-child > * {
   @apply text-blue-50 text-opacity-80;
 }
 .alert--info > div:last-child a {
@@ -1199,7 +1199,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--warning > div:first-child svg {
   @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
 }
-.alert--warning > div:last-child * {
+.alert--warning > div:last-child > * {
   @apply text-yellow-50 text-opacity-70;
 }
 .alert--warning > div:last-child a {
@@ -1215,7 +1215,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--caution > div:first-child svg {
   @apply stroke-yellow-600 dark:stroke-yellow-400 fill-transparent;
 }
-.alert--caution > div:last-child * {
+.alert--caution > div:last-child > * {
   @apply text-yellow-50 text-opacity-80;
 }
 .alert--caution > div:last-child a {
@@ -1231,7 +1231,7 @@ pre code:has(.code-block-diff-remove-line) {
 .alert--danger > div:first-child svg {
   @apply stroke-red-600 dark:stroke-red-300 fill-transparent;
 }
-.alert--danger > div:last-child * {
+.alert--danger > div:last-child > * {
   @apply text-red-50 text-opacity-80;
 }
 .alert--danger > div:last-child a {

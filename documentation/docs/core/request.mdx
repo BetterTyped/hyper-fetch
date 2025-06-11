@@ -401,7 +401,7 @@ const { data: chainedData, error: chainedError } = await getUser
 
 ---
 
-### Keys
+## Keys
 
 Each `Request` instance is assigned several unique identifiers, known as **keys**. These keys are essential for internal
 mechanisms—such as caching, queueing, request cancellation, deduplication, effect management and many more. Think of
@@ -415,11 +415,7 @@ keys include only endpoint and method.
 
 :::
 
-#### What are the keys?
-
-The main keys are:
-
-1. #### `queryKey`
+### `queryKey`
 
 General identifier for the request, used for query management (e.g., refetching, optimistic updates, invalidation).
 
@@ -433,7 +429,16 @@ Set custom key with `setQueryKey` method.
 const customRequest = request.setQueryKey("custom-key");
 ```
 
-2. #### `cacheKey`
+<LinkCard
+  type="docs"
+  title="More about queryKey"
+  description="Learn more about queryKey."
+  to="/docs/core/dispatcher#querykey"
+/>
+
+---
+
+### `cacheKey`
 
 Determines how the response is stored and retrieved from the cache. Ensures correct data is cached and served.
 
@@ -447,7 +452,16 @@ Set custom key with `setCacheKey` method.
 const customRequest = request.setCacheKey("custom-key");
 ```
 
-3. #### `abortKey`
+<LinkCard
+  type="docs"
+  title="More about cacheKey"
+  description="Learn more about cacheKey."
+  to="/docs/core/cache#cachekey"
+/>
+
+---
+
+### `abortKey`
 
 Identifies and manages ongoing requests for cancellation (e.g., aborting in-flight requests).
 
@@ -461,8 +475,23 @@ Set custom key with `setAbortKey` method.
 const customRequest = request.setAbortKey("custom-key");
 ```
 
+---
+
+#### Generation mechanism
+
 By default, these keys are auto-generated based on the request's endpoint, method, and parameters. This ensures that
-each unique request configuration is tracked separately.
+each unique request configuration is tracked separately. Your can override this mechanism by providing your own
+implementation.
+
+```tsx
+import { client } from "./api";
+
+client.setCacheKeyMapper((request) => {
+  if (request.requestOptions.endpoint === "/users/:userId") {
+    return `CUSTOM_CACHE_KEY_${request.params?.userId || "unknown"}`;
+  }
+});
+```
 
 #### Why override keys?
 

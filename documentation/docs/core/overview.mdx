@@ -12,7 +12,9 @@ import { LinkCard } from "@site/src/components";
 > the core principles that shape its development. Gaining insight into these foundations will help you decide if Hyper
 > Fetch aligns with your project's needs.
 
-> These are the core principles that shape the design of Hyper Fetch.
+---
+
+## These are our core principles.
 
 ### Consistency for projects
 
@@ -61,7 +63,9 @@ const { data, error } = await someRequest.send({
 });
 ```
 
-### Classes as a core building block
+---
+
+### Classes as a composable building block
 
 A class-based architecture underpins every important module, bringing several advantages to the table. Testing and
 mocking become much simpler, which helps maintain code quality and reliability. When building stories for components
@@ -85,6 +89,8 @@ const getUser = getUsers.setParams({ id: "123" });
 console.log(getUser.endpoint); // /api/users/123
 console.log(getUser.requestOptions.endpoint); // /api/users/:id
 ```
+
+---
 
 ### Request as a fetching template
 
@@ -126,6 +132,8 @@ const Component = () => {
 
 This flexibility empowers you to manage loading states and data flow more effectively across your application.
 
+---
+
 ### Access to whole request lifecycle
 
 Unlike many popular data fetching libraries, such as React Query or SWR, which are decoupled from the underlying
@@ -156,6 +164,8 @@ It gives unified layer for tracking it and managing exactly as you want.
 
 :::
 
+---
+
 ### Standardized API for all integrations
 
 A unified API for interacting with server data is offered, regardless of the underlying technology be it HTTP, GraphQL,
@@ -168,6 +178,8 @@ as you only need to implement a simple adapter interface to add new integrations
 
 This approach keeps your code clean, easy to understand, and highly maintainable, while also enabling rapid adoption of
 new technologies as they emerge.
+
+---
 
 ### Event-driven architecture
 
