@@ -177,6 +177,11 @@ const UsersListPage = () => {
 - `onDownloadProgress`: Fires when the request is downloading data.
 - `onUploadProgress`: Fires when the request is uploading data.
 
+Both handlers receive give you access to a `ProgressType` object containing crucial information about the request's
+progress.
+
+(@import core ProgressType type=returns)
+
 :::success Rich progress tracking
 
 We are providing advanced progress tracking for both download and upload - with ETA, size left, total size, loaded size,
