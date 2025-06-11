@@ -132,8 +132,8 @@ const RequestLifecycle = ({
         </div>
       </div>
       <div className="grid">
-        {/* <ProgressDetails label="Upload progress" progress={queueRequest.uploading} color={color} /> */}
-        {/* <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-4" /> */}
+        <ProgressDetails label="Upload progress" progress={queueRequest.uploading} color={color} />
+        <div className="h-px bg-zinc-200 dark:bg-zinc-700 my-4" />
         <ProgressDetails label="Download progress" progress={queueRequest.downloading} color={color} />
       </div>
     </DocsCard>
