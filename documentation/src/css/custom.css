@@ -622,7 +622,7 @@ pre {
 }
 
 .api-playground__preview:not(.api-playground__preview--log) > * {
-  @apply bg-slate-700 rounded-md shadow-md p-4;
+  @apply bg-zinc-700 rounded-md shadow-md p-4;
 }
 
 .api-playground__label {

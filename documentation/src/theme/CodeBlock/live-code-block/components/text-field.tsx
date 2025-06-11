@@ -17,8 +17,8 @@ export const TextField: React.FC<TextFieldProps> = ({ label, error, className = 
       )}
       <input
         id={id}
-        className={`w-full px-3 py-2 border bg-slate-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm ${
-          error ? "border-red-500" : "border-gray-400"
+        className={`w-full px-3 py-2 border bg-zinc-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm ${
+          error ? "border-red-500" : "border-zinc-400"
         } ${className}`}
         {...props}
       />
