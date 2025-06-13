@@ -6,37 +6,35 @@ sidebar_label: useEmitter
 
 # useEmitter
 
-[Read the API Reference »](/api/react/Hooks/useEmitter.mdx)
+[Read the API Reference »](/docs/api/react/Hooks/useEmitter)
+
+The `useEmitter` hook is your main tool for **sending events** to a server in React components. It integrates seamlessly
+with Hyper Fetch's core systems, particularly the [`Emitter`](/docs/sockets/emitter), to deliver a robust, reactive, and
+efficient event-emitting experience.
+
+:::tip Purpose
+
+1.  **Declarative event emitting**: Provide an `Emitter` and let the hook manage the process.
+2.  **Automatic connection management**: Handles `connected` state for you.
+3.  **Lifecycle callbacks**: Easily run side effects on events, errors, or reconnections.
+4.  **Deep core integration**: Uses a central event dispatcher to send events.
+
+:::
+
+> If you intend to `listen` to events from the server, we recommend choosing the
+> [`useListener`](/docs/react/sockets/use-listener) hook.
 
 ---
 
-## Introduction
+## Quick Start
 
-This hook **send events** to the server. The minimum requirement for `useEmitter` is a prepared
-[`Emitter`](/sockets/emitter.mdx).
+To use `useEmitter`, provide a prepared [`Emitter`](/docs/sockets/emitter) instance. The hook returns an `emit` function
+to send events and the current state of the socket connection.
 
-If you intend to `listen` to events from the server, we recommend choosing the
-[`useListener`](/react/04-sockets/use-listener.mdx) hook.
-
----
-
-## Initialization
+First, let's define an emitter.
 
 ```tsx
-const { emit, timestamp, connected, onEvent, onError, onReconnecting } = useEmitter(postLogin);
-```
-
----
-
-## How it works?
-
-**`useEmitter`** executes a Emitter when a `emit()` function returned from it gets triggered. It uses dependency
-tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
-established by event emitters. Many `"helper hooks"` (such as `onEvent`, `onError`, `onReconnecting`, etc.) are
-returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base hook with
-callback logic. It also helps improve code readability, decreases code complication, and promotes more organized code.
-
-```tsx
+// src/api/chat.ts
 import { socketInstance } from "./socket";
 
 export const emitMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
@@ -44,14 +42,64 @@ export const emitMessage = socketInstance.createEmitter<ChatMessageType, Acknowl
 });
 ```
 
-#### Use it in your component.
+Now, let's use it in a component.
+
+```tsx
+// src/components/MessageComponent.tsx
+import { useEmitter } from "@hyper-fetch/react";
+import { emitMessage } from "./api/chat";
+
+const MessageComponent: React.FC = () => {
+  const { emit, connected } = useEmitter(emitMessage);
+
+  const onSubmit = (values: { message: string }) => {
+    // ResponseDataType is automatically inherited from Emitter class
+    const acknowledge = (error: Error, data: ResponseDataType) => {
+      if (error) {
+        alert("No server response!");
+      } else {
+        alert("Message received on server.");
+      }
+    };
+
+    emit({ data: values }, acknowledge);
+  };
+
+  return (
+    <Form onSubmit={onSubmit}>
+      {/* ... form fields ... */}
+      <button type="submit" disabled={!connected}>
+        Send
+      </button>
+    </Form>
+  );
+};
+```
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Learn more about creating and configuring emitters."
+  to="/docs/sockets/emitter"
+/>
+
+---
+
+## Event Handlers
+
+To handle side effects such as notifications, logging, or triggering other actions, `useEmitter` provides a set of event
+handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
+
+1.  `onEvent`: Fires before we send event message.
+2.  `onError`: Fires when an error occurs.
+3.  `onReconnecting`: Fires when the socket is attempting to reconnect.
 
 ```tsx
 import { useEmitter } from "@hyper-fetch/react";
 import { emitMessage } from "./api";
 
 const MessageComponent: React.FC = () => {
-  const { emit, timestamp, connected, onEvent, onError, onReconnecting } = useEmitter(postLogin);
+  const { emit, onEvent, onError, onReconnecting } = useEmitter(emitMessage);
 
   onEvent((emitter) => {
     // Event before we send event message
@@ -66,51 +114,28 @@ const MessageComponent: React.FC = () => {
     console.log(reconnectingAttempt); // 1
   });
 
-  const onSubmit = (values: Values) => {
-    // ResponseDataType is automatically inherited from Emitter class
-    const acknowledge = (error: Error, data: ResponseDataType) => {
-      if (error) {
-        alert("No server response!");
-      } else {
-        alert("Message received on server.");
-      }
-    };
-
-    emit({ data: values }, acknowledge);
-  };
-
-  return (
-    <Formik onSubmit={onSubmit} validationSchema={validationSchema}>
-      <Form>
-        <FormInput name="message" label="Message" placeholder="Write message" />
-        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
-          Send
-        </Button>
-      </Form>
-    </Formik>
-  );
+  // ...
 };
 ```
 
 ---
 
-## Passing data and params
+## Sending Data
 
-Data and parameters can be passed in several ways. One option is to use `setData` method on the
-[`Emitter`](/sockets/emitter.mdx).
+Data can be passed in several ways. One option is to use `setData` method on the [`Emitter`](/docs/sockets/emitter).
 
 ```tsx
 const { emit } = useEmitter(emitMessage.setData({ message: "New message" }));
 ```
 
-However, you may need to pass parameters dynamically, which requires using `emit` function options.
+However, you may need to pass data dynamically, which requires using the `emit` function.
 
 ```tsx
 const { emit } = useEmitter(emitMessage);
 
-const handleSubmit = (id: number, name: string) => {
+const handleSubmit = (message: string) => {
   // ResponseDataType is automatically inherited from Emitter class
-  emit({ data: { name } }, (error: Error, data: ResponseDataType) => {
+  emit({ data: { message } }, (error: Error, data: ResponseDataType) => {
     if (error) {
       alert("No server response!");
     } else {
@@ -124,7 +149,7 @@ const handleSubmit = (id: number, name: string) => {
 
 ## Options
 
-These configuration options should be provided as a second parameter:
+Customize the behavior of `useEmitter` by passing an options object as the second argument.
 
 ```tsx
 const { ... } = useEmitter(emitter, options)
@@ -132,14 +157,48 @@ const { ... } = useEmitter(emitter, options)
 
 (@import react UseEmitterOptionsType type=returns)
 
+<LinkCard
+  type="api"
+  title="UseEmitterOptionsType API Reference"
+  description="Learn more about the useEmitter hook options."
+  to="/docs/api/react/Types/UseEmitterOptionsType"
+/>
+
 ---
 
 ## Returns
 
-Returned values from this hook:
+`useEmitter` returns an object containing the socket's state and helper methods.
 
 ```tsx
 const values = useEmitter(emitter);
 ```
 
 (@import react useEmitter type=returns)
+
+<LinkCard
+  type="api"
+  title="useEmitter API Reference"
+  description="Learn more about the values returned from the useEmitter hook."
+  to="/docs/api/react/Hooks/useEmitter"
+/>
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Learn more about the useListener hook for receiving socket events."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard type="docs" title="Emitter" description="Learn more about the Emitter class." to="/docs/sockets/emitter" />
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about creating a socket instance."
+  to="/docs/sockets/socket"
+/>

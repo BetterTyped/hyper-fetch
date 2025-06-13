@@ -8,18 +8,89 @@ sidebar_label: useSubmit
 
 [Read the API Reference »](/api/react/Hooks/useSubmit.mdx)
 
+The `useSubmit` hook is designed for **mutating data** on the server. It provides a powerful and streamlined way to
+handle submissions, such as creating, updating, or deleting resources. It integrates with Hyper Fetch's core systems
+like the [`Dispatcher`](/docs/core/dispatcher) and [`Cache`](/docs/core/cache) to manage request states and data
+consistency.
+
+:::tip Purpose
+
+1.  **Simplified mutations**: Easily trigger data-modifying requests with a `submit` function.
+2.  **State management**: Automatically handles `submitting`, `error`, and `response` states.
+3.  **Lifecycle callbacks**: Provides hooks like `onSubmitSuccess`, `onSubmitError`, and `onSubmitFinished` to manage
+    side effects cleanly.
+4.  **Controlled requests**: Fine-grained control over request execution and data submission.
+5.  **Deep cache integration**: Leverages the central cache to keep data consistent across the application.
+
+:::
+
+> If you only need to fetch data, consider using the [`useFetch`](/react/03-hooks/use-fetch.mdx) hook.
+
 ---
 
-## Introduction
+## Quick Start
 
-This hook **mutates data** on the server and supports controlling requests. It uses the
-[`Submit Dispatcher`](/core/dispatcher.mdx) to handle requests and the [`Cache`](/core/cache.mdx) to manage the overall
-state of the data.
+To use `useSubmit`, provide a prepared [`Request`](/docs/core/request) instance. The hook returns a `submit` function to
+trigger the request, along with state variables like `submitting` to track its progress.
 
-The minimum requirement for `useSubmit` is a prepared [`Request`](/core/request.mdx).
+```tsx live title="Creating a new user" size="lg"
+import { useSubmit } from "@hyper-fetch/react";
+import { createUser } from "./api/users";
 
-If you intend to `retrieve` data from the server, we recommend choosing the [`useFetch`](/react/03-hooks/use-fetch.mdx)
-hook.
+function App() {
+  const [name, setName] = useState("");
+  const { submit, submitting, onSubmitSuccess, onSubmitError, data } = useSubmit(createUser);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    submit({ data: { name } });
+  };
+
+  onSubmitSuccess(() => {
+    toast({
+      title: "Success",
+      message: "User created successfully!",
+      type: "success",
+    });
+    setName("");
+  });
+
+  onSubmitError((response) => {
+    toast({
+      title: "Error",
+      message: response.error.message,
+      type: "error",
+    });
+  });
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <TextField
+        label="User Name"
+        placeholder="Enter user name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        disabled={submitting}
+      />
+      <Button type="submit" disabled={submitting}>
+        {submitting ? "Creating..." : "Create User"}
+      </Button>
+      {data && (
+        <Alert severity="success">
+          <p>New user created with ID: {data.id}</p>
+        </Alert>
+      )}
+    </form>
+  );
+}
+```
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn more about creating and configuring requests."
+  to="/docs/core/request"
+/>
 
 ---
 
@@ -88,22 +159,76 @@ const LoginPage: React.FC = () => {
 
 ---
 
-## Passing data and params
+## Event Handlers
 
-Data and parameters can be passed in several ways. One option is to use methods on the [`Request`](/core/request.mdx),
-such as `setData` or `setParams`.
+`useSubmit` provides several hooks to handle side effects at different stages of the request lifecycle. This approach
+keeps your component logic clean by separating actions like showing notifications or redirecting from the submission
+itself.
+
+1.  `onSubmitSuccess`: Fires when the request completes successfully. It receives the success `response`.
+2.  `onSubmitError`: Fires when the request fails. It receives the `error` object.
+3.  `onSubmitFinished`: Fires when the request is finished, regardless of the outcome.
+
+```tsx title="Using Event Handlers"
+import { useSubmit } from "@hyper-fetch/react";
+import { postLogin } from "server";
+
+const LoginPage = () => {
+  const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess(({ response }) => {
+    console.log("Login successful:", response);
+    toast({ title: "Success", message: "Logged in!", type: "success" });
+  });
+
+  onSubmitError(({ error }) => {
+    console.error("Login failed:", error);
+    toast({ title: "Error", message: error.message, type: "error" });
+  });
+
+  onSubmitFinished((response) => {
+    console.log("Request finished", response);
+  });
+
+  const handleLogin = (values) => {
+    submit({ data: values });
+  };
+
+  // ... form rendering logic
+};
+```
+
+---
+
+## Passing Data and Parameters
+
+You can pass data, and parameters to your request in two main ways.
+
+### Statically on the Request
+
+For data that doesn't change, you can set it directly on the [`Request`](/docs/core/request) instance.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
+
+// Later in your component
+submit();
 ```
 
-However, you may need to pass parameters dynamically, which requires using `submit` function options.
+### Dynamically with the `submit` function
+
+For dynamic data, such as from user input, pass it in the `options` object to the `submit` function. This is the most
+common approach.
 
 ```tsx
 const { submit } = useSubmit(patchUser);
 
 const handleSubmit = (id: number, name: string) => {
-  submit({ data: { name }, params: { userId: id }, queryParams: { search: "test" } });
+  submit({
+    data: { name },
+    params: { userId: id },
+    queryParams: { notify: "true" },
+  });
 };
 ```
 
@@ -111,22 +236,76 @@ const handleSubmit = (id: number, name: string) => {
 
 ## Options
 
-These configuration options should be provided as a second parameter:
+Customize the behavior of `useSubmit` by passing an options object as the second argument.
 
 ```tsx
-const { ... } = useSubmit(request, options)
+const { ... } = useSubmit(request, {
+  disabled: false,
+  // ... and more
+});
 ```
+
+Below is a full list of available options.
 
 (@import react UseSubmitOptionsType type=returns)
 
+<LinkCard
+  type="api"
+  title="UseSubmitOptionsType API Reference"
+  description="Learn more about the useSubmit hook's options."
+  to="/docs/api/react/Types/UseSubmitOptionsType"
+/>
+
 ---
 
-## Returns
+## State and Methods
 
-Returned values from this hook:
+`useSubmit` returns an object containing the request's state, the `submit` method, and event handlers.
 
 ```tsx
-const values = useSubmit(request);
+const {
+  submit,
+  submitting,
+  data,
+  error,
+  status,
+  onSubmitSuccess,
+  // ... and more
+} = useSubmit(request);
 ```
 
+Below is a full list of returned values.
+
 (@import react useSubmit type=returns)
+
+<LinkCard
+  type="api"
+  title="useSubmit API Reference"
+  description="Learn more about the useSubmit hook."
+  to="/docs/api/react/Hooks/useSubmit"
+/>
+
+---
+
+## See More
+
+<LinkCard
+  type="guides"
+  title="Submitting data"
+  description="Learn more about submitting data with useSubmit."
+  to="/docs/guides/react/basics/submitting"
+/>
+
+<LinkCard
+  type="docs"
+  title="useFetch"
+  description="Learn more about the useFetch hook for fetching data."
+  to="/docs/react/hooks/use-fetch"
+/>
+
+<LinkCard
+  type="docs"
+  title="useCache"
+  description="Learn more about the useCache hook for direct cache manipulation."
+  to="/docs/react/hooks/use-cache"
+/>
