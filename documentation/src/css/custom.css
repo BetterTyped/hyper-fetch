@@ -1022,7 +1022,7 @@ body .theme-code-block {
 }
 
 .docs-wrapper a > code {
-  @apply bg-yellow-500/60 border-yellow-400/30 hover:bg-yellow-400/60 hover:border-yellow-300/50 !rounded-md;
+  @apply bg-yellow-500/60 border-yellow-400/30 hover:bg-yellow-400/60 hover:border-yellow-300/50;
 }
 
 pre[class*="language-"] {
