@@ -5,18 +5,18 @@ export const PackageDetails = ({
 }: {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   name?: string;
-  pkg: string | string[];
+  pkg: string;
 }) => {
-  const names = name || (Array.isArray(pkg) ? pkg.map((el) => el.split("/")[1]).join(", ") : pkg.split("/")[1]);
+  const packageName = name || pkg.split("/")[1];
 
   return (
     <div className="package-wrapper mb-6">
-      <div className="package-details w-fit min-w-[220px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/90 dark:to-zinc-900/85 rounded-lg border dark:border-zinc-800">
-        <div className="pl-4 pr-4 pt-2 pb-2 flex items-center gap-3">
+      <div className="package-details w-fit min-w-[270px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800/90 dark:to-zinc-900/85 rounded-lg border dark:border-zinc-700/80">
+        <div className="pl-3 pr-3 pt-2 pb-2 flex items-center gap-3">
           <Icon className="w-8 h-8 mt-0.5" />
           <div className="text-start w-fit">
-            <div className="relative inline-flex items-center gap-2 text-lg w-fit">{names}</div>
-            <div className="relative flex justify-start items-center z-10 -mt-1">
+            <div className="relative inline-flex items-center gap-2 text-base w-fit">{packageName}</div>
+            <div className="relative flex justify-start items-center z-10 -mt-0.5 gap-3">
               <a
                 className="text-blue-500 font-medium flex items-center space-x-1 text-xs"
                 href={`https://www.npmjs.com/package/${pkg}`}

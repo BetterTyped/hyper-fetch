@@ -1,13 +1,7 @@
 import { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
-import {
-  OnErrorCallbackType,
-  OnFinishedCallbackType,
-  OnSuccessCallbackType,
-  UseTrackedStateActions,
-  UseTrackedStateType,
-} from "helpers";
+import { UseTrackedStateActions, UseTrackedStateType } from "helpers";
 
 export type UseCacheOptionsType<T extends RequestInstance> = {
   /**
@@ -27,19 +21,7 @@ export type UseCacheOptionsType<T extends RequestInstance> = {
 export type UseCacheReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
   UseTrackedStateActions<T> & {
     /**
-     * Helper hook listener for success response
+     * Invalidate cache for the current request or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
-    /**
-     * Helper hook listener for error response
-     */
-    onCacheError: (callback: OnErrorCallbackType<T>) => void;
-    /**
-     * Helper hook listener for response
-     */
-    onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
-    /**
-     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
-     */
-    refetch: (invalidateKey?: string | RegExp | RequestInstance) => void;
+    invalidate: (cacheKeys?: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => void;
   };

@@ -345,6 +345,10 @@ const config: Config = {
           line: "error-next-line",
           block: { start: "error-start", end: "error-end" },
         },
+        {
+          className: "code-block-code-editor-split",
+          line: "code-editor-split",
+        },
       ],
       theme: {
         plain: {},

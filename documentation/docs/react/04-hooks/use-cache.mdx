@@ -6,33 +6,87 @@ sidebar_label: useCache
 
 # useCache
 
-[Read the API Reference »](/api/react/Hooks/useCache.mdx)
+[Read the API Reference »](/docs/api/react/Hooks/useCache)
+
+The `useCache` hook allows you to interact with the [`Cache`](/docs/core/cache) of a given request. It provides state,
+methods, and event callbacks for cache changes. Ensure that the `cacheKey` is stable and not affected by
+auto-generation, so the hook always references the correct cache entry.
+
+:::tip Purpose
+
+1. Easily **manage and observe the cache** for a specific request in React.
+2. Provides **state and methods** to interact with the cache layer.
+3. Enables the cache **invalidation** for refetching.
+
+:::
 
 ---
 
-## Introduction
+## Quick Start
 
-This hook allows us to manipulate the passed request’s [`Cache`](/core/managers.mdx) and receive change callbacks. It is
-important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable connection between
-the hook's request and the cache.
+Just provide a prepared [`Request`](/docs/core/request) instance to the hook and listen to it's cache state.
+
+:::warning Remember to match the `cacheKey`
+
+Request's `cacheKey` are generated dynamically based on the request's `queryKey` and `params`. If you want to use
+`useCache` hook, you need to ensure that the `cacheKey` is matching the triggered request's `cacheKey`.
+
+For example if your request has params, provide them like:
+
+```ts
+// When fetching data
+const { data } = useFetch(getUser.setParams({ userId: 1 }));
+
+// code-editor-split
+
+// When listening to cache from another component
+const { data } = useCache(getUser.setParams({ userId: 1 }));
+```
+
+:::
 
 ```tsx
-const { data, error, loading, refetch, onSuccess, onError, onFinished } = useCache(getUsers);
+import { useCache } from "@better-typed/react";
 
-onSuccess((payload) => {
-  console.log(payload); // [ User, User, User ]
-});
-
-onError((error) => {
-  console.log(error); // { message: string }
-});
-
-onFinished(([payload, error, status]) => {
-  console.log(payload); // [ User, User, User ] | null
-  console.log(error); // { message: string } | null
-  console.log(status); // 200 / 400 / 404 / 500 ...
-});
+const { data, error, loading, invalidate, setData, setError, setLoading } = useCache(getUsers);
 ```
+
+---
+
+## Invalidate cache
+
+Invalidate the cache for the current request or a custom key.
+
+```tsx
+const { invalidate } = useCache(request);
+
+// Invalidate current request cache
+invalidate();
+
+// Invalidate by custom key (Regex or cacheKey)
+invalidate(cacheKey);
+```
+
+:::info Invalidating cache
+
+In many cases, **you don't need to use** the `useCache` hook to invalidate cache entries. You can call the `invalidate`
+method directly on the cache instance for more flexibility. Do not worry - it is integrated with our hooks, so you can
+use it in the same way as with the `useCache` hook.
+
+```tsx
+import { client } from "./client";
+
+// Invalidate cache for a specific request
+client.cache.invalidate(request);
+
+// Invalidate cache by custom key (Regex or cacheKey)
+client.cache.invalidate(/^getUsers/);
+
+// Invalidate cache by request instance
+client.cache.invalidate(request);
+```
+
+:::
 
 ---
 
@@ -48,12 +102,37 @@ const { ... } = useCache(request, options)
 
 ---
 
-## Returns
+## State and methods
 
-Returned values from this hook.
+This hook returns the following values.
 
 ```tsx
 const values = useCache(request);
 ```
 
 (@import react useCache type=returns)
+
+---
+
+## See also
+
+<LinkCard
+  type="docs"
+  to="/docs/react/hooks"
+  title="Use with React"
+  description="Overview of all React hooks and the approach to use them"
+/>
+
+<LinkCard
+  type="docs"
+  to="/docs/core/cache"
+  title="Cache"
+  description="Learn more about the Cache class and its methods"
+/>
+
+<LinkCard
+  type="api"
+  to="/docs/api/react/Hooks/useCache"
+  title="API Reference: useCache"
+  description="Learn more about the useCache hook"
+/>

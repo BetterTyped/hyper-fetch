@@ -35,8 +35,8 @@ Handling realtime data exchange such as with WebSockets or Server-Sent Events (S
 particularly around maintaining type safety as your application grows. The library addresses this by exposing dedicated
 Listener and Emitter classes, each with their own explicit types for responses and payloads.
 
-This means that when you use a listener, such as `useChatMessage`, you always know the exact type of data being handled.
-Similarly, when emitting data, you have clear expectations for the payload structure.
+This means that when you use a listener, such as `chatMessageListener`, you always know the exact type of data being
+handled. Similarly, when emitting data, you have clear expectations for the payload structure.
 
 This approach is especially powerful in projects with multiple listeners and emitters, ensuring type safety and
 maintainability even as your application scales.
@@ -61,7 +61,7 @@ chatMessageListener.listen({
 
 ---
 
-## Use listener templates instead of `on()` methods
+## Listener templates
 
 Usual approach to sockets it to use the `.on()` method where you have to define the topic and the callback. Our approach
 is a bit different. Just like in the core-package we prefer to create reusable templates for the listeners. They keep
@@ -91,7 +91,7 @@ chatMessageListener.listen({
 
 ---
 
-## Use emitter templates instead of `emit()` methods
+## Emitter templates
 
 To incorporate full type-safety and readability we also have emitter templates. They are used to send messages to the
 realtime servers. This way we keep very clear data-exchange between the client and the server. It is reusable and very

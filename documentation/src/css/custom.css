@@ -1001,6 +1001,17 @@ body .theme-code-block span {
   @apply !bg-zinc-700/30;
 }
 
+.code-block-code-editor-split {
+  display: flex;
+  height: 20px; /* control the size */
+  background:
+    conic-gradient(from 135deg at top, #2a2a2a 90deg, #0000 0) top,
+    conic-gradient(from 135deg at top, #0000 90deg, #2a2a2a 0) bottom;
+  background-size: 15px 50%;
+  background-repeat: repeat-x;
+  @apply -mx-4 mb-4;
+}
+
 .token {
   color: white;
 }
@@ -1021,8 +1032,12 @@ body .theme-code-block {
   @apply !no-underline;
 }
 
-.docs-wrapper a > code {
+.docs-wrapper a:not(.table-of-contents__link) > code {
   @apply bg-yellow-500/60 border-yellow-400/30 hover:bg-yellow-400/60 hover:border-yellow-300/50;
+}
+
+a.table-of-contents__link > code {
+  @apply !text-white;
 }
 
 pre[class*="language-"] {
@@ -1032,7 +1047,7 @@ pre[class*="language-"] {
 }
 
 pre[class*="language-"] > code {
-  @apply bg-[#1c1c1d];
+  @apply bg-[#171717];
 }
 
 .code-block-diff-add-line {
@@ -1088,15 +1103,15 @@ pre code:has(.code-block-diff-remove-line) {
 }
 
 .alert {
-  @apply relative px-6 md:px-8 py-8 rounded-2xl mt-6 border-0;
+  @apply relative px-6 md:px-8 py-8 rounded-2xl mt-6 border-0 overflow-hidden;
 }
 .alert::before {
   background-image: url("/img/noise.webp");
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   background-repeat: repeat;
   content: "";
-  @apply absolute inset-0 -z-10 opacity-[0.01] pointer-events-none;
+  @apply absolute inset-0 -z-10 opacity-[0.05] pointer-events-none;
 }
 .alert::after {
   @apply inset-0 absolute [background-image:radial-gradient(88%_100%_at_top,rgba(255,255,255,0.5),rgba(255,255,255,0))] z-[1] opacity-30 pointer-events-none;
@@ -1122,7 +1137,7 @@ pre code:has(.code-block-diff-remove-line) {
 
 .alert--learn {
   border: 1px solid;
-  @apply bg-zinc-200 dark:bg-zinc-600/50 text-[#ebecf0] !border-zinc-500;
+  @apply bg-zinc-200 dark:bg-zinc-600/40 text-[#ebecf0] !border-zinc-500/60;
 }
 .alert--learn > div:first-child {
   @apply text-[#f6f7f9];
@@ -1135,7 +1150,7 @@ pre code:has(.code-block-diff-remove-line) {
 }
 
 .alert--secondary {
-  @apply bg-teal-200 dark:bg-teal-900 bg-opacity-20 dark:bg-opacity-20;
+  @apply bg-teal-200 dark:bg-teal-900 bg-opacity-20 dark:bg-opacity-30;
 }
 .alert--secondary > div:first-child {
   @apply text-teal-600 dark:text-teal-500;
@@ -1196,6 +1211,9 @@ pre code:has(.code-block-diff-remove-line) {
 }
 .alert--info > div:last-child a {
   @apply text-blue-400 decoration-blue-400 text-opacity-80;
+}
+.alert--info::before {
+  @apply opacity-[0.025];
 }
 
 .alert--warning {

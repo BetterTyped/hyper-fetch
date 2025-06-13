@@ -42,13 +42,13 @@ accurate but also highly usable, discoverable, and enjoyable for all users.
 1. Title 
 2. Description
 3. Admonition with types:
-  - :::tip is good for docs and "Purpose"
+  - :::tip is good for docs and "Purpose" (Purpose - should contain numbered list of features with bold parts of text)
   - :::secondary for guides and "What you'll learn"
   - :::success for the end of guide, or summaries of what you learnt
   - :::caution / :::warning for important and possibly unsafe details
   - :::danger for places that can cause errors or unexpected behavior
 This admonition should usually have the numbered list
-4. Other sections...
+1. Other sections...
 
 ## Markdown Usage
 
