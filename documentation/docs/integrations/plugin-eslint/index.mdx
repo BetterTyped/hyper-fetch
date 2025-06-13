@@ -1,35 +1,55 @@
 ---
 sidebar_position: 1
 title: ESLint Plugin
+sidebar_label: Overview
 ---
 
 # ESLint Plugin
 
-The **`eslint-plugin-hyper-fetch`** extends your development experience by providing custom ESLint rules specifically
-designed to catch common issues when working with Hyper Fetch. These rules help identify problems with generic types
-that TypeScript alone might not catch, such as typos, missing values, or incorrect type usage.
+Enhance your development workflow with **`eslint-plugin-hyper-fetch`**, a set of custom ESLint rules designed to catch
+common issues when working with Hyper Fetch. This plugin helps you identify and resolve problems with generic types that
+TypeScript alone might miss, such as typos, missing values, or incorrect type usage.
 
-## Overview
+---
 
-The plugin currently provides the following rules:
+:::tip Purpose
 
-- **`client-generic-types`**: Ensures proper generic types when creating clients
+1. Catch generic type issues TypeScript may miss
+2. Prevent runtime errors early
+3. Improve developer experience with clear feedback
+
+:::
+
+---
+
+## Install the Plugin
+
+Install the ESLint plugin using npm or yarn:
+
+```bash npm2yarn2pnpm
+npm install eslint-plugin-hyper-fetch
+```
+
+---
+
+## Key Features
+
+- **Type-Safe Generics**: Detects generic type errors that TypeScript may overlook
+- **Immediate Feedback**: Surfaces type-related issues as you code
+- **Fewer Runtime Bugs**: Prevents issues caused by incorrect type usage
+- **Clear Error Messages**: Makes debugging faster and easier
+
+---
+
+## Available Rules
+
+- **`client-generic-types`**: Ensures correct generic types when creating clients
 - **`request-generic-types`**: Validates generic types when creating requests
 
-These rules extend TypeScript's capabilities by performing deeper analysis of your code, catching issues before they
-cause runtime problems.
+---
 
-## Key Benefits
+## Why Use This Plugin?
 
-- **Better Type Safety**: Catch generic type errors that TypeScript might miss
-- **Improved Developer Experience**: Get immediate feedback on type-related issues
-- **Reduced Runtime Errors**: Prevent bugs caused by incorrect type usage
-- **Easier Debugging**: Clear error messages help you quickly identify and fix problems
-
-## Quick Navigation
-
-- [Installation](/documentation/docs/integrations/plugin-eslint/installation.mdx)
-- [Configuration](/documentation/docs/integrations/plugin-eslint/configuration.mdx)
-- [Rules](/documentation/docs/integrations/plugin-eslint/rules.mdx)
-- [Examples](/documentation/docs/integrations/plugin-eslint/examples.mdx)
-- [Troubleshooting](/documentation/docs/integrations/plugin-eslint/troubleshooting.mdx)
+- Reduce runtime errors by catching mistakes early
+- Improve developer experience with actionable feedback
+- Strengthen your codebase with better type safety
