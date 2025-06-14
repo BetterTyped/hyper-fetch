@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+html body {
+  --color-1: 0 100% 63%;
+  --color-2: 270 100% 63%;
+  --color-3: 210 100% 63%;
+  --color-4: 195 100% 63%;
+  --color-5: 90 100% 63%;
+
+  --docsearch-text-color: theme(colors.zinc.100);
+  --docsearch-container-background: rgba(9, 10, 17, 0.7);
+  --docsearch-modal-background: theme(colors.zinc.900/20);
+  --docsearch-modal-shadow: inset 1px 1px 0 0 theme(colors.zinc.800), 0 3px 8px 0 theme(colors.zinc.950/20);
+  --docsearch-searchbox-background: theme(colors.zinc.950);
+  --docsearch-searchbox-focus-background: theme(colors.zinc.900);
+  --docsearch-hit-color: theme(colors.zinc.400);
+  --docsearch-hit-shadow: none;
+  --docsearch-hit-background: theme(colors.zinc.950);
+  --docsearch-key-gradient: linear-gradient(-26.5deg, theme(colors.zinc.600), theme(colors.zinc.800));
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 theme(colors.zinc.800), inset 0 0 1px 1px theme(colors.zinc.700),
+    0 2px 2px 0 theme(colors.zinc.900/30);
+  --docsearch-key-pressed-shadow:
+    inset 0 -2px 0 0 theme(colors.zinc.800), inset 0 0 1px 1px theme(colors.zinc.700),
+    0 1px 1px 0 theme(colors.zinc.900/30);
+  --docsearch-footer-background: theme(colors.zinc.800);
+  --docsearch-footer-shadow: inset 0 1px 0 0 theme(colors.zinc.400/50), 0 -4px 8px 0 theme(colors.zinc.900/20);
+  --docsearch-logo-color: theme(colors.zinc.100);
+  --docsearch-muted-color: theme(colors.zinc.500);
+  --docsearch-highlight-color: theme(colors.cyan.500);
+}
+
 .tabs-container {
   @apply !w-full !flex !flex-col;
 }
@@ -1428,8 +1458,8 @@ body {
   background-image: url("/img/github.svg");
   background-size: contain;
   content: "";
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 
 .github svg {
@@ -1469,7 +1499,7 @@ html[data-theme="dark"] .navbar-sidebar .github {
 }
 
 .navbar__items--right {
-  flex-direction: row-reverse;
+  @apply space-x-2;
 }
 .navbar__link {
   @apply items-center font-medium text-sm text-zinc-500 hover:!text-zinc-800 dark:text-zinc-400 dark:hover:!text-white transition duration-150 ease-in-out;
@@ -1496,8 +1526,18 @@ html[data-theme="dark"] .navbar-sidebar .github {
   @apply !gap-0;
 }
 
+@media (max-width: 997px) {
+  .navbar--fixed-top .navbar__items--right button {
+    @apply hidden;
+  }
+}
+
+.navbar__toggle {
+  @apply scale-150;
+}
+
 .navbar__items--right > * {
-  @apply !p-0 !m-0;
+  @apply !m-0;
 }
 
 .navbar__logo:hover {
@@ -1618,8 +1658,8 @@ nav button.DocSearch-Button {
 }
 
 button.DocSearch-Button {
-  @apply !pl-3 shiny-btn !rounded-md;
-  height: 32px;
+  @apply !pl-3 shiny-btn !rounded-md w-full;
+  height: 36px;
   border: 1px solid transparent !important;
 }
 

@@ -33,11 +33,16 @@ module.exports = {
         animation: {
           endless: "endless 20s linear infinite",
           shine: "shine var(--duration) infinite linear",
+          rainbow: "rainbow var(--speed, 2s) infinite linear",
         },
         keyframes: {
           endless: {
             "0%": { transform: "translateY(0)" },
             "100%": { transform: "translateY(-245px)" },
+          },
+          rainbow: {
+            "0%": { "background-position": "0%" },
+            "100%": { "background-position": "200%" },
           },
           shine: {
             "0%": {

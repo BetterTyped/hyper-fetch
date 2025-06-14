@@ -38,6 +38,8 @@ export type SidebarItem = {
   img: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active: boolean;
   section: Section;
+  isNew?: boolean;
+  isPro?: boolean;
 };
 
 export const useSidebar = (options?: {
@@ -159,6 +161,8 @@ export const useSidebar = (options?: {
           img: section?.img,
           active,
           section,
+          isNew: section?.isNew,
+          isPro: section?.isPro,
         } satisfies SidebarItem;
       })
       .filter((item) => item.section && (!showAllPackages || item.section.isPackage))

@@ -7,6 +7,7 @@ import { isBrowser } from "./utils/is-browser";
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
+const HyperFlowIcon = isBrowser() ? require("../static/img/hyper-flow.svg").default : () => null;
 
 export type Section = {
   label: string;
@@ -31,6 +32,8 @@ export type Section = {
   category: string;
   featured?: boolean;
   isPackage: boolean;
+  isNew?: boolean;
+  isPro?: boolean;
 } & (
   | {
       isPackage: false;
@@ -120,5 +123,25 @@ export const modules: Section[] = [
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
     category: "Framework",
     package: "react",
+  },
+  {
+    label: "HyperFlow",
+    description: "Devtools for building, testing and debugging your API connections",
+    isPackage: false,
+    dir: "hyper-flow",
+    paths: ["hyper-flow"],
+    img: HyperFlowIcon,
+    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-400",
+    textAction:
+      "focus:!text-yellow-500 focus:dark:!text-yellow-400 active:!text-yellow-600 active:dark:!text-yellow-300",
+    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
+    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500 !bg-opacity-40",
+    border: "border-yellow-500 dark:border-yellow-400",
+    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+    category: "Framework",
+    package: "react",
+    isPro: true,
   },
 ];
