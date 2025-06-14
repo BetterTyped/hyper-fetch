@@ -1,13 +1,16 @@
-import { getErrorMessage, xhrExtra } from "adapter";
-import { sleep } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+
+import { getErrorMessage } from "adapter";
 import { Client } from "client";
+import { xhrExtra } from "http-adapter";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -15,10 +18,10 @@ describe("Request [ Sending ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-    resetInterceptors();
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
+    resetMocks();
     jest.resetAllMocks();
-    createRequestInterceptor(request, { fixture, delay: 40 });
+    mockRequest(request, { data: fixture, delay: 40 });
   });
 
   afterAll(() => {
@@ -27,148 +30,156 @@ describe("Request [ Sending ]", () => {
 
   describe("When using request's exec method", () => {
     it("should return adapter response", async () => {
-      const requestExecution = request.exec();
+      const requestExecution = request.exec({});
       await sleep(5);
-      expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
-      const response = await requestExecution;
+      expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return mapped adapter response", async () => {
-      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec();
+      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec({});
       await sleep(5);
-      expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
-      const response = await requestExecution;
+      expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: { nested: fixture },
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
-      const response = await request.send();
+      const { responseTimestamp, requestTimestamp, ...response } = await request.send({});
 
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return mapped adapter response", async () => {
-      const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send();
+      const { responseTimestamp, requestTimestamp, ...response } = await request
+        .setResponseMapper((res) => ({ ...res, data: { nested: res.data } }))
+        .send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return async mapped adapter response", async () => {
-      const response = await request
+      const { responseTimestamp, requestTimestamp, ...response } = await request
         .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } }))
-        .send();
+        .send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.send();
+      mockRequest(request, { delay: 10, status: 400 });
+      const requestExecution = request.send({});
       await sleep(5);
       client.appManager.setOnline(false);
 
-      const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
+      const unmount = client.requestManager.events.onResponseByCache(request.cacheKey, () => {
         spy();
-        createRequestInterceptor(request, { fixture, delay: 40 });
+        mockRequest(request, { data: fixture, delay: 40 });
         client.appManager.setOnline(true);
         unmount();
       });
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should wait to resolve request retries", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.setRetry(1).setRetryTime(30).send();
+      mockRequest(request, { delay: 10, status: 400 });
+      const requestExecution = request.setRetry(1).setRetryTime(30).send({});
       await sleep(5);
 
-      const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
+      const unmount = client.requestManager.events.onResponseByCache(request.cacheKey, () => {
         spy();
-        createRequestInterceptor(request, { fixture, delay: 40 });
+        mockRequest(request, { data: fixture, delay: 40 });
         unmount();
       });
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return error once request got removed", async () => {
-      createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.send();
+      mockRequest(request, { delay: 10, status: 400 });
+      const requestExecution = request.send({});
       await sleep(2);
 
-      const runningRequests = client.fetchDispatcher.getAllRunningRequest();
-      client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
+      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
+      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: null,
         error: getErrorMessage("deleted"),
         status: null,
-        success: null,
+        success: false,
         extra: xhrExtra,
       });
     });
     it("should call remove error", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
+      mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send({ onRemove: spy });
       await sleep(2);
 
-      const runningRequests = client.fetchDispatcher.getAllRunningRequest();
-      client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
+      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
+      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
       await requestExecution;
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return cancel error", async () => {
-      request = client.createRequest()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
-      const mock = createRequestInterceptor(request);
+      const newRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setCancelable(true);
+      const mock = mockRequest(newRequest);
 
-      const [res1, res2, res3] = await Promise.all([request.send(), request.send(), request.send()]);
+      const [
+        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
+        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
+        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+      ] = await Promise.all([newRequest.send({}), newRequest.send({}), newRequest.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,
@@ -189,7 +200,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     /**
@@ -202,9 +213,13 @@ describe("Request [ Sending ]", () => {
         cancelable: true,
       });
 
-      const mock = createRequestInterceptor(getUsers);
+      const mock = mockRequest(getUsers);
 
-      const [res1, res2, res3] = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
+      const [
+        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
+        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
+        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+      ] = await Promise.all([getUsers.send({}), getUsers.send({}), getUsers.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,
@@ -225,7 +240,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
 
@@ -238,7 +253,7 @@ describe("Request [ Sending ]", () => {
       const spy6 = jest.fn();
 
       await request.send({
-        onSettle: spy1,
+        onBeforeSent: spy1,
         onRequestStart: spy2,
         onResponseStart: spy3,
         onUploadProgress: spy4,
@@ -246,12 +261,12 @@ describe("Request [ Sending ]", () => {
         onResponse: spy6,
       });
 
-      expect(spy1).toBeCalledTimes(1);
-      expect(spy2).toBeCalledTimes(1);
-      expect(spy3).toBeCalledTimes(1);
-      expect(spy4).toBeCalledTimes(2);
-      expect(spy5).toBeCalledTimes(3);
-      expect(spy6).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledTimes(1);
+      expect(spy3).toHaveBeenCalledTimes(1);
+      expect(spy4).toHaveBeenCalledTimes(3);
+      expect(spy5).toHaveBeenCalledTimes(3);
+      expect(spy6).toHaveBeenCalledTimes(1);
     });
   });
 });

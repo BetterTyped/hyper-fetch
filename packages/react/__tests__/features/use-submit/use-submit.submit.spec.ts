@@ -1,18 +1,22 @@
-import { RequestSendType, xhrExtra } from "@hyper-fetch/core";
+import { ExtendRequest, RequestSendType, xhrExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseSubmit } from "../../utils";
 
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
 describe("useSubmit [ Base ]", () => {
-  let request = createRequest<null, { value: string }>({ method: "POST" });
+  let request = createRequest<{ payload: { value: string }; queryParams?: Record<string, string> | string }>({
+    method: "POST",
+  });
 
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,11 +32,11 @@ describe("useSubmit [ Base ]", () => {
   describe("when submit method gets triggered", () => {
     it("should return data from submit method", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -40,31 +44,33 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
-    it("should call onSettle", async () => {
+    it("should call onBeforeSent", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        await response.result.current.submit({ data: { value: "string" }, onSettle: spy });
+        await response.result.current.submit({ payload: { value: "string" }, onBeforeSent: spy });
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return data from submit method on retries", async () => {
       let data: unknown = null;
       let mock: unknown = {};
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
       await act(async () => {
         response.result.current.onSubmitResponseStart(() => {
-          mock = createRequestInterceptor(request);
+          mock = mockRequest(request);
         });
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -72,24 +78,26 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should return data from submit method on offline", async () => {
       let data: unknown = null;
       let mock: unknown = {};
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
       const response = renderUseSubmit(request.setOffline(true));
 
       await act(async () => {
         response.result.current.onSubmitResponseStart(() => {
           client.appManager.setOnline(false);
-          mock = createRequestInterceptor(request);
+          mock = mockRequest(request);
           setTimeout(() => {
             client.appManager.setOnline(true);
           }, 100);
         });
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -97,23 +105,25 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should allow to change submit details", async () => {
       // Todo
     });
-    it("should allow to pass data to submit", async () => {
+    it("should allow to pass payload to submit", async () => {
       let payload: unknown = null;
       const myData = { value: "string" };
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
-          payload = cmd.data;
+          payload = cmd.payload;
         });
-        response.result.current.submit({ data: myData });
+        response.result.current.submit({ payload: myData });
       });
 
       expect(payload).toStrictEqual(myData);
@@ -121,7 +131,7 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to pass params to submit", async () => {
       let endpoint: unknown = null;
       const requestWithParams = createRequest({ endpoint: "/users/:userId" });
-      createRequestInterceptor(requestWithParams.setParams({ userId: 1 } as any));
+      mockRequest(requestWithParams.setParams({ userId: 1 } as any));
       const response = renderUseSubmit(requestWithParams);
 
       await act(async () => {
@@ -135,25 +145,32 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to pass query params to submit", async () => {
       let endpoint: unknown = null;
-      createRequestInterceptor(request);
-      const response = renderUseSubmit(request);
+      let queryParams: unknown = null;
+      mockRequest(request);
+      const response = renderUseSubmit(
+        request as unknown as ExtendRequest<typeof request, { payload: { value: string }; queryParams: string }>,
+      );
 
       await act(async () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
           endpoint = cmd.endpoint;
+          queryParams = cmd.queryParams;
         });
-        response.result.current.submit({ data: { value: "string" }, queryParams: "?something=test" });
+        response.result.current.submit({ payload: { value: "string" }, queryParams: "?something=test" });
       });
 
-      expect(endpoint).toBe("/shared-endpoint?something=test");
+      expect(endpoint).toBe("/shared-endpoint");
+      expect(queryParams).toBe("?something=test");
     });
     it("should trigger methods when submit modifies the queue keys", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
-      const response = renderUseSubmit(request);
+      const mock = mockRequest(request);
+      const response = renderUseSubmit(
+        request as unknown as ExtendRequest<typeof request, { payload: { value: string }; queryParams: string }>,
+      );
 
       await act(async () => {
-        data = await response.result.current.submit({ data: null, queryParams: "?something=test" });
+        data = await response.result.current.submit({ payload: { value: "123" }, queryParams: "?something=test" });
       });
 
       expect(data).toStrictEqual({
@@ -161,18 +178,20 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should throw error when hook is disabled", async () => {
       let res: Awaited<ReturnType<RequestSendType<typeof request>>> = {} as Awaited<
         ReturnType<RequestSendType<typeof request>>
       >;
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request, { disabled: true });
 
       await act(async () => {
-        res = await response.result.current.submit({ data: { value: "string" } });
+        res = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(res.data).toBeNull();
@@ -182,13 +201,18 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
-      const mappedRequest = request.setDataMapper(() => new FormData());
+      const mock = mockRequest(request);
+      const mappedRequest = (
+        request as unknown as ExtendRequest<
+          typeof request,
+          { payload: { value: string }; queryParams: { something: string } }
+        >
+      ).setPayloadMapper(() => new FormData());
       const response = renderUseSubmit(mappedRequest);
 
       await act(async () => {
         data = await response.result.current.submit({
-          data: {
+          payload: {
             value: "string",
           },
           queryParams: { something: "test" },
@@ -200,7 +224,9 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
   });

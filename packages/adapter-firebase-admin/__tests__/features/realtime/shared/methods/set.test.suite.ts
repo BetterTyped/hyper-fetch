@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("set", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
     beforeEach(() => {
@@ -14,18 +14,18 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
 
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
         .setParams({ teaId: 1 });
       const setReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData(newData);
+        .setPayload(newData);
 
       await setReq.send();
       const { data, extra } = await getReq.send();
@@ -34,7 +34,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
@@ -46,7 +46,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await setReq.send();
       const { data, extra } = await getReq.send();
@@ -60,7 +60,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await testLifecycleEvents(setReq);
     });

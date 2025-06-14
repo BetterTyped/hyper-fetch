@@ -1,114 +1,99 @@
 import { RequestInstance } from "request";
-import { HttpMethodsType, HttpStatusType } from "../types";
+import {
+  EmptyTypes,
+  ExtractAdapterEndpointMapperType,
+  ExtractAdapterExtraType,
+  ExtractAdapterPayloadMapperType,
+  ExtractAdapterHeaderMapperType,
+  ExtractAdapterQueryParamsMapperType,
+  ExtractAdapterStatusType,
+  ExtractAdapterType,
+  ExtractErrorType,
+  ExtractResponseType,
+  TypeWithDefaults,
+} from "../types";
+import { Adapter, DefaultMapperType } from "./adapter";
+import { getAdapterBindings } from "./adapter.bindings";
 
 /**
  * Base Adapter
  */
 
-export type AdapterInstance = AdapterType<any, any, any, any, any, any>;
+export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any, any>;
 
-export type AdapterType<
-  AdapterOptions = AdapterOptionsType,
-  MethodType = HttpMethodsType,
-  StatusType = HttpStatusType,
-  Extra extends Record<string, any> = AdapterExtraType,
-  QueryParams = QueryParamsType | string,
+export type AdapterGenericType<
+  AdapterOptions,
+  MethodType extends string,
+  StatusType extends number | string,
+  Extra extends Record<string, any>,
+  QueryParams = QueryParamsType | string | EmptyTypes,
+  DefaultQueryParams = undefined,
   EndpointType = string,
-> = (
-  request: RequestInstance,
-  requestId: string,
-  // This is never used in the application, we pass this type to have unions extracting possibilities
-  DO_NOT_USE?: {
-    method?: MethodType;
-    options?: AdapterOptions;
-    status?: StatusType;
-    extra?: Extra;
-    queryParams?: QueryParams;
-    endpointType?: EndpointType;
+  EndpointMapperType extends EndpointMapper<EndpointType> | DefaultMapperType = DefaultMapperType,
+  QueryParamsMapperType extends QueryParamsMapper<QueryParams> | DefaultMapperType = DefaultMapperType,
+  HeaderMapperType extends HeaderMappingType | DefaultMapperType = DefaultMapperType,
+  PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
+> = {
+  adapterOptions: AdapterOptions;
+  methodType: MethodType;
+  statusType: StatusType;
+  extra: Extra;
+  queryParams?: QueryParams;
+  defaultQueryParams?: DefaultQueryParams;
+  endpointType: EndpointType;
+  endpointMapperType?: EndpointMapperType;
+  queryParamsMapperType?: QueryParamsMapperType;
+  headerMapperType?: HeaderMapperType;
+  payloadMapperType?: PayloadMapperType;
+};
+
+export type DeclareAdapterType<
+  Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any, any>,
+> = Adapter<
+  TypeWithDefaults<Properties, "adapterOptions", any>,
+  TypeWithDefaults<Properties, "methodType", any>,
+  TypeWithDefaults<Properties, "statusType", any>,
+  TypeWithDefaults<Properties, "extra", any>,
+  TypeWithDefaults<Properties, "queryParams", QueryParamsType | string | EmptyTypes>,
+  TypeWithDefaults<Properties, "defaultQueryParams", undefined>,
+  TypeWithDefaults<Properties, "endpointType", string>,
+  TypeWithDefaults<Properties, "endpointMapperType", DefaultMapperType>,
+  TypeWithDefaults<Properties, "queryParamsMapperType", DefaultMapperType>,
+  TypeWithDefaults<Properties, "headerMapperType", DefaultMapperType>,
+  NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>
+>;
+
+export type AdapterFetcherType<Adapter extends AdapterInstance> = (
+  options: Omit<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {
+    url: string;
+    endpoint: ReturnType<ExtractAdapterEndpointMapperType<Adapter>>;
+    queryParams: ReturnType<ExtractAdapterQueryParamsMapperType<Adapter>>;
+    headers: ReturnType<ExtractAdapterHeaderMapperType<Adapter>>;
+    payload: ReturnType<ExtractAdapterPayloadMapperType<Adapter>>;
+    requestId: string;
+    request: RequestInstance;
   },
-  // [any any any] as a way to avoid circular reference that destroyed request type.
-) => Promise<ResponseReturnType<any, any, any>>;
+) => void;
 
-/**
- * Extractors
- */
+// Mappers
 
-export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any> ? M : never;
-export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
-export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
-export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
-export type ExtractAdapterEndpointType<T> = T extends AdapterType<any, any, any, any, any, infer E> ? E : never;
-// Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
-export type ExtractUnionAdapter<
-  Adapter extends AdapterInstance,
-  Values extends {
-    method?: any;
-    options?: any;
-    status?: any;
-    extra?: any;
-    queryParams?: any;
-    endpointType?: any;
-  },
-> = Extract<
-  Adapter,
-  AdapterType<
-    Values["options"],
-    Values["method"],
-    Values["status"],
-    Values["extra"],
-    Values["queryParams"],
-    Values["endpointType"]
-  >
-> extends AdapterInstance
-  ? Extract<
-      Adapter,
-      AdapterType<
-        Values["options"],
-        Values["method"],
-        Values["status"],
-        Values["extra"],
-        Values["queryParams"],
-        Values["endpointType"]
-      >
-    >
-  : never;
+export type HeaderMappingType<Config = never> = (request: RequestInstance, config?: Config) => HeadersInit;
+export type EndpointMapper<EndpointType, Config = never> = (endpoint: EndpointType, config?: Config) => string;
+export type QueryParamsMapper<QueryParams, Config = never> = (
+  queryParams: QueryParams | EmptyTypes,
+  config?: Config,
+) => any;
+export type AdapterPayloadMappingType<Config = never> = (
+  options: { request: RequestInstance; payload: unknown },
+  config?: Config,
+) => any;
 
-/**
- * Options
- */
-
-export type AdapterOptionsType = Partial<XMLHttpRequest>;
-
-export type AdapterExtraType = {
-  headers: Record<string, string>;
-};
-
-export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
-
-// Responses
-
-export type ResponseReturnType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
-  data: GenericDataType | null;
-  error: GenericErrorType | null;
-  status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
-  extra: ExtractAdapterExtraType<Adapter> | null;
-};
-export type ResponseReturnSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
-  data: GenericDataType;
-  error: null;
-  status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
-  extra: ExtractAdapterExtraType<Adapter> | null;
-};
-export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
-  data: null;
-  error: GenericErrorType;
-  status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
-  extra: ExtractAdapterExtraType<Adapter> | null;
-};
+export type DefaultEndpointMapper = (endpoint: string) => string;
+export type DefaultQueryParamsMapper = (
+  queryParams: QueryParamsType | string | EmptyTypes,
+) => QueryParamsType | string | EmptyTypes;
+export type DefaultHeaderMapper = (request: RequestInstance) => HeadersInit;
+export type DefaultPayloadMapper = (options: { request: RequestInstance; payload: unknown }) => string;
 
 // QueryParams
 
@@ -116,51 +101,43 @@ export type QueryParamValuesType = number | string | boolean | null | undefined 
 export type QueryParamType = QueryParamValuesType | Array<QueryParamValuesType> | Record<string, QueryParamValuesType>;
 export type QueryParamsType = Record<string, QueryParamType>;
 
-// Headers
+// Responses
 
-export type HeaderMappingType = <T extends RequestInstance>(request: T) => HeadersInit;
-
-export type AdapterHeadersProps = {
-  isFormData: boolean;
-  headers: HeadersInit | undefined;
+export type RequestResponseType<Request extends RequestInstance> = {
+  data: ExtractResponseType<Request> | null;
+  error: ExtractErrorType<Request> | null;
+  status: ExtractAdapterStatusType<ExtractAdapterType<Request>> | null;
+  success: true | false;
+  extra: ExtractAdapterExtraType<ExtractAdapterType<Request>> | null;
+  responseTimestamp: number;
+  requestTimestamp: number;
 };
-
-// Stringify
-
-export type QueryStringifyOptionsType = {
-  /**
-   * Strict URI encoding
-   */
-  strict?: boolean;
-  /**
-   * Encode keys and values
-   */
-  encode?: boolean;
-  /**
-   * Array encoding type
-   */
-  arrayFormat?: "bracket" | "index" | "comma" | "separator" | "bracket-separator" | "none";
-  /**
-   * Array format separator
-   */
-  arraySeparator?: string;
-  /**
-   * Skip keys with null values
-   */
-  skipNull?: boolean;
-  /**
-   * Skip keys with empty string
-   */
-  skipEmptyString?: boolean;
-
-  /**
-   * Parsing function for date type query param
-   */
-  dateParser?: (value: QueryParamType) => string;
-  /**
-   * Parsing function for object type query param
-   */
-  objectParser?: (value: QueryParamType) => string;
+export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: true | false;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+  responseTimestamp: number;
+  requestTimestamp: number;
+};
+export type ResponseSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
+  data: GenericDataType;
+  error: null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: true;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+  responseTimestamp: number;
+  requestTimestamp: number;
+};
+export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
+  data: null;
+  error: GenericErrorType;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: false;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+  responseTimestamp: number;
+  requestTimestamp: number;
 };
 
 // Progress
@@ -177,9 +154,4 @@ export type ProgressType = {
   total: number;
   loaded: number;
   startTimestamp: number;
-};
-
-export type AdapterBindingsReturnType = {
-  fullUrl: string;
-  config;
 };

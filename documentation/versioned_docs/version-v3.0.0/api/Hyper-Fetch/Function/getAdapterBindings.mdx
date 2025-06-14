@@ -1,0 +1,92 @@
+# getAdapterBindings
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { getAdapterBindings } from "@hyper-fetch/core";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[adapter/adapter.bindings.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.bindings.ts#L17)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+getAdapterBindings<T>(req, requestId, systemErrorStatus, systemErrorAdditionalData);
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="req"><td class="api-docs__param-name required">
+
+### req
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`RequestInstance`
+
+</td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
+
+### requestId
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`string`
+
+</td></tr><tr param-data="systemErrorStatus"><td class="api-docs__param-name required">
+
+### systemErrorStatus
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ExtractAdapterStatusType<T>`
+
+</td></tr><tr param-data="systemErrorAdditionalData"><td class="api-docs__param-name required">
+
+### systemErrorAdditionalData
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ExtractAdapterAdditionalDataType<T>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+Promise<[object Object]>
+```
+
+</div>

@@ -1,32 +1,35 @@
-import { useRef } from "react";
-import { SocketInstance } from "@hyper-fetch/sockets";
+import { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import { useDidMount, useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
+import { useRef } from "react";
 
 import { UseSocketStateType, initialSocketState, UseSocketStateProps } from "helpers";
 
-export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTracking }: UseSocketStateProps) => {
+export const useSocketState = <DataType, Socket extends SocketInstance>(
+  socket: Socket,
+  { dependencyTracking }: UseSocketStateProps,
+) => {
   const forceUpdate = useForceUpdate();
 
-  const onOpenCallback = useRef<null | VoidFunction>(null);
-  const onCloseCallback = useRef<null | VoidFunction>(null);
+  const onDisconnectCallback = useRef<null | VoidFunction>(null);
   const onErrorCallback = useRef<null | ((event: any) => void)>(null);
+  const onConnectedCallback = useRef<null | VoidFunction>(null);
   const onConnectingCallback = useRef<null | VoidFunction>(null);
-  const onReconnectingCallback = useRef<null | ((attempts: number) => void)>(null);
-  const onReconnectingStopCallback = useRef<null | ((attempts: number) => void)>(null);
+  const onReconnectingCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
+  const onReconnectingFailedCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
 
-  const state = useRef<UseSocketStateType<DataType>>(initialSocketState);
-  const renderKeys = useRef<Array<keyof UseSocketStateType<DataType>>>([]);
+  const state = useRef<UseSocketStateType<Socket, DataType>>(initialSocketState);
+  const renderKeys = useRef<Array<keyof UseSocketStateType<Socket, DataType>>>([]);
 
   // ******************
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<DataType>>) => {
+  const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<Socket, DataType>>) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
     if (shouldRerender) forceUpdate();
   };
 
-  const setRenderKey = (renderKey: keyof UseSocketStateType<DataType>) => {
+  const setRenderKey = (renderKey: keyof UseSocketStateType<Socket, DataType>) => {
     if (!renderKeys.current.includes(renderKey)) {
       renderKeys.current.push(renderKey);
     }
@@ -38,6 +41,9 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
 
   useDidUpdate(
     () => {
+      state.current.connected = socket.adapter.connected;
+      state.current.connecting = socket.adapter.connecting;
+
       const handleDependencyTracking = () => {
         if (!dependencyTracking) {
           Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
@@ -59,6 +65,10 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
       state.current.data = data;
       renderKeyTrigger(["data"]);
     },
+    setExtra: (extra: ExtractSocketExtraType<Socket> | null) => {
+      state.current.extra = extra;
+      renderKeyTrigger(["extra"]);
+    },
     setConnected: (connected: boolean) => {
       state.current.connected = connected;
       renderKeyTrigger(["data"]);
@@ -74,11 +84,11 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
   };
 
   const callbacks = {
-    onOpen: (callback: VoidFunction) => {
-      onOpenCallback.current = callback;
+    onConnected: (callback: VoidFunction) => {
+      onConnectedCallback.current = callback;
     },
-    onClose: (callback: VoidFunction) => {
-      onCloseCallback.current = callback;
+    onDisconnected: (callback: VoidFunction) => {
+      onDisconnectCallback.current = callback;
     },
     onError: <ErrorType = Event>(callback: (event: ErrorType) => void) => {
       onErrorCallback.current = callback;
@@ -86,11 +96,11 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
     onConnecting: (callback: VoidFunction) => {
       onConnectingCallback.current = callback;
     },
-    onReconnecting: (callback: (attempts: number) => void) => {
+    onReconnecting: (callback: (data: { attempts: number }) => void) => {
       onReconnectingCallback.current = callback;
     },
-    onReconnectingStop: (callback: (attempts: number) => void) => {
-      onReconnectingStopCallback.current = callback;
+    onReconnectingFailed: (callback: (data: { attempts: number }) => void) => {
+      onReconnectingFailedCallback.current = callback;
     },
   };
 
@@ -102,23 +112,23 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
     const umountOnError = socket.events.onError((event) => {
       onErrorCallback.current?.(event);
     });
-    const umountOnConnecting = socket.events.onConnecting(() => {
-      actions.setConnecting(true);
+    const umountOnConnecting = socket.events.onConnecting(({ connecting }) => {
+      actions.setConnecting(connecting);
       onConnectingCallback.current?.();
     });
-    const umountOnOpen = socket.events.onOpen(() => {
+    const umountOnOpen = socket.events.onConnected(() => {
       actions.setConnected(true);
-      onOpenCallback.current?.();
+      onConnectedCallback.current?.();
     });
-    const umountOnClose = socket.events.onClose(() => {
+    const umountOnClose = socket.events.onDisconnected(() => {
       actions.setConnected(false);
-      onCloseCallback.current?.();
+      onDisconnectCallback.current?.();
     });
-    const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
-      onReconnectingCallback.current?.(attempts);
+    const umountOnReconnecting = socket.events.onReconnecting(({ attempts }) => {
+      onReconnectingCallback.current?.({ attempts });
     });
-    const umountOnReconnectingStop = socket.events.onReconnectingStop((attempts) => {
-      onReconnectingStopCallback.current?.(attempts);
+    const umountOnReconnectingFailed = socket.events.onReconnectingFailed(({ attempts }) => {
+      onReconnectingFailedCallback.current?.({ attempts });
     });
 
     return () => {
@@ -127,7 +137,7 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
       umountOnOpen();
       umountOnClose();
       umountOnReconnecting();
-      umountOnReconnectingStop();
+      umountOnReconnectingFailed();
     };
   });
 

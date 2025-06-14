@@ -46,6 +46,8 @@ if (yarnBin && process.env[envLabel] !== "1") {
   let peerDependencies = {};
   fs.readdirSync("./packages", { encoding: "utf-8" }).forEach((dir) => {
     try {
+      if (dir.includes("DS_Store")) return;
+
       const contents = fs.readFileSync(`./packages/${dir}/package.json`);
 
       if (contents === undefined) {
@@ -73,7 +75,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
 
   const packages = [...new Set(Object.keys(peerDependencies))]
     .filter((key) => {
-      return !key.includes("@hyper-fetch");
+      return !key.includes("@hyper-fetch") && !key.startsWith("react") && !key.startsWith("react-dom");
     })
     .map(function (key) {
       return `${key}@${peerDependencies[key]}`;
@@ -99,6 +101,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
     function (error) {
       process.env[envLabel] = "0";
       if (error) {
+        console.log(error);
         die("Installation failed", error);
         return process.exit();
       }

@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("set", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
     beforeEach(() => {
@@ -14,53 +14,57 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
 
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
       const setReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
-        .setData(newData);
+        .setPayload(newData);
 
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(extra.snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      expect(extra.snapshot.exists()).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(extra?.snapshot?.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "set",
+          method: "setDoc",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await testLifecycleEvents(setReq);
     });

@@ -1,0 +1,69 @@
+{
+  "name": "react-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/react-app/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "app-build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/react-app"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "run": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "react-app:app-build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "react-app:app-build:development",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "react-app:app-build:production",
+          "hmr": false
+        }
+      }
+    },
+    "run-server": {
+      "command": "node examples/react-app/server/server.js"
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx run react-app:run", "nx run react-app:run-server"],
+        "parallel": true
+      }
+    },
+    "app-preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "react-app:app-build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "react-app:app-build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "react-app:app-build:production",
+          "dev": false
+        }
+      }
+    }
+  }
+}

@@ -1,15 +1,24 @@
 import { RequestInstance } from "request";
-import { DispatcherRequestType, QueueElementType } from "dispatcher";
+import { DispatcherMode, QueueItemType } from "dispatcher";
 
 // Events
 
-export const getDispatcherDrainedEventKey = (key: string): string => {
+export const getDispatcherDrainedKey = (): string => {
+  return `drained-event`;
+};
+export const getDispatcherDrainedByKey = (key: string): string => {
   return `${key}-drained-event`;
 };
-export const getDispatcherStatusEventKey = (key: string): string => {
+export const getDispatcherStatusKey = (): string => {
+  return `status-event`;
+};
+export const getDispatcherStatusByKey = (key: string): string => {
   return `${key}-status-event`;
 };
-export const getDispatcherChangeEventKey = (key: string): string => {
+export const getDispatcherChangeKey = (): string => {
+  return `change-event`;
+};
+export const getDispatcherChangeByKey = (key: string): string => {
   return `${key}-change-event`;
 };
 
@@ -29,18 +38,25 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
   return false;
 };
 
-export const getRequestType = (request: RequestInstance, latestRequest: QueueElementType | undefined) => {
+const isInDeduplicateRange = (request: RequestInstance, latestRequest: QueueItemType) => {
+  if (request.deduplicateTime) {
+    return +new Date() - latestRequest.timestamp <= request.deduplicateTime;
+  }
+  return true;
+};
+
+export const getRequestType = (request: RequestInstance, latestRequest: QueueItemType | undefined) => {
   const { queued, cancelable, deduplicate } = request;
-  const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
+  const canDeduplicate = latestRequest ? isInDeduplicateRange(request, latestRequest) : false;
 
   if (queued) {
-    return DispatcherRequestType.oneByOne;
+    return DispatcherMode.ONE_BY_ONE;
   }
   if (cancelable) {
-    return DispatcherRequestType.previousCanceled;
+    return DispatcherMode.PREVIOUS_CANCELED;
   }
   if (canDeduplicate && deduplicate) {
-    return DispatcherRequestType.deduplicated;
+    return DispatcherMode.DEDUPLICATED;
   }
-  return DispatcherRequestType.allAtOnce;
+  return DispatcherMode.ALL_AT_ONCE;
 };

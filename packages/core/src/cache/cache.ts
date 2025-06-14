@@ -1,8 +1,6 @@
-import EventEmitter from "events";
-
-import { AdapterInstance, ResponseReturnType } from "adapter";
-import { ClientInstance, ExtractAdapterTypeFromClient } from "client";
-import { ResponseDetailsType, LoggerType } from "managers";
+import { AdapterInstance, ResponseType } from "adapter";
+import { ResponseDetailsType, LoggerMethods } from "managers";
+import { ClientInstance } from "client";
 import {
   CacheOptionsType,
   CacheAsyncStorageType,
@@ -10,10 +8,12 @@ import {
   getCacheData,
   getCacheEvents,
   CacheValueType,
-  CacheMethodType,
+  CacheSetState,
+  RequestCacheType,
 } from "cache";
-import { RequestJSON, RequestInstance } from "request";
+import { Request, RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import { EventEmitter } from "utils";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -22,53 +22,60 @@ import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types
  * Keys used to save the values are created dynamically on the Request class
  *
  */
-export class Cache<C extends ClientInstance> {
+export class Cache {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
   public storage: CacheStorageType;
   public lazyStorage?: CacheAsyncStorageType;
-  public clearKey: string;
+  public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
-  private logger: LoggerType;
+  private logger: LoggerMethods;
+  private client: ClientInstance;
 
-  constructor(public client: C, public options?: CacheOptionsType) {
-    this.storage = this.options?.storage || new Map<string, CacheValueType>();
+  constructor(public options?: CacheOptionsType) {
+    const { storage = new Map<string, CacheValueType>(), lazyStorage, version = "0.0.1" } = options ?? {};
+
+    this.emitter?.setMaxListeners(1000);
     this.events = getCacheEvents(this.emitter);
-    this.options?.onInitialization?.(this);
 
-    this.clearKey = this.options?.clearKey || "";
-    this.lazyStorage = this.options?.lazyStorage;
-    this.logger = this.client.loggerManager.init("Cache");
+    this.storage = storage;
+    this.version = version;
+    this.lazyStorage = lazyStorage;
+  }
 
-    this.getLazyKeys().then((keys) => {
-      keys.forEach(this.scheduleGarbageCollector);
-    });
+  initialize = (client: ClientInstance) => {
+    this.client = client;
+    this.logger = client.loggerManager.initialize(client, "Cache");
 
     // Going back from offline should re-trigger garbage collection
-    this.client.appManager.events.onOnline(() => {
-      this.getLazyKeys().then((keys) => {
-        keys.forEach(this.scheduleGarbageCollector);
-      });
+    client.appManager.events.onOnline(() => {
+      [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
     });
-  }
+
+    [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
+
+    return this;
+  };
 
   /**
    * Set the cache data to the storage
    * @param request
    * @param response
+   * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
   set = <Request extends RequestInstance>(
-    request: RequestInstance | RequestJSON<any>,
-    response: CacheMethodType<
-      ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+    request: RequestCacheType<Request>,
+    response: CacheSetState<
+      ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
-    >,
+    > & { hydrated?: boolean },
+    isTriggeredExternally = false,
   ): void => {
-    this.logger.debug("Processing cache response", { request, response });
-    const { cacheKey, cache, cacheTime, garbageCollection } = request;
-    const cachedData = this.storage.get<
+    this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
+    const { cacheKey, cache, staleTime, cacheTime } = request;
+    const previousCacheData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
@@ -76,48 +83,63 @@ export class Cache<C extends ClientInstance> {
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const processedResponse = typeof response === "function" ? response(cachedData) : response;
-    const data = getCacheData(cachedData, processedResponse);
+    const processedResponse = typeof response === "function" ? response(previousCacheData || null) : response;
+    const data = getCacheData(previousCacheData, processedResponse);
 
-    const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
-
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+    const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
+      ...data,
+      staleTime,
+      version: this.version,
       cacheKey,
-      newCacheData,
-    );
-    this.logger.debug("Emitting cache response", { request, data });
-
-    // If request should not use cache - just emit response data
-    if (!cache) {
-      return this.logger.debug("Prevented saving response to cache", { request, data });
-    }
+      cacheTime,
+    };
 
     // Only success data is valid for the cache store
-    if (processedResponse.success) {
-      this.logger.debug("Saving response to cache storage", { request, data });
-      this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
-      this.options?.onChange?.(cacheKey, newCacheData);
+    if (processedResponse.success && cache) {
+      this.logger.debug({ title: "Saving response to cache storage", type: "system", extra: { request, data } });
+      this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
+      this.client.triggerPlugins("onCacheItemChange", {
+        cache: this,
+        cacheKey,
+        prevData: (previousCacheData || null) as CacheValueType<any, any, AdapterInstance>,
+        newData: newCacheData as CacheValueType<any, any, AdapterInstance>,
+      });
+
       this.scheduleGarbageCollector(cacheKey);
+    } else {
+      // If request should not use cache - just emit response data
+      this.logger.debug({ title: "Prevented saving response to cache", type: "system", extra: { request, data } });
     }
+
+    this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
+      ...newCacheData,
+      isTriggeredExternally,
+      cached: request.cache,
+      cacheKey,
+    });
   };
 
   /**
    * Update the cache data with partial response data
    * @param request
    * @param partialResponse
+   * @param isTriggeredExtrenally - informs whether an update was triggered due to internal logic or externally, e.g.
+   * via plugin.
    * @returns
    */
   update = <Request extends RequestInstance>(
-    request: RequestInstance | RequestJSON<RequestInstance>,
-    partialResponse: CacheMethodType<
+    request: RequestCacheType<Request>,
+    partialResponse: CacheSetState<
       Partial<
-        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+        ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
           ResponseDetailsType
       >
     >,
+    isTriggeredExtrenally = false,
   ): void => {
-    this.logger.debug("Processing cache update", { request, partialResponse });
+    this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
     const { cacheKey } = request;
     const cachedData = this.storage.get<
       ExtractResponseType<Request>,
@@ -125,9 +147,10 @@ export class Cache<C extends ClientInstance> {
       ExtractAdapterType<Request>
     >(cacheKey);
 
-    const processedResponse = typeof partialResponse === "function" ? partialResponse(cachedData) : partialResponse;
+    const processedResponse =
+      typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
-      this.set(request, { ...cachedData, ...processedResponse });
+      this.set(request, { ...cachedData, ...processedResponse }, isTriggeredExtrenally);
     }
   };
 
@@ -159,31 +182,59 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    */
   delete = (cacheKey: string): void => {
-    this.logger.debug("Deleting cache element", { cacheKey });
+    this.logger.debug({ title: "Deleting cache element", type: "system", extra: { cacheKey } });
     this.storage.delete(cacheKey);
-    this.options?.onDelete?.(cacheKey);
     this.lazyStorage?.delete(cacheKey);
+
+    this.client.triggerPlugins("onCacheItemDelete", {
+      cache: this,
+      cacheKey,
+    });
+
+    this.events.emitDelete(cacheKey);
   };
 
   /**
    * Invalidate cache by cacheKey or partial matching with RegExp
-   * @param cacheKey
+   * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
+   * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = async (cacheKey: string | RegExp) => {
-    this.logger.debug("Revalidating cache element", { cacheKey });
-    const keys = await this.getLazyKeys();
+  invalidate = (cacheKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+    this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { cacheKeys } });
 
-    if (typeof cacheKey === "string") {
-      this.events.emitInvalidation(cacheKey);
-      this.delete(cacheKey);
-    } else {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const entityKey of keys) {
-        if (cacheKey.test(entityKey)) {
-          this.events.emitInvalidation(entityKey);
-          this.delete(entityKey);
+    const onInvalidate = (key: string | RegExp | RequestInstance) => {
+      const keys = Array.from(this.storage.keys());
+      const handleInvalidation = (cacheKey: string) => {
+        const value = this.storage.get(cacheKey);
+        if (value) {
+          this.storage.set(cacheKey, { ...value, staleTime: 0 });
         }
+
+        this.client.triggerPlugins("onCacheItemInvalidate", {
+          cache: this,
+          cacheKey,
+        });
+
+        this.events.emitInvalidation(cacheKey);
+      };
+
+      if (key instanceof Request) {
+        handleInvalidation(key.cacheKey);
+      } else if (typeof key === "string") {
+        handleInvalidation(key);
+      } else if (keys.length) {
+        keys.forEach((entityKey) => {
+          if (key.test(entityKey)) {
+            handleInvalidation(entityKey);
+          }
+        });
       }
+    };
+
+    if (Array.isArray(cacheKeys)) {
+      cacheKeys.forEach(onInvalidate.bind(this));
+    } else {
+      onInvalidate.bind(this)(cacheKeys);
     }
   };
 
@@ -201,21 +252,21 @@ export class Cache<C extends ClientInstance> {
     const hasLazyData = this.lazyStorage && data;
     if (hasLazyData) {
       const now = +new Date();
-      const isNewestData = syncData ? syncData.timestamp < data.timestamp : true;
-      const isStaleData = data.cacheTime <= now - data.timestamp;
-      const isValidLazyData = data.clearKey === this.clearKey;
+      const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
+      const isStaleData = data.staleTime <= now - data.responseTimestamp;
+      const isValidLazyData = data.version === this.version;
 
       if (!isValidLazyData) {
-        this.lazyStorage.delete(cacheKey);
+        this.lazyStorage?.delete(cacheKey);
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, Adapter>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey, cached: true });
         return data;
       }
     }
 
-    const isValidData = syncData?.clearKey === this.clearKey;
+    const isValidData = syncData?.version === this.version;
     if (syncData && !isValidData) {
       this.delete(cacheKey);
     }
@@ -227,6 +278,16 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    */
   getLazyKeys = async () => {
+    const keys = (await this.lazyStorage?.keys()) || [];
+
+    return [...new Set(keys)];
+  };
+
+  /**
+   * Used to receive keys from sync storage and lazy storage
+   * @param cacheKey
+   */
+  getAllKeys = async () => {
     const keys = await this.lazyStorage?.keys();
     const asyncKeys = Array.from(keys || []);
     const syncKeys = Array.from(this.storage.keys());
@@ -239,30 +300,42 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    * @returns
    */
-  scheduleGarbageCollector = async (cacheKey: string) => {
+  scheduleGarbageCollector = (cacheKey: string) => {
     // We need to make sure that all of the values will be removed, also that we have the proper data
-    const cacheData = await this.getLazyResource(cacheKey);
+    const cacheData = this.storage.get(cacheKey);
 
     // Clear running garbage collectors for given key
     clearTimeout(this.garbageCollectors.get(cacheKey));
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.garbageCollection + cacheData.timestamp - +new Date();
-      if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
-        this.logger.info("Cache value is Infinite", { cacheKey });
-      } else if (timeLeft >= 0) {
+      const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - +new Date();
+      // null
+      if (cacheData.cacheTime === null) {
+        this.logger.debug({ title: "Cache time is null", type: "system", extra: { cacheKey } });
+      }
+      // Infinity
+      else if (
+        (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") ||
+        cacheData.cacheTime === Infinity
+      ) {
+        this.logger.debug({ title: "Cache time is Infinite", type: "system", extra: { cacheKey } });
+      }
+      // Run garbage collector
+      else if (timeLeft >= 0) {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
             if (this.client.appManager.isOnline) {
-              this.logger.info("Garbage collecting cache element", { cacheKey });
+              this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.client.appManager.isOnline) {
-        this.logger.info("Garbage collecting cache element", { cacheKey });
+      }
+      // Delete if value is stale and we are online
+      else if (this.client.appManager.isOnline) {
+        this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
         this.delete(cacheKey);
       }
     }
@@ -272,6 +345,7 @@ export class Cache<C extends ClientInstance> {
    * Clear cache storages
    */
   clear = async (): Promise<void> => {
+    this.garbageCollectors.forEach((timeout) => clearTimeout(timeout));
     this.storage.clear();
   };
 }

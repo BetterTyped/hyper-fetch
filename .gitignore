@@ -5,9 +5,15 @@ build
 dist
 tmp
 out-tsc
+.next
+.webpack
+.rspack
+.vite 
+.react-router/
 
 # dependencies
 node_modules
+package-lock.json
 
 # IDEs and editors
 /.idea
@@ -49,12 +55,15 @@ Thumbs.db
 # testing
 coverage
 
-# Next.js
-.next
+# NX
 .nx
+src/mockServiceWorker.js
 
 # Firebase
 database-debug.log
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+
+storybook-static

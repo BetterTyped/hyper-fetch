@@ -1,5 +1,5 @@
 import {
-  ResponseReturnType,
+  ResponseType,
   ResponseDetailsType,
   RequestInstance,
   ExtractResponseType,
@@ -7,36 +7,47 @@ import {
   ExtractAdapterType,
   AdapterType,
   xhrExtra,
+  ExtractAdapterStatusType,
+  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
   request: T,
-  rest?: {
-    data?: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
+  response?: {
+    data?: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
     details?: Partial<ResponseDetailsType>;
   },
 ) => {
-  const dataValue = rest?.data || {
+  const dataValue: ResponseType<
+    ExtractResponseType<T>,
+    ExtractErrorType<T>,
+    ExtractAdapterType<T>
+  > = response?.data || {
     data: { data: 1 } as ExtractResponseType<T>,
     error: null,
-    status: 200,
+    status: 200 as unknown as ExtractAdapterStatusType<ExtractAdapterType<T>>,
     success: true,
-    extra: xhrExtra,
+    extra: xhrExtra as unknown as ExtractAdapterExtraType<ExtractAdapterType<T>>,
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
   };
   const detailsValue: ResponseDetailsType = {
     retries: 0,
-    timestamp: +new Date(),
+    triggerTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
-    ...rest?.details,
+    ...response?.details,
   };
 
   request.client.cache.storage.set<any, any, AdapterType>(request.cacheKey, {
-    ...dataValue,
+    ...(dataValue as any),
     ...detailsValue,
-    cacheTime: 1000,
-    clearKey: request.client.cache.clearKey,
-    garbageCollection: Infinity,
+    staleTime: 1000,
+    version: request.client.cache.version,
+    cacheTime: Infinity,
   });
   return [dataValue, detailsValue] as const;
 };

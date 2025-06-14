@@ -1,25 +1,25 @@
-import { useRef } from "react";
 import { useDidUpdate } from "@better-hooks/lifecycle";
-import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
+import { getRequestDispatcher, RequestInstance } from "@hyper-fetch/core";
+import { useRef } from "react";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useRequestEvents, useTrackedState } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useCache = <T extends RequestInstance>(
   request: T,
-  options: UseCacheOptionsType<T> = useCacheDefaultOptions,
+  options?: UseCacheOptionsType<T>,
 ): UseCacheReturnType<T> => {
   const { cacheKey, client } = request;
 
   const { cache, loggerManager } = client;
-  const logger = useRef(loggerManager.init("useCache")).current;
+  const logger = useRef(loggerManager.initialize(client, "useCache")).current;
   const [dispatcher] = getRequestDispatcher(request);
   const updateKey = JSON.stringify(request.toJSON());
 
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
-  const { dependencyTracking, initialData, deepCompare } = {
+  const { config: globalConfig } = useProvider();
+  const { dependencyTracking, initialResponse, deepCompare } = {
     ...useCacheDefaultOptions,
     ...globalConfig.useCacheConfig,
     ...options,
@@ -32,7 +32,7 @@ export const useCache = <T extends RequestInstance>(
     logger,
     request,
     dispatcher,
-    initialData,
+    initialResponse,
     deepCompare,
     dependencyTracking,
   });
@@ -40,7 +40,7 @@ export const useCache = <T extends RequestInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useRequestEvents({
+  const [, listeners] = useRequestEvents({
     logger,
     actions,
     request,
@@ -52,20 +52,24 @@ export const useCache = <T extends RequestInstance>(
   const { addCacheDataListener, addLifecycleListeners } = listeners;
 
   const handleMountEvents = () => {
-    addCacheDataListener(request);
-    addLifecycleListeners(request);
+    const unmountDataListener = addCacheDataListener(request);
+    const unmountLifecycleListener = addLifecycleListeners(request);
+    return () => {
+      unmountDataListener();
+      unmountLifecycleListener();
+    };
   };
 
-  useDidUpdate(handleMountEvents, [updateKey], true);
+  useDidUpdate(
+    () => {
+      return handleMountEvents();
+    },
+    [updateKey],
+    true,
+  );
 
-  const refetch = (invalidateKey?: string | RequestInstance | RegExp) => {
-    if (invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey, true));
-    } else if (invalidateKey) {
-      cache.invalidate(invalidateKey);
-    } else {
-      cache.invalidate(cacheKey);
-    }
+  const invalidate = (cacheKeys?: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+    cache.invalidate(cacheKeys ?? cacheKey);
   };
 
   return {
@@ -97,14 +101,15 @@ export const useCache = <T extends RequestInstance>(
       setRenderKey("retries");
       return state.retries;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
+    get responseTimestamp() {
+      setRenderKey("responseTimestamp");
+      return state.responseTimestamp;
     },
-    onCacheError: callbacks.onError,
-    onCacheSuccess: callbacks.onSuccess,
-    onCacheChange: callbacks.onFinished,
+    get requestTimestamp() {
+      setRenderKey("requestTimestamp");
+      return state.requestTimestamp;
+    },
     ...actions,
-    refetch,
+    invalidate,
   };
 };
