@@ -32,6 +32,28 @@ npm install eslint-plugin-hyper-fetch
 
 ---
 
+## Quick Start
+
+1. ### Update ESLint Configuration
+
+After installing the plugin, you need to update your ESLint configuration file (`.eslintrc.js`, `.eslintrc.json`, or
+equivalent) to use the plugin.
+
+2. ### Recommended Configuration
+
+The simplest way to use the plugin is to extend the recommended configuration:
+
+```json
+{
+  "extends": [
+    // ... your other extends
+    "plugin:hyper-fetch/recommended"
+  ]
+}
+```
+
+---
+
 ## Key Features
 
 - **Type-Safe Generics**: Detects generic type errors that TypeScript may overlook
@@ -41,15 +63,10 @@ npm install eslint-plugin-hyper-fetch
 
 ---
 
-## Available Rules
-
-- **`client-generic-types`**: Ensures correct generic types when creating clients
-- **`request-generic-types`**: Validates generic types when creating requests
-
----
-
-## Why Use This Plugin?
+:::info Why Use This Plugin?
 
 - Reduce runtime errors by catching mistakes early
 - Improve developer experience with actionable feedback
 - Strengthen your codebase with better type safety
+
+:::

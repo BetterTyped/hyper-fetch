@@ -16,6 +16,7 @@ alwaysApply: false
 - Use active voice and present tense
 - Include examples for complex concepts
 - Limit each document to a single topic or concern
+- Split # and ## headings with --- separator
 
 ## Inspirations
 

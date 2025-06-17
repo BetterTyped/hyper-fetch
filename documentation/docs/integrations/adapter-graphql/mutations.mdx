@@ -1,37 +1,64 @@
 ---
 sidebar_position: 3
-title: Working with mutations
+title: Working with Mutations
 sidebar_label: Mutations
 ---
 
-To make mutations you need a query schema and a client set up with our GraphQL adapter.
+Mutations are used to modify data on your GraphQL server. This guide will show you how to create and execute mutations
+using Hyper Fetch.
 
-## Getting Started
+:::tip What you'll learn
+
+- How to create a GraphQL mutation.
+- How to pass variables to a mutation.
+- How to handle mutation responses.
+
+:::
+
+---
+
+## Basic Mutation
+
+Here is a basic example of how to create a mutation to log in a user.
 
 ```tsx
+import { Client } from "@hyper-fetch/core";
 import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
 
-// Initialize Client with adapter
-const client = new Client({ url: "http://localhost:3000/grahql" }).setAdapter(graphqlAdapter);
+// 1. Initialize the client
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
 
+// 2. Define types for the variables
 type Variables = {
   username: string;
   password: string;
 };
 
-// It's ready to use!
+// 3. Create the mutation request
 const login = client.createRequest<boolean, Variables>()({
   endpoint: gql`
     mutation Login($username: String!, $password: String!) {
-      login(username: $username, password: $password) {
-        username
-        password
-      }
+      login(username: $username, password: $password)
     }
   `,
 });
 
-const { data, status, extra, success, error } = await getUser
+// 4. Send the mutation with variables
+const { data, error } = await login.send({
+  data: {
+    variables: {
+      username: "Some username",
+      password: "Some password",
+    },
+  },
+});
+```
+
+Similar to queries, you can also use the `.setData()` method to provide variables for your mutation.
+
+```ts
+const { data, error } = await login
   .setData({
     username: "Some username",
     password: "Some password",

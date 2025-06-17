@@ -3,7 +3,7 @@ import { Plugin, RequestInstance } from "@hyper-fetch/core";
 import { DevtoolsEventHandler } from "./devtools.event.handler";
 import { DevtoolsPluginOptions, EmitableCustomEvents } from "./devtools.types";
 
-export const devtoolsPlugin = (options: DevtoolsPluginOptions) => {
+export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
   const plugin = new Plugin({
     name: "plugin-devtools",
     data: {

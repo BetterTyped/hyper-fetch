@@ -1,92 +1,126 @@
 ---
 sidebar_position: 1
-title: Codegen OpenAPI
+title: OpenAPI Codegen
 sidebar_label: Overview
 ---
 
-:::note
+[Read the API Reference »](/docs/api/codegen-openapi/Classes/OpenapiRequestGenerator.mdx)
 
-Openapi Hyper Fetch code generator is in beta. Please let us know in case of any problems.
+This guide will walk you through using the Hyper Fetch OpenAPI code generator. This powerful tool automatically creates
+type-safe Hyper Fetch clients, requests, and data models directly from your OpenAPI V3 schema. It streamlines the
+process of integrating with REST APIs, saving you time and reducing boilerplate code.
+
+:::success Swagger to Hyper Fetch
+
+This tool is a great way to get started with Hyper Fetch. It will generate a client, requests and types from your API.
 
 :::
 
-:::info
+---
 
-Note: Right now this code generator accepts only V3 version of the openapi schema.
+:::tip Purpose
+
+By using the OpenAPI code generator, you can:
+
+1.  **Automatically generate** a ready-to-use Hyper-Fetch client.
+2.  **Create typed requests** for all your API endpoints.
+3.  **Define data models** based on your OpenAPI schema components.
+4.  **Boost productivity** by eliminating manual setup for API integration.
 
 :::
+
+:::caution Supported Version
+
+Please note that the code generator currently supports **OpenAPI V3 schemas only**. Support for other versions is
+planned for the future.
+
+:::
+
+---
 
 ## Getting Started
 
-In order to start using the request generator, you need only one thing: OpenApi V3 JSON schema file or link to it. Then,
-you can simply call the package via `npx`:
+To start using the request generator, all you need is an OpenAPI V3 JSON schema, available either as a local file or a
+remote URL. You can run the generator using `npx`:
 
-```tsx
+```bash
 npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
 ```
 
-This command will generate the `openapi.client.ts` that contains generated Hyper Fetch client, requests, and types:
+This command processes the schema and generates a `openapi.client.ts` file in your current directory. This file contains
+a pre-configured Hyper Fetch client, typed request functions, and all the necessary TypeScript types for your API.
 
-```tsx
-...
+Here's a snippet of what the generated file looks like:
+
+```typescript
+// ... (imports and namespace definitions)
+
 export const client = new Client({ url: "/api/v3" });
 
-...
+// ... (type definitions for schemas)
 export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody;
 export type UpdatePetResponseType = Paths.UpdatePet.Responses.$200;
 
 export type AddPetRequestBody = Paths.AddPet.RequestBody;
 export type AddPetResponseType = Paths.AddPet.Responses.$200;
 
-...
+// ... (request definitions)
 
-export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, undefined, undefined>()({
+export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody>()({
   method: "PUT",
   endpoint: "/pet",
 });
 
-export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, undefined, undefined>()({
+export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody>()({
   method: "POST",
   endpoint: "/pet",
 });
-
 ```
 
-Declared variables with a created request always take their name from camel-cased `operationId`. The types naming always
-follows the convention - pascalCased `operationId` + \{`ResponseType`/`RequestBody`/`QueryParams`\}, e.g.:
+### Naming Convention
 
-- operationId: `addPet`
-- declared variable: `addPet`
-- response type: `AddPetResponseType`
-- request body: `AddPetRequestBody`
+The generator follows a consistent naming convention based on the `operationId` from your OpenAPI schema:
 
-## Renaming the file
+- **Request Function**: The function name is the camel-cased `operationId`. For example, `addPet`.
+- **Type Definitions**: Types are named by combining the pascal-cased `operationId` with a suffix indicating the type of
+  data (`ResponseType`, `RequestBody`, `QueryParams`, etc.). For example, `AddPetResponseType` or `AddPetRequestBody`.
 
-The command also accepts a second, optional argument: `--name`, that allows to indicate the name of a resulting file:
+---
 
-```tsx
-npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts
+## Configuration
+
+You can customize the generator's output with several command-line options.
+
+### Output File Name
+
+By default, the output file is named `openapi.client.ts`. You can specify a different name using the `--name` option:
+
+```bash
+npx @hyper-fetch/codegen-openapi --schema <path-to-schema> --name hyper-fetch.requests.ts
 ```
 
-## Providing base url
+### Base URL
 
-By default, we take the base url from the first `server` param from the json schema:
+The generator attempts to extract the base URL from the `servers` field in your OpenAPI schema:
 
 ```json
-{
-  "servers": [{ "url": "/api/v3" }]
-}
+"servers": [
+  {
+    "url": "/api/v3"
+  }
+]
 ```
 
-However, you can provide the `--url` option for the cli that will be used instead:
+If you need to override this or if the `servers` field is not present, you can provide a base URL with the `--url`
+option:
 
-```tsx
-npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts --url https://petstore3.swagger.io
+```bash
+npx @hyper-fetch/codegen-openapi --schema <path-to-schema> --url https://api.example.com
 ```
 
-Then, the client from the generated file will use it:
+This will configure the generated client with the specified URL:
 
-```tsx
-... // generated file
-export const client = new Client({url: "https://petstore3.swagger.io"})
+```typescript
+// ... generated file
+export const client = new Client({ url: "https://api.example.com" });
 ```

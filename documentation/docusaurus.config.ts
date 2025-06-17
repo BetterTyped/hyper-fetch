@@ -39,7 +39,7 @@ const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "plugin-devtools", "hyper-flow", "testing"].includes(p))
+    .filter((p) => ![".DS_Store", "hyper-flow", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });
@@ -232,7 +232,7 @@ const config: Config = {
           position: "left",
           label: "Docs",
           to: "/docs/getting-started",
-          activeBaseRegex: `^/docs((?!examples|integrations|guides|api|hyper-flow).)*$`,
+          activeBaseRegex: `^/docs((?!examples|integrations|guides|api).)*$`,
         },
         {
           to: "/docs/integrations/getting-started",

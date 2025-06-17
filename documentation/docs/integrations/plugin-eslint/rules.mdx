@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 3
 title: Rules
 ---
 
@@ -8,7 +8,9 @@ title: Rules
 The Hyper Fetch ESLint plugin includes several rules to help you catch common issues when working with Hyper Fetch. This
 page describes each rule, explains what it checks for, and provides examples of code that would trigger the rule.
 
-## client-generic-types
+---
+
+1. ## client-generic-types
 
 This rule ensures proper generic types are used when creating clients with Hyper Fetch. It extends TypeScript's
 functionality to trace issues with object-like generic types that might otherwise be missed.
@@ -51,7 +53,9 @@ const someClient = createClient<unknown>({ url: "http://localhost:3000" });
 
 Default severity: `"error"`
 
-## request-generic-types
+---
+
+2. ## request-generic-types
 
 This rule ensures proper generic types are used when creating requests with Hyper Fetch. It extends TypeScript's
 functionality to trace issues with object-like generic types that might otherwise be missed.
@@ -93,6 +97,8 @@ const request = client.createRequest<unknown>({ endpoint: "/api/users" });
 ### Configuration
 
 Default severity: `"error"`
+
+---
 
 ## When to Use These Rules
 

@@ -26,3 +26,32 @@ Install the ESLint plugin using npm or yarn:
 ```bash npm2yarn2pnpm
 npm install @hyper-fetch/devtools-plugin
 ```
+
+---
+
+## Usage
+
+Import the plugin and use it in your application:
+
+(@import plugin-devtools DevtoolsPlugin type=import)
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/devtools-plugin";
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    // highlight-start
+    appName: "My App",
+    // highlight-end
+  }),
+);
+```
+
+(@import plugin-devtools DevtoolsPluginOptions type=returns)
+
+<LinkCard
+  type="promo"
+  title="HyperFlow"
+  description="Learn more about HyperFlow devtools and how to use it"
+  href="/docs/hyper-flow"
+/>

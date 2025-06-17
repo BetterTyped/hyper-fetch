@@ -255,14 +255,14 @@ the events happening inside of the Hyper Fetch.
 ```tsx
 import { createClient } from "@hyper-fetch/core";
 import { Plugin } from "@hyper-fetch/core";
-import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
 // Add the official devtools plugin
 export const client = createClient({ url: "http://localhost:3000" })
   .setDebug(true)
   // highlight-start
   .addPlugin(
-    devtoolsPlugin({
+    DevtoolsPlugin({
       appName: "My Application",
     }),
   );

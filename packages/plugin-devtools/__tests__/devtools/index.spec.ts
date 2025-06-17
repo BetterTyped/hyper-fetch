@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { createHttpMockingServer, createWebsocketMockingServer } from "@hyper-fetch/testing";
 
-import { devtoolsPlugin } from "../../src/index";
+import { DevtoolsPlugin } from "../../src/index";
 
 const {
   startServer: startWebsocketServer,
@@ -17,7 +17,7 @@ const {
 } = createHttpMockingServer();
 
 describe("Backend Devtools - Socket Test", () => {
-  let client = new Client({ url: "shared-base-url" }).addPlugin(devtoolsPlugin({ appName: "TestApp" }));
+  let client = new Client({ url: "shared-base-url" }).addPlugin(DevtoolsPlugin({ appName: "TestApp" }));
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {

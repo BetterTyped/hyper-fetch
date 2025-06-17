@@ -65,12 +65,12 @@ npm install @hyper-fetch/plugin-devtools
 
 ```typescript
 import { createClient } from "@hyper-fetch/core";
-import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
 const client = createClient({
   url: "https://api.example.com",
 }).addPlugin(
-  devtoolsPlugin({
+  DevtoolsPlugin({
     // Name displayed in the Hyper Flow
     appName: "Adjusted App",
   }),

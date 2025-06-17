@@ -1,5 +1,5 @@
 import { Client } from "@hyper-fetch/core";
-import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 import { Socket } from "@hyper-fetch/sockets";
 
 import { ConnectionName } from "frontend/constants/connection.name";
@@ -17,7 +17,7 @@ export const connectDevtoolsClient = ({
 } = {}) => {
   const client = new Client({ url: baseUrl });
 
-  const plugin = devtoolsPlugin({
+  const plugin = DevtoolsPlugin({
     appName: clientName,
     url: `ws://${socketAddress}:${socketPort}`,
   });
