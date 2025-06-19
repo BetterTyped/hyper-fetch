@@ -1,15 +1,34 @@
 ---
-title: Guide - Mapping
+title: Mapping
 sidebar_label: Mapping
 ---
 
-# Response Mapping
+# Mapping
 
-You can set the mapping of data returned from the request. This data will not be modified in the cache; it will only be modified within the given request.
-This means that the mapping will be included locally and not globally in the cache.
+In Hyper-fetch, you can intercept and modify both outgoing requests and incoming responses. This powerful feature, known
+as mapping, allows you to transform data, add or modify headers, and even hydrate data into class models, all without
+affecting the core cached data. Mappers can be synchronous or asynchronous, giving you the flexibility to perform
+complex data manipulations, such as fetching additional data to enrich a response.
 
-By making two requests to the same place with two different mappers, we can still use everything the library offers - deduplication, cache, etc.
-The mapper does not affect other requests, only the one to which it is attached.
+:::secondary What you'll learn
+
+1.  How to **map responses** to transform incoming data.
+2.  How to use **asynchronous mappers** to enrich responses with additional data.
+3.  How to **hydrate response data** into class models for better data handling.
+4.  How to **map requests** to modify outgoing data, such as converting it to `FormData`.
+5.  How to dynamically **add headers** to a request within a mapper.
+
+:::
+
+---
+
+## Response Mapping
+
+You can set the mapping of data returned from the request. This data will not be modified in the cache; it will only be
+modified within the given request. This means that the mapping will be included locally and not globally in the cache.
+
+By making two requests to the same place with two different mappers, we can still use everything the library
+offers—deduplication, cache, etc. The mapper does not affect other requests, only the one to which it is attached.
 Thanks to this, we do not have to change the cache keys for each mapped request.
 
 :::info
@@ -18,17 +37,27 @@ Mappers can be asynchronus. This way we can build up bigger responses.
 
 :::
 
-#### Example
+Here's an example of using a response mapper to enrich the user data with a list of products and transform a date string
+into a `Date` object.
 
 ```ts
+// Let's assume we have this request to fetch products
+const getProducts = client.createRequest<ProductModel[]>()({
+  method: "GET",
+  endpoint: "/products",
+});
+
 export const getUser = client
-  .createRequest<{response: UserModel}>()({
+  .createRequest<{ response: UserModel }>()({
     method: "GET",
     endpoint: "/users/:userId",
   })
   .setResponseMapper(async (response) => {
     if (response.data) {
-      const products = await getProducts.send();
+      // Fetch additional data
+      const productsResponse = await getProducts.send();
+      const products = productsResponse.data || [];
+
       return {
         ...response,
         data: {
@@ -42,20 +71,39 @@ export const getUser = client
   });
 ```
 
-## Model Hydration
+### Model Hydration
 
-We can hydrate class models, which can parse our data.
-For example, the User class can parse dates from an ISO string into a Date object, generate nicknames or full names, etc.
+We can hydrate class models, which can parse our data. For example, the `User` class can parse dates from an ISO string
+into a `Date` object, generate nicknames or full names, etc. This is a powerful way to work with structured data.
 
 ```ts
+class User {
+  id: number;
+  name: string;
+  createdAt: Date;
+
+  constructor(data: UserModel) {
+    this.id = data.id;
+    this.name = data.name;
+    this.createdAt = new Date(data.createdAt);
+  }
+
+  get profile() {
+    return `${this.name} (since ${this.createdAt.getFullYear()})`;
+  }
+}
+
 export const getUser = client
-  .createRequest<{response: UserModel}>()({
+  .createRequest<{ response: UserModel }>()({
     method: "GET",
     endpoint: "/users/:userId",
   })
   .setResponseMapper((response) => {
+    // Note that we are returning an instance of User, not the plain object.
+    // The type in createRequest should be `UserModel`, which is the raw data from the server.
+    // The use of the mapper and `User` class will provide the hydrated model to the application.
     if (response.data) {
-      return new User(response.data);
+      return { ...response, data: new User(response.data) };
     }
     return response;
   });
@@ -63,21 +111,22 @@ export const getUser = client
 
 ---
 
-# Request Mapping
+## Request Mapping
 
-You can map requests - i.e. make changes to a request before executing it. This allows us to validate the sent data and change its format or state.
+You can also map requests to make changes to a request before executing it. This allows us to validate the sent data and
+change its format or state, for example, to send it as `FormData`.
 
 :::info
 
-Mappers can be asynchronous. This lets us build up bigger responses.
+Request mappers can also be asynchronous, allowing for complex pre-request logic.
 
 :::
 
-#### Example
+In this example, we convert the request payload into `FormData` and add a custom header before sending the request.
 
 ```ts
 export const postUser = client
-  .createRequest<{response: UserModel, payload: UserData}>()({
+  .createRequest<{ response: UserModel; payload: UserData }>()({
     method: "POST",
     endpoint: "/users/:userId",
   })
@@ -92,3 +141,18 @@ export const postUser = client
     return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" }).setData(formData);
   });
 ```
+
+---
+
+:::success Congratulations!
+
+You've mastered request and response mapping in Hyper-fetch!
+
+- You can **transform incoming data** using `.setResponseMapper()` without affecting the cache.
+- You can **enrich responses** by making additional requests within an asynchronous mapper.
+- You can **hydrate data** into class models for more robust data structures.
+- You can **modify outgoing requests** using `.setRequestMapper()` to format data or add headers.
+- You understand that mappers provide a **local, per-request transformation**, ensuring data consistency across your
+  application.
+
+:::

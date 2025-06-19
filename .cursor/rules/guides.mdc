@@ -1,0 +1,141 @@
+---
+description: 
+globs: **/guides/**/*.mdx
+alwaysApply: false
+---
+
+# Guide Writing Rules
+
+This document outlines the rules and best practices for creating guides for the documentation.
+
+## 1. Comprehensive and Practical Focus
+
+- Guides must present as many aspects of a topic as possible to cover industry standards, real-life problems, and
+  practical development scenarios. The content should be developer-centric and focused on delivering high-quality,
+  actionable insights.
+- Explore multiple approaches and solutions for a given topic. For example, a guide on authentication should cover
+  various methods like cookie-based, JWT/bearer tokens, and other common patterns to provide a comprehensive overview.
+
+## 2. Ground Examples in Reality
+
+- Examples must be based on the actual implementation found in the `/packages` directory.
+- For instance, code related to `@hyper-fetch/core` should correspond to the source code in `packages/core`. Before
+  writing an example, you should review the implementation to ensure accuracy.
+- If you write about some function, method etc - you can use the docs importer to better tell the user about the
+  parameters (they will be automatically updated with code building), syntax example:
+
+```md
+(@import {packageName} {componentName} type={contentType})
+```
+
+- **packageName**: Name of the package from `/packages` directory (e.g., `core`, `client`, `react`)
+- **componentName**: Type of component to import (e.g., `class`, `function`, `interface`, `type`)
+- **contentType**: What aspect of the component to import
+
+### Segregation of the dependencies
+
+1. Core guides tell the story only about the core package / react about react package with core and sockets / sockets
+   about sockets
+2. Do not add the react topics into the core packages docs you can link to the particular topic using the global
+   <LinkCard /> component, example:
+
+```tsx
+<LinkCard
+  type="guides" // guides | docs | integrations | promo | api
+  title="Guide Title"
+  description="Brief description of the linked content"
+  to="/docs/guides/specific-guide"
+/>
+```
+
+You don't import the LinkCard - it is globally available.
+
+## 3. Guide Structure
+
+Each guide should follow this structure:
+
+1.  **Introduction**: Start with a brief introduction to the topic.
+2.  **"What you'll learn" Admonition**: Use a `:::secondary` admonition with the title "What you'll learn" to outline
+    the key takeaways of the guide in a **numbered list**. Do not place heading above the admonitions!
+
+Example:
+
+:::secondary What you'll learn
+
+1.  How to define and use **URL path parameters**.
+2.  The difference between `setParams` and passing parameters to the `send` method.
+3.  How to add and type-safe **query parameters**, including optional ones.
+4.  How to handle **array values** in query parameters.
+5.  The **precedence rules** when setting parameters in multiple ways.
+
+:::
+
+3.  **Examples**: Provide clear and practical examples. Live examples are preferred. Make sure you touch on all aspects
+    from given topic.
+4.  **Summary**: Conclude with a `:::success` admonition that summarizes what was covered in the guide. Do not place
+    heading above the admonitions!
+
+### What you'll learn
+
+- Title should be `:::secondary What you'll learn`
+- Under the title we should list outcomes from this guide in very short and concrete way
+- Every guide should start with a list that recaps the main points and reinforces what the user will learn. Use a
+  `:::secondary` admonition for this purpose.
+- Each element should start with `"How ..."` or `"The difference..."` or `"What ..."` or `"Benefits ..."`
+- Make sure to only bolden the important words or few, not the whole sentence!
+
+## 4. Code Examples
+
+### Live Code Examples
+
+- Live examples are the preferred method for demonstrating functionality.
+- You can use globally available variables, functions, and methods without importing them.
+- To know which globals are available, you can inspect these files:
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/global-scope.ts`
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/create-global-requests.ts`
+- **Important**: Actual `import` statements do not work in live code blocks due to security restrictions. You can show
+  example import statements as commented-out text to give the user context on where to find certain elements, but they
+  won't be executed. Do not comment them out, leave them without modifications.
+
+### Static Code Examples
+
+- Use static code blocks for discussing or presenting patterns that don't need a live preview.
+- Utilize diffs (`// diff-add-start`, `// diff-remove-start`) or highlights (`// highlight-start`,
+  `// highlight-next-line`) to emphasize specific parts of the code. Add explanatory comments above the relevant lines.
+
+### Accuracy
+
+- Always verify code examples against the latest implementation in the `/packages/*` directories to ensure they are
+  correct and up-to-date. Reading the source files and their corresponding tests is the best way to confirm behavior.
+
+## 5. React Package Examples
+
+- For guides related to the `@hyper-fetch/react` package, you can create more elaborate examples, such as simple React
+  applications, to provide better context.
+- **Styling**: Use Tailwind CSS for styling components within examples.
+- **Elements**: To ensure consistency and simplicity, restrict component structure to basic HTML elements like `div`,
+  `p`, `span`, and heading (`h1`, `h2`, etc.) elements.
+
+## 6. Summary
+
+- Title should be some kind of congrats - very short
+- Under the title we should list outcomes from this guide in very short and concrete way
+- Every guide should end with a summary that recaps the main points and reinforces what the user has learned. Use a
+  `:::success` admonition for this purpose.
+- Make sure that summary is separated with "---" on top, as a separate section
+- Each element should start with "You can ...`
+
+### Example
+
+:::success Congratulations!
+
+You've learned how to manage headers effectively in Hyper-fetch!
+
+- You can set **static headers** when you create a request.
+- You can add **dynamic headers** using the `.setHeaders()` method.
+- You can pass **one-time headers** directly to the `.send()` method.
+- You are aware of **adapter limitations** regarding headers.
+
+:::
+
+---

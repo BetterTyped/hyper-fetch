@@ -1,79 +1,201 @@
 ---
 sidebar_position: 4
-title: Realtime listening
-sidebar_label: Realtime listening
+title: Realtime Queries
+sidebar_label: Realtime Queries
 ---
 
-## Listening to queries - realtime updates
+import { Tabs } from "@theme/Tabs";
+import { TabItem } from "@theme/TabItem";
 
-Depending on the product, firebase offers two realtime methods:
-  - `onValue` for Realtime Database
-  - `onSnapshot` for Firestore
+With the `@hyper-fetch/firebase-admin` adapter, you can listen to realtime updates from both **Firestore** and
+**Realtime Database**. This allows you to build reactive applications that respond instantly to data changes on the
+backend.
 
-In Hyper Fetch, in order to make use of these two methods, we have to use our `hyper-fetch/sockets` package.
+:::tip Purpose
 
-```tsx
-import {Socket} from "@hyper-fetch/sockets";
-import {firebaseSocketsAdapter} from "@hyper-fetch/firebase";
+This guide will teach you how to:
 
-const firestoreWebDatabase = <initializedFirestoreDatabase>
-const socket = new Socket({ url: "teas/", adapter: firebaseSocketsAdapter(firestoreWebDatabase) });
-const onSnapshotRequest = socket.createListener<Tea[]>()({
-  name: "",
-  options: { groupByChangeType: true },
+1.  **Set up** the firebase admin socket adapter.
+2.  **Listen** to realtime data streams from Firestore and Realtime Database.
+3.  **Handle** incoming data and additional details.
+4.  **Use advanced options** for Firestore and Realtime Database listeners.
+5.  **Filter** realtime queries to get only the data you need.
+
+:::
+
+---
+
+## Setup
+
+First, you need to have the Firebase Admin SDK configured. Then, you can create a `Socket` instance from
+`@hyper-fetch/sockets` and pass the `firebaseSocketsAdminAdapter` to it.
+
+```typescript
+import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import { getDatabase } from "firebase-admin/database";
+import { Socket } from "@hyper-fetch/sockets";
+import { firebaseSocketsAdminAdapter } from "@hyper-fetch/firebase-admin";
+
+// Initialize Firebase Admin
+const serviceAccount = require("./serviceAccountKey.json");
+
+initializeApp({
+  credential: cert(serviceAccount),
+  databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
 });
-const unmount = await onValueReq.listen({ callback: ({data, extra} => {
-  // do something with data and extra received each time socket gets new data
-})});
+
+// Get Firestore and Realtime Database instances
+const firestoreDb = getFirestore();
+const realtimeDb = getDatabase();
+
+// Create a Socket instance for Firestore
+const firestoreSocket = new Socket({
+  adapter: firebaseSocketsAdminAdapter(firestoreDb),
+});
+
+// Create a Socket instance for Realtime Database
+const realtimeSocket = new Socket({
+  adapter: firebaseSocketsAdminAdapter(realtimeDb),
+});
 ```
 
-As you can see in the presented example:
-1. First we need to initialize the socket itself. Here we need to pass an adapter:
-    - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore - from the `@hyper-fetch/firebase` package.
-    - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/-firebase-admin` package.
+:::caution
 
-The adapter accepts initialized database.
+The `firebase-admin` SDK is intended for backend use. Never expose your service account credentials in a client-side
+application.
 
-2. We need to create a `listener` - here we can pass the additional options, params, etc.
+:::
 
-3. We need to actually listen on the request and provide a callback that will fire each time new data arrives. In case of our firebase adapter, callback
-can access two params:
-- `data` - all the received elements.
-- `extra` - additional data:
-    - `ref` - firebase reference to a path
-    - `snapshot` - firebase raw snapshot
-    - `status` - status indicating whether a query succeeded or failed
+---
 
-Listener initialization returns an `unmount` function that allows for closing the channel.
+## Listening for Changes
 
-## Additional options
+To listen for realtime updates, you create a `listener` from your `Socket` instance. The listener is then used to open a
+connection and receive data. Firebase offers two primary methods for realtime updates: `onSnapshot` for Firestore and
+`onValue` for Realtime Database.
 
-Right now we have only one option for each database type:
+The `.listen()` method takes a callback that fires whenever new data is available. It returns an `unmount` function,
+which you can call to close the connection.
 
 ### Firestore
 
-1. `groupByChangeType` - if we add this option, the `extra` object will have additional object named `groupedResult`
-```tsx
-const {added, modified, removed} = extra.groupedResult
+For Firestore, the adapter uses `onSnapshot` to listen for document or query changes.
+
+```typescript
+// types.ts
+interface Tea {
+  id: string;
+  name: string;
+  type: "Green" | "Black" | "Oolong";
+}
 ```
-Let's suppose we are listening on the `teas/` endpoint. Initially, we receive objects. Then, after some time, a new element
-is added to the list. In the `data` object we receive all the existing elements - 11. However, the new element will be also available via
-`extra.groupedResult.added` list. The same goes for modification of existing elements. All changes are reflected in `added`, `modified`, and `removed`.
 
-### Realtime
+```typescript
+// listener.ts
+import { firestoreSocket } from "./setup"; // Assume setup is in a separate file
 
-1. `onlyOnce` - if we add this option, listener will query for data only once.
-
-## Filtering realtime queries
-
-You can filter realtime queries exactly in the same way as with 'standard' methods. The example below contains a listener that will return data only for
-the object with `type` that equals `Green`:
-
-```tsx
-// Should listen for changes only for Green teas
-const onSnapshotReq = socket.createListener<Tea[]>()({
-  name: "",
-  options: { constraints: [$where("type", "==", "Green")] },
+const teasListener = firestoreSocket.createListener<Tea[]>()({
+  endpoint: "teas",
 });
 
+const unmount = teasListener.listen({
+  callback: ({ data, extra }) => {
+    console.log("Received data:", data);
+    // `extra` contains additional details like the raw snapshot
+    console.log("Extra details:", extra);
+  },
+});
+
+// To stop listening for updates
+// unmount();
 ```
+
+The callback receives an object with:
+
+- `data`: The data from the snapshot, typed according to the listener.
+- `extra`: An object containing:
+  - `ref`: The Firebase reference to the path.
+  - `snapshot`: The raw Firebase snapshot.
+  - `status`: A status indicating whether the query succeeded or failed.
+
+---
+
+## Advanced Options
+
+The `firebase-admin` adapter provides special options for both Firestore and Realtime Database listeners.
+
+### Firestore Options
+
+#### `groupByChangeType`
+
+When listening to a collection, you can set `groupByChangeType: true` in the listener's options. This adds a
+`groupedResult` object to the `extra` parameter in your callback, which categorizes document changes into `added`,
+`modified`, and `removed`.
+
+```typescript
+const teasListener = firestoreSocket.createListener<Tea[]>()({
+  endpoint: "teas",
+  options: { groupByChangeType: true },
+});
+
+teasListener.listen({
+  callback: ({ data, extra }) => {
+    const { added, modified, removed } = extra.groupedResult;
+    console.log("Added teas:", added);
+    console.log("Modified teas:", modified);
+    console.log("Removed teas:", removed);
+  },
+});
+```
+
+### Realtime Database Options
+
+#### `onlyOnce`
+
+For Realtime Database listeners, you can use the `onlyOnce: true` option to fetch the data a single time, behaving like
+`get()` instead of establishing a persistent listener.
+
+```typescript
+import { realtimeSocket } from "./setup";
+
+const configListener = realtimeSocket.createListener<any>()({
+  endpoint: "config",
+  options: { onlyOnce: true },
+});
+
+configListener.listen({
+  callback: ({ data }) => {
+    console.log("Fetched config once:", data);
+  },
+});
+```
+
+---
+
+## Filtering Queries
+
+You can apply filters to your realtime queries to receive only the data that matches specific criteria. The adapter
+provides helper functions like `$where` to construct these filters. These functions are available for import from the
+`@hyper-fetch/firebase` and `@hyper-fetch/firebase-admin` packages.
+
+```typescript
+import { $where } from "@hyper-fetch/firebase-admin";
+import { firestoreSocket } from "./setup";
+
+// Listen for changes only for Green teas
+const greenTeasListener = firestoreSocket.createListener<Tea[]>()({
+  endpoint: "teas",
+  options: {
+    constraints: [$where("type", "==", "Green")],
+  },
+});
+
+greenTeasListener.listen({
+  callback: ({ data }) => {
+    console.log("Green teas:", data);
+  },
+});
+```
+
+You can use all the available `firebase` constraints like `$limit`, `$orderBy` etc.

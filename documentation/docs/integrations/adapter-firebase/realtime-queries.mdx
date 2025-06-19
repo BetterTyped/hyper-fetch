@@ -7,8 +7,9 @@ sidebar_label: Realtime listening
 ## Listening to queries - realtime updates
 
 Depending on the product, firebase offers two realtime methods:
-  - `onValue` for Realtime Database
-  - `onSnapshot` for Firestore
+
+- `onValue` for Realtime Database
+- `onSnapshot` for Firestore
 
 In Hyper Fetch, in order to make use of these two methods, we have to use our `hyper-fetch/sockets` package.
 
@@ -28,21 +29,25 @@ const unmount = await onValueReq.listen({ callback: ({data, extra} => {
 ```
 
 As you can see in the presented example:
+
 1. First we need to initialize the socket itself. Here we need to pass an adapter:
-    - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore - from the `@hyper-fetch/firebase` package.
-    - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/-firebase-admin` package.
+   - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore - from the `@hyper-fetch/firebase`
+     package.
+   - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/-firebase-admin`
+     package.
 
 The adapter accepts initialized database.
 
 2. We need to create a `listener` - here we can pass the additional options, params, etc.
 
-3. We need to actually listen on the request and provide a callback that will fire each time new data arrives. In case of our firebase adapter, callback
-can access two params:
+3. We need to actually listen on the request and provide a callback that will fire each time new data arrives. In case
+   of our firebase adapter, callback can access two params:
+
 - `data` - all the received elements.
 - `extra` - additional data:
-    - `ref` - firebase reference to a path
-    - `snapshot` - firebase raw snapshot
-    - `status` - status indicating whether a query succeeded or failed
+  - `ref` - firebase reference to a path
+  - `snapshot` - firebase raw snapshot
+  - `status` - status indicating whether a query succeeded or failed
 
 Listener initialization returns an `unmount` function that allows for closing the channel.
 
@@ -53,12 +58,15 @@ Right now we have only one option for each database type:
 ### Firestore
 
 1. `groupByChangeType` - if we add this option, the `extra` object will have additional object named `groupedResult`
+
 ```tsx
-const {added, modified, removed} = extra.groupedResult
+const { added, modified, removed } = extra.groupedResult;
 ```
-Let's suppose we are listening on the `teas/` endpoint. Initially, we receive objects. Then, after some time, a new element
-is added to the list. In the `data` object we receive all the existing elements - 11. However, the new element will be also available via
-`extra.groupedResult.added` list. The same goes for modification of existing elements. All changes are reflected in `added`, `modified`, and `removed`.
+
+Let's suppose we are listening on the `teas/` endpoint. Initially, we receive objects. Then, after some time, a new
+element is added to the list. In the `data` object we receive all the existing elements - 11. However, the new element
+will be also available via `extra.groupedResult.added` list. The same goes for modification of existing elements. All
+changes are reflected in `added`, `modified`, and `removed`.
 
 ### Realtime
 
@@ -66,8 +74,8 @@ is added to the list. In the `data` object we receive all the existing elements 
 
 ## Filtering realtime queries
 
-You can filter realtime queries exactly in the same way as with 'standard' methods. The example below contains a listener that will return data only for
-the object with `type` that equals `Green`:
+You can filter realtime queries exactly in the same way as with 'standard' methods. The example below contains a
+listener that will return data only for the object with `type` that equals `Green`:
 
 ```tsx
 // Should listen for changes only for Green teas
@@ -75,5 +83,4 @@ const onSnapshotReq = socket.createListener<Tea[]>()({
   name: "",
   options: { constraints: [$where("type", "==", "Green")] },
 });
-
 ```

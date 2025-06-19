@@ -6,28 +6,200 @@ sidebar_label: Payload
 
 # Payload
 
----
-
-### Request data
-
-Adding data to the requests is pretty simple. Use the `setData` method on the request and set whatever data you want to
-transfer.
+In Hyper-Fetch, the term "payload" refers to the data sent with a request, typically in the body of `POST`, `PUT`, or
+`PATCH` requests. This guide will walk you through defining and setting payloads for your requests, with a strong
+emphasis on type safety.
 
 ---
 
-### Setting data for request
+:::secondary What you'll learn
 
-To set data of our request we need to use method `.setData()`.
+1.  What a **request payload** is and how to use it.
+2.  How to add a **typed payload** to a request for better type-safety.
+3.  How to set request data using the **`.setData()`** and **`.send()`** methods.
+4.  How TypeScript helps prevent **payload-related errors** at compile time.
+
+:::
+
+---
+
+## Defining a Typed Request
+
+The core strength of Hyper-Fetch is its type safety. By defining a `payload` type for your request, you can ensure that
+the data you send to the server always has the correct shape. This eliminates a common source of bugs in web
+applications.
+
+Let's start by creating a request to create a new user. We'll define the types for both the payload we send and the
+response we expect.
 
 ```ts
-const createUser = client.createRequest<{response: ResponseType, payload: DataType}>()({ method: "POST", endpoint: "/users" });
+// import { createClient } from "@hyper-fetch/core";
 
-const request = createUser.setData({ name: "Maciej" }); // Must match `DataType`
-console.log(request.data); // Output: { name: "Maciej" }
+// We can define a type for our user payload
+type UserPayload = {
+  name: string;
+  username: string;
+  email: string;
+};
+
+// And a type for the response
+type UserResponse = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+};
+
+const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
+  method: "POST",
+  endpoint: "/users",
+});
 ```
 
-#### Directly on send method
+With this setup, TypeScript will enforce the `UserPayload` type whenever we provide data to the `createUser` request.
+
+---
+
+## Setting the Payload
+
+Hyper-Fetch offers two convenient ways to attach a payload to your request: using the `.setData()` method or passing it
+directly to the `.send()` method.
+
+### 1. Using `.setData()`
+
+The `.setData()` method allows you to create a new request instance with the payload attached. This is useful when you
+want to prepare a request and send it later, or pass it to another part of your application.
+
+```ts live
+const App = () => {
+  // We can define a type for our user payload
+  type UserPayload = {
+    name: string;
+    username: string;
+    email: string;
+  };
+
+  // And a type for the response
+  type UserResponse = {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+  };
+
+  const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
+    method: "POST",
+    endpoint: "/users",
+  });
+
+  const newUserPayload: UserPayload = {
+    name: "John Doe",
+    username: "johndoe",
+    email: "john.doe@example.com",
+  };
+
+  const createUserWithData = createUser.setData(newUserPayload);
+
+  // The data is now part of the request configuration
+  console.log("Request data:", createUserWithData.data);
+
+  // You can now send it
+  // const { data, error } = await createUserWithData.send();
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="font-bold m-0">Check the console below</p>
+      <p className="m-0">
+        We've prepared a request with a payload using <code>.setData()</code>. The request object is logged in the
+        console.
+      </p>
+    </div>
+  );
+};
+```
+
+### 2. Passing data to `.send()`
+
+Alternatively, you can pass the payload directly to the `.send()` method. This is a more direct approach and is useful
+for one-off requests where you don't need to reuse the request instance with its data.
+
+This example will send a real request to a test API.
+
+```ts live
+const App = () => {
+  const [response, setResponse] = React.useState(null);
+
+  type UserPayload = {
+    name: string;
+    username: string;
+    email: string;
+  };
+
+  type UserResponse = {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+  };
+
+  const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
+    method: "POST",
+    endpoint: "/users",
+  });
+
+  const handleSend = async () => {
+    const { data } = await createUser.send({
+      data: {
+        name: "Jane Doe",
+        username: "janedoe",
+        email: "jane.doe@example.com",
+      },
+    });
+    setResponse(data);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <button onClick={handleSend}>Create User</button>
+      {response && <pre>{JSON.stringify(response, null, 2)}</pre>}
+    </div>
+  );
+};
+```
+
+---
+
+## Type Safety in Action
+
+Here's where Hyper-Fetch's type safety really shines. If you try to set a payload that doesn't match the `UserPayload`
+type, TypeScript will immediately flag it as an error during development, preventing bugs before they happen.
 
 ```ts
-const response = await createUser.send({ data: { name: "Maciej" } }); // Must match `DataType`
+// error-start
+// This will cause a TypeScript error because 'username' and 'email' are missing.
+const wrongRequest = createUser.setData({
+  name: "Missing Fields",
+});
+// error-end
+
+// TS Error:
+// Argument of type '{ name: string; }' is not assignable to parameter of type 'UserPayload'.
+//   Property 'username' is missing in type '{ name: string; }' but required in type 'UserPayload'.
 ```
+
+This static analysis ensures your data structures are consistent and helps you avoid runtime errors related to incorrect
+request payloads.
+
+---
+
+:::success Congratulations!
+
+You've learned how to effectively manage request payloads with Hyper-Fetch!
+
+- You know that **payloads** are the data you send with requests, like form submissions.
+- You can **enforce data consistency** by defining a `payload` type for your requests.
+- You can use **`.setData()` to prepare requests** with data, or pass it **directly to `.send()`** for immediate
+  execution.
+- You know that **TypeScript integration** catches data-related errors early, making your code more reliable.
+
+:::

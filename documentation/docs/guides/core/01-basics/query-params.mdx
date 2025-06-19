@@ -6,47 +6,108 @@ sidebar_label: Query Params
 
 # Query Params
 
+Query parameters are a fundamental part of making dynamic API requests, allowing you to filter, sort, and paginate data.
+Hyper-Fetch provides a powerful and type-safe way to handle query parameters, ensuring that your requests are both
+flexible and robust.
+
+:::secondary What you'll learn
+
+1.  How to **define and type-check** query parameters for a request.
+2.  How to **set query parameters** using objects or strings.
+3.  How to **customize the serialization** of query parameters.
+4.  How to apply **global query parameter configurations**.
+
+:::
+
 ---
 
-### Request query parameters
+## Defining Query Params
 
-The use of query params is based on built-in parser. We can freely change its options and format to match our needs.
+To get started, you need to define the shape of your query parameters in the `createRequest` method. By specifying the
+`queryParams` type, you enable type-checking and autocompletion, which helps prevent common errors.
+
+You can define `queryParams` as an object for structured data or as a string for simpler cases.
+
+```tsx live
+// 1. Define queryParams as an object for type-safety
+const getUsers = client.createRequest<{
+  response: { id: string; name: string }[];
+  queryParams: { search: string; sortBy: "asc" | "desc" };
+}>()({
+  endpoint: "/users",
+});
+
+const requestWithObject = getUsers.setQueryParams({ search: "John", sortBy: "asc" });
+
+console.log("With object:", requestWithObject.endpoint);
+
+// 2. Or define queryParams as a string for flexibility
+const getPosts = client.createRequest<{
+  response: { id: string; title: string }[];
+  queryParams: string;
+}>()({
+  endpoint: "/posts",
+});
+
+const requestWithString = getPosts.setQueryParams("author=Alice&status=published");
+
+console.log("With string:", requestWithString.endpoint);
+```
 
 ---
 
-### Setting query params
+## Customizing Query Param Format
 
-You can set query params by using the `setQueryParams` method on request. It's type can be configured on request
-creation.
+By default, Hyper-Fetch stringifies query parameters using standard conventions. However, some APIs may require a
+different format, such as array formatting or custom delimiters. You can easily customize this behavior using
+`setQueryParamsConfig` on the client instance.
 
-```ts
-type QueryParamsType = {
-  search: string;
-  sort: string;
-};
-
-const getUsers = client.createRequest<{ response: Response; queryParams: QueryParamsType }>()({ endpoint: "/users" });
-
-// Setting the query params
-
-const request = getUsers.setQueryParams({ search: "John", sort: "age" });
-console.log(request.endpoint); // Output: "/users?search=John&sort=age"
-```
-
-```ts
-const getUsers = client.createRequest<{ response: Response; queryParams: string }>()({ endpoint: "/users" });
-
-const request = getUsers.setQueryParams("search=John&sort=age");
-console.log(request.endpoint); // Output: "/users?search=John&sort=age"
-```
-
-### Custom query params format
-
-We can setup custom config with instructions how to stringify the values. It can be setup on the client with
-`setQueryParamsConfig` method.
+This configuration is applied globally to all requests made with that client.
 
 #### Available options:
 
 (@import core QueryStringifyOptionsType type=returns)
 
+### Example: Custom Array Formatting
+
+Let's say your API expects arrays to be formatted as `key=value1,value2` instead of the default
+`key[]=value1&key[]=value2`. You can achieve this with a custom `paramsSerializer`.
+
+```tsx live
+// highlight-start
+const customClient = client.setQueryParamsConfig({
+  paramsSerializer: (params) => {
+    return Object.entries(params)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `${key}=${value.join(",")}`;
+        }
+        return `${key}=${value}`;
+      })
+      .join("&");
+  },
+});
+// highlight-end
+
+const getProducts = customClient.createRequest<{
+  response: { id: string; name: string }[];
+  queryParams: { categories: string[] };
+}>()({
+  endpoint: "/products",
+});
+
+const request = getProducts.setQueryParams({ categories: ["electronics", "books"] });
+console.log(request.endpoint);
+```
+
 ---
+
+:::success Congratulations!
+
+You've now mastered handling query parameters with Hyper-Fetch!
+
+- You can define **type-safe** query parameters for your requests to catch errors early.
+- You can set query parameters using **objects or strings**.
+- You can customize the **query parameter serialization** to meet any API requirements.
+
+:::

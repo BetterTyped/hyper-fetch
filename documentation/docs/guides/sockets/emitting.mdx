@@ -4,32 +4,128 @@ title: Guide - Socket Emitting
 sidebar_label: Emitting
 ---
 
-# Emitting
+# Emitting Events
 
-Use the `emit` method to start the event emitting.
+In real-time applications, you often need to send data from the client to the server. With Hyper-Fetch's socket module,
+you can **emit events** to send data, and optionally.
 
-```tsx
+:::secondary What you'll learn
+
+1.  How to create an **emitter** to send events.
+2.  How to **send data** with an event.
+3.  How to handle **server acknowledgments**.
+4.  The difference between using **`.setPayload()`** and passing data directly to **`.emit()`**.
+5.  How to use **parameters** in event topics.
+
+:::
+
+---
+
+## Creating an Emitter
+
+First, you need to create an `emitter` instance. An emitter is responsible for sending events to a specific `topic` on
+your server. You can define the types for the data you're sending.
+
+Let's create an emitter for a chat application.
+
+```typescript
+//highlight-start
 type ChatMessageType = {
   message: string;
 };
+//highlight-end
 
-type AcknowledgementResponseType = boolean;
-
-const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  endpoint: "chat-message", // endpoint of the event
-});
-
-sendChatMessage.emit({ message: "new message" }, (error, data) => {
-  if (data === true) {
-    console.log("Correct!");
-  }
-});
-
-// or
-
-sendChatMessage.setData({ message: "new message" }).emit({}, (error, data) => {
-  if (data === true) {
-    console.log("Correct!");
-  }
+const sendChatMessage = socketInstance.createEmitter<ChatMessageType>()({
+  endpoint: "chat-message", // topic of the event
 });
 ```
+
+---
+
+## Sending Data
+
+There are two main ways to send data with an emitter:
+
+1.  **Using `.setPayload()`**: You can prepare the emitter with data before sending it. This is useful if you want to
+    create a reusable emitter instance with predefined data.
+2.  **Passing data to `.emit()`**: You can pass the data directly to the `.emit()` method. This is convenient for
+    one-time emissions.
+
+### 1. Using `.setPayload()`
+
+You can use the `.setPayload()` method to attach data to the emitter. This method returns a _new_ emitter instance with
+the data, so the original emitter remains unchanged.
+
+```typescript live
+const emitterWithPayload = sendChatMessage.setPayload({ message: "Hello from .setPayload()!" });
+
+emitterWithPayload.emit(
+  // No need to pass data here as it's already set
+  {},
+  // Acknowledgement callback
+  (error, data) => {
+    if (error) {
+      console.error("Error sending message:", error);
+      return;
+    }
+    console.log("Server acknowledgment:", data);
+  },
+);
+```
+
+### 2. Passing Data to `.emit()`
+
+Alternatively, you can pass the data as the first argument to the `.emit()` method.
+
+```typescript live
+sendChatMessage.emit(
+  // The data to be sent
+  { message: "Hello from .emit()!" },
+  // Acknowledgement callback
+  (error, data) => {
+    if (error) {
+      console.error("Error sending message:", error);
+      return;
+    }
+    console.log("Server acknowledgment:", data);
+  },
+);
+```
+
+---
+
+## Using Parameters in Topics
+
+Sometimes, you need to send events to dynamic topics, for example, to a specific user or a specific chat room. You can
+define parameters in the `topic` string, similar to how you define routes in a web framework.
+
+Let's create an emitter to send a private message to a specific user.
+
+```typescript
+const sendPrivateMessage = socketInstance.createEmitter<{ message: string }>()({
+  endpoint: "private-message/:userId",
+});
+```
+
+You can then set the `userId` parameter when you emit the event:
+
+```typescript live
+const privateMessageEmitter = sendPrivateMessage.setParams({ userId: "user-123" });
+
+privateMessageEmitter.emit({ message: "This is a private message!" });
+```
+
+When this event is sent, `user-123` will be substituted into the topic, and the event will be sent to
+`private-message/user-123`.
+
+---
+
+:::success Congratulations!
+
+You've learned how to emit events with Hyper-Fetch Sockets!
+
+- You can create an **emitter** for a specific event topic.
+- You can send data using **`.setPayload()`** or by passing it directly to **`.emit()`**.
+- You can use **parameters in topics** to send events to dynamic endpoints.
+
+:::

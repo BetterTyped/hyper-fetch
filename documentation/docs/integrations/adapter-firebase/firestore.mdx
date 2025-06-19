@@ -4,106 +4,148 @@ title: Working with Firestore
 sidebar_label: Firestore
 ---
 
-## Available methods
+# Working with Firestore
 
-After setting the firestore adapter, we can start performing requests! We should select the appropriate method,
-corresponding with firebase methods. If you want to learn more about available methods - please refer to the firebase
-documentation.
+This guide will walk you through using the Hyper-Fetch Firestore adapter to interact with your Firestore database.
+You'll learn how to perform fundamental data operations like creating, reading, updating, and deleting documents.
 
-Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a
-standard adapter. For the `onSnapshot`-like usage, please check how to
-**[listen to queries](/docs/integrations/adapter-firebase/realtime-queries)**.
+:::secondary What you'll learn
+
+1.  **CRUD Operations**: How to use methods like `getDocs`, `getDoc`, `setDoc`, `addDoc`, and `deleteDoc`.
+2.  **Realtime Updates**: Understand the separation of standard requests and realtime listeners.
+3.  **Handling Data**: How to work with the data and `extra` metadata returned from Firestore.
+
+:::
+
+The Firestore adapter maps familiar Firestore SDK methods to Hyper-Fetch requests. Here's a quick overview of the
+available methods:
 
 ```tsx
 const getReq = client.createRequest<Tea[]>()({
-  endpoint: "",
+  endpoint: "teas",
   method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
 });
 ```
 
-### getDocs
+For the `onSnapshot`-like usage, please check how to
+**[listen to queries](/docs/integrations/adapter-firebase/realtime-queries)**.
+
+---
+
+## Methods
+
+All examples are based on this `Tea` type:
+
+```ts
+type Tea = {
+  __key?: string; // This is how hyper-fetch returns the document id
+  origin: string;
+  type: string;
+  year: number;
+  name: string;
+  amount: number;
+};
+```
+
+---
+
+### `getDocs`
+
+Fetches all documents from a collection.
 
 ```tsx
 const getReq = client.createRequest<Tea[]>()({
-  endpoint: "",
+  endpoint: "teas",
   method: "getDocs",
 });
 
-const { data, status, extra, success, error } = await req.send();
-// Data is an array of objects, each object also contains the __key param.
+const { data } = await getReq.send();
+// data: Array of document data. Each object includes a `__key` property with the document ID.
 ```
 
-`extra`:
+**Extra values:**
 
-1. `ref` - collection reference endpoint
-2. `snapshot` - 'raw' `getDocs` firestore collection/query reference snapshot
+- `ref`: The `CollectionReference` used for the query.
+- `snapshot`: The raw `QuerySnapshot` from Firestore.
 
-### getDoc
+---
+
+### `getDoc`
+
+Fetches a single document by its ID.
 
 ```tsx
 const req = client
-  .createRequest<Tea[]>()({
-    endpoint: ":teaId",
+  .createRequest<Tea>()({
+    endpoint: "teas/:teaId",
     method: "getDoc",
   })
-  .setParams({ teaId: 1 });
+  .setParams({ teaId: "some-id-1" });
 
-const { data, status, extra, success, error } = await req.send();
-// setParams can be also passed in the send() method instead
+const { data } = await req.send();
+// data: The document data, or `null` if it doesn't exist.
 ```
 
-`extra`:
+**Extra values:**
 
-1. `ref` - document reference endpoint
-2. `snapshot` - 'raw' firestore document reference snapshot
+- `ref`: The `DocumentReference` for the requested document.
+- `snapshot`: The raw `DocumentSnapshot` from Firestore.
 
-### setDoc
+---
+
+### `setDoc`
+
+Creates or overwrites a single document. To merge data with an existing document, you can pass `{ merge: true }` in the
+request options.
 
 ```tsx
 const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 };
 const setReq = client
   .createRequest<Tea, Tea>()({
-    endpoint: ":teaId",
+    endpoint: "teas/:teaId",
     method: "setDoc",
-    // can also pass options: {merge: true} for achieving the firebase 'merge' option
+    // options: { merge: true } // Use to merge data with an existing document
   })
-  .setParams({ teaId: 1 })
+  .setParams({ teaId: "some-id-1" })
   .setData(newData);
 
-await setReq.send();
-const { data } = await getReq.send();
+const { data } = await setReq.send();
+// data: The same data that was sent in the request.
 ```
 
-In case of `setDoc` - data returned is the same data as passed for setting.
+---
 
-### addDoc
+### `addDoc`
+
+Adds a new document to a collection with a randomly generated ID.
 
 ```tsx
+const newData = { origin: "China", type: "Oolong", year: 2022, name: "Tie Guan Yin", amount: 50 };
 const addDocReq = client
   .createRequest<Tea, Tea>()({
-    endpoint: "",
+    endpoint: "teas",
     method: "addDoc",
-    options: {},
   })
   .setData(newData);
 
-await addDocReq.send();
+const { data } = await addDocReq.send();
+// data: The sent data, with the addition of a `__key` property containing the new document ID.
 ```
 
-In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly
-created document.
+---
 
-### deleteDoc
+### `deleteDoc`
+
+Deletes a single document.
 
 ```tsx
 const deleteDocReq = client
-  .createRequest<Tea>()({
-    endpoint: ":teaId",
+  .createRequest<null>()({
+    endpoint: "teas/:teaId",
     method: "deleteDoc",
   })
-  .setParams({ teaId: 1 });
+  .setParams({ teaId: "some-id-1" });
 
-await deleteDocReq;
+const { data } = await deleteDocReq.send();
+// data: null
 ```
-
-In case of `deleteDoc` - returned data equals `null`

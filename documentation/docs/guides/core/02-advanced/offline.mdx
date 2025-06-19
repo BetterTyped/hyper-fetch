@@ -3,34 +3,91 @@ title: Guide - Offline
 sidebar_label: Offline
 ---
 
-# Offline
+# Offline First
 
-We created this library with offline and data persistence in mind, thanks to this approach our queues, which are
-responsible for sending and processing requests, are fully prepared for `creating offline-first applications`.
+Hyper-fetch is designed with offline-first and data persistence in mind. This means our request queueing system is fully
+equipped to help you build robust offline-first applications. When your application goes offline, Hyper-fetch
+automatically pauses outgoing requests and seamlessly resumes them once the connection is restored.
 
-Currently, the operation of this system is default, which means that the offline mechanics are queued and completely
-automated. Receiving the information that the application has entered the offline state, we automatically stop the
-requests being executed or queued, and then resume them when the connection is restored.
-
-The offline operation is greatly influenced by one of the managers - **[AppManager](/api/core/Classes/AppManager.mdx)**,
-which is responsible for emitting events related to the current state of the application - such as offline / online or
-focused / blurred.
+This entire process is managed by the `AppManager`, which monitors the application's state, such as online/offline
+status and whether the app window is focused or blurred.
 
 ---
 
-### Custom offline events
+:::secondary What you'll learn
 
-Let's take React Native as an example. The default events detecting whether our application has entered the offline /
-online state are based on the window event listeners, when we are talking about a native implementation, we must use
-NetInfo as the source of the connection state.
+1.  How Hyper-fetch **automates offline request handling**.
+2.  The role of the **`AppManager`** in detecting network status.
+3.  How to provide **custom logic** for online/offline detection for environments like React Native.
+4.  How to integrate with libraries like **`@react-native-community/netinfo`**.
 
-```ts
-export const client = new Client<{error: ServerErrorType}>({
-  url: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
-      initiallyOnline: async () => {}
-      onlineEvent: (setOnline) => {}
+:::
+
+## Default Behavior
+
+By default, Hyper-fetch listens to the browser's `online` and `offline` events to manage the request queue. No extra
+configuration is needed for this to work in a standard web environment. When the browser detects a lost connection, the
+`AppManager` puts all active and queued requests on hold. Once the connection returns, it automatically resumes them.
+
+## Customization
+
+The default browser events are not always available in non-browser environments like React Native. For these cases, you
+can provide your own logic for detecting the connection status.
+
+### React Native Example
+
+In React Native, `@react-native-community/netinfo` is the standard way to get information about the device's network
+status. You can integrate it with Hyper-fetch's `AppManager` like this:
+
+```tsx
+import { Client, AppManager } from "@hyper-fetch/core";
+// import NetInfo from "@react-native-community/netinfo";
+
+const client = new Client({
+  url: "https://api.example.com",
+  appManager: () =>
+    new AppManager({
+      // highlight-start
+      initiallyOnline: () => {
+        return new Promise((resolve) => {
+          NetInfo.fetch().then((state) => {
+            resolve(state.isConnected);
+          });
+        });
+      },
+      onlineEvent: (setOnline) => {
+        const unsubscribe = NetInfo.addEventListener((state) => {
+          setOnline(state.isConnected);
+        });
+
+        // Return an unsubscribe function to clean up the listener
+        return unsubscribe;
+      },
+      // highlight-end
     }),
 });
 ```
+
+In this example:
+
+1.  `initiallyOnline`: We use `NetInfo.fetch()` to get the current network state when the app starts. This returns a
+    promise that resolves with the connection status.
+2.  `onlineEvent`: We set up an event listener with `NetInfo.addEventListener`. This listener calls `setOnline` with the
+    current connection status whenever it changes. The function returns the `unsubscribe` function from `NetInfo`, which
+    `AppManager` will call to clean up the listener when it's no longer needed.
+
+This setup ensures that Hyper-fetch's offline handling works seamlessly in a React Native environment.
+
+---
+
+:::success Congratulations!
+
+You've learned how to handle offline state with Hyper-fetch!
+
+- You know that Hyper-fetch provides **automatic offline handling** out of the box.
+- You can customize the **online/offline detection logic** using the `AppManager`.
+- You are able to integrate Hyper-fetch with **environment-specific** network status libraries like
+  `@react-native-community/netinfo`.
+- You can now build powerful **offline-first applications**.
+
+:::

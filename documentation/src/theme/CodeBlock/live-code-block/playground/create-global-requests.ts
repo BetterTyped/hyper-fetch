@@ -1,6 +1,7 @@
 import { Client, HttpAdapterType } from "@hyper-fetch/core";
 
 export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => {
+  let failedRequest = 0;
   return {
     getUsers: client
       .createRequest<{
@@ -90,6 +91,39 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
           responseTime: 2000,
           totalUploaded: 1000,
           totalDownloaded: 1000,
+        },
+      ),
+    failingRequest: client
+      .createRequest<{
+        response: { message: string };
+      }>()({
+        endpoint: "/failing-request",
+        method: "GET",
+      })
+      .setMock(
+        () => {
+          if (failedRequest === 0) {
+            failedRequest = 1;
+            return {
+              error: new Error("Failed request"),
+              status: 500,
+              success: false,
+            };
+          }
+          failedRequest = 0;
+          return {
+            data: {
+              message: "Success request",
+            },
+            status: 200,
+            success: true,
+          };
+        },
+        {
+          requestTime: 1000,
+          responseTime: 1000,
+          totalUploaded: 500,
+          totalDownloaded: 500,
         },
       ),
   };

@@ -6,59 +6,140 @@ sidebar_label: Data Mapping
 
 # Data Mapping
 
+Data mapping in Hyper-Fetch allows you to transform data before it is sent to the server. This is particularly useful
+for handling API changes without extensive code refactoring or for converting data into formats like `FormData` while
+maintaining type safety. By mapping data, you can keep your application's data models consistent and separate from the
+API's requirements.
+
 ---
 
-### Changing data before sending it to server
+:::secondary What you'll learn
 
-We often encounter the need to `map` data before sending it to the server. This is usually required for two reasons.
+1.  How to map **request payloads** using `setResponseMapper`.
+2.  How to map the **entire request** using `setRequestMapper`.
+3.  The benefits of **data mapping** for ensuring type safety and flexibility.
 
-One of them is `breaking changes to the server API`. This may require many updates to our existing code, which can be
-dangerous for the application and introduce **regression**.
+:::
 
-Another case is sending `FormData`, which is impossible to represent in the form of an exact interface in terms of the
-fields it contains. In order not to send something that is equivalent to the type `any`, we can specify the correct type
-in the request and then map everything to `FormData` just before it gets added to the
-**[Dispatcher](/core/dispatcher.mdx)**.
+---
 
-This ensures very `type-safe` and `flexible` application development.
+## Payload Mapping with `setResponseMapper`
 
-### Set payload data mapper
+When you need to change the structure of the payload before it's sent, you can use the `.setResponseMapper()` method.
+This is ideal for scenarios where the client-side data model differs from what the server expects. A common use case is
+sending `FormData`, which can be difficult to type correctly.
 
-The following example shows the implementation for `FormData`:
+With `setResponseMapper`, you can define a request with a strict payload type (like a `UserProfile` interface) and then
+transform it into `FormData` just before it's dispatched. This keeps your code type-safe and clean.
 
 ```ts
-export const postUserProfile = client
+// Define the data type for our request
+interface UserProfile {
+  username: string;
+  avatar: File;
+}
+
+const postUserProfile = client
   .createRequest<{ response: boolean; payload: UserProfile }>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
+    // We can define the expected content-type header
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   })
-  .setDataMapper((data) => {
-    // Transform data:UserProfile into FormData
+  .setResponseMapper((data) => {
+    // highlight-start
+    // Transform UserProfile into FormData
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
-    // Return new data format
+    // Return the new data format
     return formData;
+    // highlight-end
   });
+
+// When we send the request, we provide the typed data.
+// Hyper-Fetch will internally use our mapper.
+postUserProfile.send({
+  params: { userId: 1 },
+  data: {
+    username: "Maciej",
+    // The File object is mocked in live examples
+    avatar: new File([""], "avatar.jpg", { type: "image/jpeg" }),
+  },
+  onStart: ({ request }) => {
+    console.log("Request sent with mapped data:", request.data);
+  },
+});
 ```
 
-### Map whole request
+The example above shows how `setResponseMapper` takes the strongly-typed `data` and transforms it into a `FormData`
+object. The `onStart` callback logs the `request.data`, allowing you to see the transformed `FormData` object in the
+console.
 
-The example below shows the implementation of request mapping. We can make each `postUserProfile` request add custom
-headers (or any other value) to the request before sending it later (when we use it in our application). This allows us
-to implement mappers, validators, and any async logic. Throwing an error makes the request class return an error, just
-as we’d get from the "real" query.
+---
+
+## Request Mapping with `setRequestMapper`
+
+Sometimes, you need to modify more than just the payload. You might need to add headers, change query parameters, or
+even alter the endpoint dynamically based on some logic. For these cases, `.setRequestMapper()` gives you full control
+over the entire request object.
+
+This method allows you to implement validators, dynamic header modifications, or any other async logic before the
+request is sent. If an error is thrown within `setRequestMapper`, it will be caught and returned as if it were a network
+error, preventing the request from being sent.
 
 ```ts
-export const postUserProfile = client
+// Define the data type for our request
+interface UserProfile {
+  username: string;
+}
+
+const postUserProfileWithCustomHeader = client
   .createRequest<{ response: boolean; payload: UserProfile }>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
   })
   .setRequestMapper((request) => {
-    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" });
+    // highlight-start
+    // We can add custom logic, i.e. to add auth tokens
+    const token = "my-secret-token";
+
+    // and then modify the request instance
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+    // highlight-end
   });
+
+// The headers will be automatically added when we send the request.
+postUserProfileWithCustomHeader.send({
+  params: { userId: 1 },
+  data: {
+    username: "Maciej",
+  },
+  onStart: ({ request }) => {
+    console.log("Request sent with headers:", request.headers);
+  },
+});
 ```
+
+In this example, `setRequestMapper` is used to add an `Authorization` header. The `onStart` callback logs the request
+headers to the console, so you can see that the `Authorization` header was successfully added.
+
+---
+
+:::success Congratulations!
+
+You've learned how to use data mapping in Hyper-Fetch!
+
+- You can use **`.setResponseMapper()`** to transform request payloads while preserving type safety.
+- You can use **`.setRequestMapper()`** to modify any part of the request object before it's sent.
+- You can write **cleaner, more maintainable code** by decoupling your application's data models from API requirements.
+
+:::

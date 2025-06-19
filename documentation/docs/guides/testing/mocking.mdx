@@ -4,5 +4,131 @@ title: Mocking
 sidebar_label: Mocking
 ---
 
-Mocking is a technique used to replace real objects with test objects. This is useful when you want to test a function
-or method without actually calling the real object.
+Mocking is a technique used to replace real API calls with controlled, fake responses during testing. This is crucial
+for creating fast, reliable, and deterministic tests, as you don't have to rely on a real backend. With Hyper Fetch, you
+can leverage your existing request definitions to create mocks easily.
+
+:::secondary What you'll learn
+
+1.  **Why mocking** is essential for robust testing.
+2.  How to use **MSW (Mock Service Worker)** to intercept requests.
+3.  How to create **reusable mock handlers** based on your Hyper Fetch requests.
+4.  How to write **tests using mocked** API responses.
+
+:::
+
+---
+
+## Why Mock?
+
+When you're testing your application, you want to ensure that your components and logic work correctly without being
+affected by external factors like network issues or backend changes. Mocking allows you to:
+
+- **Isolate your frontend code**: Test your UI and business logic without needing a running backend.
+- **Control test data**: Define the exact data your API calls should return, making it easy to test various scenarios
+  (e.g., success, error, empty states).
+- **Increase test speed**: Network requests are slow. Mocking them makes your tests run significantly faster.
+- **Avoid rate limiting**: You won't hit real API rate limits during testing.
+
+---
+
+## Using MSW with Hyper Fetch
+
+We recommend using [MSW (Mock Service Worker)](https://mswjs.io/) for mocking API requests. It's a powerful library that
+intercepts requests on the network level, meaning your application doesn't even know it's not talking to a real server.
+
+The best part is that you can use your existing Hyper Fetch requests to configure MSW, which keeps your mocks in sync
+with your actual API definitions.
+
+### Setting up Mock Handlers
+
+You can create a helper function to generate mock handlers for your requests. This function will take a Hyper Fetch
+request and a mock response, and return an MSW handler.
+
+Here's an example of a `createMock` utility:
+
+```typescript title="src/utils/create-mock.ts"
+import { rest } from "msw";
+import { Request } from "@hyper-fetch/core";
+
+export const createMock = <T extends Request>(
+  request: T,
+  options?: {
+    data?: T["response"];
+    error?: T["error"];
+    status?: number;
+    delay?: number;
+  },
+) => {
+  const { data, error, status = 200, delay = 0 } = options;
+
+  return rest[request.method.toLowerCase()](request.endpoint, async (_, res, ctx) => {
+    await ctx.delay(delay);
+    const response = error ? error : data;
+    return res(ctx.status(status), ctx.json(response));
+  });
+};
+```
+
+This utility uses the `endpoint` and `method` from your Hyper Fetch request to create a corresponding MSW handler. It's
+also typed to use the `response` and `error` types from your request, giving you great type safety!
+
+### Using Mocks in Tests
+
+Now, let's see how you can use this `createMock` utility in your tests. First, you'll need to set up the MSW server.
+
+```typescript title="src/setup-tests.ts"
+import { setupServer } from "msw/node";
+
+export const server = setupServer();
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+Then, in your test file, you can use your requests and the `createMock` helper to define the mock responses for each
+test.
+
+```tsx title="src/components/Users.test.tsx"
+import { screen } from "@testing-library/react";
+import { server } from "src/setup-tests";
+import { createMock } from "src/utils/create-mock";
+import { getUsers } from "src/api/users";
+import { Users } from "./Users";
+
+it("should render a list of users", async () => {
+  // 1. Define the mock data
+  const mockUsers = [
+    { id: 1, name: "John Doe" },
+    { id: 2, name: "Jane Doe" },
+  ];
+
+  // 2. Create and apply the mock handler
+  const getUsersMock = createMock(getUsers, { data: mockUsers });
+  server.use(getUsersMock);
+
+  // 3. Render your component
+  render(<Users />);
+
+  // 4. Assert that the component renders the mock data
+  expect(await screen.findByText("John Doe")).toBeInTheDocument();
+  expect(await screen.findByText("Jane Doe")).toBeInTheDocument();
+});
+```
+
+By combining Hyper Fetch's typed requests with MSW, you can create a powerful and maintainable testing setup where your
+mocks are always in sync with your application code.
+
+---
+
+:::success Congratulations!
+
+You've learned how to mock API requests in your Hyper Fetch application!
+
+- You can explain the **benefits of mocking** for testing.
+- You can set up **MSW** to work with your Hyper Fetch requests.
+- You can create **type-safe mock handlers** that stay in sync with your API.
+- You are able to write **isolated and reliable tests** for your components.
+
+:::

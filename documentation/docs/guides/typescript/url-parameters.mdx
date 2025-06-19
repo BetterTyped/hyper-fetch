@@ -6,19 +6,74 @@ sidebar_label: Url Parameters
 
 # URL Parameters
 
-The types generated from the endpoint value string are extremely useful. Thanks to this, our request is able to suggest
-the required parameters to execute the query itself.
+Many API endpoints use dynamic URL segments to identify resources, like `/users/:userId`. Hyper-fetch automatically
+infers these **URL parameters** from the endpoint string, providing full type safety. This means you'll get compile-time
+errors if you forget to provide a required parameter or use the wrong type, making your requests much safer.
+
+:::secondary What you'll learn
+
+1.  How Hyper-fetch **infers URL parameters** from the endpoint string.
+2.  The two ways to provide parameters: via `.setParams()` or in the `.send()` method.
+3.  How to work with **multiple URL parameters** in a single request.
+
+:::
 
 ---
 
 ### Example
 
+Hyper-fetch parses the `endpoint` string to automatically infer the required URL parameters, making them type-safe.
+
 ```ts
-const getUser = client.createRequest<{response: ResponseType}>()({
-  endpoint: "/users/:userId",
+// import { createClient } from '@hyper-fetch/core';
+
+export const client = createClient()({
+  url: "https://api.example.com",
 });
 
-getUser.send({ params: { userId: 1 } });
-// Or
-getUser.setParams({ userId: 1 }).send();
+// 1. Define the response type
+type User = { id: number; name: string };
+type ResponseType = User;
+
+// 2. Create a request with a dynamic URL parameter
+// Hyper-fetch infers that `userId` is a required parameter.
+// highlight-start
+const getUser = client.createRequest<{ response: ResponseType }>()({
+  endpoint: "/users/:userId",
+});
+// highlight-end
+
+// 3. Provide the parameter using the `.send()` method
+// The `params` object is strongly typed. Try renaming `userId` to see an error.
+const { data: user1 } = await getUser.send({
+  params: { userId: 1 },
+});
+
+// 4. Alternatively, provide the parameter using `.setParams()` for reusability
+const getUser1 = getUser.setParams({ userId: 1 });
+const { data: user1Again } = await getUser1.send();
+
+// 5. Example with multiple parameters
+const getComment = client.createRequest()({
+  endpoint: "/posts/:postId/comments/:commentId",
+});
+
+const { data: comment } = await getComment.send({
+  params: {
+    postId: 10,
+    commentId: 2,
+  },
+});
 ```
+
+---
+
+:::success Congratulations!
+
+You're now an expert in URL parameters!
+
+- You can let Hyper-fetch **automatically infer path parameters** from your endpoint.
+- You know how to provide parameters either by **chaining `.setParams()`** or **passing them to `.send()`**.
+- You can confidently work with endpoints that require **multiple URL parameters**.
+
+:::

@@ -1,28 +1,111 @@
 ---
-title: Request Download and Upload Progress
+title: Tracking Request Progress
 sidebar_label: Progress
 ---
 
-# Request Progress
+# Tracking Request Progress
 
-With the the `onDownloadProgress` and `onUploadProgress` methods available on the useFetch you can get parsed and
-prepared to display values of the estimated time for finalizing the request download or upload.
+For operations like file uploads or downloads, providing feedback on the request's progress is crucial for a good user
+experience. Hyper-fetch makes this easy with the `onUploadProgress` and `onDownloadProgress` callbacks available on the
+`useFetch` and `useSubmit` hooks. These callbacks provide detailed information that you can use to display progress
+bars, time remaining, and more.
 
-It will return you the percentage value of the request progress, estimated time left to the end of the task and size of
-it that left to be uploaded or downloaded in bytes.
+:::secondary What you'll learn
+
+1.  How to track **upload** and **download progress** for requests.
+2.  How to use the **`onUploadProgress`** and **`onDownloadProgress`** callbacks.
+3.  What **progress data** is provided (percentage, time left, size left).
+4.  How to build a **progress bar** component in React.
+
+:::
+
+## `onUploadProgress` and `onDownloadProgress`
+
+The `onUploadProgress` and `onDownloadProgress` callbacks receive an object with `progress` (0-100), `timeLeft` (in ms),
+`sizeLeft` (in bytes), and more. You can use this to update your UI in real-time.
+
+Here is a live example demonstrating both upload and download progress bars.
+
+```tsx live
+function ProgressBars() {
+  const [upload, setUpload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });
+  const [download, setDownload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });
+
+  // Setup upload request
+  // highlight-start
+  const { submit: startUpload, submitting: isUploading, onUploadProgress } = useSubmit(postFile);
+  onUploadProgress((progressData) => {
+    setUpload(progressData);
+  });
+  // highlight-end
+
+  // Setup download request
+  // highlight-start
+  const { submit: startDownload, submitting: isDownloading, onDownloadProgress } = useSubmit(getFile);
+  onDownloadProgress((progressData) => {
+    setDownload(progressData);
+  });
+  // highlight-end
+
+  return (
+    <div className="p-4 border rounded-md space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold">File Upload</h3>
+        <p className="text-sm text-gray-600">
+          Progress: {upload.progress}% | Time Left: {(upload.timeLeft / 1000).toFixed(1)}s
+        </p>
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${upload.progress}%` }}></div>
+        </div>
+        <button
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+          onClick={() => startUpload()}
+          disabled={isUploading}
+        >
+          {isUploading ? "Uploading..." : "Start Upload"}
+        </button>
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold">File Download</h3>
+        <p className="text-sm text-gray-600">
+          Progress: {download.progress}% | Time Left: {(download.timeLeft / 1000).toFixed(1)}s
+        </p>
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${download.progress}%` }}></div>
+        </div>
+        <button
+          className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+          onClick={() => startDownload()}
+          disabled={isDownloading}
+        >
+          {isDownloading ? "Downloading..." : "Start Download"}
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+### How It Works
+
+1.  We set up two `useSubmit` hooks, one for uploading (`postFile`) and one for downloading (`getFile`).
+2.  We get the `onUploadProgress` and `onDownloadProgress` callback setters from their respective hooks.
+3.  We call them with our state setters (`setUpload` and `setDownload`). These will be called repeatedly by Hyper-fetch
+    during the request with the latest progress information.
+4.  The state is then used to render the width of the progress bar `div`s and display text information.
+5.  Clicking the buttons triggers the respective `submit` functions (`startUpload`, `startDownload`) to initiate the
+    requests.
+
+This provides clear, real-time feedback to the user for long-running requests.
 
 ---
 
-### Example
+:::success Congratulations!
 
-```tsx
-const { data, error, loading, onDownloadProgress, onUploadProgress } = useFetch(getFile);
+You've learned how to track request progress with Hyper-fetch!
 
-onDownloadProgress((progress) => {
-  console.log(payload); // { progress, timeLeft, sizeLeft }
-});
+- You can monitor both **upload and download progress**.
+- You know how to use **`onUploadProgress`** and **`onDownloadProgress`** to update your UI.
+- You can build **interactive progress bars** to improve user experience.
 
-onUploadProgress((progress) => {
-  console.log(payload); // { progress, timeLeft, sizeLeft }
-});
-```
+:::

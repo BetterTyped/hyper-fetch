@@ -6,39 +6,106 @@ sidebar_label: Headers
 
 # Headers
 
----
-
-### Request Headers
-
-We can set the headers in two ways - when creating the request, or dynamically through `.setHeaders(` method.
+In HTTP requests, headers are a crucial component, carrying additional information between the client and the server.
+They can be used for authentication, content type specification, caching control, and more. Hyper-fetch provides a
+flexible and powerful way to manage headers for your requests.
 
 ---
 
-### Example
+:::secondary What you'll learn
 
-```ts
+1. How to set **static headers** when creating a request.
+2. How to add or override headers **dynamically**.
+3. How to set headers directly when **sending a request**.
+4. What are the **adapter limitations** regarding headers.
+
+:::
+
+---
+
+## Setting Headers
+
+There are multiple ways to set headers on a request, depending on whether the headers are static or need to be
+determined at runtime.
+
+### 1. Static Headers
+
+If your request always requires the same headers, you can define them when creating the request.
+
+```ts live
 const getUsers = client.createRequest()({
   endpoint: "/users",
   headers: {
     "Content-Type": "application/json",
+    "X-Custom-Header": "my-value",
   },
 });
-console.log(getUsers.headers); // Output: { "Content-Type": "application/json" }
+
+console.log(getUsers.headers);
 ```
 
-```ts
-const request = createUser.setHeaders({
-  "Content-Type": "application/json",
+### 2. Dynamic Headers
+
+For headers that change, like authentication tokens, you can use the `.setHeaders()` method to add them before sending
+the request. This method merges the new headers with any existing ones.
+
+```ts live
+const getUser = client.createRequest()({
+  endpoint: "/users/1",
 });
-console.log(request.headers); // Output: { "Content-Type": "application/json" }
+
+// This might come from a state or a function
+const authToken = "Bearer secret-token";
+
+const requestWithAuth = getUser.setHeaders({
+  Authorization: authToken,
+});
+
+console.log(requestWithAuth.headers);
 ```
 
-#### Directly on send method
+### 3. Per-request Headers
 
-```ts
-const response = getUser.send({
+You can also provide headers directly to the `.send()` method. These headers are used only for that specific request
+execution and will be merged with headers defined on the request instance.
+
+```ts live
+const updateUser = client.createRequest()({
+  endpoint: "/users/1",
+  method: "PUT",
+});
+
+updateUser.send({
   headers: {
-    "Content-Type": "application/json",
+    "X-Request-ID": "abc-123",
   },
 });
+
+// Note: The 'send' method triggers the request but for this example,
+// we are just showing how to pass headers.
+// The headers on the 'updateUser' instance itself are not changed.
+console.log(updateUser.headers); // Stays undefined
 ```
+
+---
+
+:::warning Adapter Compatibility
+
+It's important to remember that not all adapters will use headers. For instance, adapters for services that don't use
+the HTTP protocol, like `@hyper-fetch/firebase`, will ignore them. Always check the documentation for the adapter you're
+using to see if it supports headers.
+
+:::
+
+---
+
+:::success Congratulations!
+
+You've learned how to manage headers effectively in Hyper-fetch!
+
+- You can set **static headers** when you create a request.
+- You can add **dynamic headers** using the `.setHeaders()` method.
+- You can pass **one-time headers** directly to the `.send()` method.
+- You are aware of **adapter limitations** regarding headers.
+
+:::

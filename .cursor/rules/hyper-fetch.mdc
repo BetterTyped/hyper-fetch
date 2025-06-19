@@ -66,6 +66,8 @@ Requests should be defined in a structured and reusable way.
 
 ##### All Generic Types
 
+All generic types are optional.
+
 ```ts
 const request = client.createRequest<{
   // what we get in response
@@ -82,7 +84,7 @@ const request = client.createRequest<{
 });
 ```
 
-##### example of static params passed with method
+##### Example of static params passed with method
 
 ```ts
 import { client } from "./client"; // Import the configured client
@@ -103,7 +105,7 @@ const { data, error, success, extra, responseTime, requestTime } = getUser
   .send();
 ```
 
-##### dynamicly pass the params to send({ }) and use all of the callbacks
+##### Dynamicly pass the params to send({ }) and use all of the callbacks
 
 ```ts
 import { client } from "./client"; // Import the configured client

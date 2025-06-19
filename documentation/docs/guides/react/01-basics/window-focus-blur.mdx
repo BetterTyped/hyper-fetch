@@ -1,36 +1,127 @@
 ---
-title: Window Focus & Blur
-sidebar_label: Window Focus & Blur
+title: Reacting to Window and Network Events
+sidebar_label: Window & Network Events
 ---
 
-Sometimes we want to react to events related to the active window. Then we can use options in useFetch such as
-`refreshBlurred`, `refreshOnBlur`, `refreshOnFocus` and `refreshOnReconnect`.
+# Window and Network Events
 
-### `refreshBlurred`
+Modern web applications often need to be aware of their environment. Does the user have the window focused? Is their
+network connection stable? Hyper-fetch provides several powerful options in `useFetch` to automatically handle data
+fetching based on these events, ensuring your app's data is fresh when it needs to be and that it behaves intelligently
+when the user returns to your app or reconnects to the internet.
 
-This options allow our hook to refresh data even if user blurred our window.
+:::secondary What you'll learn
 
-### `refreshOnBlur`
+1.  How to automatically **re-fetch data on window focus**.
+2.  How to trigger refreshes on **network reconnection**.
+3.  The difference between **`refreshOnFocus`**, **`refreshOnBlur`**, and **`refreshOnReconnect`**.
+4.  How `refreshBlurred` affects background refreshing behavior.
+5.  How to **combine these options** for robust data synchronization.
 
-This options allow our hook to trigger refresh data exactly when user blur our window.
+:::
 
-### `refreshOnFocus`
+## Live Demo
 
-This options allow our hook to trigger refresh data exactly when user focus our window.
+This interactive example demonstrates how the various window and network event options work. Toggle the switches and
+then try interacting with the browser window (e.g., switch to another tab and come back) or use your browser's developer
+tools to simulate being offline and online.
 
-### `refreshOnReconnect`
+```tsx live
+function WindowEventsDemo() {
+  const [options, setOptions] = React.useState({
+    refresh: true,
+    refreshTime: DateInterval.second * 5,
+    refreshOnFocus: true,
+    refreshOnBlur: false,
+    refreshOnReconnect: true,
+    refreshBlurred: false,
+  });
+  const [logs, setLogs] = React.useState([]);
 
-This options allow our hook to trigger refresh data exactly when network is restored.
+  const addLog = (message) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs((prev) => [`[${timestamp}] ${message}`, ...prev].slice(0, 10));
+  };
 
----
+  const { data } = useFetch(getActivities, {
+    ...options,
+    onSuccess: (res) => addLog(`✅ Fetched: "${res.data[0].name}"`),
+  });
 
-### Example
+  const toggleOption = (option) => {
+    setOptions((prev) => ({ ...prev, [option]: !prev[option] }));
+  };
 
-```tsx
-const { data, error, loading } = useFetch(getList, {
-  refreshBlurred: true,
-  refreshOnBlur: true,
-  refreshOnFocus: true,
-  refreshOnReconnect: true,
-});
+  const OptionToggle = ({ name, description }) => (
+    <div className="flex items-center justify-between py-2 border-b">
+      <div>
+        <p className="font-semibold">{name}</p>
+        <p className="text-sm text-gray-600">{description}</p>
+      </div>
+      <button
+        onClick={() => toggleOption(name)}
+        className={`px-4 py-2 rounded text-white ${options[name] ? "bg-green-500" : "bg-gray-500"}`}
+      >
+        {options[name] ? "ON" : "OFF"}
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="border rounded-md">
+      <div className="p-4 border-b">
+        <h2 className="text-xl font-bold">Event Options</h2>
+        <OptionToggle name="refreshOnFocus" description="Refetch when you return to this tab." />
+        <OptionToggle name="refreshOnReconnect" description="Refetch when network connection is restored." />
+        <OptionToggle name="refreshOnBlur" description="Refetch when you leave this tab." />
+        <OptionToggle
+          name="refreshBlurred"
+          description="Allow regular refreshing (every 5s) even if tab is not focused."
+        />
+      </div>
+      <div className="p-4 bg-gray-50">
+        <h3 className="font-bold mb-2">Event Log (Last 10)</h3>
+        <div className="font-mono text-sm space-y-1">
+          {logs.map((log, i) => (
+            <p key={i}>{log}</p>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 ```
+
+### Options Explained
+
+- **`refreshOnFocus`**: (Default: `true`) This is one of the most useful options. When set to `true`, data will be
+  automatically re-fetched whenever the user focuses the window (e.g., switches back to your browser tab). This is a
+  great way to ensure the data is fresh when the user returns to your app after some time away.
+
+- **`refreshOnReconnect`**: (Default: `true`) If the user loses their network connection and later comes back online,
+  this option will automatically trigger a re-fetch. This helps your app gracefully recover from network interruptions.
+
+- **`refreshOnBlur`**: (Default: `false`) When `true`, a re-fetch is triggered the moment the user leaves the window
+  (e.g., switches to another tab). This is less common but can be useful if you need to trigger some action or fetch
+  data in the background immediately upon user departure.
+
+- **`refreshBlurred`**: (Default: `false`) This option works in conjunction with interval-based refreshing (using
+  `refresh` and `refreshTime`). By default, interval refreshing is paused when the window is blurred (not focused) to
+  save resources. If you set `refreshBlurred` to `true`, the interval-based refreshing will continue to run even when
+  the tab is in the background.
+
+By combining these options, you can create a data-fetching strategy that is both efficient and highly responsive to the
+user's context.
+
+---
+
+:::success Congratulations!
+
+You're now an expert in handling window and network events with Hyper-fetch!
+
+- You can intelligently **re-fetch data** when a user returns to your application.
+- Your app can **gracefully handle** network disconnections and reconnections.
+- You understand the specific behaviors of **`refreshOnFocus`**, **`refreshOnBlur`**, and **`refreshOnReconnect`**.
+- You can control **background data polling** with the `refreshBlurred` option.
+
+:::

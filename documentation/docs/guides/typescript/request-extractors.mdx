@@ -3,119 +3,112 @@ title: Request Extractors
 sidebar_label: Request Extractors
 ---
 
-The request generic type is huge, but essential. For this reason, to facilitate the work of you and ours, we have
-created special type extractors.
+# Request Extractors
+
+As your requests become more complex with response types, payloads, parameters, and errors, their inferred types can
+become large and unwieldy. Hyper-fetch provides a set of **utility type extractors** that allow you to easily grab a
+specific piece of a request's type. This is incredibly useful for creating reusable types, passing types to other
+functions, or simply for better readability.
+
+:::secondary What you'll learn
+
+1.  Why **type extractors** are useful for complex requests.
+2.  How to use various extractors like `ExtractResponseType`, `ExtractPayloadType`, and `ExtractErrorType`.
+3.  How to build a **complete, reusable example** using multiple extractors.
+4.  A quick reference for **all available** type extractors.
+
+:::
 
 ---
 
-### ExtractResponseType
+### Practical Example
+
+Instead of a simple list, let's look at a real-world scenario where we define a complex request and then use extractors
+to deconstruct its type for use in other parts of our application.
 
 ```ts
-type ResponseType = ExtractResponseType<typeof getUser>; // { id: number, name: string, email: string }
+// import { createClient, ExtractResponseType, ExtractPayloadType, ExtractErrorType, ExtractParamsType } from '@hyper-fetch/core';
+
+export const client = createClient()({
+  url: "https://api.example.com",
+}).setExtra<{ error: { message: string } | Error }>();
+
+// 1. Define a complex request
+const updateUser = client.createRequest<{
+  response: { id: number; name: string; email: string; updatedAt: string };
+  payload: { name?: string; email?: string };
+  localError: { errors: { email?: string } };
+}>()({
+  method: "PATCH",
+  endpoint: "/users/:userId",
+});
+
+// 2. Now, let's extract types from it
+// highlight-start
+type UserResponse = ExtractResponseType<typeof updateUser>;
+type UserPayload = ExtractPayloadType<typeof updateUser>;
+type UserError = ExtractErrorType<typeof updateUser>;
+type UserParams = ExtractParamsType<typeof updateUser>;
+// highlight-end
+
+// 3. We can now use these types elsewhere in our application
+function displayUser(user: UserResponse) {
+  console.log(`User: ${user.name} (${user.email})`);
+}
+
+async function handleUpdate(params: UserParams, payload: UserPayload) {
+  const { data, error } = await updateUser.setParams(params).send({ data: payload });
+
+  if (data) {
+    displayUser(data);
+  } else {
+    logError(error);
+  }
+}
+
+function logError(error: UserError) {
+  // `error` is a union of the global and local error types
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else if ("errors" in error) {
+    console.error("Validation Error:", error.errors.email);
+  } else {
+    console.error("API Error:", error.message);
+  }
+}
+
+// Example usage
+handleUpdate({ userId: 1 }, { email: "new.email@example.com" });
 ```
 
 ---
 
-### ExtractPayloadType
+## Full List of Extractors
 
-```ts
-type PayloadType = ExtractPayloadType<typeof postFile>; // { id: number, file: string }
-```
+Here is a quick reference for all the available type extractors.
 
----
-
-### ExtractQueryParamsType
-
-```ts
-type QueryParamsType = ExtractQueryParamsType<typeof getUsers>; // { search?: string, roles: "Admin" | "User" }
-```
-
----
-
-### ExtractErrorType
-
-It will extract both - global and local error types.
-
-```ts
-type ErrorType = ExtractErrorType<typeof postUser>; // GlobalErrorType & LocalErrorType
-```
+- **`ExtractResponseType<T>`**: Extracts the `response` type.
+- **`ExtractPayloadType<T>`**: Extracts the `payload` type.
+- **`ExtractQueryParamsType<T>`**: Extracts the `queryParams` type.
+- **`ExtractErrorType<T>`**: Extracts the union of global and `localError` types.
+- **`ExtractGlobalErrorType<T>`**: Extracts only the global `error` type from the client.
+- **`ExtractLocalErrorType<T>`**: Extracts only the `localError` type from the request.
+- **`ExtractParamsType<T>`**: Extracts the URL parameters type from the endpoint string.
+- **`ExtractEndpointType<T>`**: Extracts the endpoint string literal type.
+- **`ExtractAdapterOptionsType<T>`**: Extracts the options type of the adapter.
+- **`ExtractAdapterReturnType<T>`**: Extracts the raw `[data, error, status]` tuple from the adapter.
+- **`ExtractHasDataType<T>`**: Extracts a boolean literal type indicating if `data` has been set.
+- **`ExtractHasParamsType<T>`**: Extracts a boolean literal type indicating if `params` have been set.
+- **`ExtractHasQueryParamsType<T>`**: Extracts a boolean literal type indicating if `queryParams` have been set.
 
 ---
 
-### ExtractGlobalErrorType
+:::success Congratulations!
 
-```ts
-type ErrorType = ExtractGlobalErrorType<typeof postUser>; // GlobalErrorType
-```
+You know how to leverage Hyper-fetch's type extractors!
 
----
+- You can **deconstruct complex request types** into smaller, reusable pieces.
+- You know how to use the most common extractors like **`ExtractResponseType`** and **`ExtractPayloadType`**.
+- You have a **full reference list** of all available extractors for future use.
 
-### ExtractLocalErrorType
-
-```ts
-type ErrorType = ExtractLocalErrorType<typeof postUser>; // GlobalErrorType
-```
-
----
-
-### ExtractParamsType
-
-```ts
-type UrlParamsType = ExtractParamsType<typeof patchUser>; // { userId: ParamType }
-```
-
----
-
-### ExtractEndpointType
-
-```ts
-type EndpointType = ExtractEndpointType<typeof patchUser>; // "/users/:userId"
-```
-
----
-
-### ExtractAdapterOptionsType
-
-```ts
-type AdapterOptionsType = ExtractAdapterOptionsType<typeof patchUser>; // { timeout?: number, ... }
-```
-
----
-
-### ExtractAdapterReturnType
-
-It will extract exact adapter response format with [response, error, status].
-
-```ts
-type AdapterReturnType = ExtractAdapterReturnType<typeof patchUser>; // [ResponseType, ErrorType, number]
-```
-
----
-
-### ExtractHasDataType
-
-If data was already added to the request.
-
-```ts
-type HasDataType = ExtractHasDataType<typeof patchUser>; // true | false
-```
-
----
-
-### ExtractHasParamsType
-
-If params were already added to the request.
-
-```ts
-type HasParamsType = ExtractHasParamsType<typeof patchUser>; // true | false
-```
-
----
-
-### ExtractHasQueryParamsType
-
-If query params were already added to the request.
-
-```ts
-type HasQueryParamsType = ExtractHasQueryParamsType<typeof patchUser>; // true | false
-```
+:::

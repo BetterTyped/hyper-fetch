@@ -5,59 +5,236 @@ sidebar_label: Intercepting
 
 # Interceptors
 
-You can intercept responses or requests before they are handled by any other module. This way you can hook-in to
-different available interceptors. They are added on a particular client, you can chain-add them.
+Interceptors are powerful hooks that allow you to tap into the request and response lifecycle of Hyper-fetch. You can
+think of them as middleware for your requests, enabling you to modify requests before they are sent, or handle responses
+before they reach your application code. This is incredibly useful for centralized logic like adding authentication
+tokens, logging, or transforming data.
 
-Interceptors can be deactivated on selected requests thanks to the options passed to them. To do this, use the
-`disableRequestInterceptors` and `disableResponseInterceptors`.
+Interceptors are configured on the `Client` instance, and you can chain multiple interceptors together to create a
+processing pipeline for your requests and responses.
 
----
+:::secondary What you'll learn
 
-## Request interceptors
+1.  How to **intercept requests** to add headers or log data.
+2.  How to **intercept successful, failed, and all responses** to handle them globally.
+3.  How to create an **async interceptor** for tasks like refreshing tokens.
+4.  How to **disable interceptors** for specific requests when needed.
+5.  How to **chain multiple interceptors** to create powerful data processing pipelines.
 
-You can add an interceptor to every request executed within a given client and overwrite the sent data or execute your
-own logic.
-
-```ts
-export const client = new Client({ url }).onRequest(async (response, request) => {
-  // Add your custom logic
-
-  return response;
-});
-```
+:::
 
 ---
 
-## Response interceptors
+## Request Interceptor
 
-With response interceptors, you can call your own logic and change the returned data before it is handled in the system.
+The `onRequest` interceptor is triggered right before a request is sent. It receives the `request` object, and it must
+return a `request` object. This is the perfect place to add headers, log request data, or modify the request in any way.
 
-### onSuccess
+### Adding Authentication Headers
 
-```ts
-export const client = new Client({ url }).onSuccess(async (response, request) => {
-  // Add your custom logic
+A very common use case for request interceptors is to add an `Authorization` header to all outgoing requests.
 
-  return response;
+```ts live
+// import { Client } from "@hyper-fetch/core";
+
+const client = new Client({
+  url: "https://api.hyper-fetch.com",
+}).onRequest((request) => {
+  const token = "MY_SUPER_SECRET_TOKEN";
+  // highlight-next-line
+  console.log(`[onRequest] Adding auth token to ${request.method} ${request.endpoint}`);
+  return request.setHeaders({
+    ...request.headers,
+    Authorization: `Bearer ${token}`,
+  });
+});
+
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+// The Authorization header will be automatically added to this request
+getUsers.send({
+  onSuccess: (response, request) => {
+    console.log("[onSuccess] Request successful. Headers sent:", request.headers);
+  },
 });
 ```
 
-### onError
+---
 
-```ts
-export const client = new Client({ url }).onError(async (response, request) => {
-  // Add your custom logic
+## Response Interceptors
 
-  return response;
+Response interceptors allow you to process responses before they are passed to your request's `onSuccess` or `onError`
+callbacks. Hyper-fetch provides three types of response interceptors: `onSuccess`, `onError`, and `onResponse`.
+
+### `onSuccess`
+
+The `onSuccess` interceptor is triggered only for successful responses. It receives the `response` and the original
+`request`, and it must return a `response` object. You can use it to transform data, show notifications, or handle any
+logic for successful requests.
+
+```ts live
+// import { Client } from "@hyper-fetch/core";
+
+const client = new Client({
+  url: "https://api.hyper-fetch.com",
+}).onSuccess((response) => {
+  // highlight-next-line
+  console.log(`[onSuccess interceptor] Request to ${response.request.endpoint} was successful.`);
+  const modifiedData = { ...response.data, intercepted: true };
+  return { ...response, data: modifiedData };
+});
+
+const getUser = client.createRequest()({
+  endpoint: "/users/1",
+  method: "GET",
+});
+
+getUser.send({
+  onSuccess: (response) => {
+    console.log("[onSuccess callback] Received data:", response.data);
+  },
 });
 ```
 
-### onResponse
+### `onError`
 
-```ts
-export const client = new Client({ url }).onResponse(async (response, request) => {
-  // Add your custom logic
+The `onError` interceptor is triggered only for failed responses (e.g., network errors, status codes >= 400). It
+receives the `response` (which contains the error) and the original `request`. This is ideal for global error handling,
+such as logging errors to a service or transforming error responses into a consistent format.
 
+A common advanced use-case is to handle token refreshing when a `401 Unauthorized` status is received.
+
+```ts live
+// import { Client } from "@hyper-fetch/core";
+
+const client = new Client({
+  url: "https://api.hyper-fetch.com",
+}).onError(async (response, request) => {
+  // For example, when we receive an unauthorized status, we can try to refresh the token.
+  // highlight-start
+  if (response.status === 401) {
+    console.log("[onError interceptor] Unauthorized! Attempting to refresh token...");
+    // 1. Call your refresh token endpoint.
+    // 2. Update the client with the new token for subsequent requests.
+    // 3. Retry the original request.
+    // We will simulate a refresh and retry
+    await new Promise((r) => setTimeout(r, 500));
+    console.log("[onError interceptor] Token refreshed, retrying the original request.");
+    return request.send();
+  }
+  // highlight-end
   return response;
 });
+
+const getPrivateData = client.createRequest()({
+  method: "GET",
+  endpoint: "/private-data", // Let's pretend this needs auth
+});
+
+// We can't easily simulate a 401 in live docs,
+// but if this request returned a 401, the interceptor would handle it.
+// Here we just show the idea.
+console.log("Imagine this request gets a 401 error. The interceptor will kick in.");
+// getPrivateData.send()
 ```
+
+### `onResponse`
+
+The `onResponse` interceptor is always triggered, regardless of whether the request was successful or not. This makes it
+a great place for logic that needs to run after every request, like hiding a global loading indicator.
+
+```ts live
+// import { Client } from "@hyper-fetch/core";
+
+const client = new Client({
+  url: "https://api.hyper-fetch.com",
+}).onResponse((response) => {
+  // highlight-next-line
+  console.log(`[onResponse interceptor] Request to ${response.request.endpoint} finished.`);
+  // Here you could hide a global loading spinner
+  return response;
+});
+
+const getSuccess = client.createRequest()({
+  endpoint: "/users/1",
+  method: "GET",
+});
+const getError = client.createRequest()({
+  endpoint: "/users/999", // Should fail
+  method: "GET",
+});
+
+getSuccess.send();
+getError.send();
+```
+
+---
+
+## Disabling Interceptors
+
+Sometimes you might need to bypass interceptors for a specific request. You can do this by setting
+`disableRequestInterceptors` or `disableResponseInterceptors` to `true` on the request instance.
+
+```ts live
+// import { Client } from "@hyper-fetch/core";
+
+const client = new Client({
+  url: "https://api.hyper-fetch.com",
+}).onRequest((request) => {
+  console.log("[onRequest] Interceptor running...");
+  return request;
+});
+
+const requestWithInterceptor = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/1",
+});
+
+const requestWithoutInterceptor = client
+  .createRequest()({
+    method: "GET",
+    endpoint: "/users/2",
+  })
+  .set({
+    // highlight-next-line
+    disableRequestInterceptors: true,
+  });
+
+console.log("Sending request WITH interceptor:");
+requestWithInterceptor.send();
+
+console.log("\nSending request WITHOUT interceptor:");
+requestWithoutInterceptor.send();
+```
+
+---
+
+## Chaining Interceptors
+
+You can chain multiple interceptors on a client. They will be executed in the order they are defined. This allows for
+creating sophisticated pipelines for processing your requests and responses.
+
+```ts
+const client = new Client({ url })
+  .onRequest(firstRequestInterceptor)
+  .onRequest(secondRequestInterceptor)
+  .onSuccess(firstSuccessInterceptor)
+  .onSuccess(secondSuccessInterceptor);
+```
+
+---
+
+:::success Congratulations!
+
+You've mastered Hyper-fetch interceptors!
+
+- You can hook into the request lifecycle using **`onRequest`**.
+- You can handle responses globally with **`onSuccess`**, **`onError`**, and **`onResponse`**.
+- You know how to implement **advanced patterns** like adding auth tokens.
+- You can **disable interceptors** for individual requests when necessary.
+- You understand how to **chain interceptors** to build powerful request pipelines.
+
+:::

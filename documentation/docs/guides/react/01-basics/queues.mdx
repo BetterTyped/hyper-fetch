@@ -1,28 +1,145 @@
 ---
-title: Queueing Requests with useQueue Hook
+title: Managing Request Queues
 sidebar_label: Queues
 ---
 
-# Queues
+# Request Queues
 
-Queues allow us to relieve the system and run in the background. For example, when a user sends large files to
-the server, he can use the rest of the application at the same time. What's more, it can stop and resume the shipment,
-view the sending status of individual requests, along with the remaining time, size and progress.
+Request queuing is an advanced feature that gives you powerful control over request execution. It's particularly useful
+for scenarios like handling multiple file uploads, where you want to process them sequentially or in parallel in the
+background, without blocking the UI. The user can continue to interact with the application, and you can even provide
+controls to pause and resume the entire queue.
+
+Hyper-fetch handles this with a combination of `useSubmit` to add requests to a queue and `useQueue` to monitor and
+control it.
+
+:::secondary What you'll learn
+
+1.  What **request queuing** is and when to use it.
+2.  How to **add requests** to a queue using `useSubmit`.
+3.  How to monitor a queue's state with the **`useQueue` hook**.
+4.  How to build a UI to display **queued requests** and their progress.
+5.  How to **pause** and **resume** the entire queue.
+
+:::
+
+## File Upload Queue
+
+Let's build an example of a file upload queue. We'll allow the user to select multiple files, which will be added to a
+queue. The UI will display the status of each upload, and provide buttons to pause and resume the queue processing.
+
+```tsx live
+// A component to display a single request from the queue
+function QueuedRequest({ request }) {
+  const { upload, download } = request;
+  const progress = upload.progress || download.progress || 0;
+  const status = request.status;
+
+  let statusColor = "text-gray-600";
+  if (status === "finished") statusColor = "text-green-600";
+  if (status === "error") statusColor = "text-red-600";
+  if (status === "stopped") statusColor = "text-yellow-600";
+
+  return (
+    <div className="p-4 border-b">
+      <p className="font-semibold">File ID: {request.requestId.substring(0, 8)}</p>
+      <p className={`capitalize ${statusColor}`}>Status: {status}</p>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div>
+      </div>
+    </div>
+  );
+}
+
+function UploadQueue() {
+  const fileInputRef = React.useRef(null);
+
+  // 1. Use useSubmit to add requests to the queue
+  // highlight-start
+  const { submit } = useSubmit(postFile.setQueue(true));
+  // highlight-end
+
+  // 2. Use useQueue to monitor and control the queue
+  // highlight-start
+  const { requests, stopped, stop, start } = useQueue(postFile);
+  // highlight-end
+
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    files.forEach((file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      // Each submit call adds a new request to the queue
+      submit({ data: formData });
+    });
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="border rounded-md">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Upload Queue</h2>
+        <div>
+          <button
+            onClick={triggerFileInput}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-2"
+          >
+            Add Files
+          </button>
+          <input type="file" multiple ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+          {stopped ? (
+            <button onClick={start} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+              Start
+            </button>
+          ) : (
+            <button onClick={stop} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+              Stop
+            </button>
+          )}
+        </div>
+      </div>
+      <div>
+        {requests.length === 0 ? (
+          <p className="p-4 text-gray-500">No files in the queue.</p>
+        ) : (
+          requests.map((req) => <QueuedRequest key={req.requestId} request={req} />)
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### How It Works
+
+1.  **Enabling Queuing**: We tell a request that it should be part of a queue by using `.setQueue(true)` on the request
+    instance.
+2.  **`useSubmit`**: This hook is configured with our queue-enabled request. Every time we call its `submit` function,
+    it doesn't immediately send the request. Instead, it adds it to the queue associated with the `postFile` request.
+3.  **`useQueue`**: This hook listens to the state of the queue for the `postFile` request. It returns:
+    - `requests`: An array of all request instances currently in the queue, along with their real-time status
+      (`loading`, `finished`, `error`, etc.) and progress.
+    - `stopped`: A boolean indicating if the queue is currently paused.
+    - `stop`: A function to pause the queue.
+    - `start`: A function to resume the queue.
+4.  **The UI**: We map over the `requests` array to display each queued item's status and progress. Buttons are wired to
+    the `stop` and `start` functions to control the queue. An invisible file input is used to allow the user to select
+    files to upload.
+
+This pattern is incredibly powerful for managing background tasks and giving users fine-grained control over them.
 
 ---
 
-### Example
+:::success Congratulations!
 
-```tsx
-const { submit } = useSubmit(postFile.setData(formData));
-const { stopped, requests, stop, start } = useQueue(postFile);
+You've learned how to manage request queues in Hyper-fetch!
 
-return (
-  <div>
-    <Button onClick={() => resultQueued.submit()}>Send File</Button>
-    {requests.map((request) => (
-      <Request request={request} /> // Component to inspect the requests upload progress and stop/start functionality
-    ))}
-  </div>
-);
-```
+- You can enable **queuing** on a request-by-request basis.
+- You can add jobs to a queue using **`useSubmit`**.
+- You can monitor and control queues using the **`useQueue`** hook.
+- You can build complex UIs for **background task management**.
+
+:::

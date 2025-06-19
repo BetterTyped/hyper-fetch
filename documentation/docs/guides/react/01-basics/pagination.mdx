@@ -1,21 +1,106 @@
 ---
-title: How to do Pagination
+title: Building a Paginated List
 sidebar_label: Pagination
 ---
 
 # Pagination
 
-We can create pagination in a banal way, thanks to our auto-generating key cache. In this way, all that is required of
-us is the appropriate change of data in the request.
+Pagination is a fundamental feature for displaying large datasets in a manageable way. With Hyper-fetch, implementing
+pagination is straightforward. By changing the parameters of your request, such as the page number or offset, `useFetch`
+will automatically re-fetch the data for the new page. The built-in caching will also make navigating between previously
+visited pages instantaneous.
+
+:::secondary What you'll learn
+
+1.  How to implement **pagination** using the `useFetch` hook.
+2.  How to manage the **current page state** in a React component.
+3.  How to create **"Next"** and **"Previous"** buttons to navigate through pages.
+4.  How Hyper-fetch's **automatic re-fetching** and **caching** simplify pagination logic.
+
+:::
+
+## Example
+
+Let's build a component that displays a paginated list of posts. We'll add buttons to navigate back and forth between
+pages.
+
+```tsx live
+function PaginatedPosts() {
+  const [page, setPage] = React.useState(1);
+
+  // highlight-start
+  const { data: posts, loading, error } = useFetch(getPosts.setQueryParams({ page, limit: 5 }));
+  // highlight-end
+
+  const goToNextPage = () => {
+    setPage((p) => p + 1);
+  };
+
+  const goToPrevPage = () => {
+    setPage((p) => Math.max(1, p - 1));
+  };
+
+  if (error) {
+    return <p className="p-4 text-red-500">Failed to load posts.</p>;
+  }
+
+  return (
+    <div className="border rounded-md">
+      <h2 className="text-xl font-bold p-4 border-b">Posts (Page {page})</h2>
+      {loading ? (
+        <p className="p-4">Loading...</p>
+      ) : (
+        <ul className="divide-y divide-gray-200">
+          {posts?.map((post) => (
+            <li key={post.id} className="p-4">
+              <p className="font-semibold">{post.title}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="p-4 border-t flex justify-between">
+        <button
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          onClick={goToPrevPage}
+          disabled={page === 1 || loading}
+        >
+          Previous
+        </button>
+        <button
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          onClick={goToNextPage}
+          disabled={!posts || posts.length < 5 || loading}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+### How It Works
+
+1.  We use a React state variable, `page`, to keep track of the current page number.
+2.  The `useFetch` hook is given a request that includes the `page` in its query parameters:
+    `getPosts.setQueryParams({ page, limit: 5 })`.
+3.  Whenever `page` changes (by clicking the "Next" or "Previous" buttons), the component re-renders.
+4.  Hyper-fetch detects that a dependency of the request (`page`) has changed and automatically triggers a new fetch for
+    the new page's data.
+5.  The `loading` state from `useFetch` is used to give feedback to the user while the new page is being loaded.
+6.  The "Next" button is disabled if the current page has fewer items than the limit, indicating we've reached the end.
+
+This declarative approach makes pagination logic clean and easy to manage.
 
 ---
 
-### Example
+:::success Congratulations!
 
-```tsx
-const { data, error, loading } = useFetch(getPaginatedList.setQueryParams({ page: 1 }));
+You've learned how to implement pagination in your React applications with Hyper-fetch!
 
-// or
+- You can create a **paginated list** controlled by React state.
+- You can leverage **automatic re-fetching** when request parameters change.
+- You can build a **user-friendly navigation** for large datasets.
+- You understand how Hyper-fetch's **caching** makes navigating between pages fast.
 
-const { data, error, loading } = useFetch(getPaginatedList.setQueryParams({ offset: 0, limit: 10 }));
-```
+:::

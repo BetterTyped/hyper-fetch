@@ -825,7 +825,7 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li {
 }
 
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li::before {
-  @apply absolute left-[-24px] top-[2px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  @apply absolute left-[-23px] top-[0.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li::marker {
@@ -849,7 +849,7 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h
 }
 /* h3 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h3:first-child)::before {
-  @apply absolute left-[-31px] top-[1px] w-[35px] h-[35px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
+  @apply absolute left-[-31px] top-[1.5px] w-[35px] h-[35px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
   content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h3:first-child)::marker {
@@ -1222,6 +1222,9 @@ pre code:has(.code-block-diff-remove-line) {
 }
 .alert--success > div:last-child > * {
   @apply text-amber-100;
+}
+.alert--success > div:last-child strong {
+  @apply !text-amber-200;
 }
 .alert--success > div:last-child a {
   @apply text-cyan-400 decoration-cyan-400 text-opacity-80;

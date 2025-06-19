@@ -5,62 +5,161 @@ sidebar_label: Cache Revalidation
 
 # Cache Revalidation
 
-When using the application, `we often encounter the need to revalidate data`. This is because of various
-`dynamic changes` in the case of the users interacting with our applications. For example, when deleting a note from the
-list of notes in the database, we want the already stored data to be refreshed. In this case, we use cache revalidation.
-
-We can do it by using appropriate methods. Passing an **`invalidationKey`** which should be a `cacheKey or RegExp` that
-will allow us to find the desired key of the data stored in cache.
+When building dynamic applications, keeping the data displayed to the user up-to-date is crucial. Data can become stale
+for many reasons—another user might have updated it, a background process changed it, or the current user performed an
+action that invalidates the existing view. Hyper-fetch provides powerful and flexible cache revalidation mechanisms to
+ensure your app's data is always fresh.
 
 ---
 
-<Tabs>
-  <TabItem value="React" label="React" default>
+:::secondary What you'll learn
 
-```tsx
-// With useFetch
-const { revalidate } = useFetch(getUsers);
+1.  What **cache revalidation** is and why it's essential.
+2.  How to revalidate the cache for a specific request.
+3.  Using the `revalidate` method from `useFetch`, `useSubmit`, and `useCache` hooks in React.
+4.  How to perform revalidation in plain TypeScript with `client.cache.revalidate`.
+5.  Advanced revalidation techniques using **Regular Expressions (RegExp)** to invalidate multiple cache entries at
+    once.
 
-// Refresh used request
-revalidate()
-// or
-revalidate(getNotes)
-// or
-revalidate(getNotes.cacheKey)
-// or
-revalidate(new RegExp(...))
+:::
 
-// With useSubmit
-const { revalidate } = useSubmit(getUsers);
+## The Basics
 
-revalidate(getNotes)
-// or
-revalidate(getNotes.cacheKey)
-// or
-revalidate(new RegExp(...))
+Cache revalidation is the process of marking cached data as stale and triggering a re-fetch to get the fresh version
+from the server. This is typically done after a data mutation (like creating, updating, or deleting a resource) to
+ensure the UI reflects the latest state.
 
+In Hyper-fetch, every request that is cached gets a unique `cacheKey`. This key is used to identify and manage the
+cached data. Revalidation works by targeting these keys.
 
-// With useCache
-const { revalidate } = useCache(getUsers);
+---
 
-// Refresh used request
-revalidate()
-// or
-revalidate(getNotes)
-// or
-revalidate(getNotes.cacheKey)
-// or
-revalidate(new RegExp(...))
+## Revalidation in frameworks based on React
+
+The `@hyper-fetch/react` package provides convenient hooks that return a `revalidate` function. This function can be
+called to trigger revalidation for one or more requests. The `revalidate` function is flexible and accepts a request
+instance, a `cacheKey`, or a `RegExp`.
+
+### Live Example
+
+Let's see it in action. Below, we fetch a list of users. When you add a new user, we call `revalidate()` to refresh the
+list. We've added a toast message to an `onSuccess` callback on the `useFetch` hook to confirm when revalidation occurs.
+
+```tsx live
+function CacheRevalidationExample() {
+  const addUser = client.createRequest()({
+    endpoint: "/users",
+    method: "POST",
+  });
+
+  const {
+    data: users,
+    loading,
+    revalidate: revalidateUsers,
+  } = useFetch(getUsers, {
+    onSuccess: () => {
+      // highlight-next-line
+      toast({ title: "Users list revalidated", message: "Fetched latest users.", type: "success" });
+    },
+  });
+  const { submit: createUser, submitting } = useSubmit(addUser);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const name = e.target.elements.name.value;
+    if (name) {
+      createUser(
+        { name },
+        {
+          onSuccess: () => {
+            e.target.reset();
+            // highlight-next-line
+            revalidateUsers();
+          },
+        },
+      );
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Users</h2>
+      {loading && !users && <p>Loading...</p>}
+      <ul className="list-disc pl-5 mb-4">{users?.map((user, index) => <li key={index}>{user.name}</li>)}</ul>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-4">
+        <input name="name" placeholder="New user name" className="w-full input" />
+        <button type="submit" disabled={submitting} className="btn self-start">
+          {submitting ? "Adding..." : "Add User"}
+        </button>
+      </form>
+    </div>
+  );
+}
 ```
 
-  </TabItem>
-  <TabItem value="Typescript" label="Typescript" default>
+---
+
+## Revalidation in TypeScript
+
+If you're not using React, you can still perform cache revalidation directly on the client instance.
 
 ```ts
-client.cache.revalidate(getNotes.cacheKey)
-// or
-client.cache.revalidate(new RegExp(...))
+import { client, getUsers } from "./api"; // Your API setup
+
+// ... after some operation that invalidates the users
+client.cache.revalidate(getUsers);
+
+// You can also use a cacheKey or RegExp
+client.cache.revalidate(getUsers.cacheKey);
+client.cache.revalidate(new RegExp("/users"));
 ```
 
-  </TabItem>
-</Tabs>
+---
+
+## Advanced Revalidation with RegExp
+
+Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
+for individual items (`/users/1`, `/users/2`) and a list of all items (`/users`). A `RegExp` is perfect for this.
+
+Imagine you have requests for a list of articles and for individual articles:
+
+```ts
+const getArticles = client.createRequest()({
+  method: "GET",
+  endpoint: "/articles",
+});
+
+const getArticle = client.createRequest()({
+  method: "GET",
+  endpoint: "/articles/:id",
+});
+```
+
+When a single article is updated, you might want to revalidate both the list and that specific article's cache, as well
+as any other related paginated lists.
+
+```ts
+// Let's say we updated article with id '1'
+const updatedArticleId = 1;
+
+// This will revalidate every cache entry whose key starts with `GET_/articles`
+// 1. The main list: `GET_/articles`
+// 2. A specific article: `GET_/articles/1`
+// 3. Paginated lists: `GET_/articles?page=1`, `GET_/articles?page=2`, etc.
+client.cache.revalidate(new RegExp("GET_/articles"));
+```
+
+This powerful feature helps you keep your cache consistent with minimal effort.
+
+---
+
+:::success Congratulations!
+
+You've learned how to handle cache revalidation in Hyper-fetch!
+
+1.  You know how to use the `revalidate` function from **React Hooks** (`useFetch`, `useSubmit`, and `useCache`).
+2.  You can revalidate cache programmatically using `client.cache.revalidate` in **plain TypeScript**.
+3.  You can target specific requests by passing the **request instance**, its **`cacheKey`**, or using a **RegExp**.
+4.  You can implement **advanced revalidation strategies** to keep complex UIs in sync.
+
+:::

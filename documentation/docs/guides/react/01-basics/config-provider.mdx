@@ -1,35 +1,77 @@
 ---
 title: Guide - React - Config Provider
-sidebar_label: Config Provider
+sidebar_label: ConfigProvider
 ---
 
 # React Config Provider
 
-We can set the default settings of our hooks by context wrapper. The **`<ConfigProvider />`** will help us with this
-task. It's `config` prop will override the default options and give you more control over their global behavior.
+In Hyper-fetch, you can set default configurations for hooks using the `<ConfigProvider />` component. This allows you
+to create a consistent behavior for data fetching and submission across your entire application, avoiding repetitive
+setup in individual components.
+
+:::secondary What you'll learn
+
+1.  How to use the **`<ConfigProvider />`** to set **global configurations** for Hyper-fetch hooks.
+2.  What are the **configurable options** for `useFetch` and `useSubmit`.
+3.  How to **structure your application** to use the provider effectively.
+
+:::
+
+## Setup
+
+The `<ConfigProvider />` acts as a context wrapper. You should place it at the root of your component tree, for example
+in your main `App.tsx` or `index.tsx` file. It takes a `config` prop where you can specify default settings for all
+Hyper-fetch hooks.
+
+Here's how you can wrap your application with it:
 
 ```tsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { ConfigProvider } from "@hyper-fetch/react";
+
+// 1. Define your custom configuration
 const customConfig = {
   useFetchConfig: {
+    // Default options for all useFetch instances
+    revalidateOnFocus: true,
+    bounce: true,
     bounceTime: 200,
-    // ...
   },
   useSubmitConfig: {
-    deepCompare: () => null,
-    // ...
-  },
-  useCacheConfig: {
-    // ...
-  },
-  useQueueConfig: {
-    // ...
+    // Default options for all useSubmit instances
+    debounce: true,
+    debounceTime: 300,
   },
 };
 
-// Our main app component
-ReactDOM.render(
-  <ConfigProvider config={customConfig}>
-    <App/>
-  </ConfigProvider>;
-)
+function App() {
+  // Your application components go here
+  return <div>...</div>;
+}
+
+// 2. Wrap your app with the ConfigProvider
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <ConfigProvider config={customConfig}>
+      <App />
+    </ConfigProvider>
+  </React.StrictMode>,
+);
 ```
+
+The `config` prop gives you granular control over the default behavior of `useFetch`, `useSubmit`, and other hooks,
+ensuring that your application maintains a consistent user experience with minimal boilerplate.
+
+---
+
+:::success Congratulations!
+
+You've learned how to use the `<ConfigProvider />` to manage global settings for Hyper-fetch hooks in React!
+
+- You can set **default options** for `useFetch` and `useSubmit` across your app.
+- You can **centralize configuration** to keep your components cleaner.
+- You are able to **create a consistent behavior** for data fetching throughout your application.
+
+:::

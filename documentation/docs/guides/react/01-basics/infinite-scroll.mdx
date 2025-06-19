@@ -1,44 +1,109 @@
 ---
-title: React - Infinite Scroll
+title: Implementing Infinite Scroll
 sidebar_label: Infinite Scroll
 ---
 
 # Infinite Scroll
 
-Fetching elements into single list requires certain approach when writing component logic. At the moment, `Hyper Fetch`
-does not have a dedicated infinite pages hook.
+Infinite scroll is a popular pattern for loading and displaying a large number of items without traditional pagination.
+As the user scrolls down, new items are fetched and added to the end of the list. While Hyper-fetch doesn't have a
+dedicated `useInfiniteScroll` hook out-of-the-box, you can easily implement this pattern by composing `useSubmit` to
+load more data on demand.
 
----
+:::secondary What you'll learn
 
-### Example
+1.  How to implement a **"Load More"** feature for paginated data.
+2.  How to use **`useSubmit`** to manually trigger fetching for the next page.
+3.  How to **append new data** to an existing list in React state.
+4.  How to manage **loading states** for a better user experience.
 
-```tsx
-function Page({ offset }) {
-  const { data, error, loading } = useFetch(getList.setQueryParams({ offset }));
+:::
 
-  return (
-    <div>
-      {data.map((element) => (
-        <div>{element}</div>
-      ))}
-    </div>
-  );
-}
+## Implementation with `useSubmit`
 
-function Component() {
-  const [page, setPage] = useState(1);
+A clean way to implement infinite scroll is to use the `useSubmit` hook to fetch new pages when the user clicks a "Load
+More" button. This gives us precise control over when data is fetched.
 
-  const loadMore = () => {
-    setPage((page) => page + 1);
+Here is a live example that loads a list of posts and appends more on button click:
+
+```tsx live
+function InfinitePostList() {
+  const [posts, setPosts] = React.useState([]);
+  const [page, setPage] = React.useState(1);
+  const [allLoaded, setAllLoaded] = React.useState(false);
+
+  // We use useSubmit to manually trigger the fetch for the next page
+  const { submit, submitting } = useSubmit(getPosts);
+
+  const loadMore = async () => {
+    const { data: newPosts } = await submit({ queryParams: { page, limit: 5 } });
+
+    if (newPosts && newPosts.length > 0) {
+      setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+      setPage((prevPage) => prevPage + 1);
+    } else {
+      setAllLoaded(true);
+    }
   };
 
+  // Load the first page on component mount
+  React.useEffect(() => {
+    loadMore();
+  }, []);
+
   return (
-    <div>
-      {Array.from(Array(page).keys()).map((key) => (
-        <Page key={key} offset={key * 10} />
-      ))}
-      <button onClick={loadMore}>Load More</button>
+    <div className="border rounded-md">
+      <ul className="divide-y divide-gray-200">
+        {posts.map((post) => (
+          <li key={post.id} className="p-4">
+            <p className="font-bold">{post.title}</p>
+            <p>{post.body}</p>
+          </li>
+        ))}
+      </ul>
+
+      {submitting && <p className="text-center p-4">Loading...</p>}
+
+      {!allLoaded && (
+        <div className="p-4 flex justify-center">
+          <button
+            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+            onClick={loadMore}
+            disabled={submitting}
+          >
+            {submitting ? "Loading..." : "Load More"}
+          </button>
+        </div>
+      )}
+      {allLoaded && posts.length > 0 && <p className="text-center p-4 text-gray-500">You've reached the end!</p>}
     </div>
   );
 }
 ```
+
+### How it Works
+
+1.  We maintain a `posts` array in our state to hold all the items and a `page` number to track which page to fetch
+    next.
+2.  We use `useSubmit` because it allows us to trigger the request manually via the `submit` function. This is perfect
+    for a "Load More" button.
+3.  The `loadMore` function calls `submit` with the current `page`. The `submit` function is a promise, so we can
+    `await` its result.
+4.  Once we get the `newPosts`, we append them to our existing `posts` array and increment the page number for the next
+    fetch.
+5.  If the API returns an empty array, we know we've reached the end, and we can stop showing the "Load More" button.
+6.  A `useEffect` hook is used to load the initial page of data when the component mounts.
+
+This approach is robust and gives a great user experience by showing a growing list of items.
+
+---
+
+:::success Congratulations!
+
+You've learned how to build an infinite scroll feature with Hyper-fetch!
+
+- You can create a **"Load More"** pattern for large datasets using `useSubmit`.
+- You can manage **paginated data** from an API and display it in a single, growing list.
+- You can manually **trigger data fetching** for creating interactive data-driven UIs.
+
+:::

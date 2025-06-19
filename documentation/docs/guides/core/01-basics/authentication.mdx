@@ -6,78 +6,163 @@ sidebar_label: Authentication
 
 # Authentication
 
-Authentication in Hyper Fetch consists of two steps. We will introduce changes in the **[Client](/core/client.mdx)**
-instance and subsequent requests created from it.
+Handling authentication is a critical part of any application that communicates with a secure API. Hyper Fetch provides
+a powerful and flexible way to manage authentication flows, including attaching tokens to requests and automatically
+refreshing them when they expire.
+
+:::secondary What you'll learn
+
+1. How to automatically add **authentication details** (like tokens) to your requests.
+2. How to implement a seamless **token refresh mechanism**.
+3. How to prevent common issues like **infinite refresh loops**.
+
+:::
 
 ---
 
-#### First, we need to add code for request authentication
+## Authenticating Requests
 
-In the example below we are doing it by adding a token header to the currently sent request.
+To automatically attach authentication details like a Bearer token to your requests, you can use the `onAuth` method on
+your `client` instance. This method registers a callback that will be executed for any request that has the `auth: true`
+option set.
 
-```ts
-export const client = new Client({ url }).onAuth((request) => {
-  // Redux store or any other storage to get current value of token
-  const state = store.getState();
-  const authToken = state.auth.token;
+### 1. Configure the `onAuth` Callback
 
-  // For every authenticated request we want to
-  // add the header with token and return the extended request
-  return request.setHeaders({
-    ...request.headers,
-    Authorization: `Bearer ${authToken}`,
-  });
+In your client configuration, use the `onAuth` method to define how to retrieve and attach your authentication token. In
+this example, we'll get the token from `localStorage`.
+
+```typescript
+import { createClient } from "@hyper-fetch/core";
+
+const TOKEN_STORAGE_KEY = "auth_token";
+
+export const client = createClient({
+  url: "https://api.example.com",
+}).onAuth((request) => {
+  const authToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+  // If the token exists, add it to the request headers
+  if (authToken) {
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${authToken}`,
+    });
+  }
+
+  return request;
 });
 ```
 
-#### The second step is to put the `auth: true` option in the request to make it available for `onAuth` method of client.
+### 2. Mark Requests as Authenticated
+
+For the `onAuth` callback to run, you must set the `auth` option to `true` when creating a request. This tells the
+client that the request requires authentication.
 
 ```ts
-export const getUsers = client.createRequest()({
+const getUsers = client.createRequest()({
   endpoint: "/users",
-  auth: true,
+  method: "GET",
+  auth: true, // This request will now go through the onAuth callback
 });
+
+// When you send this request, it will automatically have the Authorization header.
+getUsers.send();
 ```
 
-That's it, from now on, each request made using this request will be authenticated with our token.
+---
 
-### Refresh token
+## Refreshing Tokens
 
-To refresh the token, we can add a special `onError` interceptor to our **[Client](/core/client.mdx)**. It intercepts
-errors received in our requests and it is asynchronous, which allows for efficient handling of such cases.
+Access tokens are often short-lived for security reasons. When a token expires, the API will typically return a
+`401 Unauthorized` error. We can gracefully handle this by using the `onError` client interceptor to refresh the token
+and retry the original request.
 
-To properly **`avoid the infinite refresh loop`** of the token, we need to protect ourselves by setting the `used` field
-to **true** thanks to the appropriate method `setUsed`. This will allow us to easily verify whether our commend has
-already gone through the intercept process or not.
+To avoid getting stuck in an infinite loop of refresh attempts, we'll use the `request.used` property to ensure we only
+try to refresh the token once per request.
 
 ### Example
 
+Here's how you can set up an `onError` interceptor to handle token refreshing:
+
 ```ts
-export const client = new Client({ url }).onError(async (response, request) => {
-  const status = response[2];
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
+import { createClient } from "@hyper-fetch/core";
 
-  // Check if request has the used value - this will ensure you to
-  // not go into infinite loop and trigger this operation only once
-  if (!request.used && refreshToken && status === 401) {
-    // Prepare the refresh token request
-    const postRefreshToken = client.createRequest<{ response: LoginResponse; payload: LoginData }>()({
-      endpoint: "/refresh-token",
-      method: "POST",
-    });
+const TOKEN_STORAGE_KEY = "auth_token";
+const REFRESH_TOKEN_STORAGE_KEY = "refresh_token";
 
-    // Call the request to receive new tokens
-    const [data] = await postRefreshToken.setData({ refreshToken }).exec();
-
-    if (data) {
-      // Safe the new tokens
-      localStorage.setItem(TOKEN_STORAGE_FIELD, data.token);
-      localStorage.setItem(REFRESH_TOKEN_STORAGE_FIELD, data.refreshToken);
-      // Repeat the request and set it "used"
-      return request.setUsed(true).send();
+export const client = createClient({
+  url: "https://api.example.com",
+})
+  .onAuth((request) => {
+    // ... same onAuth logic as before
+    const authToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (authToken) {
+      return request.setHeaders({
+        ...request.headers,
+        Authorization: `Bearer ${authToken}`,
+      });
     }
-  }
-  // Return the initial response is something goes wrong
-  return response;
-});
+    return request;
+  })
+  .onError(async (response, request) => {
+    const status = response[2];
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+
+    // If the error is 401, we have a refresh token, and we haven't tried refreshing yet
+    if (status === 401 && refreshToken && !request.used) {
+      // Create a request to your refresh token endpoint
+      const refreshTokenRequest = client.createRequest<{ response: { token: string; refreshToken: string } }>()({
+        endpoint: "/auth/refresh",
+        method: "POST",
+      });
+
+      // Send the refresh token to get a new pair of tokens
+      const [data, error] = await refreshTokenRequest.setPayload({ refreshToken }).send();
+
+      if (data) {
+        // Save the new tokens
+        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
+
+        // Retry the original request.
+        // setUsed(true) marks the request to prevent infinite loops.
+        return request.setUsed(true).send();
+      }
+    }
+
+    // If it's not a 401 or refreshing fails, return the original error response
+    return response;
+  });
 ```
+
+In the example above:
+
+1.  We check if the response status is `401`, if a `refreshToken` is available, and if `request.used` is `false`.
+2.  We create and send a new request to our `/auth/refresh` endpoint.
+3.  If we successfully get new tokens, we store them in `localStorage`.
+4.  We then retry the original request using `request.send()`. Crucially, we call `request.setUsed(true)` first to
+    prevent this logic from running again if the retry also fails.
+5.  If any of these conditions are not met, we simply pass through the original error response.
+
+---
+
+## Cookie-Based Authentication
+
+If your API uses cookies for authentication (e.g., `httpOnly` session cookies), Hyper Fetch handles them automatically
+out of the box. The underlying browser `fetch` API or libraries like `axios` manage cookies seamlessly.
+
+When your server responds with a `Set-Cookie` header, the browser securely stores the cookie and automatically includes
+it in all subsequent requests to the same domain. You don't need any extra configuration in Hyper Fetch for this to
+work.
+
+---
+
+:::success Congratulations!
+
+You've learned how to build a robust authentication flow with Hyper-Fetch!
+
+- You can use the **`.onAuth()`** client method to attach tokens to requests marked with **`auth: true`**.
+- You can use the **`.onError()`** client method to intercept failed requests and handle token refreshing.
+- You can prevent infinite refresh loops by using the **`.setUsed(true)`** method before retrying a request.
+
+:::

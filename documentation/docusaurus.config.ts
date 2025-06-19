@@ -279,7 +279,7 @@ const config: Config = {
           type: "custom-myButton",
           to: "/docs/hyper-flow",
           position: "right",
-          children: "Get Access to HyperFlow",
+          children: "Access HyperFlow",
           navbarIcon: true,
         },
       ],

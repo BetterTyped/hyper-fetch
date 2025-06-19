@@ -7,28 +7,90 @@ sidebar_label: Isolation
 Isolation is extremely important for making both deterministic and valid tests. Due to the approach to architecture
 where the client is a global module, we need to bring some of our attention to it.
 
+:::secondary What you'll learn
+
+1.  How to use **`client.clear()`** to reset the client's state between tests.
+2.  Why you need to **clear the module cache** for full isolation.
+3.  How to set up **test isolation** in a Jest environment.
+
+:::
+
 ---
 
-## Clear
+## Why Isolation is Important
 
-The `client.clear()` request allows us to isolate our test cases within one file. It will reinitialize the subsystems of
-our client.
+The `Client` in Hyper Fetch is often used as a global singleton. While this is great for application development, it can
+cause problems during testing, especially when running tests in parallel. Without proper isolation, state from one test
+(like cached data or queued requests) can leak into another, leading to unpredictable and flaky tests.
+
+To prevent this, we need to ensure that each test runs in a clean environment. This involves two steps: clearing the
+client's internal state and resetting the module cache.
 
 ---
 
-## Node cache cleanup
+## Clearing Client State
 
-To properly isolate our tests, we need to be sure that the node instance require.cache will be reset. This way our
-global client module will be restarted and we will have the environment prepared.
+The `client.clear()` method is a built-in utility that resets all of the client's subsystems to their initial state.
+This includes:
 
-### Jest
+- Cache
+- Queue
+- Storage
+- Dispatcher
 
-```ts
+You should call `client.clear()` before each test to ensure that no data from previous tests interferes with the current
+one.
+
+```typescript
+import { client } from "api/client";
+
 beforeEach(() => {
-  // We need to reset modules cache as client is globally exported module
-  // This way it will not get mixed-up with other test cases running in parallel
-  jest.resetModules();
-  // Clean the environment to make sure it's isolated
+  // Clean the client environment to make sure it's isolated for each test
   client.clear();
 });
 ```
+
+---
+
+## Clearing Module Cache
+
+While `client.clear()` resets the client's state, the client instance itself is still a singleton that is shared across
+test files. If you run tests in parallel (which most test runners do), you might still face issues with the global
+module.
+
+To achieve full isolation, you also need to clear the Node.js `require.cache` or your test runner's module cache. This
+ensures that you get a fresh client instance for each test file.
+
+### Jest
+
+If you are using Jest, you can use `jest.resetModules()` to clear the module cache before each test.
+
+```typescript
+import { client } from "api/client";
+
+beforeEach(() => {
+  // We need to reset modules cache as client is a globally exported module.
+  // This way it will not get mixed-up with other test cases running in parallel.
+  jest.resetModules();
+
+  // Then, we clean the client environment to make sure it's isolated.
+  client.clear();
+});
+```
+
+### Other Environments
+
+For other environments like Vitest or if you're not using a test runner with a built-in module cache reset, you might
+need to use a library like `decache` to clear the module cache manually.
+
+---
+
+:::success Congratulations!
+
+You've learned how to properly isolate your tests in Hyper Fetch!
+
+- You can use **`client.clear()`** to reset the client state.
+- You understand the importance of **clearing the module cache** for full isolation.
+- You can set up a **fully isolated testing environment** in Jest.
+
+:::
