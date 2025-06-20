@@ -1,7 +1,7 @@
 import { memo } from "react";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "./badge";
-import { cn } from "frontend/lib/utils";
 
 export const CurrentVersion = memo(({ className, ...props }: React.ComponentProps<typeof Badge>) => {
   const version = String(window.electron.getAppVersion());

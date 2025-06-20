@@ -52,7 +52,7 @@
   @apply text-red-600 dark:text-red-300;
 }
 .alert--danger > div:first-child > p:not(:first-child) {
-  @apply text-gray-300;
+  @apply text-zinc-300;
 }
 
 /* Window Controls (macOS style) */

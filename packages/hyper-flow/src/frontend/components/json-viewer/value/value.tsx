@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { jsonViewerStyles } from "../json-viewer.styles";
 

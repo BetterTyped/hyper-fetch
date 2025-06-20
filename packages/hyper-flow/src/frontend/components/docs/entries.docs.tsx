@@ -1,4 +1,4 @@
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 
 export const EntriesDocs = ({ className, ...props }: React.HTMLProps<HTMLDivElement>) => {

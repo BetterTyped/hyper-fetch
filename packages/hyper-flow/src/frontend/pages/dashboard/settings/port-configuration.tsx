@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { Button } from "frontend/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,12 +13,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "frontend/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "frontend/components/ui/form";
-import { Input } from "frontend/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "frontend/components/ui/alert";
-import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "frontend/components/ui/card";
-import { useSettings } from "frontend/store/app/settings.store";
+} from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { useSettings } from "@/store/app/settings.store";
 
 const portSchema = z.object({
   port: z.number().int().min(1, "Port must be at least 1").max(65535, "Port cannot exceed 65535"),

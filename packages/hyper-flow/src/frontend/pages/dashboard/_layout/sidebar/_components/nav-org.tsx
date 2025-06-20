@@ -1,6 +1,6 @@
 import { BadgeCheck, Bell, ChevronsUpDown, Command, CreditCard, FolderKanban, LogOut, Users2 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "frontend/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "frontend/components/ui/dropdown-menu";
-import { SidebarMenuButton } from "frontend/components/ui/sidebar";
+} from "@/components/ui/dropdown-menu";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 
 export function NavOrg({
   user,

@@ -4,7 +4,7 @@ import * as net from "net";
 
 import { startServer, StartServer } from "../../server";
 import { store } from "./persistent-store";
-import type { Settings } from "frontend/store/app/settings.store";
+import type { Settings } from "@/store/app/settings.store";
 import { appLogger } from "../../shared/utils/logger";
 
 // Store server instance for control

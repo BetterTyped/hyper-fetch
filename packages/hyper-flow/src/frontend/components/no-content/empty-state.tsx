@@ -1,6 +1,6 @@
 import { AppWindowMac } from "lucide-react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Title } from "../ui/title";
 
@@ -44,15 +44,15 @@ export const EmptyState = ({
   return (
     <div className={cn(`flex flex-col items-center justify-center h-full px-8 py-10 text-center mx-auto`, className)}>
       <Avatar className={cn(sizeClasses[size].container)}>
-        <AvatarFallback className="bg-gradient-to-br from-slate-600/90 to-slate-800/90">
-          <Icon className={`text-gray-500 dark:text-gray-400 ${sizeClasses[size].icon}`} />
+        <AvatarFallback className="bg-gradient-to-br from-zinc-600/90 to-zinc-800/90">
+          <Icon className={`text-zinc-500 dark:text-zinc-400 ${sizeClasses[size].icon}`} />
         </AvatarFallback>
       </Avatar>
 
-      <Title className={cn(`font-bold text-gray-900 dark:text-gray-100/70 mt-3 mb-1`, sizeClasses[size].title)}>
+      <Title className={cn(`font-bold text-zinc-900 dark:text-zinc-100/70 mt-3 mb-1`, sizeClasses[size].title)}>
         {title}
       </Title>
-      {description && <p className={cn("text-slate-300/90 max-w-md", sizeClasses[size].description)}>{description}</p>}
+      {description && <p className={cn("text-zinc-300/90 max-w-md", sizeClasses[size].description)}>{description}</p>}
       {children}
     </div>
   );

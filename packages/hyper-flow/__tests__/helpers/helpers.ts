@@ -2,7 +2,7 @@ import { Client } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 import { Socket } from "@hyper-fetch/sockets";
 
-import { ConnectionName } from "frontend/constants/connection.name";
+import { ConnectionName } from "@/constants/connection.name";
 
 export const connectDevtoolsClient = ({
   baseUrl = "http://localhost:2137",

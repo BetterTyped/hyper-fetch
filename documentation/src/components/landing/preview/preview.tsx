@@ -1,89 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import DashboardPreview from "@site/static/img/previews/app.png";
-import ProjectPerformance from "@site/static/img/previews/project-performance.png";
-import ProjectCache from "@site/static/img/previews/project-cache.png";
-import NetworkDetails from "@site/static/img/previews/network-details.png";
-import CacheDetails from "@site/static/img/previews/cache-details.png";
 import { Title } from "@site/src/components";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import Link from "@docusaurus/Link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { BorderBeam } from "./border-beam";
 
-const sections = [
-  {
-    title: "Dedicated Devtools",
-    description:
-      "Seamlessly integrate your app with Hyper Flow to unlock real-time request monitoring and gain instant insights.",
-    image: DashboardPreview,
-  },
-  {
-    title: "Performance Analysis",
-    description: "Dive deep into your project's performance metrics, identify bottlenecks, and optimize efficiently.",
-    image: ProjectPerformance,
-  },
-  {
-    title: "Cache Management",
-    description:
-      "Visualize and manage your application's cache, ensuring optimal data retrieval and storage strategies.",
-    image: ProjectCache,
-  },
-  {
-    title: "Network Inspector",
-    description:
-      "Inspect every network request in detail, analyze headers, payloads, and timings to debug connectivity issues.",
-    image: NetworkDetails,
-  },
-  {
-    title: "Cache Viewer",
-    description:
-      "Explore cached data entries, understand expiration times, and fine-tune your caching mechanisms for peak performance.",
-    image: CacheDetails,
-  },
-];
-
-const SLIDE_DURATION = 4000;
-
 export function Preview(): JSX.Element {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [, setTimeLeft] = useState(SLIDE_DURATION);
-  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
-
-  const startTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    setTimeLeft(SLIDE_DURATION);
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1000) {
-          // Check if it's time to switch *before* decrementing to 0
-          setCurrentSlide((prevSlide) => (prevSlide + 1) % sections.length);
-          return SLIDE_DURATION; // Reset timer for the new slide
-        }
-        return prev - 1000;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => {
-    startTimer();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }; // Clear interval on component unmount
-  }, []);
-
-  const goToNext = () => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1) % sections.length);
-    startTimer(); // Reset and restart timer
-  };
-
-  const goToPrevious = () => {
-    setCurrentSlide((prevSlide) => (prevSlide - 1 + sections.length) % sections.length);
-    startTimer(); // Reset and restart timer
-  };
-
-  const currentSection = sections[currentSlide];
-
   return (
     <section className="relative pb-20 pt-4 -z-10 group mb-48">
       {/* <Particles className="absolute inset-0 -z-10" /> */}
@@ -127,49 +50,11 @@ export function Preview(): JSX.Element {
             <div className="relative w-fit h-fit rounded-md overflow-hidden">
               <BorderBeam duration={8} size={400} />
               <BorderBeam duration={8} size={400} />
-              <img src={currentSection.image} alt={currentSection.title} className="transition-opacity duration-500" />
-              {/* bottom gradient */}
+              <img src={DashboardPreview} alt="preview" className="transition-opacity duration-500" />
               <div className="absolute bottom-0 left-0 right-0 h-[80%] bg-gradient-to-t from-[var(--background)] to-transparent from-5% to-20%" />
-
-              {/* Previous Button - Positioned absolutely */}
-              <button
-                type="button"
-                onClick={goToPrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-zinc-800/50 hover:bg-zinc-700/70 text-zinc-400 hover:text-zinc-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
-                aria-label="Previous Slide"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              {/* Next Button - Positioned absolutely */}
-              <button
-                type="button"
-                onClick={goToNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-zinc-800/50 hover:bg-zinc-700/70 text-zinc-400 hover:text-zinc-100 transition-all duration-200 opacity-0 group-hover:opacity-100"
-                aria-label="Next Slide"
-              >
-                <ChevronRight size={20} />
-              </button>
             </div>
           </div>
         </FadeIn>
-      </div>
-
-      {/* Bottom section with active slide info (no buttons) */}
-      <div className="relative max-w-6xl mx-auto -translate-y-6 px-4 sm:px-6 mb-24">
-        {/* <div className="text-center">
-          <div className="mb-4 p-3 bg-zinc-800/50 rounded-full mx-auto max-w-[50px]">
-            <div className="text-zinc-400 text-xl">{currentSlide + 1}</div>
-          </div>
-          <div className="relative w-full h-0.5 mb-3 bg-zinc-700/50 rounded-full mx-auto max-w-[200px]">
-            <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-[width] duration-1000 ease-linear"
-              style={{ width: `${(1 - timeLeft / SLIDE_DURATION) * 100}%` }}
-            />
-          </div>
-          <Title size="md">{currentSection.title}</Title>
-          <Description className="max-w-xl mx-auto">{currentSection.description}</Description>
-        </div> */}
       </div>
     </section>
   );

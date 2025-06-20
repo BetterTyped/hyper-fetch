@@ -3,9 +3,10 @@ import { WebSocket, WebSocketServer } from "ws";
 import url from "url";
 
 import { DevtoolsClientHandshakeMessage, MessageType, MessageTypes } from "../shared/types/messages.types";
-import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionHandler } from "./handlers/connection-handler";
 import { serverLogger } from "../shared/utils/logger";
+
+import { SocketTopics } from "@shared/topics";
 
 const getConnectionName = (requestUrl: string) => {
   const queryParams = url.parse(requestUrl, true).query;

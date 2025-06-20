@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "frontend/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -17,17 +17,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "frontend/components/ui/sidebar";
-import { Link, RoutingLocations } from "frontend/routing/router";
+} from "@/components/ui/sidebar";
+import { Link, LinkProps } from "@tanstack/react-router";
 
 export function NavSecondary({
   items,
 }: {
-  items: {
+  items: ({
     name: string;
-    link: RoutingLocations;
     icon: LucideIcon;
-  }[];
+  } & Pick<LinkProps, "to" | "params">)[];
 }) {
   const { isMobile } = useSidebar();
 
@@ -38,7 +37,7 @@ export function NavSecondary({
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <Link to={item.link} params={{} as any}>
+              <Link to={item.to} params={item.params}>
                 <item.icon />
                 <span>{item.name}</span>
               </Link>
@@ -57,16 +56,16 @@ export function NavSecondary({
               >
                 <DropdownMenuItem>
                   <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
+                  <span>View Application</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Share className="text-muted-foreground" />
-                  <span>Share Project</span>
+                  <span>Share Application</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
+                  <span>Delete Application</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

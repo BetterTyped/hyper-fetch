@@ -1,6 +1,7 @@
+import { Link, LinkProps, useMatch } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon, AlertTriangle } from "lucide-react";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "frontend/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -11,26 +12,29 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "frontend/components/ui/sidebar";
-import { Link, RoutingLocations, useMatchedName } from "frontend/routing/router";
-import { useSettings } from "frontend/store/app/settings.store";
+} from "@/components/ui/sidebar";
+import { useSettings } from "@/store/app/settings.store";
 
 export function NavPrimary({
   items,
 }: {
-  items: {
-    title: string;
-    link: RoutingLocations;
-    icon: LucideIcon;
-    isActive?: boolean;
-    onCrash?: boolean;
-    items?: {
+  items: Array<
+    {
       title: string;
-      link: RoutingLocations;
-    }[];
-  }[];
+      icon: LucideIcon;
+      isActive?: boolean;
+      onCrash?: boolean;
+      items?: Array<
+        {
+          title: string;
+        } & Pick<LinkProps, "to" | "params">
+      >;
+    } & Pick<LinkProps, "to" | "params">
+  >;
 }) {
-  const activeName = useMatchedName();
+  const match = useMatch({
+    strict: false,
+  });
   const serverStatus = useSettings((state) => state.serverStatus);
 
   return (
@@ -40,8 +44,8 @@ export function NavPrimary({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} isActive={activeName === item.link}>
-                <Link to={item.link} params={{} as any} className="h-[34px] px-3">
+              <SidebarMenuButton asChild tooltip={item.title} isActive={match.pathname === item.to}>
+                <Link to={item.to} params={item.params} className="h-[34px] px-3">
                   <item.icon className="min-w-[18px] min-h-[18px]" />
                   <span className="text-[14px]">{item.title}</span>
                   {item.onCrash && serverStatus === "crashed" && (
@@ -64,8 +68,8 @@ export function NavPrimary({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild isActive={activeName === subItem.link}>
-                            <Link to={subItem.link} params={{} as any}>
+                          <SidebarMenuSubButton asChild isActive={match.pathname === subItem.to}>
+                            <Link to={subItem.to} params={subItem.params}>
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
-import { useInterval } from "frontend/hooks/use-interval";
+import { useInterval } from "@/hooks/use-interval";
 
 export type UseCountdownOptions = {
   updateFrequency?: number;

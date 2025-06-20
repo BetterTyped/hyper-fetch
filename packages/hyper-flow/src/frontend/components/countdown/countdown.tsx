@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef } from "react";
 
-import { useCountdown } from "frontend/hooks/use-countdown";
+import { useCountdown } from "@/hooks/use-countdown";
 
 const getPlural = (value: number, singular: string) => {
   if (value === 1) return `${value} ${singular}`;

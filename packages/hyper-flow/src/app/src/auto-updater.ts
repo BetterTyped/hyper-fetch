@@ -1,6 +1,6 @@
 import { updateElectronApp, UpdateSourceType } from "update-electron-app";
 
-import { bucket, updatesDir } from "shared/constants/auto-updater";
+import { bucket, updatesDir } from "@shared/constants/auto-updater";
 
 /**
  * Your app will check for updates at startup, then every ten minutes. This interval is configurable.

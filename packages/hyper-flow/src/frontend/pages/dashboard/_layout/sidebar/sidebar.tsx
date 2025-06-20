@@ -1,27 +1,29 @@
 import * as React from "react";
+import { LinkProps } from "@tanstack/react-router";
 import { LifeBuoy, LucideIcon, Send, Settings, FolderCode } from "lucide-react";
 
 import { NavPrimary } from "./_components/nav-primary";
 // import { NavSecondary } from "./_components/nav-secondary";
 import { NavTertiary } from "./_components/nav-tertiary";
 // import { NavOrg } from "./_components/nav-org";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "frontend/components/ui/sidebar";
-import { RoutingLocations } from "frontend/routing/router";
-import { cn } from "frontend/lib/utils";
-import icon from "frontend/assets/images/icon.png";
-import { CurrentVersion } from "frontend/components/ui/current-version";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import icon from "@/assets/images/icon.png";
+import { CurrentVersion } from "@/components/ui/current-version";
 
-const primary: Array<{
-  title: string;
-  link: RoutingLocations;
-  icon: LucideIcon;
-  isActive?: boolean;
-  onCrash?: boolean;
-  items?: Array<{
+const primary: Array<
+  {
     title: string;
-    link: RoutingLocations;
-  }>;
-}> = [
+    icon: LucideIcon;
+    isActive?: boolean;
+    onCrash?: boolean;
+    items?: Array<
+      {
+        title: string;
+      } & Pick<LinkProps, "to" | "params">
+    >;
+  } & Pick<LinkProps, "to" | "params">
+> = [
   // {
   //   title: "Workspaces",
   //   link: "dashboard",
@@ -29,8 +31,8 @@ const primary: Array<{
   //   isActive: true,
   // },
   {
-    title: "Projects",
-    link: "dashboard",
+    title: "Applications",
+    to: "/",
     icon: FolderCode,
   },
   // {
@@ -40,7 +42,7 @@ const primary: Array<{
   // },
   {
     title: "Settings",
-    link: "dashboard.settings",
+    to: "/settings",
     icon: Settings,
     onCrash: true,
   },
@@ -102,8 +104,8 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
               <span className="font-bold mr-1">Hyper</span>
               <span
                 className={cn(
-                  "font-light text-gray-400",
-                  "bg-clip-text !text-transparent bg-gradient-to-tr from-gray-400/70 via-gray-400/90 to-gray-400/80",
+                  "font-light text-zinc-400",
+                  "bg-clip-text !text-transparent bg-gradient-to-tr from-zinc-400/70 via-zinc-400/90 to-zinc-400/80",
                 )}
               >
                 Flow

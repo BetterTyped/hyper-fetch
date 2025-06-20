@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { PlusIcon, ActivityIcon } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
-import { useLocation } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
-import { WorkspaceCard } from "frontend/components/ui/workspace-card";
-import { Card } from "frontend/components/ui/card";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
+import { WorkspaceCard } from "@/components/ui/workspace-card";
+import { Card } from "@/components/ui/card";
 import { AddWorkspaceDialog } from "./add-workspace/add-workspace-dialog";
-import { KpiCard3 } from "frontend/components/ui/kpi-card-3";
-import { KpiCardFeed } from "frontend/components/ui/kpi-card-feed";
+import { KpiCard3 } from "@/components/ui/kpi-card-3";
+import { KpiCardFeed } from "@/components/ui/kpi-card-feed";
 
 export const Workspaces = () => {
   const workspaces = useWorkspaces((state) => state.workspaces);
-  const { navigate } = useLocation();
+  const navigate = useNavigate();
   const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [pulseHistory, setPulseHistory] = useState<Array<{ value: number; date: Date }>>(
@@ -54,23 +54,20 @@ export const Workspaces = () => {
     return () => clearInterval(messageInterval);
   }, []);
 
-  const onOpenProject = (workspaceId: string) => {
+  const onOpenApplication = (workspaceId: string) => {
     navigate({
-      to: "workspace",
-      params: {
-        workspaceId,
-      },
+      to: "/",
     });
   };
 
   return (
     <>
       <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
-        <KpiCard3 value="9" label="Online Projects" change="Live" positive />
+        <KpiCard3 value="9" label="Online Applications" change="Live" positive />
         <KpiCardFeed
           value={messageCount}
           label="Requests"
-          // subtitle="Reads from active projects"
+          // subtitle="Reads from active applications"
           data={pulseHistory}
           name="value"
           icon={<ActivityIcon className="h-3.5 w-3.5 text-blue-500" />}
@@ -86,7 +83,7 @@ export const Workspaces = () => {
             {...workspace}
             iconUrl=""
             isConnectedToCloud={false}
-            onOpen={() => onOpenProject(workspace.id)}
+            onOpen={() => onOpenApplication(workspace.id)}
           />
         ))}
         <Card
@@ -94,10 +91,10 @@ export const Workspaces = () => {
           onClick={() => setShowNewWorkspaceDialog(true)}
         >
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-              <PlusIcon className="h-6 w-6 text-gray-500" />
+            <div className="h-12 w-12 rounded-full bg-zinc-100 flex items-center justify-center mb-2">
+              <PlusIcon className="h-6 w-6 text-zinc-500" />
             </div>
-            <p className="text-sm text-gray-500">Add New Workspace</p>
+            <p className="text-sm text-zinc-500">Add New Workspace</p>
           </div>
         </Card>
       </div>

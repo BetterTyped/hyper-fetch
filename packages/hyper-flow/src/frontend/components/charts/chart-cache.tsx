@@ -3,9 +3,10 @@ import { useMemo } from "react";
 import { Tally4 } from "lucide-react";
 import { Treemap, ResponsiveContainer } from "recharts";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "frontend/components/ui/tooltip";
-import { cn } from "frontend/lib/utils";
-import { formatBytes } from "frontend/utils/size.utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { formatBytes } from "@/utils/size.utils";
+
 import { Method } from "../ui/method";
 
 const getDistributionFillColor = (cacheSize: number, totalCacheSize: number) => {
@@ -138,14 +139,14 @@ function Content(
             )}
           </g>
         </TooltipTrigger>
-        <TooltipContent className="flex flex-col gap-1 p-2 border-gray-200 dark:border-gray-800 border !text-sm">
+        <TooltipContent className="flex flex-col gap-1 p-2 border-zinc-200 dark:border-zinc-800 border !text-sm">
           <div className={cn("border-b border-inherit px-4 py-2")}>
             <p
               className={cn(
                 // base
                 "font-medium",
                 // text color
-                "text-gray-900 dark:text-gray-50",
+                "text-zinc-900 dark:text-zinc-50",
               )}
             >
               {formattedName}
@@ -166,7 +167,7 @@ function Content(
                     // base
                     "whitespace-nowrap text-right",
                     // text color
-                    "text-gray-700 dark:text-gray-300",
+                    "text-zinc-700 dark:text-zinc-300",
                   )}
                 >
                   Cache Size
@@ -177,7 +178,7 @@ function Content(
                   // base
                   "whitespace-nowrap text-right font-medium tabular-nums",
                   // text color
-                  "text-gray-900 dark:text-gray-50",
+                  "text-zinc-900 dark:text-zinc-50",
                 )}
               >
                 {formatBytes(totalSize)}
@@ -191,7 +192,7 @@ function Content(
                     // base
                     "whitespace-nowrap text-right",
                     // text color
-                    "text-gray-700 dark:text-gray-300",
+                    "text-zinc-700 dark:text-zinc-300",
                   )}
                 >
                   Total Entries
@@ -202,7 +203,7 @@ function Content(
                   // base
                   "whitespace-nowrap text-right font-medium tabular-nums",
                   // text color
-                  "text-gray-900 dark:text-gray-50",
+                  "text-zinc-900 dark:text-zinc-50",
                 )}
               >
                 {totalEntries}

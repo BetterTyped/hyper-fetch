@@ -29,7 +29,7 @@
 import * as Sentry from "@sentry/electron/renderer";
 import { init } from "@sentry/react";
 
-import "frontend/index";
+import "@/index";
 
 Sentry.init(
   {

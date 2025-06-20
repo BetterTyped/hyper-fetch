@@ -1,4 +1,4 @@
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface KpiCard1Props {
   value: React.ReactNode;
@@ -16,7 +16,7 @@ const colors = {
   yellow: "from-yellow-500/10 to-yellow-800/10",
   orange: "from-orange-500/10 to-orange-800/10",
   pink: "from-pink-500/10 to-pink-800/10",
-  gray: "from-gray-500/10 to-gray-800/10",
+  gray: "from-zinc-500/10 to-zinc-800/10",
   black: "from-black/10 to-black/10",
   white: "from-white/10 to-white/10",
 };
@@ -29,7 +29,7 @@ const iconColors = {
   yellow: "bg-yellow-800/30 text-yellow-600",
   orange: "bg-orange-800/30 text-orange-600",
   pink: "bg-pink-800/30 text-pink-600",
-  gray: "bg-gray-800/30 text-gray-600",
+  gray: "bg-zinc-800/30 text-zinc-600",
   black: "bg-black/30 text-black",
   white: "bg-white/30 text-white",
 };
@@ -41,12 +41,12 @@ export const KpiCard1 = ({ value, label, children, icon, color = "blue" }: KpiCa
         <div className="flex items-center space-x-3">
           <div className={cn(`p-2 rounded-lg`, iconColors[color])}>{icon}</div>
           <div>
-            <p className="text-sm text-gray-400">{label}</p>
-            <p className="text-2xl font-semibold text-gray-300">{value}</p>
+            <p className="text-sm text-zinc-400">{label}</p>
+            <p className="text-2xl font-semibold text-zinc-300">{value}</p>
           </div>
         </div>
       </div>
-      {children && <div className="text-sm text-gray-500 mt-4">{children}</div>}
+      {children && <div className="text-sm text-zinc-500 mt-4">{children}</div>}
     </div>
   );
 };

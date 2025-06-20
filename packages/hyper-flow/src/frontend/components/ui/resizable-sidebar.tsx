@@ -1,7 +1,7 @@
 import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Resizable, ResizableProps } from "re-resizable";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
 const getPositionClasses = (position: "top" | "left" | "right" | "bottom") => {
@@ -38,9 +38,9 @@ const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bott
         baseClasses,
         positionClasses[position],
         "flex items-center justify-end group border-l transition-all duration-200",
-        "[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.3),theme(colors.slate.400/.2),theme(colors.slate.900/.3))1]",
-        "hover:[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.6),theme(colors.slate.400/.6),theme(colors.slate.900/.5))1]",
-        "active:[border-image:linear-gradient(to_bottom,theme(colors.slate.900/.6),theme(colors.slate.400/.6),theme(colors.slate.900/.5))1]",
+        "[border-image:linear-gradient(to_bottom,theme(colors.zinc.900/.3),theme(colors.zinc.400/.2),theme(colors.zinc.900/.3))1]",
+        "hover:[border-image:linear-gradient(to_bottom,theme(colors.zinc.900/.6),theme(colors.zinc.400/.6),theme(colors.zinc.900/.5))1]",
+        "active:[border-image:linear-gradient(to_bottom,theme(colors.zinc.900/.6),theme(colors.zinc.400/.6),theme(colors.zinc.900/.5))1]",
       )}
     >
       <Button
@@ -48,9 +48,9 @@ const BorderHandle = ({ position }: { position: "top" | "left" | "right" | "bott
         size="icon"
         className="min-w-3 h-7 gap-1 p-0 flex flex-col bg-sidebar cursor-ew-resize group-hover:opacity-100 group-active:opacity-100 opacity-60 rounded-r-[0px] rounded-l-[4px] translate-x-[-1px]"
       >
-        <span className="w-1.5 h-0.5 bg-gray-300 dark:bg-gray-400 rounded-full" />
-        <span className="w-1.5 h-0.5 bg-gray-300 dark:bg-gray-400 rounded-full" />
-        <span className="w-1.5 h-0.5 bg-gray-300 dark:bg-gray-400 rounded-full" />
+        <span className="w-1.5 h-0.5 bg-zinc-300 dark:bg-zinc-400 rounded-full" />
+        <span className="w-1.5 h-0.5 bg-zinc-300 dark:bg-zinc-400 rounded-full" />
+        <span className="w-1.5 h-0.5 bg-zinc-300 dark:bg-zinc-400 rounded-full" />
       </Button>
     </div>
   );

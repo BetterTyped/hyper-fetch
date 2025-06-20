@@ -1,22 +1,22 @@
-import { Button } from "frontend/components/ui/button";
-import { useRoute } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
-import { EmptyState } from "frontend/components/no-content/empty-state";
+import { useNavigate } from "@tanstack/react-router";
+
+import { Button } from "@/components/ui/button";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
+import { EmptyState } from "@/components/no-content/empty-state";
 
 export const WorkspaceDocumentation = () => {
-  const {
-    params: { workspaceId },
-    navigate,
-  } = useRoute("workspace");
+  // const { workspaceId } = useParams({ strict: false });
+  const workspaceId = "1";
+  const navigate = useNavigate();
   const { workspaces } = useWorkspaces();
-  // const { projects } = useOnlineProjects("Details");
+  // const { applications } = useOnlineApplications("Details");
 
   const workspace = workspaces.find((w) => w.id === workspaceId);
 
   if (!workspace) {
     return (
       <EmptyState title="Workspace not found" description="Please create a workspace first">
-        <Button onClick={() => navigate({ to: "dashboard" })}>Create Workspace</Button>
+        <Button onClick={() => navigate({ to: "/" })}>Create Workspace</Button>
       </EmptyState>
     );
   }

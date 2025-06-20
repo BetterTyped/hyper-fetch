@@ -10,12 +10,5 @@
     "cssVariables": true,
     "prefix": ""
   },
-  "aliases": {
-    "components": "frontend/components",
-    "utils": "frontend/lib/utils",
-    "ui": "frontend/components/ui",
-    "lib": "frontend/lib",
-    "hooks": "frontend/hooks"
-  },
   "iconLibrary": "lucide"
 }

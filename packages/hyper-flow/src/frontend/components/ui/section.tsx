@@ -1,7 +1,7 @@
-import { useDidMount } from "@reins/hooks";
+import { useDidMount } from "@better-hooks/lifecycle";
 import { createContext, memo, useContext, useMemo, useState } from "react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 import { Avatar } from "./avatar";
 
 export const SectionContext = createContext<{
@@ -63,7 +63,7 @@ export const SectionTitle = ({ children, className, ...props }: React.ComponentP
   return (
     <h3
       className={cn(
-        "text-lg font-medium mb-1 leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-gray-300 via-gray-100 to-gray-500",
+        "text-lg font-medium mb-1 leading-none break-words bg-clip-text text-transparent bg-gradient-to-tr from-zinc-300 via-zinc-100 to-zinc-500",
         className,
       )}
       {...props}
@@ -75,7 +75,7 @@ export const SectionTitle = ({ children, className, ...props }: React.ComponentP
 
 export const SectionDescription = ({ children, className, ...props }: React.ComponentProps<"p">) => {
   return (
-    <p className={cn("text-sm text-gray-500", className)} {...props}>
+    <p className={cn("text-sm text-zinc-500", className)} {...props}>
       {children}
     </p>
   );
@@ -98,7 +98,7 @@ export const SectionIcon = memo(({ children, className, ...props }: React.Compon
         <Avatar
           className={cn(
             "h-12 w-12 rounded-lg overflow-hidden",
-            "flex items-center justify-center bg-gray-700",
+            "flex items-center justify-center bg-zinc-700",
             className,
           )}
           {...props}

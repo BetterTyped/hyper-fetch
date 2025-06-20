@@ -1,22 +1,18 @@
-import { ErrorInfo } from "react";
 import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
-import { useDidMount } from "@reins/hooks";
+import { ErrorComponentProps } from "@tanstack/router-core";
+import { useDidMount } from "@better-hooks/lifecycle";
+import { Link } from "@tanstack/react-router";
 
 import { Meteors } from "../ui/meteors";
 import { Button } from "../ui/button";
-import { Link } from "frontend/routing/router";
 
-export const AppError = ({ error, errorInfo }: { error: Error; errorInfo: ErrorInfo }) => {
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
+export const AppError = ({ error, info, reset }: ErrorComponentProps) => {
   useDidMount(() => {
-    console.error(error, errorInfo);
+    console.error(error, info);
   });
 
   return (
-    <div className="h-full bg-gray-900 text-gray-100 flex items-center justify-center p-4">
+    <div className="h-full bg-zinc-900 text-zinc-100 flex items-center justify-center p-4">
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <Meteors number={30} />
       </div>
@@ -28,29 +24,29 @@ export const AppError = ({ error, errorInfo }: { error: Error; errorInfo: ErrorI
                 <AlertTriangle className="w-10 h-10 text-red-400" />
               </div>
             </div>
-            <h1 className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent dark:from-white dark:to-slate-900/10 pb-2">
+            <h1 className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-zinc-300/80 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent dark:from-white dark:to-zinc-900/10 pb-2">
               App crashed
             </h1>
-            <p className="text-xl text-gray-400 mt-8">{error.message || "Something went wrong"}</p>
+            <p className="text-xl text-zinc-400 mt-8">{error.message || "Something went wrong"}</p>
           </div>
         </div>
 
         <div className="rounded-lg p-6 space-y-6">
           <div className="pt-4 flex justify-center gap-2">
             <Button variant="secondary" asChild>
-              <Link to="dashboard">
+              <Link to="/">
                 <ArrowLeft className="w-4 h-4" />
                 Go to Dashboard
               </Link>
             </Button>
-            <Button variant="ghost" onClick={handleRefresh}>
+            <Button variant="ghost" onClick={reset}>
               <RefreshCw className="w-4 h-4" />
               Refresh Page
             </Button>
           </div>
         </div>
 
-        <p className="text-sm text-gray-500 text-center">
+        <p className="text-sm text-zinc-500 text-center">
           If the problem persists, please fill the bug report{" "}
           <a
             href="https://github.com/BetterTyped/hyper-fetch/issues"

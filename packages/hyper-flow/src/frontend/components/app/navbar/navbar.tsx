@@ -1,6 +1,5 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { Home, Maximize2, X, Minus, AppWindowMac } from "lucide-react";
-import { BreadcrumbsType } from "@reins/router";
 
 import {
   Breadcrumb,
@@ -9,11 +8,11 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "frontend/components/ui/breadcrumb";
-// import { Button } from "frontend/components/ui/button";
+} from "@/components/ui/breadcrumb";
+// import { Button } from "@/components/ui/button";
 // import { NavUser } from "./nav-user";
-import { Link, RoutingRoot, useBreadcrumbs } from "frontend/routing/router";
-import { useIsFocused } from "frontend/hooks/use-is-focused";
+import { useIsFocused } from "@/hooks/use-is-focused";
+import { Link } from "@tanstack/react-router";
 
 const dragStyle = {
   "-webkit-user-select": "none",
@@ -25,13 +24,19 @@ const noDragStyle = {
   "-webkit-app-region": "no-drag",
 } as React.CSSProperties;
 
-const Item = ({ name, params, breadcrumb }: BreadcrumbsType<RoutingRoot>[number]) => {
+type BreadcrumbsType = {
+  name: string;
+  breadcrumb: string;
+  params: Record<string, string>;
+}[];
+
+const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
   switch (name) {
-    case "project": {
+    case "application": {
       return (
         <>
           <AppWindowMac className="w-4 h-4" />
-          {params.projectName}
+          {params.applicationName}
         </>
       );
     }
@@ -42,7 +47,7 @@ const Item = ({ name, params, breadcrumb }: BreadcrumbsType<RoutingRoot>[number]
 
 export const Navbar = () => {
   const isFocused = useIsFocused();
-  const breadcrumbs = useBreadcrumbs();
+  // const breadcrumbs = useBreadcrumbs();
 
   const handleClose = () => {
     window.electron.ipcRenderer.send("window-close");
@@ -64,7 +69,7 @@ export const Navbar = () => {
             <button
               id="close-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-red-500 hover:bg-red-600" : "bg-gray-700"
+                isFocused ? "bg-red-500 hover:bg-red-600" : "bg-zinc-700"
               }`}
               aria-label="Close"
               type="button"
@@ -76,7 +81,7 @@ export const Navbar = () => {
             <button
               id="min-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-yellow-500 hover:bg-yellow-600" : "bg-gray-700"
+                isFocused ? "bg-yellow-500 hover:bg-yellow-600" : "bg-zinc-700"
               }`}
               aria-label="Minimize"
               type="button"
@@ -88,7 +93,7 @@ export const Navbar = () => {
             <button
               id="max-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-green-500 hover:bg-green-600" : "bg-gray-700"
+                isFocused ? "bg-green-500 hover:bg-green-600" : "bg-zinc-700"
               }`}
               aria-label="Maximize"
               type="button"
@@ -104,12 +109,12 @@ export const Navbar = () => {
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink className="flex gap-1 items-center" style={noDragStyle} asChild>
-                  <Link to="dashboard">
+                  <Link to="/">
                     <Home className="w-4 h-4" /> Home
                   </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {breadcrumbs.map((data, index) => {
+              {/* {breadcrumbs.map((data, index) => {
                 const { path, name } = data;
                 const isLast = index === breadcrumbs.length - 1;
 
@@ -143,12 +148,12 @@ export const Navbar = () => {
                     </BreadcrumbItem>
                   </Fragment>
                 );
-              })}
+              })} */}
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </div>
-      <div className="flex gap-3 items-center text-sm text-gray-400" style={noDragStyle}>
+      <div className="flex gap-3 items-center text-sm text-zinc-400" style={noDragStyle}>
         {/* <Button size="sm">
           <Rocket className="w-3.5 h-3.5" />
           Upgrade

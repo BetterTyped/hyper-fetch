@@ -1,8 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon } from "lucide-react";
 
-import { Button } from "frontend/components/ui/button";
-import { TableHead } from "frontend/components/ui/table";
-import { cn } from "frontend/lib/utils";
+import { Button } from "@/components/ui/button";
+import { TableHead } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 interface TableSortableProps extends React.HTMLAttributes<HTMLTableCellElement> {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
-import { cn } from "frontend/lib/utils";
-import { Card, CardFooter, CardHeader } from "frontend/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { SparkAreaChart } from "./spark-chart";
 
 interface KpiCard3Props<T extends Record<string, any>> {
@@ -21,11 +21,11 @@ export const KpiCardFeed = <T extends Record<string, any>>({
 }: KpiCard3Props<T>) => {
   return (
     <Card className="gap-0 pb-1 pt-5">
-      <CardHeader className="text-sm font-light text-gray-600 dark:text-gray-400 -mt-1.5">
+      <CardHeader className="text-sm font-light text-zinc-600 dark:text-zinc-400 -mt-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {icon}
-            <dt className="text-sm font-semibold text-gray-900 dark:text-white">{label}</dt>
+            <dt className="text-sm font-semibold text-zinc-900 dark:text-white">{label}</dt>
           </div>
           <span
             className={cn(
@@ -39,7 +39,7 @@ export const KpiCardFeed = <T extends Record<string, any>>({
           </span>
         </div>
       </CardHeader>
-      <CardFooter className="-mt-1.5 text-sm font-light text-gray-600 dark:text-gray-400">
+      <CardFooter className="-mt-1.5 text-sm font-light text-zinc-600 dark:text-zinc-400">
         <SparkAreaChart
           data={data}
           index="date"
