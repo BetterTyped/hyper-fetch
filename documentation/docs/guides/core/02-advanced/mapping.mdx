@@ -40,7 +40,7 @@ Mappers can be asynchronus. This way we can build up bigger responses.
 Here's an example of using a response mapper to enrich the user data with a list of products and transform a date string
 into a `Date` object.
 
-```ts
+```typescript
 // Let's assume we have this request to fetch products
 const getProducts = client.createRequest<ProductModel[]>()({
   method: "GET",
@@ -76,7 +76,7 @@ export const getUser = client
 We can hydrate class models, which can parse our data. For example, the `User` class can parse dates from an ISO string
 into a `Date` object, generate nicknames or full names, etc. This is a powerful way to work with structured data.
 
-```ts
+```typescript
 class User {
   id: number;
   name: string;
@@ -124,7 +124,7 @@ Request mappers can also be asynchronous, allowing for complex pre-request logic
 
 In this example, we convert the request payload into `FormData` and add a custom header before sending the request.
 
-```ts
+```typescript
 export const postUser = client
   .createRequest<{ response: UserModel; payload: UserData }>()({
     method: "POST",

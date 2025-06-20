@@ -18,6 +18,15 @@ errors if you forget to provide a required parameter or use the wrong type, maki
 
 :::
 
+### Why is it helpful?
+
+- **Route Correctness**: Guarantees that dynamic URL segments are always provided, preventing 404 errors from malformed
+  URLs.
+- **Type Safety**: Ensures that parameters are provided, catching potential issues at compile-time.
+- **Compile-Time Checks**: Catches missing or misspelled parameters during development, not in production.
+- **Improved Readability**: The request definition clearly shows which parameters are required for the endpoint to
+  function.
+
 ---
 
 ### Example

@@ -74,6 +74,8 @@ Example:
     from given topic.
 4.  **Summary**: Conclude with a `:::success` admonition that summarizes what was covered in the guide. Do not place
     heading above the admonitions!
+5.  We should have the sections of `Why is it helpful?` or `When to use it?` or similar. Showing more of the use cases
+    for the patterns etc. It should be a list of short and concrete sentences.
 
 ### What you'll learn
 
@@ -86,16 +88,16 @@ Example:
 
 ## 4. Code Examples
 
+Code examples should be short and concrete, too long code example is hard to read and to understand.
+
 ### Live Code Examples
 
-- Live examples are the preferred method for demonstrating functionality.
+- There could be maximum one live block per doc added with AI, do not preffer them, if they already exist there, keep it
+  a as a live example
 - You can use globally available variables, functions, and methods without importing them.
 - To know which globals are available, you can inspect these files:
   - `documentation/src/theme/CodeBlock/live-code-block/playground/global-scope.ts`
   - `documentation/src/theme/CodeBlock/live-code-block/playground/create-global-requests.ts`
-- **Important**: Actual `import` statements do not work in live code blocks due to security restrictions. You can show
-  example import statements as commented-out text to give the user context on where to find certain elements, but they
-  won't be executed. Do not comment them out, leave them without modifications.
 
 ### Static Code Examples
 

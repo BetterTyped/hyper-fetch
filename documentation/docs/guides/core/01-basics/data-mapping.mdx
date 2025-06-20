@@ -6,140 +6,226 @@ sidebar_label: Data Mapping
 
 # Data Mapping
 
-Data mapping in Hyper-Fetch allows you to transform data before it is sent to the server. This is particularly useful
-for handling API changes without extensive code refactoring or for converting data into formats like `FormData` while
-maintaining type safety. By mapping data, you can keep your application's data models consistent and separate from the
-API's requirements.
+In real-world applications, the data structures used by your frontend often differ from what your API provides or
+expects. Data mapping is the process of transforming data from one shape to another. Hyper-Fetch provides powerful
+mapping capabilities to keep your application's data models clean and decoupled from the API's implementation details.
 
 ---
 
 :::secondary What you'll learn
 
-1.  How to map **request payloads** using `setResponseMapper`.
-2.  How to map the **entire request** using `setRequestMapper`.
-3.  The benefits of **data mapping** for ensuring type safety and flexibility.
+1.  How to map the entire **request object** before it's sent using `.setRequestMapper()`.
+2.  How to create **type-safe `FormData`** payloads with request mapping.
+3.  How to map the **raw API response** to your application's data model using `.setResponseMapper()`.
+4.  How to ensure end-to-end **type safety** with response mapping.
+5.  How to use **multiple mappers** on a single cached resource for different data views.
 
 :::
 
 ---
 
-## Payload Mapping with `setResponseMapper`
+## Request Mapping
 
-When you need to change the structure of the payload before it's sent, you can use the `.setResponseMapper()` method.
-This is ideal for scenarios where the client-side data model differs from what the server expects. A common use case is
-sending `FormData`, which can be difficult to type correctly.
+You can intercept and modify any request right before it's sent using the `.setRequestMapper()` method. This is
+incredibly useful for tasks that need to happen for every request, such as adding authentication tokens or dynamic
+headers.
 
-With `setResponseMapper`, you can define a request with a strict payload type (like a `UserProfile` interface) and then
-transform it into `FormData` just before it's dispatched. This keeps your code type-safe and clean.
+### When is it helpful?
+
+- Adding an `Authorization` header with a token from local storage.
+- Injecting dynamic values into headers or query parameters.
+- Logging request details for debugging purposes.
 
 ```ts
-// Define the data type for our request
+const getUser = client
+  .createRequest<{ response: User }>()({
+    endpoint: "/users/:userId",
+    method: "GET",
+  })
+  // highlight-start
+  .setRequestMapper((request) => {
+    // This function receives the entire request object
+    const token = localStorage.getItem("token");
+    // You can modify it, for example, by adding new headers
+    return request.setHeaders({
+      ...request.headers,
+      Authorization: `Bearer ${token}`,
+    });
+  });
+// highlight-end
+```
+
+---
+
+## Type-Safe FormData
+
+Creating `FormData` objects can be clumsy and error-prone, often sacrificing type safety. You can solve this by using
+`.setRequestMapper()` to transform a strongly-typed object from your application into `FormData` right before the
+request is sent. This keeps your component-level code clean and fully typed.
+
+### When is it helpful?
+
+- Uploading files along with typed metadata.
+- Ensuring that form data structures are consistent and type-checked.
+- Keeping API-specific formatting logic out of your components.
+
+```ts
 interface UserProfile {
   username: string;
   avatar: File;
 }
 
-const postUserProfile = client
-  .createRequest<{ response: boolean; payload: UserProfile }>()({
-    method: "PATCH",
-    endpoint: "/users/profile/:userId",
-    // We can define the expected content-type header
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+const updateUserProfile = client
+  .createRequest<{ payload: UserProfile }>()({
+    endpoint: "/users/profile",
+    method: "POST",
   })
-  .setResponseMapper((data) => {
-    // highlight-start
-    // Transform UserProfile into FormData
+  // highlight-start
+  .setRequestMapper((request) => {
+    const data = request.data; // Type-safe UserProfile object
+
     const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("avatar", data.avatar);
 
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    // Return the new data format
-    return formData;
-    // highlight-end
+    // Set the transformed FormData back on the request
+    return request.setData(formData);
   });
+// highlight-end
 
-// When we send the request, we provide the typed data.
-// Hyper-Fetch will internally use our mapper.
-postUserProfile.send({
-  params: { userId: 1 },
+// We can now send a strongly-typed object.
+updateUserProfile.send({
   data: {
     username: "Maciej",
-    // The File object is mocked in live examples
     avatar: new File([""], "avatar.jpg", { type: "image/jpeg" }),
-  },
-  onStart: ({ request }) => {
-    console.log("Request sent with mapped data:", request.data);
   },
 });
 ```
-
-The example above shows how `setResponseMapper` takes the strongly-typed `data` and transforms it into a `FormData`
-object. The `onStart` callback logs the `request.data`, allowing you to see the transformed `FormData` object in the
-console.
 
 ---
 
-## Request Mapping with `setRequestMapper`
+## Response Mapping
 
-Sometimes, you need to modify more than just the payload. You might need to add headers, change query parameters, or
-even alter the endpoint dynamically based on some logic. For these cases, `.setRequestMapper()` gives you full control
-over the entire request object.
+APIs often return data in a nested or complex structure that isn't ideal for direct use in your application. You can use
+`.setResponseMapper()` to transform the raw API response into the exact shape your application needs.
 
-This method allows you to implement validators, dynamic header modifications, or any other async logic before the
-request is sent. If an error is thrown within `setRequestMapper`, it will be caught and returned as if it were a network
-error, preventing the request from being sent.
+### When is it helpful?
+
+- Extracting a specific data array from a paginated response object (e.g., `response.data.users`).
+- Flattening nested API responses into a simpler structure.
+- Renaming properties to match your application's conventions (e.g., `user_id` to `userId`).
 
 ```ts
-// Define the data type for our request
-interface UserProfile {
-  username: string;
+// API returns { data: { users: [...] } }
+interface ApiUserResponse {
+  data: {
+    users: User[];
+  };
 }
 
-const postUserProfileWithCustomHeader = client
-  .createRequest<{ response: boolean; payload: UserProfile }>()({
-    method: "PATCH",
-    endpoint: "/users/profile/:userId",
+// We want a simple User[] array
+const getUsers = client
+  .createRequest<{ response: ApiUserResponse }>()({
+    endpoint: "/users",
+    method: "GET",
   })
-  .setRequestMapper((request) => {
-    // highlight-start
-    // We can add custom logic, i.e. to add auth tokens
-    const token = "my-secret-token";
-
-    // and then modify the request instance
-    return request.setHeaders({
-      ...request.headers,
-      Authorization: `Bearer ${token}`,
-    });
-    // highlight-end
+  // highlight-start
+  .setResponseMapper((response) => {
+    // This function receives the raw API response
+    // We can extract and return only the data we need
+    return response.data.users;
   });
-
-// The headers will be automatically added when we send the request.
-postUserProfileWithCustomHeader.send({
-  params: { userId: 1 },
-  data: {
-    username: "Maciej",
-  },
-  onStart: ({ request }) => {
-    console.log("Request sent with headers:", request.headers);
-  },
-});
+// highlight-end
 ```
 
-In this example, `setRequestMapper` is used to add an `Authorization` header. The `onStart` callback logs the request
-headers to the console, so you can see that the `Authorization` header was successfully added.
+---
+
+## Type-Safety for Response Mapping
+
+When you use `.setResponseMapper()`, Hyper-Fetch ensures end-to-end type safety. By defining the expected response type
+in `createRequest` and specifying the return type of your mapper, you can guarantee that the data flowing into your
+application is always correctly typed.
+
+```ts
+// 1. The raw API response type
+interface ApiUserResponse {
+  data: {
+    user: {
+      id: number;
+      user_name: string;
+      is_active: boolean;
+    };
+  };
+}
+
+// 2. The clean data model our application uses
+interface User {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+const getUser = client
+  .createRequest<{ response: ApiUserResponse }>()({
+    endpoint: "/users/:userId",
+    method: "GET",
+  })
+  // highlight-start
+  // 3. The mapper transforms the API response to our app's model
+  .setResponseMapper<User>((response) => {
+    const user = response.data.user;
+    return {
+      id: user.id,
+      name: user.user_name,
+      isActive: user.is_active,
+    };
+  });
+// highlight-end
+
+// 4. The `data` returned from `useFetch(getUser)` will be of type `User`
+```
+
+---
+
+## Multiple Mappers on Cached Data
+
+A powerful feature of Hyper-Fetch is that response mapping occurs _after_ caching. The raw, untransformed data from the
+API is stored in the cache. This allows you to create multiple requests for the same resource, each with a different
+mapper, to get different views of the same data without making extra network calls.
+
+### When is it helpful?
+
+- A component needs just a user's name, while another needs their full profile.
+- Creating computed properties from the same base data for different UI components.
+- Improving performance by fetching a resource once and re-shaping it on the client for various needs.
+
+```ts
+// Base request that gets the raw user data and caches it
+const getBaseUser = client.createRequest<User>()({
+  endpoint: "/users/1",
+});
+
+// Mapper 1: Gets only the user's name
+const getUserName = getBaseUser.setResponseMapper((user) => user.name);
+
+// Mapper 2: Gets the user's name and formats it for a title
+const getUserTitle = getBaseUser.setResponseMapper((user) => `User: ${user.name}`);
+
+// When useFetch(getUserName) and useFetch(getUserTitle) are called,
+// only one network request is made. The second call will read from
+// the cache and apply its own mapper dynamically.
+```
 
 ---
 
 :::success Congratulations!
 
-You've learned how to use data mapping in Hyper-Fetch!
+You are now an expert in Hyper-Fetch data mapping!
 
-- You can use **`.setResponseMapper()`** to transform request payloads while preserving type safety.
-- You can use **`.setRequestMapper()`** to modify any part of the request object before it's sent.
-- You can write **cleaner, more maintainable code** by decoupling your application's data models from API requirements.
+- You can use **`.setRequestMapper()`** to modify requests for auth, logging, or creating type-safe `FormData`.
+- You can use **`.setResponseMapper()`** to transform API data structures into clean, application-ready models.
+- You can ensure **end-to-end type safety** by combining generics with response mappers.
+- You can leverage the cache to apply **multiple, different data transformations** to a single resource, optimizing
+  performance.
 
 :::

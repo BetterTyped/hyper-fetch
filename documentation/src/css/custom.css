@@ -1081,10 +1081,9 @@ pre[class*="language-"] > code {
 }
 
 .code-block-diff-add-line {
-  @apply bg-green-400/20;
+  @apply px-[40px] bg-green-400/20;
   display: block;
   margin: 0 -40px;
-  padding: 0 40px;
 }
 
 .code-block-diff-add-line::before {
@@ -1095,10 +1094,9 @@ pre[class*="language-"] > code {
 }
 
 .code-block-diff-remove-line {
-  @apply bg-red-400/20;
+  @apply px-[40px] bg-red-400/5;
   display: block;
   margin: 0 -40px;
-  padding: 0 40px;
 }
 
 .code-block-diff-remove-line::before {
@@ -1109,10 +1107,9 @@ pre[class*="language-"] > code {
 }
 
 .code-block-error-line {
-  @apply bg-red-400/20;
+  @apply px-[40px] bg-red-400/5;
   display: block;
   margin: 0 -40px;
-  padding: 0 40px;
 }
 
 /**

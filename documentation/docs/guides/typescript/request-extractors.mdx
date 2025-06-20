@@ -19,6 +19,16 @@ functions, or simply for better readability.
 
 :::
 
+### Why is it helpful?
+
+- **Type Reusability**: Extract and reuse parts of a request's type, like `response` or `payload`, without duplicating
+  definitions.
+- **Decoupling**: Decouple components from the full request definition. A component might only need to know about the
+  `ResponseType`, not the entire request object.
+- **Clarity**: Simplifies complex type signatures, making function parameters and variable types easier to read and
+  understand.
+- **Interoperability**: Makes it easier to pass request-related types to other libraries or utility functions.
+
 ---
 
 ### Practical Example
@@ -27,7 +37,13 @@ Instead of a simple list, let's look at a real-world scenario where we define a 
 to deconstruct its type for use in other parts of our application.
 
 ```ts
-// import { createClient, ExtractResponseType, ExtractPayloadType, ExtractErrorType, ExtractParamsType } from '@hyper-fetch/core';
+import {
+  createClient,
+  ExtractResponseType,
+  ExtractPayloadType,
+  ExtractErrorType,
+  ExtractParamsType,
+} from "@hyper-fetch/core";
 
 export const client = createClient()({
   url: "https://api.example.com",

@@ -37,7 +37,7 @@ Let's see how deduplication works in practice. In the example below, we call the
 quick succession. Since `deduplicate` is enabled, Hyper-fetch will only send a single request to the backend. The
 subsequent calls will receive the response from the first request.
 
-```ts live
+```typescript
 // We are using pre-build 'getUsers' request and 'client' instance
 
 // highlight-start
@@ -70,7 +70,7 @@ deduplicated.
 In this example, we set `deduplicateTime` to 2000 milliseconds. Any identical request made within this window will be
 deduplicated.
 
-```ts live
+```typescript
 // We are using pre-build 'getUsers' request and 'client' instance
 
 // highlight-start

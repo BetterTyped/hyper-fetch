@@ -31,23 +31,38 @@ This document outlines the rules and best practices for creating guides for the 
 Each guide should follow this structure:
 
 1.  **Introduction**: Start with a brief introduction to the topic.
-2.  **"What you'll learn" Admonition**: Use a `:::secondary` admonition with the title "What you'll learn" to outline
-    the key takeaways of the guide in a numbered list.
+2.  **"Purpose**: Use a `:::tip` admonition with the title "Purpose" to outline the key takeaways of the guide in a
+    numbered list.
+
+Example:
+
+:::tip Purpose
+
+1.  **Unified API**: Provides a single interface for both `Realtime Database` and `Firestore`.
+2.  **Isomorphic**: Supports both client-side (web) and server-side (admin) Firebase applications.
+3.  **Real-time Data**: Includes socket adapters for real-time data listeners.
+4.  **Standardized Queries**: Simplifies filtering and querying with a consistent constraint-based syntax.
+5.  **Simplified Data Handling**: Automatically handles Firebase-specific data structures, returning clean arrays.
+
+:::
+
 3.  **Examples**: Provide clear and practical examples. Live examples are preferred.
 4.  **Summary**: Conclude with a `:::success` admonition that summarizes what was covered in the guide.
+5.  We should have the sections of `Key features?` or `When to use it?` or `When it's helpful?` or similar. Showing more
+    of the use cases for the patterns etc. It should be a list of short and concrete sentences.
 
 ## 4. Code Examples
 
+Code examples should be short and concrete, too long code example is hard to read and to understand.
+
 ### Live Code Examples
 
-- Live examples are the preferred method for demonstrating functionality. Use the `live` attribute on the code block.
+- There could be maximum one live block per doc added with AI, do not preffer them, if they already exist there, keep it
+  a as a live example
 - You can use globally available variables, functions, and methods without importing them.
 - To know which globals are available, you can inspect these files:
   - `documentation/src/theme/CodeBlock/live-code-block/playground/global-scope.ts`
   - `documentation/src/theme/CodeBlock/live-code-block/playground/create-global-requests.ts`
-- **Important**: Actual `import` statements do not work in live code blocks due to security restrictions. You can show
-  example import statements as commented-out text to give the user context on where to find certain elements, but they
-  won't be executed.
 
 ### Static Code Examples
 
@@ -107,12 +122,14 @@ into markdown files. This helps maintain consistency between code and documentat
 ### Basic Syntax
 
 ```
-(@import {packageName} {componentName} type={contentType})
+(@import {packageName} {componentName} type={contentType}&...)
 ```
 
 - **packageName**: Name of the package from `/packages` directory (e.g., `core`, `client`, `react`)
 - **componentName**: Type of component to import (e.g., `class`, `function`, `interface`, `type`)
 - **contentType**: What aspect of the component to import
+
+After `&` you can chain some other dynamic options based on the type.
 
 ### Finding Component Names
 

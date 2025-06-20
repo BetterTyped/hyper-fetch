@@ -30,7 +30,7 @@ any adapter to the client by instantiating it.
 
 Here's a minimal example of a custom adapter:
 
-```ts
+```typescript
 import { Adapter, Client } from "@hyper-fetch/core";
 
 const customAdapter = new Adapter({
@@ -64,7 +64,7 @@ This ensures that all lifecycle hooks, request queueing, and other features work
 
 Let's implement a simple adapter using the native `fetch` API:
 
-```ts
+```typescript
 import { Adapter, Client, RequestInstance } from "@hyper-fetch/core";
 import { User } from "shared";
 
@@ -120,7 +120,7 @@ easy to use.
 
 Here's how you can define an adapter with custom options and extra data:
 
-```ts
+```typescript
 import { Adapter, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
 
 type MyCustomAdapterOptions = {
@@ -157,7 +157,7 @@ the `firebase-adapter`. However, creating a single adapter instance that can han
 factory function or a class that internally manages different adapter instances. The simplest way to achieve union-like
 behavior is to define a type and then create instances that conform to different parts of that union.
 
-```ts
+```typescript
 import { Adapter, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
 
 type MyAdapter =

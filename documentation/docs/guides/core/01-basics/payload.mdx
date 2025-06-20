@@ -33,30 +33,56 @@ Let's start by creating a request to create a new user. We'll define the types f
 response we expect.
 
 ```ts
-// import { createClient } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
-// We can define a type for our user payload
-type UserPayload = {
-  name: string;
-  username: string;
-  email: string;
-};
-
-// And a type for the response
-type UserResponse = {
+// Define a reusable User interface for the response
+interface User {
   id: number;
   name: string;
   username: string;
   email: string;
-};
+}
 
-const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
+// The payload will be a subset of the User, without the 'id'
+type UserPayload = Omit<User, "id">;
+
+const createUser = client.createRequest<{ response: User; payload: UserPayload }>()({
   method: "POST",
   endpoint: "/users",
 });
 ```
 
 With this setup, TypeScript will enforce the `UserPayload` type whenever we provide data to the `createUser` request.
+
+:::success Make FormData Type Safe
+
+We can specify the payload type to be a regular object, and then map it to `FormData` using the `setPayloadMapper`
+method. This way your form data will be type safe!
+
+```ts
+const request = client
+  .createRequest<{
+    response: { id: number; name: string; username: string; email: string };
+    // highlight-start
+    payload: { name: string; username: string; email: string; avatar: File };
+    // highlight-end
+  }>()({
+    method: "POST",
+    endpoint: "/users",
+  })
+  // highlight-start
+  .setPayloadMapper((payload) => {
+    const formData = new FormData();
+    formData.append("name", payload.name);
+    formData.append("username", payload.username);
+    formData.append("email", payload.email);
+    formData.append("avatar", payload.avatar);
+    return formData;
+  });
+// highlight-end
+```
+
+:::
 
 ---
 
@@ -70,52 +96,27 @@ directly to the `.send()` method.
 The `.setData()` method allows you to create a new request instance with the payload attached. This is useful when you
 want to prepare a request and send it later, or pass it to another part of your application.
 
-```ts live
-const App = () => {
-  // We can define a type for our user payload
-  type UserPayload = {
-    name: string;
-    username: string;
-    email: string;
-  };
+```ts
+// Let's re-create our request for the example
+const createUser = client.createRequest<{
+  response: { id: number; name: string; username: string; email: string };
+  payload: { name: string; username: string; email: string };
+}>()({
+  method: "POST",
+  endpoint: "/users",
+});
 
-  // And a type for the response
-  type UserResponse = {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-  };
-
-  const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
-    method: "POST",
-    endpoint: "/users",
-  });
-
-  const newUserPayload: UserPayload = {
-    name: "John Doe",
-    username: "johndoe",
-    email: "john.doe@example.com",
-  };
-
-  const createUserWithData = createUser.setData(newUserPayload);
-
-  // The data is now part of the request configuration
-  console.log("Request data:", createUserWithData.data);
-
-  // You can now send it
-  // const { data, error } = await createUserWithData.send();
-
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="font-bold m-0">Check the console below</p>
-      <p className="m-0">
-        We've prepared a request with a payload using <code>.setData()</code>. The request object is logged in the
-        console.
-      </p>
-    </div>
-  );
+const newUserPayload = {
+  name: "John Doe",
+  username: "johndoe",
+  email: "john.doe@example.com",
 };
+
+const createUserWithData = createUser.setData(newUserPayload);
+
+// The 'createUserWithData' instance now holds the payload.
+// You can send it later:
+// const { data, error } = await createUserWithData.send();
 ```
 
 ### 2. Passing data to `.send()`
@@ -123,48 +124,25 @@ const App = () => {
 Alternatively, you can pass the payload directly to the `.send()` method. This is a more direct approach and is useful
 for one-off requests where you don't need to reuse the request instance with its data.
 
-This example will send a real request to a test API.
+This example shows how to send the request and handle the response.
 
-```ts live
-const App = () => {
-  const [response, setResponse] = React.useState(null);
+```ts
+const createUser = client.createRequest<{
+  response: { id: number; name: string; username: string; email: string };
+  payload: { name: string; username: string; email: string };
+}>()({
+  method: "POST",
+  endpoint: "/users",
+});
 
-  type UserPayload = {
-    name: string;
-    username: string;
-    email: string;
-  };
-
-  type UserResponse = {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-  };
-
-  const createUser = client.createRequest<{ response: UserResponse; payload: UserPayload }>()({
-    method: "POST",
-    endpoint: "/users",
-  });
-
-  const handleSend = async () => {
-    const { data } = await createUser.send({
-      data: {
-        name: "Jane Doe",
-        username: "janedoe",
-        email: "jane.doe@example.com",
-      },
-    });
-    setResponse(data);
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <button onClick={handleSend}>Create User</button>
-      {response && <pre>{JSON.stringify(response, null, 2)}</pre>}
-    </div>
-  );
-};
+// The payload is passed directly when sending the request
+const { data, error } = await createUser.send({
+  data: {
+    name: "Jane Doe",
+    username: "janedoe",
+    email: "jane.doe@example.com",
+  },
+});
 ```
 
 ---
@@ -175,16 +153,22 @@ Here's where Hyper-Fetch's type safety really shines. If you try to set a payloa
 type, TypeScript will immediately flag it as an error during development, preventing bugs before they happen.
 
 ```ts
-// error-start
+const createUser = client.createRequest<{
+  response: { id: number; name: string; username: string; email: string };
+  // highlight-start
+  payload: { name: string; username: string; email: string };
+  // highlight-end
+}>()({
+  method: "POST",
+  endpoint: "/users",
+});
+
 // This will cause a TypeScript error because 'username' and 'email' are missing.
+// error-start
 const wrongRequest = createUser.setData({
   name: "Missing Fields",
 });
 // error-end
-
-// TS Error:
-// Argument of type '{ name: string; }' is not assignable to parameter of type 'UserPayload'.
-//   Property 'username' is missing in type '{ name: string; }' but required in type 'UserPayload'.
 ```
 
 This static analysis ensures your data structures are consistent and helps you avoid runtime errors related to incorrect

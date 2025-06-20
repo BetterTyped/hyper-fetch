@@ -48,7 +48,9 @@ You can change the `queryParams` at any time using the `setQueryParams` method o
 this method, Hyper-fetch will automatically close the existing connection and establish a new one with the updated
 parameters.
 
-{/* TODO fix */} (@import sockets Socket type=method&name=setQueryParams)
+{/* TODO fix */}
+
+(@import sockets Socket type=method&name=setQueryParams)
 
 This is particularly useful for scenarios where connection details, like authentication tokens or dynamic filters, need
 to change during the application's lifecycle.
@@ -58,7 +60,7 @@ to change during the application's lifecycle.
 Let's see a live example of how dynamic updates work. You can change the `userId` in the input below and click
 "Reconnect" to see the `queryParams` get updated.
 
-```tsx live
+```tsx
 function App() {
   const [userId, setUserId] = React.useState("123");
 

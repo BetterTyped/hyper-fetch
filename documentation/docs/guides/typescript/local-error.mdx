@@ -21,6 +21,15 @@ given form. This error is only applicable to that particular location.
 
 :::
 
+### When to use it?
+
+- **Form Validation**: When an endpoint returns specific validation errors for form fields (e.g.,
+  `{ errors: { email: 'Invalid format' } }`).
+- **Endpoint-Specific Errors**: When a single endpoint has a unique error structure not shared by other APIs.
+- **Extending Global Errors**: When you need to add more detail to a global error type for a specific case without
+  modifying the global definition.
+- **Third-Party APIs**: When integrating with an API that has its own unique error schema for certain endpoints.
+
 ---
 
 ### Example

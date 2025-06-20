@@ -1,10 +1,23 @@
 import { RequestInstance } from "request";
 import { AdapterInstance, ResponseType } from "adapter";
 import { Client } from "client";
-import type { ExtendRequest, ExtractClientAdapterType } from "types";
+import type { ExtendRequest, ExtractClientAdapterType, TypeWithDefaults } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, AdapterInstance>;
+export type ClientInstanceProperties = {
+  error?: any;
+  adapter?: AdapterInstance;
+};
+
+export type ClientInstance<
+  ClientProperties extends ClientInstanceProperties = {
+    error?: any;
+    adapter?: AdapterInstance;
+  },
+> = Client<
+  TypeWithDefaults<ClientProperties, "error", any>,
+  TypeWithDefaults<ClientProperties, "adapter", AdapterInstance>
+>;
 
 export type RequestGenericType<QueryParams> = {
   response?: any;

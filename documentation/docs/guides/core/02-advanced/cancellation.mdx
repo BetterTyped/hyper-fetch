@@ -13,7 +13,7 @@ provides several ways to cancel requests, from automatic cancellation of stale r
 :::secondary What you'll learn
 
 1.  How to automatically **cancel stale requests** to prevent race conditions.
-2.  How to **manually abort** a request in both TypeScript and React.
+2.  How to **manually abort** a request in TypeScript.
 3.  The difference between **aborting** a request and **stopping** the dispatcher queue.
 4.  How to **pause and resume** request queues.
 
@@ -30,7 +30,7 @@ arrive after a later one, leading to an inconsistent UI state.
 Hyper-fetch solves this with the `cancelable` option. When set to `true`, any new request will automatically cancel a
 pending request made with the same `Request` instance.
 
-```ts live
+```ts
 // 1. Create a cancelable request
 const searchUsers = client.createRequest()({
   endpoint: "/users",
@@ -61,78 +61,12 @@ This ensures that only the most recent request's response is processed, keeping 
 ## Manual Cancellation
 
 There are times when you need to manually abort a request. For instance, a user might navigate away from a page while a
-request is still pending, or click a "cancel" button on a file upload. Hyper-fetch provides an `abort` method on both
-the `request` instance and the `useFetch` and `useSubmit` hooks.
-
-<Tabs>
-<TabItem value="React" label="React" default>
-
-With `useFetch`, a common pattern is to abort the request in a `useEffect` cleanup function to prevent state updates on
-an unmounted component.
-
-```tsx live
-import React, { useEffect } from "react";
-import { useFetch } from "@hyper-fetch/react";
-
-// Assume this request is defined elsewhere
-const getUser = client.createRequest()({ endpoint: "/users/1" });
-
-function UserProfile() {
-  const { data, loading, abort } = useFetch(getUser);
-
-  useEffect(() => {
-    // When the component unmounts, abort the request
-    // This prevents React from trying to update its state
-    return () => {
-      abort();
-    };
-  }, [abort]);
-
-  if (loading) return <p>Loading...</p>;
-  if (!data) return null;
-
-  return <h1>{data.name}</h1>;
-}
-```
-
-With `useSubmit`, you can provide a UI element, like a button, to let the user cancel the action.
-
-```tsx live
-import React, { useState } from "react";
-import { useSubmit } from "@hyper-fetch/react";
-
-// Assume this request is defined elsewhere
-const uploadFile = client.createRequest()({
-  endpoint: "/files",
-  method: "POST",
-});
-
-function FileUploader() {
-  const [file, setFile] = useState(null);
-  const { submit, submitting, abort } = useSubmit(uploadFile);
-
-  const handleSubmit = () => {
-    submit({ data: file });
-  };
-
-  return (
-    <div>
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-      <button onClick={handleSubmit} disabled={submitting}>
-        {submitting ? "Uploading..." : "Upload"}
-      </button>
-      {submitting && <button onClick={() => abort()}>Cancel</button>}
-    </div>
-  );
-}
-```
-
-</TabItem>
-<TabItem value="Typescript" label="Typescript">
+request is still pending, or click a "cancel" button on a file upload. Hyper-fetch provides an `abort` method on the
+`request` instance.
 
 In a non-React environment, you can call `abort` directly on the request instance you used to send the request.
 
-```ts live
+```ts
 const getUsers = client.createRequest()({
   endpoint: "/users",
   method: "GET",
@@ -147,9 +81,6 @@ setTimeout(() => {
 }, 50);
 ```
 
-  </TabItem>
-</Tabs>
-
 ---
 
 ## Pausing and Resuming Queues
@@ -163,7 +94,7 @@ being sent but keeps them in storage. Starting the queue resumes the dispatching
 
 You can control queues using the `queueKey` of a request, which defaults to its `endpoint`.
 
-```ts live
+```ts
 const postFile = client.createRequest()({
   method: "POST",
   endpoint: "/files", // This is the default queueKey
@@ -195,8 +126,7 @@ dispatched.
 You've learned how to effectively cancel and manage requests in Hyper-fetch!
 
 - You can automatically **cancel stale requests** using the `cancelable: true` option to prevent race conditions.
-- You can **manually abort** a request using the `.abort()` method, which is available on the request instance and on
-  React hooks.
+- You can **manually abort** a request using the `.abort()` method on the request instance.
 - You know the difference between **aborting a request** (terminating it) and **stopping a queue** (pausing it).
 - You can **pause and resume** request dispatching using `client.fetchDispatcher.stop()` and
   `client.fetchDispatcher.start()`.

@@ -27,7 +27,7 @@ in the `Socket` constructor. This data is sent to the server as query parameters
 
 Here's how you can set it up:
 
-```tsx live
+```tsx
 import { Socket } from "@hyper-fetch/sockets";
 
 const token = "your-initial-auth-token";
@@ -59,7 +59,7 @@ update the authentication data for an existing socket instance using the `setAut
 When you call `setAuth` with new data, Hyper-fetch will automatically disconnect the current socket and reconnect with
 the updated authentication details.
 
-```tsx live
+```tsx
 import { Socket } from "@hyper-fetch/sockets";
 
 const initialToken = "your-initial-auth-token";

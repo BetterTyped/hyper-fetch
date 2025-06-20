@@ -34,7 +34,7 @@ return a `request` object. This is the perfect place to add headers, log request
 
 A very common use case for request interceptors is to add an `Authorization` header to all outgoing requests.
 
-```ts live
+```typescript
 // import { Client } from "@hyper-fetch/core";
 
 const client = new Client({
@@ -75,7 +75,7 @@ The `onSuccess` interceptor is triggered only for successful responses. It recei
 `request`, and it must return a `response` object. You can use it to transform data, show notifications, or handle any
 logic for successful requests.
 
-```ts live
+```typescript
 // import { Client } from "@hyper-fetch/core";
 
 const client = new Client({
@@ -107,7 +107,7 @@ such as logging errors to a service or transforming error responses into a consi
 
 A common advanced use-case is to handle token refreshing when a `401 Unauthorized` status is received.
 
-```ts live
+```typescript
 // import { Client } from "@hyper-fetch/core";
 
 const client = new Client({
@@ -134,7 +134,7 @@ const getPrivateData = client.createRequest()({
   endpoint: "/private-data", // Let's pretend this needs auth
 });
 
-// We can't easily simulate a 401 in live docs,
+// We can't easily simulate a 401 in our examples,
 // but if this request returned a 401, the interceptor would handle it.
 // Here we just show the idea.
 console.log("Imagine this request gets a 401 error. The interceptor will kick in.");
@@ -146,7 +146,7 @@ console.log("Imagine this request gets a 401 error. The interceptor will kick in
 The `onResponse` interceptor is always triggered, regardless of whether the request was successful or not. This makes it
 a great place for logic that needs to run after every request, like hiding a global loading indicator.
 
-```ts live
+```typescript
 // import { Client } from "@hyper-fetch/core";
 
 const client = new Client({
@@ -178,7 +178,7 @@ getError.send();
 Sometimes you might need to bypass interceptors for a specific request. You can do this by setting
 `disableRequestInterceptors` or `disableResponseInterceptors` to `true` on the request instance.
 
-```ts live
+```typescript
 // import { Client } from "@hyper-fetch/core";
 
 const client = new Client({

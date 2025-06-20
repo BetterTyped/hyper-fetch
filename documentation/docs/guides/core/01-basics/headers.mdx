@@ -14,10 +14,12 @@ flexible and powerful way to manage headers for your requests.
 
 :::secondary What you'll learn
 
-1. How to set **static headers** when creating a request.
-2. How to add or override headers **dynamically**.
-3. How to set headers directly when **sending a request**.
-4. What are the **adapter limitations** regarding headers.
+1. How to set **global headers** on the Hyper-fetch client.
+2. How to set **static headers** when creating a request.
+3. How to add or override headers **dynamically** before sending a request.
+4. How to set headers for a **single specific execution** of a request.
+5. Understanding the **order of merging** for all header types.
+6. What are the **adapter limitations** regarding headers.
 
 :::
 
@@ -25,67 +27,130 @@ flexible and powerful way to manage headers for your requests.
 
 ## Setting Headers
 
-There are multiple ways to set headers on a request, depending on whether the headers are static or need to be
-determined at runtime.
+Hyper-fetch offers multiple levels for setting headers, giving you fine-grained control over how they are applied.
+Headers are merged in a specific order of precedence, allowing you to set defaults and override them when needed.
 
-### 1. Static Headers
+### 1. Global Headers
 
-If your request always requires the same headers, you can define them when creating the request.
+You can set headers on the `client` instance. These headers will be automatically included in **every request** created
+by that client. This is useful for headers that are common to all API calls, like `Accept` or `Authorization` tokens.
 
-```ts live
-const getUsers = client.createRequest()({
-  endpoint: "/users",
+```ts
+// Let's create a new client from the base one, with added global headers
+const apiClient = client.new({
   headers: {
-    "Content-Type": "application/json",
-    "X-Custom-Header": "my-value",
+    Accept: "application/json",
+    Authorization: "Bearer your-static-token",
   },
 });
 
-console.log(getUsers.headers);
+// A request created with this client will inherit its headers
+const getUsers = apiClient.createRequest()({
+  endpoint: "/users",
+});
+
+// highlight-next-line
+console.log("Inherited headers:", getUsers.headers);
+
+const getProducts = apiClient.createRequest()({
+  endpoint: "/products",
+});
+
+// highlight-next-line
+console.log("All requests from apiClient have these headers:", getProducts.headers);
 ```
 
-### 2. Dynamic Headers
+### 2. Per-Request Headers
 
-For headers that change, like authentication tokens, you can use the `.setHeaders()` method to add them before sending
-the request. This method merges the new headers with any existing ones.
+For more granular control, you can set headers on a per-request basis. These headers are merged with global client
+headers, allowing you to add new ones or override the global settings for a specific request.
 
-```ts live
+#### Static Headers
+
+If a request always requires specific headers, you can define them when creating it. These static headers are merged
+with global headers, with request-specific headers taking precedence in case of conflicts.
+
+```ts
+const apiClient = client.new({
+  headers: {
+    Accept: "application/json",
+  },
+});
+
+// We can add more headers or override the client's headers
+const getUsers = apiClient.createRequest()({
+  endpoint: "/users",
+  // highlight-start
+  headers: {
+    "X-Custom-Header": "my-value",
+    Accept: "application/xml", // This will override the client's Accept header
+  },
+  // highlight-end
+});
+
+// The headers are now a combination of client and request headers
+console.log("Merged static headers:", getUsers.headers);
+```
+
+#### Dynamic Headers
+
+For headers that change at runtime, like a session-based authentication token, you can use the `.setHeaders()` method.
+This method merges the new headers with any existing ones on the request instance.
+
+```ts
 const getUser = client.createRequest()({
   endpoint: "/users/1",
 });
 
-// This might come from a state or a function
-const authToken = "Bearer secret-token";
+// A function that provides the latest auth token
+const getAuthToken = () => "Bearer new-secret-token";
 
+// Use .setHeaders() to apply the dynamic header
+// highlight-next-line
 const requestWithAuth = getUser.setHeaders({
-  Authorization: authToken,
+  Authorization: getAuthToken(),
 });
 
-console.log(requestWithAuth.headers);
+console.log("Request with dynamic header:", requestWithAuth.headers);
 ```
 
-### 3. Per-request Headers
+#### One-Time Headers
 
 You can also provide headers directly to the `.send()` method. These headers are used only for that specific request
-execution and will be merged with headers defined on the request instance.
+execution and have the highest precedence, overriding any headers defined on the client or the request instance.
 
-```ts live
+```ts
 const updateUser = client.createRequest()({
   endpoint: "/users/1",
   method: "PUT",
+  headers: { "X-Static-Header": "some-value" },
 });
 
+// The 'send' method triggers the request with the one-time headers
+// Note: for this example, we are just showing how to pass headers.
 updateUser.send({
+  // highlight-start
   headers: {
     "X-Request-ID": "abc-123",
+    "X-Static-Header": "overridden-value", // This overrides the static header for this call
   },
+  // highlight-end
 });
 
-// Note: The 'send' method triggers the request but for this example,
-// we are just showing how to pass headers.
-// The headers on the 'updateUser' instance itself are not changed.
-console.log(updateUser.headers); // Stays undefined
+// The headers on the 'updateUser' instance itself are not changed by .send()
+console.log("Original request headers:", updateUser.headers);
 ```
+
+### Headers Precedence
+
+Hyper-fetch merges headers from different sources in a specific order. Each subsequent level overrides the previous one
+in case of duplicate header keys:
+
+1.  **Client Headers**: The base level, providing default headers for all requests.
+2.  **Request Static Headers**: Headers defined on the request instance, overriding client headers.
+3.  **Request Dynamic Headers (`.setHeaders`)**: Headers set with `.setHeaders()`, overriding static and client headers.
+4.  **Send Method Headers (`.send`)**: One-time headers with the highest precedence, overriding all others for a single
+    execution.
 
 ---
 
@@ -101,11 +166,13 @@ using to see if it supports headers.
 
 :::success Congratulations!
 
-You've learned how to manage headers effectively in Hyper-fetch!
+You now know how to manage headers in Hyper-fetch like a pro!
 
-- You can set **static headers** when you create a request.
-- You can add **dynamic headers** using the `.setHeaders()` method.
-- You can pass **one-time headers** directly to the `.send()` method.
+- You can set **global headers** on the client for all requests.
+- You can define **static headers** on a request for consistent values.
+- You can use `.setHeaders()` to apply **dynamic headers** at runtime.
+- You can pass **one-time headers** directly to `.send()` for specific calls.
+- You understand the **precedence rules** for header merging.
 - You are aware of **adapter limitations** regarding headers.
 
 :::

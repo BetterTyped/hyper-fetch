@@ -15,10 +15,9 @@ ensure your app's data is always fresh.
 :::secondary What you'll learn
 
 1.  What **cache revalidation** is and why it's essential.
-2.  How to revalidate the cache for a specific request.
-3.  Using the `revalidate` method from `useFetch`, `useSubmit`, and `useCache` hooks in React.
-4.  How to perform revalidation in plain TypeScript with `client.cache.revalidate`.
-5.  Advanced revalidation techniques using **Regular Expressions (RegExp)** to invalidate multiple cache entries at
+2.  How to revalidate the cache for a specific request using `client.cache.revalidate`.
+3.  How to perform revalidation in plain TypeScript with `client.cache.revalidate`.
+4.  Advanced revalidation techniques using **Regular Expressions (RegExp)** to invalidate multiple cache entries at
     once.
 
 :::
@@ -34,76 +33,11 @@ cached data. Revalidation works by targeting these keys.
 
 ---
 
-## Revalidation in frameworks based on React
+## Revalidation
 
-The `@hyper-fetch/react` package provides convenient hooks that return a `revalidate` function. This function can be
-called to trigger revalidation for one or more requests. The `revalidate` function is flexible and accepts a request
-instance, a `cacheKey`, or a `RegExp`.
+In a vanilla TypeScript environment, you can perform cache revalidation directly on the client instance.
 
-### Live Example
-
-Let's see it in action. Below, we fetch a list of users. When you add a new user, we call `revalidate()` to refresh the
-list. We've added a toast message to an `onSuccess` callback on the `useFetch` hook to confirm when revalidation occurs.
-
-```tsx live
-function CacheRevalidationExample() {
-  const addUser = client.createRequest()({
-    endpoint: "/users",
-    method: "POST",
-  });
-
-  const {
-    data: users,
-    loading,
-    revalidate: revalidateUsers,
-  } = useFetch(getUsers, {
-    onSuccess: () => {
-      // highlight-next-line
-      toast({ title: "Users list revalidated", message: "Fetched latest users.", type: "success" });
-    },
-  });
-  const { submit: createUser, submitting } = useSubmit(addUser);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const name = e.target.elements.name.value;
-    if (name) {
-      createUser(
-        { name },
-        {
-          onSuccess: () => {
-            e.target.reset();
-            // highlight-next-line
-            revalidateUsers();
-          },
-        },
-      );
-    }
-  };
-
-  return (
-    <div>
-      <h2 className="text-xl font-bold mb-2">Users</h2>
-      {loading && !users && <p>Loading...</p>}
-      <ul className="list-disc pl-5 mb-4">{users?.map((user, index) => <li key={index}>{user.name}</li>)}</ul>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-4">
-        <input name="name" placeholder="New user name" className="w-full input" />
-        <button type="submit" disabled={submitting} className="btn self-start">
-          {submitting ? "Adding..." : "Add User"}
-        </button>
-      </form>
-    </div>
-  );
-}
-```
-
----
-
-## Revalidation in TypeScript
-
-If you're not using React, you can still perform cache revalidation directly on the client instance.
-
-```ts
+```typescript
 import { client, getUsers } from "./api"; // Your API setup
 
 // ... after some operation that invalidates the users
@@ -112,6 +46,47 @@ client.cache.revalidate(getUsers);
 // You can also use a cacheKey or RegExp
 client.cache.revalidate(getUsers.cacheKey);
 client.cache.revalidate(new RegExp("/users"));
+```
+
+### Example
+
+Let's see it in action. Below, we fetch a list of users. When we add a new user, we call `revalidate()` to refresh the
+list.
+
+```typescript
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+const addUser = client.createRequest()({
+  endpoint: "/users",
+  method: "POST",
+});
+
+// 1. First, let's fetch the users and cache the response
+await getUsers.send({
+  onSuccess: (response) => {
+    console.log("Initial users list:", response.data);
+  },
+});
+
+// 2. Now, let's add a new user
+await addUser.send({
+  data: { name: "New User" },
+  onSuccess: () => {
+    console.log("New user added successfully.");
+    // 3. After adding, we revalidate the users list
+    // This will trigger a new fetch for the 'getUsers' request
+    client.cache.revalidate(getUsers, {
+      onSuccess: (response) => {
+        // This onSuccess is for the revalidation fetch
+        toast({ title: "Users list revalidated", message: "Fetched latest users.", type: "success" });
+        console.log("Revalidated users list:", response.data);
+      },
+    });
+  },
+});
 ```
 
 ---
@@ -157,9 +132,8 @@ This powerful feature helps you keep your cache consistent with minimal effort.
 
 You've learned how to handle cache revalidation in Hyper-fetch!
 
-1.  You know how to use the `revalidate` function from **React Hooks** (`useFetch`, `useSubmit`, and `useCache`).
-2.  You can revalidate cache programmatically using `client.cache.revalidate` in **plain TypeScript**.
-3.  You can target specific requests by passing the **request instance**, its **`cacheKey`**, or using a **RegExp**.
-4.  You can implement **advanced revalidation strategies** to keep complex UIs in sync.
+1.  You can revalidate cache programmatically using `client.cache.revalidate` in **plain TypeScript**.
+2.  You can target specific requests by passing the **request instance**, its **`cacheKey`**, or using a **RegExp**.
+3.  You can implement **advanced revalidation strategies** to keep complex UIs in sync.
 
 :::

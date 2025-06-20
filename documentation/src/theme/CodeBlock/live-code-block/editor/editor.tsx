@@ -37,20 +37,22 @@ export const Editor = ({ code, setCode }: { code: string; setCode: (code: string
             <CopyButton code={code} className="clean-btn" />
           </div>
         </div>
-        <CodeEditor
-          className="api-playground__editor"
-          highlight={highlightLines}
-          padding={10}
-          tabSize={4}
-          value={code}
-          onValueChange={setCode}
-          style={{
-            fontFamily: "'Fira Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace",
-            fontSize: "12px",
-            letterSpacing: 0,
-            whiteSpace: "pre",
-          }}
-        />
+        <div className="api-playground__editor">
+          <CodeEditor
+            className="api-playground__editor-inner"
+            highlight={highlightLines}
+            padding={10}
+            tabSize={4}
+            value={code}
+            onValueChange={setCode}
+            style={{
+              fontFamily: "'Fira Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace",
+              fontSize: "12px",
+              letterSpacing: 0,
+              whiteSpace: "pre",
+            }}
+          />
+        </div>
       </div>
     </div>
   );

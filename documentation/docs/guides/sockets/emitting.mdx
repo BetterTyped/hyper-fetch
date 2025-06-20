@@ -56,7 +56,7 @@ There are two main ways to send data with an emitter:
 You can use the `.setPayload()` method to attach data to the emitter. This method returns a _new_ emitter instance with
 the data, so the original emitter remains unchanged.
 
-```typescript live
+```typescript
 const emitterWithPayload = sendChatMessage.setPayload({ message: "Hello from .setPayload()!" });
 
 emitterWithPayload.emit(
@@ -77,7 +77,7 @@ emitterWithPayload.emit(
 
 Alternatively, you can pass the data as the first argument to the `.emit()` method.
 
-```typescript live
+```typescript
 sendChatMessage.emit(
   // The data to be sent
   { message: "Hello from .emit()!" },
@@ -109,7 +109,7 @@ const sendPrivateMessage = socketInstance.createEmitter<{ message: string }>()({
 
 You can then set the `userId` parameter when you emit the event:
 
-```typescript live
+```typescript
 const privateMessageEmitter = sendPrivateMessage.setParams({ userId: "user-123" });
 
 privateMessageEmitter.emit({ message: "This is a private message!" });

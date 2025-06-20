@@ -48,7 +48,7 @@ When `autoConnect` is disabled, you'll need to manually initiate the connection.
 When `autoConnect` is disabled, you can manually establish a connection using the `socket.connect()` method. This gives
 you precise control over when the connection is initiated.
 
-```tsx live
+```tsx
 function Component() {
   const [socket] = React.useState(() => {
     return new Socket({
@@ -74,7 +74,7 @@ The `connect` method is asynchronous and returns a promise that resolves once th
 You can manually close a socket connection using the `socket.disconnect()` method. This is useful for logging out a
 user, leaving a specific feature area, or performing cleanup.
 
-```tsx live
+```tsx
 function Component() {
   const [socket] = React.useState(() => {
     return new Socket({
@@ -101,7 +101,7 @@ Hyper-fetch provides a `socket.reconnect()` method to manually trigger a reconne
 scenarios where you want to give users a way to re-establish a connection without a full page reload, such as when a
 connection is lost due to a temporary network issue.
 
-```tsx live
+```tsx
 function Component() {
   const [socket] = React.useState(() => {
     return new Socket({
@@ -131,7 +131,7 @@ to react to changes in the connection state and update your UI accordingly.
 
 Here's how you can use these callbacks to track the connection status:
 
-```tsx live
+```tsx
 function Component() {
   const [isConnected, setConnected] = React.useState(false);
 
@@ -197,7 +197,7 @@ You can also hook into the reconnection lifecycle with `onReconnect` and `onReco
   of retries.
 - `onReconnectFailed`: Triggered when all reconnection attempts have failed.
 
-```tsx live
+```tsx
 function Component() {
   const [socket] = React.useState(() => {
     const instance = new Socket({

@@ -5,9 +5,8 @@ sidebar_label: Setup
 ---
 
 The first step to using **Hyper Fetch** is setting up the `Client`. The `Client` is the core of the library, acting as a
-central hub for all your requests. It holds the base configuration for your API, including the server URL, cache
-settings, and other important options. This guide will walk you through the process of initializing and configuring your
-client instance.
+central hub for all your requests. It holds the base configuration for your API, including the server URL, and other
+important options. This guide will walk you through the process of initializing and configuring your client instance.
 
 ---
 
@@ -16,6 +15,7 @@ client instance.
 1.  How to **initialize the `Client`** and why it's the starting point for all data exchange.
 2.  The main **configuration options** available on the `Client`.
 3.  The **best practices for creating and sharing** a client instance across your application.
+4.  How to **create a `Request`** from the `Client` instance.
 
 :::
 
@@ -30,7 +30,7 @@ constructor.
 To get started, you need to import `createClient` and create a new instance. The only required option is the `url`,
 which should be the base URL of your API.
 
-```typescript title="src/api/client.ts"
+```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({
@@ -41,70 +41,68 @@ export const client = createClient({
 This creates a client instance that can be used to make requests to `https://api.example.com`.
 
 <LinkCard
-  type="api"
+  type="docs"
   title="Client"
-  description="Read more about the Client in the API documentation."
-  to="/documentation/docs/api/core/Client"
+  description="Read more about the Client in the documentation."
+  to="/docs/core/Client"
 />
 
 ---
 
-## Configuration
+## Request Initialization
+
+Once you have a `client` instance, you can start creating requests. A `Request` defines a specific API endpoint,
+including its method, parameters, and data transformation logic. Requests are the core of fetching and they are created
+with the `createRequest` method on the `client`.
+
+```ts title="src/api/users.ts"
+import { client } from "./client";
+
+export const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:id",
+});
+```
+
+This creates a `getUser` request that can be used to fetch user data. We will explore how to use this request in the
+next guides.
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Read more about the Request in the documentation."
+  to="/docs/core/Request"
+/>
+
+---
+
+## Client Configuration
 
 The `createClient` function accepts a configuration object with several options to customize its behavior. You can
 configure caching, request queues, and more.
 
 Here are some of the most common options:
 
-(@import core Client type=parameters)
-
-### Caching
-
-Hyper Fetch has a powerful caching mechanism that can be enabled on the client. To enable caching, set the `cache`
-option to `true`.
-
-```typescript title="src/api/client.ts"
-// import { createClient } from "@hyper-fetch/core";
-
-export const client = createClient({
-  url: "https://api.example.com",
-  // highlight-next-line
-  cache: true,
-});
-```
-
-You can also provide a custom cache instance for more advanced configurations.
-
-<LinkCard
-  type="guides"
-  title="Caching"
-  description="Learn more about caching strategies in our Caching guide."
-  to="/documentation/docs/guides/core/caching"
-/>
+(@import core ClientOptionsType type=returns)
 
 ---
 
-## Best Practices
+## Common approach
 
 For most applications, you should only have one client instance. This ensures that all requests share the same
 configuration. The best way to achieve this is to create the client in a dedicated file and export it.
 
-**`src/api/client.ts`**
-
-```typescript
+```ts title="src/api/client.ts"
 import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({
   url: "https://api.example.com",
-  cache: true,
 });
 ```
 
 Then, you can import the `client` instance wherever you need to make a request.
 
-**`src/features/users/api.ts`**
-
-```typescript
+```ts title="src/features/users/api.ts"
 // import { client } from "api/client";
 
 export const getUser = client.createRequest()({
@@ -122,7 +120,7 @@ This approach keeps your configuration centralized and makes it easy to manage.
 You've successfully set up the Hyper Fetch `Client` and are ready for the next steps!
 
 - You can **initialize a `Client`** with a base `url`.
-- You can **enable features** like `cache` for better performance.
 - You know the **importance of using** a single, shared `Client` instance.
+- You can **create a `Request`** from the `client`.
 
 :::

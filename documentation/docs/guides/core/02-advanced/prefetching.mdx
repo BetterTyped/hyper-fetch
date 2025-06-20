@@ -33,8 +33,8 @@ data-fetching lifecycle, including:
 2.  Receiving the response.
 3.  **Storing the response in the cache.**
 
-Later, when a component needs this data (for instance, using `useFetch` in React), Hyper Fetch will find it in the cache
-and deliver it instantly.
+Later, when a component or part of your application logic needs this data, executing the same request again will make
+Hyper Fetch find it in the cache and deliver it instantly.
 
 ---
 
@@ -67,7 +67,7 @@ const getUsers = client.createRequest()({
 To prefetch this data, you just need to call `.send()` on the request instance at an appropriate time in your
 application's lifecycle—for example, when a related component mounts or when the app initializes.
 
-```ts live
+```typescript
 getUsers.send({
   onSuccess: ({ response }) => {
     // highlight-next-line
@@ -110,7 +110,7 @@ decide to click, the data will likely already be loaded.
 
 Here's how you might implement a prefetching function for a user's details:
 
-```ts live
+```typescript
 function prefetchUser(userId) {
   // We set the required parameter and send the request.
   // The response will be cached against the request key, which includes the user ID.
@@ -137,9 +137,9 @@ Prefetching is effective because of Hyper Fetch's built-in caching layer. When y
 response is automatically cached. The cache key is generated based on the request's endpoint, method, parameters, and
 other properties, ensuring that each unique request has its own cache entry.
 
-When you later try to fetch the same data (for example, with `useFetch` in a React component), Hyper Fetch checks the
-cache first. If a fresh (not stale) response is found, it's returned immediately, and **no network request is made**.
-This is what creates the "instant" experience for the user.
+When you later try to fetch the same data, Hyper Fetch checks the cache first. If a fresh (not stale) response is found,
+it's returned immediately, and **no network request is made**. This is what creates the "instant" experience for the
+user.
 
 ---
 

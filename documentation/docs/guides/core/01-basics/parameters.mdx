@@ -7,16 +7,14 @@ sidebar_label: Parameters
 # Parameters
 
 In Hyper Fetch, parameters are crucial for creating dynamic and flexible requests. They allow you to pass data to your
-API endpoints, whether as part of the URL path or as query strings. This guide covers everything you need to know about
-defining and using URL and query parameters effectively.
+API endpoints as part of the URL path. This guide covers everything you need to know about defining and using URL
+parameters effectively. For query parameters, see our [dedicated guide](./query-params.mdx).
 
 :::secondary What you'll learn
 
 1.  How to define and use **URL path parameters**.
 2.  What is the difference between `.setParams()` and passing parameters to the `.send()` method.
-3.  How to add and type-safe **query parameters**, including optional ones.
-4.  How to handle **array values** in query parameters.
-5.  What are the **precedence rules** when setting parameters in multiple ways.
+3.  What are the **precedence rules** when setting parameters in multiple ways.
 
 :::
 
@@ -33,20 +31,24 @@ made.
 The `setParams` method is the most direct way to set URL parameters. The required parameters are inferred from the
 endpoint string, giving you strong type-safety.
 
-```ts live
+```ts
 const getUser = client.createRequest()({ endpoint: "/users/:userId" });
 
+// highlight-next-line
 const requestWithUser = getUser.setParams({ userId: 281 });
-console.log(requestWithUser.endpoint);
+
+console.log(requestWithUser.endpoint); // "/users/281"
 ```
 
 If an endpoint has multiple parameters, you provide them all to `setParams`.
 
-```ts live
+```ts
 const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
 
+// highlight-next-line
 const requestWithProduct = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
-console.log(requestWithProduct.endpoint);
+
+console.log(requestWithProduct.endpoint); // "/entities/12/Z24PBW443"
 ```
 
 ### Setting with `send`
@@ -65,112 +67,31 @@ const response = getProduct.send({
 
 ---
 
-## Query Parameters
-
-Query parameters are used to filter, sort, or paginate data from an API. In Hyper Fetch, you define their types by
-providing the `queryParams` generic to `createRequest`.
-
-### Basic Query Parameters
-
-Once typed, use `setQueryParams` to add them to your request. Hyper Fetch automatically appends them to the URL.
-
-```ts live
-// 1. Define the query parameters type
-const searchRequest = client.createRequest<{ queryParams: { query: string; page: number } }>()({
-  endpoint: "/search",
-});
-
-// 2. Set the parameters
-const request = searchRequest.setQueryParams({ query: "hyper-fetch", page: 1 });
-
-// Query params are stored separately until the request is sent
-console.log("Endpoint:", request.endpoint);
-console.log("Query Params:", request.queryParams);
-```
-
-### Optional Query Parameters
-
-Real-world APIs often have optional parameters. You can define them using the `?` syntax in the `queryParams` type. This
-allows you to omit them if they are not needed.
-
-```ts live
-// `page` is now optional
-const searchRequest = client.createRequest<{ queryParams: { query: string; page?: number } }>()({
-  endpoint: "/search",
-});
-
-// We can set only the required `query` parameter
-const request = searchRequest.setQueryParams({ query: "hyper-fetch" });
-
-console.log("Query Params:", request.queryParams);
-
-// Or we can set both
-const requestWithPage = searchRequest.setQueryParams({ query: "hyper-fetch", page: 2 });
-console.log("Query Params with page:", requestWithPage.queryParams);
-```
-
-### Array Query Parameters
-
-Hyper Fetch supports arrays in query parameters, which is common for multi-select filters. They are automatically
-serialized into a format the server can understand (e.g., `?tags=a&tags=b`).
-
-```ts live
-const searchByTags = client.createRequest<{ queryParams: { tags: string[] } }>()({
-  endpoint: "/articles",
-});
-
-const request = searchByTags.setQueryParams({ tags: ["typescript", "react", "hyper-fetch"] });
-
-// The final URL will have `?tags=typescript&tags=react&tags=hyper-fetch`
-console.log("Query Params:", request.queryParams);
-```
-
-### Setting with `send`
-
-Just like URL parameters, query parameters can be passed to `send`. This is ideal for dynamic queries built from user
-input.
-
-```ts
-const searchRequest = client.createRequest<{ queryParams: { query: string; page?: number } }>()({
-  endpoint: "/search",
-});
-
-// Query parameters are passed inside `send`
-const response = searchRequest.send({
-  queryParams: { query: "new search" },
-});
-```
-
----
-
 ## Parameter Precedence
 
-It's important to understand what happens when you set parameters in multiple places. Hyper Fetch follows a clear
-precedence order:
+It's important to understand what happens when you set parameters in multiple places. Hyper Fetch do not allow you to
+pass parameters that are already defined in the request.
 
-**`send` method options > `set` method options**
+If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or
+`setQueryParams`.
 
-Parameters passed directly to `send` (or `useFetch`/`useSubmit` in React) will always override those set with
-`setParams` or `setQueryParams`. This allows you to create base requests and customize them at the moment of execution.
-
-```ts live
+```ts
 const request = client
   .createRequest<{ queryParams: { page: number } }>()({ endpoint: "/users/:userId" })
   .setParams({ userId: 1 })
   .setQueryParams({ page: 1 });
 
-console.log("Initial params:", request.params);
-console.log("Initial query params:", request.queryParams);
+console.log("Initial params:", request.params); // { userId: 1 }
+console.log("Initial query params:", request.queryParams); // { page: 1 }
 
 // Parameters given to `send` will override previously set ones.
 request.send({
+  // Typescript will not allow you to pass a parameter that is already defined in the request
+  // error-next-line
   params: { userId: 2 },
+  // Typescript will not allow you to pass a query parameter that is already defined in the request
+  // error-next-line
   queryParams: { page: 2 },
-  onStart: ({ request: sentRequest }) => {
-    // We can inspect the request object right before it's sent
-    console.log("Final params:", sentRequest.params);
-    console.log("Final query params:", sentRequest.queryParams);
-  },
 });
 ```
 
@@ -181,9 +102,7 @@ request.send({
 You've now mastered how to handle parameters in Hyper-Fetch.
 
 - You can define **URL Parameters** with `:param` in the endpoint and set with `.setParams({ param: ... })`.
-- You can add **Query Parameters** using `createRequest` generics, supporting optional (`?`) and array (`[]`) types, and
-  setting them with `.setQueryParams({ ... })`.
-- You can set both parameter types dynamically within the **`.send()`** method.
+- You can set parameter types dynamically within the **`.send()`** method.
 - You know that parameters from the `.send()` method always override those set with `.set...()` methods.
 - You can leverage **type-safety** to prevent common bugs and improve code quality.
 

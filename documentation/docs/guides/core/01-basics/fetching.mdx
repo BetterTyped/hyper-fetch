@@ -30,8 +30,8 @@ a promise that resolves with the request's outcome, including data, error, and s
 
 Let's start by defining a request to fetch a user.
 
-```ts
-// import { client } from "client"; // Assumed client setup
+```ts title="src/api/users.ts"
+import { client } from "client";
 
 const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
   endpoint: "/users/:userId",
@@ -39,29 +39,24 @@ const getUser = client.createRequest<{ response: { id: number; name: string } }>
 });
 ```
 
-Now, we can dispatch it. The `send` method returns a rich object with details about the response.
+Now, we can use it. The `send` method returns a rich object with details about the response.
 
-```ts live
-// In a real app, you would import 'getUser'
-// import { getUser } from "./requests";
+```ts
+import { getUser } from "src/api/users";
 
-async function fetchUser() {
-  const requestWithParams = getUser.setParams({ userId: 1 });
+const requestWithParams = getUser.setParams({ userId: 1 });
 
-  // highlight-start
-  // Execute the request and destructure the response
-  const { data, error, isSuccess, status } = await requestWithParams.send();
-  // highlight-end
+// highlight-start
+// Execute the request and destructure the response
+const { data, error, isSuccess, status } = await requestWithParams.send();
+// highlight-end
 
-  if (isSuccess) {
-    console.log(`Request successful with status ${status}!`);
-    console.log("User data:", data);
-  } else {
-    console.error(`Request failed with status ${status}.`, error);
-  }
+if (isSuccess) {
+  console.log(`Request successful with status ${status}!`);
+  console.log("User data:", data);
+} else {
+  console.error(`Request failed with status ${status}.`, error);
 }
-
-fetchUser();
 ```
 
 ### Response Object
@@ -85,12 +80,15 @@ useful for building up a request in multiple steps or based on dynamic condition
 const updateUser = client.createRequest<{
   response: { id: number; name: string };
   payload: { name: string };
+  queryParams?: { limit?: number };
 }>()({
   endpoint: "/users/:userId",
   method: "PUT",
 });
 
-const preparedRequest = updateUser.setParams({ userId: 1 }).setData({ name: "New Name" });
+const preparedRequest = updateUser.setParams({ userId: 1 }).setData({ name: "New Name" }).setQueryParams({
+  limit: 10,
+});
 
 const { data } = await preparedRequest.send();
 ```
@@ -100,7 +98,7 @@ const { data } = await preparedRequest.send();
 For a more direct approach, you can pass data, params, and query params as an object to the `send` method. This is often
 cleaner and more readable for simple requests.
 
-```ts live
+```ts
 // In a real app, you would import a pre-configured request
 const postData = client.createRequest()({
   endpoint: "/posts",
@@ -134,31 +132,17 @@ You can abort a request using the native `AbortController`. Simply create a cont
 from a component.
 
 ```ts live
-const getUserRequest = client.createRequest()({
-  endpoint: "/users/1",
-  method: "GET",
-});
+import { client } from "src/api/client";
+import { getUsers } from "src/api/users";
 
-async function fetchOrAbort() {
-  const controller = new AbortController();
+const promise = getUsers.send();
 
-  setTimeout(() => {
-    // Abort the request after 50ms
-    controller.abort();
-  }, 50);
+// Abort the request
+client.requestManager.abortByKey(getUsers.abortKey);
 
-  console.log("Fetching user...");
-  const { isAborted, error } = await getUserRequest.send({
-    // Pass the signal to the send method
-    signal: controller.signal,
-  });
+const { error } = await promise;
 
-  if (isAborted) {
-    console.log("Request was aborted.", error.message);
-  }
-}
-
-fetchOrAbort();
+console.log(error);
 ```
 
 ---
@@ -178,9 +162,58 @@ const { data, error } = await someRequest.send({
     console.log(`Request ${requestId} is about to be sent.`);
   },
   // Called when the request starts
-  onStart: ({ request, requestId }) => {
+  onRequestStart: ({ request, requestId }) => {
     console.log(`Request ${requestId} has started.`);
     // Ideal for showing a loading spinner
+  },
+  // Called when the adapter starts processing the request
+  onResponseStart: ({ request, requestId }) => {
+    console.log(`Adapter for ${requestId} has started.`);
+  },
+  // Called on upload progress
+  onUploadProgress: ({ progress, total, loaded }) => {
+    console.log(`Upload progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called on download progress
+  onDownloadProgress: ({ progress, total, loaded }) => {
+    console.log(`Download progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called upon receiving a response, whether success or error
+  onResponse: ({ response, request, requestId }) => {
+    console.log(`Request ${requestId} finished with status: ${response.status}`);
+    // You can check response.success to see if the request was successful
+    if (response.success) {
+      console.log(`Request ${requestId} succeeded with data:`, response.data);
+    } else {
+      console.error(`Request ${requestId} failed with error:`, response.error);
+    }
+    // Ideal for hiding a loading spinner
+  },
+  // Called when the request is removed from the dispatcher queue
+  onRemove: ({ request, requestId }) => {
+    console.log(`Request ${requestId} was removed from the queue.`);
+  },
+});
+```
+
+Here is a live example demonstrating a few of these callbacks:
+
+```ts live
+import { getUsers } from "src/api/users";
+
+const { data } = await getUsers.send({
+  // Called right before the request is sent
+  onBeforeSent: ({ request, requestId }) => {
+    console.log(`Request ${requestId} is about to be sent.`);
+  },
+  // Called when the request starts
+  onRequestStart: ({ request, requestId }) => {
+    console.log(`Request ${requestId} has started.`);
+    // Ideal for showing a loading spinner
+  },
+  // Called when the adapter starts processing the request
+  onResponseStart: ({ request, requestId }) => {
+    console.log(`Adapter for ${requestId} has started.`);
   },
   // Called on upload progress
   onUploadProgress: ({ progress, total, loaded }) => {
@@ -194,51 +227,11 @@ const { data, error } = await someRequest.send({
   onResponse: ({ response, request, requestId }) => {
     console.log(`Request ${requestId} finished with status: ${response.status}`);
   },
-  // Called only on a successful response
-  onSuccess: ({ response, request, requestId }) => {
-    console.log(`Request ${requestId} succeeded with data:`, response.data);
-  },
-  // Called only on a failed response
-  onError: ({ error, request, requestId }) => {
-    console.error(`Request ${requestId} failed with error:`, error);
-  },
-  // Called when the request is aborted
-  onAbort: ({ error, request, requestId }) => {
-    console.warn(`Request ${requestId} was aborted.`, error.message);
-  },
-  // Called when the request is finished, regardless of outcome
-  onFinished: ({ response, error, request, requestId }) => {
-    console.log(`Request ${requestId} has finished.`);
-    // Ideal for hiding a loading spinner
+  // Called when the request is removed from the dispatcher queue
+  onRemove: ({ request, requestId }) => {
+    console.log(`Request ${requestId} was removed from the queue.`);
   },
 });
-```
-
-Here is a live example demonstrating a few of these callbacks:
-
-```ts live
-const getUserRequest = client.createRequest()({
-  endpoint: "/users/1",
-  method: "GET",
-});
-
-async function fetchUserWithCallbacks() {
-  console.log("Fetching user...");
-
-  const { data } = await getUserRequest.send({
-    onStart: () => {
-      console.log("Fetching user started...");
-    },
-    onSuccess: ({ response }) => {
-      console.log("User data received:", response.data);
-    },
-    onFinished: () => {
-      console.log("...request finished.");
-    },
-  });
-}
-
-fetchUserWithCallbacks();
 ```
 
 ---

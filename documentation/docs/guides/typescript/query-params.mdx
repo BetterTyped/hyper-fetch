@@ -20,6 +20,16 @@ errors at compile time. This leads to more robust and maintainable code.
 
 ---
 
+### Why is it helpful?
+
+- **Prevents Bugs**: Catches typos and incorrect types in query parameters at compile time, not at runtime.
+- **API Contract Adherence**: Enforces the API contract for filtering, pagination, and sorting, ensuring requests are
+  always valid.
+- **Improved DX**: Provides autocompletion for query parameter keys and values in your IDE.
+- **Self-documenting Code**: The request definition clearly documents the available query parameters and their types.
+
+---
+
 ### Example
 
 Here is how to add a type for query parameters to a request. By providing the `queryParams` generic, you get full type
@@ -60,6 +70,7 @@ const { data, error } = await getUsers.send({
   queryParams: {
     role: "Admin",
     search: "John",
+    tags: ["active", "premium"],
   },
 });
 

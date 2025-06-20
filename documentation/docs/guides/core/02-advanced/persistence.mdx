@@ -107,7 +107,7 @@ React Native where only a single instance of the application is running.
 
 ### Fetching Request Persistence
 
-You can make `useFetch` requests persistent by providing storage to the `fetchDispatcher`.
+You can make requests persistent by providing storage to the `fetchDispatcher`.
 
 ```typescript
 import { MMKV } from "react-native-mmkv";
@@ -139,7 +139,7 @@ export const client = new Client({
 
 ### Submit Request Persistence
 
-Similarly, `useSubmit` requests can be persisted by providing storage to the `submitDispatcher`.
+Similarly, requests sent to `submitDispatcher` can be persisted by providing storage to the `submitDispatcher`.
 
 ```typescript
 import { MMKV } from "react-native-mmkv";

@@ -44,47 +44,27 @@ export const postFile = client.createRequest()({
 When you call `send()` on this request multiple times, each call will be added to the queue and will only start after
 the previous one has finished.
 
-```tsx live
-function Example() {
-  const [statuses, setStatuses] = React.useState([]);
+```typescript
+const fileRequest = client.createRequest()({
+  endpoint: "/files",
+  method: "POST",
+  queued: true,
+});
 
-  const updateStatus = (message) => {
-    setStatuses((prev) => [`${new Date().toLocaleTimeString()}: ${message}`, ...prev]);
-  };
+const logStatus = (message) => {
+  console.log(`${new Date().toLocaleTimeString()}: ${message}`);
+};
 
-  const fileRequest = client.createRequest()({
-    endpoint: "/shared-port/1/files",
-    method: "POST",
-    queued: true,
+const requests = [1, 2, 3, 4];
+logStatus(`Sending 4 requests...`);
+
+requests.forEach((req) => {
+  fileRequest.send({
+    onStart: () => logStatus(`Request ${req} started.`),
+    onFinished: ({ isSuccess }) =>
+      logStatus(`Request ${req} finished ${isSuccess ? "successfully" : "with an error"}.`),
   });
-
-  const handleSend = () => {
-    const requests = [1, 2, 3, 4];
-    updateStatus(`Sending 4 requests...`);
-    requests.forEach((req) => {
-      fileRequest.send({
-        onStart: () => updateStatus(`Request ${req} started.`),
-        onFinished: ({ isSuccess }) =>
-          updateStatus(`Request ${req} finished ${isSuccess ? "successfully" : "with an error"}.`),
-      });
-    });
-  };
-
-  return (
-    <div>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleSend}>
-        Send 4 Requests
-      </button>
-      <div className="flex flex-col mt-4">
-        {statuses.map((status, i) => (
-          <p key={i} className="text-sm text-gray-400 font-mono">
-            {status}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-}
+});
 ```
 
 The example above demonstrates that even if we fire all requests at once, they are executed one by one. The `onStart`

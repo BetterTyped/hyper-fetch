@@ -6,9 +6,12 @@ sidebar_label: Global Defaults
 
 # Global Defaults
 
-Setting global defaults for your requests is a powerful way to streamline your application's data-fetching layer. It
-allows you to define common configurations in one place, reducing boilerplate code and ensuring consistency across your
-app. Hyper-Fetch provides flexible mechanisms to set dynamic default options and customize how requests are identified.
+In any application, you'll find yourself repeating request configurations. Whether it's setting caching policies for
+`GET` requests or ensuring mutations are never cached, this repetitive setup can lead to boilerplate and
+inconsistencies. Hyper-Fetch solves this by allowing you to define powerful global defaults that apply to all requests,
+while still offering the flexibility to override them for specific cases.
+
+This guide will show you how to centralize your request logic, from default options to custom keying strategies.
 
 ---
 
@@ -17,6 +20,8 @@ app. Hyper-Fetch provides flexible mechanisms to set dynamic default options and
 1.  How to set **global default options** that apply to all requests.
 2.  How to create **dynamic default configurations** based on request properties like the HTTP method.
 3.  Why and how to customize **request keys** for features like caching and request aborting.
+4.  The purpose of **request keys** and when they are helpful.
+5.  How to assign **custom, predictable IDs** to your requests for better tracking and debugging.
 
 :::
 
@@ -31,7 +36,7 @@ the request's details, enabling you to apply different defaults based on its pro
 Global configurations are overridden by options set on individual requests. This means you can set a sensible default
 and still customize behavior for specific cases.
 
-The main method for this is `client.setRequestDefaultOptions`.
+The main method for this is `client.adapter.setRequestDefaults`.
 
 ### Example
 
@@ -39,50 +44,35 @@ Let's configure a client to have different defaults for `GET` requests versus ot
 `GET` requests, we'll enable deduplication and caching with a short stale time. For other requests, we'll disable
 caching to ensure mutations are always sent to the server.
 
-```typescript live
-// import { createClient } from "@hyper-fetch/core"
+```ts
+import { client } from "./client";
 
-// This client is available in the live environment
-// const client = createClient({ url: "..." });
-
-client.setRequestDefaultOptions((request) => {
+// highlight-start
+client.adapter.setRequestDefaults((request) => {
   if (request.method === "GET") {
     return {
-      // highlight-start
-      deduplicate: true, // Prevents identical GET requests from being sent simultaneously
+      deduplicate: true,
+      cache: true,
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 3, // Retry failed requests up to 3 times
-      // highlight-end
+      retry: 3,
     };
   }
 
   return {
-    // highlight-start
-    deduplicate: false,
-    cache: false, // Don't cache mutations
+    cache: false,
     retry: 0,
-    // highlight-end
   };
 });
+// highlight-end
 
-// Create a request to see the defaults in action
 const getUser = client.createRequest()({
   method: "GET",
   endpoint: "/users/:userId",
 });
 
-// All instances of getUser will now have the default options for GET requests.
-// You can still override them:
 const getImportantUser = getUser.setOptions({
-  retry: 5, // Override the default retry count
+  retry: 5,
 });
-
-console.log("Default GET options:", client.getRequestDefaultOptions(getUser));
-console.log(
-  "Default POST options:",
-  client.getRequestDefaultOptions(client.createRequest()({ method: "POST", endpoint: "/users" })),
-);
-console.log("Overridden options:", client.getRequestDefaultOptions(getImportantUser));
 ```
 
 ---
@@ -93,13 +83,13 @@ Data and requests within Hyper-Fetch are organized by unique keys. These keys ar
 metadata like the endpoint, method, and parameters. They are crucial for features like caching, request deduplication,
 and aborting. However, you can customize the key generation logic to fit your specific needs.
 
-You might want to customize keys for:
+Keys must always be a string.
+
+### Why is it helpful?
 
 - **Easier debugging**: Create more readable keys.
 - **Specific caching strategies**: Group or isolate cache entries based on custom logic.
 - **Integration with other systems**: Align keys with formats used elsewhere in your stack.
-
-Keys must always be a string.
 
 ### Key Mapper Methods
 
@@ -108,32 +98,63 @@ Hyper-Fetch provides several methods to override key generation:
 - `setQueryKeyMapper`: For keys used in query-like operations.
 - `setCacheKeyMapper`: For keys used to store and retrieve cached data.
 - `setAbortKeyMapper`: For keys used to identify requests that can be aborted.
-- `setEffectKeyMapper`: For keys used by effects to track requests.
 
 ### Example
 
-Here's how you can set custom mappers. We'll give each type of key a unique prefix to make them easily distinguishable.
+Let's customize the cache key to create a more readable format. We'll add a `Cache__` prefix and include the HTTP method
+and endpoint. This makes it easier to identify cache entries during debugging.
 
 ```ts
-// highlight-next-line
-client.setQueryKeyMapper((request) => `Query__${request.method}__${request.endpoint}`);
-// highlight-next-line
-client.setCacheKeyMapper((request) => `Cache__${request.method}__${request.endpoint}`);
-// highlight-next-line
-client.setAbortKeyMapper((request) => `Abort__${request.method}__${request.endpoint}`);
-// highlight-next-line
-client.setEffectKeyMapper((request) => `Effect__${request.method}__${request.endpoint}`);
+// highlight-start
+client.setCacheKeyMapper((request) => {
+  return `Cache__${request.method}__${request.endpoint}`;
+});
+// highlight-end
 
 const getUsers = client.createRequest()({
   method: "GET",
   endpoint: "/users",
 });
 
-// const queryKey = client.getQueryKey(getUsers)
-// const cacheKey = client.getCacheKey(getUsers)
+const customCacheKey = client.getCacheKey(getUsers);
+console.log(customCacheKey); // Cache__GET__/users
+```
 
-// console.log(queryKey) // "Query__GET__/users"
-// console.log(cacheKey) // "Cache__GET__/users"
+---
+
+## Customizing Request IDs
+
+Every request in Hyper-Fetch is assigned a unique identifier, which is crucial for tracking, logging, and debugging. By
+default, this ID is a randomly generated string. However, there are cases where you might want to define your own logic
+for generating these IDs.
+
+### When to use it?
+
+- **Predictable IDs for testing**: Set static IDs in your test environment for easier assertions.
+- **Improved logging**: Use a format that includes the endpoint or other request details for more descriptive logs.
+- **Cross-system correlation**: Align request IDs with identifiers used in other parts of your infrastructure (e.g.,
+  backend logs).
+
+The `setRequestIdMapper` method allows you to override the default ID generation.
+
+### Example
+
+Let's create a custom ID that includes the request's endpoint and a timestamp for better traceability in logs.
+
+```ts
+// highlight-start
+client.setRequestIdMapper((request) => {
+  const timestamp = new Date().getTime();
+  return `Request__${request.endpoint}__${timestamp}`;
+});
+// highlight-end
+
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+});
+
+const customRequestId = client.getRequestId(getUsers);
+console.log(customRequestId); // Request__/users__1718858400000
 ```
 
 ---
@@ -142,8 +163,10 @@ const getUsers = client.createRequest()({
 
 You've learned how to centralize and streamline your request configurations in Hyper-Fetch!
 
-- You can set **dynamic global defaults** for all your requests using `setRequestDefaultOptions`.
+- You can set **dynamic global defaults** for all your requests using `client.adapter.setRequestDefaults`.
 - You can tailor default behaviors based on **request properties** like the HTTP method.
 - You can customize the logic for generating **request keys** to better suit your application's needs.
+- You understand the **purpose of request keys** and why customizing them can be beneficial.
+- You can assign **custom, predictable IDs** to your requests for better tracking and debugging.
 
 :::

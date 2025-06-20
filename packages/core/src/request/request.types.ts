@@ -14,6 +14,7 @@ import {
   ExtractQueryParamsType,
   ExtractAdapterOptionsType,
   ExtractAdapterMethodType,
+  TypeWithDefaults,
 } from "types";
 import { Request } from "request";
 import { ResponseType, RequestResponseType } from "adapter";
@@ -22,7 +23,37 @@ import { ClientInstance } from "client";
 
 // Instance
 
-export type RequestInstance = Request<any, any, any, any, any, ClientInstance, any, any, any>;
+export type RequestInstanceProperties = {
+  response?: any;
+  payload?: any;
+  error?: any;
+  client?: ClientInstance;
+  queryParams?: any;
+  endpoint?: string;
+  hasParams?: boolean;
+  hasQueryParams?: boolean;
+  hasPayload?: boolean;
+};
+
+export type RequestInstance<
+  RequestProperties extends RequestInstanceProperties = {
+    response?: any;
+    payload?: any;
+    queryParams?: any;
+    error?: any;
+    client?: ClientInstance;
+  },
+> = Request<
+  TypeWithDefaults<RequestProperties, "response", any>,
+  TypeWithDefaults<RequestProperties, "payload", any>,
+  TypeWithDefaults<RequestProperties, "queryParams", any>,
+  TypeWithDefaults<RequestProperties, "error", any>,
+  TypeWithDefaults<RequestProperties, "endpoint", any>,
+  TypeWithDefaults<RequestProperties, "client", ClientInstance>,
+  TypeWithDefaults<RequestProperties, "hasParams", any>,
+  TypeWithDefaults<RequestProperties, "hasQueryParams", any>,
+  TypeWithDefaults<RequestProperties, "hasPayload", any>
+>;
 
 // Progress
 export type ProgressEventType = { total: number; loaded: number };

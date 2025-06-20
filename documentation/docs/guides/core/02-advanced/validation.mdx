@@ -61,14 +61,16 @@ const getUser = client
   });
 
 // Usage
-const { data, error } = await getUser.setParams({ userId: 1 }).send();
+(async () => {
+  const { data, error } = await getUser.setParams({ userId: 1 }).send();
 
-if (error) {
-  // Here error will be an instance of ZodError if validation failed
-  console.error(error);
-} else {
-  console.log(data);
-}
+  if (error) {
+    // Here error will be an instance of ZodError if validation failed
+    console.error(error);
+  } else {
+    console.log(data);
+  }
+})();
 ```
 
 In this example, if the data received from `/users/:userId` does not conform to the `UserSchema`,
@@ -116,28 +118,29 @@ const createPost = client
   });
 
 // --- Usage ---
+(async () => {
+  // Example 1: Invalid data
+  const { error: validationError } = await createPost.send({
+    data: { title: "A", body: "Short", userId: 1 },
+  });
 
-// Example 1: Invalid data
-const { error: validationError } = await createPost.send({
-  data: { title: "A", body: "Short", userId: 1 },
-});
+  if (validationError) {
+    // The request was not sent, and we get a ZodError
+    console.log(validationError.errors);
+  }
 
-if (validationError) {
-  // The request was not sent, and we get a ZodError
-  console.log(validationError.errors);
-}
+  // Example 2: Valid data
+  const { data, error } = await createPost.send({
+    data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
+  });
 
-// Example 2: Valid data
-const { data, error } = await createPost.send({
-  data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
-});
-
-if (error) {
-  console.error("Request failed:", error);
-} else {
-  // The request was sent successfully
-  console.log("Post created:", data);
-}
+  if (error) {
+    console.error("Request failed:", error);
+  } else {
+    // The request was sent successfully
+    console.log("Post created:", data);
+  }
+})();
 ```
 
 If you call `createPost.send()` with data that doesn't match `PostSchema`, the `.setRequestMapper()` will throw an
