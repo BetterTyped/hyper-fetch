@@ -2,10 +2,11 @@ import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useDidUpdate, useWillMount } from "@better-hooks/lifecycle";
 
-import { useSettings } from "@/store/general/settings.store";
 import { Bridge } from "./bridge/bridge";
 import { Events } from "./events/events";
 import { State } from "./state/state";
+
+import { useSettings } from "@/store/general/settings.store";
 import { useInitializerStore } from "@/store/applications/initialization.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { useNetworkStore } from "@/store/applications/network.store";

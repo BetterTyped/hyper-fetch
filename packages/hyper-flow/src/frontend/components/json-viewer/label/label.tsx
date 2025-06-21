@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { CircleCheck, Copy } from "lucide-react";
 
+import { jsonViewerStyles } from "../json-viewer.styles";
+
 import { useClipboard } from "@/hooks/use-clipboard";
 import { cn } from "@/lib/utils";
-
-import { jsonViewerStyles } from "../json-viewer.styles";
 
 export const Label = ({
   label,

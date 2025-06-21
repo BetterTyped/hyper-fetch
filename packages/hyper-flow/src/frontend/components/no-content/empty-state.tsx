@@ -1,8 +1,9 @@
 import { AppWindowMac } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Title } from "../ui/title";
+
+import { cn } from "@/lib/utils";
 
 export const EmptyState = ({
   title,

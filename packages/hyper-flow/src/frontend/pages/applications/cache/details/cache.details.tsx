@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
-import { useCacheStore } from "@/store/applications/cache.store";
 import { SectionToolbar } from "./section-toolbar";
 import { SectionHead } from "./section-head";
 import { SectionOverview } from "./section-overview";
 import { SectionData } from "./section-data";
+
+import { useCacheStore } from "@/store/applications/cache.store";
+import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
 
 export const CacheDetails = () => {
   const { client, application } = useDevtools();

@@ -2,6 +2,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import { QueuesList } from "./list/queues.list";
 import { QueuesDetails } from "./details/queues.details";
+
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useQueueStore } from "@/store/applications/queue.store";
 

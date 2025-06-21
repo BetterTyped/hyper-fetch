@@ -1,9 +1,10 @@
 import { FolderCode } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
+import { Tutorial } from "./components/tutorial";
+
 import { useApplications } from "@/store/applications/apps.store";
 import { ApplicationCard } from "@/components/ui/application-card";
-import { Tutorial } from "./components/tutorial";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "@/components/ui/section";
 import { useConnectionStore } from "@/store/applications/connection.store";
 

@@ -1,8 +1,9 @@
 import { useDidMount } from "@better-hooks/lifecycle";
 import { createContext, memo, useContext, useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils";
 import { Avatar } from "./avatar";
+
+import { cn } from "@/lib/utils";
 
 export const SectionContext = createContext<{
   id: string;

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-import { cn } from "@/lib/utils";
-
 import { jsonViewerStyles } from "../json-viewer.styles";
+
+import { cn } from "@/lib/utils";
 
 export const Value = ({
   value,

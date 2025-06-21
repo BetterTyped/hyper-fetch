@@ -224,7 +224,7 @@ export type ExtractRouteParams<T extends string> = string extends T
 /**
  * If the request endpoint parameters are not filled it will throw an error
  */
-export type FetchParamsType<Params, HasParams extends true | false> = Params extends EmptyTypes
+export type FetchParamsType<Params, HasParams extends true | false> = Params extends EmptyTypes | void | never
   ? { params?: EmptyTypes }
   : HasParams extends true
     ? { params?: EmptyTypes }
@@ -233,7 +233,7 @@ export type FetchParamsType<Params, HasParams extends true | false> = Params ext
 /**
  * If the request data is not filled it will throw an error
  */
-export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends EmptyTypes
+export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends EmptyTypes | void | never
   ? { payload?: EmptyTypes }
   : HasPayload extends true
     ? { payload?: EmptyTypes }
@@ -243,10 +243,10 @@ export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload
  * It will check if the query params are already set
  */
 export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
-  ? { queryParams?: EmptyTypes }
+  ? { queryParams?: EmptyTypes | undefined }
   : HasQuery extends true
     ? { queryParams?: EmptyTypes }
-    : QueryParams extends EmptyTypes
+    : EmptyTypes | void | never extends QueryParams
       ? { queryParams?: QueryParams }
       : {
           queryParams: QueryParams;
@@ -281,13 +281,19 @@ export type RequestSendActionsType<Request extends RequestInstance> = {
   onRemove?: (eventData: RequestEventType<Request>) => void;
 };
 
-type IsNegativeType<T> = undefined extends T ? EmptyTypes : null extends T ? EmptyTypes : T;
+type IsNegativeType<T> = void extends T
+  ? EmptyTypes
+  : undefined extends T
+    ? EmptyTypes
+    : null extends T
+      ? EmptyTypes
+      : T;
 
 // If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
-  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends EmptyTypes
-    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends EmptyTypes
-      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends EmptyTypes
+  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends EmptyTypes | void | never
+    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends EmptyTypes | void | never
+      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends EmptyTypes | void | never
         ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
         : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
       : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>

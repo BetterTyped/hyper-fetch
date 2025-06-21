@@ -2,6 +2,7 @@ import { Outlet } from "@tanstack/react-router";
 import { Plug2 } from "lucide-react";
 
 import { ApplicationSidebar } from "./sidebar/sidebar";
+
 import { Content } from "@/components/ui/content";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useConnectionStore } from "@/store/applications/connection.store";

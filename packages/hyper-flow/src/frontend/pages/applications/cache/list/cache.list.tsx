@@ -4,10 +4,11 @@ import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Boxes } from "lucide-react";
 
+import { CacheRowItem } from "./row-item/row-item";
+
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSearch } from "@/hooks/use-search";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { CacheRowItem } from "./row-item/row-item";
 import { useCacheStore } from "@/store/applications/cache.store";
 import { EmptyTable } from "@/components/no-content/empty-table";
 import { Section, SectionHeader, SectionIcon, SectionTitle, SectionDescription } from "@/components/ui/section";

@@ -4,8 +4,9 @@ import * as net from "net";
 
 import { startServer, StartServer } from "../../server";
 import { store } from "./persistent-store";
-import type { Settings } from "@/store/general/settings.store";
 import { appLogger } from "../../shared/utils/logger";
+
+import type { Settings } from "@/store/general/settings.store";
 
 // Store server instance for control
 let serverInstance: StartServer | null = null;

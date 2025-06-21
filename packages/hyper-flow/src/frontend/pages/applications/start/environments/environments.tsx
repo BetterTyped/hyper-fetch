@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Atom } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { EnvironmentDialog } from "./environment-dialog";
+
+import { Button } from "@/components/ui/button";
 
 export const Environments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

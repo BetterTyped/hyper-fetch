@@ -294,6 +294,116 @@ describe("Request [Types]", () => {
       ]);
     });
   });
+  describe("when request has query params", () => {
+    describe("when query params are optional", () => {
+      const getResourceWithOptionalQuery = client.createRequest<{
+        queryParams?: { search?: string; page?: number } | undefined;
+      }>()({
+        method: "GET",
+        endpoint: "/resources",
+      });
+
+      it("should allow to make request without query params when they are optional", () => {
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: undefined,
+          },
+        ]);
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: {},
+          },
+        ]);
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([undefined]);
+      });
+
+      it("should allow to make request with some optional query params", () => {
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: { search: "test" },
+          },
+        ]);
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: { page: 1 },
+          },
+        ]);
+        expectFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: { search: "test", page: 1 },
+          },
+        ]);
+      });
+
+      it("should allow to set optional query params", () => {
+        expectFunctionParametersType(getResourceWithOptionalQuery.setQueryParams({ search: "test" }).send).assert([
+          undefined,
+        ]);
+      });
+
+      it("should not allow to make request with incorrect optional query params", () => {
+        expectNotFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: { wrong: "value" },
+          },
+        ]);
+        expectNotFunctionParametersType(getResourceWithOptionalQuery.send).assert([
+          {
+            queryParams: { search: 123 },
+          },
+        ]);
+      });
+    });
+
+    describe("when query params are required", () => {
+      const getResourceWithRequiredQuery = client.createRequest<{
+        queryParams: { search: string; page: number };
+      }>()({
+        method: "GET",
+        endpoint: "/resources",
+      });
+
+      it("should not allow to make request without required query params", () => {
+        expectNotFunctionParametersType(getResourceWithRequiredQuery.send).assert([undefined]);
+        expectNotFunctionParametersType(getResourceWithRequiredQuery.send).assert([
+          {
+            queryParams: undefined,
+          },
+        ]);
+        expectNotFunctionParametersType(getResourceWithRequiredQuery.send).assert([
+          {
+            queryParams: { search: "test" },
+          },
+        ]);
+      });
+
+      it("should allow to make request with all required query params", () => {
+        expectFunctionParametersType(getResourceWithRequiredQuery.send).assert([
+          {
+            queryParams: { search: "test", page: 1 },
+          },
+        ]);
+      });
+
+      it("should not allow to make request with incorrect required query params", () => {
+        expectNotFunctionParametersType(getResourceWithRequiredQuery.send).assert([
+          {
+            queryParams: { search: "test", page: "1" },
+          },
+        ]);
+      });
+
+      it("should allow to set required query params", () => {
+        expectFunctionParametersType(
+          getResourceWithRequiredQuery.setQueryParams({ search: "test", page: 1 }).send,
+        ).assert([undefined]);
+      });
+
+      it("should not allow to set partial required query params", () => {
+        expectNotFunctionParametersType(getResourceWithRequiredQuery.setQueryParams).assert([{ search: "test" }]);
+      });
+    });
+  });
   it("should add correct error types", () => {
     expectType<Error>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));
     expectNotType<string>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));

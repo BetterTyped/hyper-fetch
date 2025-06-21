@@ -3,10 +3,11 @@ import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Atom } from "lucide-react";
 
+import { Item } from "./queue-item/queue-item";
+
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useSearch } from "@/hooks/use-search";
 import { useQueueStore } from "@/store/applications/queue.store";
-import { Item } from "./queue-item/queue-item";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "@/components/ui/section";
 import { EmptyTable } from "@/components/no-content/empty-table";
 import { DocsButton } from "@/components/ui/docs-button";

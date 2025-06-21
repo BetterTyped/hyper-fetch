@@ -2,6 +2,9 @@
 
 import * as React from "react";
 import { Atom, Boxes, Earth, Home, AppWindow, LucideIcon, Settings2 } from "lucide-react";
+import { Link, LinkProps, useParams } from "@tanstack/react-router";
+
+import logo from "../../../../assets/images/icon.png";
 
 import {
   Sidebar,
@@ -16,9 +19,6 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { useApplications } from "@/store/applications/apps.store";
-import { Link, LinkProps, useParams } from "@tanstack/react-router";
-
-import logo from "../../../../assets/images/icon.png";
 
 export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { applicationName } = useParams({ strict: false });

@@ -1,6 +1,7 @@
+import { SparkAreaChart } from "./spark-chart";
+
 import { cn } from "@/lib/utils";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
-import { SparkAreaChart } from "./spark-chart";
 
 interface KpiCard3Props<T extends Record<string, any>> {
   value: React.ReactNode;

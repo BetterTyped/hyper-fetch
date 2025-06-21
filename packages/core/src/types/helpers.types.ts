@@ -2,6 +2,7 @@ export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
 
+// DO NOT ADD `void` to this type, it will break the type generation
 export type EmptyTypes = null | undefined;
 
 export type NullableType<T> = T | EmptyTypes;
@@ -22,6 +23,6 @@ export type TypeWithDefaults<
   Types extends Record<string, any>,
   Key extends keyof Types,
   Value,
-> = Key extends keyof Types ? Exclude<Types[Key], EmptyTypes> : Value;
+> = Key extends keyof Types ? Exclude<Types[Key], EmptyTypes | void | never> : Value;
 
 export type SyncOrAsync<T> = T | Promise<T>;

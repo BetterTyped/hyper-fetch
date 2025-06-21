@@ -33,17 +33,17 @@ export const About = () => {
   return (
     <section className="relative pb-20 pt-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
+        <div className="max-w-3xl mx-auto text-center pb-6 md:pb-12">
           <FadeIn start={0.01} end={0.18}>
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                Why Hyper-Fetch?
+                Unified Fetching Layer
               </div>
             </div>
           </FadeIn>
           <FadeIn start={0} end={0.15}>
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Control your architecture
+              Why Hyper-Fetch?
             </Title>
           </FadeIn>
           <FadeIn start={0.02} end={0.2}>

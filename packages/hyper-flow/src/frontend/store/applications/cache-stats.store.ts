@@ -2,8 +2,9 @@ import { produce } from "immer";
 import { create } from "zustand/react";
 import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
-import { DevtoolsRequestEvent, DevtoolsRequestResponse } from "@/context/applications/types";
 import { getDataSize, getEndpointAndMethod } from "./utils";
+
+import { DevtoolsRequestEvent, DevtoolsRequestResponse } from "@/context/applications/types";
 
 type CacheKey = string;
 export type CacheStatsStore = {

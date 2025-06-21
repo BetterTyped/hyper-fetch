@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
-import { useNetworkStore } from "@/store/applications/network.store";
 import { SectionOverview } from "./section-overview";
 import { SectionToolbar } from "./section-toolbar";
 import { SectionHead } from "./section-head";
 import { SectionData } from "./section-data";
+
+import { useNetworkStore } from "@/store/applications/network.store";
+import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
 
 export const NetworkDetails = () => {
   const { application } = useDevtools();

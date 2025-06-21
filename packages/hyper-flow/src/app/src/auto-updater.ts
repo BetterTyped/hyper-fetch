@@ -1,5 +1,4 @@
 import { updateElectronApp, UpdateSourceType } from "update-electron-app";
-
 import { bucket, updatesDir } from "@shared/constants/auto-updater";
 
 /**

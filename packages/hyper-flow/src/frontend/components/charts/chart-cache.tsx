@@ -3,11 +3,11 @@ import { useMemo } from "react";
 import { Tally4 } from "lucide-react";
 import { Treemap, ResponsiveContainer } from "recharts";
 
+import { Method } from "../ui/method";
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/utils/size.utils";
-
-import { Method } from "../ui/method";
 
 const getDistributionFillColor = (cacheSize: number, totalCacheSize: number) => {
   // more than 50% of the total cache size
