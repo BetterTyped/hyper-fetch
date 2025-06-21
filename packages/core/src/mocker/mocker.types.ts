@@ -3,8 +3,8 @@ import { AdapterInstance, ResponseType } from "adapter";
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type MockerConfigType = {
-  /** Informs whether it should return a timeout error */
-  timeout?: boolean;
+  /** Informs how long the request should take before returning a timeout error (in milliseconds) */
+  timeout?: number;
   /** Simulates how long the request to the server should take (in milliseconds) */
   requestTime?: number;
   /** Indicates how long the response from the server should take (in milliseconds).

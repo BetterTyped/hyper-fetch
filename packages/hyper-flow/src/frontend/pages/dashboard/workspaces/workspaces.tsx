@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { PlusIcon, ActivityIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
+import { AddWorkspaceDialog } from "./add-workspace/add-workspace-dialog";
+
 import { useWorkspaces } from "@/store/workspace/workspaces.store";
 import { WorkspaceCard } from "@/components/ui/workspace-card";
 import { Card } from "@/components/ui/card";
-import { AddWorkspaceDialog } from "./add-workspace/add-workspace-dialog";
 import { KpiCard3 } from "@/components/ui/kpi-card-3";
 import { KpiCardFeed } from "@/components/ui/kpi-card-feed";
 

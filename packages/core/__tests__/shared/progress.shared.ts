@@ -25,7 +25,6 @@ export const testProgressSpy = (props: {
   expect(spy).toHaveBeenCalledWith({
     request,
     requestId,
-
     loaded: loadedValue,
     progress: getProgressValue({ total: totalValue, loaded: loadedValue }),
     sizeLeft: totalValue - loadedValue,

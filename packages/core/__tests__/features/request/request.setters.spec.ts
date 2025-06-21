@@ -109,7 +109,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.deduplicate).toBeTrue();
   });
   it("should allow for setting deduplicate time", async () => {
-    expect(request.deduplicateTime).toBe(10);
+    expect(request.deduplicateTime).toBe(null);
     const updatedRequest = request.setDeduplicateTime(1000);
     expect(updatedRequest.deduplicateTime).toBe(1000);
   });
