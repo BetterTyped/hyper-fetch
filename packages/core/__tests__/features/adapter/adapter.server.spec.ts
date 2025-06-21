@@ -2,34 +2,41 @@
  * @jest-environment node
  */
 import http from "http";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { adapter } from "../../../src/adapter/adapter.server";
 import { getErrorMessage } from "adapter";
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { Client } from "client";
+import { HttpAdapter } from "http-adapter";
 
-describe("Fetch Adapter [ Server ]", () => {
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+describe("Http Adapter [ Server ]", () => {
   const requestId = "test";
+  const abortKey = "abort-key";
   const requestCopy = http.request;
 
-  let client = new Client({ url: "shared-base-url" });
+  let client = new Client({ url: "http://shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
-  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
+    client = new Client({ url: "http://shared-base-url" });
     clientHttps = new Client({ url: "https://shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
-    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
-
-    client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
-    resetInterceptors();
+    clientHttps.appManager.isBrowser = false;
+
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
+
+    client.requestManager.addAbortController(abortKey, requestId);
+    clientHttps.requestManager.addAbortController(abortKey, requestId);
+
+    resetMocks();
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
@@ -40,56 +47,58 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should pick correct adapter and not throw", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
     client.appManager.isBrowser = true;
-    await expect(() => adapter(request, requestId)).not.toThrow();
+    await expect(() => HttpAdapter().initialize(client).fetch(request, requestId)).not.toThrow();
   });
 
   it("should pick https module", async () => {
-    createRequestInterceptor(request);
-    await expect(() => adapter(requestHttps, requestId)).not.toThrow();
+    mockRequest(requestHttps);
+    await expect(() => HttpAdapter().initialize(client).fetch(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { data: [] } });
+    const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "15" } });
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = createRequestInterceptor(request, { status: 400 });
+    const data = mockRequest(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "19" } });
   });
 
   it("should allow to cancel request and return error", async () => {
-    createRequestInterceptor(request, { delay: 5 });
+    mockRequest(request, { delay: 5 });
 
-    setTimeout(() => {
+    const id = setTimeout(() => {
       request.abort();
     }, 2);
 
-    const { data: response, error } = await adapter(request, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("abort").message);
+
+    clearTimeout(id);
   });
 
   it("should return timeout error when request takes too long", async () => {
     const timeoutRequest = request.setOptions({ timeout: 10 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
-    const { data: response, error } = await adapter(timeoutRequest, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(timeoutRequest, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("timeout").message);
@@ -100,31 +109,42 @@ describe("Fetch Adapter [ Server ]", () => {
       testData: "123",
     };
     const postRequest = client
-      .createRequest<unknown, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
-      .setData(payload);
+      .createRequest<{
+        response: null;
+        payload: { testData: string };
+      }>()({ endpoint: "shared-endpoint", method: "POST" })
+      .setPayload(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
-    const mock = createRequestInterceptor(postRequest);
+    const mock = mockRequest(postRequest);
 
-    const { data: response, error, status, extra } = await adapter(postRequest, requestId);
+    const {
+      data: response,
+      error,
+      status,
+      extra,
+    } = await HttpAdapter().initialize(client).fetch(postRequest, requestId);
 
     expect(response).toEqual(mock);
     expect(error).toBeNull();
     expect(status).toEqual(200);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
   });
 
   it("should allow to calculate payload size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
 
-    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     await mutation.send({
-      data: {
+      payload: {
         username: "Kacper",
         password: "Kacper1234",
       },
@@ -135,18 +155,21 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate Buffer size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
 
-    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     const buffer = Buffer.from("test");
 
     await mutation.send({
-      data: buffer as any,
+      payload: buffer as any,
     });
 
     expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);

@@ -1,0 +1,140 @@
+import { produce } from "immer";
+import { create } from "zustand/react";
+import { Cache } from "@hyper-fetch/core";
+
+import { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
+
+type CacheKey = string;
+
+type CacheStore = {
+  cacheSearchTerm: string;
+  cacheSort: Sort | null;
+  caches: Map<CacheKey, DevtoolsCacheEvent>;
+  detailsId: string | null;
+  loadingKeys: Set<CacheKey>;
+};
+
+const getInitialState = (): CacheStore => ({
+  cacheSearchTerm: "",
+  cacheSort: null,
+  caches: new Map(),
+  detailsId: null,
+  loadingKeys: new Set(),
+});
+
+type Store = {
+  applications: { [application: string]: CacheStore };
+  initialize: (application: string) => void;
+  setSearchTerm: (application: string, searchTerm: string) => void;
+  openDetails: (data: { application: string; cacheKey: string }) => void;
+  closeDetails: (application: string) => void;
+  setCacheSort: (data: { application: string; sorting: Sort }) => void;
+  setCache: (data: { application: string; data: Parameters<Parameters<Cache["events"]["onData"]>[0]>[0] }) => void;
+  invalidateCache: (data: { application: string; cacheKey: string }) => void;
+  addLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
+  removeLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
+};
+
+export const useCacheStore = create<Store>((set) => ({
+  applications: {},
+  initialize: (application: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.applications[application] = getInitialState();
+      }),
+    );
+  },
+  setSearchTerm: (application: string, searchTerm: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].cacheSearchTerm = searchTerm;
+      }),
+    );
+  },
+  openDetails: ({ application, cacheKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].detailsId = cacheKey;
+      }),
+    );
+  },
+  closeDetails: (application: string) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.applications[application].detailsId = null;
+      }),
+    );
+  },
+  setCacheSort: ({ application, sorting }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].cacheSort = sorting;
+      }),
+    );
+  },
+  setCache: ({ application, data }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        const { cacheKey, isTriggeredExternally } = data;
+
+        // TODO: Kacper - why it is showing that "isTriggeredExternally" is true here?
+        // It has to be false, because we're reading data from the client cache events
+        if (isTriggeredExternally) {
+          draft.applications[application].caches.set(cacheKey, {
+            cacheKey,
+            cacheData: data,
+          });
+        }
+      }),
+    );
+  },
+  invalidateCache: ({ application, cacheKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        const cacheData = draft.applications[application].caches.get(cacheKey);
+        if (!cacheData) {
+          return;
+        }
+        draft.applications[application].caches.set(cacheKey, {
+          ...cacheData,
+          cacheData: {
+            ...cacheData.cacheData,
+            staleTime: 0,
+          },
+        });
+      }),
+    );
+  },
+  addLoadingKey: ({ application, cacheKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].loadingKeys.add(cacheKey);
+      }),
+    );
+  },
+  removeLoadingKey: ({ application, cacheKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].loadingKeys.delete(cacheKey);
+      }),
+    );
+  },
+}));

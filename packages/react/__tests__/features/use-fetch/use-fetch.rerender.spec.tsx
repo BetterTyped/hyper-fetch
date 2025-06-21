@@ -1,11 +1,14 @@
 import { useRef } from "react";
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 import { render } from "@testing-library/react";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { useFetch } from "hooks/use-fetch";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { client, createRequest, sleep, waitForRender } from "../../utils";
+import { client, createRequest, waitForRender } from "../../utils";
 
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+// TODO fix error logs
 const useWillMount = (fn: () => void) => {
   const mounted = useRef(false);
 
@@ -33,7 +36,7 @@ describe("useFetch [ Rerender ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -45,7 +48,7 @@ describe("useFetch [ Rerender ]", () => {
     rerenders = 0;
     request = createRequest();
     client.clear();
-    createRequestInterceptor(request, { delay: fetchTime });
+    mockRequest(request, { delay: fetchTime });
   });
 
   // FIXES https://github.com/BetterTyped/hyper-fetch/issues/94
@@ -74,35 +77,34 @@ describe("useFetch [ Rerender ]", () => {
   });
 
   it("should not rerender when the same data is received from backend", async () => {
-    function Page() {
-      const { data } = useFetch(request, { refresh: true, refreshTime: 10 });
+    const Page = () => {
+      const { data } = useFetch(request, { refresh: false, refreshTime: 0 });
 
       rerenders += 1;
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
-
     await waitForDoubleFetch();
 
     expect(rerenders).toBe(2);
   });
   it("should not rerender when changed key is not used", async () => {
-    function Page() {
-      const { setError, setTimestamp } = useFetch(request);
+    const Page = () => {
+      const { setError, setResponseTimestamp } = useFetch(request);
 
       rerenders += 1;
 
       useDidMount(() => {
-        setTimestamp(new Date());
+        setResponseTimestamp(new Date());
         setTimeout(() => {
           setError(new Error("test"), true);
         }, fetchTime / 2);
       });
 
       return <div>test</div>;
-    }
+    };
 
     render(<Page />);
 
@@ -111,13 +113,13 @@ describe("useFetch [ Rerender ]", () => {
     expect(rerenders).toBe(1);
   });
   it("should rerender when dependency tracking is off", async () => {
-    function Page() {
+    const Page = () => {
       const { data } = useFetch(request, { dependencyTracking: false });
 
       rerenders += 1;
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
 
@@ -126,7 +128,7 @@ describe("useFetch [ Rerender ]", () => {
     expect(rerenders).toBe(2);
   });
   it("should rerender while using the changed key", async () => {
-    function Page() {
+    const Page = () => {
       const { data, setData } = useFetch(request);
 
       rerenders += 1;
@@ -138,7 +140,7 @@ describe("useFetch [ Rerender ]", () => {
       }, [data]);
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
 

@@ -1,21 +1,21 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("updateDoc", () => {
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const updateReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })
-        .setData(newData);
-      const getReq = client.createRequest<Tea>()({
+        .setPayload(newData);
+      const getReq = client.createRequest<{ response: Tea }>()({
         endpoint: ":teaId",
         method: "getDoc",
       });
@@ -28,11 +28,11 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof fire
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
 
       const request = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })
-        .setData(newData);
+        .setPayload(newData);
 
       await testLifecycleEvents(request);
     });

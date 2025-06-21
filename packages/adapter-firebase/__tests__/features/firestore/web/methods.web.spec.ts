@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { seedFirestoreDatabaseBrowser } from "../../../utils/browser/seed.browser";
 import { deleteCollectionForBrowser } from "../../../utils/browser/clean.browser";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
@@ -17,5 +17,5 @@ describe("Firestore Browser [ Methods ]", () => {
     await deleteCollectionForBrowser(firestoreDbBrowser, "teas");
   });
 
-  methodsSharedTestCases(() => firebaseAdapter(firestoreDbBrowser));
+  methodsSharedTestCases(() => FirebaseAdapter(firestoreDbBrowser));
 });

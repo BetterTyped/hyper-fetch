@@ -1,0 +1,189 @@
+---
+sidebar_position: 5
+title: React hooks - useQueue
+sidebar_label: useQueue
+---
+
+# useQueue
+
+This hook controls the **dispatcher queues**. It uses the [`Dispatcher`](/core/dispatcher.mdx) to read the actual value
+of the queue, which is based on the `queryKey` retrieved from the request passed as the first argument.
+
+A prepared [`Request`](/core/request.mdx) is the minimum requirement for `useQueue`.
+
+[Read the API Reference »](/api/react/Hooks/useQueue.mdx)
+
+---
+
+:::tip Purpose
+
+1. **Queue control for requests**: Manage and observe the queue of requests for a given `Request` instance.
+2. **Fine-grained request lifecycle**: Start, stop, and pause entire queues or individual requests.
+3. **Real-time updates**: Reactively track the state of all requests in the queue.
+4. **Integration with Dispatcher**: Leverages the [`Dispatcher`](/docs/core/dispatcher) for queue management and event
+   updates.
+5. **Advanced queue strategies**: Works best with `one-by-one` dispatching and the `queued` option enabled.
+
+:::
+
+---
+
+## Quick Start
+
+To use `useQueue`, provide a prepared [`Request`](/docs/core/request) instance. The hook returns the current queue state
+and control methods.
+
+```tsx title="Controlling a request queue" size=md
+import { useQueue } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function App() {
+  // highlight-start
+  const { requests } = useQueue(getUsers);
+  // highlight-end
+
+  return (
+    <div>
+      <ul>
+        // highlight-start
+        {/* List of currently running requests */}
+        {requests.map((req) => (
+          <li key={req.requestId}>{req.requestOptions.endpoint}</li>
+        ))}
+        // highlight-end
+      </ul>
+    </div>
+  );
+}
+```
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn more about creating and configuring requests."
+  to="/docs/core/request"
+/>
+
+---
+
+## How it works
+
+**`useQueue`** uses the request's `queryKey` to read and control the Dispatcher queue. It subscribes to Dispatcher
+events to keep the queue state up to date. This hook is ideal for advanced scenarios where you need to:
+
+- Control the execution order of requests
+- Pause, stop, or resume queued requests
+- Monitor the status of all requests in a queue
+- Integrate with custom queueing strategies
+
+It works best with the `one-by-one` dispatching mode and when the `queued` option is set to `true` on the request.
+
+:::caution
+
+Remember to ensure your request's `queryKey` is static when using this hook. If your request uses dynamic params or
+query params, auto-generated keys may cause incorrect queue tracking. Provide a custom `queryKey` when creating the
+request to avoid this issue.
+
+:::
+
+---
+
+## Controlling the Queue
+
+The hook returns methods to control the queue and individual requests:
+
+```tsx
+const { requests, stopped, stop, start, pause } = useQueue(getUsers);
+
+// Control all requests in the queue
+top(); // Stops the queue
+pause(); // Pauses the queue
+start(); // Starts the queue
+
+// Control individual requests
+requests.forEach((req) => {
+  req.stopRequest();
+  req.startRequest();
+});
+```
+
+Read more about the differences between `stop`, `pause`, and `start` in the [`Dispatcher`](/docs/core/dispatcher)
+documentation.
+
+---
+
+## Options
+
+Customize the behavior of `useQueue` by passing an options object as the second argument.
+
+```tsx
+const { ... } = useQueue(request, options);
+```
+
+(@import react UseQueueOptionsType type=returns)
+
+<LinkCard
+  type="api"
+  title="UseQueueOptionsType API Reference"
+  description="Learn more about the useQueue hook options."
+  to="/docs/api/react/Types/UseQueueOptionsType"
+/>
+
+---
+
+## Returns
+
+`useQueue` returns an object with the current queue state, control methods, and request helpers.
+
+```tsx
+const values = useQueue(request);
+```
+
+(@import react useQueue type=returns)
+
+<LinkCard
+  type="api"
+  title="useQueue API Reference"
+  description="Learn more about the useQueue hook."
+  to="/docs/api/react/Hooks/useQueue"
+/>
+
+#### Request interface
+
+<ShowMore>
+
+(@import react QueueRequest type=returns)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="QueueRequest API Reference"
+  description="Learn more about the QueueRequest type."
+  to="/docs/api/react/Types/QueueRequest"
+/>
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Dispatcher"
+  description="Learn more about the Dispatcher and queue management."
+  to="/docs/core/dispatcher"
+/>
+
+<LinkCard
+  type="docs"
+  title="useFetch"
+  description="Learn more about the useFetch hook."
+  to="/docs/react/hooks/use-fetch"
+/>
+
+<LinkCard
+  type="docs"
+  title="useSubmit"
+  description="Learn more about the useSubmit hook."
+  to="/docs/react/hooks/use-submit"
+/>

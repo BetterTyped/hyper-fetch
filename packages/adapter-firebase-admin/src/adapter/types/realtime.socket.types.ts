@@ -1,13 +1,13 @@
-import { SocketAdapterType } from "@hyper-fetch/sockets";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 import { Reference, DataSnapshot } from "firebase-admin/database";
 
 import { RealtimeDBQueryParams, RealtimeDBStatuses } from "adapter/index";
 
-export type RealtimeAdminSocketAdapterType = SocketAdapterType<
-  never,
+export type RealtimeAdminSocketAdapterType = SocketAdapter<
+  any,
   RealtimeAdminOnValueMethodExtra,
   { onlyOnce?: boolean } & RealtimeDBQueryParams,
-  never
+  any
 >;
 
 export type RealtimeAdminOnValueMethodExtra = {

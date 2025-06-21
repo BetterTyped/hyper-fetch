@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const removeTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const removeTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
   beforeEach(() => {
     client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
@@ -12,29 +12,31 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof firebas
   describe("remove", () => {
     it("should allow for removing data", async () => {
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "remove",
+          method: "deleteDoc",
         })
         .setParams({ teaId: 1 });
 
       await removeReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      expect(extra.snapshot.exists()).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(extra?.snapshot?.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "remove",
+          method: "deleteDoc",
         })
         .setParams({ teaId: 1 });
 

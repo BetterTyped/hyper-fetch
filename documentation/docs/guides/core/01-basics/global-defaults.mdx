@@ -1,0 +1,172 @@
+---
+sidebar_position: 10
+title: Guide - Global Defaults
+sidebar_label: Global Defaults
+---
+
+# Global Defaults
+
+In any application, you'll find yourself repeating request configurations. Whether it's setting caching policies for
+`GET` requests or ensuring mutations are never cached, this repetitive setup can lead to boilerplate and
+inconsistencies. Hyper-Fetch solves this by allowing you to define powerful global defaults that apply to all requests,
+while still offering the flexibility to override them for specific cases.
+
+This guide will show you how to centralize your request logic, from default options to custom keying strategies.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to set **global default options** that apply to all requests.
+2.  How to create **dynamic default configurations** based on request properties like the HTTP method.
+3.  Why and how to customize **request keys** for features like caching and request aborting.
+4.  The purpose of **request keys** and when they are helpful.
+5.  How to assign **custom, predictable IDs** to your requests for better tracking and debugging.
+
+:::
+
+---
+
+## Setting Default Request Options
+
+Adding global configurations can significantly streamline your application setup. For maximum flexibility, especially in
+larger applications, Hyper-Fetch allows you to add global configs through a callback function. This function receives
+the request's details, enabling you to apply different defaults based on its properties, like the HTTP method.
+
+Global configurations are overridden by options set on individual requests. This means you can set a sensible default
+and still customize behavior for specific cases.
+
+The main method for this is `client.adapter.setRequestDefaults`.
+
+### Example
+
+Let's configure a client to have different defaults for `GET` requests versus other methods like `POST` or `PUT`. For
+`GET` requests, we'll enable deduplication and caching with a short stale time. For other requests, we'll disable
+caching to ensure mutations are always sent to the server.
+
+```ts
+import { client } from "./client";
+
+// highlight-start
+client.adapter.setRequestDefaults((request) => {
+  if (request.method === "GET") {
+    return {
+      deduplicate: true,
+      cache: true,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 3,
+    };
+  }
+
+  return {
+    cache: false,
+    retry: 0,
+  };
+});
+// highlight-end
+
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
+
+const getImportantUser = getUser.setOptions({
+  retry: 5,
+});
+```
+
+---
+
+## Customizing Request Keys
+
+Data and requests within Hyper-Fetch are organized by unique keys. These keys are automatically generated from request
+metadata like the endpoint, method, and parameters. They are crucial for features like caching, request deduplication,
+and aborting. However, you can customize the key generation logic to fit your specific needs.
+
+Keys must always be a string.
+
+### Why is it helpful?
+
+- **Easier debugging**: Create more readable keys.
+- **Specific caching strategies**: Group or isolate cache entries based on custom logic.
+- **Integration with other systems**: Align keys with formats used elsewhere in your stack.
+
+### Key Mapper Methods
+
+Hyper-Fetch provides several methods to override key generation:
+
+- `setQueryKeyMapper`: For keys used in query-like operations.
+- `setCacheKeyMapper`: For keys used to store and retrieve cached data.
+- `setAbortKeyMapper`: For keys used to identify requests that can be aborted.
+
+### Example
+
+Let's customize the cache key to create a more readable format. We'll add a `Cache__` prefix and include the HTTP method
+and endpoint. This makes it easier to identify cache entries during debugging.
+
+```ts
+// highlight-start
+client.setCacheKeyMapper((request) => {
+  return `Cache__${request.method}__${request.endpoint}`;
+});
+// highlight-end
+
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+const customCacheKey = client.getCacheKey(getUsers);
+console.log(customCacheKey); // Cache__GET__/users
+```
+
+---
+
+## Customizing Request IDs
+
+Every request in Hyper-Fetch is assigned a unique identifier, which is crucial for tracking, logging, and debugging. By
+default, this ID is a randomly generated string. However, there are cases where you might want to define your own logic
+for generating these IDs.
+
+### When to use it?
+
+- **Predictable IDs for testing**: Set static IDs in your test environment for easier assertions.
+- **Improved logging**: Use a format that includes the endpoint or other request details for more descriptive logs.
+- **Cross-system correlation**: Align request IDs with identifiers used in other parts of your infrastructure (e.g.,
+  backend logs).
+
+The `setRequestIdMapper` method allows you to override the default ID generation.
+
+### Example
+
+Let's create a custom ID that includes the request's endpoint and a timestamp for better traceability in logs.
+
+```ts
+// highlight-start
+client.setRequestIdMapper((request) => {
+  const timestamp = new Date().getTime();
+  return `Request__${request.endpoint}__${timestamp}`;
+});
+// highlight-end
+
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+});
+
+const customRequestId = client.getRequestId(getUsers);
+console.log(customRequestId); // Request__/users__1718858400000
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to centralize and streamline your request configurations in Hyper-Fetch!
+
+- You can set **dynamic global defaults** for all your requests using `client.adapter.setRequestDefaults`.
+- You can tailor default behaviors based on **request properties** like the HTTP method.
+- You can customize the logic for generating **request keys** to better suit your application's needs.
+- You understand the **purpose of request keys** and why customizing them can be beneficial.
+- You can assign **custom, predictable IDs** to your requests for better tracking and debugging.
+
+:::

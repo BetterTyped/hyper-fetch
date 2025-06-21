@@ -1,0 +1,137 @@
+---
+sidebar_position: 1
+title: OpenAPI Codegen
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/codegen-openapi/Classes/OpenapiRequestGenerator.mdx)
+
+This guide will walk you through using the Hyper Fetch OpenAPI code generator. This powerful tool automatically creates
+type-safe Hyper Fetch clients, requests, and data models directly from your OpenAPI V3 schema. It streamlines the
+process of integrating with REST APIs, saving you time and reducing boilerplate code.
+
+:::success Swagger to Hyper Fetch
+
+This tool is a great way to get started with Hyper Fetch. It will generate a client, requests and types from your API.
+
+:::
+
+---
+
+:::tip Purpose
+
+By using the OpenAPI code generator, you can:
+
+1.  **Automatically generate** a ready-to-use Hyper-Fetch client.
+2.  **Create typed requests** for all your API endpoints.
+3.  **Define data models** based on your OpenAPI schema components.
+4.  **Boost productivity** by eliminating manual setup for API integration.
+
+:::
+
+:::caution Supported Version
+
+Please note that the code generator currently supports **OpenAPI V3 schemas only**. Support for other versions is
+planned for the future.
+
+:::
+
+---
+
+## Getting Started
+
+To start using the request generator, all you need is an OpenAPI V3 JSON schema, available either as a local file or a
+remote URL. You can run the generator using `npx`:
+
+```bash
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
+```
+
+This command processes the schema and generates a `openapi.client.ts` file in your current directory. This file contains
+a pre-configured Hyper Fetch client, typed request functions, and all the necessary TypeScript types for your API.
+
+Here's a snippet of what the generated file looks like:
+
+```typescript
+import { client } from "./client";
+
+// ... (imports and namespace definitions)
+
+// ... (type definitions for schemas)
+export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody;
+export type UpdatePetResponseType = Paths.UpdatePet.Responses.$200;
+
+export type AddPetRequestBody = Paths.AddPet.RequestBody;
+export type AddPetResponseType = Paths.AddPet.Responses.$200;
+
+// ... (request definitions)
+
+export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody>()({
+  method: "PUT",
+  endpoint: "/pet",
+});
+
+export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody>()({
+  method: "POST",
+  endpoint: "/pet",
+});
+```
+
+You have to create a client instance with the base URL of your API.
+
+```typescript title="./client.ts"
+import { Client } from "@hyper-fetch/core";
+
+export const client = new Client({ url: "/api/v3" });
+```
+
+We do not generate the client for you because of interceptors, authentication and other features that would be blocked
+otherwise. This way you have full control over the client.
+
+### Naming Convention
+
+The generator follows a consistent naming convention based on the `operationId` from your OpenAPI schema:
+
+- **Request Function**: The function name is the camel-cased `operationId`. For example, `addPet`.
+- **Type Definitions**: Types are named by combining the pascal-cased `operationId` with a suffix indicating the type of
+  data (`ResponseType`, `RequestBody`, `QueryParams`, etc.). For example, `AddPetResponseType` or `AddPetRequestBody`.
+
+---
+
+## Configuration
+
+You can customize the generator's output with several command-line options.
+
+### Output File Name
+
+By default, the output file is named `openapi.client.ts`. You can specify a different name using the `--name` option:
+
+```bash
+npx @hyper-fetch/codegen-openapi --schema <path-to-schema> --name hyper-fetch.requests.ts
+```
+
+### Base URL
+
+The generator attempts to extract the base URL from the `servers` field in your OpenAPI schema:
+
+```json
+"servers": [
+  {
+    "url": "/api/v3"
+  }
+]
+```
+
+If you need to override this or if the `servers` field is not present, you can provide a base URL with the `--url`
+option:
+
+```bash
+npx @hyper-fetch/codegen-openapi --schema <path-to-schema> --url https://api.example.com
+```
+
+This will configure the generated client with the specified URL:
+
+```typescript
+// ... generated file
+export const client = new Client({ url: "https://api.example.com" });
+```

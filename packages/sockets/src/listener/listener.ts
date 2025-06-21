@@ -1,83 +1,68 @@
 import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
-import { Socket } from "socket";
-import { ListenType, ListenerOptionsType } from "listener";
-import { ExtractSocketExtraType, SocketAdapterType, ExtractListenerOptionsType } from "adapter";
-import { ConnectMethodType } from "types";
+import { SocketInstance } from "socket";
+import { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
+import { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Listener<
   Response,
-  Endpoint extends string,
-  AdapterType extends SocketAdapterType,
+  Topic extends string,
+  Socket extends SocketInstance,
   HasParams extends boolean = false,
 > {
-  readonly endpoint: Endpoint;
+  readonly topic: Topic;
   params?: ParamsType;
-  options?: ExtractListenerOptionsType<AdapterType>;
-  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
+  options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>;
 
   constructor(
-    readonly socket: Socket<AdapterType>,
-    readonly listenerOptions?: ListenerOptionsType<Endpoint, AdapterType>,
+    readonly socket: Socket,
+    readonly listenerOptions: ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>>,
   ) {
-    const { endpoint, options } = listenerOptions;
-    this.endpoint = endpoint;
+    const { topic, options } = listenerOptions;
+    this.topic = topic;
     this.options = options;
   }
 
-  setOptions(options: ExtractListenerOptionsType<AdapterType>) {
+  setOptions(options: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>) {
     return this.clone({ options });
   }
 
-  setParams(params: ExtractRouteParams<Endpoint>) {
+  setParams(params: ExtractRouteParams<Topic>) {
     return this.clone<true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
-    let endpoint = this.listenerOptions.endpoint as string;
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
-      });
-    }
-
-    return endpoint as Endpoint;
-  };
-
-  /**
-   * Attach global logic to the received events
-   * @param callback
-   */
-  onData(callback: ConnectMethodType<AdapterType, Response>) {
-    this.connections.add(callback);
-    return this;
-  }
-
-  clone<Params extends boolean = HasParams>(options?: Partial<ListenerOptionsType<Endpoint, AdapterType>>) {
-    const newInstance = new Listener<Response, Endpoint, AdapterType, Params>(this.socket, {
+  clone<NewHasParams extends true | false = HasParams>(
+    options?: ListenerConfigurationType<ExtractRouteParams<Topic>, Topic, Socket>,
+  ) {
+    const newInstance = new Listener<Response, Topic, Socket, NewHasParams>(this.socket, {
       ...this.listenerOptions,
       ...options,
-      endpoint: this.paramsMapper(options?.params || this.params),
+      topic: this.paramsMapper(options?.params || this.params),
     });
 
-    newInstance.connections = this.connections;
     return newInstance;
   }
 
-  listen: ListenType<this, AdapterType> = ({ callback, ...options }) => {
-    const instance = this.clone(options);
-
-    const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {
-      this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
-      return callback(response as any);
-    };
-
-    this.socket.adapter.listen(instance, action);
+  listen: ListenType<Listener<Response, Topic, Socket, HasParams>, Socket> = (
+    callback: Parameters<ListenType<Listener<Response, Topic, Socket, HasParams>, Socket>>[0],
+  ) => {
+    this.socket.adapter.listen(this, callback);
 
     const removeListener = () => {
-      this.socket.adapter.removeListener(instance.endpoint, action);
+      this.socket.adapter.removeListener({ topic: this.topic, callback });
     };
 
     return removeListener;
+  };
+
+  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
+    let topic = this.listenerOptions.topic as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
+      });
+    }
+
+    return topic as Topic;
   };
 }

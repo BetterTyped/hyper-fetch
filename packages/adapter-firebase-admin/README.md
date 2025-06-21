@@ -27,47 +27,95 @@
   </a>
 </p>
 
-## About
+---
 
-**`Hyper Fetch Firebase Admin`** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of
-the first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
-from the convenience and efficiency of Hyper Fetch for your Firebase-powered projects.
+## Description
 
-## Key Features
+`@hyper-fetch/firebase-admin` is the **official Firebase Admin SDK adapter** for
+[Hyper Fetch](https://hyperfetch.bettertyped.com). It brings the same declarative, type-safe API you use on the client
+to your server or cloud functions.
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+---
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
+:::tip Purpose
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
+1. **One API – everywhere** – share request definitions between the browser and Node.js environments.
+2. **First-class TypeScript** – strong typing for parameters, payloads and responses out of the box.
+3. **Queue & Retry** – leverage Hyper Fetch queueing on top of Firebase Admin SDK.
+4. **Unified tooling** – logging, events and interceptors identical on both sides.
+5. **Works with Firestore _and_ Realtime Database** – pick the storage that fits your use-case.
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+:::
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+## Installation
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
+```bash
+npm install @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
+# or
+yarn add @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
+```
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
+> `firebase-admin` is a peer dependency and must be installed separately.
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+## Quick start
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+### 1. Initialize Firebase Admin SDK
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
+```ts
+import { initializeApp, applicationDefault } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+initializeApp({
+  credential: applicationDefault(),
+});
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+export const db = getFirestore();
+```
 
-## Help me keep working on this project ❤️
+### 2. Create Hyper Fetch client with the Firebase Admin adapter
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
+import { db } from "./firebase";
 
-## Sources
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(db));
+```
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/basic/setup)
+### 3. Server-side request example
+
+```ts
+interface MessagePayload {
+  text: string;
+}
+
+export const addMessage = client.createRequest<{ payload: MessagePayload; response: null }>()({
+  endpoint: "/messages",
+  method: "addDoc",
+});
+
+await addMessage.send({ payload: { text: "Hello from the server!" } });
+```
+
+## Supported methods
+
+| Firestore                | Realtime Database  |
+| ------------------------ | ------------------ |
+| `getDoc`, `getDocs`      | `get`              |
+| `setDoc`, `addDoc`       | `set`, `push`      |
+| `updateDoc`, `deleteDoc` | `update`, `remove` |
+
+## Resources
+
+- [Documentation](https://hyperfetch.bettertyped.com)
+- [API Reference](https://hyperfetch.bettertyped.com/api/modules/firebase-admin)
+- [Guides](https://hyperfetch.bettertyped.com/docs/guides)
+- [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase-admin)
+
+## Contributing
+
+We ❤️ contributions! Please read the [contributing guide](../../../CONTRIBUTING.md) and open an issue or pull request.
+
+---
+
+Made with ☕ by [BetterTyped](https://bettertyped.com)

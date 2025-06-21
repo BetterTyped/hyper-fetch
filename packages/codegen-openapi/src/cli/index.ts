@@ -28,7 +28,7 @@ const main = async (opts: { schema: string; name?: string; url?: string }) => {
   let openapiSchema;
   if (isUrl(opts.schema)) {
     const client = new Client({ url: opts.schema });
-    const getSchema = client.createRequest<Document>()({ endpoint: "" });
+    const getSchema = client.createRequest<{ response: Document }>()({ endpoint: "" });
     const { data, error } = await getSchema.send();
     if (error) {
       throw error;
@@ -41,7 +41,7 @@ const main = async (opts: { schema: string; name?: string; url?: string }) => {
   }
 
   const generator = new OpenapiRequestGenerator(openapiSchema);
-  await generator.generateFile({ fileName: opts?.name, url: opts?.url });
+  await generator.generateFile({ fileName: opts?.name });
   return process.exit(0);
 };
 

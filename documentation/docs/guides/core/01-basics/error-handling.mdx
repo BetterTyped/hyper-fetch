@@ -1,0 +1,166 @@
+---
+title: Guide - Error Handling
+sidebar_label: Error Handling
+---
+
+# Error Handling
+
+Error handling is a crucial part of any application that communicates with an API. In Hyper-Fetch, error handling is
+designed to be robust, type-safe, and developer-friendly. Unlike traditional promise-based libraries that might reject
+on failure, Hyper-Fetch requests **never reject**. Instead, they return an `error` object alongside the `data`, ensuring
+that you can handle both success and failure states gracefully.
+
+This approach simplifies your async code by avoiding the need for `try...catch` blocks around your requests.
+
+:::secondary What you'll learn
+
+1.  How Hyper-Fetch handles errors without **rejecting promises**.
+2.  How to define a **global error type** for all requests made with a client instance.
+3.  How to specify **local error types** for individual requests.
+4.  How to access and **differentiate between error types** in your application.
+
+:::
+
+---
+
+## Global Errors
+
+A global error type provides a consistent error structure for all requests initiated from a `Client` instance. This is
+useful for defining a standard error shape that your API returns, such as a generic error message and a status code.
+
+You can define the global error type using generics when creating your client.
+
+```ts
+import { Client } from "@hyper-fetch/core";
+
+// 1. Define a global error type
+type GlobalErrorType = {
+  message: string;
+  status: number;
+  timestamp: string;
+};
+
+// 2. Create a client with the global error type
+const clientWithGlobalError = new Client<{ error: GlobalErrorType }>({
+  url: "https://jsonplaceholder.typicode.com",
+});
+
+const requestWithGlobalError = clientWithGlobalError.createRequest()({
+  endpoint: "/users/999", // This will cause a 404 error
+  method: "GET",
+});
+
+// 3. Example usage
+const { data, error } = await requestWithGlobalError.send();
+
+// `error` will be `GlobalErrorType | null`
+if (error) {
+  // Our mock server returns a plain object on 404
+  // but in a real scenario, this would be typed
+  console.log("Error occurred", { error });
+}
+```
+
+This setup ensures that any request created from this client instance will have its `error` property typed as
+`GlobalErrorType | null`, providing type safety across your application.
+
+---
+
+## Local Errors
+
+While global errors are great for consistency, some endpoints may return different error structures. For example, a form
+submission endpoint might return detailed validation errors for each field. Hyper-Fetch allows you to define a **local
+error type** for specific requests.
+
+This local error type will be combined with the global error type, creating a union type for the `error` property.
+
+```ts
+import { Client } from "@hyper-fetch/core";
+
+// Let's assume this client is defined in our app
+type GlobalErrorType = {
+  message: string;
+  status: number;
+};
+
+const clientForLocalError = new Client<{ error: GlobalErrorType }>({
+  url: "https://jsonplaceholder.typicode.com",
+});
+
+// 1. Define a local error type for a specific endpoint
+type UserValidationError = {
+  errors: {
+    email?: string[];
+    password?: string[];
+  };
+};
+
+// 2. Create a request and specify the local error type
+// Note that we are passing the local error to the `error` generic
+const signUpRequest = clientForLocalError.createRequest<{ error: UserValidationError }>()({
+  endpoint: "/users",
+  method: "POST",
+  data: { email: "not-an-email" },
+});
+
+// 3. Example usage
+const { data: signUpData, error: signUpError } = await signUpRequest.send();
+
+// The `error` type is now a union of the global and local error types:
+// `GlobalErrorType | UserValidationError | null`
+console.log("Response from 'local error' example", { signUpData, signUpError });
+
+if (signUpError) {
+  // You can now narrow down the error type
+  if ("errors" in signUpError) {
+    // This is the UserValidationError
+    console.error("Validation failed (simulated):", { email: "Invalid email format" });
+  } else {
+    // This is the GlobalErrorType
+    console.error("A global error occurred:", signUpError.message);
+  }
+}
+```
+
+By defining local errors, you can handle endpoint-specific error responses with full type safety, making your
+error-handling logic more robust and predictable.
+
+---
+
+## Error Type Narrowing
+
+When a request has both global and local error types, the resulting `error` property is a union of these types. To
+handle them correctly, you'll need to perform type narrowing. A common way to do this is by checking for a property that
+is unique to one of the error types.
+
+```ts
+// Let's imagine we received an error from the signUp request
+const receivedError: GlobalErrorType | UserValidationError | null = {
+  errors: { email: ["Enter a valid email."] },
+};
+
+if (receivedError) {
+  if ("errors" in receivedError) {
+    // TypeScript now knows `error` is of type `UserValidationError`
+    console.log(receivedError.errors.email);
+  } else {
+    // Here, `error` must be `GlobalErrorType`
+    console.log(receivedError.message);
+  }
+}
+```
+
+This pattern allows you to write specific error handling logic for different failure scenarios, all while benefiting
+from TypeScript's static analysis.
+
+---
+
+:::success Congratulations!
+
+You've learned how to effectively handle errors in Hyper-Fetch!
+
+- You can define **global** and **local error types** to match your API's responses.
+- You can access error information from requests without using **`try...catch`**.
+- You can use **type narrowing** to handle different error types safely.
+
+:::

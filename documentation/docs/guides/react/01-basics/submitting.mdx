@@ -1,0 +1,138 @@
+---
+sidebar_position: 2
+title: Submitting Data with useSubmit
+sidebar_label: Submitting
+---
+
+# Submitting Data
+
+While `useFetch` is for fetching and displaying data, `useSubmit` is its counterpart, designed for actions that change
+data on the server, such as creating, updating, or deleting resources. You use it when you need to trigger a request
+manually in response to a user event, like clicking a button.
+
+A key feature of `useSubmit` is that its `submit` function returns a promise, allowing you to easily perform actions
+after the submission completes, like resetting a form or showing a notification.
+
+:::secondary What you'll learn
+
+1.  How to use the **`useSubmit` hook** to send data to the server.
+2.  How to handle **form submissions** for creating and updating data.
+3.  How to trigger **actions** like deleting an item.
+4.  How the **`submit` function** works as a promise for easy chaining of actions.
+5.  How to manage **loading states** (`submitting`) to provide user feedback.
+
+:::
+
+## Managing a To-Do List
+
+Let's build a complete example of a to-do list application. We'll use `useSubmit` for all the mutation logic: adding a
+new to-do, toggling its completion status, and deleting it.
+
+```tsx live
+function TodoApp() {
+  const { data: todos, loading, revalidate } = useFetch(getTodos);
+  const [newTodo, setNewTodo] = React.useState("");
+
+  // 1. Setup submit hooks for each action
+  // highlight-start
+  const { submit: addTodo, submitting: isAdding } = useSubmit(createTodo);
+  const { submit: updateTodo } = useSubmit(updateTodoRequest);
+  const { submit: deleteTodo } = useSubmit(deleteTodoRequest);
+  // highlight-end
+
+  const handleAddTodo = async (e) => {
+    e.preventDefault();
+    if (!newTodo.trim()) return;
+
+    // The submit function returns a promise
+    await addTodo({ data: { title: newTodo, completed: false } });
+
+    // After success, clear the input and refetch the list
+    setNewTodo("");
+    revalidate();
+  };
+
+  const handleToggleTodo = async (todo) => {
+    await updateTodo({
+      params: { todoId: todo.id },
+      data: { completed: !todo.completed },
+    });
+    revalidate();
+  };
+
+  const handleDeleteTodo = async (todoId) => {
+    await deleteTodo({ params: { todoId } });
+    revalidate();
+  };
+
+  if (loading) return <p className="p-4">Loading to-do list...</p>;
+
+  return (
+    <div className="border rounded-md">
+      <div className="p-4 border-b">
+        <h2 className="text-xl font-bold">My To-Do List</h2>
+        <form onSubmit={handleAddTodo} className="flex items-center mt-4">
+          <input
+            type="text"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="What needs to be done?"
+            className="flex-grow p-2 border rounded-l-md"
+          />
+          <button
+            type="submit"
+            disabled={isAdding}
+            className="p-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            {isAdding ? "Adding..." : "Add Todo"}
+          </button>
+        </form>
+      </div>
+      <ul className="divide-y divide-gray-200">
+        {todos?.map((todo) => (
+          <li key={todo.id} className="p-4 flex items-center justify-between">
+            <span
+              onClick={() => handleToggleTodo(todo)}
+              className={`cursor-pointer ${todo.completed ? "line-through text-gray-500" : ""}`}
+            >
+              {todo.title}
+            </span>
+            <button onClick={() => handleDeleteTodo(todo.id)} className="text-red-500 hover:text-red-700">
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### How It Works
+
+1.  **Setup**: We set up separate `useSubmit` hooks for each mutation: `createTodo`, `updateTodoRequest`, and
+    `deleteTodoRequest`. This keeps the logic for each action clean and separate.
+2.  **Creating**: The `handleAddTodo` function calls `addTodo` with the new to-do's data. Because `submit` is a promise,
+    we can `await` it and then run code after it completes, such as clearing the input field and calling `revalidate()`
+    to refresh the to-do list.
+3.  **Updating**: `handleToggleTodo` calls `updateTodo` with the `todoId` in `params` and the new `completed` status in
+    `data`. We then revalidate to show the change.
+4.  **Deleting**: `handleDeleteTodo` calls `deleteTodo` with the appropriate `todoId` and revalidates.
+5.  **Loading State**: The `submitting` boolean (which we aliased to `isAdding` for the create action) is used to
+    disable the "Add" button while the request is in flight, preventing duplicate submissions.
+
+This example demonstrates how `useSubmit` can be the backbone for all the interactive, data-changing parts of your
+application.
+
+---
+
+:::success Congratulations!
+
+You are now a pro at submitting data with `useSubmit`!
+
+- You can perform **create, update, and delete** operations with ease.
+- You know how to use the **`submit` promise** to chain actions after a request.
+- You can manage **loading states** to create a responsive and intuitive UI.
+- You can **revalidate** data from `useFetch` to keep your UI in sync with server changes.
+
+:::

@@ -1,0 +1,217 @@
+---
+title: Guide - Custom Adapter
+sidebar_label: Custom Adapter
+---
+
+# Custom Adapter
+
+In Hyper Fetch, an adapter is a class responsible for handling the actual data exchange with a server. While Hyper Fetch
+comes with a built-in `http-adapter`, you might need to create a custom adapter to support different protocols (like
+WebSockets), integrate with a specific service (like Firebase), or use a different HTTP client (like `axios`).
+
+This guide will walk you through creating your own custom adapter, from a basic setup to advanced typing.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to create a **custom adapter** for Hyper Fetch using the `Adapter` class.
+2.  How to use the `setFetcher` method to **implement the core logic**.
+3.  The role of the **adapter bindings** in the adapter lifecycle.
+4.  How to **strongly-type your adapter** with custom options and return values.
+5.  How to implement **adapter unions** for conditional typing.
+
+:::
+
+## Basic Setup
+
+At its core, an adapter is a class that extends the `Adapter` class and implements the fetching logic. You can connect
+any adapter to the client by instantiating it.
+
+Here's a minimal example of a custom adapter:
+
+```typescript
+import { Adapter, Client } from "@hyper-fetch/core";
+
+const customAdapter = new Adapter({
+  name: "custom-adapter",
+  defaultMethod: "GET",
+  defaultExtra: {},
+  systemErrorStatus: 500,
+  systemErrorExtra: {},
+}).setFetcher(async ({ request, onSuccess }) => {
+  onSuccess({
+    data: { message: "success" },
+    error: null,
+    status: 200,
+    extra: null,
+  });
+});
+
+const client = new Client({ url: "http://localhost:3000" }).setAdapter(customAdapter);
+```
+
+This adapter doesn't do much—it returns a static response. To make it useful, we need to add logic to actually make a
+network request.
+
+## Core Logic with `setFetcher`
+
+The `setFetcher` method is where you'll implement your adapter's core functionality. It takes a callback function that
+receives a set of bindings—utilities and request details—to help you build your fetching logic. This approach abstracts
+away the complex internal logic of Hyper Fetch and provides a clean way to integrate your adapter.
+
+This ensures that all lifecycle hooks, request queueing, and other features work correctly.
+
+Let's implement a simple adapter using the native `fetch` API:
+
+```typescript
+import { Adapter, Client, RequestInstance } from "@hyper-fetch/core";
+import { User } from "shared";
+
+const fetchAdapter = new Adapter({
+  name: "fetch-adapter",
+  defaultMethod: "GET",
+  defaultExtra: {},
+  systemErrorStatus: 500,
+  systemErrorExtra: {},
+}).setFetcher(async ({ request, headers, payload, onSuccess, onError }) => {
+  const { client, endpoint, method } = request;
+  const fullUrl = `${client.url}${endpoint}`;
+
+  try {
+    const response = await fetch(fullUrl, {
+      method,
+      headers: headers as HeadersInit,
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      onSuccess({ data, status: response.status, extra: null });
+    } else {
+      onError({ error: data, status: response.status, extra: null });
+    }
+  } catch (error) {
+    onError({ error, status: 0, extra: null });
+  }
+});
+
+const client = new Client({ url: "http://localhost:3000" }).setAdapter(fetchAdapter);
+```
+
+## Adapter Bindings
+
+The callback passed to `setFetcher` receives an object with a set of utilities and request details. Here are the key
+properties you'll use:
+
+- **Core Request Data**: `request`, `headers`, `payload`, and `adapterOptions` provide the essential details of the
+  request.
+- **Lifecycle Callbacks**: A set of `on...` callbacks (`onSuccess`, `onError`, `onAbort`, `onTimeout`, etc.) that you
+  must use to report the outcome of the request.
+- **Abort Logic**: `createAbortListener` allows you to implement request cancellation.
+- **Progress Callbacks**: `onRequestProgress` and `onResponseProgress` for tracking upload and download progress.
+
+## Advanced Typing
+
+The `Adapter` class is a generic type that allows you to define custom options for your adapter, specify the structure
+of the `extra` return property, and more. This enables you to create strongly-typed adapters that are both powerful and
+easy to use.
+
+Here's how you can define an adapter with custom options and extra data:
+
+```typescript
+import { Adapter, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
+
+type MyCustomAdapterOptions = {
+  timeout?: number;
+  someOtherOption?: boolean;
+};
+
+type MyCustomExtra = {
+  headers: Headers;
+  raw: string;
+};
+
+const customHttpAdapter = new Adapter<
+  MyCustomAdapterOptions,
+  HttpMethodsType,
+  HttpStatusType,
+  MyCustomExtra,
+  QueryParamsType
+>({
+  name: "custom-http-adapter",
+  defaultMethod: "GET",
+  defaultExtra: { headers: new Headers(), raw: "" },
+  systemErrorStatus: 500,
+  systemErrorExtra: { headers: new Headers(), raw: "" },
+});
+
+const client = new Client({ url: "https://api.example.com" }).setAdapter(customHttpAdapter);
+```
+
+### Adapter Unions
+
+For more complex scenarios, you can create a union of `Adapter` types. This is a powerful feature used extensively in
+the `firebase-adapter`. However, creating a single adapter instance that can handle different configurations requires a
+factory function or a class that internally manages different adapter instances. The simplest way to achieve union-like
+behavior is to define a type and then create instances that conform to different parts of that union.
+
+```typescript
+import { Adapter, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
+
+type MyAdapter =
+  | Adapter<{ timeout?: number }, "GET", HttpStatusType, { raw: string }, QueryParamsType>
+  | Adapter<{ headers?: Headers }, "POST", HttpStatusType, { json: string }, QueryParamsType>;
+
+const getAdapter: MyAdapter = new Adapter({
+  name: "get-adapter",
+  defaultMethod: "GET",
+  defaultExtra: { raw: "" },
+  systemErrorStatus: 500,
+  systemErrorExtra: { raw: "" },
+});
+const postAdapter: MyAdapter = new Adapter({
+  name: "post-adapter",
+  defaultMethod: "POST",
+  defaultExtra: { json: "" },
+  systemErrorStatus: 500,
+  systemErrorExtra: { json: "" },
+});
+
+const client = new Client({ url: "https://api.example.com" }).setAdapter(getAdapter);
+
+// This request will have the type of the first union member
+const request1 = client.createRequest()({
+  endpoint: "/product",
+  method: "GET",
+  adapterOptions: { timeout: 1000 },
+});
+const { extra: extra1 } = await request1.send();
+// extra1 is { raw: string }
+
+// To use the post adapter, you would need to set it on the client
+client.setAdapter(postAdapter);
+
+// This request will have the type of the second union member
+const request2 = client.createRequest()({
+  endpoint: "/user",
+  method: "POST",
+  adapterOptions: { headers: new Headers() },
+});
+const { extra: extra2 } = await request2.send();
+// extra2 is { json: string }
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to create custom adapters for Hyper Fetch!
+
+- You know how to create a **basic adapter** using the `Adapter` class.
+- You can use the `setFetcher` method to **implement the core logic** of your adapter.
+- You understand how to **strongly-type your adapter** to accept custom options and return additional data.
+- You are able to create **adapter unions** for complex, conditional typing scenarios.
+
+:::

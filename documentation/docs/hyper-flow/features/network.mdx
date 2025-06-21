@@ -1,0 +1,41 @@
+---
+sidebar_position: 2
+title: Network Inspector
+---
+
+# Network Inspector
+
+The Network Inspector is a powerful tool for monitoring and debugging all HTTP requests made by your application. It
+provides a real-time stream of network activity, allowing you to inspect every detail of a request's lifecycle.
+
+{/* ![Network Inspector](../../../../static/img/previews/network.png) */}
+
+---
+
+## Real-time Monitoring
+
+The inspector displays a list of all network requests, which you can filter and search to quickly find what you need.
+This is invaluable for:
+
+- **Debugging**: See if requests are being sent as expected.
+- **Quality Assurance**: Verify that the correct data is being transmitted.
+- **Performance Tuning**: Identify redundant or slow API calls.
+
+Each entry in the list provides a summary of the request, including the method, endpoint, status, and response time.
+
+---
+
+## Detailed Request Inspection
+
+When you need a closer look, you can select any request to open a detailed view. This view is organized into several
+tabs, giving you access to all information about the request and its response.
+
+### What you can inspect:
+
+- **Headers**: View the full set of request and response headers.
+- **Payload**: Examine the data sent with `POST`, `PUT`, or `PATCH` requests.
+- **Response**: See the raw response body from the server.
+- **Timings**: Analyze the time spent in each phase of the request lifecycle.
+
+This level of detail makes it easy to spot issues with authentication, data formatting, or server responses, helping you
+resolve bugs faster.

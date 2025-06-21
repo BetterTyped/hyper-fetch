@@ -9,7 +9,8 @@ import * as prettier from "prettier";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
-import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, getBaseUrl } from "./utils";
+import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName } from "./utils";
+import { HttpMethod } from "./http-methods.enum";
 
 interface RefError {
   path: string;
@@ -23,16 +24,13 @@ export class OpenapiRequestGenerator {
     this.openapiDocument = openapiDocument as Document;
   }
 
-  async generateFile({ fileName, url }: { fileName?: string; url?: string }) {
+  async generateFile({ fileName }: { fileName?: string }) {
     const defaultFileName = "openapi.client";
-    const baseUrl = url || getBaseUrl(this.openapiDocument);
     const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { Client } from "@hyper-fetch/core";`,
+      `import { client } from "./client";`,
       "\n\n",
       schemaTypes,
-      "\n\n",
-      `export const client = new Client({url: "${baseUrl}"})`,
       "\n\n",
       generatedTypes.join("\n\n"),
       "\n\n",
@@ -63,9 +61,9 @@ export class OpenapiRequestGenerator {
   generateRequestsFromSchema = async () => {
     const { schemaTypes, exportedTypes } = await OpenapiRequestGenerator.prepareSchema(this.openapiDocument);
 
-    const generatedTypes = [];
-    const generatedRequests = [];
-    const metadata = [];
+    const generatedTypes: string[] = [];
+    const generatedRequests: string[] = [];
+    const metadata: ReturnType<(typeof OpenapiRequestGenerator)["generateMethodMetadata"]>[] = [];
 
     getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
@@ -85,18 +83,43 @@ export class OpenapiRequestGenerator {
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
       ? `${createTypeBaseName(id)}ResponseType`
-      : "unknown";
-    const Payload = types[`${createTypeBaseName(id)}RequestBody`]
-      ? `${createTypeBaseName(id)}RequestBody`
-      : "undefined";
-    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : "undefined";
+      : undefined;
+    const Payload = types[`${createTypeBaseName(id)}RequestBody`] ? `${createTypeBaseName(id)}RequestBody` : undefined;
+    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : undefined;
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
       ? `${createTypeBaseName(id)}QueryParams`
-      : "undefined";
-    const getVariableName = (str) => str.charAt(0).toLowerCase() + str.slice(1);
+      : undefined;
+    const getVariableName = (str: string) => str.charAt(0).toLowerCase() + str.slice(1);
+
+    let genericType = "";
+
+    const addToGenericType = (key: string, value: string) => {
+      if (genericType) {
+        genericType += ",";
+      }
+      genericType += `${key}:${value}`;
+    };
+
+    if (Response) {
+      addToGenericType("response", Response);
+    }
+    if (Payload) {
+      addToGenericType("payload", Payload);
+    }
+    if (LocalError) {
+      addToGenericType("error", LocalError);
+    }
+    if (QueryParams) {
+      addToGenericType("query", QueryParams);
+    }
+
+    if (genericType) {
+      genericType = `<{${genericType}}>`;
+    }
+
     return `export const ${getVariableName(
       createTypeBaseName(id),
-    )} = client.createRequest<${Response}, ${Payload}, ${LocalError}, ${QueryParams}>()({method: "${method}", endpoint: "${path}"})`;
+    )} = client.createRequest${genericType}()({method: "${method}", endpoint: "${path}"})`;
   }
 
   static generateTypes({
@@ -134,7 +157,10 @@ export class OpenapiRequestGenerator {
     return types;
   }
 
-  static generateMethodMetadata(operation: Partial<Operation>, exportTypes: ExportedType[]) {
+  static generateMethodMetadata(
+    operation: { operationId: string; path: string; method: string } & Partial<Operation>,
+    exportTypes: ExportedType[],
+  ) {
     const { operationId, method, path: relPath } = operation;
     const normalizedOperationId = normalizeOperationId(operationId);
     const pathParametersType = find(exportTypes, {
@@ -168,7 +194,7 @@ export class OpenapiRequestGenerator {
       errorType,
       responseType,
       path: adjustPathParamsFormat(relPath),
-      method: method.toUpperCase(),
+      method: method ? method.toUpperCase() : HttpMethod.GET,
     };
   }
 

@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+}
+
+iframe {
+  z-index: -1 !important;
+}
+
+button {
+  cursor: pointer;
+}

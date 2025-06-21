@@ -21,19 +21,15 @@ export const testProgressSpy = (props: {
   }).timeLeft;
   const timeToSend = loadedValue ? estimatedTime : null;
 
-  expect(spy).toBeCalledTimes(1);
-  expect(spy).toBeCalledWith(
-    {
-      loaded: loadedValue,
-      progress: getProgressValue({ total: totalValue, loaded: loadedValue }),
-      sizeLeft: totalValue - loadedValue,
-      startTimestamp,
-      timeLeft: timeLeft ?? timeToSend,
-      total: totalValue,
-    },
-    {
-      request,
-      requestId,
-    },
-  );
+  expect(spy).toHaveBeenCalledTimes(1);
+  expect(spy).toHaveBeenCalledWith({
+    request,
+    requestId,
+    loaded: loadedValue,
+    progress: getProgressValue({ total: totalValue, loaded: loadedValue }),
+    sizeLeft: totalValue - loadedValue,
+    startTimestamp,
+    timeLeft: timeLeft ?? timeToSend,
+    total: totalValue,
+  });
 };

@@ -1,5 +1,8 @@
-import { resetInterceptors, startServer, stopServer } from "../../server";
-import { Client, DateInterval } from "../../../src";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+import { Client, RequestInstance, Time } from "../../../src";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Setters ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -11,7 +14,7 @@ describe("Request [ Setters ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/users/:userId" });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -39,16 +42,15 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.endpoint).toBe("/users/1");
   });
   it("should allow for setting ", async () => {
-    const req = client.createRequest<unknown, { test: number }>()({ endpoint: "/users/:userId" });
+    const req = client.createRequest<{ response: void; payload: { test: number } }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
-    expect(request.data).not.toBeDefined();
-    const updatedRequest = req.setData(data);
-    expect(updatedRequest.data).toBe(data);
+    expect(request.payload).not.toBeDefined();
+    const updatedRequest = req.setPayload(data);
+    expect(updatedRequest.payload).toBe(data);
   });
   it("should allow for setting query params", async () => {
-    expect(request.endpoint).toBe("/users/:userId");
     const updatedRequest = request.setQueryParams("?test=123");
-    expect(updatedRequest.endpoint).toBe("/users/:userId?test=123");
+    expect(updatedRequest.queryParams).toBe("?test=123");
   });
   it("should allow for setting options", async () => {
     const options = { timeout: 123 };
@@ -77,9 +79,9 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.cache).toBeFalse();
   });
   it("should allow for setting cache time", async () => {
-    expect(request.cacheTime).toBe(DateInterval.minute * 5);
-    const updatedRequest = request.setCacheTime(1000);
-    expect(updatedRequest.cacheTime).toBe(1000);
+    expect(request.staleTime).toBe(Time.MIN * 5);
+    const updatedRequest = request.setStaleTime(1000);
+    expect(updatedRequest.staleTime).toBe(1000);
   });
   it("should allow for setting queued", async () => {
     expect(request.queued).toBeFalse();
@@ -92,19 +94,14 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.abortKey).toBe("test");
   });
   it("should allow for setting cache key", async () => {
-    expect(request.cacheKey).toBe("GET_/users/:userId");
+    expect(request.cacheKey).toBe("GET_/users/:userId_");
     const updatedRequest = request.setCacheKey("test");
     expect(updatedRequest.cacheKey).toBe("test");
   });
   it("should allow for setting queue key", async () => {
-    expect(request.queueKey).toBe("GET_/users/:userId");
-    const updatedRequest = request.setQueueKey("test");
-    expect(updatedRequest.queueKey).toBe("test");
-  });
-  it("should allow for setting effect key", async () => {
-    expect(request.effectKey).toBe("GET_/users/:userId_false");
-    const updatedRequest = request.setEffectKey("test");
-    expect(updatedRequest.effectKey).toBe("test");
+    expect(request.queryKey).toBe("GET_/users/:userId_");
+    const updatedRequest = request.setQueryKey("test");
+    expect(updatedRequest.queryKey).toBe("test");
   });
   it("should allow for setting deduplicate", async () => {
     expect(request.deduplicate).toBeFalse();
@@ -112,7 +109,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.deduplicate).toBeTrue();
   });
   it("should allow for setting deduplicate time", async () => {
-    expect(request.deduplicateTime).toBe(10);
+    expect(request.deduplicateTime).toBe(null);
     const updatedRequest = request.setDeduplicateTime(1000);
     expect(updatedRequest.deduplicateTime).toBe(1000);
   });
@@ -126,10 +123,10 @@ describe("Request [ Setters ]", () => {
     const updatedRequest = request.setOffline(false);
     expect(updatedRequest.offline).toBeFalse();
   });
-  it("should allow for setting garbageCollection", async () => {
-    expect(request.garbageCollection).toBe(DateInterval.minute * 5);
-    const updatedRequest = request.setGarbageCollection(DateInterval.minute);
-    expect(updatedRequest.garbageCollection).toBe(DateInterval.minute);
+  it("should allow for setting cacheTime", async () => {
+    expect(request.cacheTime).toBe(Time.MIN * 5);
+    const updatedRequest = request.setCacheTime(Time.MIN);
+    expect(updatedRequest.cacheTime).toBe(Time.MIN);
   });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {
@@ -138,23 +135,23 @@ describe("Request [ Setters ]", () => {
       formData.append("email", data.email);
       return formData;
     };
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
-    expect(mapperRequest.dataMapper).not.toBeDefined();
-    const updatedRequest = mapperRequest.setDataMapper(mapper);
-    expect(updatedRequest.dataMapper).toBe(mapper);
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
+    expect(mapperRequest.unstable_payloadMapper).not.toBeDefined();
+    const updatedRequest = mapperRequest.setPayloadMapper(mapper);
+    expect(updatedRequest.unstable_payloadMapper).toBe(mapper);
   });
   it("should allow for setting response mapper", async () => {
-    const mapper = (res) => ({ ...res });
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
-    expect(mapperRequest.responseMapper).not.toBeDefined();
+    const mapper = (res: any) => ({ ...res });
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
+    expect(mapperRequest.unstable_responseMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setResponseMapper(mapper);
-    expect(updatedRequest.responseMapper).toBe(mapper);
+    expect(updatedRequest.unstable_responseMapper).toBe(mapper);
   });
   it("should allow for setting request mapper", async () => {
-    const mapper = (req) => req;
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
-    expect(mapperRequest.requestMapper).not.toBeDefined();
+    const mapper = (req: RequestInstance) => req;
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
+    expect(mapperRequest.unstable_requestMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setRequestMapper(mapper);
-    expect(updatedRequest.requestMapper).toBe(mapper);
+    expect(updatedRequest.unstable_requestMapper).toBe(mapper);
   });
 });

@@ -1,0 +1,40 @@
+---
+sidebar_position: 4
+title: Queue Management
+---
+
+# Queue Management
+
+Hyper Flow's queue management tools allow you to monitor and control the request queues in your application. This is
+essential for managing offline support, request prioritization, and concurrency.
+
+---
+
+## Monitoring Queues
+
+The queues dashboard provides a real-time list of all active request queues. You can see at a glance which queues are
+running, how many requests are in each queue, and their current status.
+
+### Key information includes:
+
+- **Queue Name**: The identifier for each queue.
+- **Request Count**: The number of pending and in-flight requests.
+- **Status**: Whether the queue is active, paused, or stopped.
+
+This overview is critical for understanding how your application handles concurrent and sequential data operations.
+
+---
+
+## Inspecting Queue Details
+
+For more granular control, you can inspect the details of any specific queue. This view provides a complete history of
+the requests that have passed through the queue, as well as those that are currently being processed or are pending.
+
+### With this detailed view, you can:
+
+- **Troubleshoot Stuck Requests**: Identify requests that are failing or taking too long to process.
+- **Analyze Queue Flow**: Understand the order of execution and how priorities are being handled.
+- **Optimize Concurrency**: Adjust your queueing strategy for better performance and reliability.
+
+Full visibility into your queues gives you the confidence to build robust applications that can handle complex data
+synchronization and network conditions gracefully.
