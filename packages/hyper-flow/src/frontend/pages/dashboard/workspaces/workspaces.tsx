@@ -51,10 +51,11 @@ export const Workspaces = () => {
       }
     }, 1000);
 
-    return () => clearInterval(messageInterval);
+    return () => clearInterval(messageInterval as unknown as NodeJS.Timeout);
   }, []);
 
   const onOpenApplication = (workspaceId: string) => {
+    console.warn("workspaceId", workspaceId);
     navigate({
       to: "/",
     });

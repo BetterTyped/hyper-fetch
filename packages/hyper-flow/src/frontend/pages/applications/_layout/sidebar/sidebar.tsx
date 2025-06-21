@@ -16,14 +16,13 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { useApplications } from "@/store/applications/apps.store";
-import { Link, LinkProps, useParams, useRouterState } from "@tanstack/react-router";
+import { Link, LinkProps, useParams } from "@tanstack/react-router";
 
 import logo from "../../../../assets/images/icon.png";
 
 export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { applicationName } = useParams({ strict: false });
   const { applications } = useApplications();
-  const location = useRouterState({ select: (state) => state.location });
   const application = applications[applicationName as string];
 
   const navigation: ({ title: string; icon: LucideIcon; isActive: boolean } & Pick<LinkProps, "to" | "params">)[] = [
