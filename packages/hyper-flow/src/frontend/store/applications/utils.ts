@@ -31,7 +31,7 @@ export const getDataSize = async (data: unknown): Promise<number> => {
           streamSize += value.byteLength;
         } else if (value) {
           // Fallback for other value types
-          streamSize += String(value).length;
+          streamSize += new Blob([String(value)]).size;
         }
       }
     } catch (error) {
@@ -56,13 +56,13 @@ export const getDataSize = async (data: unknown): Promise<number> => {
       if (value instanceof File) {
         size += value.size;
       } else if (typeof value === "string") {
-        size += value.length;
+        size += new Blob([value]).size;
       } else {
-        size += String(value).length;
+        size += new Blob([String(value)]).size;
       }
     }
   } else {
-    size = String(stringifyValue(data)).length;
+    size = new Blob([String(stringifyValue(data))]).size;
   }
 
   return toNumber(size);

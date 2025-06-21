@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 
 export const CardNetwork = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
-  const { networkStats } = useNetworkStatsStore(useShallow((state) => state.applications[application.name]));
+  const { networkStats } = useNetworkStatsStore(useShallow((state) => state.applications?.[application.name]));
 
   const successRate = toNumber((networkStats.totalRequestsSuccess * 100) / networkStats.totalRequests);
 
@@ -47,20 +47,20 @@ export const CardNetwork = ({ className }: { className?: string }) => {
             <p className="text-2xl font-bold">{networkStats.totalRequestsSuccess}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Total Transferred</p>
-            <p className="text-2xl font-bold">{formatBytes(networkStats.totalTransferredPayload)}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Avg Payload Size</p>
-            <p className="text-2xl font-bold">{formatBytes(networkStats.avgPayloadSize)}</p>
-          </div>
-          <div>
             <p className="text-sm text-muted-foreground">Total Fetched</p>
             <p className="text-2xl font-bold">{formatBytes(networkStats.totalTransferredResponse)}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Avg Response Size</p>
             <p className="text-2xl font-bold">{formatBytes(networkStats.avgResponseSize)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Sent</p>
+            <p className="text-2xl font-bold">{formatBytes(networkStats.totalTransferredPayload)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Avg Payload Size</p>
+            <p className="text-2xl font-bold">{formatBytes(networkStats.avgPayloadSize)}</p>
           </div>
         </div>
         <div className="space-y-2 pt-2 border-t">
