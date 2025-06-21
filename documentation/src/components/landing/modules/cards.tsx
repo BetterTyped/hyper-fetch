@@ -56,10 +56,14 @@ export const Cards = () => {
                         <item.img className="group-hover:brightness-120 size-6" />
                       </div>
                     </div>
-                    <Title size="none" className="font-bold !leading-[1.2] text-xl" wrapperClass="flex flex-wrap mb-2">
+                    <Title
+                      size="none"
+                      className="font-semibold !leading-[1.2] text-xl"
+                      wrapperClass="flex flex-wrap mb-2"
+                    >
                       {item.name}
                     </Title>
-                    <Description size="none" className="!text-base !m-0 line-clamp-3 leading-[1.4]">
+                    <Description size="none" className="!text-sm !m-0 line-clamp-3 leading-[1.4]">
                       {item.description}
                     </Description>
                     <span className="text-zinc-400 text-sm flex gap-1 items-center mt-5">

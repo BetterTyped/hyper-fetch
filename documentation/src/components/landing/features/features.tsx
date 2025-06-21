@@ -11,7 +11,7 @@ import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
 import { ArrowRight, Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
 import { getAnimationValue } from "@site/src/utils/animation";
-import { FadeIn, Particles, Title } from "@site/src/components";
+import { Description, FadeIn, Particles, Title } from "@site/src/components";
 
 import "./animation.scss";
 
@@ -228,10 +228,10 @@ export function Features(): JSX.Element {
             </Title>
           </FadeIn>
           <FadeIn start={0.02} end={0.2}>
-            <p className="text-lg !text-zinc-400">
+            <Description className="text-lg !text-zinc-400">
               Easily connect to the events that power our architecture and confidently create your own logic. We give
               you full control over your data flow like no other framework can.
-            </p>
+            </Description>
           </FadeIn>
         </div>
 

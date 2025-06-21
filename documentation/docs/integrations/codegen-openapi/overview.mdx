@@ -53,9 +53,9 @@ a pre-configured Hyper Fetch client, typed request functions, and all the necess
 Here's a snippet of what the generated file looks like:
 
 ```typescript
-// ... (imports and namespace definitions)
+import { client } from "./client";
 
-export const client = new Client({ url: "/api/v3" });
+// ... (imports and namespace definitions)
 
 // ... (type definitions for schemas)
 export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody;
@@ -76,6 +76,17 @@ export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody
   endpoint: "/pet",
 });
 ```
+
+You have to create a client instance with the base URL of your API.
+
+```typescript title="./client.ts"
+import { Client } from "@hyper-fetch/core";
+
+export const client = new Client({ url: "/api/v3" });
+```
+
+We do not generate the client for you because of interceptors, authentication and other features that would be blocked
+otherwise. This way you have full control over the client.
 
 ### Naming Convention
 

@@ -21,9 +21,9 @@ export const MediumBlock = ({
           )}
         >
           <div className="flex flex-col h-full">
-            <div className="grid grid-cols-[3fr_1fr]">
-              <div className="flex flex-col justify-between md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8">
-                <div className="mt-4">
+            <div className="grid grid-cols-[3fr_1fr] h-full">
+              <div className="flex flex-col justify-between md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8 h-full">
+                <div className="mt-4 flex-1">
                   <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
                     {title}
                   </Title>

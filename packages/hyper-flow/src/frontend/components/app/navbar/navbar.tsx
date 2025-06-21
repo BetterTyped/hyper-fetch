@@ -6,8 +6,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  // BreadcrumbPage,
+  // BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 // import { Button } from "@/components/ui/button";
 // import { NavUser } from "./nav-user";
@@ -30,20 +30,20 @@ type BreadcrumbsType = {
   params: Record<string, string>;
 }[];
 
-const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
-  switch (name) {
-    case "application": {
-      return (
-        <>
-          <AppWindowMac className="w-4 h-4" />
-          {params.applicationName}
-        </>
-      );
-    }
-    default:
-      return breadcrumb;
-  }
-};
+// const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
+//   switch (name) {
+//     case "application": {
+//       return (
+//         <>
+//           <AppWindowMac className="w-4 h-4" />
+//           {params.applicationName}
+//         </>
+//       );
+//     }
+//     default:
+//       return breadcrumb;
+//   }
+// };
 
 export const Navbar = () => {
   const isFocused = useIsFocused();
