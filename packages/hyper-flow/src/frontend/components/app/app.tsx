@@ -25,7 +25,7 @@ export const App = () => {
           <Outlet />
         </div>
       </div>
-      <TanStackRouterDevtools position="bottom-right" />
+      {/* <TanStackRouterDevtools position="bottom-right" /> */}
     </div>
   );
 };

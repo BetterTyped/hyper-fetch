@@ -5,9 +5,12 @@ import { useApplications } from "@/store/applications/apps.store";
 import { ApplicationCard } from "@/components/ui/application-card";
 import { Tutorial } from "./components/tutorial";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "@/components/ui/section";
+import { useConnectionStore } from "@/store/applications/connection.store";
 
 export const Applications = () => {
   const applications = useApplications((state) => state.applications);
+  const connections = useConnectionStore((state) => state.connections);
+
   const navigate = useNavigate();
 
   const onOpenApplication = (applicationName: string) => {
@@ -30,14 +33,16 @@ export const Applications = () => {
       </SectionHeader>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3 mt-4">
-        {Object.values(applications).map((application) => (
-          <ApplicationCard
-            key={application.name}
-            iconUrl=""
-            {...application}
-            onOpen={() => onOpenApplication(application.name)}
-          />
-        ))}
+        {Object.values(applications)
+          .sort((a, b) => Number(!!connections[b.name]) - Number(!!connections[a.name]))
+          .map((application) => (
+            <ApplicationCard
+              key={application.name}
+              iconUrl=""
+              {...application}
+              onOpen={() => onOpenApplication(application.name)}
+            />
+          ))}
         <Tutorial />
       </div>
     </Section>

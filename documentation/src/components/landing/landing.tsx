@@ -13,6 +13,7 @@ import { Features } from "./features/features";
 import { Example } from "./example/example";
 import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
+import { About } from "./about/about";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -40,8 +41,9 @@ export const Landing = () => {
       <div className="relative z-10 w-[100vw] max-w-[100vw] overflow-x-hidden translate-y-[-88px]">
         <Hero />
         <Clients />
-        <Modules />
+        <About />
         <Preview />
+        <Modules />
         <Features />
         {/* <Integrations /> */}
         <Blocks />

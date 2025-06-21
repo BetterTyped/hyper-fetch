@@ -1,6 +1,6 @@
 import React from "react";
 import DashboardPreview from "@site/static/img/previews/app.png";
-import { Title } from "@site/src/components";
+import { Description, Title } from "@site/src/components";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import Link from "@docusaurus/Link";
 
@@ -8,7 +8,7 @@ import { BorderBeam } from "./border-beam";
 
 export function Preview(): JSX.Element {
   return (
-    <section className="relative pb-20 pt-4 -z-10 group mb-48">
+    <section className="relative pb-20 pt-4 -z-10 group mb-28">
       {/* <Particles className="absolute inset-0 -z-10" /> */}
 
       {/* Section header */}
@@ -26,10 +26,10 @@ export function Preview(): JSX.Element {
           </Title>
         </FadeIn>
         <FadeIn start={0.05} end={0.2}>
-          <p className="text-lg text-zinc-400 mb-8">
+          <Description className="text-lg !text-zinc-400 mb-8">
             Experience next-level debugging with real-time request tracking, detailed error analysis, and comprehensive
             performance metrics.
-          </p>
+          </Description>
         </FadeIn>
         <FadeIn start={0.1} end={0.3}>
           <div className="flex justify-center">
@@ -48,8 +48,8 @@ export function Preview(): JSX.Element {
         <FadeIn start={0.2} end={0.5}>
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 rounded-md overflow-hidden -mb-[20vh]">
             <div className="relative w-fit h-fit rounded-md overflow-hidden">
-              <BorderBeam duration={8} size={400} />
-              <BorderBeam duration={8} size={400} />
+              <BorderBeam duration={8} size={500} />
+              <BorderBeam duration={8} size={500} delay={4} />
               <img src={DashboardPreview} alt="preview" className="transition-opacity duration-500" />
               <div className="absolute bottom-0 left-0 right-0 h-[80%] bg-gradient-to-t from-[var(--background)] to-transparent from-5% to-20%" />
             </div>

@@ -29,18 +29,18 @@ export const Blocks = () => {
               <div className="relative">
                 <Stage onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                   <div className="sticky top-0">
-                    <FadeIn start={0.25} end={0.45}>
+                    <FadeIn start={0.05} end={0.25}>
                       <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
                         Simply
                       </div>
                     </FadeIn>
                     <h2 className="h2 pb-2 flex justify-center flex-col md:flex-row">
-                      <FadeIn start={0.3} end={0.45}>
+                      <FadeIn start={0.05} end={0.25}>
                         <Title as="span" size="lg">
                           Faster.
                         </Title>
                       </FadeIn>
-                      <FadeIn start={0.35} end={0.45}>
+                      <FadeIn start={0.1} end={0.3}>
                         <Title as="span" size="lg">
                           Better.
                         </Title>
@@ -49,7 +49,7 @@ export const Blocks = () => {
                   </div>
                 </Stage>
               </div>
-              <FadeIn start={0.3} end={0.4}>
+              <FadeIn start={0.1} end={0.3}>
                 <Description className="text-lg text-zinc-400">
                   Hyper Fetch provides a powerful, type-safe, backend & framework agnostic architecture for efficient
                   data exchange.
@@ -93,7 +93,7 @@ export const Blocks = () => {
                   }
                 />
               </Link>
-              <Link to="/docs/getting-started" className="!no-underline md:col-span-7">
+              <Link to="/docs/guides/typescript/extend" className="!no-underline md:col-span-7">
                 <MediumBlock
                   title="Designed for Type Safety"
                   description="Leverage TypeScript to its full potential with automatic type generation, robust error handling, and enhanced developer confidence."

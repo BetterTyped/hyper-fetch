@@ -678,9 +678,6 @@ pre {
 .api-playground__editor {
   @apply bg-[#1c1c1d] border border-transparent h-full !overflow-y-auto;
 }
-.api-playground__editor * {
-  @apply !text-sm;
-}
 button.api-playground__more {
   @apply absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-white font-semibold bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-full text-sm px-3 py-1 text-center me-2 mb-2 dark:focus:ring-blue-900;
 }
@@ -998,11 +995,13 @@ main a {
 }
 
 body .theme-code-block {
-  @apply border-[1px] border-zinc-700/20 dark:border-transparent relative text-zinc-300 hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
+  @apply border-[1px] border-zinc-700/20 dark:border-transparent relative text-zinc-300 hover:text-white;
+  @apply transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
 }
 
-body .theme-code-block span {
-  @apply text-sm;
+body .theme-code-block pre *,
+.api-playground__editor * {
+  @apply !leading-[1.2] !text-sm;
 }
 
 .theme-code-block > div:first-child:not(:last-child) {
@@ -1121,6 +1120,19 @@ pre code:has(.code-block-diff-add-line) {
 
 pre code:has(.code-block-diff-remove-line) {
   padding-left: 40px !important;
+}
+
+.bg-with-noise {
+  @apply relative;
+}
+
+.bg-with-noise::before {
+  background-image: url("/img/noise.webp");
+  background-size: contain;
+  background-position: center;
+  background-repeat: repeat;
+  content: "";
+  @apply absolute inset-0 -z-10 opacity-[0.02] pointer-events-none;
 }
 
 /* Alerts */

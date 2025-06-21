@@ -78,7 +78,7 @@ export const useSidebar = (options?: {
 
         const linkPath = value.link.path;
         if (showAllPackages) {
-          return linkPath.includes("/docs/api");
+          return !linkPath.includes("/docs/api") && !linkPath.includes("/docs/guides");
         }
         if (isApiPage) {
           return linkPath.includes("/api");

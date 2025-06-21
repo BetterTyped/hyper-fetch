@@ -54,7 +54,8 @@ export type Section = {
 export const modules: Section[] = [
   {
     label: "Getting Started",
-    description: "Documentation for the library",
+    description:
+      "Start your journey with Hyper Fetch. Learn core concepts, installation, and basic setup to get up and running quickly.",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -72,7 +73,8 @@ export const modules: Section[] = [
   },
   {
     label: "Core",
-    description: "Core package of the library containing the core functionality",
+    description:
+      "Discover the framework-agnostic heart of Hyper Fetch, with powerful features for building robust API clients.",
     isPackage: true,
     dir: "core",
     paths: ["core"],
@@ -90,7 +92,8 @@ export const modules: Section[] = [
   },
   {
     label: "Sockets",
-    description: "Sockets package of the library containing the socket functionality",
+    description:
+      "Enable real-time communication in your application with our WebSockets module for seamless data exchange.",
     isPackage: true,
     dir: "sockets",
     paths: ["sockets"],
@@ -108,7 +111,8 @@ export const modules: Section[] = [
   },
   {
     label: "React",
-    description: "React integration package of the library",
+    description:
+      "Integrate Hyper Fetch into your React applications with custom hooks for effortless data fetching and state management.",
     isPackage: true,
     dir: "react",
     paths: ["react"],
@@ -126,7 +130,8 @@ export const modules: Section[] = [
   },
   {
     label: "HyperFlow",
-    description: "Devtools for building, testing and debugging your API connections",
+    description:
+      "A powerful devtool for building, testing, and debugging your API connections, enhancing your development workflow.",
     isPackage: false,
     dir: "hyper-flow",
     paths: ["hyper-flow"],

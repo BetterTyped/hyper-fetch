@@ -40,13 +40,15 @@ export const CallToAction = () => {
           <div className="max-w-3xl mx-auto text-center">
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-pink-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
-                Start today
+                Improve your workflow today
               </div>
             </div>
             <Title className="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
               Build with HyperFetch
             </Title>
-            <Description className="text-lg text-zinc-400 mb-8">Try it for yourself!</Description>
+            <Description className="text-lg text-zinc-400 mb-8 max-w-2xl mx-auto">
+              Spend less time on boilerplate and more on building amazing features that your users will love.
+            </Description>
             <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
               <Link
                 to="docs/getting-started"

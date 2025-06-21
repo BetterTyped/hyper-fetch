@@ -41,7 +41,7 @@ const main = async (opts: { schema: string; name?: string; url?: string }) => {
   }
 
   const generator = new OpenapiRequestGenerator(openapiSchema);
-  await generator.generateFile({ fileName: opts?.name, url: opts?.url });
+  await generator.generateFile({ fileName: opts?.name });
   return process.exit(0);
 };
 

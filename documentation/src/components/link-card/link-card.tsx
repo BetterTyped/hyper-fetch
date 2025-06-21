@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import { ComponentProps } from "react";
+import { DownloadIcon } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { GuidesIcon, DocsIcon, PromoIcon, ExternalLinkIcon, ApiIcon, IntegrationsIcon } from "./icons";
@@ -21,6 +22,7 @@ const linkCardVariants = cva(
         promo: ["bg-blue-900 border-blue-500/30 ring-blue-400"].join(),
         external: ["bg-pink-900 border-pink-500/30 ring-pink-400"].join(" "),
         api: ["bg-orange-900 border-orange-500/30 ring-orange-400"].join(" "),
+        download: ["bg-gradient-to-br from-zinc-950 to-zinc-900 border-zinc-700 ring-zinc-700"].join(" "),
       },
     },
     defaultVariants: {
@@ -29,7 +31,7 @@ const linkCardVariants = cva(
   },
 );
 
-type CardType = "guides" | "docs" | "promo" | "external" | "api" | "integrations";
+type CardType = "guides" | "docs" | "promo" | "external" | "api" | "integrations" | "download";
 
 interface LinkCardProps extends ComponentProps<typeof Link>, VariantProps<typeof linkCardVariants> {
   title: string;
@@ -44,15 +46,17 @@ const iconMap: Record<CardType, React.FC<React.SVGProps<SVGSVGElement>>> = {
   external: ExternalLinkIcon,
   api: ApiIcon,
   integrations: IntegrationsIcon,
+  download: DownloadIcon,
 };
 
 const typesNoiseOpacity = {
   guides: "!opacity-[0.02]",
-  docs: "!opacity-[0.03]",
+  docs: "!opacity-[0.02]",
   promo: "!opacity-[0.05]",
-  external: "!opacity-[0.05]",
+  external: "!opacity-[0.04]",
   api: "!opacity-[0.05]",
-  integrations: "!opacity-[0.05]",
+  integrations: "!opacity-[0.04]",
+  download: "!opacity-[0.02]",
 };
 
 export const LinkCard = ({ title, description, type = "docs", className, ...props }: LinkCardProps) => {

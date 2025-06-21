@@ -27,7 +27,7 @@ export const Hero = () => {
 
       {/* Hero content */}
       <div className="relative max-w-6xl mx-auto flex flex-col justify-center items-center px-6 mt-12 mb-12">
-        <div className="mb-1">
+        <div className="mb-5">
           <Link to="/docs/hyper-flow" className="shiny-label flex items-center !no-underline py-0.5">
             <Sparkles className="w-[14px] h-[14px] text-yellow-600/80 dark:text-yellow-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out" />
             Now with dedicated devtools
@@ -38,16 +38,16 @@ export const Hero = () => {
         </div>
         <Title
           as="h1"
-          className="font-extrabold text-4xl md:text-6xl leading-[1.1] md:!leading-[1.3] lg:text-[3.5rem] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
+          className="font-extrabold text-4xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:!leading-[1.3] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
         >
-          Connect to any API. <br />
-          Simply, TypeSafe, Fast.
+          Integrate with any API. <br />
+          <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">Simply, TypeSafe, Fast.</span>
         </Title>
         <Description
           size="none"
-          className="mb-3 md:mb-8 text-lg md:text-lg lg:text-xl text-zinc-300 dark:text-[#ababab] text-center !leading-[1.28] w-[700px] max-w-[90vw]"
+          className="mb-3 md:mb-8 text-lg md:text-lg lg:text-xl text-zinc-300 dark:text-[#ababab] text-center !leading-[1.28] w-[660px] max-w-[90vw]"
         >
-          Hyper Fetch is a framework that makes it easy to connect your frontends to the server data. Using{" "}
+          Hyper Fetch is a framework that makes it easy to connect to any remote API. Using{" "}
           <span className="text-black dark:text-white" style={{ fontSize: "inherit" }}>
             request
           </span>{" "}

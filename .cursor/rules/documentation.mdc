@@ -47,8 +47,8 @@ Example:
 :::
 
 3.  **Examples**: Provide clear and practical examples. Live examples are preferred.
-4.  **Summary**: Conclude with a `:::success` admonition that summarizes what was covered in the guide.
-5.  We should have the sections of `Key features?` or `When to use it?` or `When it's helpful?` or similar. Showing more
+4.  **Summary**: Conclude with a `:::secondary` admonition that summarizes what was covered in the doc.
+5.  We should have the sections of `Key features` or `When to use it?` or `When it's helpful?` or similar. Showing more
     of the use cases for the patterns etc. It should be a list of short and concrete sentences.
 
 ## 4. Code Examples
@@ -90,11 +90,12 @@ Code examples should be short and concrete, too long code example is hard to rea
 ## Admonitions
 
 - :::tip is good for docs and "Purpose" (Purpose - should contain numbered list of features with bold parts of text)
-- :::secondary for guides and "What you'll learn"
-- :::success for the end of guide, or summaries of what you learnt
+- :::note great for sections: "key features", "when to use it?", "when it's helpful?"
+- :::secondary for the end of guide, or summaries of what you learnt
 - :::caution / :::warning for important and possibly unsafe details
 - :::danger for places that can cause errors or unexpected behavior This admonition should usually have the numbered
   list
+- :::info is good for additional informations
 
 ##### Bad use of admonitions
 
@@ -133,7 +134,7 @@ After `&` you can chain some other dynamic options based on the type.
 
 ### Finding Component Names
 
-Component names for import directives can be found by browsing the `/documentation/docs/api` directory. Each file in
+Component names for import directives can be found by browsing the `/docs/api` directory. Each file in
 this directory represents a component from the codebase, and the filename corresponds to the component name that should
 be used in the import directive. This makes it easy to discover available components for documentation imports.
 
@@ -193,7 +194,7 @@ The documentation supports two primary ways to create links between pages:
    ```
 
    - Always use relative paths from the root
-   - All paths should start with `/documentation/docs/`
+   - All paths should start with `/docs/`
    - Use descriptive link text that indicates the target content
 
 2. **LinkCard Component** - when used as a separate and exposed link
@@ -203,7 +204,7 @@ The documentation supports two primary ways to create links between pages:
      type="guides" // guides | docs | integrations | promo | api
      title="Guide Title"
      description="Brief description of the linked content"
-     to="/documentation/docs/guides/specific-guide"
+     to="/docs/guides/specific-guide"
    />
    ```
 
