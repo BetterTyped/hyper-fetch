@@ -1,4 +1,11 @@
-import { getResponseHeaders, parseResponse, getErrorMessage, Adapter, QueryParamsType } from "@hyper-fetch/core";
+import {
+  getResponseHeaders,
+  parseResponse,
+  getErrorMessage,
+  Adapter,
+  QueryParamsType,
+  stringifyKey,
+} from "@hyper-fetch/core";
 
 import {
   gqlExtra,
@@ -9,6 +16,7 @@ import {
   GraphQlExtraType,
   GraphQlEndpointType,
   gqlEndpointMapper,
+  gqlEndpointNameMapper,
 } from "adapter";
 
 export const getGqlAdapter = (): GraphqlAdapterType =>
@@ -27,7 +35,19 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
   })
+    .onInitialize(({ client }) => {
+      client.setCacheKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+      });
+      client.setQueryKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+      });
+      client.setAbortKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${request.cancelable}`;
+      });
+    })
     .setInternalErrorMapping((error) => [error])
+    .setDevtoolsEndpointGetter(gqlEndpointNameMapper)
     .setEndpointMapper(gqlEndpointMapper)
     .setFetcher(
       async ({
