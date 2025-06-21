@@ -143,6 +143,9 @@
       "path": "git-cz"
     }
   },
+  "resolutions": {
+    "react": "19.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/BetterTyped/hyper-fetch.git"
