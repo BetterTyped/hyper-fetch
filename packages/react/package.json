@@ -34,7 +34,10 @@
   },
   "dependencies": {
     "@better-hooks/lifecycle": "^2.0.0",
-    "@better-hooks/performance": "^2.0.0"
+    "@better-hooks/performance": "^2.1.0"
+  },
+  "devDependencies": {
+    "react": "link:../../node_modules/react"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

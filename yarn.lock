@@ -2721,22 +2721,17 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@better-hooks/lifecycle@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-1.1.2.tgz#474ba9ea72c74acc1d522819733aa44e35e1db7c"
-  integrity sha512-dyFNHMtLJzJ0eY9u6iprPEMeWsgveIE8U3CtqaV3EG6DwsEyb1ICnooBap7mAG+Curr26OzO9/n6+gCUQ85gWg==
-
 "@better-hooks/lifecycle@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-2.0.0.tgz#efa2961d1496d67357726e0923d5b191f4018b1a"
   integrity sha512-VACrnIj/rrHwIiwIMqt7zijtpluhqIOeU3ivZgn2QC9OXGIKvi4vOhPo159NxmJVw+RonwOfNc25EXHAvAJvoA==
 
-"@better-hooks/performance@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-2.0.0.tgz#f0c8c94c3a1cd4612a0458ec10cd3692b8528b4c"
-  integrity sha512-XC0mZ83fBCAa54yLPp711l8XGYHMZ/map8T/Vo46VcCAK9YQttvvRyX9gSDCyZtOj1gIdizaCRJ9nFV0k9EcDw==
+"@better-hooks/performance@^2.0.0", "@better-hooks/performance@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-2.1.0.tgz#7486e1f8a841e5bdc5756c7ddefb122de9358e43"
+  integrity sha512-e/uzRNUq3Sm8Amph+/Zz9yRoLcoYtDfp4JpwzxtGOZAXEj7i9hqGjLHR94/Nv587FNgzGVtysFgkNCHImDJjkQ==
   dependencies:
-    "@better-hooks/lifecycle" "^1.1.2"
+    "@better-hooks/lifecycle" "^2.0.0"
 
 "@bufbuild/protobuf@^2.0.0":
   version "2.2.5"
@@ -25953,6 +25948,10 @@ react@^19.1.0:
   version "19.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
   integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
+
+"react@link:node_modules/react":
+  version "0.0.0"
+  uid ""
 
 read-binary-file-arch@^1.0.6:
   version "1.0.6"

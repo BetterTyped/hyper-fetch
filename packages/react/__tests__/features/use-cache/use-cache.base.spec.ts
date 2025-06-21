@@ -86,11 +86,11 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(request);
+          result.current.invalidate(request);
         });
 
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledWith(request);
       });
       it("should allow to invalidate by RegExp", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -98,7 +98,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(new RegExp(request.cacheKey));
+          result.current.invalidate(new RegExp(request.cacheKey));
         });
 
         expect(spy).toHaveBeenCalledTimes(1);
@@ -110,7 +110,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(request.cacheKey);
+          result.current.invalidate(request.cacheKey);
         });
 
         expect(spy).toHaveBeenCalledTimes(1);
@@ -122,7 +122,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch();
+          result.current.invalidate();
         });
 
         expect(spy).toHaveBeenCalledTimes(1);

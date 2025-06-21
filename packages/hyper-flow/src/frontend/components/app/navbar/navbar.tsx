@@ -1,5 +1,6 @@
 import React from "react";
-import { Home, Maximize2, X, Minus, AppWindowMac } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Home, Maximize2, X, Minus } from "lucide-react";
 
 import {
   Breadcrumb,
@@ -12,7 +13,6 @@ import {
 // import { Button } from "@/components/ui/button";
 // import { NavUser } from "./nav-user";
 import { useIsFocused } from "@/hooks/use-is-focused";
-import { Link } from "@tanstack/react-router";
 
 const dragStyle = {
   "-webkit-user-select": "none",
@@ -24,11 +24,11 @@ const noDragStyle = {
   "-webkit-app-region": "no-drag",
 } as React.CSSProperties;
 
-type BreadcrumbsType = {
-  name: string;
-  breadcrumb: string;
-  params: Record<string, string>;
-}[];
+// type BreadcrumbsType = {
+//   name: string;
+//   breadcrumb: string;
+//   params: Record<string, string>;
+// }[];
 
 // const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
 //   switch (name) {

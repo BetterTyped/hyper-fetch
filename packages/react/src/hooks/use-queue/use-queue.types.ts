@@ -13,11 +13,11 @@ export type QueueRequest<Request extends RequestInstance> = QueueItemType<Reques
   /**
    * Uploading progress for given request
    */
-  uploading?: ProgressType;
+  uploading: ProgressType;
   /**
    * Downloading progress for given request
    */
-  downloading?: ProgressType;
+  downloading: ProgressType;
   /**
    * Callback which allow to start previously stopped request.
    */
