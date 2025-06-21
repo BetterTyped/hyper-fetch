@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Atom, Boxes, Earth, Home, Inbox, LucideIcon, Settings2 } from "lucide-react";
+import { Atom, Boxes, Earth, Home, AppWindow, LucideIcon, Settings2 } from "lucide-react";
 
 import {
   Sidebar,
@@ -31,7 +31,7 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
       title: "App",
       to: "/applications/$applicationName",
       params: { applicationName },
-      icon: Inbox,
+      icon: AppWindow,
       isActive: true,
     },
     // {

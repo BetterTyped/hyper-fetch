@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ApplicationNetwork } from "@/pages/applications/network/network";
+import { ApplicationStart } from "@/pages/applications/start/start";
 
 export const Route = createFileRoute("/applications/$applicationName/")({
-  component: ApplicationNetwork,
+  component: ApplicationStart,
 });

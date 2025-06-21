@@ -1,6 +1,7 @@
 "use client";
 
 import { Folder, MoreHorizontal, Share, Trash2, type LucideIcon } from "lucide-react";
+import { Link, LinkProps } from "@tanstack/react-router";
 
 import {
   DropdownMenu,
@@ -18,16 +19,29 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Link, LinkProps } from "@tanstack/react-router";
 
-export function NavSecondary({
-  items,
-}: {
-  items: ({
-    name: string;
-    icon: LucideIcon;
-  } & Pick<LinkProps, "to" | "params">)[];
-}) {
+const items: ({
+  name: string;
+  icon: LucideIcon;
+} & Pick<LinkProps, "to" | "params">)[] = [
+  // {
+  //   name: "Activities",
+  //   link: "dashboard.activities",
+  //   icon: MousePointerClick,
+  // },
+  // {
+  //   name: "My Favorites",
+  //   link: "dashboard.favorites",
+  //   icon: Star,
+  // },
+  // {
+  //   name: "Recently visited",
+  //   link: "dashboard.recentlyVisited",
+  //   icon: Clock,
+  // },
+];
+
+export function NavSecondary() {
   const { isMobile } = useSidebar();
 
   return (

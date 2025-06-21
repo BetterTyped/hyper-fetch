@@ -1,5 +1,5 @@
 import { Link, LinkProps } from "@tanstack/react-router";
-import { ChevronRight, type LucideIcon, AlertTriangle } from "lucide-react";
+import { ChevronRight, type LucideIcon, AlertTriangle, AppWindow, Settings } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -15,23 +15,44 @@ import {
 } from "@/components/ui/sidebar";
 import { useSettings } from "@/store/general/settings.store";
 
-export function NavPrimary({
-  items,
-}: {
-  items: Array<
-    {
-      title: string;
-      icon: LucideIcon;
-      isActive?: boolean;
-      onCrash?: boolean;
-      items?: Array<
-        {
-          title: string;
-        } & Pick<LinkProps, "to" | "params">
-      >;
-    } & Pick<LinkProps, "to" | "params">
-  >;
-}) {
+const items: Array<
+  {
+    title: string;
+    icon: LucideIcon;
+    isActive?: boolean;
+    onCrash?: boolean;
+    items?: Array<
+      {
+        title: string;
+      } & Pick<LinkProps, "to" | "params">
+    >;
+  } & Pick<LinkProps, "to" | "params">
+> = [
+  // {
+  //   title: "Workspaces",
+  //   link: "dashboard",
+  //   icon: FolderKanban,
+  //   isActive: true,
+  // },
+  {
+    title: "Applications",
+    to: "/",
+    icon: AppWindow,
+  },
+  // {
+  //   title: "Members",
+  //   link: "dashboard.members",
+  //   icon: Users,
+  // },
+  {
+    title: "Settings",
+    to: "/settings",
+    icon: Settings,
+    onCrash: true,
+  },
+];
+
+export function NavPrimary() {
   const serverStatus = useSettings((state) => state.serverStatus);
 
   return (
@@ -45,12 +66,12 @@ export function NavPrimary({
                 <Link
                   to={item.to}
                   params={item.params}
-                  className="h-[34px] px-3 opacity-60"
+                  className="h-10 px-3 opacity-60 !py-2"
                   activeOptions={{ exact: true }}
                   activeProps={{ className: "bg-zinc-400/10 opacity-100" }}
                 >
-                  <item.icon className="min-w-[18px] min-h-[18px]" />
-                  <span className="text-[14px]">{item.title}</span>
+                  <item.icon className="!size-5" />
+                  <span className="text-[14px] ml-1">{item.title}</span>
                   {item.onCrash && serverStatus === "crashed" && (
                     <div className="ml-auto text-xs font-medium px-2 py-0.5 rounded-md animate-pulse flex items-center gap-1 pl-2">
                       <AlertTriangle className="h-3 w-3" />

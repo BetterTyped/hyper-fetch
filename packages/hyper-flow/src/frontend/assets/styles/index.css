@@ -187,7 +187,7 @@ body,
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-  --sidebar: oklch(0.25 0.01 290);
+  --sidebar: oklch(0.21 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.49 0.24 264);
   --sidebar-primary-foreground: oklch(0.985 0 0);

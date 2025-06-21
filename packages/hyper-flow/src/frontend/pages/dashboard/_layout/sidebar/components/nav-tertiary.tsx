@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type LucideIcon } from "lucide-react";
+import { LifeBuoy, Send, type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -9,16 +9,24 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function NavTertiary({
-  items,
-  ...props
-}: {
-  items: {
-    name: string;
-    link: string;
-    icon: LucideIcon;
-  }[];
-} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+const items: Array<{
+  name: string;
+  link: string;
+  icon: LucideIcon;
+}> = [
+  {
+    name: "Support",
+    link: "https://github.com/BetterTyped/hyper-fetch/issues",
+    icon: LifeBuoy,
+  },
+  {
+    name: "Feedback",
+    link: "https://github.com/BetterTyped/hyper-fetch/discussions",
+    icon: Send,
+  },
+];
+
+export function NavTertiary(props: React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
