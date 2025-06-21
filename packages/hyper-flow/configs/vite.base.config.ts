@@ -20,6 +20,7 @@ export const config: UserConfigFnObject = ({ mode }) => {
         authToken: env.VITE_SENTRY_AUTH_TOKEN,
         org: "better-typed",
         project: "hyper-flow",
+        telemetry: false,
       }),
       tsconfigPaths({
         root: path.resolve(__dirname, "../"),

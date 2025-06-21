@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import { useNavigate } from "@tanstack/react-router";
 
-import { useSettings } from "@/store/app/settings.store";
+import { useSettings } from "@/store/general/settings.store";
 import { Badge } from "@/components/ui/badge";
 
 const handledServerCrash = {

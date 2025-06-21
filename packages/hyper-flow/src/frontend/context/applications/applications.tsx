@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useDidUpdate, useWillMount } from "@better-hooks/lifecycle";
 
-import { useSettings } from "@/store/app/settings.store";
+import { useSettings } from "@/store/general/settings.store";
 import { Bridge } from "./bridge/bridge";
 import { Events } from "./events/events";
 import { State } from "./state/state";

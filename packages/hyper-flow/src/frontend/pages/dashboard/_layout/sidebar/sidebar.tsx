@@ -2,14 +2,13 @@ import * as React from "react";
 import { LinkProps } from "@tanstack/react-router";
 import { LifeBuoy, LucideIcon, Send, Settings, FolderCode } from "lucide-react";
 
-import { NavPrimary } from "./_components/nav-primary";
-// import { NavSecondary } from "./_components/nav-secondary";
-import { NavTertiary } from "./_components/nav-tertiary";
-// import { NavOrg } from "./_components/nav-org";
+import { NavPrimary } from "./components/nav-primary";
+import { NavTertiary } from "./components/nav-tertiary";
+
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import icon from "@/assets/images/icon.png";
 import { CurrentVersion } from "@/components/ui/current-version";
+import icon from "@/assets/images/icon.png";
 
 const primary: Array<
   {

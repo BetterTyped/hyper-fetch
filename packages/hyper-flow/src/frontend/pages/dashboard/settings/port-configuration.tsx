@@ -18,7 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { useSettings } from "@/store/app/settings.store";
+import { useSettings } from "@/store/general/settings.store";
 
 const portSchema = z.object({
   port: z.number().int().min(1, "Port must be at least 1").max(65535, "Port cannot exceed 65535"),

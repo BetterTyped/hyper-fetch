@@ -1,4 +1,5 @@
 import { Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { Navbar } from "./navbar/navbar";
 import { useIsFocused } from "@/hooks/use-is-focused";
@@ -24,6 +25,7 @@ export const App = () => {
           <Outlet />
         </div>
       </div>
+      <TanStackRouterDevtools position="bottom-right" />
     </div>
   );
 };

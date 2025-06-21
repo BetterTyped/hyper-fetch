@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/applications/$applicationName/")({
-  component: RouteComponent,
-});
+import { ApplicationNetwork } from "@/pages/applications/network/network";
 
-function RouteComponent() {
-  return <div>Hello "/applications/$applicationId/"!</div>;
-}
+export const Route = createFileRoute("/applications/$applicationName/")({
+  component: ApplicationNetwork,
+});

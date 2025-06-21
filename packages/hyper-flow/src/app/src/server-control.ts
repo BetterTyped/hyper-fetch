@@ -1,10 +1,10 @@
-import { ipcMain, BrowserWindow } from "electron";
+import { ipcMain, BrowserWindow, app } from "electron";
 import { parseResponse } from "@hyper-fetch/core";
 import * as net from "net";
 
 import { startServer, StartServer } from "../../server";
 import { store } from "./persistent-store";
-import type { Settings } from "@/store/app/settings.store";
+import type { Settings } from "@/store/general/settings.store";
 import { appLogger } from "../../shared/utils/logger";
 
 // Store server instance for control
@@ -86,6 +86,10 @@ export const closeServer = () => {
  * Initialize the server and set up IPC handlers for controlling it
  */
 export async function setupServerControl() {
+  const isDev = !app.isPackaged;
+  if (isDev) {
+    closeServer();
+  }
   try {
     appLogger.info("Initializing server control");
     // Start the server immediately

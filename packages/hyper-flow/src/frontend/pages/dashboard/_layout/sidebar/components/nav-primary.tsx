@@ -1,4 +1,4 @@
-import { Link, LinkProps, useMatch } from "@tanstack/react-router";
+import { Link, LinkProps } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon, AlertTriangle } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -13,7 +13,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { useSettings } from "@/store/app/settings.store";
+import { useSettings } from "@/store/general/settings.store";
 
 export function NavPrimary({
   items,
@@ -32,9 +32,6 @@ export function NavPrimary({
     } & Pick<LinkProps, "to" | "params">
   >;
 }) {
-  const match = useMatch({
-    strict: false,
-  });
   const serverStatus = useSettings((state) => state.serverStatus);
 
   return (
@@ -44,8 +41,14 @@ export function NavPrimary({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} isActive={match.pathname === item.to}>
-                <Link to={item.to} params={item.params} className="h-[34px] px-3">
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link
+                  to={item.to}
+                  params={item.params}
+                  className="h-[34px] px-3 opacity-60"
+                  activeOptions={{ exact: true }}
+                  activeProps={{ className: "bg-zinc-400/10 opacity-100" }}
+                >
                   <item.icon className="min-w-[18px] min-h-[18px]" />
                   <span className="text-[14px]">{item.title}</span>
                   {item.onCrash && serverStatus === "crashed" && (
@@ -68,8 +71,14 @@ export function NavPrimary({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild isActive={match.pathname === subItem.to}>
-                            <Link to={subItem.to} params={subItem.params}>
+                          <SidebarMenuSubButton asChild>
+                            <Link
+                              to={subItem.to}
+                              params={subItem.params}
+                              activeOptions={{ exact: true }}
+                              className="opacity-60"
+                              activeProps={{ className: "bg-zinc-400/10 opacity-100" }}
+                            >
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>

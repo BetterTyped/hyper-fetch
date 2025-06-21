@@ -10219,6 +10219,14 @@
   resolved "https://registry.yarnpkg.com/@tanstack/history/-/history-1.121.21.tgz#98060d706ad0d428e2442c24ba849d41f2e664e1"
   integrity sha512-8BFGA7fpElicM1aEfZRDoEiWgMrNb/fVuJjSKv+nYtbp7jdtqt57fROi/uDGf6PLlgJbMoT3GWxqveZisOUEKA==
 
+"@tanstack/react-router-devtools@1.121.2":
+  version "1.121.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-router-devtools/-/react-router-devtools-1.121.2.tgz#61d47672a22d16109b4d380aca4e035fe377a06c"
+  integrity sha512-4DqhznCCWD6rQXHgLrmQw9iFmDfBYVuJmshvaKIsJBK7zulcZfGAEMhSX4FNqDx2tgn+SSPXo1fxpaQu5APPuA==
+  dependencies:
+    "@tanstack/router-devtools-core" "^1.121.2"
+    solid-js "^1.9.5"
+
 "@tanstack/react-router@1.121.2":
   version "1.121.2"
   resolved "https://registry.yarnpkg.com/@tanstack/react-router/-/react-router-1.121.2.tgz#8b6ae1fda2382f6833810aeaab3a712454dc667c"
@@ -10256,6 +10264,15 @@
     "@tanstack/history" "1.121.21"
     "@tanstack/store" "^0.7.0"
     tiny-invariant "^1.3.3"
+
+"@tanstack/router-devtools-core@^1.121.2":
+  version "1.121.27"
+  resolved "https://registry.yarnpkg.com/@tanstack/router-devtools-core/-/router-devtools-core-1.121.27.tgz#74f2e44f2ffa2d410bad5c01f2f749d3a5bb3e7a"
+  integrity sha512-taeINd8CSIg+0916myI52HbQxjqfgxqHp68Ha6uxjXAHhHQKg/hBFCWpDs4Dwxi290mhT8j2oeXNyDaGMvVumQ==
+  dependencies:
+    clsx "^2.1.1"
+    goober "^2.1.16"
+    solid-js "^1.9.5"
 
 "@tanstack/router-generator@^1.121.2":
   version "1.121.27"
@@ -14597,7 +14614,7 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^3.0.2, csstype@^3.1.3:
+csstype@^3.0.2, csstype@^3.1.0, csstype@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.3.tgz#d80ff294d114fb0e6ac500fbf85b60137d7eff81"
   integrity sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==
@@ -18175,6 +18192,11 @@ goober@2.1.14:
   version "2.1.14"
   resolved "https://registry.yarnpkg.com/goober/-/goober-2.1.14.tgz#4a5c94fc34dc086a8e6035360ae1800005135acd"
   integrity sha512-4UpC0NdGyAFqLNPnhCT2iHpza2q+RAY3GV85a/mRPdzyPQMsj0KmMMuetdIkzWRbJ+Hgau1EZztq8ImmiMGhsg==
+
+goober@^2.1.16:
+  version "2.1.16"
+  resolved "https://registry.yarnpkg.com/goober/-/goober-2.1.16.tgz#7d548eb9b83ff0988d102be71f271ca8f9c82a95"
+  integrity sha512-erjk19y1U33+XAMe1VTvIONHYoSqE4iS7BYUZfHaqeohLmnC0FdxEh7rQU+6MZ4OajItzjZFSRtVANrQwNq6/g==
 
 google-auth-library@^7.11.0:
   version "7.14.1"
@@ -27208,6 +27230,16 @@ serialize-javascript@^6.0.0, serialize-javascript@^6.0.1, serialize-javascript@^
   dependencies:
     randombytes "^2.1.0"
 
+seroval-plugins@~1.3.0:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/seroval-plugins/-/seroval-plugins-1.3.2.tgz#4200b538d699853c9bf5c3b7155c498c7c263a6a"
+  integrity sha512-0QvCV2lM3aj/U3YozDiVwx9zpH0q8A60CTWIv4Jszj/givcudPb48B+rkU5D51NJ0pTpweGMttHjboPa9/zoIQ==
+
+seroval@~1.3.0:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/seroval/-/seroval-1.3.2.tgz#7e5be0dc1a3de020800ef013ceae3a313f20eca7"
+  integrity sha512-RbcPH1n5cfwKrru7v7+zrZvjLurgHhGyso3HTyGtRivGWgYjbOmGuivCQaORNELjNONoK35nj28EoWul9sb1zQ==
+
 serve-handler@^6.1.3:
   version "6.1.6"
   resolved "https://registry.yarnpkg.com/serve-handler/-/serve-handler-6.1.6.tgz#50803c1d3e947cd4a341d617f8209b22bd76cfa1"
@@ -27537,6 +27569,15 @@ socks@^2.3.3, socks@^2.6.2, socks@^2.8.3:
   dependencies:
     ip-address "^9.0.5"
     smart-buffer "^4.2.0"
+
+solid-js@^1.9.5:
+  version "1.9.7"
+  resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-1.9.7.tgz#96ff7800648a30f22d29275264375589f3a725e9"
+  integrity sha512-/saTKi8iWEM233n5OSi1YHCCuh66ZIQ7aK2hsToPe4tqGm7qAejU1SwNuTPivbWAYq7SjuHVVYxxuZQNRbICiw==
+  dependencies:
+    csstype "^3.1.0"
+    seroval "~1.3.0"
+    seroval-plugins "~1.3.0"
 
 sonner@^2.0.3:
   version "2.0.3"

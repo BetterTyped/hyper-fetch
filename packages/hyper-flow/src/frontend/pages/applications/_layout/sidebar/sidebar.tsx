@@ -16,19 +16,19 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { useApplications } from "@/store/applications/apps.store";
-import { cn } from "@/lib/utils";
+import { Link, LinkProps, useParams, useRouterState } from "@tanstack/react-router";
+
 import logo from "../../../../assets/images/icon.png";
-import { Link, LinkProps, useMatch, useParams } from "@tanstack/react-router";
 
 export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { applicationName } = useParams({ strict: false });
   const { applications } = useApplications();
-  const { pathname } = useMatch({ strict: false });
+  const location = useRouterState({ select: (state) => state.location });
   const application = applications[applicationName as string];
 
   const navigation: ({ title: string; icon: LucideIcon; isActive: boolean } & Pick<LinkProps, "to" | "params">)[] = [
     {
-      title: "Application",
+      title: "App",
       to: "/applications/$applicationName",
       params: { applicationName },
       icon: Inbox,
@@ -70,10 +70,6 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
     },
   ];
 
-  const getIsActive = (name: string) => {
-    return pathname === name;
-  };
-
   if (!application) {
     return <div />;
   }
@@ -107,8 +103,14 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
               <SidebarMenu className="p-0">
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className={cn(!getIsActive(item.to!) ? "opacity-60" : "bg-zinc-400/10")}>
-                      <Link to={item.to} params={item.params} className="flex flex-col h-15">
+                    <SidebarMenuButton asChild>
+                      <Link
+                        to={item.to}
+                        params={item.params}
+                        className="flex flex-col h-15 opacity-60"
+                        activeProps={{ className: "bg-zinc-400/10 opacity-100" }}
+                        activeOptions={{ exact: true }}
+                      >
                         <item.icon className="!size-5" />
                         <span className="text-[11px]">{item.title}</span>
                       </Link>

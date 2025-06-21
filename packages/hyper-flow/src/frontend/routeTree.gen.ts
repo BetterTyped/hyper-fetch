@@ -13,6 +13,7 @@ import { Route as DashboardRouteRouteImport } from "./routes/_dashboard/route"
 import { Route as WorkspacesIndexRouteImport } from "./routes/workspaces/index"
 import { Route as ApplicationsIndexRouteImport } from "./routes/applications/index"
 import { Route as DashboardIndexRouteImport } from "./routes/_dashboard/index"
+import { Route as ApplicationsApplicationNameRouteRouteImport } from "./routes/applications/$applicationName/route"
 import { Route as WorkspacesWorkspaceIdIndexRouteImport } from "./routes/workspaces/$workspaceId/index"
 import { Route as ApplicationsApplicationNameIndexRouteImport } from "./routes/applications/$applicationName/index"
 import { Route as DashboardSettingsIndexRouteImport } from "./routes/_dashboard/settings/index"
@@ -45,6 +46,12 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: "/",
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const ApplicationsApplicationNameRouteRoute =
+  ApplicationsApplicationNameRouteRouteImport.update({
+    id: "/applications/$applicationName",
+    path: "/applications/$applicationName",
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspacesWorkspaceIdIndexRoute =
   WorkspacesWorkspaceIdIndexRouteImport.update({
     id: "/workspaces/$workspaceId/",
@@ -53,9 +60,9 @@ const WorkspacesWorkspaceIdIndexRoute =
   } as any)
 const ApplicationsApplicationNameIndexRoute =
   ApplicationsApplicationNameIndexRouteImport.update({
-    id: "/applications/$applicationName/",
-    path: "/applications/$applicationName/",
-    getParentRoute: () => rootRouteImport,
+    id: "/",
+    path: "/",
+    getParentRoute: () => ApplicationsApplicationNameRouteRoute,
   } as any)
 const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
   id: "/settings/",
@@ -94,35 +101,36 @@ const WorkspacesWorkspaceIdApisIndexRoute =
   } as any)
 const ApplicationsApplicationNameSettingsIndexRoute =
   ApplicationsApplicationNameSettingsIndexRouteImport.update({
-    id: "/applications/$applicationName/settings/",
-    path: "/applications/$applicationName/settings/",
-    getParentRoute: () => rootRouteImport,
+    id: "/settings/",
+    path: "/settings/",
+    getParentRoute: () => ApplicationsApplicationNameRouteRoute,
   } as any)
 const ApplicationsApplicationNameQueuesIndexRoute =
   ApplicationsApplicationNameQueuesIndexRouteImport.update({
-    id: "/applications/$applicationName/queues/",
-    path: "/applications/$applicationName/queues/",
-    getParentRoute: () => rootRouteImport,
+    id: "/queues/",
+    path: "/queues/",
+    getParentRoute: () => ApplicationsApplicationNameRouteRoute,
   } as any)
 const ApplicationsApplicationNameNetworkIndexRoute =
   ApplicationsApplicationNameNetworkIndexRouteImport.update({
-    id: "/applications/$applicationName/network/",
-    path: "/applications/$applicationName/network/",
-    getParentRoute: () => rootRouteImport,
+    id: "/network/",
+    path: "/network/",
+    getParentRoute: () => ApplicationsApplicationNameRouteRoute,
   } as any)
 const ApplicationsApplicationNameCacheIndexRoute =
   ApplicationsApplicationNameCacheIndexRouteImport.update({
-    id: "/applications/$applicationName/cache/",
-    path: "/applications/$applicationName/cache/",
-    getParentRoute: () => rootRouteImport,
+    id: "/cache/",
+    path: "/cache/",
+    getParentRoute: () => ApplicationsApplicationNameRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
+  "/applications/$applicationName": typeof ApplicationsApplicationNameRouteRouteWithChildren
   "/": typeof DashboardIndexRoute
   "/applications": typeof ApplicationsIndexRoute
   "/workspaces": typeof WorkspacesIndexRoute
   "/settings": typeof DashboardSettingsIndexRoute
-  "/applications/$applicationName": typeof ApplicationsApplicationNameIndexRoute
+  "/applications/$applicationName/": typeof ApplicationsApplicationNameIndexRoute
   "/workspaces/$workspaceId": typeof WorkspacesWorkspaceIdIndexRoute
   "/applications/$applicationName/cache": typeof ApplicationsApplicationNameCacheIndexRoute
   "/applications/$applicationName/network": typeof ApplicationsApplicationNameNetworkIndexRoute
@@ -154,6 +162,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/_dashboard": typeof DashboardRouteRouteWithChildren
+  "/applications/$applicationName": typeof ApplicationsApplicationNameRouteRouteWithChildren
   "/_dashboard/": typeof DashboardIndexRoute
   "/applications/": typeof ApplicationsIndexRoute
   "/workspaces/": typeof WorkspacesIndexRoute
@@ -173,11 +182,12 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | "/applications/$applicationName"
     | "/"
     | "/applications"
     | "/workspaces"
     | "/settings"
-    | "/applications/$applicationName"
+    | "/applications/$applicationName/"
     | "/workspaces/$workspaceId"
     | "/applications/$applicationName/cache"
     | "/applications/$applicationName/network"
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/_dashboard"
+    | "/applications/$applicationName"
     | "/_dashboard/"
     | "/applications/"
     | "/workspaces/"
@@ -227,14 +238,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  ApplicationsApplicationNameRouteRoute: typeof ApplicationsApplicationNameRouteRouteWithChildren
   ApplicationsIndexRoute: typeof ApplicationsIndexRoute
   WorkspacesIndexRoute: typeof WorkspacesIndexRoute
-  ApplicationsApplicationNameIndexRoute: typeof ApplicationsApplicationNameIndexRoute
   WorkspacesWorkspaceIdIndexRoute: typeof WorkspacesWorkspaceIdIndexRoute
-  ApplicationsApplicationNameCacheIndexRoute: typeof ApplicationsApplicationNameCacheIndexRoute
-  ApplicationsApplicationNameNetworkIndexRoute: typeof ApplicationsApplicationNameNetworkIndexRoute
-  ApplicationsApplicationNameQueuesIndexRoute: typeof ApplicationsApplicationNameQueuesIndexRoute
-  ApplicationsApplicationNameSettingsIndexRoute: typeof ApplicationsApplicationNameSettingsIndexRoute
   WorkspacesWorkspaceIdApisIndexRoute: typeof WorkspacesWorkspaceIdApisIndexRoute
   WorkspacesWorkspaceIdDocumentationIndexRoute: typeof WorkspacesWorkspaceIdDocumentationIndexRoute
   WorkspacesWorkspaceIdMocksIndexRoute: typeof WorkspacesWorkspaceIdMocksIndexRoute
@@ -272,6 +279,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    "/applications/$applicationName": {
+      id: "/applications/$applicationName"
+      path: "/applications/$applicationName"
+      fullPath: "/applications/$applicationName"
+      preLoaderRoute: typeof ApplicationsApplicationNameRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/workspaces/$workspaceId/": {
       id: "/workspaces/$workspaceId/"
       path: "/workspaces/$workspaceId"
@@ -281,10 +295,10 @@ declare module "@tanstack/react-router" {
     }
     "/applications/$applicationName/": {
       id: "/applications/$applicationName/"
-      path: "/applications/$applicationName"
-      fullPath: "/applications/$applicationName"
+      path: "/"
+      fullPath: "/applications/$applicationName/"
       preLoaderRoute: typeof ApplicationsApplicationNameIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApplicationsApplicationNameRouteRoute
     }
     "/_dashboard/settings/": {
       id: "/_dashboard/settings/"
@@ -330,31 +344,31 @@ declare module "@tanstack/react-router" {
     }
     "/applications/$applicationName/settings/": {
       id: "/applications/$applicationName/settings/"
-      path: "/applications/$applicationName/settings"
+      path: "/settings"
       fullPath: "/applications/$applicationName/settings"
       preLoaderRoute: typeof ApplicationsApplicationNameSettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApplicationsApplicationNameRouteRoute
     }
     "/applications/$applicationName/queues/": {
       id: "/applications/$applicationName/queues/"
-      path: "/applications/$applicationName/queues"
+      path: "/queues"
       fullPath: "/applications/$applicationName/queues"
       preLoaderRoute: typeof ApplicationsApplicationNameQueuesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApplicationsApplicationNameRouteRoute
     }
     "/applications/$applicationName/network/": {
       id: "/applications/$applicationName/network/"
-      path: "/applications/$applicationName/network"
+      path: "/network"
       fullPath: "/applications/$applicationName/network"
       preLoaderRoute: typeof ApplicationsApplicationNameNetworkIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApplicationsApplicationNameRouteRoute
     }
     "/applications/$applicationName/cache/": {
       id: "/applications/$applicationName/cache/"
-      path: "/applications/$applicationName/cache"
+      path: "/cache"
       fullPath: "/applications/$applicationName/cache"
       preLoaderRoute: typeof ApplicationsApplicationNameCacheIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApplicationsApplicationNameRouteRoute
     }
   }
 }
@@ -373,20 +387,40 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
   DashboardRouteRouteChildren,
 )
 
+interface ApplicationsApplicationNameRouteRouteChildren {
+  ApplicationsApplicationNameIndexRoute: typeof ApplicationsApplicationNameIndexRoute
+  ApplicationsApplicationNameCacheIndexRoute: typeof ApplicationsApplicationNameCacheIndexRoute
+  ApplicationsApplicationNameNetworkIndexRoute: typeof ApplicationsApplicationNameNetworkIndexRoute
+  ApplicationsApplicationNameQueuesIndexRoute: typeof ApplicationsApplicationNameQueuesIndexRoute
+  ApplicationsApplicationNameSettingsIndexRoute: typeof ApplicationsApplicationNameSettingsIndexRoute
+}
+
+const ApplicationsApplicationNameRouteRouteChildren: ApplicationsApplicationNameRouteRouteChildren =
+  {
+    ApplicationsApplicationNameIndexRoute:
+      ApplicationsApplicationNameIndexRoute,
+    ApplicationsApplicationNameCacheIndexRoute:
+      ApplicationsApplicationNameCacheIndexRoute,
+    ApplicationsApplicationNameNetworkIndexRoute:
+      ApplicationsApplicationNameNetworkIndexRoute,
+    ApplicationsApplicationNameQueuesIndexRoute:
+      ApplicationsApplicationNameQueuesIndexRoute,
+    ApplicationsApplicationNameSettingsIndexRoute:
+      ApplicationsApplicationNameSettingsIndexRoute,
+  }
+
+const ApplicationsApplicationNameRouteRouteWithChildren =
+  ApplicationsApplicationNameRouteRoute._addFileChildren(
+    ApplicationsApplicationNameRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  ApplicationsApplicationNameRouteRoute:
+    ApplicationsApplicationNameRouteRouteWithChildren,
   ApplicationsIndexRoute: ApplicationsIndexRoute,
   WorkspacesIndexRoute: WorkspacesIndexRoute,
-  ApplicationsApplicationNameIndexRoute: ApplicationsApplicationNameIndexRoute,
   WorkspacesWorkspaceIdIndexRoute: WorkspacesWorkspaceIdIndexRoute,
-  ApplicationsApplicationNameCacheIndexRoute:
-    ApplicationsApplicationNameCacheIndexRoute,
-  ApplicationsApplicationNameNetworkIndexRoute:
-    ApplicationsApplicationNameNetworkIndexRoute,
-  ApplicationsApplicationNameQueuesIndexRoute:
-    ApplicationsApplicationNameQueuesIndexRoute,
-  ApplicationsApplicationNameSettingsIndexRoute:
-    ApplicationsApplicationNameSettingsIndexRoute,
   WorkspacesWorkspaceIdApisIndexRoute: WorkspacesWorkspaceIdApisIndexRoute,
   WorkspacesWorkspaceIdDocumentationIndexRoute:
     WorkspacesWorkspaceIdDocumentationIndexRoute,
