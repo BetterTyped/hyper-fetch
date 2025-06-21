@@ -65,10 +65,17 @@ export function getNotMatchingGeneric({
   // <{ ... }>
   const mainGenericParam = typeParameters.params[0];
 
-  // doSomething<{ ... }> is valid
-  if (mainGenericParam && "members" in mainGenericParam) {
+  // doSomething<{ ... }> is a TSTypeLiteral, which is the valid case.
+  if (mainGenericParam.type === "TSTypeLiteral") {
     return false;
   }
-  // doSomething<string> is invalid
+
+  // type RequestType = { queryParams: string }
+  // doSomething<RequestType> are considered matching.
+  if (mainGenericParam.type === "TSTypeReference") {
+    return false;
+  }
+
+  // All other types, such as `doSomething<string>` (TSStringKeyword)  are considered not matching.
   return true;
 }

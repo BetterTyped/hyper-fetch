@@ -43,6 +43,26 @@ ruleTester.run("request-generics-types", requestGenericTypes, {
       code: "const someRequest = myClient.createRequest<{payload: any, response: any, queryParams: any, error: any}>();",
       options: [],
     },
+    {
+      code: `
+        type RequestType = {queryParams?: {search?: string; page?: number} | undefined}
+        const someRequest = myClient.createRequest<RequestType>();
+      `,
+      options: [],
+    },
+    {
+      code: `
+        type RequestType = {
+          response: { id: string };
+          payload: { name: string };
+          queryParams: { page: number };
+          error: { message: string };
+          endpoint: "/users/:id";
+        }
+        const someRequest = myClient.createRequest<RequestType>();
+      `,
+      options: [],
+    },
   ],
   invalid: [
     {
