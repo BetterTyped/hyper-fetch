@@ -1,0 +1,87 @@
+
+
+# getSocketAdapterBindings
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { getSocketAdapterBindings } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [adapter/adapter.bindings.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/adapter/adapter.bindings.ts#L6)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+getSocketAdapterBindings<T>(socket, defaults)
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="socket"><td class="api-docs__param-name required">
+
+### socket 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SocketInstance`
+
+</td></tr><tr param-data="defaults"><td class="api-docs__param-name optional">
+
+### defaults 
+
+`Optional`
+
+</td><td class="api-docs__param-type">
+
+`{ connecting?: boolean; forceClosed?: boolean; open?: boolean; reconnectionAttempts?: number }`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  connecting: boolean;
+  forceClosed: boolean;
+  listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>>;
+  onClose: () => void;
+  onConnect: () => boolean;
+  onDisconnect: () => boolean;
+  onEmit: (emitter: EmitterInstance) => boolean;
+  onError: (event: Error) => void;
+  onEvent: (endpoint: string, response: any, resposeExtra: ExtractSocketExtraType<T>) => void;
+  onListen: (listener: Pick<ListenerInstance, endpoint>, callback: ListenerCallbackType<T, any>, unmount: VoidFunction) => () => void;
+  onOpen: () => void;
+  onReconnect: (disconnect: () => void, connect: () => void) => boolean;
+  open: boolean;
+  reconnectionAttempts: number;
+  removeListener: (endpoint: string, callback: ListenerCallbackType<T, any>) => boolean;
+}
+```
+
+</div>

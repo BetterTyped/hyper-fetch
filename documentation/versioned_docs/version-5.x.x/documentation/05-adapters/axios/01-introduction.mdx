@@ -1,0 +1,36 @@
+---
+sidebar_position: 1
+title: Axios introduction
+sidebar_label: Introduction
+---
+
+Hyper Fetch `axios` adapter is a simple integration that allows Hyper Fetch users to utilize a lot of features
+of the `axios` library along with all the features available in Hyper Fetch.
+
+## Getting Started
+
+In order to set `axios` adapter, you have to import it from the `@hyper-fetch/axios` package:
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { axiosAdapter } from "@hyper-fetch/axios";
+
+const client = new Client({ url: "base-url" }).setAdapter(axiosAdapter);
+```
+
+...and voila! It's done. Now you can set all the axios options, either during the request initialization or via
+`setOptions` method:
+
+```tsx
+const client = new Client({ url: "base-url" }).setAdapter(axiosAdapter);
+const request = client.createRequest()({
+    endpoint: "/shared-endpoint",
+    options: {} // here
+});
+
+const requestWithOptions = request.setOptions({}) // or here
+```
+
+## Differences
+
+1. You should not pass the `baseUrl`, `method`, and `url` in the axios options. They will be overwritten by the Hyper Fetch adapter.

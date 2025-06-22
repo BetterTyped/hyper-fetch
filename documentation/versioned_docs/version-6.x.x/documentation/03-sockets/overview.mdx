@@ -1,0 +1,61 @@
+---
+sidebar_position: 1
+title: Sockets Overview
+sidebar_label: Overview
+---
+
+Sockets module was created to handle listeners and emitters on open connections. Our base `Hyper Fetch` package was
+created with different approach to things like interceptors or data exchange itself but has some architecture decisions
+in common, like singleton pattern.
+
+## Main Goals 🔮
+
+✅ Neutral standard for data exchange
+
+✅ Architecture to support composing our logic with existing clients like socket.io, firebase, etc.
+
+✅ Possibility to attach own adapters with ease and type safety
+
+✅ Separation of listeners and emitters to clearly split responsibility
+
+✅ SSE and Websocket by default
+
+## Simple examples
+
+Here you can find some simple examples of how to use our sockets module.
+
+#### Initialize Client
+
+```tsx
+import { Socket } from "./socket";
+
+export const socket = new Sockets({
+  url: "ws://localhost:3000",
+});
+```
+
+#### Create Listeners
+
+```ts
+import { socket } from "./socket";
+
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+
+onChatMessage.listen({ callback: (data) => console.log(data) });
+```
+
+#### Create Emitters
+
+```tsx
+import { socket } from "./socket";
+
+export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+
+sendChatMessage.emit({ data: { message: "Hello world" } });
+```
+
+## Congratulations! You're ready to use **Hyper Fetch Sockets**! 🎊

@@ -1,0 +1,128 @@
+---
+sidebar_position: 2
+title: React Request Handling
+sidebar_label: Submitting
+---
+
+# Submitting data
+
+For submitting and mutating data on server use the [`useSubmit`](/documentation/04-react/02-core/use-submit.mdx) hook
+that automates request handling. There are tons of [options](/documentation/04-react/02-core/use-fetch.mdx#options) to
+adjust this hook so check out the [documentation](/documentation/04-react/02-core/use-submit.mdx).
+
+---
+
+### Submitting
+
+Submit method received from useSubmit hook allow us to trigger requests on some events. What makes it unique is that it
+is also a promise that also returns data from a particular call. Thanks to this functionality, we can fire additional
+logic at the end of sending, such as resetting the form or displaying notifications. This simplifies the logic
+considerably and eliminates the need for reefs in the case of forms.
+
+```tsx
+const { submit, submitting } = useSubmit(postUser);
+
+const handlePost = async (values: { email: string; password: string }, { resetForm }: FormikHelpers) => {
+  // We can await for response from submit method
+  const response = await submit({ data: values });
+  resetForm();
+};
+```
+
+---
+
+### Examples
+
+```tsx
+import { postUser, patchUser, deleteUser } from "server/user";
+
+// ...
+
+function Page() {
+  const { submit, submitting } = useSubmit(postUser);
+
+  const handlePost = async (values: { email: string; password: string }, { resetForm }: FormikHelpers) => {
+    // We can await for response from submit method
+    const response = await submit({ data: values });
+    resetForm();
+  };
+
+  return (
+    <Form onSubmit={handlePost}>
+      <Input name="email" />
+      <Input name="password" />
+      <Button disabled={submitting}>Submit</Button>
+    </Form>
+  );
+}
+```
+
+```tsx
+import { postUser, patchUser, deleteUser } from "server/user";
+
+// ...
+
+function Page() {
+  const { submit, submitting } = useSubmit(patchUser.setParams({ userId: 1 }));
+
+  const handlePatch = (values: { email: string }) => {
+    submit({ data: values });
+  };
+
+  return (
+    <Form onSubmit={handlePatch}>
+      <Input name="email" />
+      <Input name="password" />
+      <Button disabled={submitting}>Submit</Button>
+    </Form>
+  );
+}
+
+// Or
+
+function Page() {
+  const { submit, submitting } = useSubmit(patchUser);
+
+  const handlePatch = async (values: { email: string }, { resetForm }: FormikHelpers) => {
+    // We can await for response from submit method
+    const response = await submit({ data: values, params: { userId: 1 } });
+    resetForm();
+  };
+
+  return (
+    <Form onSubmit={handlePatch}>
+      <Input name="email" />
+      <Input name="password" />
+      <Button disabled={submitting}>Submit</Button>
+    </Form>
+  );
+}
+```
+
+```tsx
+import { postUser, patchUser, deleteUser } from "server/user";
+
+// ...
+
+function Page() {
+  const { submit, submitting } = useSubmit(deleteUser);
+
+  return (
+    <button type="button" onClick={() => submit({ params: { userId: 1 } })} disabled={submitting}>
+      Delete
+    </button>
+  );
+}
+
+// Or
+
+function Page() {
+  const { submit, submitting } = useSubmit(deleteUser.setParams({ userId: 1 }));
+
+  return (
+    <button type="button" onClick={() => submit()} disabled={submitting}>
+      Delete
+    </button>
+  );
+}
+```

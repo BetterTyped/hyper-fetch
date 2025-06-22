@@ -1,0 +1,44 @@
+---
+sidebar_position: 6
+title: Socket Adapters
+sidebar_label: Adapters
+---
+
+<div class="row-flex">
+
+<div class="api-link">
+  <div class="api-link-title">Weboscket Adapter</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Sockets/Function/websocketAdapter.mdx)
+
+  </div>
+</div>
+
+<div class="api-link">
+  <div class="api-link-title">SSE Adapter</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Sockets/Function/sseAdapter.mdx)
+
+  </div>
+</div>
+
+</div>
+
+---
+
+## Introduction
+
+**`Adapter`** is a class that gives us possibility to interact with servers. The default adapter is used to communicate
+with the `Websocket` or `SSE` server. However, there is nothing to prevent you from changing this and creating the
+adapter you need. Thanks to event communication, you can set your own adapter as you wish by only fulfilling the
+typescript requirements. This way you can create your own adapters for existing libraries like `socket.io`.
+
+## Adapter Imports
+
+{@import Sockets websocketAdapter import}
+
+{@import Sockets sseAdapter import}
+
+---

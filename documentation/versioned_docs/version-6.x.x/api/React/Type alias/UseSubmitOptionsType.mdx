@@ -1,0 +1,54 @@
+
+
+# UseSubmitOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseSubmitOptionsType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [hooks/use-submit/use-submit.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-submit/use-submit.types.ts#L15)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseSubmitOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof isEqual; dependencyTracking?: boolean; disabled?: boolean; initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>> } & ({ bounceTime?: number; bounceType?: debounce } | { bounceTime?: number; bounceTimeout?: number; bounceType: throttle });
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  bounce: boolean;
+  deepCompare: boolean | typeof isEqual;
+  dependencyTracking: boolean;
+  disabled: boolean;
+  initialData: T | NegativeTypes;
+  ...params2: {bounceTime:number,bounceType:debounce} | {bounceTime:number,bounceTimeout:number,bounceType:throttle};
+}
+```
+
+</div>
