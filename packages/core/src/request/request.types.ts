@@ -246,7 +246,7 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
   ? { queryParams?: EmptyTypes | undefined }
   : HasQuery extends true
     ? { queryParams?: EmptyTypes }
-    : EmptyTypes | void | never extends QueryParams
+    : QueryParams extends EmptyTypes | void | never
       ? { queryParams?: QueryParams }
       : {
           queryParams: QueryParams;

@@ -38,11 +38,11 @@ import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
 const client = createClient({
   url: "https://api.example.com",
-  // Change the adapter to GraphQL
+})
   // highlight-start
-  adapter: GraphqlAdapter(),
-  // highlight-end
-});
+  // Change the adapter to GraphQL
+  .setAdapter(GraphqlAdapter());
+// highlight-end
 ```
 
 ---

@@ -54,7 +54,7 @@ export const clientGenericTypes = createRule({
 
           const unexpectedGenericElements = getUnexpectedGenerics({
             typeParameters,
-            allowedGenerics: ["adapter", "error", "endpointMapper"],
+            allowedGenerics: ["error"],
           });
           const isEmpty = getEmptyGenerics({ typeParameters });
 

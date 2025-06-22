@@ -29,7 +29,7 @@ Then, create a `client` instance. It's best to do this in a separate file and ex
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getDatabase } from "firebase-admin/database";
 import { createClient } from "@hyper-fetch/core";
-import { firebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
+import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
 
 // Firebase Admin SDK initialization
 const apps = getApps();
@@ -45,9 +45,7 @@ const app = apps.length
 const adminRealtimeDb = getDatabase(app);
 
 // Hyper Fetch Client initialization
-export const client = createClient({
-  adapter: firebaseAdminAdapter(adminRealtimeDb),
-});
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(adminRealtimeDb));
 ```
 
 ---

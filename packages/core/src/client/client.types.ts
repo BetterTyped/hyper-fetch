@@ -37,10 +37,6 @@ export type ClientOptionsType<C extends ClientInstance> = {
    */
   url: string;
   /**
-   * Custom adapter initialization prop
-   */
-  adapter?: ExtractClientAdapterType<C>;
-  /**
    * Custom cache initialization prop
    */
   cache?: () => C["cache"];
