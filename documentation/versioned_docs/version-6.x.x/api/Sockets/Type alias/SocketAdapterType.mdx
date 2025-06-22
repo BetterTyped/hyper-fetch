@@ -1,0 +1,47 @@
+
+
+# SocketAdapterType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { SocketAdapterType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [adapter/adapter.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/adapter/adapter.types.ts#L12)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type SocketAdapterType<AdapterOptions,AdapterExtra,ListenerOptions,EmitterOptions> = (socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>, DO_NOT_USE?: { adapterExtra?: AdapterExtra; adapterOptions?: AdapterOptions; emitterOptions?: EmitterOptions; listenerOptions?: ListenerOptions }) => { connect: () => void; connecting: boolean; disconnect: () => void; emit: (eventMessageId: string, emitter: EmitterInstance, ack?: EmitterAcknowledgeType<any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>) => void; listen: (listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>, callback: ListenerCallbackType<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>, any>) => RemoveListenerCallbackType; listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>; open: boolean; reconnect: () => void; reconnectionAttempts: number; removeListener: (endpoint: string, callback: (...args: any) => void) => void };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+(socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>, DO_NOT_USE?: [object Object]) => [object Object]
+```
+
+</div>

@@ -1,0 +1,28 @@
+---
+title: Queueing Requests with useQueue Hook
+sidebar_label: Queues
+---
+
+# Queues
+
+Queues allow us to relieve the system and run in the background. For example, when a user sends large files to
+the server, he can use the rest of the application at the same time. What's more, it can stop and resume the shipment,
+view the sending status of individual requests, along with the remaining time, size and progress.
+
+---
+
+### Example
+
+```tsx
+const { submit } = useSubmit(postFile.setData(formData));
+const { stopped, requests, stop, start } = useQueue(postFile);
+
+return (
+  <div>
+    <Button onClick={() => resultQueued.submit()}>Send File</Button>
+    {requests.map((request) => (
+      <Request request={request} /> // Component to inspect the requests upload progress and stop/start functionality
+    ))}
+  </div>
+);
+```

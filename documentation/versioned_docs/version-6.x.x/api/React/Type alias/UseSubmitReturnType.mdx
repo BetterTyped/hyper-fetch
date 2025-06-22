@@ -1,0 +1,80 @@
+
+
+# UseSubmitReturnType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseSubmitReturnType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [hooks/use-submit/use-submit.types.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-submit/use-submit.types.ts#L63)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseSubmitReturnType<RequestType> = Omit<UseTrackedStateType<RequestType>, loading> & UseTrackedStateActions<RequestType> & { abort: () => void; bounce: { active: boolean; reset: () => void }; onSubmitAbort: (callback: OnErrorCallbackType<RequestType>) => void; onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void; onSubmitError: (callback: OnErrorCallbackType<RequestType>) => void; onSubmitFinished: (callback: OnFinishedCallbackType<RequestType>) => void; onSubmitOfflineError: (callback: OnErrorCallbackType<RequestType>) => void; onSubmitRequestStart: (callback: OnStartCallbackType<RequestType>) => void; onSubmitResponseStart: (callback: OnStartCallbackType<RequestType>) => void; onSubmitSuccess: (callback: OnSuccessCallbackType<RequestType>) => void; onSubmitUploadProgress: (callback: OnProgressCallbackType) => void; refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void; submit: RequestSendType<RequestType>; submitting: boolean };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never;
+  extra: T extends AdapterType<any, any, any, infer A, any> ? A : never;
+  retries: number;
+  status: T extends AdapterType<any, any, infer S, any, any> ? S : never;
+  success: boolean;
+  timestamp: null | Date;
+  setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setExtra: (extra: ExtractAdapterExtraType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setSuccess: (success: boolean, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  abort: () => void;
+  bounce: {
+    active: boolean;
+    reset: () => void;
+  };
+  onSubmitAbort: (callback: OnErrorCallbackType<RequestType>) => void;
+  onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onSubmitError: (callback: OnErrorCallbackType<RequestType>) => void;
+  onSubmitFinished: (callback: OnFinishedCallbackType<RequestType>) => void;
+  onSubmitOfflineError: (callback: OnErrorCallbackType<RequestType>) => void;
+  onSubmitRequestStart: (callback: OnStartCallbackType<RequestType>) => void;
+  onSubmitResponseStart: (callback: OnStartCallbackType<RequestType>) => void;
+  onSubmitSuccess: (callback: OnSuccessCallbackType<RequestType>) => void;
+  onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
+  refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+  submit: RequestSendOptionsType<Request>[data] extends NegativeTypes ? (RequestSendOptionsType<Request>[params] extends NegativeTypes ? (options?: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>> : (options: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>) : (options: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>;
+  submitting: boolean;
+}
+```
+
+</div>

@@ -1,0 +1,72 @@
+
+
+# CacheOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { CacheOptionsType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/cache/cache.types.ts#L6)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type CacheOptionsType<C> = {
+  clearKey: string; 
+  lazyStorage: CacheAsyncStorageType; 
+  onChange: <Response,Error,Adapter>(key: string, data: CacheValueType<Response, Error, Adapter>) => void; 
+  onDelete: (key: string) => void; 
+  onInitialization: (cache: Cache<C>) => void; 
+  storage: CacheStorageType; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  clearKey: string;
+  lazyStorage: {
+    delete: (key: string) => Promise<void>;
+    get: (key: string) => Promise<CacheValueType<Response, Error, Adapter> | undefined>;
+    keys: () => Promise<string[] | IterableIterator<string> | string[]>;
+    set: (key: string, data: CacheValueType<Response, Error, Adapter>) => Promise<void>;
+  };
+  onChange: (key: string, data: CacheValueType<Response, Error, Adapter>) => void;
+  onDelete: (key: string) => void;
+  onInitialization: (cache: Cache<C>) => void;
+  storage: {
+    clear: () => void;
+    delete: (key: string) => void;
+    get: (key: string) => CacheValueType<Response, Error, Adapter> | undefined;
+    keys: () => string[] | IterableIterator<string> | string[];
+    set: (key: string, data: CacheValueType<Response, Error, Adapter>) => void;
+  };
+}
+```
+
+</div>

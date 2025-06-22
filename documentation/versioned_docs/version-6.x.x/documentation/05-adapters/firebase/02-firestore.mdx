@@ -1,0 +1,105 @@
+---
+sidebar_position: 2
+title: Working with Firestore
+sidebar_label: Firestore
+---
+
+## Available methods
+
+After setting the firestore adapter, we can start performing requests! We should select the appropriate method, corresponding with
+firebase methods. If you want to learn more about available methods - please refer to the firebase documentation.
+
+Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a standard adapter.
+For the `onSnapshot`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+
+```tsx
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
+});
+
+```
+
+### getDocs
+
+```tsx
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+const { data, status, extra, success, error } = await req.send();
+// Data is an array of objects, each object also contains the __key param.
+```
+
+`extra`:
+1. `ref` - collection reference endpoint
+2. `snapshot` - 'raw' `getDocs` firestore collection/query reference snapshot
+
+### getDoc
+
+```tsx
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+
+const { data, status, extra, success, error } = await req.send();
+    // setParams can be also passed in the send() method instead
+```
+
+`extra`:
+1. `ref` - document reference endpoint
+2. `snapshot` - 'raw' firestore document reference snapshot
+
+### setDoc
+
+```tsx
+const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 }
+const setReq = client
+  .createRequest<Tea, Tea>()({
+    endpoint: ":teaId",
+    method: "setDoc",
+    // can also pass options: {merge: true} for achieving the firebase 'merge' option
+  })
+  .setParams({ teaId: 1 })
+  .setData(newData);
+
+await setReq.send();
+const { data } = await getReq.send();
+```
+
+In case of `setDoc` - data returned is the same data as passed for setting.
+
+### addDoc
+
+```tsx
+const addDocReq = client
+  .createRequest<Tea, Tea>()({
+    endpoint: "",
+    method: "addDoc",
+    options: {},
+  })
+  .setData(newData);
+
+await addDocReq.send()
+```
+
+In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly created document.
+
+### deleteDoc
+
+```tsx
+const deleteDocReq = client
+  .createRequest<Tea>()({
+    endpoint: ":teaId",
+    method: "deleteDoc",
+  })
+  .setParams({ teaId: 1 });
+
+await deleteDocReq
+```
+
+In case of `deleteDoc` - returned data equals `null`

@@ -1,0 +1,68 @@
+
+
+# LoggerResponseEventData
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { LoggerResponseEventData } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/managers/logger/logger.manager.types.ts#L27)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type LoggerResponseEventData<Adapter> = {
+  details: ResponseDetailsType; 
+  request: RequestInstance; 
+  requestId: string; 
+  response: ResponseReturnType<unknown, unknown, Adapter>; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  details: {
+    isCanceled: boolean;
+    isOffline: boolean;
+    retries: number;
+    timestamp: number;
+  };
+  request: Request<any, any, any, any, any, any, AdapterType<any, any, any, any, any>, any, any, any>;
+  requestId: string;
+  response: {
+    data: GenericDataType | null;
+    error: GenericErrorType | null;
+    extra: T extends AdapterType<any, any, any, infer A, any> ? A : never | null;
+    status: T extends AdapterType<any, any, infer S, any, any> ? S : never | null;
+    success: boolean;
+  };
+}
+```
+
+</div>

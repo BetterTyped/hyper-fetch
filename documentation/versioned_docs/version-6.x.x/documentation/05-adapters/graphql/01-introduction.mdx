@@ -1,0 +1,34 @@
+---
+sidebar_position: 1
+title: Graphql introduction
+sidebar_label: Introduction
+---
+
+Hyper Fetch GraphQL is a powerful adapter designed to seamlessly handle GraphQL requests in both server and browser
+environments. Built with efficiency and ease-of-use in mind, to simplify process of integration.
+
+## Getting Started
+
+Whether you're developing a server-side GraphQL API or a client-side application that consumes GraphQL data, you can use
+Hyper Fetch GraphQL to interact with it. Process of setting up the adapter is very simple and straightforward.
+
+```tsx
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+
+// Initialize Client with adapter
+const client = new Client({ url: "http://localhost:3000/grahql" }).setAdapter(graphqlAdapter);
+
+// It's ready to use!
+const getUser = client.createRequest<User>()({
+  endpoint: gql`
+    query GetUser {
+      username {
+        username
+        firstName
+      }
+    }
+  `,
+});
+
+const { data, status, extra, success, error } = await getUser.send();
+```

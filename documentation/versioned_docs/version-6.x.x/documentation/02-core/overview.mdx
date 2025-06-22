@@ -1,0 +1,64 @@
+---
+sidebar_position: 0
+title: Core Package Overview
+sidebar_label: Overview
+---
+
+_`Hyper Fetch`_ is an ambitious approach to standardizing data exchange. This is an extremely difficult but important
+task that we have faced. Achieving this goal will elevate the capabilities of all of us to a whole new level. We do not
+want to change your approach but to become a neutral standard where you compose your sub-components according to your
+needs and the clear rules we provide.
+
+---
+
+## Let's check short code examples
+
+Check for yourself how fast and easy it is to write queries with Hyper Fetch.
+
+---
+
+## Simple Request
+
+```ts
+const client = new Client({ url: "https://api.github.com" });
+
+const getRepositoryDetails = client.createRequest()({
+  method: "GET",
+  url: "/repos/BetterTyped/hyper-fetch",
+});
+
+const { data, error, status, extra } = await getRepositoryDetails.send();
+```
+
+---
+
+## React Integration
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+
+const client = new Client({ url: "https://api.github.com" });
+
+const getRepositoryDetails = client.createRequest()({
+  method: "GET",
+  url: "/repos/BetterTyped/hyper-fetch",
+});
+
+export function RepositoryComponent() {
+  const { loading, error, data } = useFetch(getRepositoryDetails);
+
+  if (loading) return "Loading data...";
+
+  if (error) return `Fetching error: ${error.message}`;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.description}</p>
+      <strong>{data.subscribers_count}</strong>
+    </div>
+  );
+}
+```
+
+## Congratulations! You're ready to use **Hyper Fetch**! 🎊

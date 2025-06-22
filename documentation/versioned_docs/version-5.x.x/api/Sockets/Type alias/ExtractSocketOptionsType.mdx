@@ -1,0 +1,47 @@
+
+
+# ExtractSocketOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { ExtractSocketOptionsType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [adapter/adapter.types.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/adapter/adapter.types.ts#L52)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ExtractSocketOptionsType<T> = T extends SocketAdapterType<infer  O, any, any, any> ? O : never;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T extends SocketAdapterType<infer O, any, any, any> ? O : never
+```
+
+</div>
