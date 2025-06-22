@@ -55,9 +55,9 @@ export class Client<
 
   // Config
   adapter: Adapter;
-  cache: Cache;
-  fetchDispatcher: Dispatcher;
-  submitDispatcher: Dispatcher;
+  cache: Cache<Adapter>;
+  fetchDispatcher: Dispatcher<Adapter>;
+  submitDispatcher: Dispatcher<Adapter>;
   isMockerEnabled = true;
 
   // Registered requests effect
@@ -91,9 +91,9 @@ export class Client<
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
     this.adapter.initialize(this);
     this.appManager.initialize();
-    this.cache.initialize(this);
-    this.fetchDispatcher.initialize(this);
-    this.submitDispatcher.initialize(this);
+    this.cache.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.fetchDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.submitDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
   }
 
   /**
@@ -357,9 +357,9 @@ export class Client<
 
     // DO NOT CHANGE INITIALIZATION ORDER
     this.appManager.initialize();
-    this.cache.initialize(this);
-    this.fetchDispatcher.initialize(this);
-    this.submitDispatcher.initialize(this);
+    this.cache.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.fetchDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.submitDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
   };
 
   /**

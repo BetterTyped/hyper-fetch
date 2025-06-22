@@ -1,7 +1,13 @@
-import { RequestInstance } from "@hyper-fetch/core";
+import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 
-export const setCacheManually = <R extends RequestInstance>(
-  request: R,
+import { FirestoreAdapterType } from "adapter";
+
+export const setCacheManually = (
+  request: RequestInstance<{
+    client: ClientInstance<{
+      adapter: FirestoreAdapterType;
+    }>;
+  }>,
   response: { value: any; status: "success" | "error" | "emptyResource" },
   extra: any,
 ) => {
@@ -23,7 +29,7 @@ export const setCacheManually = <R extends RequestInstance>(
   } else {
     request.client.cache.set(request, {
       data: null,
-      status: "error",
+      status: "error" as const,
       error: response.value,
       success: false,
       extra,

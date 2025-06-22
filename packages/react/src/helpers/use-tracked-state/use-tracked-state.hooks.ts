@@ -76,7 +76,7 @@ export const useTrackedState = <T extends RequestInstance>({
   useDidUpdate(
     () => {
       // Get cache state
-      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
+      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
       // Handle initial loading state

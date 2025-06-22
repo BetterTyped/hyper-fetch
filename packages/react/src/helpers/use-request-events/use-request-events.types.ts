@@ -23,7 +23,7 @@ export type UseRequestEventsLifecycleMap = Map<string, { unmount: VoidFunction }
 // Props
 export type UseRequestEventsPropsType<T extends RequestInstance> = {
   request: T;
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   logger: LoggerMethods;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;

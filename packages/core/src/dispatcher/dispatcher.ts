@@ -13,14 +13,14 @@ import { ClientInstance } from "client";
 import { EventEmitter } from "utils";
 import { ResponseDetailsType, LoggerMethods } from "managers";
 import { RequestInstance } from "request";
-import { getErrorMessage, RequestResponseType } from "adapter";
+import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
  * This class can also run them with different modes like deduplication, cancelation, queueing or run-all-at-once mode. With it's help we can pause,
  * stop, start and cancel requests.
  */
-export class Dispatcher {
+export class Dispatcher<Adapter extends AdapterInstance> {
   public emitter = new EventEmitter();
   public events = getDispatcherEvents(this.emitter);
   public storage: DispatcherStorageType = new Map<string, QueueDataType<any>>();
@@ -29,7 +29,7 @@ export class Dispatcher {
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
   private logger: LoggerMethods;
-  private client: ClientInstance;
+  private client: ClientInstance<{ adapter: Adapter }>;
 
   constructor(public options?: DispatcherOptionsType) {
     this.emitter?.setMaxListeners(1000);
@@ -39,7 +39,7 @@ export class Dispatcher {
     }
   }
 
-  initialize = (client: ClientInstance) => {
+  initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
     this.logger = client.loggerManager.initialize(client, "Dispatcher");
 

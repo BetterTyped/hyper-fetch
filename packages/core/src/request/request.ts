@@ -523,11 +523,7 @@ export class Request<
       };
     }
 
-    const cacheData = this.client.cache.get<
-      Response,
-      LocalError | ExtractClientGlobalError<Client>,
-      ExtractClientAdapterType<Client>
-    >(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
 
     if (!cacheData) {
       return undefined;
@@ -562,11 +558,7 @@ export class Request<
   public read():
     | ResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>
     | undefined {
-    const cacheData = this.client.cache.get<
-      Response,
-      LocalError | ExtractClientGlobalError<Client>,
-      ExtractClientAdapterType<Client>
-    >(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
 
     if (cacheData) {
       return {

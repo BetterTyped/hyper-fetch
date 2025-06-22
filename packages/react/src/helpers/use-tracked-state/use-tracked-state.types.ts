@@ -19,7 +19,7 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
   logger: LoggerMethods;
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   dependencyTracking: boolean;
   deepCompare: boolean | typeof isEqual;
   disabled?: boolean;
