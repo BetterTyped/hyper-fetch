@@ -9,7 +9,7 @@ import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yar
 import docsVersions from "./versions.json";
 
 const getVersions = () => {
-  const latestVersion = docsVersions[0] || "v0.0.0";
+  const latestVersion = docsVersions[0] || "v7.0.0";
   const latestMajor = latestVersion[1];
   const currentVersion = Number(latestMajor) + 1;
   const versions = { current: { label: `v${currentVersion}.0.0`, path: "" } };
