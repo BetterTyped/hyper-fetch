@@ -40,3 +40,8 @@ export const postProduct = client.createRequest<{ payload: ProductType }>()({
   method: "addDoc",
   endpoint: "/products",
 });
+
+export const editProduct = client.createRequest<{ payload: ProductType }>()({
+  method: "updateDoc",
+  endpoint: "/products/:productId",
+});

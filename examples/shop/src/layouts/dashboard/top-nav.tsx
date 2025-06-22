@@ -50,7 +50,7 @@ export const TopNav = () => {
             }}
           >
             <Stack alignItems="center" direction="row" spacing={6}>
-              <Link to="dashboard">
+              <Link to="/">
                 <Logo light={false} />
               </Link>
               <Box

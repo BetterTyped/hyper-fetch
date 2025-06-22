@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { Button, Stack, Box, Typography, Container, Chip, useTheme, lighten } from "@mui/material";
 import { useAppManager } from "@hyper-fetch/react";
+import { useNavigate } from "react-router-dom";
 
 import { Sidebar } from "./sidebar";
 import { client } from "../api";
-import { routing } from "../constants/routing.constants";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,
@@ -16,7 +16,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
   const [mount, setMount] = useState(true);
   const { isOnline, isFocused } = useAppManager(client);
 
-  const { navigate } = routing.useLocation();
+  const navigate = useNavigate();
 
   const handleToggle = () => {
     setMount((prev) => !prev);
@@ -33,7 +33,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
         {!noButtons && (
           <Stack direction="row" spacing={2}>
             <Box>
-              <Button size="small" variant="contained" type="button" onClick={() => navigate({ to: "Dashboard" })}>
+              <Button size="small" variant="contained" type="button" onClick={() => navigate("/")}>
                 Go To dashboard
               </Button>
             </Box>

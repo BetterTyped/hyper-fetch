@@ -92,7 +92,7 @@ export const SearchWidget: React.FC = () => {
             {data && (
               <div>
                 <h3 className={styles.results}>Results: {loading && <CircularProgress size={15} sx={{ ml: 1 }} />}</h3>
-                {data?.length && (
+                {!!data?.length && (
                   <div className={styles.group}>
                     {data.map((product) => (
                       <ListElement key={product.__key} setClose={() => setOpen(false)} product={product} />

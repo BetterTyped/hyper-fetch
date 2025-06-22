@@ -79,7 +79,7 @@ export const Cart = () => {
     return items.reduce((acc, item) => acc + Number(item.price) * Number(item.amount), 0);
   };
 
-  const onCheckout = () => {
+  const onCheckout = async () => {
     setCheckout(true);
     setState({ items: [] });
   };

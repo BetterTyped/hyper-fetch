@@ -4,14 +4,20 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-
-import { routing } from "../constants/routing.constants";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
+const links = [
+  { name: "Dashboard", path: "/" },
+  { name: "Details", path: "/details" },
+  { name: "List", path: "/list" },
+  { name: "Form", path: "/forms" },
+  { name: "Websockets", path: "/websockets" },
+];
+
 export const Sidebar = ({ children }: { children: React.ReactNode | undefined | null }) => {
-  const { navigate } = routing.useLocation();
-  const links = Object.entries(routing.routing.routes);
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -23,10 +29,10 @@ export const Sidebar = ({ children }: { children: React.ReactNode | undefined | 
         }}
       >
         <List>
-          {links.map(([name, route]) => (
-            <ListItem disablePadding key={route.path}>
-              <ListItemButton onClick={() => navigate({ href: route.path })}>
-                <ListItemText primary={name} />
+          {links.map((link) => (
+            <ListItem disablePadding key={link.path}>
+              <ListItemButton onClick={() => navigate(link.path)}>
+                <ListItemText primary={link.name} />
               </ListItemButton>
             </ListItem>
           ))}
