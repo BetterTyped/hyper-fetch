@@ -65,8 +65,8 @@ export class Cache {
    * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
-  set = <Request extends RequestInstance>(
-    request: RequestCacheType<Request>,
+  set = <Request extends RequestCacheType<RequestInstance>>(
+    request: Request,
     response: CacheSetState<
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
@@ -129,8 +129,8 @@ export class Cache {
    * via plugin.
    * @returns
    */
-  update = <Request extends RequestInstance>(
-    request: RequestCacheType<Request>,
+  update = <Request extends RequestCacheType<RequestInstance>>(
+    request: Request,
     partialResponse: CacheSetState<
       Partial<
         ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &

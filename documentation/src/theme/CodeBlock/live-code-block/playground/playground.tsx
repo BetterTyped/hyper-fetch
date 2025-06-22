@@ -3,7 +3,7 @@ import { LiveProvider, LiveError, LivePreview } from "react-live";
 import { ClientInstance, createClient } from "@hyper-fetch/core";
 import { cn } from "@site/src/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@site/src/components/ui/tabs";
-import { useDebounce } from "@reins/hooks";
+import { useDebounce } from "@better-hooks/performance";
 import { Toaster } from "@site/src/components/ui/toast";
 
 import { globalScope } from "./global-scope";

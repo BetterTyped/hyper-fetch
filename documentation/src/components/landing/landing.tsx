@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useDidMount, useWindowEvent } from "@reins/hooks";
+import { useDidMount } from "@better-hooks/lifecycle";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
+import { useWindowEvent } from "@site/src/hooks/use-window-event";
 
 import { Hero } from "./hero";
 import { Clients } from "./clients";

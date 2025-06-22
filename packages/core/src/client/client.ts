@@ -24,6 +24,7 @@ import {
   ExtractUnionAdapter,
   HydrateDataType,
   HydrationOptions,
+  ExtractAdapterDefaultQueryParamsType,
 } from "types";
 import { getUniqueRequestId } from "utils";
 
@@ -427,8 +428,11 @@ export class Client<
     type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
     type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
     type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
-    // Query params work a bit differently, we need to preserve the optionality here `queryParams?: { ... }`
-    type QueryParams = RequestProperties["queryParams"];
+    type QueryParams = TypeWithDefaults<
+      RequestProperties,
+      "queryParams",
+      ExtractAdapterDefaultQueryParamsType<Adapter>
+    >;
 
     return <
       EndpointType extends ExtractAdapterEndpointType<Adapter>,

@@ -1,30 +1,30 @@
 import { useLayoutEffect } from "react";
-import { useWindowSize } from "@reins/hooks";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import { Animation } from "../animations/animation.types";
 import { dotAnimation } from "../animations/dot.animation";
 // import { labelAnimation } from "../animations/label.animation";
 // import { glowAnimation } from "../animations/glow.animation";
 
-function getMatrix(element: HTMLDivElement) {
-  const { transform } = element.style;
-  const re = /translate3d\((?<x>.*?)px, (?<y>.*?)px, (?<z>.*?)px/;
-  const results = re.exec(transform);
+// function getMatrix(element: HTMLDivElement) {
+//   const { transform } = element.style;
+//   const re = /translate3d\((?<x>.*?)px, (?<y>.*?)px, (?<z>.*?)px/;
+//   const results = re.exec(transform);
 
-  if (!results) {
-    return {
-      x: 0,
-      y: 0,
-      z: 0,
-    };
-  }
+//   if (!results) {
+//     return {
+//       x: 0,
+//       y: 0,
+//       z: 0,
+//     };
+//   }
 
-  return {
-    x: results.groups.x as unknown as number,
-    y: results.groups.y as unknown as number,
-    z: results.groups.z as unknown as number,
-  };
-}
+//   return {
+//     x: results.groups.x as unknown as number,
+//     y: results.groups.y as unknown as number,
+//     z: results.groups.z as unknown as number,
+//   };
+// }
 
 export const Dot = ({
   id,

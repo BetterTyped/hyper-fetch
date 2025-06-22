@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { Description, FadeIn, Highlighter, HighlighterItem, Title } from "@site/src/components";
-import { useWindowSize } from "@reins/hooks";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
 import { Theatre } from "@react-theater/scroll";
 import { getAnimationValue } from "@site/src/utils/animation";
 import Link from "@docusaurus/Link";

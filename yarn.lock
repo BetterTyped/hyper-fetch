@@ -8089,60 +8089,6 @@
   resolved "https://registry.yarnpkg.com/@radix-ui/rect/-/rect-1.1.0.tgz#f817d1d3265ac5415dadc67edab30ae196696438"
   integrity sha512-A9+lCBZoaMJlVKcRBz2YByCG+Cp2t6nAnMnNba+XiWxnj6r4JUFqfsgwocMBZU9LPtdxC6wB56ySYpc7LQIoJg==
 
-"@reins/hooks@*":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@reins/hooks/-/hooks-0.16.0.tgz#bc33c8bb3f98c034ff12d5322b4efc9ea7f40194"
-  integrity sha512-ajllFRJ3Macnt2Uvq2I/rCSpzqypR6QTlLSG+sx6oXdASTeO0iC58PE6eUqMzZ8ugV4A/O9z08gfMpzkrOoAIA==
-  dependencies:
-    "@reins/types" "*"
-    "@reins/utils" "*"
-
-"@reins/hooks@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@reins/hooks/-/hooks-0.14.0.tgz#d3803f0fd4fc4f1f77015f46471270b7e5e8ec60"
-  integrity sha512-ovG06yNvFFQPn8wlDF6y/ukF6HHW/SPg4vK3HF0MN8IMBxSS9XF3BG0F5xlYNj5xeHFRyvsS1rE5k0ge8fcODg==
-  dependencies:
-    immer "^9.0.19"
-
-"@reins/query-params@*":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@reins/query-params/-/query-params-0.16.0.tgz#28844b82b80142c20907efe5d0c3f0b9ab1e5b1f"
-  integrity sha512-v0E0ic0BMcYt+3dT7FEjcuPToqI2B7TUBhOm0qS3U0jhCYDO9KgEElx/8c/K/wBjPCoWUPY+OStzoxKzTzsfRw==
-
-"@reins/router@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@reins/router/-/router-0.14.0.tgz#0df2ffe5801d0970a92000f3e918224f6a4c0f50"
-  integrity sha512-04nSGDWzjwkpK5S9YTq4moinF084t89qgVRWRxR2SrNAng/iyPGAs/7akJIVoWhpY2QsC/AbX4a1IZ3m+CcR5Q==
-  dependencies:
-    "@reins/hooks" "*"
-    "@reins/query-params" "*"
-    "@reins/types" "*"
-
-"@reins/types@*":
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/@reins/types/-/types-0.22.0.tgz#7903e18b3063000c36bb372086638170c9407458"
-  integrity sha512-I5AR6u7OL+g8xE+rutLmNy4mdRln5eW2D9vJmtIbncbDs5PHglWrS3J9cQmK34F95wLo59SKVyk1Sxxn8GYDRw==
-
-"@reins/types@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@reins/types/-/types-0.14.0.tgz#96dcced6e6300df726dcd25b009ee211e771ecdf"
-  integrity sha512-+fTff32XfC+Mm3B+amigrDKC80LU/LxsWv5x1b4ejde04GHiadPmMJo6aSBJfuzgYhiNDXp6eTYs4XzkEMTBww==
-
-"@reins/utils@*":
-  version "0.18.1"
-  resolved "https://registry.yarnpkg.com/@reins/utils/-/utils-0.18.1.tgz#8e3754b1386a0a8abfeabbc976c34a3459bcde5f"
-  integrity sha512-+22IisgsCcVXYlPj/0v9xV+jDy20Sj9Bq+1dAH9ZLnTi8YLQB7l5g9JjkZcxjgWXQxkFPov1nVXQZunhd4LfVA==
-  dependencies:
-    "@radix-ui/react-slot" "^1.0.2"
-    "@reins/types" "*"
-
-"@reins/utils@0.14.0":
-  version "0.14.0"
-  resolved "https://registry.yarnpkg.com/@reins/utils/-/utils-0.14.0.tgz#da6bc7a0af958074326ca4888960ae2ec7bb4c21"
-  integrity sha512-nVBzJfErqDrZK1DxtjLNH0Fpr8U1jzldbts9EiWeYx+jFTKDhzSsVl7TDrM6Nj9eXI7wRAGNoBndwsxW1nzSaA==
-  dependencies:
-    "@radix-ui/react-slot" "^1.0.2"
-
 "@rollup/pluginutils@^4.2.1":
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-4.2.1.tgz#e6c6c3aba0744edce3fb2074922d3776c0af2a6d"

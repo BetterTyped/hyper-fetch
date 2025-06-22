@@ -3,8 +3,8 @@
 import { Particles } from "@site/src/components/particles";
 import { Description, Title } from "@site/src/components";
 import Link from "@docusaurus/Link";
-import { useWindowSize } from "@reins/hooks";
 import { ArrowRight, Download, Sparkles } from "lucide-react";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import { Paths } from "./paths/paths";
 
