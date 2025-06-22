@@ -5,7 +5,7 @@ import { Description, FadeIn, Title } from "@site/src/components";
 export function Example(): JSX.Element {
   return (
     <section className="relative pb-20 ">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="">
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
             <div className="relative">
