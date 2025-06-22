@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatTime } from "@/utils/format";
 
 export const CardProcessing = ({ className }: { className?: string }) => {
   // Mock data for bottlenecks
@@ -105,8 +106,8 @@ export const CardProcessing = ({ className }: { className?: string }) => {
                 <TableCell>
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span>Processing: {issue.processingTime}ms</span>
-                      <span>Network: {issue.networkTime}ms</span>
+                      <span>Processing: {formatTime(issue.processingTime)}</span>
+                      <span>Network: {formatTime(issue.networkTime)}</span>
                     </div>
                     <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden flex">
                       <div

@@ -9,6 +9,7 @@ import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { Badge } from "@/components/ui/badge";
 import { Method } from "@/components/ui/method";
 import { formatBytes } from "@/utils/size.utils";
+import { formatTime } from "@/utils/format";
 
 export const CardPatterns = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -38,7 +39,7 @@ export const CardPatterns = ({ className }: { className?: string }) => {
               </Badge>
             </div>
             <div className="text-xs text-muted-foreground">
-              Average Response Time: {methodStats.avgResponseTime?.toFixed(0)}ms
+              Average Response Time: {formatTime(methodStats.avgResponseTime || 0)}
             </div>
             <div className="text-xs text-muted-foreground">
               Average Response Size: {formatBytes(methodStats.avgResponseSize)}

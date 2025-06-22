@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/no-content/empty-state";
 import { Method } from "@/components/ui/method";
 import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { cn } from "@/lib/utils";
+import { formatBytes, formatTime } from "@/utils/format";
 
 export const CardEndpoints = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -44,14 +45,14 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
                   <TableCell className="font-medium">
                     <Method method={req.method} />
                   </TableCell>
-                  <TableCell>{req.methodStats.avgResponseTime}ms</TableCell>
+                  <TableCell>{formatTime(req.methodStats.avgResponseTime)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Progress
                         value={(req.methodStats.avgProcessingTime / req.methodStats.highestProcessingTime) * 100}
                         className="h-2 w-24"
                       />
-                      <span>{req.methodStats.avgProcessingTime}ms</span>
+                      <span>{formatTime(req.methodStats.avgProcessingTime)}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -60,7 +61,7 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
                         value={(req.methodStats.avgResponseSize / req.methodStats.highestResponseSize) * 100}
                         className="h-2 w-24"
                       />
-                      <span>{req.methodStats.avgResponseSize}ms</span>
+                      <span>{formatBytes(req.methodStats.avgResponseSize)}</span>
                     </div>
                   </TableCell>
                 </TableRow>

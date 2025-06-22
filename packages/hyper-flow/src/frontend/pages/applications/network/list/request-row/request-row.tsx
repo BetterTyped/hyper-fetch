@@ -9,6 +9,7 @@ import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useNetworkStore } from "@/store/applications/network.store";
 import { Method } from "@/components/ui/method";
 import { Badge } from "@/components/ui/badge";
+import { formatTime } from "@/utils/format";
 
 export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEvent; clickable?: boolean }) => {
   const { application } = useDevtools();
@@ -65,7 +66,11 @@ export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEv
         <div>{new Date(item.timestamp).toLocaleTimeString()} </div>
       </TableCell>
       <TableCell className="text-sm font-light">
-        {item.details ? <div>{item.details.responseTimestamp - item.details.requestTimestamp}ms</div> : <div>-</div>}
+        {item.details ? (
+          <div>{formatTime(item.details.responseTimestamp - item.details.requestTimestamp)}</div>
+        ) : (
+          <div>-</div>
+        )}
       </TableCell>
     </TableRow>
   );

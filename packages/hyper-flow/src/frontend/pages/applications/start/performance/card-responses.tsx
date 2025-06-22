@@ -18,6 +18,7 @@ import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { cn } from "@/lib/utils";
 import { getMethodColor } from "@/components/ui/method";
+import { formatTime, formatBytes } from "@/utils/format";
 
 export const CardResponses = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -69,7 +70,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
         <div className="space-y-2 pt-2 border-t">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Average response time</span>
-            <span className="text-sm font-bold">{networkStats.avgResponseTime.toFixed(2)}ms</span>
+            <span className="text-sm font-bold">{formatTime(networkStats.avgResponseTime)}</span>
           </div>
           <Progress
             value={Math.min(100, (networkStats.avgResponseTime * 100) / networkStats.highestResponseTime)}
@@ -79,7 +80,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
         <div className="space-y-2 pt-2 border-t">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Average response size</span>
-            <span className="text-sm font-bold">{networkStats.avgResponseSize.toFixed(2)}ms</span>
+            <span className="text-sm font-bold">{formatBytes(networkStats.avgResponseSize)}</span>
           </div>
           <Progress
             value={Math.min(100, (networkStats.avgResponseSize * 100) / networkStats.highestResponseSize)}
