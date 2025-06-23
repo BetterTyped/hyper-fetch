@@ -12,7 +12,6 @@
     "@firebase/firestore": "^3.12.2",
     "@heroicons/react": "2.0.16",
     "@mui/material": "^5.13.4",
-    "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
     "firebase": "^9.22.2",
     "firebase-admin": "^11.9.0",
