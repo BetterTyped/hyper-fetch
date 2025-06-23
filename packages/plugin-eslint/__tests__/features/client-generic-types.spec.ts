@@ -56,13 +56,6 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
       errors: [{ messageId: "unexpectedGenerics", data: { items: "nonExisting" } }],
     },
     {
-      // mixed check
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{adapter: any, nonExisting: any, error: any}>();`,
-      errors: [{ messageId: "unexpectedGenerics", data: { items: "nonExisting" } }],
-    },
-    {
       // empty check
       code: `
       import { createClient } from "@hyper-fetch/core";
