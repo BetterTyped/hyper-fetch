@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Home, Maximize2, X, Minus } from "lucide-react";
 
 import {
@@ -48,6 +48,7 @@ const noDragStyle = {
 export const Navbar = () => {
   const isFocused = useIsFocused();
   // const breadcrumbs = useBreadcrumbs();
+  const navigate = useNavigate();
 
   const handleClose = () => {
     window.electron.ipcRenderer.send("window-close");
@@ -108,10 +109,14 @@ export const Navbar = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink className="flex gap-1 items-center" style={noDragStyle} asChild>
-                  <Link to="/">
-                    <Home className="w-4 h-4" /> Home
-                  </Link>
+                <BreadcrumbLink
+                  className="flex gap-1 items-center"
+                  style={noDragStyle}
+                  onClick={() => {
+                    navigate({ to: "/" });
+                  }}
+                >
+                  <Home className="w-4 h-4" /> Home
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {/* {breadcrumbs.map((data, index) => {

@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { Cache } from "@hyper-fetch/core";
+import { AdapterInstance, Cache } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
 
@@ -29,7 +29,10 @@ type Store = {
   openDetails: (data: { application: string; cacheKey: string }) => void;
   closeDetails: (application: string) => void;
   setCacheSort: (data: { application: string; sorting: Sort }) => void;
-  setCache: (data: { application: string; data: Parameters<Parameters<Cache["events"]["onData"]>[0]>[0] }) => void;
+  setCache: (data: {
+    application: string;
+    data: Parameters<Parameters<Cache<AdapterInstance>["events"]["onData"]>[0]>[0];
+  }) => void;
   invalidateCache: (data: { application: string; cacheKey: string }) => void;
   addLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
   removeLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
