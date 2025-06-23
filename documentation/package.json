@@ -12,7 +12,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typescheck": "tsc"
   },
   "dependencies": {
     "@docsgen/core": "^1.2.6",

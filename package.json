@@ -25,7 +25,7 @@
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "yarn reset && nx run-many --target=test-pipeline --parallel=1 --skip-nx-cache",
     "lint": "yarn reset && nx run-many --target=lint --parallel=10 --skip-nx-cache",
-    "typecheck": "yarn reset && nx run-many --target=typecheck --parallel=10 --skip-nx-cache",
+    "typescheck": "yarn reset && nx run-many --target=typescheck --parallel=10 --skip-nx-cache",
     "release": "yarn reset && nx run-many --target=release --parallel=1 --skip-nx-cache",
     "nx:upgrade": "npx nx migrate latest"
   },

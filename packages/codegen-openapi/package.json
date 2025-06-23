@@ -21,7 +21,7 @@
     "postbuild": "rollup -c '../../rollup.config.js'",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-codegen-openapi-v${version}'"
   },

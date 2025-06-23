@@ -26,7 +26,7 @@ jobs:
         run: yarn lint
 
       - name: Typecheck
-        run: yarn typecheck
+        run: yarn typescheck
 
       - name: Test
         run: yarn test --coverage
