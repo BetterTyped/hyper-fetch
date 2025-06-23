@@ -36,7 +36,7 @@ describe("Client [ Base ]", () => {
         systemErrorStatus: 0,
         systemErrorExtra: {},
       });
-      const client = new Client({ url: "shared-base-url", adapter });
+      const client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
 
       expect(client.adapter).toBe(adapter);
     });

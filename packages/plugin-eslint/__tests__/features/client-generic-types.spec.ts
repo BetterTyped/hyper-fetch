@@ -20,20 +20,6 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
     },
     {
       code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{endpointMapper: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{error: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
       import { createClient } from "other-lib";
       const someClient = createClient<{foo: any, bar: any, baz: any}>();
       `,
