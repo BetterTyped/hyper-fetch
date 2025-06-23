@@ -81,14 +81,6 @@ export const getAdapter = () =>
           response.setEncoding("utf8");
           onRequestStart();
 
-          // if (requestResponseType === "stream") {
-          //   onSuccess(response, 200, { headers: response.headers as Record<string, string> }, resolve);
-          //   unmountListener();
-          //   onResponseEnd();
-          //   return;
-          // }
-
-          // const responseChunks: string[] = [];
           let chunks = "";
           const totalDownloadBytes = Number(response.headers["content-length"]);
           let downloadedBytes = 0;
@@ -96,13 +88,11 @@ export const getAdapter = () =>
           response.on("data", (chunk) => {
             /* istanbul ignore next */
             if (!chunks) {
-              // if (!responseChunks.length) {
               onRequestEnd();
               onResponseStart();
             }
             downloadedBytes += chunk.length;
             chunks += chunk;
-            // responseChunks.push(chunk);
 
             onResponseProgress({ total: totalDownloadBytes, loaded: downloadedBytes });
           });
@@ -119,15 +109,11 @@ export const getAdapter = () =>
                 status: statusCode,
                 extra: { headers: response.headers as Record<string, string> },
               });
-              // TODO - try catch
-              // const responseData = handleResponse(responseChunks, requestResponseType, "utf8");
-              // onSuccess(responseData, statusCode, { headers: response.headers as Record<string, string> }, resolve);
             } else {
               // delay to finish after onabort/ontimeout
-              // const data = parseErrorResponse(responseChunks.toString());
-              const error = parseErrorResponse(chunks);
+              const data = parseErrorResponse(chunks);
               onError({
-                error,
+                error: data,
                 status: statusCode,
                 extra: { headers: response.headers as Record<string, string> },
               });
