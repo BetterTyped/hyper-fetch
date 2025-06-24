@@ -22,7 +22,6 @@ export class InternalConnectionHandler {
   handleInternalMessage = (message: PluginInternalMessage | AppInternalMessage) => {
     switch (message.data.eventType) {
       case InternalEvents.PLUGIN_INITIALIZED:
-        console.log("HANDLING INTERNAL MESSAGE");
         this.sendPluginHandshakeToApp(message.data.connectionName, message as PluginInternalMessage);
         break;
       case InternalEvents.APP_INITIALIZED:

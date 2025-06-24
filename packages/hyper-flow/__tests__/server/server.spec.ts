@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/react";
-import { InternalEvents } from "@hyper-fetch/plugin-devtools";
+import { InternalEvents, MessageType } from "@hyper-fetch/plugin-devtools";
 import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
 
 import { StartServer, startServer } from "../../src/server";
@@ -52,8 +52,9 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(receivedMessage).toBeTruthy());
       expect(receivedMessage).toEqual({
         event: {
-          messageType: InternalEvents.PLUGIN_HANGUP,
+          messageType: MessageType.INTERNAL,
           connectionName: "test-client",
+          eventType: InternalEvents.PLUGIN_HANGUP,
         },
       });
 
