@@ -6,18 +6,19 @@ sidebar_label: Firestore
 
 ## Available methods
 
-After setting the firestore adapter, we can start performing requests! We should select the appropriate method, corresponding with
-firebase methods. If you want to learn more about available methods - please refer to the firebase documentation.
+After setting the firestore adapter, we can start performing requests! We should select the appropriate method,
+corresponding with firebase methods. If you want to learn more about available methods - please refer to the firebase
+documentation.
 
-Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a standard adapter.
-For the `onSnapshot`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a
+standard adapter. For the `onSnapshot`-like usage, please check how to
+**[listen to queries](/docs/integrations/adapter-firebase/realtime-queries)**.
 
 ```tsx
 const getReq = client.createRequest<Tea[]>()({
   endpoint: "",
   method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
 });
-
 ```
 
 ### getDocs
@@ -33,31 +34,33 @@ const { data, status, extra, success, error } = await req.send();
 ```
 
 `extra`:
+
 1. `ref` - collection reference endpoint
 2. `snapshot` - 'raw' `getDocs` firestore collection/query reference snapshot
 
 ### getDoc
 
 ```tsx
-      const req = client
-        .createRequest<Tea[]>()({
-          endpoint: ":teaId",
-          method: "getDoc",
-        })
-        .setParams({ teaId: 1 });
+const req = client
+  .createRequest<Tea[]>()({
+    endpoint: ":teaId",
+    method: "getDoc",
+  })
+  .setParams({ teaId: 1 });
 
 const { data, status, extra, success, error } = await req.send();
-    // setParams can be also passed in the send() method instead
+// setParams can be also passed in the send() method instead
 ```
 
 `extra`:
+
 1. `ref` - document reference endpoint
 2. `snapshot` - 'raw' firestore document reference snapshot
 
 ### setDoc
 
 ```tsx
-const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 }
+const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 };
 const setReq = client
   .createRequest<Tea, Tea>()({
     endpoint: ":teaId",
@@ -84,10 +87,11 @@ const addDocReq = client
   })
   .setData(newData);
 
-await addDocReq.send()
+await addDocReq.send();
 ```
 
-In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly created document.
+In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly
+created document.
 
 ### deleteDoc
 
@@ -99,7 +103,7 @@ const deleteDocReq = client
   })
   .setParams({ teaId: 1 });
 
-await deleteDocReq
+await deleteDocReq;
 ```
 
 In case of `deleteDoc` - returned data equals `null`
