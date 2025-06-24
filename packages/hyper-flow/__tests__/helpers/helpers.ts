@@ -1,5 +1,5 @@
 import { Client } from "@hyper-fetch/core";
-import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { DevtoolsPlugin, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { Socket } from "@hyper-fetch/sockets";
 
 import { ConnectionName } from "@/constants/connection.name";
@@ -39,7 +39,7 @@ export const connectDevtoolsFrontend = async ({
     adapterOptions: { autoConnect: false },
   })
     .setDebug(true)
-    .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND });
+    .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP });
 
   await initSocket.connect();
   return initSocket;

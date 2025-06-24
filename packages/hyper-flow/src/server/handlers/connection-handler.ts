@@ -15,17 +15,25 @@ import { InternalConnectionHandler } from "./internal-connection-handler";
 
 import { ConnectionName } from "@/constants/connection.name";
 
+type ConnectionState = {
+  connections: ConnectionMap;
+  appConnection: WebSocket | null;
+};
+
 export class ConnectionHandler {
-  connections: ConnectionMap = {};
-  appConnection: WebSocket | null = null;
+  connectionState: ConnectionState = {
+    connections: {},
+    appConnection: null,
+  };
+
   internalConnectionHandler: InternalConnectionHandler;
 
   constructor() {
-    this.internalConnectionHandler = new InternalConnectionHandler(this.connections, this.appConnection);
+    this.internalConnectionHandler = new InternalConnectionHandler(this.connectionState);
   }
 
   setAppConnection = (connection: WebSocket | null) => {
-    this.appConnection = connection;
+    this.connectionState.appConnection = connection;
   };
 
   handleMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
@@ -55,38 +63,38 @@ export class ConnectionHandler {
   };
 
   sendToPlugin = (pluginConnectionName: string, message: string) => {
-    if (!this.connections[pluginConnectionName]) {
+    if (!this.connectionState.connections[pluginConnectionName]) {
       throw new Error(`No connection exists for the connectionName ${pluginConnectionName}`);
     }
-    if (!this.connections[pluginConnectionName].ws) {
+    if (!this.connectionState.connections[pluginConnectionName].ws) {
       serverLogger.error("Failed to send message to devtools plugin", {
         context: "ConnectionHandler",
         details: {
           reason: "WebSocket connection is not available",
           connectionName: pluginConnectionName,
-          pluginStatus: this.connections[pluginConnectionName].pluginStatus,
-          frontendStatus: this.connections[pluginConnectionName].appStatus,
+          pluginStatus: this.connectionState.connections[pluginConnectionName].pluginStatus,
+          frontendStatus: this.connectionState.connections[pluginConnectionName].appStatus,
           messageType: JSON.parse(message)?.data?.messageType,
         },
       });
       return;
     }
-    this.connections[pluginConnectionName].ws.send(message);
+    this.connectionState.connections[pluginConnectionName].ws.send(message);
   };
 
   sendToApp = (message: string) => {
-    this.appConnection?.send(message);
+    this.connectionState.appConnection?.send(message);
   };
 
   addPluginConnection = (connectionName: string, connection: WebSocket) => {
-    if (!this.connections[connectionName]) {
-      this.connections[connectionName] = {
+    if (!this.connectionState.connections[connectionName]) {
+      this.connectionState.connections[connectionName] = {
         ws: connection,
         appStatus: AppConnectionStatus.PENDING,
         pluginStatus: PluginConnectionStatus.CONNECTED,
       };
     } else {
-      this.connections[connectionName].ws = connection;
+      this.connectionState.connections[connectionName].ws = connection;
     }
   };
 
@@ -101,7 +109,7 @@ export class ConnectionHandler {
       case MessageOrigin.APP:
         this.setAppConnection(conn);
         // TODO add tests ?
-        Object.entries(this.connections).forEach(([connName, connectionData]) => {
+        Object.entries(this.connectionState.connections).forEach(([connName, connectionData]) => {
           this.internalConnectionHandler.sendPluginHandshakeToApp(connName, connectionData.clientMetaData);
         });
         break;
@@ -116,12 +124,12 @@ export class ConnectionHandler {
       this.setAppConnection(null);
     }
 
-    if (this.connections[connectionName]) {
-      const hangupConnection = this.connections[connectionName];
+    if (this.connectionState.connections[connectionName]) {
+      const hangupConnection = this.connectionState.connections[connectionName];
       hangupConnection.ws = null;
       hangupConnection.pluginStatus = PluginConnectionStatus.HANGUP;
 
-      if (!this.appConnection) {
+      if (!this.connectionState.appConnection) {
         serverLogger.error("Connection termination failed", {
           context: "ConnectionHandler",
           details: {
@@ -129,13 +137,13 @@ export class ConnectionHandler {
             connectionName,
             pluginStatus: hangupConnection.pluginStatus,
             appStatus: hangupConnection.appStatus,
-            activeConnections: Object.keys(this.connections),
+            activeConnections: Object.keys(this.connectionState.connections),
           },
         });
         return;
       }
 
-      this.appConnection.send(
+      this.connectionState.appConnection.send(
         JSON.stringify({
           ...{
             topic: SocketTopics.APP_MAIN_LISTENER,

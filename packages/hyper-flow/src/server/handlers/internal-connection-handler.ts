@@ -5,18 +5,24 @@ import { SocketTopics } from "@shared/topics";
 
 import { AppConnectionStatus, ConnectionMap } from "../types/connection.type";
 
-export class InternalConnectionHandler {
-  connections: ConnectionMap = {};
-  appConnection: WebSocket | null = null;
+type ConnectionState = {
+  connections: ConnectionMap;
+  appConnection: WebSocket | null;
+};
 
-  constructor(connections: ConnectionMap, appConnection: WebSocket | null) {
-    this.connections = connections;
-    this.appConnection = appConnection;
+export class InternalConnectionHandler {
+  connectionState: ConnectionState = {
+    connections: {},
+    appConnection: null,
+  };
+  constructor(connectionState: ConnectionState) {
+    this.connectionState = connectionState;
   }
 
   handleInternalMessage = (message: PluginInternalMessage | AppInternalMessage) => {
     switch (message.data.eventType) {
       case InternalEvents.PLUGIN_INITIALIZED:
+        console.log("HANDLING INTERNAL MESSAGE");
         this.sendPluginHandshakeToApp(message.data.connectionName, message as PluginInternalMessage);
         break;
       case InternalEvents.APP_INITIALIZED:
@@ -37,10 +43,10 @@ export class InternalConnectionHandler {
   };
 
   sendPluginHandshakeToApp = (connectionName: string, message: PluginInternalMessage) => {
-    if (!this.connections[connectionName]) {
+    if (!this.connectionState.connections[connectionName]) {
       throw new Error(`No open connection exists for the connectionName ${connectionName}`);
     }
-    if (!this.appConnection || !message) {
+    if (!this.connectionState.appConnection || !message) {
       /**
        * This error can happen when the devtools plugin connects to the fake server
        * We found this case being triggered with msw setup, which caused websocket to open
@@ -51,14 +57,14 @@ export class InternalConnectionHandler {
         details: {
           reason: "Missing frontend connection or message data",
           connectionName,
-          hasFrontendConnection: !!this.appConnection,
+          hasFrontendConnection: !!this.connectionState.appConnection,
           hasMessage: !!message,
-          activeConnections: Object.keys(this.connections),
+          activeConnections: Object.keys(this.connectionState.connections),
         },
       });
       return;
     }
-    this.appConnection?.send(
+    this.connectionState.appConnection?.send(
       JSON.stringify({
         ...{
           topic: SocketTopics.APP_MAIN_LISTENER,
@@ -71,28 +77,28 @@ export class InternalConnectionHandler {
         },
       }),
     );
-    this.connections[connectionName].appStatus = AppConnectionStatus.IN_PROGRESS;
-    this.connections[connectionName].clientMetaData = message;
+    this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.IN_PROGRESS;
+    this.connectionState.connections[connectionName].clientMetaData = message;
   };
 
   sendAppHandshakeResponseToPlugin = (connectionName: string) => {
-    if (!this.connections[connectionName]) {
+    if (!this.connectionState.connections[connectionName]) {
       serverLogger.error("Failed to initialize devtools frontend", {
         context: "ConnectionHandler",
         details: {
           reason: "Connection not found in active connections",
           connectionName,
-          activeConnections: Object.keys(this.connections),
+          activeConnections: Object.keys(this.connectionState.connections),
         },
       });
       return;
     }
-    this.connections[connectionName].ws?.send(
+    this.connectionState.connections[connectionName].ws?.send(
       JSON.stringify({
         data: { messageType: InternalEvents.APP_INITIALIZED },
         topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER,
       }),
     );
-    this.connections[connectionName].appStatus = AppConnectionStatus.INITIALIZED;
+    this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.INITIALIZED;
   };
 }

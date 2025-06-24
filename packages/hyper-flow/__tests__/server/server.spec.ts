@@ -1,5 +1,6 @@
 import { waitFor } from "@testing-library/react";
 import { InternalEvents } from "@hyper-fetch/plugin-devtools";
+import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
 
 import { StartServer, startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
@@ -20,10 +21,11 @@ describe("Devtools Socket Server", () => {
         socketAddress: "localhost",
         socketPort: 2137,
       });
-      await connectDevtoolsClient();
+      connectDevtoolsClient();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
-      console.log("PRINTING", connections);
+      expect(connections!["test-client"].appStatus).toEqual(AppConnectionStatus.IN_PROGRESS);
+      expect(connections!["test-client"].pluginStatus).toEqual(PluginConnectionStatus.CONNECTED);
     });
   });
   describe("If connection to the frontend app is established and then disconnected and reconnected again", () => {

@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Socket } from "@hyper-fetch/sockets";
-import { HFEventMessage, InternalEvents, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
+import { HFEventMessage, InternalEvents, MessageOrigin, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
 import { SocketTopics } from "@shared/topics";
 
 import { useConnectionStore } from "@/store/applications/connection.store";
@@ -23,7 +23,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       reconnect: Infinity,
       reconnectTime: 4000,
     })
-      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND })
+      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP })
       .onConnected(() => {
         if (!nameRef.current) return;
 

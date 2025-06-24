@@ -136,8 +136,8 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     return {
       server,
       wss,
-      connections: connectionHandler.connections,
-      DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.appConnection,
+      connections: connectionHandler.connectionState.connections,
+      DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.connectionState.appConnection,
     };
   }
   serverLogger.error("Server failed to start", {
