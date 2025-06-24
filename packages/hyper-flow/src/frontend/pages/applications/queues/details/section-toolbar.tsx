@@ -59,7 +59,7 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
+          <Button variant="quaternary" size="sm">
             <Sparkles className="h-4 w-4" />
             Actions
           </Button>
