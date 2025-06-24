@@ -762,7 +762,14 @@ button.api-playground__more {
 
 .shiny-label {
   font-size: 14px;
-  @apply text-yellow-600 dark:text-white border relative inline-flex items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2 border-yellow-400/50 dark:border-yellow-500/30 bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110 before:absolute before:inset-x-4 before:-bottom-px before:bg-gradient-to-r before:from-transparent before:via-yellow-500 dark:before:via-yellow-50 before:to-transparent before:h-px before:w-3/5;
+  @apply text-yellow-600 dark:text-white border relative inline-flex;
+  @apply items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2;
+  @apply border-yellow-400/50 dark:border-yellow-500/30;
+  @apply bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110;
+  @apply before:absolute before:inset-x-0 before:-bottom-px before:bg-gradient-to-r;
+  @apply before:from-transparent before:via-yellow-500 dark:before:via-yellow-50;
+  @apply before:from-30% before:via-50% before:to-70%;
+  @apply before:to-transparent before:h-px before:w-full;
 }
 
 .shadow-neon {

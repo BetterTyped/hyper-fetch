@@ -7,6 +7,7 @@ import { ArrowRight, Download, Sparkles } from "lucide-react";
 import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import { Paths } from "./paths/paths";
+import { AnimatedShinyText } from "../../ui/animated-shiny-text";
 
 export const Hero = () => {
   const [width] = useWindowSize();
@@ -28,9 +29,12 @@ export const Hero = () => {
       {/* Hero content */}
       <div className="relative max-w-6xl mx-auto flex flex-col justify-center items-center px-6 mt-12 mb-12">
         <div className="mb-5">
-          <Link to="/docs/hyper-flow" className="shiny-label flex items-center !no-underline py-0.5">
+          <Link
+            to="/docs/integrations/codegen-openapi/overview"
+            className="shiny-label flex items-center !no-underline py-0.5 hover:brightness-125 transition-all duration-150 ease-in-out"
+          >
             <Sparkles className="w-[14px] h-[14px] text-yellow-600/80 dark:text-yellow-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out" />
-            Now with dedicated devtools
+            <AnimatedShinyText className="text-sm">Generate SDK from Swagger/OpenAPI</AnimatedShinyText>
             <span className="w-[14px] h-[1px] leading-[0.2] tracking-normal text-yellow-600/90 dark:text-white group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out mr-0.5">
               →
             </span>
@@ -82,7 +86,7 @@ export const Hero = () => {
             to="/docs/hyper-flow/download"
             className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
           >
-            <Download className="w-[16px] mr-2" /> Download HyperFlow
+            <Download className="w-[16px] mr-2" /> Download Devtools
           </Link>
         </div>
       </div>

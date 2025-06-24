@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@site/src/lib/utils";
-import { ChevronRight } from "lucide-react";
 import Link from "@docusaurus/Link";
+import HyperFlowIcon from "@site/static/img/hyper-flow.svg";
 
 interface RainbowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   navbarIcon?: boolean;
@@ -26,7 +26,7 @@ export const RainbowButton = React.forwardRef<HTMLButtonElement, RainbowButtonPr
           // before styles
           "before:absolute before:bottom-[-20%] before:left-1/2 before:z-0 before:h-1/5 before:w-3/5 before:-translate-x-1/2 before:animate-rainbow before:bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] before:[filter:blur(calc(0.8*1rem))]",
           // light mode colors
-          "bg-[linear-gradient(#121213,#121213),linear-gradient(#121213_50%,rgba(18,18,19,0.6)_80%,rgba(18,18,19,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))]",
+          "bg-[linear-gradient(#141415,#141415),linear-gradient(#141415_50%,rgba(32,32,34,0.6)_80%,rgba(32,32,34,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))]",
           "hover:brightness-150",
           // dark mode colors
           // "dark:bg-[linear-gradient(#fff,#fff),linear-gradient(#fff_50%,rgba(255,255,255,0.6)_80%,rgba(0,0,0,0)),linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))]",
@@ -36,7 +36,7 @@ export const RainbowButton = React.forwardRef<HTMLButtonElement, RainbowButtonPr
         {...(props as any)}
       >
         {children}
-        {navbarIcon && <ChevronRight className="size-4 ml-2 -mr-2" />}
+        {navbarIcon && <HyperFlowIcon className="size-5 ml-2 -mr-2" />}
       </Component>
     );
   },
