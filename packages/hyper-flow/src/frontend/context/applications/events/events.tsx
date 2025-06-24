@@ -53,7 +53,11 @@ export const Events = ({ application }: { application: string }) => {
 
   useDidMount(() => {
     emit({
-      payload: { messageType: InternalEvents.APP_INITIALIZED, connectionName: application },
+      payload: {
+        messageType: MessageType.INTERNAL,
+        eventType: InternalEvents.APP_INITIALIZED,
+        connectionName: application,
+      },
     });
 
     const unmountOnData = client.cache.events.onData((data) => {
