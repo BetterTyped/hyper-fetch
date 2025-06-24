@@ -4,7 +4,6 @@ export * from "./hooks/use-queue";
 export * from "./hooks/use-cache";
 export * from "./hooks/use-listener";
 export * from "./hooks/use-emitter";
-export * from "./hooks/use-event-messages";
 export * from "./hooks/use-app-manager";
 export * from "./helpers";
 export * from "./provider";

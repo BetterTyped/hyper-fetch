@@ -1,5 +1,5 @@
-import { cn } from "frontend/lib/utils";
-import { Card, CardFooter, CardHeader } from "frontend/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface KpiCard3Props {
   value: React.ReactNode;
@@ -12,7 +12,7 @@ export const KpiCard3 = ({ value, label, change, positive }: KpiCard3Props) => {
   return (
     <Card className="gap-0">
       <CardHeader className="flex flex-row items-start justify-between">
-        <span className="text-2xl font-semibold text-gray-900 dark:text-gray-100 -mt-1">{value}</span>
+        <span className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 -mt-1">{value}</span>
         {change && (
           <span
             className={cn(
@@ -26,7 +26,7 @@ export const KpiCard3 = ({ value, label, change, positive }: KpiCard3Props) => {
           </span>
         )}
       </CardHeader>
-      <CardFooter className="mt-1 text-sm font-light text-gray-600 dark:text-gray-400">{label}</CardFooter>
+      <CardFooter className="mt-1 text-sm font-light text-zinc-600 dark:text-zinc-400">{label}</CardFooter>
     </Card>
   );
 };

@@ -1,4 +1,4 @@
-import { Time, ExtractRouteParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
 import { EmitOptionsType, EmitterConfigurationType, EmitterOptionsType, EmitType } from "emitter";
@@ -13,9 +13,9 @@ export class Emitter<
 > {
   readonly topic: Topic;
   params?: ParamsType;
-  timeout: number;
   payload: Payload | undefined;
   options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
+  /** @internal */
   unstable_payloadMapper?: PayloadMapperType<any>;
 
   constructor(
@@ -27,21 +27,16 @@ export class Emitter<
      */
     snapshot?: Partial<Emitter<Payload, Topic, Socket, any, any>>,
   ) {
-    const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
+    const { topic, options } = emitterOptions;
 
     this.topic = snapshot?.topic ?? topic;
     this.payload = snapshot?.payload;
-    this.timeout = snapshot?.timeout ?? timeout;
     this.options = snapshot?.options ?? options;
     this.params = snapshot?.params;
   }
 
   setOptions(options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined) {
     return this.clone({ options });
-  }
-
-  setTimeout(timeout: number) {
-    return this.clone({ timeout });
   }
 
   setPayload = <D extends Payload>(payload: D) => {
@@ -81,7 +76,6 @@ export class Emitter<
     config?: EmitterConfigurationType<NewPayload, ExtractRouteParams<Topic>, Topic, Socket>,
   ): Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams> {
     const snapshot: Partial<Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>> = {
-      timeout: this.timeout,
       options: this.options,
       payload: this.payload as NewPayload,
       ...config,

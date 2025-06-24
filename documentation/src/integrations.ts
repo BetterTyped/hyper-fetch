@@ -30,7 +30,7 @@ const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default
 export const integrations: Section[] = [
   {
     label: "Getting Started",
-    description: "Overview of the available integrations",
+    description: "Discover how to integrate Hyper Fetch with various libraries and services to boost your workflow.",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -47,7 +47,7 @@ export const integrations: Section[] = [
   },
   {
     label: "ESLint",
-    description: "ESLint rules to enforce more typescript best practices",
+    description: "Enforce coding standards and prevent common errors in your codebase with our official ESLint plugin.",
     dir: "plugin-eslint",
     isPackage: true,
     paths: ["plugin-eslint"],
@@ -66,7 +66,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Devtools",
-    description: "Devtools to help you debug your code",
+    description: "Debug your application with our devtools, allowing you to inspect requests, cache, and performance.",
     dir: "plugin-devtools",
     isPackage: true,
     paths: ["plugin-devtools"],
@@ -86,7 +86,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Axios",
-    description: "Adapter for Axios",
+    description: "A popular, promise-based HTTP client for the browser and node.js, now integrated with Hyper Fetch.",
     dir: "adapter-axios",
     isPackage: true,
     paths: ["adapter-axios"],
@@ -105,7 +105,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Graphql",
-    description: "Adapter for GraphQL",
+    description: "Integrate with any GraphQL API to fetch data with type-safety and efficiency using this adapter.",
     dir: "adapter-graphql",
     isPackage: true,
     paths: ["adapter-graphql"],
@@ -124,7 +124,7 @@ export const integrations: Section[] = [
   },
   {
     label: "Firebase",
-    description: "Adapter for Firebase",
+    description: "Connect to Firebase services for real-time data sync, authentication, and more backend features.",
     dir: "adapter-firebase",
     isPackage: true,
     paths: ["adapter-firebase"],
@@ -139,12 +139,12 @@ export const integrations: Section[] = [
     border: "border-orange-500 dark:border-orange-400",
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     featured: true,
-    category: "Service",
+    category: "Adapter",
     package: "firebase",
   },
   {
     label: "Firebase Admin",
-    description: "Adapter for Firebase Admin",
+    description: "Utilize the Firebase Admin SDK for privileged server-side access to your Firebase projects.",
     dir: "adapter-firebase-admin",
     isPackage: true,
     paths: ["adapter-firebase-admin"],
@@ -157,12 +157,12 @@ export const integrations: Section[] = [
       "group-hover:shadow-red-200 dark:group-hover:bg-red-500 group-hover:bg-red-400 group-hover:dark:bg-red-500 !bg-opacity-40",
     border: "border-red-500 dark:border-red-400",
     borderHover: "hover:border-red-500 hover:dark:border-red-400",
-    category: "Service",
+    category: "Adapter",
     package: "firebase-admin",
   },
   {
     label: "Codegen Openapi",
-    description: "Codegen for Openapi",
+    description: "Generate type-safe clients and requests from OpenAPI specifications to streamline development.",
     dir: "codegen-openapi",
     isPackage: true,
     paths: ["codegen-openapi"],

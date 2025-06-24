@@ -9,7 +9,7 @@ import * as prettier from "prettier";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
-import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, getBaseUrl } from "./utils";
+import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName } from "./utils";
 import { HttpMethod } from "./http-methods.enum";
 
 interface RefError {
@@ -24,16 +24,13 @@ export class OpenapiRequestGenerator {
     this.openapiDocument = openapiDocument as Document;
   }
 
-  async generateFile({ fileName, url }: { fileName?: string; url?: string }) {
+  async generateFile({ fileName }: { fileName?: string }) {
     const defaultFileName = "openapi.client";
-    const baseUrl = url || getBaseUrl(this.openapiDocument);
     const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { createClient } from "@hyper-fetch/core";`,
+      `import { client } from "./client";`,
       "\n\n",
       schemaTypes,
-      "\n\n",
-      `export const client = createClient({url: "${baseUrl}"})`,
       "\n\n",
       generatedTypes.join("\n\n"),
       "\n\n",

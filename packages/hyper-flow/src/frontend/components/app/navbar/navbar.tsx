@@ -1,48 +1,54 @@
-import React, { Fragment } from "react";
-import { Home, Maximize2, X, Minus, AppWindowMac } from "lucide-react";
-import { BreadcrumbsType } from "@reins/router";
+import React from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Home, Maximize2, X, Minus } from "lucide-react";
 
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "frontend/components/ui/breadcrumb";
-// import { Button } from "frontend/components/ui/button";
+  // BreadcrumbPage,
+  // BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+// import { Button } from "@/components/ui/button";
 // import { NavUser } from "./nav-user";
-import { Link, RoutingRoot, useBreadcrumbs } from "frontend/routing/router";
-import { useIsFocused } from "frontend/hooks/use-is-focused";
+import { useIsFocused } from "@/hooks/use-is-focused";
 
 const dragStyle = {
-  "-webkit-user-select": "none",
-  "-webkit-app-region": "drag",
+  WebkitUserSelect: "none",
+  WebkitAppRegion: "drag",
 } as React.CSSProperties;
 
 const noDragStyle = {
-  "-webkit-user-select": "none",
-  "-webkit-app-region": "no-drag",
+  WebkitUserSelect: "none",
+  WebkitAppRegion: "no-drag",
 } as React.CSSProperties;
 
-const Item = ({ name, params, breadcrumb }: BreadcrumbsType<RoutingRoot>[number]) => {
-  switch (name) {
-    case "project": {
-      return (
-        <>
-          <AppWindowMac className="w-4 h-4" />
-          {params.projectName}
-        </>
-      );
-    }
-    default:
-      return breadcrumb;
-  }
-};
+// type BreadcrumbsType = {
+//   name: string;
+//   breadcrumb: string;
+//   params: Record<string, string>;
+// }[];
+
+// const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
+//   switch (name) {
+//     case "application": {
+//       return (
+//         <>
+//           <AppWindowMac className="w-4 h-4" />
+//           {params.applicationName}
+//         </>
+//       );
+//     }
+//     default:
+//       return breadcrumb;
+//   }
+// };
 
 export const Navbar = () => {
   const isFocused = useIsFocused();
-  const breadcrumbs = useBreadcrumbs();
+  // const breadcrumbs = useBreadcrumbs();
+  const navigate = useNavigate();
 
   const handleClose = () => {
     window.electron.ipcRenderer.send("window-close");
@@ -64,7 +70,7 @@ export const Navbar = () => {
             <button
               id="close-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-red-500 hover:bg-red-600" : "bg-gray-700"
+                isFocused ? "bg-red-500 hover:bg-red-600" : "bg-zinc-700"
               }`}
               aria-label="Close"
               type="button"
@@ -76,7 +82,7 @@ export const Navbar = () => {
             <button
               id="min-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-yellow-500 hover:bg-yellow-600" : "bg-gray-700"
+                isFocused ? "bg-yellow-500 hover:bg-yellow-600" : "bg-zinc-700"
               }`}
               aria-label="Minimize"
               type="button"
@@ -88,7 +94,7 @@ export const Navbar = () => {
             <button
               id="max-btn"
               className={`w-3 h-3 rounded-full transition-colors flex items-center justify-center group ${
-                isFocused ? "bg-green-500 hover:bg-green-600" : "bg-gray-700"
+                isFocused ? "bg-green-500 hover:bg-green-600" : "bg-zinc-700"
               }`}
               aria-label="Maximize"
               type="button"
@@ -103,13 +109,17 @@ export const Navbar = () => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink className="flex gap-1 items-center" style={noDragStyle} asChild>
-                  <Link to="dashboard">
-                    <Home className="w-4 h-4" /> Home
-                  </Link>
+                <BreadcrumbLink
+                  className="flex gap-1 items-center"
+                  style={noDragStyle}
+                  onClick={() => {
+                    navigate({ to: "/" });
+                  }}
+                >
+                  <Home className="w-4 h-4" /> Home
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {breadcrumbs.map((data, index) => {
+              {/* {breadcrumbs.map((data, index) => {
                 const { path, name } = data;
                 const isLast = index === breadcrumbs.length - 1;
 
@@ -143,12 +153,12 @@ export const Navbar = () => {
                     </BreadcrumbItem>
                   </Fragment>
                 );
-              })}
+              })} */}
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </div>
-      <div className="flex gap-3 items-center text-sm text-gray-400" style={noDragStyle}>
+      <div className="flex gap-3 items-center text-sm text-zinc-400" style={noDragStyle}>
         {/* <Button size="sm">
           <Rocket className="w-3.5 h-3.5" />
           Upgrade

@@ -1,7 +1,7 @@
-import { ProgressType, RequestInstance, QueueItemType, Dispatcher } from "@hyper-fetch/core";
+import { ProgressType, RequestInstance, QueueItemType, Dispatcher, ExtractAdapterType } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
-  queueType?: "auto" | "fetch" | "submit";
+  dispatcherType?: "auto" | "fetch" | "submit";
   keepFinishedRequests?: boolean;
 };
 
@@ -13,11 +13,11 @@ export type QueueRequest<Request extends RequestInstance> = QueueItemType<Reques
   /**
    * Uploading progress for given request
    */
-  uploading?: ProgressType;
+  uploading: ProgressType;
   /**
    * Downloading progress for given request
    */
-  downloading?: ProgressType;
+  downloading: ProgressType;
   /**
    * Callback which allow to start previously stopped request.
    */
@@ -44,7 +44,7 @@ export type UseQueueReturnType<T extends RequestInstance> = {
   /**
    * Request dispatcher instance
    */
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   /**
    * Callback which allow to stop queue, it will cancel ongoing requests.
    */

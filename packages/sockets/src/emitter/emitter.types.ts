@@ -13,7 +13,21 @@ import {
   ExtractSocketAdapterType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, SocketInstance, any, any>;
+export type EmitterInstanceProperties = {
+  payload?: any;
+  topic?: string;
+  socket?: SocketInstance;
+  hasParams?: boolean;
+  hasPayload?: boolean;
+};
+
+export type EmitterInstance<EmitterProperties extends EmitterInstanceProperties = {}> = Emitter<
+  TypeWithDefaults<EmitterProperties, "payload", any>,
+  TypeWithDefaults<EmitterProperties, "topic", any>,
+  TypeWithDefaults<EmitterProperties, "socket", SocketInstance>,
+  TypeWithDefaults<EmitterProperties, "hasPayload", any>,
+  TypeWithDefaults<EmitterProperties, "hasParams", any>
+>;
 
 export type EmitterConfigurationType<Payload, Params, Topic extends string, Socket extends SocketInstance> = {
   payload?: Payload;
@@ -22,7 +36,6 @@ export type EmitterConfigurationType<Payload, Params, Topic extends string, Sock
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
-  timeout?: number;
   options?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };
 

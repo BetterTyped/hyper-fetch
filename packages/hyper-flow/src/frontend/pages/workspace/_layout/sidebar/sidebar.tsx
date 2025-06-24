@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Link, LinkProps } from "@tanstack/react-router";
 import { Atom, Book, Boxes, Earth, Home, Inbox, LucideIcon, Settings2 } from "lucide-react";
 
 import {
@@ -14,61 +15,64 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-} from "frontend/components/ui/sidebar";
-import { Link, RoutingLocations, useRoute } from "frontend/routing/router";
-import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
+} from "@/components/ui/sidebar";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
 
-// import Logo from "frontend/assets/images/logo.svg?react";
+// import Logo from "@/assets/images/logo.svg?react";
 
-const navigation: { title: string; url: RoutingLocations; icon: LucideIcon; isActive: boolean }[] = [
-  {
-    title: "Workspace",
-    url: "workspace",
-    icon: Inbox,
-    isActive: true,
-  },
-  {
-    title: "APIs",
-    url: "workspace.apis",
-    icon: Earth,
-    isActive: false,
-  },
-  {
-    title: "Docs",
-    url: "workspace.documentation",
-    icon: Book,
-    isActive: false,
-  },
-  {
-    title: "Testing",
-    url: "workspace.testing",
-    icon: Atom,
-    isActive: false,
-  },
-  {
-    title: "Mocks",
-    url: "workspace.mocks",
-    icon: Boxes,
-    isActive: false,
-  },
-  {
-    title: "Settings",
-    url: "workspace.settings",
-    icon: Settings2,
-    isActive: false,
-  },
-];
-
-export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {
-    params: { workspaceId },
-  } = useRoute("workspace");
+export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const workspaceId = "1";
   const { workspaces } = useWorkspaces();
   const workspace = workspaces.find((w) => w.id === workspaceId);
-  // const { activeWorkspace, workspaces } = useOnlineProjects("project");
+  // const { activeWorkspace, workspaces } = useOnlineApplications("application");
 
   // const workspace = workspaces[activeWorkspace!];
   // const { client } = workspace;
+
+  const navigation: ({ title: string; icon: LucideIcon; isActive: boolean } & Pick<LinkProps, "to" | "params">)[] = [
+    {
+      title: "Workspace",
+      to: "/workspaces/$workspaceId",
+      params: { workspaceId },
+      icon: Inbox,
+      isActive: true,
+    },
+    {
+      title: "APIs",
+      to: "/workspaces/$workspaceId/apis",
+      params: { workspaceId },
+      icon: Earth,
+      isActive: false,
+    },
+    {
+      title: "Docs",
+      to: "/workspaces/$workspaceId/documentation",
+      params: { workspaceId },
+      icon: Book,
+      isActive: false,
+    },
+    {
+      title: "Testing",
+      to: "/workspaces/$workspaceId/testing",
+      params: { workspaceId },
+      icon: Atom,
+      isActive: false,
+    },
+    {
+      title: "Mocks",
+      to: "/workspaces/$workspaceId/mocks",
+      params: { workspaceId },
+      icon: Boxes,
+      isActive: false,
+    },
+    {
+      title: "Settings",
+      to: "/workspaces/$workspaceId/settings",
+      params: { workspaceId },
+      icon: Settings2,
+      isActive: false,
+    },
+  ];
 
   if (!workspace) {
     return null;
@@ -93,7 +97,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 asChild
                 className="cursor-pointer flex aspect-square size-10 items-center justify-center rounded-lg bg-yellow-500 text-sidebar-primary-foreground"
               >
-                <Link to="dashboard">
+                <Link to="/">
                   <Home className="!size-5" />
                 </Link>
               </SidebarMenuButton>
@@ -107,7 +111,7 @@ export function ProjectSidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={item.url} params={{ workspaceId }} className="flex flex-col h-15">
+                      <Link to={item.to} params={item.params} className="flex flex-col h-15">
                         <item.icon className="!size-5" />
                         <span className="text-[10px]">{item.title}</span>
                       </Link>

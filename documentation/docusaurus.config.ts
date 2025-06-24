@@ -9,7 +9,7 @@ import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yar
 import docsVersions from "./versions.json";
 
 const getVersions = () => {
-  const latestVersion = docsVersions[0] || "v0.0.0";
+  const latestVersion = docsVersions[0] || "v7.0.0";
   const latestMajor = latestVersion[1];
   const currentVersion = Number(latestMajor) + 1;
   const versions = { current: { label: `v${currentVersion}.0.0`, path: "" } };
@@ -39,7 +39,7 @@ const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "plugin-devtools", "hyper-flow", "testing"].includes(p))
+    .filter((p) => ![".DS_Store", "hyper-flow", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });
@@ -85,7 +85,20 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
 
   future: {
-    experimental_faster: true,
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true, // required
+      useCssCascadeLayers: false,
+    },
+    experimental_faster: {
+      rspackBundler: true,
+      rspackPersistentCache: true,
+      ssgWorkerThreads: true,
+      swcJsLoader: true,
+      swcJsMinimizer: true,
+      swcHtmlMinimizer: true,
+      lightningCssMinimizer: true,
+      mdxCrossCompilerCache: true,
+    },
   },
 
   // Even if you don't use internationalization, you can use this field to set
@@ -204,6 +217,10 @@ const config: Config = {
     liveCodeBlock: {
       playgroundPosition: "bottom",
     },
+    tableOfContents: {
+      minHeadingLevel: 2,
+      maxHeadingLevel: 3,
+    },
     navbar: {
       title: "",
       logo: {
@@ -215,7 +232,7 @@ const config: Config = {
           position: "left",
           label: "Docs",
           to: "/docs/getting-started",
-          activeBaseRegex: `^/docs((?!examples|integrations|guides|api|hyper-flow).)*$`,
+          activeBaseRegex: `^/docs((?!examples|integrations|guides|api).)*$`,
         },
         {
           to: "/docs/integrations/getting-started",
@@ -246,26 +263,24 @@ const config: Config = {
           label: "Blog",
         },
         {
-          type: "docsVersionDropdown",
-          position: "right",
-          dropdownActiveClassDisabled: true,
-          docsPluginId: "default",
-          className: "nav_versioning",
-        },
-        {
           href: "https://github.com/BetterTyped/hyper-fetch",
           label: "Github",
           position: "right",
           className: "github",
         },
+        // {
+        //   type: "docsVersionDropdown",
+        //   position: "right",
+        //   dropdownActiveClassDisabled: true,
+        //   docsPluginId: "default",
+        //   className: "nav_versioning",
+        // },
         {
+          type: "custom-myButton",
           to: "/docs/hyper-flow",
           position: "right",
-          html: `
-          <span class='shiny-btn flex items-center gap-2 !rounded-lg px-3 py-1 text-sm'>
-            <svg data-v-14c8c335="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg>
-            Hyper Flow
-          </span>`,
+          children: "Download Devtools",
+          navbarIcon: true,
         },
       ],
     },
@@ -327,6 +342,10 @@ const config: Config = {
           className: "code-block-error-line",
           line: "error-next-line",
           block: { start: "error-start", end: "error-end" },
+        },
+        {
+          className: "code-block-code-editor-split",
+          line: "code-editor-split",
         },
       ],
       theme: {

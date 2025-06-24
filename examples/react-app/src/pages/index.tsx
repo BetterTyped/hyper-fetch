@@ -1,15 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 import { Viewer } from "../components/viewer";
-import { routing } from "../constants/routing.constants";
 
 export function Index() {
-  const { navigate } = routing.useLocation();
+  const navigate = useNavigate();
 
   return (
     <Viewer name="Dashboard" noButtons>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => navigate({ to: "Details" })}>
+        <CardActionArea onClick={() => navigate("/details")}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Details
@@ -21,7 +21,7 @@ export function Index() {
         </CardActionArea>
       </Card>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => navigate({ to: "List" })}>
+        <CardActionArea onClick={() => navigate("/list")}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               List
@@ -33,7 +33,7 @@ export function Index() {
         </CardActionArea>
       </Card>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => navigate({ to: "Form" })}>
+        <CardActionArea onClick={() => navigate("/forms")}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Form

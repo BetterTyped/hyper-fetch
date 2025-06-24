@@ -1,5 +1,5 @@
 import { useDidUpdate } from "@better-hooks/lifecycle";
-import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
+import { getRequestDispatcher, RequestInstance } from "@hyper-fetch/core";
 import { useRef } from "react";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
@@ -40,7 +40,7 @@ export const useCache = <T extends RequestInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useRequestEvents({
+  const [, listeners] = useRequestEvents({
     logger,
     actions,
     request,
@@ -68,14 +68,8 @@ export const useCache = <T extends RequestInstance>(
     true,
   );
 
-  const refetch = (invalidateKey?: string | RequestInstance | RegExp) => {
-    if (invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey, true));
-    } else if (invalidateKey) {
-      cache.invalidate(invalidateKey);
-    } else {
-      cache.invalidate(cacheKey);
-    }
+  const invalidate = (cacheKeys?: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+    cache.invalidate(cacheKeys ?? cacheKey);
   };
 
   return {
@@ -115,10 +109,7 @@ export const useCache = <T extends RequestInstance>(
       setRenderKey("requestTimestamp");
       return state.requestTimestamp;
     },
-    onCacheError: callbacks.onError,
-    onCacheSuccess: callbacks.onSuccess,
-    onCacheChange: callbacks.onFinished,
     ...actions,
-    refetch,
+    invalidate,
   };
 };

@@ -35,7 +35,9 @@ export const getJestConfig = (): Config.InitialOptions => ({
       "<rootDir>/src/adapter/http-adapter.server.ts",
     ],
   },
-  transformIgnorePatterns: ["node_modules/(?!(chalk)/)"],
+  transformIgnorePatterns: [
+    "node_modules/(?!(chalk|react|react-json-tree|color|color-convert|color-string|react-base16-styling|lodash-es)/)",
+  ],
   // Fixes msw https://github.com/mswjs/msw/issues/1786
   testEnvironmentOptions: {
     customExportConditions: [""],

@@ -23,8 +23,8 @@ import {
   constructCategoryColors,
   getColorClassName,
   getYAxisDomain,
-} from "frontend/lib/chart-utils";
-import { cn } from "frontend/lib/utils";
+} from "@/lib/chart-utils";
+import { cn } from "@/lib/utils";
 
 // #region SparkAreaChart
 

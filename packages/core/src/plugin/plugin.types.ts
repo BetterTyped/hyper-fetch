@@ -72,21 +72,21 @@ export type PluginMethods<Client extends ClientInstance> = {
    * -----------------------------------------------------------------------------------------------*/
 
   onCacheItemChange?: <Requests extends { cacheKey: string; response: any; error: any }>(data: {
-    cache: Cache;
+    cache: Cache<ExtractClientAdapterType<Client>>;
     cacheKey: Requests["cacheKey"];
     prevData: CacheValueType<Requests["response"], Requests["error"], ExtractClientAdapterType<Client>> | null;
     newData: CacheValueType<Requests["response"], Requests["error"], ExtractClientAdapterType<Client>>;
   }) => void;
-  onCacheItemDelete?: (data: { cacheKey: string; cache: Cache }) => void;
-  onCacheItemInvalidate?: (data: { cacheKey: string; cache: Cache }) => void;
+  onCacheItemDelete?: (data: { cacheKey: string; cache: Cache<ExtractClientAdapterType<Client>> }) => void;
+  onCacheItemInvalidate?: (data: { cacheKey: string; cache: Cache<ExtractClientAdapterType<Client>> }) => void;
 
   /* -------------------------------------------------------------------------------------------------
    * Dispatcher lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
-  onDispatcherCleared?: (data: { dispatcher: Dispatcher }) => void;
+  onDispatcherCleared?: (data: { dispatcher: Dispatcher<ExtractClientAdapterType<Client>> }) => void;
   onDispatcherQueueDrained?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,
@@ -97,7 +97,7 @@ export type PluginMethods<Client extends ClientInstance> = {
     >;
   }) => void;
   onDispatcherItemAdded?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,
@@ -116,7 +116,7 @@ export type PluginMethods<Client extends ClientInstance> = {
     >;
   }) => void;
   onDispatcherItemDeleted?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,
@@ -135,7 +135,7 @@ export type PluginMethods<Client extends ClientInstance> = {
     >;
   }) => void;
   onDispatcherQueueRunning?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,
@@ -147,7 +147,7 @@ export type PluginMethods<Client extends ClientInstance> = {
     status: "paused" | "stopped" | "running";
   }) => void;
   onDispatcherQueueCreated?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,
@@ -158,7 +158,7 @@ export type PluginMethods<Client extends ClientInstance> = {
     >;
   }) => void;
   onDispatcherQueueCleared?: (data: {
-    dispatcher: Dispatcher;
+    dispatcher: Dispatcher<ExtractClientAdapterType<Client>>;
     queue: QueueDataType<
       ExtendRequest<
         RequestInstance,

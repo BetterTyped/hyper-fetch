@@ -102,7 +102,7 @@ export const getRequestKey = (
 export const getRequestDispatcher = <Request extends RequestInstance>(
   request: Request,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
-): [Dispatcher, isFetchDispatcher: boolean] => {
+): [Dispatcher<ExtractAdapterType<Request>>, isFetchDispatcher: boolean] => {
   const { fetchDispatcher, submitDispatcher } = request.client;
   const isGet = request.method === HttpMethods.GET;
   const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
@@ -124,7 +124,7 @@ export const sendRequest = <Request extends RequestInstance>(
   >((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    options?.onSettle?.({ requestId, request });
+    options?.onBeforeSent?.({ requestId, request });
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
       options?.onRequestStart?.(data),

@@ -3,24 +3,24 @@ import {
   getRequestType,
   canRetryRequest,
   getDispatcherEvents,
-  DispatcherRequestType,
+  DispatcherMode,
   DispatcherOptionsType,
   DispatcherStorageType,
   QueueItemType,
   RunningRequestValueType,
 } from "dispatcher";
 import { ClientInstance } from "client";
-import { EventEmitter, getUniqueRequestId } from "utils";
+import { EventEmitter } from "utils";
 import { ResponseDetailsType, LoggerMethods } from "managers";
 import { RequestInstance } from "request";
-import { getErrorMessage, RequestResponseType } from "adapter";
+import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
  * This class can also run them with different modes like deduplication, cancelation, queueing or run-all-at-once mode. With it's help we can pause,
  * stop, start and cancel requests.
  */
-export class Dispatcher {
+export class Dispatcher<Adapter extends AdapterInstance> {
   public emitter = new EventEmitter();
   public events = getDispatcherEvents(this.emitter);
   public storage: DispatcherStorageType = new Map<string, QueueDataType<any>>();
@@ -29,7 +29,7 @@ export class Dispatcher {
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
   private logger: LoggerMethods;
-  private client: ClientInstance;
+  private client: ClientInstance<{ adapter: Adapter }>;
 
   constructor(public options?: DispatcherOptionsType) {
     this.emitter?.setMaxListeners(1000);
@@ -39,7 +39,7 @@ export class Dispatcher {
     }
   }
 
-  initialize = (client: ClientInstance) => {
+  initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
     this.logger = client.loggerManager.initialize(client, "Dispatcher");
 
@@ -390,7 +390,7 @@ export class Dispatcher {
    */
   // eslint-disable-next-line class-methods-use-this
   createStorageItem = <Request extends RequestInstance>(request: Request) => {
-    const requestId = getUniqueRequestId(request.queryKey);
+    const requestId = this.client.unstable_requestIdMapper(request);
     const storageItem: QueueItemType<Request> = {
       requestId,
       timestamp: +new Date(),
@@ -426,13 +426,13 @@ export class Dispatcher {
     this.logger.debug({ title: "Adding request to queue", type: "system", extra: { requestType, request, requestId } });
 
     switch (requestType) {
-      case DispatcherRequestType.ONE_BY_ONE: {
+      case DispatcherMode.ONE_BY_ONE: {
         // Requests will go one by one
         this.addQueueItem(queryKey, storageItem);
         this.flushQueue(queryKey);
         return requestId;
       }
-      case DispatcherRequestType.PREVIOUS_CANCELED: {
+      case DispatcherMode.PREVIOUS_CANCELED: {
         // Cancel all previous on-going requests
         this.cancelRunningRequests(queryKey);
         this.clearQueue(queryKey);
@@ -440,7 +440,7 @@ export class Dispatcher {
         this.flushQueue(queryKey);
         return requestId;
       }
-      case DispatcherRequestType.DEDUPLICATED: {
+      case DispatcherMode.DEDUPLICATED: {
         this.client.requestManager.events.emitDeduplicated({
           request: latestRequest.request,
           requestId,

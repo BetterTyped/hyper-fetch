@@ -7,6 +7,7 @@ import { isBrowser } from "./utils/is-browser";
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
+const HyperFlowIcon = isBrowser() ? require("../static/img/hyper-flow.svg").default : () => null;
 
 export type Section = {
   label: string;
@@ -31,6 +32,8 @@ export type Section = {
   category: string;
   featured?: boolean;
   isPackage: boolean;
+  isNew?: boolean;
+  isPro?: boolean;
 } & (
   | {
       isPackage: false;
@@ -51,7 +54,8 @@ export type Section = {
 export const modules: Section[] = [
   {
     label: "Getting Started",
-    description: "Documentation for the library",
+    description:
+      "Start your journey with Hyper Fetch. Learn core concepts, installation, and basic setup to get up and running quickly.",
     isPackage: false,
     dir: "getting-started",
     paths: ["getting-started"],
@@ -69,7 +73,8 @@ export const modules: Section[] = [
   },
   {
     label: "Core",
-    description: "Core package of the library containing the core functionality",
+    description:
+      "Discover the framework-agnostic heart of Hyper Fetch, with powerful features for building robust API clients.",
     isPackage: true,
     dir: "core",
     paths: ["core"],
@@ -87,7 +92,8 @@ export const modules: Section[] = [
   },
   {
     label: "Sockets",
-    description: "Sockets package of the library containing the socket functionality",
+    description:
+      "Enable real-time communication in your application with our WebSockets module for seamless data exchange.",
     isPackage: true,
     dir: "sockets",
     paths: ["sockets"],
@@ -105,7 +111,8 @@ export const modules: Section[] = [
   },
   {
     label: "React",
-    description: "React integration package of the library",
+    description:
+      "Integrate Hyper Fetch into your React applications with custom hooks for effortless data fetching and state management.",
     isPackage: true,
     dir: "react",
     paths: ["react"],
@@ -120,5 +127,26 @@ export const modules: Section[] = [
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
     category: "Framework",
     package: "react",
+  },
+  {
+    label: "HyperFlow",
+    description:
+      "A powerful devtool for building, testing, and debugging your API connections, enhancing your development workflow.",
+    isPackage: false,
+    dir: "hyper-flow",
+    paths: ["hyper-flow"],
+    img: HyperFlowIcon,
+    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-400",
+    textAction:
+      "focus:!text-yellow-500 focus:dark:!text-yellow-400 active:!text-yellow-600 active:dark:!text-yellow-300",
+    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
+    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500 !bg-opacity-40",
+    border: "border-yellow-500 dark:border-yellow-400",
+    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+    category: "Framework",
+    package: "react",
+    isPro: true,
   },
 ];

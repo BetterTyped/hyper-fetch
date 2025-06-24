@@ -1,10 +1,16 @@
 import { Particles, FadeIn, HighlighterItem, Title, Description } from "@site/src/components";
+import { cn } from "@site/src/lib/utils";
 
 export const BigBlock = ({ title, description, img }: { title: string; description: string; img: React.ReactNode }) => {
   return (
     <FadeIn className="w-full overflow-hidden" start={0.2} end={0.5} translateY={40}>
       <HighlighterItem>
-        <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+        <div
+          className={cn(
+            "relative bg-zinc-50 dark:bg-zinc-900/80 h-full rounded-[inherit] z-20 overflow-hidden bg-with-noise",
+            "transform-gpu dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff10_inset]",
+          )}
+        >
           <Particles className="absolute inset-0" />
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             {/* Blurred shape */}

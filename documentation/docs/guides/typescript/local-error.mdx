@@ -1,0 +1,102 @@
+---
+sidebar_position: 2
+title: Typescript - Local Error
+sidebar_label: Local Error
+---
+
+# Local Error
+
+While global errors provide a consistent foundation, some endpoints have unique error cases. Hyper-fetch supports
+defining **local error types** on a per-request basis. This local type extends the global error type, allowing you to
+handle specific error scenarios, like form validation, without cluttering your global error definition.
+
+The most common case are forms which, apart from basic errors from the server, can return specific field errors of a
+given form. This error is only applicable to that particular location.
+
+:::secondary What you'll learn
+
+1.  How to define a **local error type** for a specific request.
+2.  How a **local error extends** the global error type.
+3.  A practical example of using local errors for **form validation**.
+
+:::
+
+### When to use it?
+
+- **Form Validation**: When an endpoint returns specific validation errors for form fields (e.g.,
+  `{ errors: { email: 'Invalid format' } }`).
+- **Endpoint-Specific Errors**: When a single endpoint has a unique error structure not shared by other APIs.
+- **Extending Global Errors**: When you need to add more detail to a global error type for a specific case without
+  modifying the global definition.
+- **Third-Party APIs**: When integrating with an API that has its own unique error schema for certain endpoints.
+
+---
+
+### Example
+
+Here is how to set up a local error on a request. Notice how the `localError` generic is used on the `createRequest`
+method. The final error type for this request will be a union of the `GlobalErrorType` and the `FormValidationError`.
+
+```ts
+// import { createClient, ExtractErrorType } from '@hyper-fetch/core';
+
+// Assume we have a global error type defined on our client
+type GlobalErrorType = { message: string } | Error;
+export const client = createClient()({
+  url: "https://api.example.com",
+}).setExtra<{ error: GlobalErrorType }>();
+
+// 1. Define a specific error type for a form submission, this is our local error
+type FormValidationError = {
+  errors: {
+    name?: string[];
+    email?: string[];
+  };
+};
+
+// 2. Define payload and response types for the request
+type UserPayload = { name: string; email: string };
+type UserResponse = { id: number; name: string };
+
+// 3. Create a request and specify the local error type
+// highlight-start
+const createUser = client.createRequest<{
+  response: UserResponse;
+  payload: UserPayload;
+  localError: FormValidationError;
+}>()({
+  // highlight-end
+  method: "POST",
+  endpoint: "/users",
+});
+
+// 4. The extracted error type now includes both global and local errors
+// highlight-next-line
+type CreateUserError = ExtractErrorType<typeof createUser>; // GlobalErrorType | FormValidationError
+
+// 5. Usage Example
+const { data, error } = await createUser.send({ data: { name: "John", email: "invalid-email" } });
+
+if (error) {
+  if (error instanceof Error) {
+    console.error("Network error:", error.message);
+  } else if ("message" in error) {
+    console.error("Global API error:", error.message);
+  } else {
+    // Handle form validation error
+    console.error("Validation errors:", error.errors);
+  }
+}
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to use local error types in Hyper-fetch!
+
+- You can define a **specific error type** for individual requests.
+- You understand that **local errors extend the global error type**, giving you more flexibility.
+- You can apply this to practical scenarios like **form validation**.
+
+:::

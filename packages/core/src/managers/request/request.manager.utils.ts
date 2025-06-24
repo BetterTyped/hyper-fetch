@@ -1,11 +1,11 @@
 // Events
 
 export const getLoadingKey = (): string => `loading-event-any`;
-export const getLoadingByQueueKey = (queryKey: string): string => `${queryKey}-loading-event`;
+export const getLoadingByQueryKey = (queryKey: string): string => `${queryKey}-loading-event`;
 export const getLoadingByCacheKey = (cacheKey: string): string => `${cacheKey}-loading-cache-event`;
 export const getLoadingByIdKey = (id: string): string => `${id}-loading-event-by-id`;
 export const getRemoveKey = (): string => `remove-event-any`;
-export const getRemoveByQueueKey = (queryKey: string): string => `${queryKey}-remove-event`;
+export const getRemoveByQueryKey = (queryKey: string): string => `${queryKey}-remove-event`;
 export const getRemoveByIdKey = (id: string): string => `${id}-remove-event-by-id`;
 export const getAbortKey = () => `request-abort-any`;
 export const getAbortByAbortKey = (abortKey: string) => `${abortKey}-request-abort`;
@@ -14,18 +14,18 @@ export const getResponseKey = () => `response-any`;
 export const getResponseByCacheKey = (cacheKey: string) => `${cacheKey}-response`;
 export const getResponseByIdKey = (id: string) => `${id}-response-by-id`;
 export const getRequestStartKey = () => `request-start-any`;
-export const getRequestStarByQueueKey = (queryKey: string) => `${queryKey}-request-start`;
+export const getRequestStarByQueryKey = (queryKey: string) => `${queryKey}-request-start`;
 export const getRequestStartByIdKey = (id: string) => `${id}-request-start-by-id`;
 export const getResponseStartKey = () => `response-start-any`;
-export const getResponseStartByQueueKey = (queryKey: string) => `${queryKey}-response-start`;
+export const getResponseStartByQueryKey = (queryKey: string) => `${queryKey}-response-start`;
 export const getResponseStartByIdKey = (id: string) => `${id}-response-start-by-id`;
 export const getUploadProgressKey = () => `request-progress-any`;
-export const getUploadProgressByQueueKey = (queryKey: string) => `${queryKey}-request-progress`;
+export const getUploadProgressByQueryKey = (queryKey: string) => `${queryKey}-request-progress`;
 export const getUploadProgressByIdKey = (id: string) => `${id}-request-progress-by-id`;
 export const getDownloadProgressKey = () => `response-progress-any`;
-export const getDownloadProgressByQueueKey = (queryKey: string) => `${queryKey}-response-progress`;
+export const getDownloadProgressByQueryKey = (queryKey: string) => `${queryKey}-response-progress`;
 export const getDownloadProgressByIdKey = (id: string) => `${id}-response-progress-by-id`;
 export const getRequestDeduplicatedKey = () => `request-deduplicated-any`;
-export const getRequestDeduplicatedByQueueKey = (queryKey: string) => `${queryKey}-query-request-deduplicated`;
+export const getRequestDeduplicatedByQueryKey = (queryKey: string) => `${queryKey}-query-request-deduplicated`;
 export const getRequestDeduplicatedByCacheKey = (cacheKey: string) => `${cacheKey}-cache-request-deduplicated`;
 export const getRequestDeduplicatedByIdKey = (id: string) => `${id}-request-deduplicated-by-id`;

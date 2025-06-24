@@ -1,14 +1,14 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-nested-ternary */
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
-import { Title } from "@site/src/components";
+import { Description, Title } from "@site/src/components";
 
 import { Cards } from "./cards";
 
 export const Modules = () => {
   return (
     <section>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="pt-12 md:pt-20">
           {/* Section header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
@@ -25,10 +25,10 @@ export const Modules = () => {
               </Title>
             </FadeIn>
             <FadeIn start={0.05} end={0.2}>
-              <p className="text-lg text-zinc-400">
+              <Description className="text-lg !text-zinc-400">
                 With our platform you can build any type of application, from simple landing pages to complex enterprise
                 systems.
-              </p>
+              </Description>
             </FadeIn>
           </div>
 

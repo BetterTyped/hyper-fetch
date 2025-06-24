@@ -1,0 +1,53 @@
+
+
+# EmitParamsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { EmitParamsType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [emitter/emitter.types.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.types.ts#L35)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type EmitParamsType<Params,HasData> = HasData extends false ? Params extends NegativeTypes ? { params?: never } : { params: Params } : { params?: never };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+HasData extends false ? (Params extends NegativeTypes ? {
+  params: never;
+} : {
+  params: Params;
+}) : {
+    params: never;
+  }
+```
+
+</div>

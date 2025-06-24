@@ -26,7 +26,7 @@ describe("Client [ Methods ]", () => {
   });
 
   describe("When using config methods", () => {
-    it("should assign default request config [setRequestDefaultOptions]", async () => {
+    it("should assign default request config [setRequestDefaults]", async () => {
       const options: Partial<RequestOptionsType<string, HttpAdapterOptionsType>> = { method: "POST" };
       client.adapter.setRequestDefaults(() => options);
       const req = client.createRequest()({ endpoint: "test" });
@@ -178,7 +178,7 @@ describe("Client [ Methods ]", () => {
       const callback = () => "";
       client.setAbortKeyMapper(callback);
       client.setCacheKeyMapper(callback);
-      client.setQueueKeyMapper(callback);
+      client.setQueryKeyMapper(callback);
 
       expect(client.unstable_abortKeyMapper).toEqual(callback);
       expect(client.unstable_cacheKeyMapper).toEqual(callback);

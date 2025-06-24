@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border bg-gradient-to-br from-slate-800/30 to-slate-700/30 py-6 shadow-sm",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border bg-gradient-to-br from-zinc-800/30 to-zinc-700/30 py-6 shadow-sm",
         className,
       )}
       {...props}

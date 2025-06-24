@@ -1,0 +1,172 @@
+---
+sidebar_position: 3
+title: Sockets listener
+sidebar_label: useListener
+---
+
+# useListener
+
+[Read the API Reference »](/api/react/Hooks/useListener.mdx)
+
+The `useListener` hook is your main tool for **listening to real-time events** from a server in React components. It
+hooks into the `Socket` adapter and starts listening for a given event when a component is mounted.
+
+:::tip Purpose
+
+1. **Real-time event handling**: Listen to server-sent events without manual setup.
+2. **Automatic lifecycle management**: Manages socket connections when the component mounts and unmounts.
+3. **Reactive data updates**: Provides the latest `data` from the server as it arrives.
+4. **Connection state tracking**: Exposes `connected` and `connecting` states to build responsive UIs.
+5. **Helper event hooks**: Offers `onEvent`, `onError`, and `onReconnecting` for handling specific socket events.
+
+:::
+
+> If you intend to **send** events to the server, we recommend choosing the
+> [`useEmitter`](/docs/react/sockets/use-emitter) hook.
+
+---
+
+## Quick Start
+
+To use `useListener`, provide a `Listener` instance. The hook automatically listens for events and returns the latest
+`data`, `timestamp`, and connection status.
+
+First, create a `Listener` instance using your socket client.
+
+```tsx title="Creating a listener"
+import { socketInstance } from "./socket";
+
+export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
+  endpoint: "chat-message",
+});
+```
+
+Now, use it in your component to listen for new messages. The `onEvent` helper hook lets you react to incoming data and
+update your component's state.
+
+```tsx live title="Listening to chat messages"
+import { useListener } from "@hyper-fetch/react";
+import { onChatMessage } from "./api/socket";
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const { data, connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
+
+  onEvent(({ data: message, error }) => {
+    if (message) {
+      setMessages((prev) => [...prev, message]);
+    }
+  });
+
+  if (!connected && connecting) {
+    return <CircularProgress />;
+  }
+
+  return (
+    <Card>
+      <div className="font-bold mb-2">Chat Room</div>
+      <div className="flex flex-col gap-2 p-4 min-h-[200px] bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
+        {!messages.length && <div className="text-center text-gray-500">No messages yet.</div>}
+        {messages.map((message, i) => (
+          <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-sm">
+            {message.text}
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+```
+
+---
+
+## Event Handlers
+
+`useListener` provides a set of event handler hooks to manage the socket lifecycle and react to events without
+cluttering your component's rendering logic.
+
+1.  **`onEvent`**: Fires whenever a new event is received from the server.
+2.  **`onError`**: Fires when a connection or subscription error occurs.
+3.  **`onOpen`**: Fires when the socket connection is successfully opened.
+4.  **`onClose`**: Fires when the socket connection is closed.
+5.  **`onReconnecting`**: Fires when the socket is attempting to reconnect.
+
+```tsx live title="Using event handlers"
+import { useListener } from "@hyper-fetch/react";
+import { onChatMessage } from "./api/socket";
+
+function App() {
+  const [messages, setMessages] = useState([]);
+  const { onEvent, onError, onOpen, onClose, onReconnecting } = useListener(onChatMessage);
+
+  onEvent(({ data: message }) => {
+    toast({ type: "success", message: `New message: ${message.text}` });
+    setMessages((prev) => [...prev, message]);
+  });
+
+  onError((error) => {
+    toast({ type: "error", message: `Connection error: ${error.message}` });
+  });
+
+  onOpen(() => {
+    toast({ type: "info", message: "Socket connection opened." });
+  });
+
+  onClose(() => {
+    toast({ type: "warning", message: "Socket connection closed." });
+  });
+
+  onReconnecting((attempt) => {
+    toast({ type: "warning", message: `Reconnecting... (attempt ${attempt})` });
+  });
+
+  return (
+    <Card>
+      <div className="font-bold mb-2">Chat Room</div>
+      <div className="flex flex-col gap-2 p-4 min-h-[200px] bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
+        {messages.map((message, i) => (
+          <div key={i} className="bg-white dark:bg-gray-800 p-2 rounded-md shadow-sm">
+            {message.text}
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+```
+
+---
+
+## Options
+
+Configuration options for `useListener` must be provided as the second parameter.
+
+```tsx
+const { ... } = useListener(listener, {
+  disabled: false,
+  // ... and more
+});
+```
+
+Below is a full list of available options.
+
+(@import react UseListenerOptionsType type=returns)
+
+<LinkCard
+  type="api"
+  title="UseListenerOptionsType API Reference"
+  description="Learn more about the useListener hook options."
+  to="/docs/api/react/Types/UseListenerOptionsType"
+/>
+
+---
+
+## State and Methods
+
+The `useListener` hook returns an object containing the socket's state and helper methods.
+
+```tsx
+const values = useListener(listener);
+```
+
+(@import react useListener type=returns)

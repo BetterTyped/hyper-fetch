@@ -1,17 +1,25 @@
-import { getResponseHeaders, parseResponse, getErrorMessage, Adapter, QueryParamsType } from "@hyper-fetch/core";
+import {
+  getResponseHeaders,
+  parseResponse,
+  getErrorMessage,
+  Adapter,
+  QueryParamsType,
+  stringifyKey,
+} from "@hyper-fetch/core";
 
 import {
   gqlExtra,
-  GraphQLAdapterType,
+  GraphqlAdapterType,
   defaultTimeout,
   getRequestValues,
   GraphqlMethod,
   GraphQlExtraType,
   GraphQlEndpointType,
   gqlEndpointMapper,
+  gqlEndpointNameMapper,
 } from "adapter";
 
-export const getGqlAdapter = (): GraphQLAdapterType =>
+export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
     Partial<XMLHttpRequest>,
     GraphqlMethod,
@@ -27,7 +35,19 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
   })
+    .onInitialize(({ client }) => {
+      client.setCacheKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+      });
+      client.setQueryKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+      });
+      client.setAbortKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${request.cancelable}`;
+      });
+    })
     .setInternalErrorMapping((error) => [error])
+    .setDevtoolsEndpointGetter(gqlEndpointNameMapper)
     .setEndpointMapper(gqlEndpointMapper)
     .setFetcher(
       async ({

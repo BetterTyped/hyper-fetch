@@ -34,8 +34,8 @@ describe("useFetch [ Concurrency ]", () => {
         const spyTwo = jest.fn();
 
         const mock = mockRequest(request);
-        const responseOne = renderUseFetch(request.setQueueKey("1"));
-        const responseTwo = renderUseFetch(request.setQueueKey("2"));
+        const responseOne = renderUseFetch(request.setQueryKey("1"));
+        const responseTwo = renderUseFetch(request.setQueryKey("2"));
 
         act(() => {
           responseOne.result.current.onRequestStart(spyOne);

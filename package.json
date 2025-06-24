@@ -21,11 +21,11 @@
     "start": "yarn reset && nx run-many --target=start --parallel=10",
     "start:app": "yarn reset && nx serve",
     "postbuild": "nx build testing --skip-nx-cache",
-    "build": "yarn reset && nx run-many --target=build --parallel=10 --excludeTaskDependencies=true --exclude=testing --skip-nx-cache",
+    "build": "yarn reset && nx run-many --target=build --parallel=5 --excludeTaskDependencies=true --exclude=testing --skip-nx-cache",
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "yarn reset && nx run-many --target=test-pipeline --parallel=1 --skip-nx-cache",
-    "lint": "yarn reset && nx run-many --target=lint --parallel=10 --skip-nx-cache",
-    "typecheck": "yarn reset && nx run-many --target=typecheck --parallel=10 --skip-nx-cache",
+    "lint": "yarn reset && nx run-many --target=lint --parallel=2 --skip-nx-cache",
+    "typescheck": "yarn reset && nx run-many --target=typescheck --parallel=10 --skip-nx-cache",
     "release": "yarn reset && nx run-many --target=release --parallel=1 --skip-nx-cache",
     "nx:upgrade": "npx nx migrate latest"
   },
@@ -40,6 +40,7 @@
     "@nx/workspace": "20.8.1",
     "lucide-react": "^0.476.0",
     "nx": "20.8.1",
+    "react-router-dom": "^7.6.2",
     "regenerator-runtime": "0.13.7",
     "use-immer": "^0.11.0"
   },
@@ -53,10 +54,6 @@
     "@mui/material": "^5.8.4",
     "@ngneat/falso": "^7.3.0",
     "@nx/storybook": "^20.8.1",
-    "@reins/hooks": "0.14.0",
-    "@reins/router": "0.14.0",
-    "@reins/types": "0.14.0",
-    "@reins/utils": "0.14.0",
     "@storybook/addon-essentials": "8.6.12",
     "@storybook/addon-interactions": "8.6.12",
     "@storybook/core-server": "8.6.12",
@@ -75,9 +72,8 @@
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "29.5.14",
     "@types/node": "18.16.9",
-    "@types/react": "18.2.24",
-    "@types/react-dom": "18.2.9",
-    "@types/react-router-dom": "5.3.3",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "@typescript-eslint/rule-tester": "^7.18.0",
@@ -118,9 +114,9 @@
     "next": "14.2.28",
     "notistack": "^2.0.5",
     "prettier": "^3.2.5",
-    "react": "19.0.0",
+    "react": "19.1.0",
     "react-countdown": "^2.3.2",
-    "react-dom": "19.0.0",
+    "react-dom": "19.1.0",
     "react-test-renderer": "18.2.0",
     "rollup": "^4.18.0",
     "rollup-plugin-dts": "^6.1.1",
@@ -146,6 +142,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/BetterTyped/hyper-fetch.git"
+  },
+  "resolutions": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
   "keywords": [
     "fetch",

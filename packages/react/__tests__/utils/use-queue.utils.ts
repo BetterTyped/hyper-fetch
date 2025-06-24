@@ -14,11 +14,11 @@ export const addQueueElement = <T extends RequestInstance>(
   request: T,
   options?: {
     stop: boolean;
-    queueType?: "fetch" | "submit" | "auto";
+    dispatcherType?: "fetch" | "submit" | "auto";
   },
 ) => {
-  const { stop = false, queueType = "auto" } = options || {};
-  const [dispatcher] = getRequestDispatcher(request, queueType);
+  const { stop = false, dispatcherType = "auto" } = options || {};
+  const [dispatcher] = getRequestDispatcher(request, dispatcherType);
   if (stop) dispatcher.stop(request.queryKey);
   return dispatcher.add(request);
 };

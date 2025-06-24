@@ -1,0 +1,279 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Hyper Fetch Best Practices
+
+This document outlines the best practices for using hyper-fetch in React applications, covering various aspects such as
+code organization, performance considerations, security, and testing. Following these guidelines ensures consistency,
+maintainability, and optimal usage of HyperFetch's features.
+
+## Core Concepts
+
+HyperFetch is a powerful data-exchange framework designed for type-safety and ease of use. The main components you will
+interact with are:
+
+- **`Client`**: The central point of configuration for all requests. It holds URL of server, all modules like Cache,
+  Dispatchers, it is builder of Requests (`createRequest()({...})`)
+- **`Request`**: A class that defines a specific API endpoint, including its method, parameters, and data transformation
+  logic - everything typesafe (response, payload, params, query params, endpoint string etc)
+
+- **`useFetch` (React)**: A React hook that executes a request and provides the state of the request (data, error,
+  loading).
+- **`useSubmit` (React)**: A React hook that executes a request on call (for example button click) and provides the
+  state of the request (data, error, loading).
+
+- **`Adapters`**: Pluggable modules that handle the actual data fetching logic (e.g., `axios`, `graphql`, `firebase`).
+
+## 1. Client Configuration
+
+The `Client` instance should be created and configured once, then exported for use throughout the application.
+
+Use the `createClient` from `@hyper-fetch/core`.
+
+### Best Practices
+
+- **Singleton Client**: Create a single `Client` instance for your application to ensure consistent configuration.
+- **Base URL**: Always configure the `url` on the client. Avoid hardcoding base URLs in individual requests.
+- **Feature Configuration**: Configure features like `cache`, `queue`, and `storage` at the client level.
+
+#### Example:
+
+```typescript
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({
+  url: "https://api.example.com",
+});
+```
+
+## 2. Request Definition
+
+Requests should be defined in a structured and reusable way.
+
+### Best Practices
+
+- **Typed Requests**: Always define the types for request parameters, response data, and errors. This is the core
+  strength of HyperFetch.
+- **Request Factory**: Use functions to create requests. This allows for dynamic parameters and keeps the code clean.
+- **Colocation**: Keep requests related to a specific feature or data model grouped together.
+- **Error Handling**: Define error types for requests to handle API errors gracefully.
+- **Data Transformation**: Use `setResponseMapper` to transform the raw API response into the desired data structure.
+
+#### Examples:
+
+##### All Generic Types
+
+All generic types are optional.
+
+```ts
+const request = client.createRequest<{
+  // what we get in response
+  response: SomeData;
+  // What we send to backend
+  payload: SomePayload;
+  // Adds ability to specify query params
+  queryParams?: { search?: string };
+  // It will extend global error and add ability to specify errors for particular endpoint only
+  error: ZodValidationErrors;
+}>()({
+  endpoint: "/some-endpoint",
+  method: "GET",
+});
+```
+
+##### Example of static params passed with method
+
+```ts
+import { client } from "./client"; // Import the configured client
+
+interface User {
+  id: number;
+  name: string;
+}
+
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Using the request with the client
+const { data, error, success, extra, responseTime, requestTime } = getUser
+  .setParams({ userId: 1 }) // taken from endpoint string `:userId`
+  .send();
+```
+
+##### Dynamicly pass the params to send({ }) and use all of the callbacks
+
+```ts
+import { client } from "./client"; // Import the configured client
+
+interface User {
+  id: number;
+  name: string;
+}
+
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Using the request with the client
+const { data, error, success, extra, responseTime, requestTime } = getUser.send({
+  // pass params dynamically
+  params: { userId: 1 },
+
+  onBeforeSent: ({ response, requestId }) => {
+    console.log(`Request ${requestId} has settled. Final response:`, response);
+    // Called right before the request is sent—useful for quickly accessing the requestId for tracking or logging
+  },
+  onStart: ({ requestId, request }) => {
+    console.log(`Request ${requestId} has started.`);
+    // Called when the request is started—useful for showing a loading indicator
+  },
+  onUploadProgress: ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }) => {
+    console.log(`Request ${requestId} upload progress:`, progress);
+    // Called when the upload progress is updated—useful for showing a progress bar
+  },
+  onDownloadProgress: ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, request, requestId }) => {
+    console.log(`Request ${requestId} download progress:`, progress);
+    // Called when the download progress is updated—useful for showing a progress bar
+  },
+  onResponse: ({ response, requestId }) => {
+    console.log(`Request ${requestId} finished with data:`, response.data);
+    // Called when the request succeeds—useful for processing successful data
+  },
+  onRemove: ({ request, requestId }) => {
+    console.log(`Request ${requestId} removed.`);
+    // Called when the request is removed—useful for cleaning up
+  },
+});
+```
+
+## 3. Component Usage (React)
+
+When using HyperFetch with React, follow these guidelines for the `useFetch` hook.
+
+### Best Practices
+
+- **Hook Usage**: Use the `useFetch` hook to bind requests to your components' lifecycle.
+- **State Management**: Rely on the `data`, `error`, and `loading` states returned by `useFetch`. Avoid creating extra
+  state variables to track this.
+- **Dependencies**: Use the `dependencies` array in `useFetch` to automatically re-fetch data when component props or
+  other state changes.
+- **Manual Fetching**: The `revalidate` function returned by `useFetch` can be used to manually trigger a re-fetch.
+
+#### Example:
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+import { client } from "./client";
+import { getUser } from "./requests";
+
+function UserProfile({ userId }) {
+  const { data, loading, error, extra, success, responseTime, requestTime, onSuccess, onError, onFinished } = useFetch(
+    client.request(getUser).setParams({ userId }),
+  );
+
+  onSuccess(({ response, request }) => {
+    console.log(response, request);
+  });
+
+  onError(({ response, request }) => {
+    console.log(response, request);
+  });
+
+  onFinished(({ response, request }) => {
+    console.log(response, request);
+  });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading user!</p>;
+  if (!data) return null;
+
+  return <h1>{data.name}</h1>;
+}
+```
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+import { client } from "./client";
+import { createUser } from "./requests";
+
+function CreateUser({ userId }) {
+  const {
+    submit,
+    data,
+    submitting,
+    error,
+    extra,
+    success,
+    responseTime,
+    requestTime,
+    onSubmitSuccess,
+    onSubmitError,
+    onSubmitFinished,
+  } = useSubmit(client.request(createUser).setParams({ userId }));
+
+  onSubmitSuccess(({ response, request }) => {
+    console.log(response, request);
+  });
+
+  onSubmitError(({ response, request }) => {
+    console.log(response, request);
+  });
+
+  onSubmitFinished(({ response, request }) => {
+    console.log(response, request);
+  });
+
+
+  return <button onSubmit={() => submit()}>Create user</h1>;
+}
+```
+
+## 4. Feature Usage
+
+HyperFetch offers powerful features that should be used consistently.
+
+### Caching
+
+- **Enable on Client**: Enable caching on the `Client` instance for global caching.
+- **Per-Request Cache**: You can override the client's cache setting on individual requests.
+- **Cache Invalidation**: Use `client.cache.invalidate` to manually invalidate cached data when mutations occur.
+
+### Queuing
+
+- **Offline Support**: Use queuing to support offline functionality. Requests will be queued and sent when the
+  connection is restored.
+- **Request Prioritization**: Configure request priorities on the client to control the order of execution.
+
+### Persistence
+
+- **Local Storage**: Use `storage` with a `localStorage` adapter to persist data across sessions. This is useful for
+  offline-first applications.
+
+## 5. Adapters
+
+Adapters are responsible for the actual HTTP requests. By default HyperFetch uses the HTTP adapter. You may not need to
+configure any new adapter.
+
+### Best Practices
+
+- **Choose the Right Adapter**: Select an adapter that fits your backend (e.g., `adapter-axios` for REST APIs,
+  `adapter-graphql` for GraphQL, `firebase` for Firebase and `firebase-admin` for Admin version).
+- **Custom Adapters**: If needed, you can create a custom adapter to handle unique data fetching requirements.
+- **Configuration**: Configure the adapter on the `Client` instance.
+
+#### Example (with axios adapter):
+
+```typescript
+import { Client } from "@hyper-fetch/core";
+import { AdapterAxios } from "@hyper-fetch/adapter-axios";
+
+export const client = new Client({
+  baseUrl: "https://api.example.com",
+}).setAdapter(AdapterAxios());
+```

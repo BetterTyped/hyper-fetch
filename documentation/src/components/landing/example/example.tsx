@@ -1,11 +1,11 @@
 import React from "react";
 import { Stage } from "@react-theater/scroll";
-import { FadeIn, Title } from "@site/src/components";
+import { Description, FadeIn, Title } from "@site/src/components";
 
 export function Example(): JSX.Element {
   return (
     <section className="relative pb-20 ">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="">
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
             <div className="relative">
@@ -32,11 +32,11 @@ export function Example(): JSX.Element {
               </Stage>
             </div>
             <FadeIn start={0.3} end={0.6}>
-              <p className="text-lg text-zinc-400">
+              <Description className="text-lg !text-zinc-400">
                 Reduce the time needed to handle state and reducers. Streamline HTTP adapter setup and its dependencies.
                 Everything is set up right after installation in a fully configured environment with no external
                 dependencies!
-              </p>
+              </Description>
             </FadeIn>
           </div>
         </div>

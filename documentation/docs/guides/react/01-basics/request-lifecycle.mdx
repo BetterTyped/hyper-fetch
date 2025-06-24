@@ -1,0 +1,140 @@
+---
+title: Request Lifecycle Events
+sidebar_label: Request Lifecycle
+---
+
+# Request Lifecycle Events
+
+Understanding and reacting to the lifecycle of a request is key to building robust and user-friendly applications.
+Hyper-fetch provides a comprehensive set of lifecycle event callbacks on its hooks (`useFetch`, `useSubmit`, etc.) that
+allow you to tap into every stage of a request, from the moment it's sent until it's finished.
+
+These callbacks, often called "helper hooks," enable you to trigger side effects, update UI state, or log events at
+precise moments.
+
+:::secondary What you'll learn
+
+1.  About the different **stages of a request's lifecycle**.
+2.  How to use callbacks like **`onSuccess`**, **`onError`**, and **`onFinished`**.
+3.  How to respond to events like **request start** (`onRequestStart`) and **cancellation** (`onAbort`).
+4.  How to build a **real-time event log** to visualize the request lifecycle.
+
+:::
+
+## Visualizing the Lifecycle
+
+The best way to understand the lifecycle is to see it in action. Let's build a component that fetches some data and logs
+each lifecycle event as it happens. We'll provide buttons to trigger a successful request, a failed request, and to
+abort a request.
+
+```tsx live
+function LifecycleLogger() {
+  const [logs, setLogs] = React.useState([]);
+
+  const addLog = (message) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs((prev) => [`[${timestamp}] ${message}`, ...prev]);
+  };
+
+  // Setup the fetch hook with all the lifecycle callbacks
+  // highlight-start
+  const { revalidate, abort } = useFetch(getUser, {
+    disabled: true, // We will trigger it manually
+    onRequestStart: () => addLog("🚀 Request Started"),
+    onSuccess: () => addLog("✅ Request Succeeded"),
+    onError: () => addLog("❌ Request Errored"),
+    onFinished: () => addLog("🏁 Request Finished (Success or Error)"),
+    onAbort: () => addLog("🛑 Request Aborted"),
+    onOffline: () => addLog("🔌 Request Offline"),
+  });
+  // highlight-end
+
+  const handleFetchSuccess = () => {
+    addLog("--- Starting Success Fetch ---");
+    revalidate(getUser.setParams({ userId: 1 }));
+  };
+
+  const handleFetchError = () => {
+    addLog("--- Starting Error Fetch ---");
+    // Assuming userId 999 does not exist and will cause an error
+    revalidate(getUser.setParams({ userId: 999 }));
+  };
+
+  const handleAbort = () => {
+    addLog("--- Aborting Fetch ---");
+    abort();
+  };
+
+  const getLogClass = (log) => {
+    if (log.includes("✅")) return "text-green-600";
+    if (log.includes("❌")) return "text-red-600";
+    if (log.includes("🚀")) return "text-blue-600";
+    if (log.includes("🛑")) return "text-yellow-600";
+    if (log.includes("🔌")) return "text-orange-600";
+    return "text-gray-800";
+  };
+
+  return (
+    <div className="border rounded-md">
+      <div className="p-4 border-b">
+        <h2 className="text-xl font-bold mb-2">Lifecycle Event Log</h2>
+        <div className="space-x-2">
+          <button onClick={handleFetchSuccess} className="px-3 py-1 bg-green-500 text-white rounded">
+            Fetch Success
+          </button>
+          <button onClick={handleFetchError} className="px-3 py-1 bg-red-500 text-white rounded">
+            Fetch Error
+          </button>
+          <button onClick={handleAbort} className="px-3 py-1 bg-yellow-500 text-white rounded">
+            Abort
+          </button>
+          <button onClick={() => setLogs([])} className="px-3 py-1 bg-gray-500 text-white rounded">
+            Clear Log
+          </button>
+        </div>
+      </div>
+      <div className="p-4 bg-gray-50 h-64 overflow-y-auto font-mono text-sm">
+        {logs.map((log, i) => (
+          <p key={i} className={getLogClass(log)}>
+            {log}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+### Key Lifecycle Callbacks
+
+Here's a breakdown of the most commonly used lifecycle callbacks:
+
+- **`onRequestStart`**: Fires as soon as the request is about to be sent. Perfect for showing a loading spinner or
+  logging the start of an action.
+- **`onSuccess`**: Fires only when the request completes successfully (e.g., a 2xx HTTP status). Ideal for updating
+  state with the fetched data or showing a success notification.
+- **`onError`**: Fires only when the request fails (e.g., a 4xx/5xx HTTP status, network error). Use this to display an
+  error message to the user.
+- **`onFinished`**: Fires after _every_ request, regardless of whether it succeeded or failed. It's the equivalent of a
+  `finally` block in a promise chain. Great for hiding a loading spinner.
+- **`onAbort`**: Fires when a request is manually cancelled using the `abort()` function returned by the hook.
+- **`onOffline`**: Fires if a request fails specifically because the browser is offline. This allows you to show a
+  specific "You are offline" message.
+- **`onUploadProgress` / `onDownloadProgress`**: Fire repeatedly during a file upload or download. See the
+  [Progress guide](./progress.mdx) for more details.
+
+By using these callbacks, you can create a highly interactive and informative UI that responds intelligently to the
+state of your data fetching.
+
+---
+
+:::success Congratulations!
+
+You've mastered the Hyper-fetch request lifecycle!
+
+- You can hook into **every stage** of a request's journey.
+- You know the difference between **`onSuccess`**, **`onError`**, and **`onFinished`**.
+- You can handle specific cases like **aborts** and **offline** states.
+- You are equipped to build **complex, state-aware UIs** that responds to data events.
+
+:::

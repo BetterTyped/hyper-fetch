@@ -2,9 +2,9 @@ import { createServer, Server } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import url from "url";
 import { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
+import { serverLogger } from "@shared/utils/logger";
 
 import { ConnectionHandler } from "./handlers/connection-handler";
-import { serverLogger } from "../shared/utils/logger";
 
 const getConnectionInfo = (requestUrl: string) => {
   const queryParams = url.parse(requestUrl, true).query;

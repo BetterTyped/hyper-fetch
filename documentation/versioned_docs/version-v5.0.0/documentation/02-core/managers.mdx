@@ -1,0 +1,124 @@
+---
+sidebar_position: 8
+title: Managers
+sidebar_label: Managers
+---
+
+The library contains several managers, they are mainly used to support smaller subsystems and features.
+
+---
+
+## AppManager
+
+<div class="api-link">
+  <div class="api-link-title">AppManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/AppManager.mdx)
+
+  </div>
+</div>
+<br />
+
+This class is responsible for the application’s `online` or `offline` state and whether the application window is
+`focused` or `blurred`.
+
+For example, suppose you want to use Hyper Fetch in a React Native environment and the default web browser events won't
+work. In that case, you need to set the events that are most optimal for the current environment.
+
+:::info
+
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+
+:::
+
+```tsx
+const unmountFocusListener = client.requestManager.events.onFocus(console.log);
+const unmountOfflineListener = client.requestManager.events.onOffline(console.log);
+
+...
+
+unmountFocusListener()
+unmountOfflineListener()
+```
+
+### Events
+
+{@import Hyper-Fetch getAppManagerEvents returns}
+
+---
+
+## RequestManager
+
+<div class="api-link">
+  <div class="api-link-title">RequestManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/RequestManager.mdx)
+
+  </div>
+</div>
+
+<br />
+
+The `RequestManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
+events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
+
+:::info
+
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+
+:::
+
+```tsx
+
+const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, console.log);
+const unmountDownloadListener = client.requestManager.events.onDownloadProgressById(requestId, console.log);
+
+...
+
+unmountUploadListener()
+unmountDownloadListener()
+```
+
+### AbortKey
+
+Every request added to the dispatcher creates an abort controller for itself. This controller is stored in the Map
+object under abort key with the `requestId`. This lets you abort whole groups of requests using `abortKey` or single
+requests using their `requestId`. By default, `abortKey` is automatically created on request out of its endpoint and
+method, but you can set custom values.
+
+### Events
+
+{@import Hyper-Fetch getRequestManagerEvents returns}
+
+```ts
+client.requestManager.events.onResponse((response, details) => {
+  // ...
+});
+```
+
+---
+
+## LoggerManager
+
+<div class="api-link">
+  <div class="api-link-title">LoggerManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/LoggerManager.mdx)
+
+  </div>
+</div>
+
+<br />
+
+LoggerManager is the main instance of the Hyper Fetch logging system. You can initiate single loggers based on it in
+subsystems; this allows you to isolate these loggers but still give them access to the parent configuration in the
+Client.
+
+```ts
+const logger = client.loggerManager.init("My Module")
+
+logger.error(...) // output in console => [My Module] Some message
+```

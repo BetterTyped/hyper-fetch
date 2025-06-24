@@ -22,7 +22,7 @@ import { EventEmitter } from "utils";
  * Keys used to save the values are created dynamically on the Request class
  *
  */
-export class Cache {
+export class Cache<Adapter extends AdapterInstance> {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
@@ -31,7 +31,7 @@ export class Cache {
   public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerMethods;
-  private client: ClientInstance;
+  private client: ClientInstance<{ adapter: Adapter }>;
 
   constructor(public options?: CacheOptionsType) {
     const { storage = new Map<string, CacheValueType>(), lazyStorage, version = "0.0.1" } = options ?? {};
@@ -44,7 +44,7 @@ export class Cache {
     this.lazyStorage = lazyStorage;
   }
 
-  initialize = (client: ClientInstance) => {
+  initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
     this.logger = client.loggerManager.initialize(client, "Cache");
 
@@ -65,8 +65,8 @@ export class Cache {
    * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
-  set = <Request extends RequestInstance>(
-    request: RequestCacheType<Request>,
+  set = <Request extends RequestCacheType<RequestInstance>>(
+    request: Request,
     response: CacheSetState<
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
@@ -129,8 +129,8 @@ export class Cache {
    * via plugin.
    * @returns
    */
-  update = <Request extends RequestInstance>(
-    request: RequestCacheType<Request>,
+  update = <Request extends RequestCacheType<RequestInstance>>(
+    request: Request,
     partialResponse: CacheSetState<
       Partial<
         ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
@@ -159,10 +159,8 @@ export class Cache {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error, Adapter extends AdapterInstance>(
-    cacheKey: string,
-  ): CacheValueType<Response, Error, Adapter> | undefined => {
-    this.getLazyResource<Response, Error, Adapter>(cacheKey);
+  get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error, Adapter> | undefined => {
+    this.getLazyResource<Response, Error>(cacheKey);
     const cachedData = this.storage.get<Response, Error, Adapter>(cacheKey);
     return cachedData;
   };
@@ -242,7 +240,7 @@ export class Cache {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error, Adapter extends AdapterInstance>(
+  getLazyResource = async <Response, Error>(
     cacheKey: string,
   ): Promise<CacheValueType<Response, Error, Adapter> | undefined> => {
     const data = await this.lazyStorage?.get<Response, Error, Adapter>(cacheKey);

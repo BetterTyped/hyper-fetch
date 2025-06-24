@@ -49,13 +49,13 @@ describe("useSubmit [ Base ]", () => {
         requestTimestamp: expect.toBeNumber(),
       });
     });
-    it("should call onSettle", async () => {
+    it("should call onBeforeSent", async () => {
       const spy = jest.fn();
       mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        await response.result.current.submit({ payload: { value: "string" }, onSettle: spy });
+        await response.result.current.submit({ payload: { value: "string" }, onBeforeSent: spy });
       });
 
       expect(spy).toHaveBeenCalledTimes(1);

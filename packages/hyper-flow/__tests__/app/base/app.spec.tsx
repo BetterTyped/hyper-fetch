@@ -1,10 +1,15 @@
 import "@testing-library/jest-dom";
-import { render } from "@testing-library/react";
+import { render, act } from "@testing-library/react";
+import { sleep } from "@hyper-fetch/testing";
 
-import { Application } from "../../../src/frontend/routing/router";
+import { App } from "@/app";
 
 describe("App", () => {
-  it("should render", () => {
-    expect(render(<Application />)).toBeTruthy();
+  it("should render", async () => {
+    const { container } = render(<App />);
+    await act(async () => {
+      await sleep(4000);
+    });
+    expect(container).toBeInTheDocument();
   });
 });

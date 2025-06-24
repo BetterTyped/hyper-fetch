@@ -72,7 +72,7 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const getIsInitiallyLoading = ({
+export const getIsInitiallyLoading = <T extends RequestInstance>({
   queryKey,
   dispatcher,
   hasState,
@@ -80,7 +80,7 @@ export const getIsInitiallyLoading = ({
   disabled,
 }: {
   queryKey: string;
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   hasState: boolean;
   revalidate?: boolean;
   disabled?: boolean;
@@ -103,7 +103,7 @@ export const getInitialState = <T extends RequestInstance>({
   revalidate,
 }: {
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   request: T;
   disabled?: boolean; // useFetch only
   revalidate?: boolean; // useFetch only
@@ -111,7 +111,7 @@ export const getInitialState = <T extends RequestInstance>({
   const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({

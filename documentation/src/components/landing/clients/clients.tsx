@@ -33,7 +33,7 @@ export const Clients = () => {
   }, []);
 
   return (
-    <section className="container mx-auto px-4 sm:px-6 flex flex-col justify-center h-[220px]">
+    <section className="container max-w-4xl mx-auto px-4 sm:px-6 flex flex-col justify-center h-[220px]">
       <div className="text-center text-base mb-10 max-w-[460px] mx-auto font-normal !text-gray-400">
         Companies that use{" "}
         <a href="https://bettertyped.com" className="font-medium text-gray-400">

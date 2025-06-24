@@ -1,17 +1,19 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 title: Client
 sidebar_label: Client
 ---
 
-[Read the API Reference »](/api/core/Classes/Client.mdx)
+[Read the API Reference »](/docs/api/core/Classes/Client.mdx)
 
 **`Client`** is the central class for configuring your server connection in Hyper Fetch. It initializes all core
 subsystems—such as queues, cache, and interceptors—and provides a unified way to create and manage requests based on its
 configuration. By keeping all data and logic encapsulated within a single client instance, you ensure that each client
 remains isolated and independent from others.
 
-:::info Purpose
+---
+
+:::tip Purpose
 
 1. **Builder for all of the requests**
 2. Central place for all the default **settings**
@@ -22,7 +24,7 @@ remains isolated and independent from others.
 
 ---
 
-## Initialization 🚀
+## Initialization
 
 The client is initialized with the `createClient` function.
 
@@ -38,14 +40,18 @@ export const client = createClient({ url: "http://localhost:3000" });
   type="guides"
   title="More about setup"
   description="Learn different ways and options to initialize the client"
-  to="/docs/guides/core/01-basic/setup.mdx"
+  to="/docs/guides/core/basics/setup"
 />
 
 ---
 
 ## Available methods
 
+<ShowMore>
+
 (@import core Client type=methods&display=table)
+
+</ShowMore>
 
 <LinkCard
   type="api"
@@ -56,7 +62,7 @@ export const client = createClient({ url: "http://localhost:3000" });
 
 ---
 
-## Features ✨
+## Features
 
 Here are some of the most important features available in the Client class.
 
@@ -68,7 +74,7 @@ easier to maintain and test your code by centralizing configuration and types.
 
 :::
 
-### 1. createRequest()
+1. ### createRequest()
 
 The `createRequest` method is the main method for creating templates for the API connectivity. We use the builder
 pattern to create a request object which contain crucial information about the request - endpoint, method, etc.
@@ -81,12 +87,16 @@ import { createClient } from "@hyper-fetch/core";
 const client = createClient({ url: "http://localhost:3000" });
 
 // highlight-next-line
-export const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/1" });
+const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/1" });
+
+console.log(getUser);
 ```
 
 <LinkCard type="docs" title="Request" description="More about the request and how to use it" to="/docs/core/request" />
 
-### 2. Authentication
+---
+
+2. ### Authentication
 
 To send authenticated requests, set up the `onAuth` interceptor. Set up the request with the `auth` option set to
 **true**.
@@ -95,25 +105,24 @@ To send authenticated requests, set up the `onAuth` interceptor. Set up the requ
 import { createClient } from "@hyper-fetch/core";
 import { store } from "./store"; // Your state management store
 
-// highlight-start
 export const client = createClient({ url: "http://localhost:3000" }).onAuth((request) => {
   // Get the auth token from your store
   const state = store.getState();
   const authToken = state.auth.token;
 
-  // highlight-next-line
   // Add the token to the request headers
+  // highlight-start
   return request.setHeaders({
     ...request.headers,
     Authorization: `Bearer ${authToken}`,
   });
+  // highlight-end
 });
-// highlight-end
 
-// highlight-next-line
 // Create an authenticated request
 export const getUsers = client.createRequest()({
   endpoint: "/users",
+  // highlight-next-line
   auth: true, // This enables the onAuth interceptor
 });
 ```
@@ -122,12 +131,12 @@ export const getUsers = client.createRequest()({
   type="guides"
   title="Authentication guide"
   description="Learn how to set up authentication for your application"
-  to="/docs/guides/core/01-basic/authentication.mdx"
+  to="//guides/core/basics/authentication"
 />
 
 ---
 
-### 3. Interceptors
+3. ### Interceptors
 
 Interceptors are a powerful feature that allows you to modify requests before they're sent or responses before they are
 processed within other core modules.
@@ -136,17 +145,17 @@ They can modify the request before it's sent or the response after it's received
 
 #### Request Interceptor
 
-1. `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
-2. `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
-   headers or other any options
+- `onRequest()` - allows to modify the request before it's sent giving ability to modify its data
+- `onAuth()` - allows to modify the request with `auth: true` before it's sent, giving ability to pass custom auth
+  headers or other any options
 
 #### Response Interceptor
 
 There are several methods for intercepting a response from a request:
 
-1. `onResponse()` - intercepts any response after it's received to modify it's body
-2. `onError()` - intercepts the error response after it's received to modify it's body
-3. `onSuccess()` - intercepts the success response after it's received to modify it's body
+- `onResponse()` - intercepts any response after it's received to modify it's body
+- `onError()` - intercepts the error response after it's received to modify it's body
+- `onSuccess()` - intercepts the success response after it's received to modify it's body
 
 We can modify received data with these interceptors before it will be emitted to other sub-systems.
 
@@ -155,46 +164,47 @@ import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({ url: "http://localhost:3000" })
   // Add request interceptor
-  // highlight-start
   .onRequest((request) => {
     // Add custom headers to all requests
+    // highlight-start
     return request.setHeaders({
       ...request.headers,
       "x-custom-header": "custom-value",
     });
+    // highlight-end
   })
-  // highlight-end
   // Add response interceptor
-  // highlight-start
   .onResponse(async (response, request) => {
     // Log all responses
     console.log(`Response for ${request.endpoint}:`, response);
+    // highlight-start
     return response;
+    // highlight-end
   })
-  // highlight-end
   // Add error interceptor
-  // highlight-start
   .onError(async (errorResponse, request) => {
     // Handle specific error responses
     if (errorResponse.status === 401 && !request.used) {
       // Implement token refresh logic
+      // Set Used allows you to prevent infinite loops of retries
+      // highlight-start
       return request.setUsed(true).send();
+      // highlight-end
     }
     return errorResponse;
   });
-// highlight-end
 ```
 
 <LinkCard
   type="guides"
   title="Interceptors guide"
   description="Learn how to set up interceptors for your application and when they can be used"
-  to="/docs/guides/core/01-basic/interceptors.mdx"
+  to="/docs/guides/core/advanced/intercepting"
 />
 
 ---
 
-### 4. Global settings
+4. ### Global settings
 
 Every module is initialized inside of the `Client` class. This is a perfect place to store and control global settings
 for the adapter, cache, requests or other modules.
@@ -202,31 +212,29 @@ for the adapter, cache, requests or other modules.
 ```tsx
 import { createClient } from "@hyper-fetch/core";
 
-// highlight-start
 export const client = createClient({
   url: "http://localhost:3000",
-  // Global settings for all requests
-  requestConfig: {
+});
+
+// highlight-start
+client.adapter.setRequestDefaults({
+  retries: 3, // Retry failed requests 3 times
+  cacheTime: 5 * 60 * 1000, // Cache data for 5 minutes
+  staleTime: 60 * 1000, // Data becomes stale after 1 minute
+
+  // Adapter options
+  options: {
     timeout: 10000, // 10 seconds timeout for all requests
-    retries: 3, // Retry failed requests 3 times
-    retry: {
-      methods: ["GET", "POST"], // Only retry GET and POST requests
-    },
-  },
-  // Cache settings
-  cache: {
-    cacheTime: 5 * 60 * 1000, // Cache data for 5 minutes
-    staleTime: 60 * 1000, // Data becomes stale after 1 minute
   },
 });
 // highlight-end
 
 // These global settings can be overridden for specific requests
-// highlight-next-line
 export const getUser = client.createRequest()({
   endpoint: "/users/:id",
   method: "GET",
-  timeout: 5000, // Override the global timeout for this request
+  // highlight-next-line
+  timeout: 5000, // Override the global timeout of 10000 for this request
 });
 ```
 
@@ -234,12 +242,12 @@ export const getUser = client.createRequest()({
   type="guides"
   title="Global defaults guide"
   description="Learn how to set global defaults for the client and requests"
-  to="/docs/guides/core/01-basic/global-defaults.mdx"
+  to="/docs/guides/core/basics/global-defaults"
 />
 
 ---
 
-### 5. Plugins
+5. ### Plugins
 
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
 the events happening inside of the Hyper Fetch.
@@ -247,14 +255,14 @@ the events happening inside of the Hyper Fetch.
 ```tsx
 import { createClient } from "@hyper-fetch/core";
 import { Plugin } from "@hyper-fetch/core";
-import { devtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-// highlight-start
 // Add the official devtools plugin
 export const client = createClient({ url: "http://localhost:3000" })
   .setDebug(true)
+  // highlight-start
   .addPlugin(
-    devtoolsPlugin({
+    DevtoolsPlugin({
       appName: "My Application",
     }),
   );
@@ -265,26 +273,23 @@ const loggingPlugin = new Plugin({
   name: "logging-plugin",
 })
   .onRequestStart(({ request }) => {
-    // highlight-next-line
     console.log(`Request started: ${request.method} ${request.endpoint}`);
   })
   .onRequestSuccess(({ response, request }) => {
-    // highlight-next-line
     console.log(`Request succeeded: ${request.method} ${request.endpoint}`, response.data);
   })
   .onRequestError(({ response, request }) => {
-    // highlight-next-line
     console.error(`Request failed: ${request.method} ${request.endpoint}`, response.error);
   });
 
-// highlight-next-line
 // Add the custom plugin to the client
+// highlight-next-line
 client.addPlugin(loggingPlugin);
 ```
 
 ---
 
-### 6. Hydration
+6. ### Hydration
 
 We can hydrate the client with the data from the server. This is a powerful feature that allows us to pass the data from
 the server to the client for the SSR use cases.
@@ -293,7 +298,6 @@ the server to the client for the SSR use cases.
 // Server-side code
 import { createClient } from "@hyper-fetch/core";
 
-// highlight-start
 export const client = createClient({ url: "http://localhost:3000" });
 const userRequest = client.createRequest()({ endpoint: "/users/1" });
 
@@ -301,27 +305,33 @@ const userRequest = client.createRequest()({ endpoint: "/users/1" });
 const response = await userRequest.send();
 
 // Dehydrate the response for client hydration
+// highlight-start
 const dehydratedData = userRequest.dehydrate({ response });
 // highlight-end
 
 // Pass dehydratedData to the client (e.g., as props or through a global state)
 
-// Client-side code
+//  *****************************************************
+//  *****************************************************
+//  Client-side code
+//  *****************************************************
+//  *****************************************************
+
 import { createClient } from "@hyper-fetch/core";
 import { useFetch } from "@hyper-fetch/react";
 
-// highlight-start
 export const client = createClient({ url: "http://localhost:3000" });
 
 // Hydrate the client with server data
+// highlight-start
 client.hydrate([dehydratedData]);
 // highlight-end
 
 // In your React component
 function UserProfile() {
   // Data will be available immediately from cache, no loading state needed
-  // highlight-next-line
   const { data } = useFetch(client.createRequest()({ endpoint: "/users/1" }), {
+    // highlight-next-line
     revalidate: false, // Prevent automatic refetching
   });
 
@@ -331,7 +341,7 @@ function UserProfile() {
 
 ---
 
-## TypeScript functionality
+## TypeScript
 
 Most important type passed to the `createClient` is the error type. It is a global error type, being used like a default
 for any request errors. It is later combined with the "local error" type of the requests creating the union. This way we
@@ -365,7 +375,9 @@ const client = createClient<{ error: ClientErrorType }>();
 - `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it only
   when you provide [your custom adapter](/docs/guides/core/02-advanced/custom-adapter.mdx).
 
-## Modules 🧩
+## Modules
+
+Client is a place where all the subsystems are initialized. Here is a diagram of the client and its subsystems:
 
 ```mermaid
 mindmap
@@ -399,6 +411,10 @@ mindmap
       {{Devtools}}
       {{Observers}}
 ```
+
+---
+
+## See Also
 
 <LinkCard
   type="docs"

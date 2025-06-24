@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-redeclare */
 import React, { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface MousePosition {
   x: number;

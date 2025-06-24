@@ -5,7 +5,7 @@ export const getOrderedResultFirestore = (snapshot: QuerySnapshot) => {
   snapshot.docs.forEach((d) => {
     result.push({ ...d.data(), __key: d.id });
   });
-  return result.length > 0 ? result : null;
+  return result;
 };
 
 export const getGroupedResultFirestore = (snapshot: QuerySnapshot) => {

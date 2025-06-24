@@ -24,3 +24,11 @@ declare module "*.png" {
   const content: string;
   export default content;
 }
+
+declare global {
+  namespace React {
+    interface ReactPortal {
+      children?: React.ReactNode;
+    }
+  }
+}

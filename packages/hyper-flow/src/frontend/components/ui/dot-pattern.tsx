@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import React, { useEffect, useId, useRef, useState } from "react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 /**
  *  DotPattern Component Props

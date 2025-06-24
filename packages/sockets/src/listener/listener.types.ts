@@ -13,11 +13,22 @@ import {
   ExtractSocketAdapterType,
 } from "types";
 
-export type ListenerInstance = Listener<any, any, SocketInstance, any>;
+export type ListenerInstanceProperties = {
+  response?: any;
+  topic?: string;
+  socket?: SocketInstance;
+  hasParams?: boolean;
+};
+
+export type ListenerInstance<ListenerProperties extends ListenerInstanceProperties = {}> = Listener<
+  TypeWithDefaults<ListenerProperties, "response", any>,
+  TypeWithDefaults<ListenerProperties, "topic", any>,
+  TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
+  TypeWithDefaults<ListenerProperties, "hasParams", any>
+>;
 
 export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
-  params?: ExtractRouteParams<Topic>;
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
 

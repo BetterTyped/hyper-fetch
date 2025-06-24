@@ -7,7 +7,7 @@ export const createEmitter = <PayloadType = any>(
   socket: SocketInstance,
   options?: Partial<EmitterOptionsType<any, any>>,
 ) => {
-  const randomKey = getUniqueRequestId("some-event-emitter");
+  const randomKey = getUniqueRequestId({ queryKey: "some-event-emitter" });
   return socket.createEmitter<PayloadType>()({
     topic: randomKey,
     ...options,

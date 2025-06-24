@@ -7,7 +7,7 @@ interface ShowMoreProps {
   buttonClassName?: string;
 }
 
-export const ShowMore: React.FC<ShowMoreProps> = ({ children, collapsedHeight = 300, buttonClassName = "" }) => {
+export const ShowMore: React.FC<ShowMoreProps> = ({ children, collapsedHeight = 400, buttonClassName = "" }) => {
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +23,7 @@ export const ShowMore: React.FC<ShowMoreProps> = ({ children, collapsedHeight = 
         {children}
         {/* Gradient overlay when collapsed */}
         {!expanded && (
-          <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-[var(--background)]" />
+          <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[var(--background)]" />
         )}
       </div>
       {/* Show more/less button */}

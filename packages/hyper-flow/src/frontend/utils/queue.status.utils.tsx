@@ -26,5 +26,5 @@ export const getQueueStatusColor = ({ queue, active }: { queue: QueueDataType; a
   if (queue.requests.length) {
     return { border: "border-cyan-500" };
   }
-  return { border: "border-gray-700" };
+  return { border: "border-zinc-700" };
 };

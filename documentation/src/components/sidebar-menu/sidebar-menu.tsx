@@ -23,7 +23,7 @@ export const SidebarMenu = () => {
   return (
     <div className="px-4 min-w-[250px]">
       <div className="docs_sidebar">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 w-full [&>div]:w-full bg-gradient-to-b from-[#1c1c1d] to-transparent from-50% rounded-tr-md">
           <Search className="!px-0 !pt-0" />
         </div>
         {activeItem && (
@@ -59,6 +59,16 @@ export const SidebarMenu = () => {
                         />
                       </div>
                       {item.name}
+                      {item.isPro && (
+                        <span className="ml-2 rounded-md bg-yellow-500 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
+                          Pro
+                        </span>
+                      )}
+                      {item.isNew && (
+                        <span className="ml-2 rounded-md bg-lime-500 px-1.5 py-0.5 text-[11px] leading-none !text-black font-semibold no-underline group-hover:no-underline">
+                          New
+                        </span>
+                      )}
                     </Link>
                   </li>
                 );

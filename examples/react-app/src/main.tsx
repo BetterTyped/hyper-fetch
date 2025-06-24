@@ -2,11 +2,9 @@ import { CssBaseline, Stack } from "@mui/material";
 import * as ReactDOM from "react-dom/client";
 import { SnackbarProvider } from "notistack";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { RouterProvider } from "react-router-dom";
 
-import { routing } from "./constants/routing.constants";
-import DashboardPage from "./pages/index";
-
-const { Route } = routing;
+import { router } from "./components/routing.constants";
 
 const darkTheme = createTheme({
   palette: {
@@ -27,13 +25,7 @@ root.render(
       }}
     >
       <Stack direction="row">
-        <Route to="Dashboard">
-          <DashboardPage />
-        </Route>
-        <Route to="Details" />
-        <Route to="List" />
-        <Route to="Form" />
-        <Route to="Websockets" />
+        <RouterProvider router={router} />
       </Stack>
     </SnackbarProvider>
   </ThemeProvider>,

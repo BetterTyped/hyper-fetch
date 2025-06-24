@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { cn } from "@site/src/lib/utils";
 import { FileCode, Play, RotateCcw } from "lucide-react";
@@ -14,12 +14,27 @@ export const LiveCodeBlock = ({
   className,
   clickToRun = false,
   defaultTab,
+  size,
   title,
-}: CodeBlockProps & { clickToRun?: boolean; defaultTab?: "playground" | "requests" }) => {
+}: CodeBlockProps & { clickToRun?: boolean; defaultTab?: "playground" | "requests"; size?: "sm" | "md" | "lg" }) => {
   const id = useId();
   const [key, setKey] = useState(0);
   const [code, setCode] = useState(String(children));
   const [isRunning, setIsRunning] = useState(false);
+  const [outerTab, setOuterTab] = useState<"playground" | "requests" | "console">("playground");
+
+  const initialCode = useRef(code);
+
+  const onCodeChange = (value: string) => {
+    setCode(value);
+  };
+
+  const onReset = () => {
+    setKey((prev) => prev + 1);
+    setCode(initialCode.current);
+    setIsRunning(false);
+    setOuterTab("playground");
+  };
 
   return (
     <div
@@ -28,6 +43,7 @@ export const LiveCodeBlock = ({
         "live-code-block relative",
         "w-full flex flex-col border border-gray-500/60 bg-zinc-800 rounded-md",
         "overflow-hidden",
+        `live-code-block-size-${size}`,
         className,
       )}
     >
@@ -35,17 +51,14 @@ export const LiveCodeBlock = ({
       <div className="api-playground__header">
         <div className="text-sm flex items-center gap-1">
           <FileCode className="w-4 h-4" />
-          <span className="text-sm font-semibold flex items-center gap-1 !text-transparent bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60">
-            {title || "Live results"}
-          </span>
+          <span className="!text-[rgba(255,255,255,0.7)] text-[0.9rem] font-semibold">{title || "Live results"}</span>
         </div>
         <div className="api-playground__controls">
           <button
             type="button"
             className="flex items-center gap-1 text-xs hover:underline focus:underline"
             onClick={() => {
-              setKey((prev) => prev + 1);
-              setIsRunning(false);
+              onReset();
             }}
           >
             <RotateCcw className="w-3 h-3" />
@@ -54,10 +67,13 @@ export const LiveCodeBlock = ({
         </div>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2">
-        <Editor code={code} setCode={setCode} />
+        <Editor code={code} setCode={onCodeChange} />
         <div className="api_playground_wrapper relative">
           <DotPattern
-            className={cn("[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50")}
+            className={cn(
+              "[mask-image:radial-gradient(300px_circle_at_center,white,transparent)] opacity-50 transition-opacity duration-300",
+              outerTab === "console" && "opacity-0",
+            )}
           />
           {clickToRun && !isRunning ? (
             <div className="api-playground__run-example w-full flex items-center justify-center">
@@ -66,7 +82,7 @@ export const LiveCodeBlock = ({
               </ShinyButton>
             </div>
           ) : (
-            <Playground code={code} key={key} defaultTab={defaultTab} />
+            <Playground key={key} code={code} defaultTab={defaultTab} setOuterTab={setOuterTab} />
           )}
         </div>
       </div>

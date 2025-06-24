@@ -22,14 +22,14 @@ export const mocker = async <T extends AdapterInstance>({
     throw new RequestProcessingError("Mock should be defined when calling mocker");
   }
 
-  let aborted = false;
+  let thrown = false;
 
   const {
     requestTime = 20,
     responseTime = 20,
-    totalUploaded = 1,
-    totalDownloaded = 1,
-    timeout = false,
+    totalUploaded = 1000,
+    totalDownloaded = 1000,
+    timeout,
   } = request.unstable_mock.config;
   const result = await request.unstable_mock.fn({ request, requestId });
 
@@ -39,7 +39,7 @@ export const mocker = async <T extends AdapterInstance>({
     status: adapter.systemErrorStatus,
     extra: adapter.systemErrorExtra,
     onAbort: () => {
-      aborted = true;
+      thrown = true;
     },
   });
 
@@ -52,7 +52,7 @@ export const mocker = async <T extends AdapterInstance>({
     progressFunction: typeof onResponseProgress | typeof onRequestProgress,
   ) =>
     new Promise((resolveProgress) => {
-      if (aborted) {
+      if (thrown) {
         resolveProgress(true);
         return;
       }
@@ -63,7 +63,7 @@ export const mocker = async <T extends AdapterInstance>({
       const chunkSize = Math.ceil(totalSize / intervals);
       let currentlyLoaded = 0;
       const timer = setInterval(function handleProgressInterval() {
-        if (aborted) {
+        if (thrown) {
           resolveProgress(true);
           clearInterval(timer);
         }
@@ -82,51 +82,45 @@ export const mocker = async <T extends AdapterInstance>({
       }, interval);
     });
 
-  const getResponse = async () => {
-    if (!aborted) {
-      await progress(requestTime, totalUploaded, onRequestProgress);
-    }
-    if (!aborted) {
-      onRequestEnd();
-      onResponseStart();
-    }
-    if (!aborted) {
-      await progress(responseTime, totalDownloaded, onResponseProgress);
-    }
-    if (aborted) {
-      onAbortError({
-        status: adapter.systemErrorStatus,
-        extra: adapter.systemErrorExtra,
-      });
-    } else if (success || (error && data)) {
-      onSuccess({
-        data,
-        error,
-        status: status as ExtractAdapterStatusType<T>,
+  if (typeof timeout === "number") {
+    setTimeout(() => {
+      thrown = true;
+      onTimeoutError({
+        status: 0 as ExtractAdapterStatusType<T>,
         extra: extra as ExtractAdapterExtraType<T>,
       });
-    } else {
-      onError({
-        error,
-        status: status as ExtractAdapterStatusType<T>,
-        extra: extra as ExtractAdapterExtraType<T>,
-      });
-    }
-    if (!aborted) {
-      onResponseEnd();
-    }
-  };
-
-  if (timeout) {
-    setTimeout(
-      () =>
-        onTimeoutError({
-          status: 0 as ExtractAdapterStatusType<T>,
-          extra: extra as ExtractAdapterExtraType<T>,
-        }),
-      1,
-    );
+    }, timeout);
+  }
+  if (!thrown) {
+    await progress(requestTime, totalUploaded, onRequestProgress);
+  }
+  if (!thrown) {
+    onRequestEnd();
+    onResponseStart();
+  }
+  if (!thrown) {
+    await progress(responseTime, totalDownloaded, onResponseProgress);
+  }
+  if (thrown) {
+    onAbortError({
+      status: adapter.systemErrorStatus,
+      extra: adapter.systemErrorExtra,
+    });
+  } else if (success || (error && data)) {
+    onSuccess({
+      data,
+      error,
+      status: status as ExtractAdapterStatusType<T>,
+      extra: extra as ExtractAdapterExtraType<T>,
+    });
   } else {
-    await getResponse();
+    onError({
+      error,
+      status: status as ExtractAdapterStatusType<T>,
+      extra: extra as ExtractAdapterExtraType<T>,
+    });
+  }
+  if (!thrown) {
+    onResponseEnd();
   }
 };

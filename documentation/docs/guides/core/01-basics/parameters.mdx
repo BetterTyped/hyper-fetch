@@ -1,0 +1,109 @@
+---
+sidebar_position: 2
+title: Guide - Parameters
+sidebar_label: Parameters
+---
+
+# Parameters
+
+In Hyper Fetch, parameters are crucial for creating dynamic and flexible requests. They allow you to pass data to your
+API endpoints as part of the URL path. This guide covers everything you need to know about defining and using URL
+parameters effectively. For query parameters, see our [dedicated guide](./query-params.mdx).
+
+:::secondary What you'll learn
+
+1.  How to define and use **URL path parameters**.
+2.  What is the difference between `.setParams()` and passing parameters to the `.send()` method.
+3.  What are the **precedence rules** when setting parameters in multiple ways.
+
+:::
+
+---
+
+## URL Parameters
+
+URL parameters are placeholders in the endpoint string, prefixed with a colon `:`, like `:userId`. Hyper Fetch
+automatically detects these, providing type-safety and ensuring they are replaced with actual values when a request is
+made.
+
+### Setting with `setParams`
+
+The `setParams` method is the most direct way to set URL parameters. The required parameters are inferred from the
+endpoint string, giving you strong type-safety.
+
+```ts
+const getUser = client.createRequest()({ endpoint: "/users/:userId" });
+
+// highlight-next-line
+const requestWithUser = getUser.setParams({ userId: 281 });
+
+console.log(requestWithUser.endpoint); // "/users/281"
+```
+
+If an endpoint has multiple parameters, you provide them all to `setParams`.
+
+```ts
+const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
+
+// highlight-next-line
+const requestWithProduct = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
+
+console.log(requestWithProduct.endpoint); // "/entities/12/Z24PBW443"
+```
+
+### Setting with `send`
+
+You can also pass parameters directly to the `send` method. This is useful when parameters are determined at runtime,
+just before sending the request.
+
+```ts
+const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
+
+// Parameters are passed inside the `send` method's options
+const response = getProduct.send({
+  params: { categoryId: 12, productId: "Z24PBW443" },
+});
+```
+
+---
+
+## Parameter Precedence
+
+It's important to understand what happens when you set parameters in multiple places. Hyper Fetch do not allow you to
+pass parameters that are already defined in the request.
+
+If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or
+`setQueryParams`.
+
+```ts
+const request = client
+  .createRequest<{ queryParams: { page: number } }>()({ endpoint: "/users/:userId" })
+  .setParams({ userId: 1 })
+  .setQueryParams({ page: 1 });
+
+console.log("Initial params:", request.params); // { userId: 1 }
+console.log("Initial query params:", request.queryParams); // { page: 1 }
+
+// Parameters given to `send` will override previously set ones.
+request.send({
+  // Typescript will not allow you to pass a parameter that is already defined in the request
+  // error-next-line
+  params: { userId: 2 },
+  // Typescript will not allow you to pass a query parameter that is already defined in the request
+  // error-next-line
+  queryParams: { page: 2 },
+});
+```
+
+---
+
+:::success Congratulations!
+
+You've now mastered how to handle parameters in Hyper-Fetch.
+
+- You can define **URL Parameters** with `:param` in the endpoint and set with `.setParams({ param: ... })`.
+- You can set parameter types dynamically within the **`.send()`** method.
+- You know that parameters from the `.send()` method always override those set with `.set...()` methods.
+- You can leverage **type-safety** to prevent common bugs and improve code quality.
+
+:::

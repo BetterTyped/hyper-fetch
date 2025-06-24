@@ -22,8 +22,8 @@ export const Sponsors = () => {
             still help us by joining the{" "}
             <a target="_blank" rel="noreferrer" href="https://github.com/sponsors/prc5">
               GitHub Sponsors program
-            </a>
-            .
+            </a>{" "}
+            or <a href="mailto:maciekpyrc@gmail.com">contact us</a> for other ways of support or collaboration.
           </Description>
         </FadeIn>
       </div>

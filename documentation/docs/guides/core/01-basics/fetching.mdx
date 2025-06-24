@@ -1,0 +1,302 @@
+---
+sidebar_position: 1
+title: Guide - Fetching
+sidebar_label: Fetching
+---
+
+# Fetching
+
+Fetching is the process of executing a request to communicate with a server. In Hyper-Fetch, this is primarily done
+using the `send` method on a request instance. This guide will walk you through the various ways to dispatch requests,
+pass data, and handle their lifecycle events.
+
+---
+
+:::secondary What you'll learn
+
+1. How to **fetch data** from a server and handle responses.
+2. How to pass **data**, **parameters**, and **query params** to your requests.
+3. How to use **lifecycle callbacks** to monitor request states.
+4. How to **abort** a request.
+
+:::
+
+---
+
+## Triggering a Request
+
+The most direct way to execute a request is by calling the `send` method on it. This method is asynchronous and returns
+a promise that resolves with the request's outcome, including data, error, and status.
+
+Let's start by defining a request to fetch a user.
+
+```ts title="src/api/users.ts"
+import { client } from "client";
+
+const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+```
+
+Now, we can use it. The `send` method returns a rich object with details about the response.
+
+```ts
+import { getUser } from "src/api/users";
+
+const requestWithParams = getUser.setParams({ userId: 1 });
+
+// highlight-start
+// Execute the request and destructure the response
+const { data, error, isSuccess, status } = await requestWithParams.send();
+// highlight-end
+
+if (isSuccess) {
+  console.log(`Request successful with status ${status}!`);
+  console.log("User data:", data);
+} else {
+  console.error(`Request failed with status ${status}.`, error);
+}
+```
+
+### Response Object
+
+The `send` method resolves with an object containing the following properties:
+
+(@import core ResponseType type=returns)
+
+---
+
+## Passing Data to Requests
+
+Hyper-Fetch provides flexible ways to pass data, parameters, and query parameters to your requests.
+
+### 1. Using Setter Methods
+
+You can use methods like `setData`, `setParams`, and `setQueryParams` to prepare a request before sending it. This is
+useful for building up a request in multiple steps or based on dynamic conditions.
+
+```ts
+const updateUser = client.createRequest<{
+  response: { id: number; name: string };
+  payload: { name: string };
+  queryParams?: { limit?: number };
+}>()({
+  endpoint: "/users/:userId",
+  method: "PUT",
+});
+
+const preparedRequest = updateUser.setParams({ userId: 1 }).setData({ name: "New Name" }).setQueryParams({
+  limit: 10,
+});
+
+const { data } = await preparedRequest.send();
+```
+
+### 2. Passing Data Directly to `send`
+
+For a more direct approach, you can pass data, params, and query params as an object to the `send` method. This is often
+cleaner and more readable for simple requests.
+
+```ts
+// In a real app, you would import a pre-configured request
+const postData = client.createRequest()({
+  endpoint: "/posts",
+  method: "POST",
+});
+
+async function createPost() {
+  const { data, error } = await postData.send({
+    // highlight-start
+    data: { title: "New Post", content: "..." },
+    queryParams: { authorId: 5 },
+    // highlight-end
+  });
+
+  if (data) {
+    console.log("Post created:", data);
+  } else {
+    console.error("Failed to create post:", error);
+  }
+}
+
+createPost();
+```
+
+---
+
+## How to get requestId?
+
+The `requestId` is a unique identifier for each request execution. It's particularly useful for debugging, logging, or
+tracking a request's lifecycle. Here are two ways to get it:
+
+### 1. Using the Dispatcher
+
+You can get the `requestId` by adding a request directly to the dispatcher. The client instance has two dispatchers:
+`fetchDispatcher` for `GET` requests and `submitDispatcher` for `POST`, `PUT`, `PATCH`, `DELETE` requests. The `add`
+method on a dispatcher returns the `requestId`.
+
+```ts
+import { getUser } from "src/api/users";
+
+const requestWithParams = getUser.setParams({ userId: 1 });
+
+// Add to the dispatcher and get the requestId
+const requestId = client.fetchDispatcher.add(requestWithParams);
+
+console.log("Request ID:", requestId);
+```
+
+:::caution Important
+
+When you use `dispatcher.add()`, the request is executed immediately. You don't need to call `.send()` afterward. The
+`dispatcher.add()` method essentially is a `send` that gives you back the `requestId` synchronously.
+
+:::
+
+### 2. Using Lifecycle Callbacks
+
+The `requestId` is also available in the lifecycle callbacks of the `send` method. The `onBeforeSent` callback is the
+earliest point in the lifecycle where you can access it.
+
+```ts
+import { getUser } from "src/api/users";
+
+const requestWithParams = getUser.setParams({ userId: 1 });
+
+let requestId;
+
+await requestWithParams.send({
+  onBeforeSent: (options) => {
+    requestId = options.requestId;
+    console.log("Request ID from callback:", requestId);
+  },
+});
+```
+
+This approach is useful when you want to trigger the request with `send` and still need access to the `requestId` for
+tracking purposes within the same scope.
+
+---
+
+## Aborting a Request
+
+You can abort a request using the native `AbortController`. Simply create a controller and pass its `signal` to the
+`send` method. This is useful for canceling requests that are no longer needed, for example, when a user navigates away
+from a component.
+
+```ts live
+import { client } from "src/api/client";
+import { getUsers } from "src/api/users";
+
+const promise = getUsers.send();
+
+// Abort the request
+client.requestManager.abortByKey(getUsers.abortKey);
+
+const { error } = await promise;
+
+console.log(error);
+```
+
+---
+
+## Request Lifecycle Callbacks
+
+The `send` method allows you to hook into the entire lifecycle of a request, from the moment it's about to be sent until
+it's finished. This is powerful for side-effects like showing loading indicators, logging, or performance monitoring.
+
+All callbacks are optional and can be passed directly to the `send` method. Each callback receives the request instance
+and its `requestId` as arguments.
+
+```ts
+const { data, error } = await someRequest.send({
+  // Called right before the request is sent
+  onBeforeSent: ({ request, requestId }) => {
+    console.log(`Request ${requestId} is about to be sent.`);
+  },
+  // Called when the request starts
+  onRequestStart: ({ request, requestId }) => {
+    console.log(`Request ${requestId} has started.`);
+    // Ideal for showing a loading spinner
+  },
+  // Called when the adapter starts processing the request
+  onResponseStart: ({ request, requestId }) => {
+    console.log(`Adapter for ${requestId} has started.`);
+  },
+  // Called on upload progress
+  onUploadProgress: ({ progress, total, loaded }) => {
+    console.log(`Upload progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called on download progress
+  onDownloadProgress: ({ progress, total, loaded }) => {
+    console.log(`Download progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called upon receiving a response, whether success or error
+  onResponse: ({ response, request, requestId }) => {
+    console.log(`Request ${requestId} finished with status: ${response.status}`);
+    // You can check response.success to see if the request was successful
+    if (response.success) {
+      console.log(`Request ${requestId} succeeded with data:`, response.data);
+    } else {
+      console.error(`Request ${requestId} failed with error:`, response.error);
+    }
+    // Ideal for hiding a loading spinner
+  },
+  // Called when the request is removed from the dispatcher queue
+  onRemove: ({ request, requestId }) => {
+    console.log(`Request ${requestId} was removed from the queue.`);
+  },
+});
+```
+
+Here is a live example demonstrating a few of these callbacks:
+
+```ts live
+import { getUsers } from "src/api/users";
+
+const { data } = await getUsers.send({
+  // Called right before the request is sent
+  onBeforeSent: ({ request, requestId }) => {
+    console.log(`Request ${requestId} is about to be sent.`);
+  },
+  // Called when the request starts
+  onRequestStart: ({ request, requestId }) => {
+    console.log(`Request ${requestId} has started.`);
+    // Ideal for showing a loading spinner
+  },
+  // Called when the adapter starts processing the request
+  onResponseStart: ({ request, requestId }) => {
+    console.log(`Adapter for ${requestId} has started.`);
+  },
+  // Called on upload progress
+  onUploadProgress: ({ progress, total, loaded }) => {
+    console.log(`Upload progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called on download progress
+  onDownloadProgress: ({ progress, total, loaded }) => {
+    console.log(`Download progress: ${progress}% (${loaded} / ${total} bytes)`);
+  },
+  // Called upon receiving a response, whether success or error
+  onResponse: ({ response, request, requestId }) => {
+    console.log(`Request ${requestId} finished with status: ${response.status}`);
+  },
+  // Called when the request is removed from the dispatcher queue
+  onRemove: ({ request, requestId }) => {
+    console.log(`Request ${requestId} was removed from the queue.`);
+  },
+});
+```
+
+---
+
+:::success Congratulations!
+
+You've learned the fundamentals of dispatching requests with Hyper-Fetch!
+
+- You can execute any request by calling its **`send`** method, which returns a rich response object.
+- You can pass data to a request using **setter methods** or directly within the **`send`** method's options.
+- You can abort a request using an **`AbortController`**'s `signal`.
+- You can use **lifecycle callbacks** for handling side-effects during a request's journey.
+
+:::

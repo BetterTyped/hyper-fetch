@@ -46,9 +46,15 @@ export const clientGenericTypes = createRule({
             });
           }
 
+          if (typeParameters?.params[0].type === "TSTypeReference") {
+            // doSomething<RequestType> are considered matching.
+            // Do not check for unexpected generics in this case.
+            return;
+          }
+
           const unexpectedGenericElements = getUnexpectedGenerics({
             typeParameters,
-            allowedGenerics: ["adapter", "error", "endpointMapper"],
+            allowedGenerics: ["error"],
           });
           const isEmpty = getEmptyGenerics({ typeParameters });
 

@@ -1,4 +1,5 @@
-import { Link } from "frontend/routing/router";
+import { Link } from "@tanstack/react-router";
+
 import { Button } from "../ui/button";
 import { FlickeringGrid } from "../ui/flickering-grid";
 
@@ -15,13 +16,13 @@ export const NotFound = () => {
       />
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
-        <h1 className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent dark:from-white dark:to-slate-900/10">
+        <h1 className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-zinc-300/80 bg-clip-text text-center text-7xl font-semibold leading-none text-transparent dark:from-white dark:to-zinc-900/10">
           Page not found
         </h1>
-        <p className="text-xl text-gray-400 mt-8 mb-12">The page you are looking for does not exist.</p>
+        <p className="text-xl text-zinc-400 mt-8 mb-12">The page you are looking for does not exist.</p>
 
         <Button variant="secondary" asChild>
-          <Link to="dashboard">Go to Dashboard</Link>
+          <Link to="/">Go to Dashboard</Link>
         </Button>
       </div>
     </div>

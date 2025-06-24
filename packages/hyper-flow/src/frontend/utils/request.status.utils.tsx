@@ -1,5 +1,5 @@
-import { DevtoolsRequestEvent } from "frontend/context/projects/types";
-import { cn } from "frontend/lib/utils";
+import { DevtoolsRequestEvent } from "@/context/applications/types";
+import { cn } from "@/lib/utils";
 
 export enum Status {
   REMOVED = "Removed",
@@ -32,7 +32,7 @@ export const getStatus = (
 export const getStatusColor = (status: Status, isLight: boolean): string => {
   switch (status) {
     case Status.REMOVED:
-      return isLight ? "text-gray-600" : "text-gray-700";
+      return isLight ? "text-zinc-600" : "text-zinc-700";
     case Status.CANCELED:
       return isLight ? "text-orange-500" : "text-orange-400";
     case Status.FAILED:

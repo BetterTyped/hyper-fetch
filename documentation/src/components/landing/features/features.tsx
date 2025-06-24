@@ -9,9 +9,9 @@ import React, { useEffect } from "react";
 import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
-import { Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
+import { ArrowRight, Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
 import { getAnimationValue } from "@site/src/utils/animation";
-import { FadeIn, Particles, Title } from "@site/src/components";
+import { Description, FadeIn, Particles, Title } from "@site/src/components";
 
 import "./animation.scss";
 
@@ -79,8 +79,8 @@ const features: FeatureItem[] = [
     description: "Automatically caches responses and reuses them when making the same request again.",
     icon: Database,
     link: (
-      <Link className="text-sm" to="/docs/core/cache">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="/docs/core/cache">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -89,18 +89,18 @@ const features: FeatureItem[] = [
     description: "Persists your data to the local storage or indexedDB to reuse it when needed.",
     icon: Atom,
     link: (
-      <Link className="text-sm" to="/docs/guides/advanced/persistence">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/advanced/persistence">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
   {
-    name: "SSR & Server Components support",
+    name: "Server Components",
     description: "Supports server-side rendering and server components out of the box.",
     icon: Server,
     link: (
-      <Link className="text-sm" to="/docs/getting-started/environment">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="/docs/react/environments/browser">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -109,8 +109,8 @@ const features: FeatureItem[] = [
     description: "Built-in authentication allow you to easily manage user sessions.",
     icon: Fingerprint,
     link: (
-      <Link className="text-sm" to="/docs/guides/basic/authentication">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/basics/authentication">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -120,8 +120,8 @@ const features: FeatureItem[] = [
       "Automatically uses cached data when the user is offline, and updates the cache when the user is online.",
     icon: Wifi,
     link: (
-      <Link className="text-sm" to="/docs/guides/advanced/offline">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="//docs/guides/core/advanced/offline">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -130,8 +130,8 @@ const features: FeatureItem[] = [
     description: "Prefetch data before components mount, so that it's available instantly when needed.",
     icon: TrendingUpDown,
     link: (
-      <Link className="text-sm" to="/docs/guides/advanced/prefetching">
-        Read more
+      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/advanced/prefetching">
+        Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -190,7 +190,7 @@ export function Features(): JSX.Element {
         <Particles className="absolute inset-0 -z-10" />
 
         {/* Bolt */}
-        <FadeIn start={0.1} end={0.3}>
+        <FadeIn start={0.05} end={0.25}>
           <div className="bolt">
             <svg viewBox="0 0 170 57" className="white left">
               <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
@@ -215,23 +215,23 @@ export function Features(): JSX.Element {
 
         {/* Section header */}
         <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
-          <FadeIn start={0.05} end={0.25}>
+          <FadeIn start={0.01} end={0.18}>
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
                 The future is now.
               </div>
             </div>
           </FadeIn>
-          <FadeIn start={0} end={0.2}>
+          <FadeIn start={0} end={0.15}>
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
               Control your architecture
             </Title>
           </FadeIn>
-          <FadeIn start={0.05} end={0.3}>
-            <p className="text-lg text-zinc-400">
+          <FadeIn start={0.02} end={0.2}>
+            <Description className="text-lg !text-zinc-400">
               Easily connect to the events that power our architecture and confidently create your own logic. We give
               you full control over your data flow like no other framework can.
-            </p>
+            </Description>
           </FadeIn>
         </div>
 
@@ -245,12 +245,14 @@ export function Features(): JSX.Element {
                 start={0.1 + getAnimationValue(3, 0.05, index)}
                 end={0.3 + getAnimationValue(3, 0.05, index)}
               >
-                <div className="flex items-center space-x-2 mb-1">
-                  <feature.icon />
-                  <h6 className="font-medium text-zinc-900 dark:text-zinc-50">{feature.name}</h6>
+                <div className="flex flex-col gap-2 h-full">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <feature.icon className="size-7" />
+                    <h5 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{feature.name}</h5>
+                  </div>
+                  <p className="text-lg text-zinc-500 dark:text-zinc-400 flex-1">{feature.description}</p>
+                  {feature.link}
                 </div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">{feature.description}</p>
-                {feature.link}
               </FadeIn>
             ))}
           </div>

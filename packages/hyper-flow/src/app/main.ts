@@ -29,7 +29,7 @@ const createWindow = () => {
     title: "Hyper Flow",
     transparent: true,
     frame: false,
-    width: 1200,
+    width: process.env.NODE_ENV === "production" ? 1200 : 1600,
     height: 800,
     minWidth: 800,
     minHeight: 600,

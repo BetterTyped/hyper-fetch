@@ -7,6 +7,7 @@ import { isBrowser } from "./utils/is-browser";
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
 const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
+const TypescriptIcon = isBrowser() ? require("../static/img/typescript.svg").default : () => null;
 
 export const guides: Section[] = [
   {
@@ -76,6 +77,23 @@ export const guides: Section[] = [
       "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
     border: "border-sky-500 dark:border-sky-400",
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
+    category: "Guides",
+  },
+  {
+    label: "Typescript",
+    description: "Learn how to use Typescript with Hyper Fetch",
+    isPackage: false,
+    dir: "typescript",
+    paths: ["typescript"],
+    img: TypescriptIcon,
+    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
+    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
+    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
+    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
+    border: "border-blue-500 dark:border-blue-400",
+    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
     category: "Guides",
   },
   {

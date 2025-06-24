@@ -2,10 +2,10 @@
 import EventEmitter from "events";
 
 import {
-  getRequestStarByQueueKey,
-  getResponseStartByQueueKey,
-  getDownloadProgressByQueueKey,
-  getUploadProgressByQueueKey,
+  getRequestStarByQueryKey,
+  getResponseStartByQueryKey,
+  getDownloadProgressByQueryKey,
+  getUploadProgressByQueryKey,
   getResponseByIdKey,
   getAbortByAbortKey,
   getAbortByIdKey,
@@ -14,11 +14,11 @@ import {
   getDownloadProgressByIdKey,
   getResponseStartByIdKey,
   getRequestStartByIdKey,
-  getLoadingByQueueKey,
+  getLoadingByQueryKey,
   getLoadingByIdKey,
   RequestEventType,
   RequestLoadingEventType,
-  getRemoveByQueueKey,
+  getRemoveByQueryKey,
   getRemoveByIdKey,
   getLoadingKey,
   getRequestStartKey,
@@ -36,7 +36,7 @@ import {
   getRequestDeduplicatedKey,
   getRequestDeduplicatedByIdKey,
   getRequestDeduplicatedByCacheKey,
-  getRequestDeduplicatedByQueueKey,
+  getRequestDeduplicatedByQueryKey,
 } from "managers";
 import { AdapterInstance } from "adapter";
 import { RequestInstance } from "request";
@@ -53,7 +53,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getRequestDeduplicatedKey(), data);
     emitter.emit(getRequestDeduplicatedByIdKey(data.requestId), data);
     emitter.emit(getRequestDeduplicatedByCacheKey(data.request.cacheKey), data);
-    emitter.emit(getRequestDeduplicatedByQueueKey(data.request.queryKey), data);
+    emitter.emit(getRequestDeduplicatedByQueryKey(data.request.queryKey), data);
   },
 
   // Loading
@@ -61,31 +61,31 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getLoadingKey(), data);
     emitter.emit(getLoadingByIdKey(data.requestId), data);
     emitter.emit(getLoadingByCacheKey(data.request.cacheKey), data);
-    emitter.emit(getLoadingByQueueKey(data.request.queryKey), data);
+    emitter.emit(getLoadingByQueryKey(data.request.queryKey), data);
   },
 
   // Start
   emitRequestStart: (data: RequestEventType<RequestInstance>): void => {
     emitter.emit(getRequestStartKey(), data);
     emitter.emit(getRequestStartByIdKey(data.requestId), data);
-    emitter.emit(getRequestStarByQueueKey(data.request.queryKey), data);
+    emitter.emit(getRequestStarByQueryKey(data.request.queryKey), data);
   },
   emitResponseStart: (data: RequestEventType<RequestInstance>): void => {
     emitter.emit(getResponseStartKey(), data);
     emitter.emit(getResponseStartByIdKey(data.requestId), data);
-    emitter.emit(getResponseStartByQueueKey(data.request.queryKey), data);
+    emitter.emit(getResponseStartByQueryKey(data.request.queryKey), data);
   },
 
   // Progress
   emitUploadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
     emitter.emit(getUploadProgressKey(), data);
     emitter.emit(getUploadProgressByIdKey(data.requestId), data);
-    emitter.emit(getUploadProgressByQueueKey(data.request.queryKey), data);
+    emitter.emit(getUploadProgressByQueryKey(data.request.queryKey), data);
   },
   emitDownloadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
     emitter.emit(getDownloadProgressKey(), data);
     emitter.emit(getDownloadProgressByIdKey(data.requestId), data);
-    emitter.emit(getDownloadProgressByQueueKey(data.request.queryKey), data);
+    emitter.emit(getDownloadProgressByQueryKey(data.request.queryKey), data);
   },
 
   // Response
@@ -108,7 +108,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   emitRemove: (data: RequestRemovedEventType<RequestInstance>): void => {
     emitter.emit(getRemoveKey(), data);
     emitter.emit(getRemoveByIdKey(data.requestId), data);
-    emitter.emit(getRemoveByQueueKey(data.request.queryKey), data);
+    emitter.emit(getRemoveByQueryKey(data.request.queryKey), data);
   },
 
   /**
@@ -126,8 +126,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (data: RequestDeduplicatedEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRequestDeduplicatedByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getRequestDeduplicatedByQueueKey(queryKey), callback);
+    emitter.on(getRequestDeduplicatedByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getRequestDeduplicatedByQueryKey(queryKey), callback);
   },
   onDeduplicatedByCache: <T extends RequestInstance>(
     cacheKey: string,
@@ -153,8 +153,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (data: RequestLoadingEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getLoadingByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getLoadingByQueueKey(queryKey), callback);
+    emitter.on(getLoadingByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getLoadingByQueryKey(queryKey), callback);
   },
   onLoadingByCache: <T extends RequestInstance>(
     cacheKey: string,
@@ -180,8 +180,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRequestStarByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getRequestStarByQueueKey(queryKey), callback);
+    emitter.on(getRequestStarByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getRequestStarByQueryKey(queryKey), callback);
   },
   onRequestStartById: <T extends RequestInstance>(
     requestId: string,
@@ -200,8 +200,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getResponseStartByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getResponseStartByQueueKey(queryKey), callback);
+    emitter.on(getResponseStartByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getResponseStartByQueryKey(queryKey), callback);
   },
   onResponseStartById: <T extends RequestInstance>(
     requestId: string,
@@ -222,8 +222,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getUploadProgressByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getUploadProgressByQueueKey(queryKey), callback);
+    emitter.on(getUploadProgressByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getUploadProgressByQueryKey(queryKey), callback);
   },
   onUploadProgressById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
@@ -243,8 +243,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getDownloadProgressByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getDownloadProgressByQueueKey(queryKey), callback);
+    emitter.on(getDownloadProgressByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getDownloadProgressByQueryKey(queryKey), callback);
   },
   onDownloadProgressById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
@@ -307,8 +307,8 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     queryKey: string,
     callback: (data: RequestRemovedEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRemoveByQueueKey(queryKey), callback);
-    return () => emitter.removeListener(getRemoveByQueueKey(queryKey), callback);
+    emitter.on(getRemoveByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getRemoveByQueryKey(queryKey), callback);
   },
   onRemoveById: <T extends RequestInstance = RequestInstance>(
     requestId: string,

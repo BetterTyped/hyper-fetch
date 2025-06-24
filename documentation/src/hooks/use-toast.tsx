@@ -199,6 +199,16 @@ function useToast() {
   };
 }
 
+export const usePreviewToast = () => {
+  const { id } = useToasterId();
+
+  return React.useCallback(
+    (props: ToastProps) =>
+      toast({ ...props, instanceId: id, timestamp: Date.now() + props.duration || TOAST_REMOVE_DELAY }),
+    [id],
+  );
+};
+
 // Toaster Context
 const ToasterIdContext = React.createContext<{ id: string }>({ id: "" });
 
@@ -211,7 +221,12 @@ interface ToasterProviderProps {
 
 export function ToasterProvider({ children, id }: ToasterProviderProps) {
   const generatedId = React.useId();
-  const value = { id: id ?? generatedId };
+  const value = React.useMemo(
+    () => ({
+      id: id ?? generatedId,
+    }),
+    [id, generatedId],
+  );
   return <Provider value={value}>{children}</Provider>;
 }
 

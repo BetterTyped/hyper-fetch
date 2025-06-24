@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { DispatcherRequestType, QueueItemType } from "dispatcher";
+import { DispatcherMode, QueueItemType } from "dispatcher";
 
 // Events
 
@@ -50,13 +50,13 @@ export const getRequestType = (request: RequestInstance, latestRequest: QueueIte
   const canDeduplicate = latestRequest ? isInDeduplicateRange(request, latestRequest) : false;
 
   if (queued) {
-    return DispatcherRequestType.ONE_BY_ONE;
+    return DispatcherMode.ONE_BY_ONE;
   }
   if (cancelable) {
-    return DispatcherRequestType.PREVIOUS_CANCELED;
+    return DispatcherMode.PREVIOUS_CANCELED;
   }
   if (canDeduplicate && deduplicate) {
-    return DispatcherRequestType.DEDUPLICATED;
+    return DispatcherMode.DEDUPLICATED;
   }
-  return DispatcherRequestType.ALL_AT_ONCE;
+  return DispatcherMode.ALL_AT_ONCE;
 };

@@ -3,7 +3,7 @@ import Emitter from "events";
 const getListenName = (event: string | symbol) => `listen_${String(event)}`;
 
 export class EventEmitter extends Emitter {
-  emitCallbacks: Array<(event: string, data: any, isTriggeredExternally: boolean) => void> = [];
+  emitCallbacks: Array<(event: string, data: any, isTriggeredExternally?: true) => void> = [];
 
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(options?: ConstructorParameters<typeof Emitter>[0]) {
@@ -11,8 +11,14 @@ export class EventEmitter extends Emitter {
   }
 
   emit(type: string, data: any, isTriggeredExternally: boolean) {
-    this.emitCallbacks?.forEach((callback) => callback(type, data, isTriggeredExternally));
-    return super.emit(type, data, isTriggeredExternally);
+    const params: [string, any, true?] = [type, data];
+
+    if (isTriggeredExternally) {
+      params.push(isTriggeredExternally);
+    }
+
+    this.emitCallbacks?.forEach((callback) => callback(...params));
+    return super.emit(...params);
   }
 
   onEmit = (callback: (...args: any[]) => void) => {

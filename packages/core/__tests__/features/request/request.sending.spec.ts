@@ -253,7 +253,7 @@ describe("Request [ Sending ]", () => {
       const spy6 = jest.fn();
 
       await request.send({
-        onSettle: spy1,
+        onBeforeSent: spy1,
         onRequestStart: spy2,
         onResponseStart: spy3,
         onUploadProgress: spy4,

@@ -26,6 +26,7 @@ import {
   HydrationOptions,
   ExtractAdapterDefaultQueryParamsType,
 } from "types";
+import { getUniqueRequestId } from "utils";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -54,9 +55,9 @@ export class Client<
 
   // Config
   adapter: Adapter;
-  cache: Cache;
-  fetchDispatcher: Dispatcher;
-  submitDispatcher: Dispatcher;
+  cache: Cache<Adapter>;
+  fetchDispatcher: Dispatcher<Adapter>;
+  submitDispatcher: Dispatcher<Adapter>;
   isMockerEnabled = true;
 
   // Registered requests effect
@@ -71,13 +72,16 @@ export class Client<
   /** @internal */
   unstable_queryKeyMapper: (request: RequestInstance) => string = getRequestKey;
 
+  /** @internal */
+  unstable_requestIdMapper: (request: RequestInstance) => string = getUniqueRequestId;
+
   // Logger
   logger = this.loggerManager.initialize(this, "Client");
 
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
-    const { url, adapter, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+    const { url, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.url = url;
-    this.adapter = (adapter || HttpAdapter()) as Adapter;
+    this.adapter = HttpAdapter() as Adapter;
 
     this.appManager = appManager?.() || new AppManager();
     this.cache = cache?.() || new Cache();
@@ -87,9 +91,9 @@ export class Client<
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
     this.adapter.initialize(this);
     this.appManager.initialize();
-    this.cache.initialize(this);
-    this.fetchDispatcher.initialize(this);
-    this.submitDispatcher.initialize(this);
+    this.cache.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.fetchDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.submitDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
   }
 
   /**
@@ -277,12 +281,19 @@ export class Client<
 
   setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_abortKeyMapper = callback;
+    return this;
   };
   setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_cacheKeyMapper = callback;
+    return this;
   };
-  setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setQueryKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_queryKeyMapper = callback;
+    return this;
+  };
+  setRequestIdMapper = (callback: (request: RequestInstance) => string) => {
+    this.unstable_requestIdMapper = callback;
+    return this;
   };
 
   /**
@@ -346,9 +357,9 @@ export class Client<
 
     // DO NOT CHANGE INITIALIZATION ORDER
     this.appManager.initialize();
-    this.cache.initialize(this);
-    this.fetchDispatcher.initialize(this);
-    this.submitDispatcher.initialize(this);
+    this.cache.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.fetchDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
+    this.submitDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
   };
 
   /**
@@ -392,10 +403,7 @@ export class Client<
    */
   createRequest = <
     RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {
-      response?: undefined;
-      payload?: undefined;
       error?: Error;
-      queryParams?: ExtractAdapterQueryParamsType<Adapter>;
     },
   >(
     /**

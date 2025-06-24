@@ -33,12 +33,6 @@ describe("Emitter [ Base ]", () => {
     expect(newEmitter.options).toStrictEqual(options);
   });
 
-  it("should allow to set timeout", async () => {
-    const timeout = 20000;
-    const newEmitter = emitter.setTimeout(timeout);
-    expect(newEmitter.timeout).toStrictEqual(timeout);
-  });
-
   it("should allow to set event data", async () => {
     const data = { test: "test-data" };
     const newEmitter = emitter.setPayload(data);
@@ -52,7 +46,7 @@ describe("Emitter [ Base ]", () => {
       spy();
       return Object.keys(d);
     };
-    const newEmitter = emitter.setPayloadMapper(dataMapper).setTimeout(20000).setPayload(data);
+    const newEmitter = emitter.setPayloadMapper(dataMapper).setPayload(data);
     expect(newEmitter.payload).toStrictEqual(data);
     newEmitter.emit();
     await waitFor(() => {

@@ -4,7 +4,7 @@ import { DevtoolsEventHandler } from "./devtools.event.handler";
 import { CustomEvents, EventSourceType } from "./types/events.types";
 import { DevtoolsPluginOptions } from "./types/plugin.types";
 
-export const devtoolsPlugin = (options: DevtoolsPluginOptions) => {
+export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
   const plugin = new Plugin({
     name: "plugin-devtools",
     data: {

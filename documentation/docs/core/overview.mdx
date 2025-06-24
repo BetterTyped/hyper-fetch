@@ -1,5 +1,5 @@
 ---
-sidebar_position: 0
+sidebar_position: 1
 title: Core - Overview
 sidebar_label: Overview
 ---
@@ -12,9 +12,11 @@ import { LinkCard } from "@site/src/components";
 > the core principles that shape its development. Gaining insight into these foundations will help you decide if Hyper
 > Fetch aligns with your project's needs.
 
-> These are the core principles that shape the design of Hyper Fetch.
+---
 
-### Consistency within projects
+## These are our core principles.
+
+### Consistency for projects
 
 In many projects, fetching data from APIs is handled differently, leading to a lack of consistency across codebases.
 This inconsistency makes it harder for developers to onboard and understand the code, increasing both learning time and
@@ -57,15 +59,20 @@ const { data, error } = await someRequest.send({
   params: {
     id: "123",
   },
-  queryParams: { additionalParam: "test" },
+  queryParams: {
+    additionalParam: "test",
+  },
 });
 ```
 
-### Classes as a core building block
+---
+
+### Classes as a composable building block
 
 A class-based architecture underpins every important module, bringing several advantages to the table. Testing and
-mocking become much simpler, which helps maintain code quality and reliability. When building stories for components
-that use fetchers, the encapsulation of logic in reusable classes streamlines the process.
+mocking become much simpler, which helps maintain code quality and reliability. When building
+[stories](https://storybook.js.org/docs/get-started/whats-a-story) for components that use fetchers, the encapsulation
+of logic in reusable classes streamlines the process.
 
 Accessing and manipulating data within these classes is also straightforward, making debugging and extending
 functionality easier. This modular approach encourages reusability and maintainability throughout the codebase.
@@ -85,6 +92,8 @@ const getUser = getUsers.setParams({ id: "123" });
 console.log(getUser.endpoint); // /api/users/123
 console.log(getUser.requestOptions.endpoint); // /api/users/:id
 ```
+
+---
 
 ### Request as a fetching template
 
@@ -126,6 +135,8 @@ const Component = () => {
 
 This flexibility empowers you to manage loading states and data flow more effectively across your application.
 
+---
+
 ### Access to whole request lifecycle
 
 Unlike many popular data fetching libraries, such as React Query or SWR, which are decoupled from the underlying
@@ -138,11 +149,11 @@ when a response begins, or when the process completes.
 ```mermaid
     timeline
         title Request Lifecycle
-          1. Pre-Request : Cache Reads : Deduplication : Queueing : Interceptors
+          1. Pre-Request : Deduplication : Queueing : Interceptors
           2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
-          3. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
-          4. Side Effects : onAbort() : onRemoved() : responseMapper()
-          5. Result : onSuccess() : onError() : onFinish()
+          3. Side Effects : onAbort() : onRemoved() : Stop() : Start()
+          4. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
+          5. Result : Interceptors : onSuccess() : onError() : onFinish()
 ```
 
 As a result, powerful features like integrated devtools, detailed analytics, and enhanced logging are readily available,
@@ -155,6 +166,8 @@ Above timeline works for all integrations, including HTTP, GraphQL, Firebase, an
 It gives unified layer for tracking it and managing exactly as you want.
 
 :::
+
+---
 
 ### Standardized API for all integrations
 
@@ -169,33 +182,7 @@ as you only need to implement a simple adapter interface to add new integrations
 This approach keeps your code clean, easy to understand, and highly maintainable, while also enabling rapid adoption of
 new technologies as they emerge.
 
-### Typesafe realtime
-
-Handling realtime data exchange such as with WebSockets or Server-Sent Events (SSE) presents unique challenges,
-particularly around maintaining type safety as your application grows. The library addresses this by exposing dedicated
-Listener and Emitter classes, each with their own explicit types for responses and payloads.
-
-This means that when you use a listener, such as `useChatMessage`, you always know the exact type of data being handled.
-Similarly, when emitting data, you have clear expectations for the payload structure.
-
-This approach is especially powerful in projects with multiple listeners and emitters, ensuring type safety and
-maintainability even as your application scales.
-
-```tsx
-import { socketClient } from "./socket-client";
-
-const chatMessageListener = socketClient.createListener<{ message: string }>({
-  url: "/api/chat-message",
-});
-
-chatMessageListener.listen({
-  // message is type string
-  callback: (message) => {
-    // message have type ChatMessageType
-    console.log(message);
-  },
-});
-```
+---
 
 ### Event-driven architecture
 

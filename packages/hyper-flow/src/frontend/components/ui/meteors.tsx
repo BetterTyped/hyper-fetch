@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface MeteorsProps {
   number?: number;

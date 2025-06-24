@@ -1,0 +1,47 @@
+
+
+# FirebaseBrowserSocketAdapterTypes
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { FirebaseBrowserSocketAdapterTypes } from "@hyper-fetch/firebase"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [adapter/types/adapter.base.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.base.types.ts#L13)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type FirebaseBrowserSocketAdapterTypes<T> = T extends Firestore ? FirestoreSocketAdapterType : RealtimeSocketAdapterType;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T extends Firestore ? FirestoreSocketAdapterType : RealtimeSocketAdapterType
+```
+
+</div>

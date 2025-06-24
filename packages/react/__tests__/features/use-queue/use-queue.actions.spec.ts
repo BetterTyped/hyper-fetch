@@ -132,7 +132,14 @@ describe("useQueue [ Actions ]", () => {
         mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].uploading).toBeUndefined();
+        expect(result.current.requests[0].uploading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           timestamp = +emitUploadProgress(result.current.requests[0].requestId, request)[0];
         });
@@ -151,12 +158,26 @@ describe("useQueue [ Actions ]", () => {
         mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           emitUploadProgress("wrong", request);
         });
         await sleep(5);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
       });
     });
     describe("when download progress get received", () => {
@@ -165,7 +186,14 @@ describe("useQueue [ Actions ]", () => {
         mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           timestamp = +emitDownloadProgress(result.current.requests[0].requestId, request)[0];
         });
@@ -184,12 +212,26 @@ describe("useQueue [ Actions ]", () => {
         mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           emitDownloadProgress("wrong", request);
         });
         await sleep(5);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
       });
     });
   });

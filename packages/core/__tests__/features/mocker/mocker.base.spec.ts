@@ -21,7 +21,7 @@ describe("Mocker [ Base ]", () => {
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
-  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
   beforeAll(() => {
     startServer();
@@ -32,7 +32,7 @@ describe("Mocker [ Base ]", () => {
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
-    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
     jest.resetAllMocks();
   });
@@ -44,7 +44,7 @@ describe("Mocker [ Base ]", () => {
   describe("When using exec method", () => {
     it("should return adapter response", async () => {
       const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 }));
-      const response = await mockedRequest.exec({});
+      const response = await mockedRequest.exec();
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -59,7 +59,7 @@ describe("Mocker [ Base ]", () => {
   describe("When using send method", () => {
     it("should return adapter response", async () => {
       const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 }));
-      const response = await mockedRequest.send({});
+      const response = await mockedRequest.send();
 
       expect(response).toStrictEqual({
         data: fixture,
@@ -81,10 +81,10 @@ describe("Mocker [ Base ]", () => {
           data: fixture,
           status: 200,
         }),
-        { responseTime: 150, timeout: true },
+        { responseTime: 150, timeout: 20 },
       );
 
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     expect(response.data).toBe(null);
     expect(response.error?.message).toEqual(getErrorMessage("timeout").message);
@@ -206,10 +206,10 @@ describe("Mocker [ Base ]", () => {
       return fixtures[0];
     });
 
-    const response1 = await requestWithRetry.send({});
-    const response2 = await requestWithRetry.send({});
-    const response3 = await requestWithRetry.send({});
-    const response4 = await requestWithRetry.send({});
+    const response1 = await requestWithRetry.send();
+    const response2 = await requestWithRetry.send();
+    const response3 = await requestWithRetry.send();
+    const response4 = await requestWithRetry.send();
 
     expect(response1.data).toStrictEqual({ data: [1, 2, 3] });
     expect(response2.data).toStrictEqual({ data: [4, 5, 6] });
@@ -298,11 +298,11 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = client
       .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock(() => ({ data: fixture, status: 200 }));
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     mockedRequest.clearMock();
     const data = mockRequest(mockedRequest, { data: { data: [64, 64, 64] } });
-    const response2 = await mockedRequest.send({});
+    const response2 = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
@@ -322,7 +322,7 @@ describe("Mocker [ Base ]", () => {
       extra: { headers: { something: "true" } },
       status: 213,
     }));
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
@@ -341,7 +341,7 @@ describe("Mocker [ Base ]", () => {
       extra: { someExtra: true } as any,
       status: "success" as any,
     }));
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
@@ -363,7 +363,7 @@ describe("Mocker [ Base ]", () => {
       { requestTime: 100, responseTime: 100 },
     );
     const startDate = +new Date();
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
     const endDate = +new Date();
     expect(endDate - startDate).toBeGreaterThanOrEqual(200);
     expect(response).toStrictEqual({
@@ -390,7 +390,7 @@ describe("Mocker [ Base ]", () => {
     const responseSpy = jest.fn();
     client.requestManager.events.onUploadProgressByQueue(request.queryKey, requestSpy);
     client.requestManager.events.onDownloadProgressByQueue(request.queryKey, responseSpy);
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
     expect(requestSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
     expect(responseSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
     expect(response).toStrictEqual({
@@ -408,11 +408,11 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 }));
     const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
     expect(mockedRequest.isMockerEnabled).toBe(true);
-    mockedRequest.setEnableMocking(false);
+    mockedRequest.setMockingEnabled(false);
     expect(mockedRequest.isMockerEnabled).toBe(false);
-    const notMockedData = await mockedRequest.send({});
-    mockedRequest.setEnableMocking(true);
-    const mockedData = await mockedRequest.send({});
+    const notMockedData = await mockedRequest.send();
+    mockedRequest.setMockingEnabled(true);
+    const mockedData = await mockedRequest.send();
 
     expect(notMockedData).toStrictEqual({
       data,
@@ -450,11 +450,11 @@ describe("Mocker [ Base ]", () => {
     expect(mockedRequest.isMockerEnabled).toBe(true);
     expect(newClient.isMockerEnabled).toBe(true);
 
-    const mockedDataDefault = await mockedRequest.send({});
+    const mockedDataDefault = await mockedRequest.send();
     newClient.setEnableGlobalMocking(false);
-    const notMockedData = await mockedRequest.send({});
+    const notMockedData = await mockedRequest.send();
     newClient.setEnableGlobalMocking(true);
-    const mockedDataAfter = await mockedRequest.send({});
+    const mockedDataAfter = await mockedRequest.send();
 
     expect(mockedDataDefault).toStrictEqual({
       data: fixture,
@@ -508,7 +508,7 @@ describe("Mocker [ Base ]", () => {
         success: true,
       }));
 
-      const response = await mockedRequest.send({});
+      const response = await mockedRequest.send();
 
       expect(response).toStrictEqual({
         data: fixture,
@@ -530,7 +530,7 @@ describe("Mocker [ Base ]", () => {
         success: true,
       }));
 
-      const response = await mockedRequest.send({});
+      const response = await mockedRequest.send();
 
       expect(response).toStrictEqual({
         data,
@@ -551,7 +551,7 @@ describe("Mocker [ Base ]", () => {
         success: false,
       }));
 
-      const response = await mockedRequest.send({});
+      const response = await mockedRequest.send();
 
       expect(response).toStrictEqual({
         data: null,

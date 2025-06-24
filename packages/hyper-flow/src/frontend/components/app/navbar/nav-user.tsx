@@ -1,6 +1,6 @@
 import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "frontend/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "frontend/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 const user = {
   avatar: "https://github.com/shadcn.png",

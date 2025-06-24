@@ -1,7 +1,9 @@
-import { Outlet } from "@reins/router";
+import { Outlet } from "@tanstack/react-router";
 import { Cloud, Users } from "lucide-react";
 
-import { Button } from "frontend/components/ui/button";
+import { ApplicationSidebar } from "./sidebar/sidebar";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,19 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "frontend/components/ui/dialog";
-import { Card } from "frontend/components/ui/card";
-// import { Devtools } from "../_context/devtools";
-import { ProjectSidebar } from "./sidebar/sidebar";
-import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
-import { useRoute } from "frontend/routing/router";
-import { Input } from "frontend/components/ui/input";
-import { Label } from "frontend/components/ui/label";
+} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
 
 export const WorkspaceLayout = () => {
-  const {
-    params: { workspaceId },
-  } = useRoute("workspace");
+  // const { workspaceId } = useParams({ strict: false });
+  const workspaceId = "1";
   const { workspaces } = useWorkspaces();
 
   const workspace = workspaces.find((w) => w.id === workspaceId);
@@ -30,7 +28,7 @@ export const WorkspaceLayout = () => {
 
   return (
     <div className="grid grid-cols-[70px_1fr] h-full w-full py-2 px-1">
-      <ProjectSidebar />
+      <ApplicationSidebar />
       <Card className="h-full w-full p-0 gap-0 bg-sidebar">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b px-6">
           <div className="flex items-center gap-2">
@@ -47,7 +45,7 @@ export const WorkspaceLayout = () => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Invite team members</DialogTitle>
-                  <DialogDescription>Invite team members to collaborate on this project.</DialogDescription>
+                  <DialogDescription>Invite team members to collaborate on this application.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-2">
                   <div className="space-y-2">

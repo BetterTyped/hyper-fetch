@@ -5,15 +5,16 @@ import https from "https";
 import {
   gqlExtra,
   defaultTimeout,
-  GraphQLAdapterType,
+  GraphqlAdapterType,
   getRequestValues,
   GraphQlExtraType,
   GraphqlMethod,
   GraphQlEndpointType,
   gqlEndpointMapper,
+  gqlEndpointNameMapper,
 } from "adapter";
 
-export const getGqlAdapter = (): GraphQLAdapterType =>
+export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
     Partial<XMLHttpRequest>,
     GraphqlMethod,
@@ -29,7 +30,19 @@ export const getGqlAdapter = (): GraphQLAdapterType =>
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
   })
+    .onInitialize(({ client }) => {
+      client.setCacheKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${JSON.stringify(request.params)}-${JSON.stringify(request.queryParams)}`;
+      });
+      client.setQueryKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${JSON.stringify(request.params)}-${JSON.stringify(request.queryParams)}`;
+      });
+      client.setAbortKeyMapper((request) => {
+        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${request.cancelable}`;
+      });
+    })
     .setInternalErrorMapping((error) => [error])
+    .setDevtoolsEndpointGetter(gqlEndpointNameMapper)
     .setEndpointMapper(gqlEndpointMapper)
     .setFetcher(
       async ({

@@ -5,14 +5,14 @@ import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 
-import { useIsMobile } from "frontend/hooks/use-mobile";
-import { cn } from "frontend/lib/utils";
-import { Button } from "frontend/components/ui/button";
-import { Input } from "frontend/components/ui/input";
-import { Separator } from "frontend/components/ui/separator";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "frontend/components/ui/sheet";
-import { Skeleton } from "frontend/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "frontend/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -376,7 +376,7 @@ function SidebarGroupLabel({
       className={cn(
         "text-sidebar-foreground/60 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 mb-1",
-        "bg-clip-text !text-transparent bg-gradient-to-tr from-gray-500 via-gray-300 to-gray-200",
+        "bg-clip-text !text-transparent bg-gradient-to-tr from-zinc-500 via-zinc-300 to-zinc-200",
         className,
       )}
       {...props}

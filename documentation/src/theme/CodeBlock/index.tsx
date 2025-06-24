@@ -1,4 +1,4 @@
-import React, { type ReactNode } from "react";
+import React, { useMemo, type ReactNode } from "react";
 import type { Props as CodeBlockProps } from "@theme/CodeBlock";
 import { parseCodeBlockTitle } from "@docusaurus/theme-common/internal";
 
@@ -21,12 +21,18 @@ function isLiveCodeBlock(props: CodeBlockProps): boolean {
 // eslint-disable-next-line import/no-default-export
 export default function CodeBlockEnhancer(props: CodeBlockProps): ReactNode {
   const { metastring } = props;
-  const clickToRun = metastring?.includes("clickToRun");
-  const defaultTab = metastring?.includes("tabConsole") ? "playground" : undefined;
+  const clickToRun = !metastring?.includes("autoPlay");
+  const defaultTab = metastring?.includes("console") ? "playground" : undefined;
   const title = parseCodeBlockTitle(metastring);
 
+  const size = useMemo(() => {
+    if (metastring?.includes("size=md")) return "md";
+    if (metastring?.includes("size=lg")) return "lg";
+    return "sm";
+  }, [metastring]);
+
   return isLiveCodeBlock(props) ? (
-    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} title={title} />
+    <LiveCodeBlock {...props} clickToRun={clickToRun} defaultTab={defaultTab} title={title} size={size} />
   ) : (
     <OriginalCodeBlock {...props} />
   );

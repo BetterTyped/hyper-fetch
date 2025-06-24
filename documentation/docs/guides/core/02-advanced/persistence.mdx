@@ -5,15 +5,24 @@ sidebar_label: Persistence
 
 # Persistence
 
-**`Persistence`** is possible thanks to setting the appropriate cache or queues storage - which will be able to store
-between sessions in the application or its launches. To enable the persistence of data, we must replace the default
-storages with the ones we choose, which will meet our requirements - we do not have many requirements here, except for
-the type that we accept.
+Persistence in Hyper-fetch allows you to store cache and request queue data across application sessions. This is
+achieved by providing a custom storage implementation that can save and retrieve data from a persistent source like
+`localStorage` or `AsyncStorage`. This guide will walk you through setting up persistence for both cache and queues.
+
+:::secondary What you'll learn
+
+1.  How to enable **data persistence** for caching and request queues.
+2.  The difference between **synchronous** and **asynchronous** persistence storages.
+3.  How to implement **cache persistence** to store data between sessions.
+4.  How to use **queue persistence** for offline support.
+5.  The **limitations** of using persistent queues in a browser environment.
+
+:::
 
 :::note
 
-Persistence storages can handle only json data. Remember that all file objects need to be translated to base64 or other
-valid format to match json requirements.
+Persistence storages can only handle JSON-serializable data. Remember that all file objects need to be converted to a
+format like Base64 to be stored correctly.
 
 :::
 
@@ -21,7 +30,14 @@ valid format to match json requirements.
 
 ## Cache Persistence
 
-```ts
+To enable cache persistence, you need to provide a custom storage implementation to the `Cache` instance. This storage
+object must have `set`, `get`, `keys`, `delete`, and `clear` methods.
+
+```typescript
+// An example using MMKV for React Native
+import { MMKV } from "react-native-mmkv";
+import { Cache, Client, CacheStorageType } from "@hyper-fetch/core";
+
 export const storage = new MMKV({ id: "my-key" });
 
 const persistenceStorage: CacheStorageType = {
@@ -30,15 +46,15 @@ const persistenceStorage: CacheStorageType = {
   },
   get: (key) => {
     const value = storage.getString(key);
-    return value ? JSON.parse(value) : value;
+    return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<{ error: ServerErrorType }>({
-  url: "localhost:3000",
+export const client = new Client({
+  url: "https://api.my-app.com",
   cache: (instance) =>
     new Cache(instance, {
       storage: persistenceStorage,
@@ -46,26 +62,26 @@ export const client = new Client<{ error: ServerErrorType }>({
 });
 ```
 
-#### Async persistence storages
+### Async Persistence Storages
 
-Example below shows the **`IndexedDb`** persistence storage. This way we will use the persistent data by `lazy loading`
-it to our components. Every time we use the `cache.get(cacheKey)` method, we send a request to our `lazyStorage` and at
-the same time return the last data we have, when our promise responds, we will receive an appropriate event that will
-propagate the data in our components. This way we are NOT loading whole persistent data into our memory, but only part
-of it, not to mention that it will get garbage collected when it's staleTime expire.
+For asynchronous storages like `IndexedDB`, you can use the `lazyStorage` option. This approach loads data on-demand,
+which can improve performance by not loading the entire cache into memory at once. Data is fetched when `cache.get()` is
+called, and components are updated once the async operation completes.
 
-```ts
+```typescript
+// An example using idb-keyval for the browser
 import { get, set, del, keys } from "idb-keyval";
+import { Cache, Client, CacheAsyncStorageType } from "@hyper-fetch/core";
 
 const asyncStorage: CacheAsyncStorageType = {
-  set: (key, data) => set(idbValidKey, adapter),
-  get: (key) => get(idbValidKey),
+  set: (key, data) => set(key, data),
+  get: (key) => get(key),
   keys: () => keys(),
   delete: (key) => del(key),
 };
 
-export const client = new Client<{ error: ServerErrorType }>({
-  url: "localhost:3000",
+export const client = new Client({
+  url: "https://api.my-app.com",
   cache: (instance) =>
     new Cache(instance, {
       lazyStorage: asyncStorage,
@@ -75,23 +91,28 @@ export const client = new Client<{ error: ServerErrorType }>({
 
 ---
 
-## Queues persistence
+## Queue Persistence
 
-At the moment, they should work best in environments such as React Native with non-multi windows applications. To make
-it possible to be used in browsers, we have to solve the problems of synchronization and shared dispatch of requests. In
-this case we need to have synchronous data storage to avoid data corruption and duplicated requests.
+Queue persistence ensures that requests are not lost if the application closes or loses internet connection. When the
+application restarts, the dispatcher will attempt to resend any queued requests. To enable it, you need to provide a
+synchronous storage implementation to the `Dispatcher`.
 
 :::caution
 
-Persistent queues shouldn't be used on the browser. This is due to the many tabs/windows concurrency reasons. This way,
-we will have multiple clients initialized where the **duplicated** requests will be send and it may cause major db data
-damage.
+Persistent queues are not recommended for browser environments due to concurrency issues between multiple tabs or
+windows. This can lead to duplicated requests and potential data corruption. They are best suited for environments like
+React Native where only a single instance of the application is running.
 
 :::
 
-### Fetching request persistence
+### Fetching Request Persistence
 
-```ts
+You can make requests persistent by providing storage to the `fetchDispatcher`.
+
+```typescript
+import { MMKV } from "react-native-mmkv";
+import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
+
 export const storage = new MMKV({ id: "my-key" });
 
 const persistenceStorage: DispatcherStorageType = {
@@ -100,15 +121,15 @@ const persistenceStorage: DispatcherStorageType = {
   },
   get: (key) => {
     const value = storage.getString(key);
-    return value ? JSON.parse(value) : value;
+    return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<{ error: ServerErrorType }>({
-  url: "localhost:3000",
+export const client = new Client({
+  url: "https://api.my-app.com",
   fetchDispatcher: (instance) =>
     new Dispatcher(instance, {
       storage: persistenceStorage,
@@ -116,9 +137,14 @@ export const client = new Client<{ error: ServerErrorType }>({
 });
 ```
 
-### Submit request persistence
+### Submit Request Persistence
 
-```ts
+Similarly, requests sent to `submitDispatcher` can be persisted by providing storage to the `submitDispatcher`.
+
+```typescript
+import { MMKV } from "react-native-mmkv";
+import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
+
 export const storage = new MMKV({ id: "my-key" });
 
 const persistenceStorage: DispatcherStorageType = {
@@ -127,18 +153,31 @@ const persistenceStorage: DispatcherStorageType = {
   },
   get: (key) => {
     const value = storage.getString(key);
-    return value ? JSON.parse(value) : value;
+    return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<{ error: ServerErrorType }>({
-  url: "localhost:3000",
+export const client = new Client({
+  url: "https://api.my-app.com",
   submitDispatcher: (instance) =>
     new Dispatcher(instance, {
       storage: persistenceStorage,
     }),
 });
 ```
+
+---
+
+:::success Congratulations!
+
+You've learned how to implement persistence in Hyper-fetch!
+
+- You can enable **cache persistence** using synchronous or asynchronous storages.
+- You know how to set up **queue persistence** for `fetchDispatcher` and `submitDispatcher`.
+- You understand how to create **custom storage adapters** for persistence.
+- You are aware of the **concurrency issues** with persistent queues in browsers.
+
+:::

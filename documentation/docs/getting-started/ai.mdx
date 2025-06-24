@@ -1,0 +1,111 @@
+---
+sidebar_position: 6
+title: AI / LLMs
+sidebar_label: AI / LLMs
+---
+
+# AI & LLMs
+
+> In the era of Large Language Models (LLMs) and AI-driven development, the need for predictable, stable, and
+> standardized tools is more critical than ever. Hyper Fetch is designed with a core philosophy of consistency and type
+> safety, making it an exceptional choice for building applications that leverage AI or for creating SDKs that AI can
+> easily understand and use.
+
+---
+
+## The Power of a Standardized Interface
+
+One of the biggest challenges in modern development is the variety of tools and patterns used to interact with APIs.
+Different libraries have different conventions, and projects often mix and match approaches. Hyper Fetch solves this by
+providing a single, standardized interface that works identically across all scenarios.
+
+Whether you're fetching data from a `REST` API, a `GraphQL` endpoint, or a `Firebase` backend, the process remains the
+same:
+
+1.  **Configure a Client**: Set up a single client with your base configuration.
+2.  **Define a Request**: Create a typed request that specifies the endpoint, method, and data structures.
+3.  **Execute the Request**: Use hooks (`useFetch`, `useSubmit`) or send requests directly.
+
+This consistency means that once you (or an AI) learn the Hyper Fetch pattern, you can apply it everywhere.
+
+```typescript
+// 1. Create a client once, it can be shared across the entire application
+export const client = createClient({
+  url: "https://api.yourai.com",
+});
+
+// 2. Define a typesafe request
+// highlight-start
+interface ChatResponse {
+  id: string;
+  message: string;
+}
+
+interface ChatPayload {
+  prompt: string;
+  context?: string[];
+}
+// highlight-end
+
+const postChatMessage = client.createRequest<{ response: ChatResponse; payload: ChatPayload }>()({
+  endpoint: "/chat",
+  method: "POST",
+});
+
+// 3. Use it anywhere, in the same way
+const sendMessage = async (prompt: string) => {
+  // highlight-next-line
+  const { data, error } = await postChatMessage.setPayload({ prompt }).send();
+
+  if (data) {
+    console.log("AI Response:", data.message);
+  } else {
+    console.error("Error:", error);
+  }
+};
+```
+
+---
+
+## How This Benefits AI and LLMs
+
+AI models, especially LLMs, thrive on patterns and predictability. When an AI is tasked with generating code, a
+consistent framework like Hyper Fetch offers several advantages:
+
+- **Reduced Hallucinations**: With a stable and well-defined API, the AI is less likely to "hallucinate" or invent
+  incorrect ways of using the library.
+- **Higher Accuracy**: The strong type-safety of Hyper Fetch guides the AI in generating code that is not only
+  syntactically correct but also type-correct, reducing runtime errors.
+- **Easy Fine-Tuning**: If you're building a custom AI model or a specialized assistant, fine-tuning it to work with
+  Hyper Fetch is straightforward due to the predictable structure of requests and clients.
+- **Faster Development**: Developers using AI code assistants will get more reliable and consistent code suggestions,
+  speeding up the development process.
+
+---
+
+## Building Shareable SDKs
+
+Hyper Fetch is an excellent foundation for creating your own SDKs. By wrapping your API endpoints in Hyper Fetch
+requests, you can create a shareable package that can be used across different teams and even shared publicly.
+
+Because the SDK is built on a standardized flow, any developer or AI assistant familiar with Hyper Fetch can immediately
+understand how to use it. This drastically reduces the learning curve and promotes broader adoption of your APIs.
+
+<LinkCard
+  type="docs"
+  title="Building SDKs with Hyper Fetch"
+  description="Learn how to build SDKs with Hyper Fetch."
+  to="/docs/getting-started/sdk"
+/>
+
+---
+
+:::secondary[Summary]
+
+- **Standardization**: Hyper Fetch provides a single, standardized interface for all types of APIs, which is ideal for
+  AI and LLMs.
+- **Type Safety**: The strong type-safety of Hyper Fetch guides AI in generating correct and reliable code.
+- **Predictability**: A consistent and predictable API reduces AI hallucinations and improves the accuracy of generated
+  code.
+
+:::

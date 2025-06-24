@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FolderOpen, Upload } from "lucide-react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "frontend/components/ui/dialog";
-import { Button } from "frontend/components/ui/button";
-import { Input } from "frontend/components/ui/input";
-import { Label } from "frontend/components/ui/label";
-import { useWorkspaces } from "frontend/store/workspace/workspaces.store";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
 
 interface AddWorkspaceDialogProps {
   open: boolean;
@@ -54,7 +54,7 @@ export const AddWorkspaceDialog = ({ open, onOpenChange }: AddWorkspaceDialogPro
         <div className="grid gap-4 py-4">
           <div className="flex flex-col items-center gap-4 mb-4">
             <div
-              className="h-20 w-20 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center border cursor-pointer"
+              className="h-20 w-20 rounded-md overflow-hidden bg-zinc-100 flex items-center justify-center border cursor-pointer"
               onClick={() => document.getElementById("icon-upload")?.click()}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -68,7 +68,7 @@ export const AddWorkspaceDialog = ({ open, onOpenChange }: AddWorkspaceDialogPro
               {iconPreview ? (
                 <img src={iconPreview} alt="Workspace icon" className="w-full h-full object-cover" />
               ) : (
-                <FolderOpen className="h-8 w-8 text-gray-400" />
+                <FolderOpen className="h-8 w-8 text-zinc-400" />
               )}
             </div>
             <input id="icon-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />

@@ -1,145 +1,66 @@
 ---
-sidebar_position: 3
+sidebar_position: 2
 title: Quick Start
 sidebar_label: Quick Start
 ---
 
-:::info
+# Quick Start
 
-Hyper Fetch's core is framework-agnostic, requiring no external libraries to function.
+Welcome to Hyper Fetch! Our library is designed to be modular, so you can choose the packages that best suit your
+project's needs. We offer several Quick Start guides to help you get up and running as smoothly as possible.
 
-:::
+---
 
-### 1. Initialize the Client
+## Quick Starts
 
-The first step is to initialize the **[Client](/core/client.mdx)**. It manages the basic server connection configuration
-and all of Hyper Fetch's essential elements, such as **dispatchers**, **cache**, and **app managers**. Begin by
-specifying the `url` of your server.
+Each guide is tailored to a specific package, providing you with focused instructions and examples to get you started.
 
-```tsx title="client.ts"
-import { Client } from "@hyper-fetch/core";
+### Core
 
-export const client = new Client({ url: "http://localhost:3000" });
-```
+Hyper Fetch's core is framework-agnostic, giving you the power to handle data fetching in any JavaScript environment.
+This guide will walk you through the fundamentals of setting up the client and making your first requests.
 
-### 2. Create Requests
+<LinkCard
+  title="Core Quick Start"
+  description="Learn the fundamentals of the framework-agnostic core."
+  href="/docs/core/quick-start"
+/>
 
-Once the client is set up, use its `createRequest` method to define **[requests](/core/request.mdx)** and their
-associated types.
+---
 
-:::caution
+### Sockets
 
-We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
-[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
-resolved.
+Learn how to integrate real-time communication in your application using Hyper Fetch Sockets. This guide covers setting
+up listeners and emitters for seamless, bi-directional data flow with your server.
 
-:::
+<LinkCard
+  title="Sockets Quick Start"
+  description="Integrate real-time communication with Sockets."
+  href="/docs/sockets/quick-start"
+/>
 
-```tsx title="requests.ts"
-import { client } from "../client.ts";
+---
 
-type ResponseType = { token: string; refreshToken: string };
-type PayloadType = { email: string; password: string };
+### React
 
-const login = client.createRequest<{
-  response: ResponseType;
-  payload: PayloadType;
-}>()({
-  method: "POST",
-  endpoint: "/auth/login",
-});
+Unlock the full potential of Hyper Fetch in your React applications. This guide will show you how to use our powerful
+hooks to manage server state with ease, simplifying data fetching, submission, and state management.
 
-const getUsers = client.createRequest<{
-  response: User[];
-  queryParams?: { page?: number; limit?: number; search?: string };
-}>()({
-  method: "GET",
-  endpoint: "/users",
-});
-```
+<LinkCard
+  title="React Quick Start"
+  description="Leverage powerful hooks for data fetching in React."
+  href="/docs/react/quick-start"
+/>
 
-### 3. Interact with server
+---
 
-Once you have your request instances, you can interact with the server. This can be done in two primary ways:
+## More guides
 
-<Tabs>
-  <TabItem value="React" label="React" default>
+For more guides, check out the guides page. You will find there guides for each package.
 
-```tsx title="users.ts"
-import { useFetch } from "@hyper-fetch/react";
-import { getUsers } from "requests";
-
-const UsersListPage = () => {
-  // Fetching
-  const { data, error, loading } = useFetch(getUsers);
-
-  return (
-    <div>
-      <h1>Users</h1>
-      <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>
-    </div>
-  );
-};
-```
-
-```tsx title="login.ts"
-import { useSubmit } from "@hyper-fetch/react";
-
-import { login } from "requests";
-
-const LoginPage = () => {
-  const { submit, submitting } = useSubmit(login);
-
-  const handleSubmit = async (values: { email: string; password: string }) => {
-    const { data, error, status } = await submit({ data: values });
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input type="email" name="email" />
-      <input type="password" name="password" />
-      <button type="submit">Login</button>
-    </form>
-  );
-};
-```
-
-  </TabItem>
-  <TabItem value="Typescript" label="Typescript">
-
-```tsx title="users.ts"
-import { getUsers } from "requests";
-
-const fetchUsers = async () => {
-  const { data, error, status } = await getUsers.send();
-
-  if (data) {
-    // work with User[] data
-    // e.g., console.log(data);
-  } else {
-    // handle error
-    // e.g., console.error(error, status);
-  }
-};
-```
-
-```tsx title="login.ts"
-import { login } from "requests";
-
-const handleLogin = async (values: { email: string; password: string }) => {
-  const { data, error, status } = await login.send({ data: values });
-
-  if (data) {
-    // perform login
-    // e.g., store data.token
-  } else {
-    // handle error
-    // e.g., console.error(error, status);
-  }
-};
-```
-
-  </TabItem>
-</Tabs>
-
-### That's it! You've seen how straightforward it is to get started with Hyper Fetch.
+<LinkCard
+  type="guides"
+  title="Guides"
+  description="More guides for each package."
+  href="/docs/guides/getting-started"
+/>

@@ -20,7 +20,7 @@ import { getBounceData } from "utils";
  * @returns
  */
 export const useFetch = <R extends RequestInstance>(
-  request: UseFetchRequest<R>,
+  request: R extends UseFetchRequest<R> ? R : UseFetchRequest<R>,
   options?: UseFetchOptionsType<R>,
 ): UseFetchReturnType<R> => {
   // Build the configuration options
@@ -64,11 +64,9 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<
-    UseFetchRequest<R>
-  >({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<R>({
     logger,
-    request,
+    request: request as R,
     dispatcher,
     initialResponse,
     deepCompare,
@@ -80,10 +78,10 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useRequestEvents<UseFetchRequest<R>>({
+  const [callbacks, listeners] = useRequestEvents<R>({
     logger,
     actions,
-    request,
+    request: request as R,
     dispatcher,
     setCacheData,
     getIsDataProcessing,
@@ -97,7 +95,7 @@ export const useFetch = <R extends RequestInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
-      dispatcher.add(request);
+      dispatcher.add(request as R);
     } else {
       logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }
@@ -184,8 +182,8 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
 
   const handleMountEvents = () => {
-    addCacheDataListener(request);
-    addLifecycleListeners(request);
+    addCacheDataListener(request as R);
+    addLifecycleListeners(request as R);
 
     const focusUnmount = appManager.events.onFocus(() => {
       if (refetchOnFocus) {
@@ -292,7 +290,7 @@ export const useFetch = <R extends RequestInstance>(
     },
     bounce: getBounceData(bounceData),
     ...actions,
-    ...callbacks,
+    ...(callbacks as any),
     refetch,
   };
 };

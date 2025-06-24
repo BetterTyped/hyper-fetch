@@ -6,17 +6,15 @@ import { UseCacheOptionsType } from "hooks/use-cache";
 import { UseQueueOptionsType } from "hooks/use-queue";
 import { UseListenerOptionsType } from "hooks/use-listener";
 import { UseEmitterOptionsType } from "hooks/use-emitter";
-import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
 import { UseFetchOptionsType } from "hooks/use-fetch";
 
-export type ProviderOptionsType<SocketResponses = any> = {
+export type ProviderOptionsType = {
   useFetchConfig?: Partial<UseFetchOptionsType<RequestInstance>>;
   useSubmitConfig?: Partial<UseSubmitOptionsType<RequestInstance>>;
   useCacheConfig?: Partial<UseCacheOptionsType<RequestInstance>>;
   useQueueConfig?: Partial<UseQueueOptionsType>;
   useListener?: Partial<UseListenerOptionsType>;
   useEmitter?: Partial<UseEmitterOptionsType>;
-  useEventMessages?: Partial<UseEventMessagesOptionsType<SocketResponses>>;
 };
 
 export type ProviderProps = {

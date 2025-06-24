@@ -1,4 +1,4 @@
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 export const jsonViewerStyles = {
   base: cn(
@@ -40,7 +40,7 @@ export const jsonViewerStyles = {
 
   input: cn(
     // Base styles
-    "text-inherit bg-gray-200/10 border-0",
+    "text-inherit bg-zinc-200/10 border-0",
     "tracking-[0.3px] resize-vertical w-full rounded p-0",
     // Focus state
     "focus:outline-offset-2 focus:outline-2 focus:outline-amber-400",

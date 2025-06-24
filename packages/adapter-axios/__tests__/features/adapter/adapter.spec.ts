@@ -27,7 +27,7 @@ describe("Axios Adapter [ Base ]", () => {
 
   it("should make a request and return success data with status", async () => {
     const response = mockRequest(request);
-    const { data, status, error, extra } = await request.send({});
+    const { data, status, error, extra } = await request.send();
 
     expect(data).toStrictEqual(response);
     expect(status).toBe(200);
@@ -40,7 +40,7 @@ describe("Axios Adapter [ Base ]", () => {
 
   it("should make a request and return error with status", async () => {
     mockRequest(request, { status: 400 });
-    const { data, error, status, extra } = await request.send({});
+    const { data, error, status, extra } = await request.send();
 
     expect(error?.message).toBe("Request failed with status code 400");
     expect(data).toStrictEqual(null);
@@ -63,7 +63,7 @@ describe("Axios Adapter [ Base ]", () => {
       addEventListener: jest.fn(),
     })) as any;
 
-    const { data, error, status, extra } = await request.send({});
+    const { data, error, status, extra } = await request.send();
 
     expect(error).toBeInstanceOf(Error);
     expect(data).toStrictEqual(null);
@@ -85,7 +85,7 @@ describe("Axios Adapter [ Base ]", () => {
     const spyResponse = jest.fn();
 
     await request.send({
-      onSettle: spySettle,
+      onBeforeSent: spySettle,
       onRequestStart: spyReqStart,
       onResponseStart: spyResStart,
       onUploadProgress: spyUpload,

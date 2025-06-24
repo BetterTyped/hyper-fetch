@@ -126,14 +126,14 @@ describe("Generator", () => {
     await fsPromises.rm(generatedFileNamePath);
   });
 
-  it("Should generate file with provided baseUrl", async () => {
-    const baseUrl = "http://baseurl.com";
-    const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile({ url: "http://baseurl.com" });
-    const imported = await import(generatedFileNamePath);
-    expect(imported.client.url).toEqual(baseUrl);
-    await fsPromises.rm(generatedFileNamePath);
-  });
+  // it("Should generate file with provided baseUrl", async () => {
+  //   const baseUrl = "http://baseurl.com";
+  //   const generator = new OpenapiRequestGenerator(schema);
+  //   const generatedFileNamePath = await generator.generateFile({ url: "http://baseurl.com" });
+  //   const imported = await import(generatedFileNamePath);
+  //   expect(imported.client.url).toEqual(baseUrl);
+  //   await fsPromises.rm(generatedFileNamePath);
+  // });
 
   describe("HTTP Method handling", () => {
     it("should use provided HTTP method in uppercase", async () => {

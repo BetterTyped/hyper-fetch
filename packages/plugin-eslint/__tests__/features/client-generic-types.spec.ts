@@ -14,49 +14,7 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
     {
       code: `
       import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{adapter: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
       const someClient = createClient<{error: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{endpointMapper: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{error: any, adapter: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{adapter: any, endpointMapper: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{endpointMapper: any, error: any}>();
-      `,
-      options: [],
-    },
-    {
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{error: any, adapter: any, endpointMapper: any}>();
       `,
       options: [],
     },
@@ -95,13 +53,6 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
       code: `
       import { createClient } from "@hyper-fetch/core";
       const someClient = createClient<{nonExisting: any}>();`,
-      errors: [{ messageId: "unexpectedGenerics", data: { items: "nonExisting" } }],
-    },
-    {
-      // mixed check
-      code: `
-      import { createClient } from "@hyper-fetch/core";
-      const someClient = createClient<{adapter: any, nonExisting: any, error: any}>();`,
       errors: [{ messageId: "unexpectedGenerics", data: { items: "nonExisting" } }],
     },
     {

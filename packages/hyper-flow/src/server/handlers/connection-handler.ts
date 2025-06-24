@@ -7,12 +7,13 @@ import {
   MessageType,
   PluginInternalMessage,
 } from "@hyper-fetch/plugin-devtools";
+import { serverLogger } from "@shared/utils/logger";
+import { SocketTopics } from "@shared/topics";
 
 import { AppConnectionStatus, ConnectionMap, PluginConnectionStatus } from "../types/connection.type";
-import { ConnectionName } from "../../frontend/constants/connection.name";
-import { SocketTopics } from "../../frontend/constants/topics";
-import { serverLogger } from "shared/utils/logger";
 import { InternalConnectionHandler } from "./internal-connection-handler";
+
+import { ConnectionName } from "@/constants/connection.name";
 
 export class ConnectionHandler {
   connections: ConnectionMap = {};
@@ -111,7 +112,7 @@ export class ConnectionHandler {
 
   handleClosedConnection = (connectionName: string) => {
     if (connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      // TODO - think- should we send this info to plugin in order to stop sending messages ?
+      // TODO - should we send this info to plugin in order to stop sending messages ?
       this.setAppConnection(null);
     }
 

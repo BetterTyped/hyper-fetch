@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import { gsap } from "gsap";
-import { useIsMounted, useWindowSize } from "@reins/hooks";
+import { useIsMounted } from "@better-hooks/lifecycle";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
 import { MotionPathPlugin } from "gsap/dist/MotionPathPlugin";
 import { useCallback, useLayoutEffect, useState } from "react";
 

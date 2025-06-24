@@ -1,6 +1,6 @@
 import { HttpMethods } from "@hyper-fetch/core";
 
-import { cn } from "frontend/lib/utils";
+import { cn } from "@/lib/utils";
 
 type ColorValue = {
   fill: string;
@@ -16,18 +16,18 @@ const usedColors = new Set<string>();
 
 const colors: Record<string, ColorValue> = {
   slate: {
-    fill: "fill-slate-400",
-    text: "text-slate-400",
-    stroke: "stroke-slate-400",
-    background: "bg-slate-500",
-    var: "var(--color-slate-400)",
+    fill: "fill-zinc-400",
+    text: "text-zinc-400",
+    stroke: "stroke-zinc-400",
+    background: "bg-zinc-500",
+    var: "var(--color-zinc-400)",
   },
   gray: {
-    fill: "fill-gray-400",
-    text: "text-gray-400",
-    stroke: "stroke-gray-400",
-    background: "bg-gray-500",
-    var: "var(--color-gray-400)",
+    fill: "fill-zinc-400",
+    text: "text-zinc-400",
+    stroke: "stroke-zinc-400",
+    background: "bg-zinc-500",
+    var: "var(--color-zinc-400)",
   },
   zinc: {
     fill: "fill-zinc-400",
