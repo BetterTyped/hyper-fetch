@@ -34,8 +34,7 @@ const handleEvent = ({
       return;
     }
     default: {
-      const { data, isTriggeredExternally } = eventData;
-      client[eventSource].emitter.emit(eventName, data, isTriggeredExternally);
+      client[eventSource].emitter.emit(eventName, eventData, eventData.isTriggeredExternally);
     }
   }
 };
