@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
-  "license": "GNU GPLv3",
+  "license": "GPL-3.0-or-later",
   "main": ".vite/build/main.js",
   "scripts": {
     "dev": "vite",
