@@ -94,7 +94,7 @@ export class InternalConnectionHandler {
     }
     this.connectionState.connections[connectionName].ws?.send(
       JSON.stringify({
-        data: { messageType: InternalEvents.APP_INITIALIZED },
+        data: { messageType: MessageType.INTERNAL, eventType: InternalEvents.APP_INITIALIZED },
         topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER,
       }),
     );
