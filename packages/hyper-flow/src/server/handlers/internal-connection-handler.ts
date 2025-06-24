@@ -1,9 +1,9 @@
 import { WebSocket } from "ws";
 import { AppInternalMessage, InternalEvents, MessageType, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
+import { serverLogger } from "@shared/utils/logger";
+import { SocketTopics } from "@shared/topics";
 
 import { AppConnectionStatus, ConnectionMap } from "../types/connection.type";
-import { serverLogger } from "../../shared/utils/logger";
-import { SocketTopics } from "../../frontend/constants/topics";
 
 export class InternalConnectionHandler {
   connections: ConnectionMap = {};
