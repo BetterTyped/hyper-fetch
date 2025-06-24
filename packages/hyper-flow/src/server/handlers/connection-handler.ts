@@ -32,35 +32,21 @@ export class ConnectionHandler {
     this.internalConnectionHandler = new InternalConnectionHandler(this.connectionState);
   }
 
+  /* -------------------------------------------------------------------------------------------------
+   * App
+   * -----------------------------------------------------------------------------------------------*/
+
   setAppConnection = (connection: WebSocket | null) => {
     this.connectionState.appConnection = connection;
   };
 
-  handleMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
-    switch (message.data.messageType) {
-      case MessageType.INTERNAL:
-        this.internalConnectionHandler.handleInternalMessage(message as PluginInternalMessage | AppInternalMessage);
-        break;
-      case MessageType.EVENT:
-        this.handleEventMessage(connectionName, message);
-        break;
-      default:
-        throw new Error(`Unknown messageType: ${message.data.messageType}`);
-    }
+  sendToApp = (message: string) => {
+    this.connectionState.appConnection?.send(message);
   };
 
-  handleEventMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
-    switch (message.data.origin) {
-      case MessageOrigin.PLUGIN:
-        this.sendToApp(JSON.stringify({ ...message, topic: SocketTopics.APP_INSTANCE_LISTENER }));
-        break;
-      case MessageOrigin.APP:
-        this.sendToPlugin(connectionName, JSON.stringify(message));
-        break;
-      default:
-        throw new Error(`Unknown origin: ${message.data.origin}`);
-    }
-  };
+  /* -------------------------------------------------------------------------------------------------
+   * Plugin
+   * -----------------------------------------------------------------------------------------------*/
 
   sendToPlugin = (pluginConnectionName: string, message: string) => {
     if (!this.connectionState.connections[pluginConnectionName]) {
@@ -82,10 +68,6 @@ export class ConnectionHandler {
     this.connectionState.connections[pluginConnectionName].ws.send(message);
   };
 
-  sendToApp = (message: string) => {
-    this.connectionState.appConnection?.send(message);
-  };
-
   addPluginConnection = (connectionName: string, connection: WebSocket) => {
     if (!this.connectionState.connections[connectionName]) {
       this.connectionState.connections[connectionName] = {
@@ -97,6 +79,41 @@ export class ConnectionHandler {
       this.connectionState.connections[connectionName].ws = connection;
     }
   };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Handlers
+   * -----------------------------------------------------------------------------------------------*/
+
+  handleMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
+    switch (message.data.messageType) {
+      case MessageType.INTERNAL:
+        this.internalConnectionHandler.handleInternalMessage(message as PluginInternalMessage | AppInternalMessage);
+        break;
+      case MessageType.EVENT:
+        this.handleEventMessage(connectionName, message);
+        break;
+      default:
+        throw new Error(`Unknown messageType: ${message.data.messageType}`);
+    }
+  };
+
+  handleEventMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
+    switch (message.data.origin) {
+      case MessageOrigin.PLUGIN:
+        this.sendToApp(JSON.stringify({ ...message, topic: SocketTopics.APP_INSTANCE_LISTENER }));
+        break;
+      case MessageOrigin.APP:
+        console.log("handleEventMessage", message);
+        this.sendToPlugin(connectionName, JSON.stringify(message));
+        break;
+      default:
+        throw new Error(`Unknown origin: ${message.data.origin}`);
+    }
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Connections
+   * -----------------------------------------------------------------------------------------------*/
 
   handleNewConnection = (
     { connectionName, origin }: { connectionName: string; origin: MessageOrigin },

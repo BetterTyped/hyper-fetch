@@ -45,7 +45,12 @@ import { useNetworkStore } from "@/store/applications/network.store";
 export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { application, client } = useDevtools();
   const [selectedError, setSelectedError] = useState<SimulatedError | null>(null);
-  const closeDetails = useCacheStore((state) => state.closeDetails);
+  const { setCacheItem, closeDetails } = useCacheStore(
+    useShallow((selector) => ({
+      setCacheItem: selector.setCacheItem,
+      closeDetails: selector.closeDetails,
+    })),
+  );
   const { addLoadingKeys, removeLoadingKeys, loadingKeys } = useCacheStore(
     useShallow((state) => ({
       addLoadingKeys: state.addLoadingKey,
@@ -79,9 +84,14 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       responseTimestamp: Date.now(),
       extra: client.adapter.defaultExtra,
       success: false,
+      cached: true,
     };
-    client.cache.storage.set(item.cacheKey, data);
-    client.cache.events.emitCacheData({ ...data, cached: true });
+    setCacheItem({
+      application: application.name,
+      cacheKey: item.cacheKey,
+      cacheData: data,
+    });
+    client.cache.events.emitCacheData(data, true);
   };
 
   const latestItem = useMemo(() => {

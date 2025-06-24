@@ -1,7 +1,7 @@
 import { ExtractRouteParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
-import { EmitOptionsType, EmitterConfigurationType, EmitterOptionsType, EmitType } from "emitter";
+import { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
 import { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Emitter<
@@ -73,11 +73,11 @@ export class Emitter<
     NewHasPayload extends boolean = HasPayload,
     NewHasParams extends boolean = HasParams,
   >(
-    config?: EmitterConfigurationType<NewPayload, ExtractRouteParams<Topic>, Topic, Socket>,
+    config?: EmitterCloneOptionsType<NewPayload, ParamsType, Topic, Socket>,
   ): Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams> {
-    const snapshot: Partial<Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>> = {
+    const snapshot: Partial<Emitter<Payload, Topic, Socket, NewHasPayload, NewHasParams>> = {
       options: this.options,
-      payload: this.payload as NewPayload,
+      payload: this.payload as unknown as Payload,
       ...config,
       params: config?.params || this.params,
       topic: this.paramsMapper(config?.params || this.params),
@@ -86,7 +86,7 @@ export class Emitter<
     const newInstance = new Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>(
       this.socket,
       this.emitterOptions,
-      snapshot,
+      snapshot as Partial<Emitter<NewPayload, Topic, Socket, NewHasPayload, NewHasParams>>,
     );
 
     newInstance.unstable_payloadMapper = this.unstable_payloadMapper;
@@ -95,7 +95,7 @@ export class Emitter<
   }
 
   emit: EmitType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>> = (options = {}) => {
-    const typedOptions = options as EmitOptionsType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>>;
+    const typedOptions = options as EmitMethodOptionsType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>>;
     const instance = this.clone<Payload, HasPayload, HasParams>(typedOptions);
 
     this.socket.adapter.emit(instance);

@@ -62,7 +62,6 @@ export class Cache<Adapter extends AdapterInstance> {
    * Set the cache data to the storage
    * @param request
    * @param response
-   * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
   set = <Request extends RequestCacheType<RequestInstance>>(
@@ -92,6 +91,7 @@ export class Cache<Adapter extends AdapterInstance> {
       version: this.version,
       cacheKey,
       cacheTime,
+      cached: !!request.cache,
     };
 
     // Only success data is valid for the cache store
@@ -113,12 +113,10 @@ export class Cache<Adapter extends AdapterInstance> {
     }
 
     this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
-      ...newCacheData,
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+      newCacheData,
       isTriggeredExternally,
-      cached: request.cache,
-      cacheKey,
-    });
+    );
   };
 
   /**

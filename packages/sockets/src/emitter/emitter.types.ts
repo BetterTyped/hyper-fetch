@@ -29,9 +29,9 @@ export type EmitterInstance<EmitterProperties extends EmitterInstanceProperties 
   TypeWithDefaults<EmitterProperties, "hasParams", any>
 >;
 
-export type EmitterConfigurationType<Payload, Params, Topic extends string, Socket extends SocketInstance> = {
+export type EmitterCloneOptionsType<Payload, Params, Topic extends string, Socket extends SocketInstance> = {
   payload?: Payload;
-  params?: Params;
+  params?: Params | null;
 } & Partial<EmitterOptionsType<Topic, ExtractSocketAdapterType<Socket>>>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
@@ -61,11 +61,13 @@ export type EmitParamsType<
   : { params?: Params };
 
 export type EmitterRestParams<Adapter extends SocketAdapterInstance> =
-  ExtractAdapterEmitterOptionsType<Adapter> extends Record<string, any>
-    ? ExtractAdapterEmitterOptionsType<Adapter>
-    : {};
+  ExtractAdapterEmitterOptionsType<Adapter> extends any
+    ? {}
+    : ExtractAdapterEmitterOptionsType<Adapter> extends Record<string, any>
+      ? { options?: ExtractAdapterEmitterOptionsType<Adapter> }
+      : {};
 
-export type EmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
+export type EmitMethodOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
   ExtractEmitterPayloadType<Emitter>,
   ExtractEmitterHasPayloadType<Emitter>
 > &
@@ -74,12 +76,12 @@ export type EmitOptionsType<Emitter extends EmitterInstance> = EmitPayloadType<
 
 export type EmitType<Emitter extends EmitterInstance> =
   ExtractEmitterHasPayloadType<Emitter> extends false
-    ? (options: EmitOptionsType<Emitter>) => void
+    ? (options: EmitMethodOptionsType<Emitter>) => void
     : ExtractRouteParams<ExtractEmitterTopicType<Emitter>> extends EmptyTypes
-      ? (options?: EmitOptionsType<Emitter>) => void
+      ? (options?: EmitMethodOptionsType<Emitter>) => void
       : ExtractEmitterHasParamsType<Emitter> extends false
-        ? (options: EmitOptionsType<Emitter>) => void
-        : (options?: EmitOptionsType<Emitter>) => void;
+        ? (options: EmitMethodOptionsType<Emitter>) => void
+        : (options?: EmitMethodOptionsType<Emitter>) => void;
 
 export type ExtendEmitter<
   T extends EmitterInstance,

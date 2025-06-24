@@ -257,12 +257,12 @@ export const State = ({ application }: { application: string }) => {
         });
       }
     });
-    const unmountOnCacheChange = client.cache.events.onData((data, isTriggeredExternally) => {
-      console.log("DATA DATA", data, isTriggeredExternally);
+    const unmountOnCacheChange = client.cache.events.onData((data, isTriggeredExternally?: boolean) => {
       if (data.cached) {
         setCache({
           application,
-          data: { ...data, isTriggeredExternally: !!isTriggeredExternally },
+          data,
+          isTriggeredExternally: !!isTriggeredExternally,
         });
       }
     });

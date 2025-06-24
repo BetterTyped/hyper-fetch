@@ -54,7 +54,8 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
     socket.connect();
 
     devtoolsListener.listen((event) => {
-      const { connectionName, messageType, eventData, eventType } = event.data;
+      const { connectionName, messageType, eventData, eventType, environment, clientOptions, adapterOptions } =
+        event.data;
 
       const name = connectionName;
       nameRef.current = name;
@@ -65,15 +66,17 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
 
           addConnection({
             name,
-            metaData: eventData,
+            clientOptions,
+            adapterOptions,
             client,
             connected: true,
             eventListener,
             eventEmitter,
+            environment,
           });
           addApplication({
             name,
-            environment: eventData.environment,
+            environment,
             adapterName: client.adapter.name,
             url: client.url,
             settings: {

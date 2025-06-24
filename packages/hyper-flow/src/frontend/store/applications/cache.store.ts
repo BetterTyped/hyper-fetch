@@ -32,7 +32,9 @@ type Store = {
   setCache: (data: {
     application: string;
     data: Parameters<Parameters<Cache<AdapterInstance>["events"]["onData"]>[0]>[0];
+    isTriggeredExternally: boolean;
   }) => void;
+  setCacheItem: (data: { application: string; cacheKey: string; cacheData: DevtoolsCacheEvent["cacheData"] }) => void;
   invalidateCache: (data: { application: string; cacheKey: string }) => void;
   addLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
   removeLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
@@ -84,22 +86,29 @@ export const useCacheStore = create<Store>((set) => ({
       }),
     );
   },
-  setCache: ({ application, data }) => {
+  setCache: ({ application, data, isTriggeredExternally }) => {
     set((state) =>
       produce(state, (draft) => {
         if (!draft.applications[application]) {
           draft.applications[application] = getInitialState();
         }
-        const { cacheKey, isTriggeredExternally } = data;
+        const { cacheKey } = data;
 
-        // TODO: Kacper - why it is showing that "isTriggeredExternally" is true here?
-        // It has to be false, because we're reading data from the client cache events
-        if (isTriggeredExternally) {
+        // When we set the data and send it to the client, we DON'T want to re-apply it
+        // It will cause state de-sync, because of the latency of the events circling around
+        if (!isTriggeredExternally) {
           draft.applications[application].caches.set(cacheKey, {
             cacheKey,
             cacheData: data,
           });
         }
+      }),
+    );
+  },
+  setCacheItem: ({ application, cacheKey, cacheData }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        draft.applications[application].caches.set(cacheKey, { cacheKey, cacheData });
       }),
     );
   },

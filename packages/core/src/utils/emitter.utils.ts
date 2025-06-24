@@ -21,7 +21,7 @@ export class EventEmitter extends Emitter {
     return super.emit(...params);
   }
 
-  onEmit = (callback: (...args: any[]) => void) => {
+  onEmit = (callback: (event: string, data: any, isTriggeredExternally?: true) => void) => {
     this.emitCallbacks?.push(callback);
     return () => {
       this.emitCallbacks = this.emitCallbacks?.filter((cb) => cb !== callback);
