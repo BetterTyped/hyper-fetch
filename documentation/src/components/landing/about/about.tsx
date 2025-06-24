@@ -43,12 +43,12 @@ export const About = () => {
           </FadeIn>
           <FadeIn start={0} end={0.15}>
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Why Hyper-Fetch?
+              Learn once, use everywhere
             </Title>
           </FadeIn>
           <FadeIn start={0.02} end={0.2}>
             <Description className="text-lg !text-zinc-400">
-              Hyper-Fetch is the data-exchange framework for modern web development. It provides first-class
+              Hyper-Fetch is the data-exchange framework for modern development needs. It provides first-class
               type-safety, an exceptional developer experience, and deep architectural flexibility.
             </Description>
           </FadeIn>

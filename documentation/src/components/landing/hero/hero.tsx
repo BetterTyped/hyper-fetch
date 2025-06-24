@@ -14,7 +14,7 @@ export const Hero = () => {
   return (
     <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[158px] pb-[68px]">
       {/* Illustrations */}
-      <Paths />
+      <Paths key={width} />
 
       <div className="absolute w-[100vw] min-w-[1200px] h-full pointer-events-none p-10 inset-0" aria-hidden="true">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10">
@@ -46,7 +46,7 @@ export const Hero = () => {
             <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
               TypeSafe
               <span
-                className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow"
+                className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow pointer-events-none"
                 style={{
                   textShadow: "none",
                 }}
