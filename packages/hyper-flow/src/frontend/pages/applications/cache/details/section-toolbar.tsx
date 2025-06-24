@@ -113,7 +113,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       //   isOffline: false,
       //   requestId: "",
       // });
-      addLoadingKeys({ project: project.name, cacheKey: item.cacheKey });
+      addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
     } else {
       removeLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
       // client.requestManager.events.emitLoading({
@@ -140,8 +140,8 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
-            <Sparkles className="h-4 w-4" />
+          <Button variant="quaternary" size="sm">
+            <Sparkles className="size-4" />
             Actions
           </Button>
         </DropdownMenuTrigger>

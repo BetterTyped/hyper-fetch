@@ -42,8 +42,8 @@ export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
-            <Sparkles className="h-4 w-4" />
+          <Button variant="quaternary" size="sm">
+            <Sparkles className="size-4" />
             Actions
           </Button>
         </DropdownMenuTrigger>

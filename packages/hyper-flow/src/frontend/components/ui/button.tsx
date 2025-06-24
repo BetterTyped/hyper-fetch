@@ -15,6 +15,7 @@ const buttonVariants = cva(
           "btn hover:brightness-120 relative bg-linear-to-b from-zinc-800 to-zinc-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-zinc-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-zinc-800),var(--color-zinc-700),var(--color-zinc-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]",
         tertiary:
           "btn hover:brightness-120 group bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%]",
+        quaternary: "btn hover:brightness-120 relative bg-[#1e1e1e] hover:bg-[#181818]",
         destructive:
           "btn hover:brightness-120 relative bg-linear-to-b from-red-800 to-red-800/60 bg-[length:100%_100%] bg-[bottom] py-[5px] text-zinc-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-red-900),var(--color-red-800),var(--color-red-900))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%]",
         outline: "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
