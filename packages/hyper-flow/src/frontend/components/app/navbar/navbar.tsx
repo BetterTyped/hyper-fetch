@@ -15,13 +15,13 @@ import {
 import { useIsFocused } from "@/hooks/use-is-focused";
 
 const dragStyle = {
-  "-webkit-user-select": "none",
-  "-webkit-app-region": "drag",
+  WebkitUserSelect: "none",
+  WebkitAppRegion: "drag",
 } as React.CSSProperties;
 
 const noDragStyle = {
-  "-webkit-user-select": "none",
-  "-webkit-app-region": "no-drag",
+  WebkitUserSelect: "none",
+  WebkitAppRegion: "no-drag",
 } as React.CSSProperties;
 
 // type BreadcrumbsType = {
