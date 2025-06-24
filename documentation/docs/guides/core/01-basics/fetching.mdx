@@ -125,6 +125,60 @@ createPost();
 
 ---
 
+## How to get requestId?
+
+The `requestId` is a unique identifier for each request execution. It's particularly useful for debugging, logging, or
+tracking a request's lifecycle. Here are two ways to get it:
+
+### 1. Using the Dispatcher
+
+You can get the `requestId` by adding a request directly to the dispatcher. The client instance has two dispatchers:
+`fetchDispatcher` for `GET` requests and `submitDispatcher` for `POST`, `PUT`, `PATCH`, `DELETE` requests. The `add`
+method on a dispatcher returns the `requestId`.
+
+```ts
+import { getUser } from "src/api/users";
+
+const requestWithParams = getUser.setParams({ userId: 1 });
+
+// Add to the dispatcher and get the requestId
+const requestId = client.fetchDispatcher.add(requestWithParams);
+
+console.log("Request ID:", requestId);
+```
+
+:::caution Important
+
+When you use `dispatcher.add()`, the request is executed immediately. You don't need to call `.send()` afterward. The
+`dispatcher.add()` method essentially is a `send` that gives you back the `requestId` synchronously.
+
+:::
+
+### 2. Using Lifecycle Callbacks
+
+The `requestId` is also available in the lifecycle callbacks of the `send` method. The `onBeforeSent` callback is the
+earliest point in the lifecycle where you can access it.
+
+```ts
+import { getUser } from "src/api/users";
+
+const requestWithParams = getUser.setParams({ userId: 1 });
+
+let requestId;
+
+await requestWithParams.send({
+  onBeforeSent: (options) => {
+    requestId = options.requestId;
+    console.log("Request ID from callback:", requestId);
+  },
+});
+```
+
+This approach is useful when you want to trigger the request with `send` and still need access to the `requestId` for
+tracking purposes within the same scope.
+
+---
+
 ## Aborting a Request
 
 You can abort a request using the native `AbortController`. Simply create a controller and pass its `signal` to the

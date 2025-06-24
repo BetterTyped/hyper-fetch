@@ -775,14 +775,14 @@ button.api-playground__more {
 
 body:not(.dark) .title,
 body:not(.dark) .api-docs__section-title,
-body:not(.dark) .title * {
+body:not(.dark) .title > *:not(.disable-shadow) {
   text-shadow:
     -1px -1px 0 hsla(0, 0%, 0%, 0.1),
     1px 1px 0 rgba(200, 200, 200, 0.1);
 }
 body.dark .title,
 body.dark .api-docs__section-title,
-body.dark .title * {
+body.dark .title > *:not(.disable-shadow) {
   text-shadow:
     -1px -1px 0 hsla(0, 0%, 100%, 0.2),
     1px 1px 0 rgba(0, 0, 0, 0.1);

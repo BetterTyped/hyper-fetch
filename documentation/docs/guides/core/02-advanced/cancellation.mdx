@@ -73,13 +73,59 @@ const getUsers = client.createRequest()({
 });
 
 // 1. Make a request
+// highlight-next-line
 getUsers.send();
 
-// 2. Abort it before it completes
 setTimeout(() => {
+  // 2. Abort it before it completes
+  // highlight-next-line
   getUsers.abort();
 }, 50);
 ```
+
+or via RequestManager
+
+```ts
+import { client } from "./client";
+
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+// 1. Make a request
+// highlight-next-line
+getUsers.send();
+
+setTimeout(() => {
+  // 2. Abort it before it completes
+  // highlight-next-line
+  client.requestManager.abortByKey(getUsers.abortKey);
+}, 50);
+```
+
+RequestManager also holds the AbortController for each request. You can access it via the `abortController` property.
+
+```ts
+// Map<abortKey, Map<requestId, AbortController>>
+// highlight-next-line
+client.requestManager.abortControllers;
+
+// Get map of all requests with the same abortKey
+// highlight-next-line
+client.requestManager.abortControllers.get(getUsers.abortKey);
+
+// Get single request abort controller
+// highlight-next-line
+client.requestManager.abortControllers.get(getUsers.abortKey)?.get(getUsers.requestId);
+```
+
+<LinkCard
+  type="guides"
+  title="How to get requestId?"
+  description="Learn how to get requestId on example."
+  to="/docs/guides/core/01-basics/fetching#how-to-get-requestid"
+/>
 
 ---
 

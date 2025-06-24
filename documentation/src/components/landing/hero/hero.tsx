@@ -41,7 +41,21 @@ export const Hero = () => {
           className="font-extrabold text-4xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:!leading-[1.3] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
         >
           Integrate with any API. <br />
-          <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">Simply, TypeSafe, Fast.</span>
+          <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">
+            Simply,{" "}
+            <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
+              TypeSafe
+              <span
+                className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow"
+                style={{
+                  textShadow: "none",
+                }}
+              >
+                TypeSafe
+              </span>
+            </span>
+            , Fast.
+          </span>
         </Title>
         <Description
           size="none"
