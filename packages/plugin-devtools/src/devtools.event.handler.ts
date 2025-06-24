@@ -2,7 +2,13 @@ import { CacheValueType, ClientInstance } from "@hyper-fetch/core";
 import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
 import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
-import { HFEventMessage, MessageOrigin, MessageType, PluginInternalMessagePayload } from "./types/messages.types";
+import {
+  HFEventMessage,
+  HFEventMessagePayload,
+  MessageOrigin,
+  MessageType,
+  PluginInternalMessagePayload,
+} from "./types/messages.types";
 import { DevtoolsPluginOptions } from "./types/plugin.types";
 
 export class DevtoolsEventHandler {
@@ -14,7 +20,7 @@ export class DevtoolsEventHandler {
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   isInitialized: boolean;
-  eventQueue: any[] = [];
+  eventQueue: HFEventMessagePayload[] = [];
   connectionName: string;
   environment: string;
 
@@ -102,7 +108,7 @@ export class DevtoolsEventHandler {
     });
   }
 
-  sendEvent = (eventSource: EventSourceType) => (eventName: string, data: any, isTriggeredExternally: boolean) => {
+  sendEvent = (eventSource: EventSourceType) => (eventName: string, data: any) => {
     if (this.isConnected && this.isInitialized) {
       try {
         this.socketEmitter.emit({
@@ -111,7 +117,9 @@ export class DevtoolsEventHandler {
             eventSource,
             connectionName: this.connectionName,
             eventName,
-            eventData: { ...data, isTriggeredExternally, environment: this.environment },
+            isTriggeredExternally: true,
+            environment: this.environment,
+            eventData: data,
             origin: MessageOrigin.PLUGIN,
           },
         });
@@ -119,13 +127,14 @@ export class DevtoolsEventHandler {
         console.error("ERROR", e);
       }
     } else {
-      // TODO - add tests
       this.eventQueue.push({
         messageType: MessageType.EVENT,
         eventSource,
         connectionName: this.connectionName,
         eventName,
-        eventData: { ...data, isTriggeredExternally, environment: this.environment },
+        isTriggeredExternally: true,
+        environment: this.environment,
+        eventData: data,
         origin: MessageOrigin.PLUGIN,
       });
     }

@@ -22,7 +22,6 @@ export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
     plugin.data.eventHandler?.sendEvent(EventSourceType.CUSTOM_EVENT)(
       CustomEvents.REQUEST_CREATED,
       plugin.data.requests,
-      true,
     );
   });
 

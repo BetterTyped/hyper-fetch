@@ -17,6 +17,7 @@ export interface BaseMessagePayload {
   eventType?: InternalEvents | CoreEvents | CustomEvents;
   connectionName: string;
   eventData?: any;
+  environment: string;
   origin: MessageOrigin;
   [x: string]: any;
 }
@@ -24,13 +25,10 @@ export interface BaseMessagePayload {
 export interface PluginInternalMessagePayload extends BaseMessagePayload {
   messageType: MessageType.INTERNAL;
   eventType: InternalEvents.PLUGIN_INITIALIZED | InternalEvents.PLUGIN_HANGUP;
-  eventData: {
-    clientOptions: ClientOptionsType<ClientInstance>;
-    adapterOptions: ExtractAdapterOptionsType<AdapterInstance>;
-    environment: string;
-  };
   connectionName: string;
   origin: MessageOrigin.PLUGIN;
+  clientOptions: ClientOptionsType<ClientInstance>;
+  adapterOptions: ExtractAdapterOptionsType<AdapterInstance>;
 }
 
 export interface AppInternalMessagePayload extends BaseMessagePayload {
@@ -48,6 +46,7 @@ export interface HFEventMessagePayload extends BaseMessagePayload {
   eventName: string;
   eventType?: CoreEvents | CustomEvents;
   eventData: any;
+  isTriggeredExternally: boolean;
 }
 
 export type AppInternalMessage = {

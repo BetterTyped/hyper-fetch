@@ -24,7 +24,7 @@ const handleEvent = ({
   application: string;
 }) => {
   // TODO change to more generic event handling
-  const { eventData, eventName, eventSource, eventType } = event.data;
+  const { eventData, eventName, eventSource, eventType, isTriggeredExternally } = event.data;
   switch (eventSource) {
     case EventSourceType.CUSTOM_EVENT: {
       if (eventType === CustomEvents.REQUEST_CREATED) {
@@ -34,7 +34,7 @@ const handleEvent = ({
       return;
     }
     default: {
-      client[eventSource].emitter.emit(eventName, eventData, eventData.isTriggeredExternally);
+      client[eventSource].emitter.emit(eventName, eventData, isTriggeredExternally);
     }
   }
 };
