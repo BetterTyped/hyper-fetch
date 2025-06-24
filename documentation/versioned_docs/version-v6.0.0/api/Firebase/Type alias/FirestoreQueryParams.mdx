@@ -22,7 +22,7 @@ import { FirestoreQueryParams } from "@hyper-fetch/firebase"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/types/adapter.firestore.types.ts:36](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L36)
+Defined in [adapter/types/adapter.firestore.types.ts:31](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L31)
 
 </p><div class="api-docs__section">
 
@@ -32,7 +32,7 @@ Defined in [adapter/types/adapter.firestore.types.ts:36](https://github.com/Bett
 
 ```ts
 type FirestoreQueryParams = {
-  constraints: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[]; 
+  constraints: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[]; 
 }
 ```
 
@@ -44,7 +44,11 @@ type FirestoreQueryParams = {
 
 ```ts
 {
-  constraints: ExtractConstraintType<T> extends U ? T : never[];
+  constraints: {
+    toString: () => string;
+    type: FirebaseQueryConstraints;
+    values: any[];
+  }[];
 }
 ```
 

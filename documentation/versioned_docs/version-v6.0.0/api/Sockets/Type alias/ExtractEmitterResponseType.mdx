@@ -22,7 +22,7 @@ import { ExtractEmitterResponseType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/extract.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/types/extract.types.ts#L7)
+Defined in [types/extract.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/types/extract.types.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/extract.types.ts:7](https://github.com/BetterTyped/hyper-fetch
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractEmitterResponseType<E> = E extends Emitter<any, infer  R, any, any, any, any, any> ? R : never;
+type ExtractEmitterResponseType<E> = E extends Emitter<any, infer  R, any, any> ? R : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractEmitterResponseType<E> = E extends Emitter<any, infer  R, any, any, 
 </div><div class="api-docs__returns">
 
 ```ts
-E extends Emitter<any, infer R, any, any, any, any, any> ? R : never
+E extends Emitter<any, infer R, any, any> ? R : never
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { CloseCallbackType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [socket/socket.types.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/socket/socket.types.ts#L25)
+Defined in [socket/socket.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.types.ts#L30)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [socket/socket.types.ts:25](https://github.com/BetterTyped/hyper-fetc
 </div><div class="api-docs__preview type single">
 
 ```ts
-type CloseCallbackType<SocketType> = (socket: SocketType) => void;
+type CloseCallbackType<SocketType,Event> = (event: Event, socket: SocketType) => void;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type CloseCallbackType<SocketType> = (socket: SocketType) => void;
 </div><div class="api-docs__returns">
 
 ```ts
-(socket: SocketType) => void
+(event: Event, socket: SocketType) => void
 ```
 
 </div>

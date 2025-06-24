@@ -22,7 +22,7 @@ import { UseCacheReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+Defined in [react/src/hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterType
 </div><div class="api-docs__preview type single">
 
 ```ts
-type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & { onCacheChange: (callback: OnFinishedCallbackType<T>) => void; onCacheError: (callback: OnErrorCallbackType<T>) => void; onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void; refetch: (invalidateKey?: string | RegExp | RequestInstance) => void };
+type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & { onCacheChange: (callback: OnFinishedCallbackType<T>) => void; onCacheError: (callback: OnErrorCallbackType<T>) => void; onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void; revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void };
 ```
 
 </div><div class="api-docs__section">
@@ -61,7 +61,7 @@ type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> 
   onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
   onCacheError: (callback: OnErrorCallbackType<T>) => void;
   onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
-  refetch: (invalidateKey?: string | RegExp | RequestInstance) => void;
+  revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void;
 }
 ```
 

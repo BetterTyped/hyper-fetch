@@ -22,7 +22,7 @@ import { SSEAdapterOptionsType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.types.ts:87](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/adapter/adapter.types.ts#L87)
+Defined in [adapter/adapter.types.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/adapter/adapter.types.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -33,6 +33,7 @@ Defined in [adapter/adapter.types.ts:87](https://github.com/BetterTyped/hyper-fe
 ```ts
 type SSEAdapterOptionsType = {
   eventSourceInit: EventSourceInit; 
+  reconnectTimeout: number; 
 }
 ```
 
@@ -45,6 +46,7 @@ type SSEAdapterOptionsType = {
 ```ts
 {
   eventSourceInit: EventSourceInit;
+  reconnectTimeout: number;
 }
 ```
 

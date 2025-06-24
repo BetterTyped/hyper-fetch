@@ -22,7 +22,7 @@ import { SocketOptionsType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [socket/socket.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/socket/socket.types.ts#L9)
+Defined in [socket/socket.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.types.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -31,9 +31,8 @@ Defined in [socket/socket.types.ts:9](https://github.com/BetterTyped/hyper-fetch
 </div><div class="api-docs__preview type">
 
 ```ts
-type SocketOptionsType<AdapterType> = {
-  adapter: AdapterType; 
-  adapterOptions: ExtractSocketOptionsType<AdapterType>; 
+type SocketOptionsType<SocketAdapterType> = {
+  adapter: SocketAdapterType; 
   auth: QueryParamsType; 
   autoConnect: boolean; 
   queryParams: QueryParamsType | string; 
@@ -53,8 +52,7 @@ type SocketOptionsType<AdapterType> = {
 
 ```ts
 {
-  adapter: AdapterType;
-  adapterOptions: T extends SocketAdapterType<infer O, any, any, any> ? O : never;
+  adapter: SocketAdapterType;
   auth: Record<string, QueryParamType>;
   autoConnect: boolean;
   queryParams: Record<string, QueryParamType> | string;

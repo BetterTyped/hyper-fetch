@@ -22,7 +22,7 @@ import { UseTrackedStateProps } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L17)
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.types.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -35,12 +35,10 @@ type UseTrackedStateProps<T> = {
   deepCompare: boolean | typeof isEqual; 
   defaultCacheEmitting: boolean; 
   dependencyTracking: boolean; 
-  disabled: boolean; 
   dispatcher: Dispatcher; 
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>; 
+  initialData: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null; 
   logger: LoggerType; 
   request: T; 
-  revalidate: boolean; 
 }
 ```
 
@@ -55,12 +53,10 @@ type UseTrackedStateProps<T> = {
   deepCompare: boolean | typeof isEqual;
   defaultCacheEmitting: boolean;
   dependencyTracking: boolean;
-  disabled: boolean;
   dispatcher: Dispatcher;
-  initialData: T | NegativeTypes;
+  initialData: {data:GenericDataType | null,error:GenericErrorType | null,extra:ExtractAdapterExtraType<Adapter> | null,status:ExtractAdapterStatusType<Adapter> | null,success:boolean} | null;
   logger: Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
   request: T;
-  revalidate: boolean;
 }
 ```
 

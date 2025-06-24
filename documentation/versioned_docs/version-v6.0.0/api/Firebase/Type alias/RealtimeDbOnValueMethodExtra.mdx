@@ -22,7 +22,7 @@ import { RealtimeDbOnValueMethodExtra } from "@hyper-fetch/firebase"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/types/adapter.realtime.types.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.realtime.types.ts#L61)
+Defined in [adapter/types/adapter.realtimedb.types.ts:43](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L43)
 
 </p><div class="api-docs__section">
 
@@ -34,6 +34,7 @@ Defined in [adapter/types/adapter.realtime.types.ts:61](https://github.com/Bette
 type RealtimeDbOnValueMethodExtra = {
   ref: DatabaseReference; 
   snapshot: DataSnapshot; 
+  unsubscribe: Unsubscribe; 
 }
 ```
 
@@ -47,6 +48,7 @@ type RealtimeDbOnValueMethodExtra = {
 {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
+  unsubscribe: Unsubscribe;
 }
 ```
 

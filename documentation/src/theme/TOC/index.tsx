@@ -15,28 +15,28 @@ const LINK_ACTIVE_CLASS_NAME = "table-of-contents__link--active";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, import/no-default-export
 export default function TOC({ className, ...props }: Props): JSX.Element {
-  const { activeItem } = useSidebar();
+  // const { activeItem } = useSidebar();
 
-  const color = activeItem?.section || modules[0];
+  // const color = activeItem?.section || modules[0];
 
   return (
     <div className={clsx("toc", styles.tocWrapper)}>
-      {activeItem?.section?.isPackage && (
+      {/* {activeItem?.section?.isPackage && (
         <PackageDetails
           icon={activeItem.img}
           name={activeItem.name}
           pkg={`@hyper-fetch/${activeItem.section.package}`}
         />
-      )}
+      )} */}
       <div className={styles.tocContent}>
         <h6>On this page</h6>
         <div
           className={clsx(
             styles.tableOfContents,
             "thin-scrollbar",
-            color.text,
-            color.textAction,
-            color.textHover,
+            // color.text,
+            // color.textAction,
+            // color.textHover,
             className,
           )}
         >

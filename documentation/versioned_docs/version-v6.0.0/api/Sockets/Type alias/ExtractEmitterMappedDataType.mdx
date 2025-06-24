@@ -22,7 +22,7 @@ import { ExtractEmitterMappedDataType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/extract.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/types/extract.types.ts#L10)
+Defined in [types/extract.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/types/extract.types.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/extract.types.ts:10](https://github.com/BetterTyped/hyper-fetc
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractEmitterMappedDataType<E> = E extends Emitter<any, any, any, any, infer  M, any, any> ? M : never;
+type ExtractEmitterMappedDataType<E> = E extends Emitter<any, any, any, infer  M> ? M : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractEmitterMappedDataType<E> = E extends Emitter<any, any, any, any, inf
 </div><div class="api-docs__returns">
 
 ```ts
-E extends Emitter<any, any, any, any, infer M, any, any> ? M : never
+E extends Emitter<any, any, any, infer M> ? M : never
 ```
 
 </div>

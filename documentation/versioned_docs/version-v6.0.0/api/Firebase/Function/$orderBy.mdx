@@ -1,5 +1,3 @@
-
-
 # $orderBy
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { $orderBy } from "@hyper-fetch/firebase"
+import { $orderBy } from "@hyper-fetch/firebase";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { $orderBy } from "@hyper-fetch/firebase"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [constraints/firebase.constraints.ts:32](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/constraints/firebase.constraints.ts#L32)
+Defined in
+[constraints/constraints.firebase.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L26)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,27 @@ Defined in [constraints/firebase.constraints.ts:32](https://github.com/BetterTyp
 </div><div class="api-docs__preview fn">
 
 ```ts
-$orderBy(fieldPath, directionStr)
+$orderBy(fieldPath, directionStr);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="fieldPath"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Details</th>
+  </tr>
+<thead>
+</thead>
+<tbody>
+<tr param-data="docOrFields">
+  <td class="api-docs__param-name required">
 
-### fieldPath 
+### fieldPath
 
 `Required`
 
@@ -50,7 +58,7 @@ $orderBy(fieldPath, directionStr)
 
 </td></tr><tr param-data="directionStr"><td class="api-docs__param-name optional">
 
-### directionStr 
+### directionStr
 
 `Optional`
 
@@ -67,7 +75,7 @@ $orderBy(fieldPath, directionStr)
 ```ts
 {
   toString: () => string;
-  type: ORDER_BY;
+  type: FirebaseQueryConstraints;
   values: string[];
 }
 ```

@@ -22,7 +22,7 @@ import { UseFetchOptionsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
+Defined in [react/src/hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped
 </div><div class="api-docs__preview type single">
 
 ```ts
-type UseFetchOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof isEqual; dependencies?: any[]; dependencyTracking?: boolean; disabled?: boolean; initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>; refetchBlurred?: boolean; refetchOnBlur?: boolean; refetchOnFocus?: boolean; refetchOnReconnect?: boolean; refresh?: boolean; refreshTime?: number; revalidate?: boolean } & ({ bounceTime?: number; bounceType?: debounce } | { bounceTime?: number; bounceTimeout?: number; bounceType: throttle });
+type UseFetchOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof isEqual; dependencies?: any[]; dependencyTracking?: boolean; disabled?: boolean; initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>[data] | null; refresh?: boolean; refreshBlurred?: boolean; refreshOnBlur?: boolean; refreshOnFocus?: boolean; refreshOnReconnect?: boolean; refreshTime?: number; revalidateOnMount?: boolean } & ({ bounceTime?: number; bounceType?: debounce } | { bounceTime?: number; bounceTimeout?: number; bounceType: throttle });
 ```
 
 </div><div class="api-docs__section">
@@ -47,14 +47,20 @@ type UseFetchOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof
   dependencies: any[];
   dependencyTracking: boolean;
   disabled: boolean;
-  initialData: T | NegativeTypes;
-  refetchBlurred: boolean;
-  refetchOnBlur: boolean;
-  refetchOnFocus: boolean;
-  refetchOnReconnect: boolean;
+  initialData: {
+  ...params1: ResponseReturnType<Response, Error, Adapter>;
+  ...params2: ResponseDetailsType;
+  cacheTime: number;
+  clearKey: string;
+  garbageCollection: number;
+}[data] | null;
   refresh: boolean;
+  refreshBlurred: boolean;
+  refreshOnBlur: boolean;
+  refreshOnFocus: boolean;
+  refreshOnReconnect: boolean;
   refreshTime: number;
-  revalidate: boolean;
+  revalidateOnMount: boolean;
   ...params2: {bounceTime:number,bounceType:debounce} | {bounceTime:number,bounceTimeout:number,bounceType:throttle};
 }
 ```

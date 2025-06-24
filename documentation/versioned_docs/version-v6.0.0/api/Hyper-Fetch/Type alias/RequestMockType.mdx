@@ -22,7 +22,7 @@ import { RequestMockType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [mocker/mocker.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/mocker/mocker.types.ts#L3)
+Defined in [mocker/mocker.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/mocker/mocker.types.ts#L3)
 
 </p><div class="api-docs__section">
 
@@ -32,11 +32,9 @@ Defined in [mocker/mocker.types.ts:3](https://github.com/BetterTyped/hyper-fetch
 
 ```ts
 type RequestMockType<Response> = {
-  config: { requestTime?: number; responseTime?: number; timeout?: boolean; totalDownloaded?: number; totalUploaded?: number }; 
+  config: { requestSentDuration?: number; responseDelay?: number; responseReceivedDuration?: number; status?: number | string; success?: boolean }; 
   data: Response | Response[] | () => Response; 
   extra: any; 
-  status: number | string; 
-  success: boolean; 
 }
 ```
 
@@ -49,16 +47,14 @@ type RequestMockType<Response> = {
 ```ts
 {
   config: {
-    requestTime: number;
-    responseTime: number;
-    timeout: boolean;
-    totalDownloaded: number;
-    totalUploaded: number;
+    requestSentDuration: number;
+    responseDelay: number;
+    responseReceivedDuration: number;
+    status: number | string;
+    success: boolean;
   };
   data: Response | Response[] | () => Response;
   extra: any;
-  status: number | string;
-  success: boolean;
 }
 ```
 

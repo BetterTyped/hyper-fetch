@@ -22,7 +22,7 @@ import { UseRequestEventsPropsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-request-events/use-request-events.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/helpers/use-request-events/use-request-events.types.ts#L21)
+Defined in [react/src/helpers/use-request-events/use-request-events.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/helpers/use-request-events/use-request-events.types.ts#L21)
 
 </p><div class="api-docs__section">
 
@@ -34,7 +34,6 @@ Defined in [helpers/use-request-events/use-request-events.types.ts:21](https://g
 type UseRequestEventsPropsType<T> = {
   actions: UseTrackedStateActions<T>; 
   dispatcher: Dispatcher; 
-  getIsDataProcessing: (cacheKey: string) => boolean; 
   logger: LoggerType; 
   request: T; 
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void; 
@@ -60,7 +59,6 @@ type UseRequestEventsPropsType<T> = {
     setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
   };
   dispatcher: Dispatcher;
-  getIsDataProcessing: (cacheKey: string) => boolean;
   logger: Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
   request: T;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;

@@ -1,5 +1,3 @@
-
-
 # getSocketEvents
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { getSocketEvents } from "@hyper-fetch/sockets"
+import { getSocketEvents } from "@hyper-fetch/sockets";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { getSocketEvents } from "@hyper-fetch/sockets"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [socket/socket.events.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/socket/socket.events.ts#L21)
+Defined in
+[socket/socket.events.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.events.ts#L21)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [socket/socket.events.ts:21](https://github.com/BetterTyped/hyper-fet
 </div><div class="api-docs__preview fn">
 
 ```ts
-getSocketEvents<T>(eventEmitter)
+getSocketEvents(eventEmitter);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="eventEmitter"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="eventEmitter"><td class="api-docs__param-name required">
 
-### eventEmitter 
+### eventEmitter
 
 `Required`
 
@@ -60,20 +61,20 @@ getSocketEvents<T>(eventEmitter)
   emitConnecting: () => void;
   emitEmitterEvent: (emitter: EmitterType) => void;
   emitError: (event: ResponseType) => void;
-  emitListenerEvent: (endpoint: string, __namedParameters: [object Object]) => void;
-  emitListenerRemoveEvent: (endpoint: string) => void;
+  emitListenerEvent: (name: string, data: ResponseType, event: MessageEvent<ResponseType>) => void;
+  emitListenerRemoveEvent: (name: string) => void;
   emitOpen: () => void;
   emitReconnecting: (attempts: number) => void;
   emitReconnectingStop: (attempts: number) => void;
   onClose: (callback: () => void) => VoidFunction;
   onConnecting: (callback: () => void) => VoidFunction;
   onEmitterEvent: (callback: (emitter: EmitterType) => void) => VoidFunction;
-  onEmitterEventByEndpoint: (emitter: EmitterType, callback: (emitter: EmitterType) => void) => VoidFunction;
+  onEmitterEventByName: (emitter: EmitterType, callback: (emitter: EmitterType) => void) => VoidFunction;
   onError: (callback: (event: ResponseType) => void) => VoidFunction;
-  onListenerEvent: (callback: (__namedParameters: [object Object]) => void) => VoidFunction;
-  onListenerEventByEndpoint: (listener: ListenerType, callback: (__namedParameters: [object Object]) => void) => VoidFunction;
-  onListenerRemove: (callback: (endpoint: string) => void) => VoidFunction;
-  onListenerRemoveByEndpoint: (listener: ListenerType, callback: () => void) => VoidFunction;
+  onListenerEvent: (callback: (data: ResponseType, event: MessageEvent<ResponseType>) => void) => VoidFunction;
+  onListenerEventByName: (listener: ListenerType, callback: (data: ExtractListenerResponseType<ListenerType>, event: MessageEvent<ExtractListenerResponseType<ListenerType>>) => void) => VoidFunction;
+  onListenerRemove: (callback: (name: string) => void) => VoidFunction;
+  onListenerRemoveByName: (listener: ListenerType, callback: () => void) => VoidFunction;
   onOpen: (callback: () => void) => VoidFunction;
   onReconnecting: (callback: (attempts: number) => void) => VoidFunction;
   onReconnectingStop: (callback: (attempts: number) => void) => VoidFunction;

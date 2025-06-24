@@ -22,7 +22,7 @@ import { UseTrackedStateReturn } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L29)
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.types.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L26)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:29](https://git
 </div><div class="api-docs__preview type single">
 
 ```ts
-type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<T>, { getIsDataProcessing: (cacheKey: string) => boolean; getStaleStatus: () => boolean; setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void; setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void }];
+type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<T>, { getStaleStatus: () => boolean; setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void; setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void }];
 ```
 
 </div><div class="api-docs__section">
@@ -42,7 +42,6 @@ type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<
 
 ```ts
 [UseTrackedStateType<T>, UseTrackedStateActions<T>, {
-    getIsDataProcessing: (cacheKey: string) => boolean;
     getStaleStatus: () => boolean;
     setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
     setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void;

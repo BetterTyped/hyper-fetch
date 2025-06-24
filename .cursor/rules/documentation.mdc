@@ -216,7 +216,7 @@ The documentation supports two primary ways to create links between pages:
 
 ### Best Practices for Links
 
-- Ensure all links lead to files within the `/documentation/docs` directory
+- Ensure all links lead to files within the `/docs` directory
 - Verify links work correctly after documentation structure changes
 - Use LinkCards for navigation between major sections or to highlight important content
 - Use standard markdown links for inline references within text
@@ -225,7 +225,7 @@ The documentation supports two primary ways to create links between pages:
 
 ### Link Path Requirements
 
-- All link paths must follow this pattern: `/documentation/docs/[path]/[filename]`
+- All link paths must follow this pattern: `/docs/[path]/[filename]`
 - Never omit the file extension, as this can break documentation navigation and versioning
 - This applies to both standard Markdown links and LinkCard component paths
 

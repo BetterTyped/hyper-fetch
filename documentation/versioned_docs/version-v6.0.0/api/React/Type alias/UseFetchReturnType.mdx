@@ -22,7 +22,7 @@ import { UseFetchReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:87](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L87)
+Defined in [react/src/hooks/use-fetch/use-fetch.types.ts:87](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L87)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [hooks/use-fetch/use-fetch.types.ts:87](https://github.com/BetterType
 </div><div class="api-docs__preview type single">
 
 ```ts
-type UseFetchReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & UseRequestEventsActionsType<T> & { bounce: { active: boolean; reset: () => void }; refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void };
+type UseFetchReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & UseRequestEventsActionsType<T> & { bounce: { active: boolean; reset: () => void }; revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void };
 ```
 
 </div><div class="api-docs__section">
@@ -72,7 +72,7 @@ type UseFetchReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> 
     active: boolean;
     reset: () => void;
   };
-  refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+  revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
 }
 ```
 

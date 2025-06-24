@@ -108,7 +108,7 @@ const { data, error } = await getUser.exec();
   type="guides"
   title="Fetching"
   description="Discover how Hyper Fetch handles request execution."
-  to="/docs/guides/core/basic/dispatching"
+  to="/docs/guides/core/basics/fetching"
 />
 
 ---
@@ -176,7 +176,7 @@ const response = await postFile.send({ payload: data });
   type="guides"
   title="Payload"
   description="Understand how to send payload data with your requests."
-  to="/docs/guides/core/basic/payload"
+  to="/docs/guides/core/basics/payload"
 />
 
 #### Payload with files
@@ -196,7 +196,7 @@ const response = await postFile.setPayload(data).send();
   type="guides"
   title="Data Mapping Guide"
   description="Discover how to map and transform data effectively."
-  to="/docs/guides/core/basic/data-mapping"
+  to="/docs/guides/core/basics/data-mapping"
 />
 
 ---
@@ -238,7 +238,7 @@ const response = await getCategoryNote.send({ params: { categoryId: 1, noteId: 2
   type="guides"
   title="Parameters"
   description="Learn how to define and use route parameters in your requests."
-  to="/docs/guides/core/basic/parameters"
+  to="/docs/guides/core/basics/parameters"
 />
 
 ---
@@ -314,7 +314,7 @@ getUsers.setQueryParams({ search: "John", sort: "age" });
   type="guides"
   title="Query Parameters"
   description="Explore how to set and manage query parameters for API requests."
-  to="/docs/guides/core/basic/query-params"
+  to="/docs/guides/core/basics/query-params"
 />
 
 ---
@@ -356,7 +356,7 @@ comprehensive list of these methods and their detailed descriptions in the API r
   type="api"
   title="Detailed Request API Methods"
   description="Explore all available methods, their parameters, and return values for the Request class."
-  to="/docs/api/core/Classes/Request.mdx#methods"
+  to="/api/core/Classes/Request#methods"
 />
 
 It is crucial to understand how these methods operate to ensure predictable behavior:
@@ -521,13 +521,6 @@ const effectLinkedRequest = request.setEffectKey("my-effect-key");
 
 > **Note:** Overriding keys is an advanced feature. Make sure you understand the implications for caching,
 > deduplication, and request management.
-
-<LinkCard
-  type="guides"
-  title="Keys"
-  description="Learn how to override keys for your requests."
-  to="/docs/guides/core/advanced/keys"
-/>
 
 ---
 
@@ -702,7 +695,7 @@ authRequest.send();
   type="guides"
   title="Authentication Guide"
   description="Learn about setting up authentication for your requests via the Client."
-  to="/docs/guides/core/basic/authentication"
+  to="/docs/guides/core/basics/authentication"
 />
 
 ---
@@ -727,7 +720,7 @@ console.log(mappedResponse); // { displayName: "John" }
   type="guides"
   title="Response Mapping Guide"
   description="Discover how to map and transform data effectively."
-  to="/docs/guides/core/basic/data-mapping"
+  to="/docs/guides/core/basics/data-mapping"
 />
 
 **Request mapping** provides hooks for custom transformations of payloads, requests, and responses. This allows for
@@ -768,7 +761,7 @@ retryRequest.send(); // Will retry up to 2 times on failure
   type="guides"
   title="Retries"
   description="Learn how to configure automatic retries for failed requests."
-  to="/docs/guides/core/basic/retries"
+  to="/docs/guides/core/basics/retries"
 />
 
 ---
@@ -798,7 +791,7 @@ await errorRequest.send({
   type="guides"
   title="Error handling"
   description="Understand the error handling mechanisms in Hyper Fetch requests."
-  to="/docs/guides/core/basic/error-handling"
+  to="/docs/guides/core/basics/error-handling"
 />
 
 ---

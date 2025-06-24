@@ -22,7 +22,7 @@ import { ListenerOptionsType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.types.ts#L9)
+Defined in [listener/listener.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.types.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -31,10 +31,9 @@ Defined in [listener/listener.types.ts:9](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type">
 
 ```ts
-type ListenerOptionsType<Endpoint,AdapterType> = {
-  endpoint: Endpoint; 
-  options: ExtractListenerOptionsType<AdapterType>; 
-  params: ExtractRouteParams<Endpoint>; 
+type ListenerOptionsType<SocketOptions> = {
+  name: string; 
+  options: SocketOptions; 
 }
 ```
 
@@ -46,9 +45,8 @@ type ListenerOptionsType<Endpoint,AdapterType> = {
 
 ```ts
 {
-  endpoint: Endpoint;
-  options: T extends SocketAdapterType<any, any, infer O, any> ? O : never;
-  params: string extends T ? NegativeTypes : (T extends ${string}:,${infer Param}/,${infer Rest} ? [k in Param | keyof ExtractRouteParams<Rest>]: ParamType : (T extends ${string}:,${infer Param} ? [k in Param]: ParamType : NegativeTypes));
+  name: string;
+  options: SocketOptions;
 }
 ```
 

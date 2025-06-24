@@ -79,7 +79,7 @@ requirements.
 
 #### Here you can find some examples of possible configurations.
 
-{@import Hyper-Fetch RequestOptionsType returns}
+{/* (@import HyperFetch RequestOptionsType type=returns) */}
 
 ### You can also provide options to the adapter
 
@@ -341,7 +341,7 @@ const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 We can easily add lifecycle listeners to the **`send()`** method. This allows us to listen to the request events and
 perform callbacks with the received data for each stage of execution.
 
-{@import Hyper-Fetch FetchSendActionsType returns}
+{/* (@import HyperFetch FetchSendActionsType type=returns) */}
 
 #### Example
 
@@ -359,7 +359,7 @@ await request.send({
 
 Configuration options for the `client.createRequest()` method.
 
-{@import Hyper-Fetch RequestOptionsType returns}
+{/* (@import HyperFetch RequestOptionsType type=returns) */}
 
 #### Example
 

@@ -22,7 +22,7 @@ import { AdapterType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/adapter/adapter.types.ts#L10)
+Defined in [adapter/adapter.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/adapter/adapter.types.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/adapter.types.ts:10](https://github.com/BetterTyped/hyper-fe
 </div><div class="api-docs__preview type single">
 
 ```ts
-type AdapterType<AdapterOptions,MethodType,StatusType,Extra,QueryParams,EndpointType> = (request: RequestInstance, requestId: string, DO_NOT_USE?: { endpointType?: EndpointType; extra?: Extra; method?: MethodType; options?: AdapterOptions; queryParams?: QueryParams; status?: StatusType }) => Promise<ResponseReturnType<any, any, any>>;
+type AdapterType<AdapterOptions,MethodType,StatusType,Extra,QueryParams> = (request: RequestInstance, requestId: string, DO_NOT_USE?: { extra?: Extra; method?: MethodType; options?: AdapterOptions; queryParams?: QueryParams; status?: StatusType }) => Promise<ResponseReturnType<any, any, any>>;
 ```
 
 </div><div class="api-docs__section">

@@ -22,7 +22,7 @@ import { FirestoreAdapterType } from "@hyper-fetch/firebase"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/types/adapter.firestore.types.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L24)
+Defined in [adapter/types/adapter.firestore.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/types/adapter.firestore.types.ts:24](https://github.com/Bett
 </div><div class="api-docs__preview type single">
 
 ```ts
-type FirestoreAdapterType = AdapterType<Record<string, never>, getDoc, FirestoreStatuses, FirestoreExtra, FirestoreQueryParams> | AdapterType<Record<string, never>, getDocs, FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams> | AdapterType<{ merge: boolean }, setDoc, FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>> | AdapterType<Record<string, never>, updateDoc | addDoc | deleteDoc | setDoc, FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>;
+type FirestoreAdapterType = AdapterType<{ groupByChangeType: boolean }, onSnapshot, FirestoreStatuses, FirestoreOnSnapshotExtra, FirestoreQueryParams> | AdapterType<Record<string, never>, getDoc, FirestoreStatuses, FirestoreExtra, FirestoreQueryParams> | AdapterType<Record<string, never>, getDocs, FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams> | AdapterType<{ merge: boolean }, setDoc, FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>> | AdapterType<Record<string, never>, updateDoc | addDoc | deleteDoc, FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type FirestoreAdapterType = AdapterType<Record<string, never>, getDoc, Firestore
 </div><div class="api-docs__returns">
 
 ```ts
-(request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>> | (request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>> | (request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>> | (request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>>
+AdapterType<[object Object], onSnapshot, FirestoreStatuses, FirestoreOnSnapshotExtra, FirestoreQueryParams> | AdapterType<Record<string, never>, getDoc, FirestoreStatuses, FirestoreExtra, FirestoreQueryParams> | AdapterType<Record<string, never>, getDocs, FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams> | AdapterType<[object Object], setDoc, FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>> | AdapterType<Record<string, never>, updateDoc | addDoc | deleteDoc, FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
 ```
 
 </div>

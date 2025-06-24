@@ -22,7 +22,7 @@ import { RealtimeDbAdapterType } from "@hyper-fetch/firebase"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/types/adapter.realtime.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.realtime.types.ts#L18)
+Defined in [adapter/types/adapter.realtimedb.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/types/adapter.realtime.types.ts:18](https://github.com/Bette
 </div><div class="api-docs__preview type single">
 
 ```ts
-type RealtimeDbAdapterType = AdapterType<DefaultRealtimeDBAdapterOptions, get, RealtimeDBStatuses, RealtimeDbGetMethodExtra, RealtimeDBQueryParams> | AdapterType<DefaultRealtimeDBAdapterOptions, push, RealtimeDBStatuses, RealtimeDbPushMethodExtra, Record<string, never>> | AdapterType<DefaultRealtimeDBAdapterOptions, set | update | remove, RealtimeDBStatuses, RealtimeDbDefaultExtra, Record<string, never>>;
+type RealtimeDbAdapterType = AdapterType<{ onlyOnce: boolean }, onValue, RealtimeDBStatuses, RealtimeDbOnValueMethodExtra, RealtimeDBQueryParams> | AdapterType<DefaultRealtimeDBAdapterOptions, get, RealtimeDBStatuses, RealtimeDbGetMethodExtra, RealtimeDBQueryParams> | AdapterType<DefaultRealtimeDBAdapterOptions, push, RealtimeDBStatuses, RealtimeDbPushMethodExtra, Record<string, never>> | AdapterType<DefaultRealtimeDBAdapterOptions, set | update | remove, RealtimeDBStatuses, RealtimeDbDefaultExtra, Record<string, never>>;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type RealtimeDbAdapterType = AdapterType<DefaultRealtimeDBAdapterOptions, get, R
 </div><div class="api-docs__returns">
 
 ```ts
-(request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>> | (request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>> | (request: RequestInstance, requestId: string, DO_NOT_USE?: [object Object]) => Promise<ResponseReturnType<any, any, any>>
+AdapterType<[object Object], onValue, RealtimeDBStatuses, RealtimeDbOnValueMethodExtra, RealtimeDBQueryParams> | AdapterType<DefaultRealtimeDBAdapterOptions, get, RealtimeDBStatuses, RealtimeDbGetMethodExtra, RealtimeDBQueryParams> | AdapterType<DefaultRealtimeDBAdapterOptions, push, RealtimeDBStatuses, RealtimeDbPushMethodExtra, Record<string, never>> | AdapterType<DefaultRealtimeDBAdapterOptions, set | update | remove, RealtimeDBStatuses, RealtimeDbDefaultExtra, Record<string, never>>
 ```
 
 </div>

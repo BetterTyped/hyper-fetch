@@ -22,7 +22,7 @@ import { GeneratorReturnMockTypes } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [mocker/mocker.types.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/mocker/mocker.types.ts#L26)
+Defined in [mocker/mocker.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/mocker/mocker.types.ts#L23)
 
 </p><div class="api-docs__section">
 
@@ -41,7 +41,7 @@ type GeneratorReturnMockTypes<Response,Request> = RequestMockType<Response> | (r
 </div><div class="api-docs__returns">
 
 ```ts
-{config:{requestTime:number,responseTime:number,timeout:boolean,totalDownloaded:number,totalUploaded:number},data:Response | Response[] | () => Response,extra:any,status:number | string,success:boolean} | (r: Request) => RequestMockType<Response> | (r: Request) => Promise<RequestMockType<Response>>
+{config:{requestSentDuration:number,responseDelay:number,responseReceivedDuration:number,status:number | string,success:boolean},data:Response | Response[] | () => Response,extra:any} | (r: Request) => RequestMockType<Response> | (r: Request) => Promise<RequestMockType<Response>>
 ```
 
 </div>

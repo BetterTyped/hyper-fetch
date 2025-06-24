@@ -1,5 +1,3 @@
-
-
 # Emitter
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { Emitter } from "@hyper-fetch/sockets"
+import { Emitter } from "@hyper-fetch/sockets";
 ```
 
 </div><div class="api-docs__section">
@@ -18,49 +16,52 @@ import { Emitter } from "@hyper-fetch/sockets"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L8)
+Defined in
+[emitter/emitter.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L8)
 
 </p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="socket"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="socket"><td class="api-docs__param-name required">
 
-### socket 
+### socket
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`Socket<AdapterType>`
+`Socket<Adapter>`
 
 </td></tr><tr param-data="emitterOptions"><td class="api-docs__param-name required">
 
-### emitterOptions 
+### emitterOptions
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`EmitterOptionsType<Endpoint, AdapterType>`
+`EmitterOptionsType<ExtractEmitterOptionsType<Adapter>>`
 
 </td></tr><tr param-data="json"><td class="api-docs__param-name optional">
 
-### json 
+### json
 
 `Optional`
 
 </td><td class="api-docs__param-type">
 
-`Partial<Emitter<Payload, Response, Endpoint, AdapterType, MappedData, false, false>>`
+`Partial<Emitter<Payload, Response, Adapter, MappedData>>`
 
 </td></tr><tr param-data="dataMapper"><td class="api-docs__param-name optional">
 
-### dataMapper 
+### dataMapper
 
 `Optional`
 
@@ -72,33 +73,7 @@ Defined in [emitter/emitter.ts:8](https://github.com/BetterTyped/hyper-fetch/blo
 
 ## Properties
 
-</div><div class="api-docs__properties"><div class="api-docs__property" property-data="connections"><h3 class="api-docs__name">
-
-### `connections`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [emitter/emitter.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L22)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-Set<ConnectMethodType<AdapterType, Response>>
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="data"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="data"><h3 class="api-docs__name">
 
 ### `data`
 
@@ -108,11 +83,10 @@ Set<ConnectMethodType<AdapterType, Response>>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L20)
+Defined in
+[emitter/emitter.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -121,7 +95,7 @@ Defined in [emitter/emitter.ts:20](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Payload
+Payload;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="emitterOptions"><h3 class="api-docs__name">
@@ -134,11 +108,10 @@ Payload
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L26)
+Defined in
+[emitter/emitter.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -147,12 +120,12 @@ Defined in [emitter/emitter.ts:26](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-EmitterOptionsType<Endpoint, AdapterType>
+EmitterOptionsType<ExtractEmitterOptionsType<Adapter>>;
 ```
 
-</div><hr/></div><div class="api-docs__property" property-data="endpoint"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="name"><h3 class="api-docs__name">
 
-### `endpoint`
+### `name`
 
 </h3><div class="api-docs__section">
 
@@ -160,11 +133,10 @@ EmitterOptionsType<Endpoint, AdapterType>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L17)
+Defined in
+[emitter/emitter.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -173,7 +145,7 @@ Defined in [emitter/emitter.ts:17](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Endpoint
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
@@ -186,11 +158,10 @@ Endpoint
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L21)
+Defined in
+[emitter/emitter.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -199,33 +170,7 @@ Defined in [emitter/emitter.ts:21](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-ExtractEmitterOptionsType<AdapterType>
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="params"><h3 class="api-docs__name">
-
-### `params`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [emitter/emitter.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L18)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-ParamsType
+ExtractEmitterOptionsType<Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="socket"><h3 class="api-docs__name">
@@ -238,11 +183,10 @@ ParamsType
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L25)
+Defined in
+[emitter/emitter.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -251,7 +195,7 @@ Defined in [emitter/emitter.ts:25](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Socket<AdapterType>
+Socket<Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="timeout"><h3 class="api-docs__name">
@@ -264,11 +208,10 @@ Socket<AdapterType>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L19)
+Defined in
+[emitter/emitter.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -277,7 +220,7 @@ Defined in [emitter/emitter.ts:19](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
@@ -294,11 +237,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L28)
+Defined in
+[emitter/emitter.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -307,33 +249,7 @@ Defined in [emitter/emitter.ts:28](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-(data: Payload) => MappedData
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="emit"><h3 class="api-docs__name">
-
-### `emit()`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [emitter/emitter.ts:127](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L127)
-
-</p><div class="api-docs__section">
-
-#### Return
-
-</div><div class="api-docs__returns">
-
-```ts
-ExtractEmitterHasDataType<Emitter> extends false ? (options: [object Object]) => string : (ExtractRouteParams<ExtractEmitterEndpointType<Emitter>> extends NegativeTypes ? (options?: [object Object]) => string : (ExtractEmitterHasParamsType<Emitter> extends false ? (options: [object Object]) => string : (options?: [object Object]) => string))
+(data: Payload) => MappedData;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="clone"><h3 class="api-docs__name">
@@ -347,7 +263,7 @@ ExtractEmitterHasDataType<Emitter> extends false ? (options: [object Object]) =>
 </div><div class="api-docs__preview fn">
 
 ```ts
-clone<NewPayload, MapperData, Params, Data>(options, mapper)
+clone<NewPayload, MapperData>(config, mapper);
 ```
 
 </div><div class="api-docs__section">
@@ -356,29 +272,32 @@ clone<NewPayload, MapperData, Params, Data>(options, mapper)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:83](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L83)
+Defined in
+[emitter/emitter.ts:46](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L46)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="config"><td class="api-docs__param-name optional">
 
-#### options 
+#### config
 
 `Optional`
 
 </td><td class="api-docs__param-type">
 
-`Partial<EmitterOptionsType<Endpoint, AdapterType>> & { data?: NewPayload; params?: ParamsType }`
+`Partial<EmitterCloneOptionsType<NewPayload, ExtractEmitterOptionsType<Adapter>>>`
 
 </td></tr><tr param-data="mapper"><td class="api-docs__param-name optional">
 
-#### mapper 
+#### mapper
 
 `Optional`
 
@@ -393,12 +312,12 @@ Defined in [emitter/emitter.ts:83](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>
+Emitter<NewPayload, Response, Adapter, MapperData>;
 ```
 
-</div><hr/></div><div class="api-docs__method" method-data="getAck"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="emit"><h3 class="api-docs__name">
 
-### `getAck()`
+### `emit()`
 
 </h3><div class="api-docs__section">
 
@@ -407,7 +326,7 @@ Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>
 </div><div class="api-docs__preview fn">
 
 ```ts
-getAck(ack)
+emit(options, ack);
 ```
 
 </div><div class="api-docs__section">
@@ -416,75 +335,40 @@ getAck(ack)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:112](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L112)
+Defined in
+[emitter/emitter.ts:62](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L62)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="ack"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead>
+<tr><th>Name</th><th>Details</th></tr>
+</thead><tbody>
+<tr param-data="options"><td class="api-docs__param-name optional">
 
-#### ack 
+#### options
 
 `Optional`
 
 </td><td class="api-docs__param-type">
 
-`EmitterAcknowledgeType<any, AdapterType>`
+`Partial<EmitterCloneOptionsType<Payload, ExtractEmitterOptionsType<Adapter>>>`
 
-</td></tr></tbody></table></div><div class="api-docs__section">
+</td></tr><tr param-data="ack"><td class="api-docs__param-name optional">
 
-#### Return
+#### ack
 
-</div><div class="api-docs__returns">
-
-```ts
-(response: [object Object]) => void
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="onData"><h3 class="api-docs__name">
-
-### `onData()`
-
-</h3><div class="api-docs__section">
-
-#### Preview
-
-</div><div class="api-docs__preview fn">
-
-```ts
-onData(callback)
-```
-
-</div><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-Attach global logic to the received events
-
-</span></div><p class="api-docs__definition">
-
-Defined in [emitter/emitter.ts:66](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L66)
-
-</p><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
-
-#### callback 
-
-`Required`
+`Optional`
 
 </td><td class="api-docs__param-type">
 
-`ConnectMethodType<AdapterType, Response>`
+`(error: Error, response: Response) => void`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -493,7 +377,7 @@ Defined in [emitter/emitter.ts:66](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<Payload, Response, Endpoint, AdapterType, MappedData, HasParams, HasData>
+string;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setData"><h3 class="api-docs__name">
@@ -507,7 +391,7 @@ Emitter<Payload, Response, Endpoint, AdapterType, MappedData, HasParams, HasData
 </div><div class="api-docs__preview fn">
 
 ```ts
-setData(data)
+setData(data);
 ```
 
 </div><div class="api-docs__section">
@@ -516,19 +400,22 @@ setData(data)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:47](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L47)
+Defined in
+[emitter/emitter.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L35)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="data"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="data"><td class="api-docs__param-name required">
 
-#### data 
+#### data
 
 `Required`
 
@@ -543,7 +430,7 @@ Defined in [emitter/emitter.ts:47](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<MappedData, Response, Endpoint, AdapterType, MappedData, HasParams, true>
+Emitter<Payload, Response, Adapter, MappedData>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setDataMapper"><h3 class="api-docs__name">
@@ -557,7 +444,7 @@ Emitter<MappedData, Response, Endpoint, AdapterType, MappedData, HasParams, true
 </div><div class="api-docs__preview fn">
 
 ```ts
-setDataMapper<MapperData>(mapper)
+setDataMapper<MapperData>(mapper);
 ```
 
 </div><div class="api-docs__section">
@@ -566,19 +453,22 @@ setDataMapper<MapperData>(mapper)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L54)
+Defined in
+[emitter/emitter.ts:42](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L42)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="mapper"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="mapper"><td class="api-docs__param-name required">
 
-#### mapper 
+#### mapper
 
 `Required`
 
@@ -593,7 +483,7 @@ Defined in [emitter/emitter.ts:54](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<Payload, Response, Endpoint, AdapterType, MapperData, HasParams, HasData>
+Emitter<Payload, Response, Adapter, MapperData>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setOptions"><h3 class="api-docs__name">
@@ -607,7 +497,7 @@ Emitter<Payload, Response, Endpoint, AdapterType, MapperData, HasParams, HasData
 </div><div class="api-docs__preview fn">
 
 ```ts
-setOptions(options)
+setOptions(options);
 ```
 
 </div><div class="api-docs__section">
@@ -616,25 +506,28 @@ setOptions(options)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L39)
+Defined in
+[emitter/emitter.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L27)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="options"><td class="api-docs__param-name required">
 
-#### options 
+#### options
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`ExtractEmitterOptionsType<AdapterType>`
+`ExtractEmitterOptionsType<Adapter>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -643,57 +536,7 @@ Defined in [emitter/emitter.ts:39](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<Payload, Response, Endpoint, AdapterType, MappedData, HasParams, HasData>
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="setParams"><h3 class="api-docs__name">
-
-### `setParams()`
-
-</h3><div class="api-docs__section">
-
-#### Preview
-
-</div><div class="api-docs__preview fn">
-
-```ts
-setParams(params)
-```
-
-</div><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [emitter/emitter.ts:58](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L58)
-
-</p><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="params"><td class="api-docs__param-name required">
-
-#### params 
-
-`Required`
-
-</td><td class="api-docs__param-type">
-
-`ExtractRouteParams<Endpoint>`
-
-</td></tr></tbody></table></div><div class="api-docs__section">
-
-#### Return
-
-</div><div class="api-docs__returns">
-
-```ts
-Emitter<Payload, Response, Endpoint, AdapterType, MappedData, true, HasData>
+Emitter<Payload, Response, Adapter, MappedData>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setTimeout"><h3 class="api-docs__name">
@@ -707,7 +550,7 @@ Emitter<Payload, Response, Endpoint, AdapterType, MappedData, true, HasData>
 </div><div class="api-docs__preview fn">
 
 ```ts
-setTimeout(timeout)
+setTimeout(timeout);
 ```
 
 </div><div class="api-docs__section">
@@ -716,19 +559,22 @@ setTimeout(timeout)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [emitter/emitter.ts:43](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/emitter/emitter.ts#L43)
+Defined in
+[emitter/emitter.ts:31](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/emitter/emitter.ts#L31)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="timeout"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="timeout"><td class="api-docs__param-name required">
 
-#### timeout 
+#### timeout
 
 `Required`
 
@@ -743,7 +589,7 @@ Defined in [emitter/emitter.ts:43](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-Emitter<Payload, Response, Endpoint, AdapterType, MappedData, HasParams, HasData>
+Emitter<Payload, Response, Adapter, MappedData>;
 ```
 
 </div><hr/></div></div>

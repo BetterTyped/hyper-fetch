@@ -1,5 +1,3 @@
-
-
 # Listener
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { Listener } from "@hyper-fetch/sockets"
+import { Listener } from "@hyper-fetch/sockets";
 ```
 
 </div><div class="api-docs__section">
@@ -18,93 +16,44 @@ import { Listener } from "@hyper-fetch/sockets"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L8)
+Defined in
+[listener/listener.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L6)
 
 </p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="socket"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="socket"><td class="api-docs__param-name required">
 
-### socket 
+### socket
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`Socket<AdapterType>`
+`Socket<Adapter>`
 
 </td></tr><tr param-data="listenerOptions"><td class="api-docs__param-name optional">
 
-### listenerOptions 
+### listenerOptions
 
 `Optional`
 
 </td><td class="api-docs__param-type">
 
-`ListenerOptionsType<Endpoint, AdapterType>`
+`ListenerOptionsType<ExtractListenerOptionsType<Adapter>>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Properties
 
-</div><div class="api-docs__properties"><div class="api-docs__property" property-data="connections"><h3 class="api-docs__name">
-
-### `connections`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [listener/listener.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L17)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-Set<ConnectMethodType<AdapterType, Response>>
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="endpoint"><h3 class="api-docs__name">
-
-### `endpoint`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [listener/listener.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L14)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-Endpoint
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="listenerOptions"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="listenerOptions"><h3 class="api-docs__name">
 
 ### `listenerOptions`
 
@@ -114,11 +63,10 @@ Endpoint
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L21)
+Defined in
+[listener/listener.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -127,7 +75,32 @@ Defined in [listener/listener.ts:21](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__property-type">
 
 ```ts
-ListenerOptionsType<Endpoint, AdapterType>
+ListenerOptionsType<ExtractListenerOptionsType<Adapter>>;
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="name"><h3 class="api-docs__name">
+
+### `name`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[listener/listener.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L7)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
@@ -140,11 +113,10 @@ ListenerOptionsType<Endpoint, AdapterType>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L16)
+Defined in
+[listener/listener.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -153,33 +125,7 @@ Defined in [listener/listener.ts:16](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__property-type">
 
 ```ts
-ExtractListenerOptionsType<AdapterType>
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="params"><h3 class="api-docs__name">
-
-### `params`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [listener/listener.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L15)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-ParamsType
+ExtractListenerOptionsType<Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="socket"><h3 class="api-docs__name">
@@ -192,11 +138,10 @@ ParamsType
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L20)
+Defined in
+[listener/listener.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -205,48 +150,14 @@ Defined in [listener/listener.ts:20](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__property-type">
 
 ```ts
-Socket<AdapterType>
+Socket<Adapter>;
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
 
 ## Methods
 
-</div><div class="api-docs__methods"><div class="api-docs__method" method-data="listen"><h3 class="api-docs__name">
-
-### `listen()`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [listener/listener.ts:67](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L67)
-
-</p><div class="api-docs__section">
-
-#### Return
-
-</div><div class="api-docs__returns">
-
-```ts
-(options: ExtractRouteParams<ExtractListenerEndpointType<Listener>> extends NegativeTypes ? {
-  callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-} : (ExtractListenerHasParams<Listener> extends false ? {
-  callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-  params: ExtractRouteParams<ExtractListenerEndpointType<Listener>>;
-} : {
-  callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-  params: never;
-})) => () => void
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="clone"><h3 class="api-docs__name">
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="clone"><h3 class="api-docs__name">
 
 ### `clone()`
 
@@ -257,7 +168,7 @@ Defined in [listener/listener.ts:67](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview fn">
 
 ```ts
-clone<Params>(options)
+clone(config);
 ```
 
 </div><div class="api-docs__section">
@@ -266,25 +177,28 @@ clone<Params>(options)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L56)
+Defined in
+[listener/listener.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L23)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="config"><td class="api-docs__param-name optional">
 
-#### options 
+#### config
 
 `Optional`
 
 </td><td class="api-docs__param-type">
 
-`Partial<ListenerOptionsType<Endpoint, AdapterType>>`
+`Partial<ListenerOptionsType<ExtractListenerOptionsType<Adapter>>>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -293,12 +207,12 @@ Defined in [listener/listener.ts:56](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__returns">
 
 ```ts
-Listener<Response, Endpoint, AdapterType, Params>
+Listener<Response, Adapter>;
 ```
 
-</div><hr/></div><div class="api-docs__method" method-data="onData"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="listen"><h3 class="api-docs__name">
 
-### `onData()`
+### `listen()`
 
 </h3><div class="api-docs__section">
 
@@ -307,7 +221,7 @@ Listener<Response, Endpoint, AdapterType, Params>
 </div><div class="api-docs__preview fn">
 
 ```ts
-onData(callback)
+listen(callback);
 ```
 
 </div><div class="api-docs__section">
@@ -316,25 +230,28 @@ onData(callback)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-Attach global logic to the received events
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:51](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L51)
+Defined in
+[listener/listener.ts:31](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L31)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="callback"><td class="api-docs__param-name required">
 
-#### callback 
+#### callback
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`ConnectMethodType<AdapterType, Response>`
+`ListenerCallbackType<Response>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -343,7 +260,7 @@ Defined in [listener/listener.ts:51](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__returns">
 
 ```ts
-Listener<Response, Endpoint, AdapterType, HasParams>
+readonly [() => void, ListenerCallbackType<Response>]
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setOptions"><h3 class="api-docs__name">
@@ -357,7 +274,7 @@ Listener<Response, Endpoint, AdapterType, HasParams>
 </div><div class="api-docs__preview fn">
 
 ```ts
-setOptions(options)
+setOptions(options);
 ```
 
 </div><div class="api-docs__section">
@@ -366,25 +283,28 @@ setOptions(options)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [listener/listener.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L28)
+Defined in
+[listener/listener.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/listener/listener.ts#L19)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="options"><td class="api-docs__param-name required">
 
-#### options 
+#### options
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`ExtractListenerOptionsType<AdapterType>`
+`ExtractListenerOptionsType<Adapter>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -393,57 +313,7 @@ Defined in [listener/listener.ts:28](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__returns">
 
 ```ts
-Listener<Response, Endpoint, AdapterType, HasParams>
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="setParams"><h3 class="api-docs__name">
-
-### `setParams()`
-
-</h3><div class="api-docs__section">
-
-#### Preview
-
-</div><div class="api-docs__preview fn">
-
-```ts
-setParams(params)
-```
-
-</div><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [listener/listener.ts:32](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/listener/listener.ts#L32)
-
-</p><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="params"><td class="api-docs__param-name required">
-
-#### params 
-
-`Required`
-
-</td><td class="api-docs__param-type">
-
-`ExtractRouteParams<Endpoint>`
-
-</td></tr></tbody></table></div><div class="api-docs__section">
-
-#### Return
-
-</div><div class="api-docs__returns">
-
-```ts
-Listener<Response, Endpoint, AdapterType, true>
+Listener<Response, Adapter>;
 ```
 
 </div><hr/></div></div>

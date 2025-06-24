@@ -1,5 +1,3 @@
-
-
 # useEmitter
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { useEmitter } from "@hyper-fetch/react"
+import { useEmitter } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { useEmitter } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-emitter/use-emitter.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-emitter/use-emitter.hooks.ts#L8)
+Defined in
+[react/src/hooks/use-emitter/use-emitter.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-emitter/use-emitter.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [hooks/use-emitter/use-emitter.hooks.ts:8](https://github.com/BetterT
 </div><div class="api-docs__preview fn">
 
 ```ts
-useEmitter<EmitterType>(emitter, options)
+useEmitter<EmitterType>(emitter, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="emitter"><td class="api-docs__param-name required">
 
-### emitter 
+### emitter
 
 `Required`
 
@@ -50,7 +51,7 @@ useEmitter<EmitterType>(emitter, options)
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name required">
 
-### options 
+### options
 
 `Required`
 
@@ -68,7 +69,7 @@ useEmitter<EmitterType>(emitter, options)
 {
   connected: boolean;
   connecting: boolean;
-  emit: ExtractEmitterHasDataType<Emitter> extends false ? (options: [object Object]) => string : (ExtractRouteParams<ExtractEmitterEndpointType<Emitter>> extends NegativeTypes ? (options?: [object Object]) => string : (ExtractEmitterHasParamsType<Emitter> extends false ? (options: [object Object]) => string : (options?: [object Object]) => string));
+  emit: (options?: Partial<EmitterCloneOptionsType<any, any>>, ack?: (error: Error, response: any) => void) => string;
   onClose: (callback: VoidFunction) => void;
   onConnecting: (callback: VoidFunction) => void;
   onError: (callback: (event: ErrorType) => void) => void;

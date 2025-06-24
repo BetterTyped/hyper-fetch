@@ -89,7 +89,7 @@ const features: FeatureItem[] = [
     description: "Persists your data to the local storage or indexedDB to reuse it when needed.",
     icon: Atom,
     link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/advanced/persistence">
+      <Link className="text-sm flex gap-1 items-center" to="/guides/core/advanced/persistence">
         Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -99,7 +99,7 @@ const features: FeatureItem[] = [
     description: "Supports server-side rendering and server components out of the box.",
     icon: Server,
     link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/getting-started/environment">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/react/environments/browser">
         Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -109,7 +109,7 @@ const features: FeatureItem[] = [
     description: "Built-in authentication allow you to easily manage user sessions.",
     icon: Fingerprint,
     link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/basic/authentication">
+      <Link className="text-sm flex gap-1 items-center" to="/guides/core/basics/authentication">
         Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -120,7 +120,7 @@ const features: FeatureItem[] = [
       "Automatically uses cached data when the user is offline, and updates the cache when the user is online.",
     icon: Wifi,
     link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/advanced/offline">
+      <Link className="text-sm flex gap-1 items-center" to="/guides/core/advanced/offline">
         Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -130,7 +130,7 @@ const features: FeatureItem[] = [
     description: "Prefetch data before components mount, so that it's available instantly when needed.",
     icon: TrendingUpDown,
     link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/advanced/prefetching">
+      <Link className="text-sm flex gap-1 items-center" to="/guides/core/advanced/prefetching">
         Read more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),

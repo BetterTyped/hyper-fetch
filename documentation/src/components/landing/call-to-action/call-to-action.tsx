@@ -57,7 +57,7 @@ export const CallToAction = () => {
                 Get Started <ArrowRight className="w-[16px] ml-2" />
               </Link>
               <Link
-                to="docs/hyper-flow/download"
+                to="/docs/hyper-flow/download"
                 className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
               >
                 <Download className="w-[16px] mr-2" /> Download HyperFlow

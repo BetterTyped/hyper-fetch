@@ -1,5 +1,3 @@
-
-
 # Request
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { Request } from "@hyper-fetch/core"
+import { Request } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,35 +16,36 @@ import { Request } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-Fetch request it is designed to prepare the necessary setup to execute the request to the server.
-We can set up basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
-:::info Usage
-We should not use this class directly in the standard development flow. We can initialize it using the 
-`createRequest`
- method on the **Client** class.
-:::
+Fetch request it is designed to prepare the necessary setup to execute the request to the server. We can set up basic
+options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency,
+retries and much, much more. :::info Usage We should not use this class directly in the standard development flow. We
+can initialize it using the `createRequest` method on the **Client** class. :::
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:40](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L40)
+Defined in
+[request/request.ts:40](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L40)
 
 </p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="client"><td class="api-docs__param-name required">
-
-### client 
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="client"><td class="api-docs__param-name required">
+### client
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`Client<GlobalError, Adapter, DefaultEndpointMapper>`
+`Client<GlobalError, Adapter>`
 
 </td></tr><tr param-data="requestOptions"><td class="api-docs__param-name required">
 
-### requestOptions 
+### requestOptions
 
 `Required`
 
@@ -56,7 +55,7 @@ Defined in [request/request.ts:40](https://github.com/BetterTyped/hyper-fetch/bl
 
 </td></tr><tr param-data="requestJSON"><td class="api-docs__param-name optional">
 
-### requestJSON 
+### requestJSON
 
 `Optional`
 
@@ -78,11 +77,10 @@ Defined in [request/request.ts:40](https://github.com/BetterTyped/hyper-fetch/bl
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:68](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L68)
+Defined in
+[request/request.ts:68](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L68)
 
 </p><div class="api-docs__section">
 
@@ -91,7 +89,7 @@ Defined in [request/request.ts:68](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-string
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="auth"><h3 class="api-docs__name">
@@ -104,11 +102,10 @@ string
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L54)
+Defined in
+[request/request.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L54)
 
 </p><div class="api-docs__section">
 
@@ -117,7 +114,7 @@ Defined in [request/request.ts:54](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="cache"><h3 class="api-docs__name">
@@ -130,11 +127,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:64](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L64)
+Defined in
+[request/request.ts:64](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L64)
 
 </p><div class="api-docs__section">
 
@@ -143,7 +139,7 @@ Defined in [request/request.ts:64](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="cacheKey"><h3 class="api-docs__name">
@@ -156,11 +152,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:69](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L69)
+Defined in
+[request/request.ts:69](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L69)
 
 </p><div class="api-docs__section">
 
@@ -169,7 +164,7 @@ Defined in [request/request.ts:69](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-string
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="cacheTime"><h3 class="api-docs__name">
@@ -182,11 +177,10 @@ string
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:65](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L65)
+Defined in
+[request/request.ts:65](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L65)
 
 </p><div class="api-docs__section">
 
@@ -195,7 +189,7 @@ Defined in [request/request.ts:65](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="cancelable"><h3 class="api-docs__name">
@@ -208,11 +202,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L60)
+Defined in
+[request/request.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L60)
 
 </p><div class="api-docs__section">
 
@@ -221,7 +214,7 @@ Defined in [request/request.ts:60](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="client"><h3 class="api-docs__name">
@@ -234,11 +227,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:92](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L92)
+Defined in
+[request/request.ts:91](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L91)
 
 </p><div class="api-docs__section">
 
@@ -247,7 +239,7 @@ Defined in [request/request.ts:92](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Client<GlobalError, Adapter, DefaultEndpointMapper>
+Client<GlobalError, Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="data"><h3 class="api-docs__name">
@@ -260,11 +252,10 @@ Client<GlobalError, Adapter, DefaultEndpointMapper>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:57](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L57)
+Defined in
+[request/request.ts:57](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L57)
 
 </p><div class="api-docs__section">
 
@@ -273,7 +264,7 @@ Defined in [request/request.ts:57](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Payload
+Payload;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="deduplicate"><h3 class="api-docs__name">
@@ -286,11 +277,10 @@ Payload
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L73)
+Defined in
+[request/request.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L73)
 
 </p><div class="api-docs__section">
 
@@ -299,7 +289,7 @@ Defined in [request/request.ts:73](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="deduplicateTime"><h3 class="api-docs__name">
@@ -312,11 +302,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:74](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L74)
+Defined in
+[request/request.ts:74](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L74)
 
 </p><div class="api-docs__section">
 
@@ -325,7 +314,7 @@ Defined in [request/request.ts:74](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="effectKey"><h3 class="api-docs__name">
@@ -338,11 +327,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:71](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L71)
+Defined in
+[request/request.ts:71](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L71)
 
 </p><div class="api-docs__section">
 
@@ -351,7 +339,7 @@ Defined in [request/request.ts:71](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-string
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="endpoint"><h3 class="api-docs__name">
@@ -364,11 +352,10 @@ string
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L52)
+Defined in
+[request/request.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L52)
 
 </p><div class="api-docs__section">
 
@@ -377,7 +364,7 @@ Defined in [request/request.ts:52](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Endpoint
+Endpoint;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="garbageCollection"><h3 class="api-docs__name">
@@ -390,11 +377,10 @@ Endpoint
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L63)
+Defined in
+[request/request.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L63)
 
 </p><div class="api-docs__section">
 
@@ -403,7 +389,7 @@ Defined in [request/request.ts:63](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="headers"><h3 class="api-docs__name">
@@ -416,11 +402,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:53](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L53)
+Defined in
+[request/request.ts:53](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L53)
 
 </p><div class="api-docs__section">
 
@@ -429,33 +414,7 @@ Defined in [request/request.ts:53](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-HeadersInit
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="isMockEnabled"><h3 class="api-docs__name">
-
-### `isMockEnabled`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [request/request.ts:82](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L82)
-
-</p><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-boolean
+HeadersInit;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="method"><h3 class="api-docs__name">
@@ -468,11 +427,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L55)
+Defined in
+[request/request.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L55)
 
 </p><div class="api-docs__section">
 
@@ -481,7 +439,7 @@ Defined in [request/request.ts:55](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-ExtractAdapterMethodType<Adapter>
+ExtractAdapterMethodType<Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="mock"><h3 class="api-docs__name">
@@ -494,11 +452,10 @@ ExtractAdapterMethodType<Adapter>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L76)
+Defined in
+[request/request.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L76)
 
 </p><div class="api-docs__section">
 
@@ -507,7 +464,20 @@ Defined in [request/request.ts:76](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-Generator<GeneratorReturnMockTypes<Response, Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>>, GeneratorReturnMockTypes<Response, Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>>, GeneratorReturnMockTypes<Response, Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>>>
+Generator<
+  GeneratorReturnMockTypes<
+    Response,
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  >,
+  GeneratorReturnMockTypes<
+    Response,
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  >,
+  GeneratorReturnMockTypes<
+    Response,
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  >
+>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="mockData"><h3 class="api-docs__name">
@@ -520,11 +490,10 @@ Generator<GeneratorReturnMockTypes<Response, Request<Response, Payload, QueryPar
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:81](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L81)
+Defined in
+[request/request.ts:81](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L81)
 
 </p><div class="api-docs__section">
 
@@ -533,7 +502,10 @@ Defined in [request/request.ts:81](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-RequestDataMockTypes<Response, Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>>
+RequestDataMockTypes<
+  Response,
+  Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="offline"><h3 class="api-docs__name">
@@ -546,11 +518,10 @@ RequestDataMockTypes<Response, Request<Response, Payload, QueryParams, GlobalErr
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:67](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L67)
+Defined in
+[request/request.ts:67](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L67)
 
 </p><div class="api-docs__section">
 
@@ -559,7 +530,7 @@ Defined in [request/request.ts:67](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
@@ -572,11 +543,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L59)
+Defined in
+[request/request.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L59)
 
 </p><div class="api-docs__section">
 
@@ -585,7 +555,7 @@ Defined in [request/request.ts:59](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-ExtractAdapterOptionsType<Adapter>
+ExtractAdapterOptionsType<Adapter>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="params"><h3 class="api-docs__name">
@@ -598,11 +568,10 @@ ExtractAdapterOptionsType<Adapter>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L56)
+Defined in
+[request/request.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L56)
 
 </p><div class="api-docs__section">
 
@@ -611,7 +580,7 @@ Defined in [request/request.ts:56](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-ExtractRouteParams<Endpoint>
+ExtractRouteParams<Endpoint>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="queryParams"><h3 class="api-docs__name">
@@ -624,11 +593,10 @@ ExtractRouteParams<Endpoint>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:58](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L58)
+Defined in
+[request/request.ts:58](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L58)
 
 </p><div class="api-docs__section">
 
@@ -637,7 +605,7 @@ Defined in [request/request.ts:58](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-QueryParams
+QueryParams;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="queueKey"><h3 class="api-docs__name">
@@ -650,11 +618,10 @@ QueryParams
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L70)
+Defined in
+[request/request.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L70)
 
 </p><div class="api-docs__section">
 
@@ -663,7 +630,7 @@ Defined in [request/request.ts:70](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-string
+string;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="queued"><h3 class="api-docs__name">
@@ -676,11 +643,10 @@ string
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:66](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L66)
+Defined in
+[request/request.ts:66](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L66)
 
 </p><div class="api-docs__section">
 
@@ -689,7 +655,7 @@ Defined in [request/request.ts:66](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="requestJSON"><h3 class="api-docs__name">
@@ -702,11 +668,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:98](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L98)
+Defined in
+[request/request.ts:97](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L97)
 
 </p><div class="api-docs__section">
 
@@ -715,7 +680,13 @@ Defined in [request/request.ts:98](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-RequestCurrentType<Payload, QueryParams, Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>
+RequestCurrentType<
+  Payload,
+  QueryParams,
+  Endpoint,
+  ExtractAdapterOptionsType<Adapter>,
+  ExtractAdapterMethodType<Adapter>
+>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="requestOptions"><h3 class="api-docs__name">
@@ -728,11 +699,10 @@ RequestCurrentType<Payload, QueryParams, Endpoint, ExtractAdapterOptionsType<Ada
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:93](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L93)
+Defined in
+[request/request.ts:92](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L92)
 
 </p><div class="api-docs__section">
 
@@ -741,7 +711,7 @@ Defined in [request/request.ts:93](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>
+RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="retry"><h3 class="api-docs__name">
@@ -754,11 +724,10 @@ RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterM
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L61)
+Defined in
+[request/request.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L61)
 
 </p><div class="api-docs__section">
 
@@ -767,7 +736,7 @@ Defined in [request/request.ts:61](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="retryTime"><h3 class="api-docs__name">
@@ -780,11 +749,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:62](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L62)
+Defined in
+[request/request.ts:62](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L62)
 
 </p><div class="api-docs__section">
 
@@ -793,7 +761,7 @@ Defined in [request/request.ts:62](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-number
+number;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="used"><h3 class="api-docs__name">
@@ -806,11 +774,10 @@ number
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:72](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L72)
+Defined in
+[request/request.ts:72](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L72)
 
 </p><div class="api-docs__section">
 
@@ -819,7 +786,7 @@ Defined in [request/request.ts:72](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__property-type">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
@@ -836,11 +803,10 @@ boolean
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:75](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L75)
+Defined in
+[request/request.ts:75](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L75)
 
 </p><div class="api-docs__section">
 
@@ -849,7 +815,7 @@ Defined in [request/request.ts:75](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-(data: Payload) => NewDataType
+(data: Payload) => NewDataType;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="exec"><h3 class="api-docs__name">
@@ -862,19 +828,19 @@ Defined in [request/request.ts:75](https://github.com/BetterTyped/hyper-fetch/bl
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-Method to use the request WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
+Method to use the request WITHOUT adding it to cache and queues. This mean it will make simple request without queue
+side effects.
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:471](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L471)
+Defined in
+[request/request.ts:462](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L462)
 
 </p><div class="api-docs__section">
 
 #### Return
 
 </div><div class="api-docs__returns">
-
-
 
 </div><hr/></div><div class="api-docs__method" method-data="requestMapper"><h3 class="api-docs__name">
 
@@ -886,11 +852,10 @@ Defined in [request/request.ts:471](https://github.com/BetterTyped/hyper-fetch/b
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:83](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L83)
+Defined in
+[request/request.ts:82](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L82)
 
 </p><div class="api-docs__section">
 
@@ -899,7 +864,7 @@ Defined in [request/request.ts:83](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-(request: Request, requestId: string) => NewRequest | Promise<NewRequest>
+(request: Request, requestId: string) => NewRequest | Promise<NewRequest>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="responseMapper"><h3 class="api-docs__name">
@@ -912,11 +877,10 @@ Defined in [request/request.ts:83](https://github.com/BetterTyped/hyper-fetch/bl
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:84](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L84)
+Defined in
+[request/request.ts:83](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L83)
 
 </p><div class="api-docs__section">
 
@@ -925,7 +889,9 @@ Defined in [request/request.ts:84](https://github.com/BetterTyped/hyper-fetch/bl
 </div><div class="api-docs__returns">
 
 ```ts
-(response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>) => ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>> | Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>
+(response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>) =>
+  ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>> |
+  Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="send"><h3 class="api-docs__name">
@@ -942,15 +908,14 @@ Method used to perform requests with usage of cache and queues
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:502](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L502)
+Defined in
+[request/request.ts:493](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L493)
 
 </p><div class="api-docs__section">
 
 #### Return
 
 </div><div class="api-docs__returns">
-
-
 
 </div><hr/></div><div class="api-docs__method" method-data="abort"><h3 class="api-docs__name">
 
@@ -963,7 +928,7 @@ Defined in [request/request.ts:502](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__preview fn">
 
 ```ts
-abort()
+abort();
 ```
 
 </div><div class="api-docs__section">
@@ -972,11 +937,10 @@ abort()
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:455](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L455)
+Defined in
+[request/request.ts:446](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L446)
 
 </p><div class="api-docs__section">
 
@@ -985,7 +949,7 @@ Defined in [request/request.ts:455](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="clone"><h3 class="api-docs__name">
@@ -999,7 +963,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-clone<D, P, Q>(options)
+clone<D, P, Q>(options);
 ```
 
 </div><div class="api-docs__section">
@@ -1008,19 +972,24 @@ clone<D, P, Q>(options)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:409](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L409)
+Defined in
+[request/request.ts:401](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L401)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead>
+<tr><th>Name</th><th>Details</th></tr>
+</thead><tbody>
+<tr param-data="options"><td class="api-docs__param-name optional">
 
-#### options 
+#### options
 
 `Optional`
 
@@ -1035,7 +1004,7 @@ Defined in [request/request.ts:409](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="removeMock"><h3 class="api-docs__name">
@@ -1049,7 +1018,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-removeMock()
+removeMock();
 ```
 
 </div><div class="api-docs__section">
@@ -1058,11 +1027,10 @@ removeMock()
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:293](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L293)
+Defined in
+[request/request.ts:291](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L291)
 
 </p><div class="api-docs__section">
 
@@ -1071,7 +1039,7 @@ Defined in [request/request.ts:293](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-this
+this;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setAbortKey"><h3 class="api-docs__name">
@@ -1085,7 +1053,7 @@ this
 </div><div class="api-docs__preview fn">
 
 ```ts
-setAbortKey(abortKey)
+setAbortKey(abortKey);
 ```
 
 </div><div class="api-docs__section">
@@ -1094,19 +1062,22 @@ setAbortKey(abortKey)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:236](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L236)
+Defined in
+[request/request.ts:235](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L235)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -1121,7 +1092,7 @@ Defined in [request/request.ts:236](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setAuth"><h3 class="api-docs__name">
@@ -1135,7 +1106,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setAuth(auth)
+setAuth(auth);
 ```
 
 </div><div class="api-docs__section">
@@ -1144,19 +1115,22 @@ setAuth(auth)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:164](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L164)
+Defined in
+[request/request.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L163)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="auth"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="auth"><td class="api-docs__param-name required">
 
-#### auth 
+#### auth
 
 `Required`
 
@@ -1171,7 +1145,7 @@ Defined in [request/request.ts:164](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setCache"><h3 class="api-docs__name">
@@ -1185,7 +1159,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setCache(cache)
+setCache(cache);
 ```
 
 </div><div class="api-docs__section">
@@ -1194,19 +1168,22 @@ setCache(cache)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:216](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L216)
+Defined in
+[request/request.ts:215](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L215)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cache"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="cache"><td class="api-docs__param-name required">
 
-#### cache 
+#### cache
 
 `Required`
 
@@ -1221,7 +1198,7 @@ Defined in [request/request.ts:216](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setCacheKey"><h3 class="api-docs__name">
@@ -1235,7 +1212,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setCacheKey(cacheKey)
+setCacheKey(cacheKey);
 ```
 
 </div><div class="api-docs__section">
@@ -1244,19 +1221,22 @@ setCacheKey(cacheKey)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:241](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L241)
+Defined in
+[request/request.ts:240](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L240)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-#### cacheKey 
+#### cacheKey
 
 `Required`
 
@@ -1271,7 +1251,7 @@ Defined in [request/request.ts:241](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setCacheTime"><h3 class="api-docs__name">
@@ -1285,7 +1265,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setCacheTime(cacheTime)
+setCacheTime(cacheTime);
 ```
 
 </div><div class="api-docs__section">
@@ -1294,19 +1274,22 @@ setCacheTime(cacheTime)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:222](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L222)
+Defined in
+[request/request.ts:221](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L221)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cacheTime"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="cacheTime"><td class="api-docs__param-name required">
 
-#### cacheTime 
+#### cacheTime
 
 `Required`
 
@@ -1321,7 +1304,7 @@ Defined in [request/request.ts:222](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setCancelable"><h3 class="api-docs__name">
@@ -1335,7 +1318,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setCancelable(cancelable)
+setCancelable(cancelable);
 ```
 
 </div><div class="api-docs__section">
@@ -1344,19 +1327,22 @@ setCancelable(cancelable)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:186](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L186)
+Defined in
+[request/request.ts:185](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L185)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cancelable"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="cancelable"><td class="api-docs__param-name required">
 
-#### cancelable 
+#### cancelable
 
 `Required`
 
@@ -1371,7 +1357,7 @@ Defined in [request/request.ts:186](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setData"><h3 class="api-docs__name">
@@ -1385,7 +1371,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setData<D>(data)
+setData<D>(data);
 ```
 
 </div><div class="api-docs__section">
@@ -1394,19 +1380,22 @@ setData<D>(data)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:172](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L172)
+Defined in
+[request/request.ts:171](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L171)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="data"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="data"><td class="api-docs__param-name required">
 
-#### data 
+#### data
 
 `Required`
 
@@ -1421,7 +1410,18 @@ Defined in [request/request.ts:172](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D extends null ? false : true, HasParams, HasQuery>
+Request<
+  Response,
+  Payload,
+  QueryParams,
+  GlobalError,
+  LocalError,
+  Endpoint,
+  Adapter,
+  D extends null ? false : true,
+  HasParams,
+  HasQuery
+>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setDataMapper"><h3 class="api-docs__name">
@@ -1435,7 +1435,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setDataMapper<DataMapper>(dataMapper)
+setDataMapper<DataMapper>(dataMapper);
 ```
 
 </div><div class="api-docs__section">
@@ -1448,15 +1448,20 @@ Map data before it gets send to the server
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:314](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L314)
+Defined in
+[request/request.ts:306](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L306)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="dataMapper"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="dataMapper"><td class="api-docs__param-name required">
 
-#### dataMapper 
+#### dataMapper
 
 `Required`
 
@@ -1471,7 +1476,7 @@ Defined in [request/request.ts:314](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setDeduplicate"><h3 class="api-docs__name">
@@ -1485,7 +1490,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setDeduplicate(deduplicate)
+setDeduplicate(deduplicate);
 ```
 
 </div><div class="api-docs__section">
@@ -1494,19 +1499,22 @@ setDeduplicate(deduplicate)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:256](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L256)
+Defined in
+[request/request.ts:255](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L255)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="deduplicate"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="deduplicate"><td class="api-docs__param-name required">
 
-#### deduplicate 
+#### deduplicate
 
 `Required`
 
@@ -1521,7 +1529,7 @@ Defined in [request/request.ts:256](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setDeduplicateTime"><h3 class="api-docs__name">
@@ -1535,7 +1543,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setDeduplicateTime(deduplicateTime)
+setDeduplicateTime(deduplicateTime);
 ```
 
 </div><div class="api-docs__section">
@@ -1544,19 +1552,22 @@ setDeduplicateTime(deduplicateTime)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:260](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L260)
+Defined in
+[request/request.ts:259](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L259)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="deduplicateTime"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="deduplicateTime"><td class="api-docs__param-name required">
 
-#### deduplicateTime 
+#### deduplicateTime
 
 `Required`
 
@@ -1571,7 +1582,7 @@ Defined in [request/request.ts:260](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setEffectKey"><h3 class="api-docs__name">
@@ -1585,7 +1596,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setEffectKey(effectKey)
+setEffectKey(effectKey);
 ```
 
 </div><div class="api-docs__section">
@@ -1594,19 +1605,22 @@ setEffectKey(effectKey)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:251](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L251)
+Defined in
+[request/request.ts:250](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L250)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="effectKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="effectKey"><td class="api-docs__param-name required">
 
-#### effectKey 
+#### effectKey
 
 `Required`
 
@@ -1621,57 +1635,7 @@ Defined in [request/request.ts:251](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-```
-
-</div><hr/></div><div class="api-docs__method" method-data="setEnableMocking"><h3 class="api-docs__name">
-
-### `setEnableMocking()`
-
-</h3><div class="api-docs__section">
-
-#### Preview
-
-</div><div class="api-docs__preview fn">
-
-```ts
-setEnableMocking(isMockEnabled)
-```
-
-</div><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [request/request.ts:300](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L300)
-
-</p><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="isMockEnabled"><td class="api-docs__param-name required">
-
-#### isMockEnabled 
-
-`Required`
-
-</td><td class="api-docs__param-type">
-
-`boolean`
-
-</td></tr></tbody></table></div><div class="api-docs__section">
-
-#### Return
-
-</div><div class="api-docs__returns">
-
-```ts
-this
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setGarbageCollection"><h3 class="api-docs__name">
@@ -1685,7 +1649,7 @@ this
 </div><div class="api-docs__preview fn">
 
 ```ts
-setGarbageCollection(garbageCollection)
+setGarbageCollection(garbageCollection);
 ```
 
 </div><div class="api-docs__section">
@@ -1694,19 +1658,22 @@ setGarbageCollection(garbageCollection)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:206](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L206)
+Defined in
+[request/request.ts:205](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L205)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="garbageCollection"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="garbageCollection"><td class="api-docs__param-name required">
 
-#### garbageCollection 
+#### garbageCollection
 
 `Required`
 
@@ -1721,7 +1688,7 @@ Defined in [request/request.ts:206](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setHeaders"><h3 class="api-docs__name">
@@ -1735,7 +1702,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setHeaders(headers)
+setHeaders(headers);
 ```
 
 </div><div class="api-docs__section">
@@ -1744,19 +1711,22 @@ setHeaders(headers)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:160](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L160)
+Defined in
+[request/request.ts:159](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L159)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="headers"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="headers"><td class="api-docs__param-name required">
 
-#### headers 
+#### headers
 
 `Required`
 
@@ -1771,7 +1741,7 @@ Defined in [request/request.ts:160](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setMock"><h3 class="api-docs__name">
@@ -1785,7 +1755,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setMock(mockData)
+setMock(mockData);
 ```
 
 </div><div class="api-docs__section">
@@ -1794,19 +1764,22 @@ setMock(mockData)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:272](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L272)
+Defined in
+[request/request.ts:271](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L271)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="mockData"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="mockData"><td class="api-docs__param-name required">
 
-#### mockData 
+#### mockData
 
 `Required`
 
@@ -1821,7 +1794,7 @@ Defined in [request/request.ts:272](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-this
+this;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setOffline"><h3 class="api-docs__name">
@@ -1835,7 +1808,7 @@ this
 </div><div class="api-docs__preview fn">
 
 ```ts
-setOffline(offline)
+setOffline(offline);
 ```
 
 </div><div class="api-docs__section">
@@ -1844,19 +1817,22 @@ setOffline(offline)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:268](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L268)
+Defined in
+[request/request.ts:267](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L267)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="offline"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="offline"><td class="api-docs__param-name required">
 
-#### offline 
+#### offline
 
 `Required`
 
@@ -1871,7 +1847,7 @@ Defined in [request/request.ts:268](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setOptions"><h3 class="api-docs__name">
@@ -1885,7 +1861,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setOptions(options)
+setOptions(options);
 ```
 
 </div><div class="api-docs__section">
@@ -1894,19 +1870,22 @@ setOptions(options)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:182](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L182)
+Defined in
+[request/request.ts:181](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L181)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="options"><td class="api-docs__param-name required">
 
-#### options 
+#### options
 
 `Required`
 
@@ -1921,7 +1900,7 @@ Defined in [request/request.ts:182](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, true>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, true>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setParams"><h3 class="api-docs__name">
@@ -1935,7 +1914,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setParams<P>(params)
+setParams<P>(params);
 ```
 
 </div><div class="api-docs__section">
@@ -1944,19 +1923,22 @@ setParams<P>(params)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:168](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L168)
+Defined in
+[request/request.ts:167](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L167)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="params"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="params"><td class="api-docs__param-name required">
 
-#### params 
+#### params
 
 `Required`
 
@@ -1971,7 +1953,18 @@ Defined in [request/request.ts:168](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, P extends null ? false : true, HasQuery>
+Request<
+  Response,
+  Payload,
+  QueryParams,
+  GlobalError,
+  LocalError,
+  Endpoint,
+  Adapter,
+  HasData,
+  P extends null ? false : true,
+  HasQuery
+>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setQueryParams"><h3 class="api-docs__name">
@@ -1985,7 +1978,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setQueryParams(queryParams)
+setQueryParams(queryParams);
 ```
 
 </div><div class="api-docs__section">
@@ -1994,19 +1987,22 @@ setQueryParams(queryParams)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:178](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L178)
+Defined in
+[request/request.ts:177](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L177)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="queryParams"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="queryParams"><td class="api-docs__param-name required">
 
-#### queryParams 
+#### queryParams
 
 `Required`
 
@@ -2021,7 +2017,7 @@ Defined in [request/request.ts:178](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, true>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, true>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setQueueKey"><h3 class="api-docs__name">
@@ -2035,7 +2031,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setQueueKey(queueKey)
+setQueueKey(queueKey);
 ```
 
 </div><div class="api-docs__section">
@@ -2044,19 +2040,22 @@ setQueueKey(queueKey)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:246](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L246)
+Defined in
+[request/request.ts:245](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L245)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="queueKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="queueKey"><td class="api-docs__param-name required">
 
-#### queueKey 
+#### queueKey
 
 `Required`
 
@@ -2071,7 +2070,7 @@ Defined in [request/request.ts:246](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setQueued"><h3 class="api-docs__name">
@@ -2085,7 +2084,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setQueued(queued)
+setQueued(queued);
 ```
 
 </div><div class="api-docs__section">
@@ -2094,19 +2093,22 @@ setQueued(queued)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:232](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L232)
+Defined in
+[request/request.ts:231](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L231)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="queued"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="queued"><td class="api-docs__param-name required">
 
-#### queued 
+#### queued
 
 `Required`
 
@@ -2121,7 +2123,7 @@ Defined in [request/request.ts:232](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setRequestMapper"><h3 class="api-docs__name">
@@ -2135,7 +2137,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setRequestMapper<NewRequest>(requestMapper)
+setRequestMapper<NewRequest>(requestMapper);
 ```
 
 </div><div class="api-docs__section">
@@ -2148,15 +2150,20 @@ Map request before it gets send to the server
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:327](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L327)
+Defined in
+[request/request.ts:319](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L319)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="requestMapper"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="requestMapper"><td class="api-docs__param-name required">
 
-#### requestMapper 
+#### requestMapper
 
 `Required`
 
@@ -2173,7 +2180,7 @@ mapper of the request
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setResponseMapper"><h3 class="api-docs__name">
@@ -2187,7 +2194,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setResponseMapper<NewResponse, NewError>(responseMapper)
+setResponseMapper<NewResponse, NewError>(responseMapper);
 ```
 
 </div><div class="api-docs__section">
@@ -2200,15 +2207,20 @@ Map the response to the new interface
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:340](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L340)
+Defined in
+[request/request.ts:332](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L332)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="responseMapper"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="responseMapper"><td class="api-docs__param-name optional">
 
-#### responseMapper 
+#### responseMapper
 
 `Optional`
 
@@ -2225,7 +2237,7 @@ our mapping callback
 </div><div class="api-docs__returns">
 
 ```ts
-Request<NewResponse, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<NewResponse, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setRetry"><h3 class="api-docs__name">
@@ -2239,7 +2251,7 @@ Request<NewResponse, Payload, QueryParams, GlobalError, LocalError, Endpoint, Ad
 </div><div class="api-docs__preview fn">
 
 ```ts
-setRetry(retry)
+setRetry(retry);
 ```
 
 </div><div class="api-docs__section">
@@ -2248,19 +2260,22 @@ setRetry(retry)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:190](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L190)
+Defined in
+[request/request.ts:189](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L189)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="retry"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="retry"><td class="api-docs__param-name required">
 
-#### retry 
+#### retry
 
 `Required`
 
@@ -2275,7 +2290,7 @@ Defined in [request/request.ts:190](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setRetryTime"><h3 class="api-docs__name">
@@ -2289,7 +2304,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setRetryTime(retryTime)
+setRetryTime(retryTime);
 ```
 
 </div><div class="api-docs__section">
@@ -2298,19 +2313,22 @@ setRetryTime(retryTime)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:196](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L196)
+Defined in
+[request/request.ts:195](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L195)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="retryTime"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="retryTime"><td class="api-docs__param-name required">
 
-#### retryTime 
+#### retryTime
 
 `Required`
 
@@ -2325,7 +2343,7 @@ Defined in [request/request.ts:196](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setUsed"><h3 class="api-docs__name">
@@ -2339,7 +2357,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-setUsed(used)
+setUsed(used);
 ```
 
 </div><div class="api-docs__section">
@@ -2348,19 +2366,22 @@ setUsed(used)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:264](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L264)
+Defined in
+[request/request.ts:263](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L263)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="used"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="used"><td class="api-docs__param-name required">
 
-#### used 
+#### used
 
 `Required`
 
@@ -2375,7 +2396,7 @@ Defined in [request/request.ts:264](https://github.com/BetterTyped/hyper-fetch/b
 </div><div class="api-docs__returns">
 
 ```ts
-Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="toJSON"><h3 class="api-docs__name">
@@ -2389,7 +2410,7 @@ Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapt
 </div><div class="api-docs__preview fn">
 
 ```ts
-toJSON()
+toJSON();
 ```
 
 </div><div class="api-docs__section">
@@ -2398,11 +2419,10 @@ toJSON()
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.ts:374](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/core/src/request/request.ts#L374)
+Defined in
+[request/request.ts:366](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.ts#L366)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { UseRequestEventsReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-request-events/use-request-events.types.ts:74](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/helpers/use-request-events/use-request-events.types.ts#L74)
+Defined in [react/src/helpers/use-request-events/use-request-events.types.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/helpers/use-request-events/use-request-events.types.ts#L73)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [helpers/use-request-events/use-request-events.types.ts:74](https://g
 </div><div class="api-docs__preview type single">
 
 ```ts
-type UseRequestEventsReturnType<T> = [UseRequestEventsActionsType<T>, { addCacheDataListener: (request: RequestInstance) => VoidFunction; addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction; clearCacheDataListener: VoidFunction; clearLifecycleListeners: () => void; removeLifecycleListener: (requestId: string) => void }];
+type UseRequestEventsReturnType<T> = [UseRequestEventsActionsType<T>, { addDataListener: (request: RequestInstance) => VoidFunction; addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction; clearDataListener: VoidFunction; clearLifecycleListeners: () => void; removeLifecycleListener: (requestId: string) => void }];
 ```
 
 </div><div class="api-docs__section">
@@ -42,9 +42,9 @@ type UseRequestEventsReturnType<T> = [UseRequestEventsActionsType<T>, { addCache
 
 ```ts
 [UseRequestEventsActionsType<T>, {
-    addCacheDataListener: (request: RequestInstance) => VoidFunction;
+    addDataListener: (request: RequestInstance) => VoidFunction;
     addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction;
-    clearCacheDataListener: VoidFunction;
+    clearDataListener: VoidFunction;
     clearLifecycleListeners: () => void;
     removeLifecycleListener: (requestId: string) => void;
   }]

@@ -1,5 +1,3 @@
-
-
 # useSubmit
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { useSubmit } from "@hyper-fetch/react"
+import { useSubmit } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L30)
+Defined in
+[react/src/hooks/use-submit/use-submit.hooks.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L30)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [hooks/use-submit/use-submit.hooks.ts:30](https://github.com/BetterTy
 </div><div class="api-docs__preview fn">
 
 ```ts
-useSubmit<RequestType>(request, options)
+useSubmit<RequestType>(request, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="request"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="request"><td class="api-docs__param-name required">
 
-### request 
+### request
 
 `Required`
 
@@ -50,7 +51,7 @@ useSubmit<RequestType>(request, options)
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name required">
 
-### options 
+### options
 
 `Required`
 
@@ -95,7 +96,7 @@ useSubmit<RequestType>(request, options)
   onSubmitResponseStart: (callback: OnStartCallbackType<RequestType>) => void;
   onSubmitSuccess: (callback: OnSuccessCallbackType<RequestType>) => void;
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
-  refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+  revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   submit: RequestSendOptionsType<Request>[data] extends NegativeTypes ? (RequestSendOptionsType<Request>[params] extends NegativeTypes ? (options?: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>> : (options: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>) : (options: RequestSendOptionsType<Request>) => Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>;
   submitting: boolean;
 }

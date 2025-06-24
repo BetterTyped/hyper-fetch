@@ -22,7 +22,7 @@ import { RealtimeDBQueryParams } from "@hyper-fetch/firebase"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/types/adapter.realtime.types.ts:80](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/adapter-firebase/src/adapter/types/adapter.realtime.types.ts#L80)
+Defined in [adapter/types/adapter.realtimedb.types.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L63)
 
 </p><div class="api-docs__section">
 
@@ -32,7 +32,7 @@ Defined in [adapter/types/adapter.realtime.types.ts:80](https://github.com/Bette
 
 ```ts
 type RealtimeDBQueryParams = {
-  constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[]; 
+  constraints: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[]; 
 }
 ```
 
@@ -44,7 +44,11 @@ type RealtimeDBQueryParams = {
 
 ```ts
 {
-  constraints: ExtractConstraintType<T> extends U ? T : never[];
+  constraints: {
+    toString: () => string;
+    type: FirebaseQueryConstraints;
+    values: any[];
+  }[];
 }
 ```
 

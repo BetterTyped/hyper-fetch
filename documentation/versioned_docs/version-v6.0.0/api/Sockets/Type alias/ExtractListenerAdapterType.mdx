@@ -22,7 +22,7 @@ import { ExtractListenerAdapterType } from "@hyper-fetch/sockets"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/extract.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/cc329b91/packages/sockets/src/types/extract.types.ts#L18)
+Defined in [types/extract.types.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/types/extract.types.ts#L20)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/extract.types.ts:18](https://github.com/BetterTyped/hyper-fetc
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractListenerAdapterType<E> = E extends Listener<any, any, infer  A, any> ? A : never;
+type ExtractListenerAdapterType<E> = E extends Listener<any, infer  A> ? A : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractListenerAdapterType<E> = E extends Listener<any, any, infer  A, any>
 </div><div class="api-docs__returns">
 
 ```ts
-E extends Listener<any, any, infer A, any> ? A : never
+E extends Listener<any, infer A> ? A : never
 ```
 
 </div>

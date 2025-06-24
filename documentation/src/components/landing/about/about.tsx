@@ -18,7 +18,7 @@ const aboutFeatures = [
     title: "Fetching Standard",
     description:
       "Enhance DX, reduce errors, and accelerate development with a robust fetching standard, featuring codegen for Swagger/OpenAPI.",
-    link: "/docs/getting-started/overview",
+    link: "/docs/integrations/codegen-openapi/overview",
   },
   {
     icon: LayoutDashboard,
