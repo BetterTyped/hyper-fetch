@@ -2,8 +2,8 @@ import { memo } from "react";
 import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@reins/hooks";
 import { Socket } from "@hyper-fetch/sockets";
+import { HFEventMessage, InternalEvents, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
 
-import { BaseMessage, MessageType } from "shared/types/messages.types";
 import { SocketTopics } from "frontend/constants/topics";
 import { ConnectionName } from "frontend/constants/connection.name";
 import { defaultSimulatedError, useProjects } from "frontend/store/project/projects.store";
@@ -39,29 +39,28 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
         });
       });
 
-    const devtoolsListener = socket.createListener<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
+    const devtoolsListener = socket.createListener<PluginInternalMessage["data"]>()({
+      topic: SocketTopics.APP_MAIN_LISTENER,
     });
 
-    const eventListener = socket.createListener<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER,
+    const eventListener = socket.createListener<HFEventMessage["data"]>()({
+      topic: SocketTopics.APP_INSTANCE_LISTENER,
     });
 
-    const eventEmitter = socket.createEmitter<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_CLIENT_EMITTER,
+    const eventEmitter = socket.createEmitter<HFEventMessage["data"]>()({
+      topic: SocketTopics.APP_INSTANCE_EMITTER,
     });
 
     socket.connect();
 
-    // TODO - Kacper fix this type?
-    devtoolsListener.listen((event: any) => {
-      const { connectionName, messageType, eventData } = event.data;
+    devtoolsListener.listen((event) => {
+      const { connectionName, messageType, eventData, eventType } = event.data;
 
       const name = connectionName;
       nameRef.current = name;
 
-      switch (messageType) {
-        case MessageType.DEVTOOLS_PLUGIN_INIT: {
+      switch (eventType) {
+        case InternalEvents.PLUGIN_INITIALIZED: {
           const client = new Client({ url: eventData.clientOptions.url });
 
           addConnection({
@@ -86,7 +85,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           });
           return;
         }
-        case MessageType.DEVTOOLS_PLUGIN_HANGUP: {
+        case InternalEvents.PLUGIN_HANGUP: {
           updateConnection(nameRef.current, {
             connected: false,
           });

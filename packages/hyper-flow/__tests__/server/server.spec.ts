@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
+import { InternalEvents } from "@hyper-fetch/plugin-devtools";
 
-import { MessageType } from "shared/types/messages.types";
 import { StartServer, startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 
@@ -23,6 +23,7 @@ describe("Devtools Socket Server", () => {
       await connectDevtoolsClient();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
+      console.log("PRINTING", connections);
     });
   });
   describe("If connection to the frontend app is established and then disconnected and reconnected again", () => {
@@ -48,7 +49,10 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(connections?.["test-client"].ws).toBeNull());
       await waitFor(() => expect(receivedMessage).toBeTruthy());
       expect(receivedMessage).toEqual({
-        event: { messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP, connectionName: "test-client" },
+        event: {
+          messageType: InternalEvents.PLUGIN_HANGUP,
+          connectionName: "test-client",
+        },
       });
 
       await socket.disconnect();

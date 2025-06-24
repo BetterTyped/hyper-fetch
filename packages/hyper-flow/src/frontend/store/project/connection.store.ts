@@ -1,8 +1,7 @@
 import { ClientInstance } from "@hyper-fetch/core";
 import { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
 import { create } from "zustand";
-
-import { BaseMessage } from "shared/types/messages.types";
+import { HFEventMessage } from "@hyper-fetch/plugin-devtools";
 
 export type Connection = {
   name: string;
@@ -21,8 +20,8 @@ export type Connection = {
     };
   };
   connected: boolean;
-  eventListener: ExtendListener<ListenerInstance, { response: BaseMessage["data"] }>;
-  eventEmitter: ExtendEmitter<EmitterInstance, { payload: BaseMessage["data"] }>;
+  eventListener: ExtendListener<ListenerInstance, { response: HFEventMessage["data"] }>;
+  eventEmitter: ExtendEmitter<EmitterInstance, { payload: HFEventMessage["data"] }>;
 };
 
 type ConnectionStore = {

@@ -7,7 +7,7 @@ import { ConnectionName } from "frontend/constants/connection.name";
 export const connectDevtoolsClient = ({
   baseUrl = "http://localhost:2137",
   clientName = "test-client",
-  socketAddress = "ws:localhost",
+  socketAddress = "localhost",
   socketPort = 2137,
 }: {
   baseUrl?: string;

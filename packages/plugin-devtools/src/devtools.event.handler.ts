@@ -1,26 +1,34 @@
 import { CacheValueType, ClientInstance } from "@hyper-fetch/core";
 import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
-import { DevtoolsPluginOptions, MessageTypes } from "devtools.types";
+import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
+import { HFEventMessage, MessageOrigin, MessageType, PluginInternalMessagePayload } from "./types/messages.types";
+import { DevtoolsPluginOptions } from "./types/plugin.types";
 
 export class DevtoolsEventHandler {
   client: ClientInstance;
   socket: Socket;
-  socketEmitter: Emitter<any, any, any>;
+  // TODO - fix type, it can be either internal or simply an event
+  socketEmitter: Emitter<PluginInternalMessagePayload, any, any>;
   socketListener: Listener<any, any, any>;
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   isInitialized: boolean;
   eventQueue: any[] = [];
   connectionName: string;
+  environment: string;
 
-  constructor(client: ClientInstance, { appName, url = "ws://localhost:2137", debug = false }: DevtoolsPluginOptions) {
+  constructor(
+    client: ClientInstance,
+    { appName, url = "ws://localhost:2137", debug = false, environment }: DevtoolsPluginOptions,
+  ) {
     this.isConnected = false;
     this.isInitialized = false;
     this.eventQueue = [];
     this.client = client;
     this.unmountHooks = this.initializeHooks();
     this.connectionName = appName;
+    this.environment = environment || appName;
     this.socket = new Socket({
       url,
       adapterOptions: { autoConnect: false },
@@ -28,9 +36,13 @@ export class DevtoolsEventHandler {
       reconnectTime: 3000,
     }).setQueryParams({
       connectionName: this.connectionName,
+      origin: MessageOrigin.PLUGIN,
     });
 
-    this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
+    // TODO - move topic names?
+    this.socketEmitter = this.socket.createEmitter<PluginInternalMessagePayload>()({
+      topic: "DEVTOOLS_PLUGIN_EMITTER",
+    });
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
     this.socket.connect();
     this.socket.onDisconnected(() => {
@@ -50,98 +62,78 @@ export class DevtoolsEventHandler {
         console.log("[HyperFetch Devtools] connected");
       }
       this.isConnected = true;
+      // TODO - fix type
       this.socketEmitter.emit({
         payload: {
-          messageType: MessageTypes.PLUGIN_INITIALIZED,
+          messageType: MessageType.INTERNAL,
+          eventType: InternalEvents.PLUGIN_INITIALIZED,
           eventData: {
             clientOptions: this.client.options,
             adapterOptions: this.client.adapter.options,
+            environment: this.environment,
           },
           connectionName: this.connectionName,
+          origin: MessageOrigin.PLUGIN,
         },
       });
     });
     this.socketListener.listen((message) => {
       switch (message.data.messageType) {
-        case MessageTypes.HF_DEVTOOLS_EVENT: {
-          this.handleDevtoolsMessage(message);
+        case MessageType.EVENT: {
+          this.handleEvent(message);
           break;
         }
-        case MessageTypes.CLIENT_INITIALIZED: {
-          this.isInitialized = true;
-          while (this.eventQueue.length > 0) {
-            const nextEvent = this.eventQueue.shift();
-            this.socketEmitter.emit({ payload: nextEvent });
+        case MessageType.INTERNAL: {
+          if (message.data.eventType === InternalEvents.APP_INITIALIZED) {
+            this.isInitialized = true;
+            while (this.eventQueue.length > 0) {
+              const nextEvent = this.eventQueue.shift();
+              this.socketEmitter.emit({ payload: nextEvent });
+            }
+          } else {
+            console.error(`[HyperFetch Plugin Devtools] - Unknown event type ${message.data.messageType}`);
           }
           break;
         }
         default: {
-          console.error("NO EVENT TYPE", message);
+          console.error(`[HyperFetch Plugin Devtools] - Unknown Message Type`, message);
         }
       }
     });
   }
 
-  sendEvent =
-    (eventSource: "requestManager" | "appManager" | "cache" | "submitDispatcher" | "fetchDispatcher" | "customEvent") =>
-    (eventName: string, data: any, isTriggeredExternally: boolean) => {
-      if (this.isConnected && this.isInitialized) {
-        try {
-          this.socketEmitter.emit({
-            payload: {
-              messageType: "HF_APP_EVENT",
-              eventSource,
-              eventName: eventName,
-              eventData: { ...data, isTriggeredExternally },
-              connectionName: this.connectionName,
-            },
-          });
-        } catch (e) {
-          console.error("ERROR", e);
-        }
-      } else {
-        this.eventQueue.push({
-          messageType: "HF_APP_EVENT",
+  sendEvent = (eventSource: EventSourceType) => (eventName: string, data: any, isTriggeredExternally: boolean) => {
+    if (this.isConnected && this.isInitialized) {
+      try {
+        this.socketEmitter.emit({
           payload: {
-            messageType: "HF_APP_EVENT",
-            parent,
-            eventName: eventName,
-            eventData: { ...data, isTriggeredExternally },
+            messageType: MessageType.EVENT,
+            eventSource,
             connectionName: this.connectionName,
+            eventName,
+            eventData: { ...data, isTriggeredExternally, environment: this.environment },
+            origin: MessageOrigin.PLUGIN,
           },
-          eventData: data,
-          connectionName: this.connectionName,
         });
+      } catch (e) {
+        console.error("ERROR", e);
       }
-    };
+    } else {
+      // TODO - add tests
+      this.eventQueue.push({
+        messageType: MessageType.EVENT,
+        eventSource,
+        connectionName: this.connectionName,
+        eventName,
+        eventData: { ...data, isTriggeredExternally, environment: this.environment },
+        origin: MessageOrigin.PLUGIN,
+      });
+    }
+  };
 
-  // sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
-  //   if (this.isConnected && this.isInitialized) {
-  //     try {
-  //       this.socketEmitter.emit({
-  //         payload: {
-  //           messageType: "HF_APP_EVENT",
-  //           eventType,
-  //           eventData: data,
-  //           connectionName: this.connectionName,
-  //         },
-  //       });
-  //     } catch (e) {
-  //       console.error("ERROR", e);
-  //     }
-  //   } else {
-  //     this.eventQueue.push({
-  //       messageType: "HF_APP_EVENT",
-  //       eventType,
-  //       eventData: data,
-  //       connectionName: this.connectionName,
-  //     });
-  //   }
-  // };
-
-  handleDevtoolsMessage = (message: any) => {
+  handleEvent = (message: HFEventMessage) => {
     switch (message.data.eventType) {
-      case EmitableCoreEvents.ON_CACHE_CHANGE: {
+      case CoreEvents.ON_CACHE_CHANGE: {
         const eventData = message.data.eventData as CacheValueType;
         this.client.cache.update(
           {
@@ -156,17 +148,18 @@ export class DevtoolsEventHandler {
         break;
       }
       default: {
-        console.error("NO EVENT TYPE", message);
+        console.error(`[HyperFetch Plugin Devtools] - Unknown event type`, message.data.messageType);
       }
     }
   };
 
   initializeHooks = () => {
-    this.client.requestManager.emitter.onEmit(this.sendEvent("requestManager"));
-    this.client.appManager.emitter.onEmit(this.sendEvent("appManager"));
-    this.client.cache.emitter.onEmit(this.sendEvent("cache"));
-    this.client.fetchDispatcher.emitter.onEmit(this.sendEvent("fetchDispatcher"));
-    this.client.submitDispatcher.emitter.onEmit(this.sendEvent("submitDispatcher"));
+    // TODO - add unmount ?
+    this.client.requestManager.emitter.onEmit(this.sendEvent(EventSourceType.REQUEST_MANAGER));
+    this.client.appManager.emitter.onEmit(this.sendEvent(EventSourceType.APP_MANAGER));
+    this.client.cache.emitter.onEmit(this.sendEvent(EventSourceType.CACHE));
+    this.client.fetchDispatcher.emitter.onEmit(this.sendEvent(EventSourceType.FETCH_DISPATCHER));
+    this.client.submitDispatcher.emitter.onEmit(this.sendEvent(EventSourceType.SUBMIT_DISPATCHER));
     //
     // unmountOnCacheChange = () => {
     //   return this.client.cache.events.onData((data) => {
