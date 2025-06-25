@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { QueueDataType, RequestInstance } from "@hyper-fetch/core";
-import { TrashIcon, XIcon, Sparkles, LoaderIcon, Cpu } from "lucide-react";
+import { TrashIcon, XIcon, Sparkles, Cpu, LoaderCircle, Pause } from "lucide-react";
 import { useQueue } from "@hyper-fetch/react";
+import { useShallow } from "zustand/react/shallow";
 
 import {
   DropdownMenu,
@@ -15,10 +16,21 @@ import { SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useQueueStore } from "@/store/applications/queue.store";
+import { useNetworkStore } from "@/store/applications/network.store";
 
 export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> }) => {
   const { client, application } = useDevtools();
-  const closeDetails = useQueueStore((state) => state.closeDetails);
+  const { closeDetails, loadingKeys, addLoadingKey, removeLoadingKey } = useQueueStore(
+    useShallow((state) => {
+      return {
+        loadingKeys: state.applications[application.name].loadingKeys,
+        addLoadingKey: state.addLoadingKey,
+        removeLoadingKey: state.removeLoadingKey,
+        closeDetails: state.closeDetails,
+      };
+    }),
+  );
+  const requests = useNetworkStore((state) => state.applications[application.name].requests);
 
   const dummyRequest = useMemo(() => {
     return client.createRequest()({
@@ -33,15 +45,55 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   const toggleQueue = () => {
     if (stopped) {
       start();
+      dispatcher.events.emitQueueStatusChanged({ ...item, stopped: false }, true);
     } else {
       stop();
+      dispatcher.events.emitQueueStatusChanged({ ...item, stopped: true }, true);
     }
   };
 
   const clear = () => {
     if (item) {
-      dispatcher.cancelRunningRequests(item.queryKey);
       dispatcher.clearQueue(item.queryKey);
+      dispatcher.events.emitDrained(item, true);
+    }
+  };
+
+  const latestItem = useMemo(() => {
+    if (!item) return null;
+
+    const element = requests.find((el) => el.request.queryKey === item.queryKey);
+    if (!element)
+      return {
+        request: {
+          cacheKey: item.queryKey,
+        } as any,
+        requestId: "",
+      };
+    return element;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.queryKey, requests?.length]);
+
+  const isLoading = item ? loadingKeys.has(latestItem?.request.queryKey || item.queryKey) : false;
+
+  const toggleLoading = () => {
+    if (!item || !latestItem) return;
+
+    // This is dummy data for the event, it is minimum that is required to trigger the event
+    // We don't need to pass all the data, because it will be handled anyway
+    const eventData = {
+      request: latestItem.request,
+      isRetry: false,
+      isOffline: false,
+      requestId: "",
+    };
+
+    if (!isLoading) {
+      client.requestManager.events.emitLoading({ ...eventData, loading: true }, true);
+      addLoadingKey({ application: application.name, queryKey: item.queryKey });
+    } else {
+      client.requestManager.events.emitLoading({ ...eventData, loading: false }, true);
+      removeLoadingKey({ application: application.name, queryKey: item.queryKey });
     }
   };
 
@@ -70,8 +122,13 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
             Queue Actions
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+
+          <DropdownMenuItem onClick={toggleLoading} disabled={!latestItem}>
+            <LoaderCircle className="mr-2 h-4 w-4" />
+            {isLoading ? "Restore" : "Set"} loading
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={toggleQueue}>
-            <LoaderIcon className="mr-2 h-4 w-4" />
+            <Pause className="mr-2 h-4 w-4" />
             {stopped ? "Start" : "Stop"}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={clear}>

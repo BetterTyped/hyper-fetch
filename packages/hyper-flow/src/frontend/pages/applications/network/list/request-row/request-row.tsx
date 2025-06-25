@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BadgeCheck, Hexagon } from "lucide-react";
+import { Boxes, Hexagon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -51,7 +51,7 @@ export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEv
       <TableCell className="text-sm font-light">
         {item.request.cache ? (
           <Badge variant="default">
-            <BadgeCheck className="min-w-4 min-h-4" />
+            <Boxes className="min-w-4 min-h-4" />
             Cached
           </Badge>
         ) : (

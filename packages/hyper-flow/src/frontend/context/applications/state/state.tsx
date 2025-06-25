@@ -1,5 +1,5 @@
 import { useDidMount } from "@better-hooks/lifecycle";
-import { useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
@@ -16,7 +16,7 @@ import { useQueueStore } from "@/store/applications/queue.store";
 import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
 
-export const State = ({ application }: { application: string }) => {
+export const State = memo(({ application }: { application: string }) => {
   const { setApplicationStates } = useApplicationStates("State");
 
   const { setNetworkRequest, setNetworkResponse } = useNetworkStore(
@@ -25,12 +25,10 @@ export const State = ({ application }: { application: string }) => {
       setNetworkResponse: selector.setNetworkResponse,
     })),
   );
-  const { setCache, invalidateCache, addLoadingKey, removeLoadingKey } = useCacheStore(
+  const { setCache, invalidateCache } = useCacheStore(
     useShallow((selector) => ({
       setCache: selector.setCache,
       invalidateCache: selector.invalidateCache,
-      addLoadingKey: selector.addLoadingKey,
-      removeLoadingKey: selector.removeLoadingKey,
     })),
   );
   const { setNetworkStats } = useNetworkStatsStore(
@@ -60,9 +58,11 @@ export const State = ({ application }: { application: string }) => {
     })),
   );
 
-  const { setQueue } = useQueueStore(
+  const { setQueue, addLoadingKey, removeLoadingKey } = useQueueStore(
     useShallow((selector) => ({
       setQueue: selector.setQueue,
+      addLoadingKey: selector.addLoadingKey,
+      removeLoadingKey: selector.removeLoadingKey,
     })),
   );
 
@@ -128,7 +128,7 @@ export const State = ({ application }: { application: string }) => {
 
       addLoadingKey({
         application,
-        cacheKey: item.request.cacheKey,
+        queryKey: item.request.queryKey,
       });
     });
 
@@ -205,7 +205,7 @@ export const State = ({ application }: { application: string }) => {
       if (!data.requests.length) {
         removeLoadingKey({
           application,
-          cacheKey: data.queryKey,
+          queryKey: data.queryKey,
         });
       }
       setQueue({
@@ -219,11 +219,17 @@ export const State = ({ application }: { application: string }) => {
         data,
       });
     });
+    const unmountOnFetchQueueClear = client.fetchDispatcher.events.onDrained((data) => {
+      setQueue({
+        application,
+        data,
+      });
+    });
     const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((data) => {
       if (!data.requests.length) {
         removeLoadingKey({
           application,
-          cacheKey: data.queryKey,
+          queryKey: data.queryKey,
         });
       }
       setQueue({
@@ -232,6 +238,12 @@ export const State = ({ application }: { application: string }) => {
       });
     });
     const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange((data) => {
+      setQueue({
+        application,
+        data,
+      });
+    });
+    const unmountOnSubmitQueueClear = client.submitDispatcher.events.onDrained((data) => {
       setQueue({
         application,
         data,
@@ -290,8 +302,10 @@ export const State = ({ application }: { application: string }) => {
       unmountOnRequestPause();
       unmountOnFetchQueueChange();
       unmountOnFetchQueueStatusChange();
+      unmountOnFetchQueueClear();
       unmountOnSubmitQueueChange();
       unmountOnSubmitQueueStatusChange();
+      unmountOnSubmitQueueClear();
       unmountOnRemove();
       unmountOnCacheChange();
       unmountOnCacheInvalidate();
@@ -323,4 +337,4 @@ export const State = ({ application }: { application: string }) => {
   });
 
   return null;
-};
+});

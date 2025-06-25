@@ -177,6 +177,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherQueueCleared", { dispatcher: this, queue: newQueue });
     this.events.emitQueueChanged(newQueue);
+    this.events.emitDrained(newQueue);
 
     return newQueue;
   };

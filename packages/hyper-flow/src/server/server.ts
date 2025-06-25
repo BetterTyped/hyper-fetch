@@ -66,10 +66,6 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
 
     wsConn.on("message", (msg: { data: BaseMessagePayload }) => {
       const message = JSON.parse(msg.toString()) as { data: BaseMessagePayload };
-      serverLogger.debug("Received message ", {
-        context: "WebSocketServer",
-        details: { message },
-      });
       connectionHandler.handleMessage(message);
     });
   });

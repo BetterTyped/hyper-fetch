@@ -1,7 +1,13 @@
-import { ClientInstance, LoggerMethods } from "@hyper-fetch/core";
+import {
+  ClientInstance,
+  getCacheEvents,
+  getDispatcherEvents,
+  getRequestManagerEvents,
+  LoggerMethods,
+} from "@hyper-fetch/core";
 import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
-import { EventSourceType, InternalEvents } from "./types/events.types";
+import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
 import {
   HFEventMessagePayload,
   MessageOrigin,
@@ -10,6 +16,11 @@ import {
 } from "./types/messages.types";
 import { DevtoolsPluginOptions } from "./types/plugin.types";
 import { SocketTopics } from "./types/topics";
+
+type EventData<
+  Events extends (...args: any) => Record<string, (...args: any) => any>,
+  Key extends keyof ReturnType<Events>,
+> = Parameters<Parameters<ReturnType<Events>[Key]>[0]>[0];
 
 export class DevtoolsEventHandler {
   client: ClientInstance;
@@ -83,8 +94,63 @@ export class DevtoolsEventHandler {
     this.socketListener.listen((message) => {
       switch (message.data.messageType) {
         case MessageType.EVENT: {
+          // TODO - cover all types from any to specific types
+          // Cache
           if (message.data.eventSource === EventSourceType.CACHE) {
-            client.cache.emitter.emit(message.data.eventName, message.data.eventData, true);
+            if (message.data.eventName === CoreEvents.ON_CACHE_CHANGE) {
+              const data = message.data.eventData as EventData<typeof getCacheEvents, "onData">;
+              client.cache.storage.set(data.cacheKey, data);
+              client.cache.events.emitCacheData(data, true);
+            }
+            if (message.data.eventName === CoreEvents.ON_CACHE_INVALIDATION) {
+              const data = message.data.eventData as EventData<typeof getCacheEvents, "onInvalidate">;
+              client.cache.events.emitInvalidation(data, true);
+            }
+            if (message.data.eventName === CoreEvents.ON_CACHE_DELETE) {
+              const data = message.data.eventData as EventData<typeof getCacheEvents, "onDelete">;
+              client.cache.storage.delete(data);
+              client.cache.events.emitDelete(data, true);
+            }
+          }
+          // Request manager
+          if (message.data.eventSource === EventSourceType.REQUEST_MANAGER) {
+            if (message.data.eventName === CoreEvents.ON_REQUEST_LOADING) {
+              const data = message.data.eventData as EventData<typeof getRequestManagerEvents, "onLoading">;
+              client.requestManager.events.emitLoading(data, true);
+            }
+          }
+          // Fetch dispatcher
+          if (message.data.eventSource === EventSourceType.FETCH_DISPATCHER) {
+            if (message.data.eventName === CoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE) {
+              const data = message.data.eventData as EventData<typeof getDispatcherEvents, "onQueueStatusChange">;
+
+              console.log("ON_FETCH_QUEUE_STATUS_CHANGE", data);
+              if (data.stopped) {
+                client.fetchDispatcher.stop(data.queryKey);
+              } else {
+                client.fetchDispatcher.start(data.queryKey);
+              }
+            }
+            if (message.data.eventName === CoreEvents.ON_FETCH_QUEUE_CLEAR) {
+              client.fetchDispatcher.clearQueue(message.data.eventData.queryKey);
+            }
+          }
+          // Submit dispatcher
+          if (message.data.eventSource === EventSourceType.SUBMIT_DISPATCHER) {
+            if (message.data.eventName === CoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE) {
+              const data = message.data.eventData as EventData<typeof getDispatcherEvents, "onQueueStatusChange">;
+
+              console.log("ON_SUBMIT_QUEUE_STATUS_CHANGE", data);
+              if (data.stopped) {
+                client.submitDispatcher.stop(data.queryKey);
+              } else {
+                client.submitDispatcher.start(data.queryKey);
+              }
+            }
+            if (message.data.eventName === CoreEvents.ON_SUBMIT_QUEUE_CLEAR) {
+              const data = message.data.eventData as EventData<typeof getDispatcherEvents, "onDrained">;
+              client.submitDispatcher.clearQueue(data.queryKey);
+            }
           }
           break;
         }

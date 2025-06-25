@@ -18,8 +18,6 @@ export const CacheDetails = () => {
     useShallow((state) => ({
       detailsId: state.applications[application.name].detailsId,
       caches: state.applications[application.name].caches,
-      addLoadingKeys: state.addLoadingKey,
-      removeLoadingKeys: state.removeLoadingKey,
     })),
   );
 

@@ -11,7 +11,6 @@ type CacheStore = {
   cacheSort: Sort | null;
   caches: Map<CacheKey, DevtoolsCacheEvent>;
   detailsId: string | null;
-  loadingKeys: Set<CacheKey>;
 };
 
 const getInitialState = (): CacheStore => ({
@@ -19,7 +18,6 @@ const getInitialState = (): CacheStore => ({
   cacheSort: null,
   caches: new Map(),
   detailsId: null,
-  loadingKeys: new Set(),
 });
 
 type Store = {
@@ -36,8 +34,6 @@ type Store = {
   }) => void;
   setCacheItem: (data: { application: string; cacheKey: string; cacheData: DevtoolsCacheEvent["cacheData"] }) => void;
   invalidateCache: (data: { application: string; cacheKey: string }) => void;
-  addLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
-  removeLoadingKey: (data: { application: string; cacheKey: CacheKey }) => void;
 };
 
 export const useCacheStore = create<Store>((set) => ({
@@ -126,26 +122,6 @@ export const useCacheStore = create<Store>((set) => ({
             staleTime: 0,
           },
         });
-      }),
-    );
-  },
-  addLoadingKey: ({ application, cacheKey }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
-        draft.applications[application].loadingKeys.add(cacheKey);
-      }),
-    );
-  },
-  removeLoadingKey: ({ application, cacheKey }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
-        draft.applications[application].loadingKeys.delete(cacheKey);
       }),
     );
   },

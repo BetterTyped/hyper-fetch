@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { CacheValueType } from "@hyper-fetch/core";
-import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles, LoaderIcon } from "lucide-react";
+import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -40,7 +40,6 @@ import {
 import { SimulatedError } from "@/store/applications/apps.store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { useNetworkStore } from "@/store/applications/network.store";
 
 export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { application, client } = useDevtools();
@@ -51,22 +50,11 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       closeDetails: selector.closeDetails,
     })),
   );
-  const { addLoadingKeys, removeLoadingKeys, loadingKeys } = useCacheStore(
-    useShallow((state) => ({
-      addLoadingKeys: state.addLoadingKey,
-      removeLoadingKeys: state.removeLoadingKey,
-      loadingKeys: state.applications[application.name].loadingKeys,
-    })),
-  );
-  const requests = useNetworkStore((state) => state.applications[application.name].requests);
 
   const { settings } = application;
 
   const invalidate = () => {
     if (!item) return;
-    // TODO - figure out the way to handle this on the plugin side
-    // We need to emit the event to the plugin, capture it and run the invalidate logic
-    // ONLY if the event is triggered externally
     client.cache.events.emitInvalidation(item.cacheKey, true);
   };
 
@@ -75,9 +63,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const remove = () => {
-    // TODO - figure out the way to handle this on the plugin side
-    // We need to emit the event to the plugin, capture it and run the delete logic
-    // ONLY if the event is triggered externally
     client.cache.events.emitDelete(item.cacheKey, true);
   };
 
@@ -98,46 +83,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       cacheData: data,
     });
     client.cache.events.emitCacheData(data, true);
-  };
-
-  const latestItem = useMemo(() => {
-    if (!item) return null;
-
-    const element = requests.find((el) => el.request.cacheKey === item.cacheKey);
-    if (!element)
-      return {
-        request: {
-          cacheKey: item.cacheKey,
-        } as any,
-        requestId: "",
-      };
-    return element;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.cacheKey, requests?.length]);
-  const hasInProgressRequest = item ? requests.some((i) => i.request.cacheKey === item.cacheKey) : false;
-  const isLoading = item ? loadingKeys.has(item.cacheKey) : false;
-
-  const toggleLoading = () => {
-    if (!item || !latestItem) return;
-
-    // This is dummy data for the event, it is minimum that is required to trigger the event
-    // We don't need to pass all the data, because it will be handled anyway
-    const eventData = {
-      request: latestItem.request,
-      loading: true,
-      isRetry: false,
-      isOffline: false,
-      requestId: "",
-    };
-
-    if (!hasInProgressRequest) {
-      addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-      client.requestManager.events.emitLoading(eventData, true);
-      addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-    } else {
-      removeLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-      client.requestManager.events.emitLoading(eventData, true);
-    }
   };
 
   return (
@@ -166,10 +111,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={toggleLoading}>
-            <LoaderIcon className="mr-2 h-4 w-4" />
-            {isLoading ? "Restore" : "Set"} loading
-          </DropdownMenuItem>
           {/* Simulate Error */}
           <Dialog>
             <DialogTrigger asChild>

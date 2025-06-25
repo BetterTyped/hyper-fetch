@@ -54,6 +54,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       status: null,
       success: true,
       extra: null,
+      cached: !!request.cache,
       ...(initialResponse as Partial<ExtractAdapterResolvedType<T>>),
       ...getDetailsState(),
       staleTime: 1000,

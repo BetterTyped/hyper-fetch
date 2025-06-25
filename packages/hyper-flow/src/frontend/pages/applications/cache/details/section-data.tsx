@@ -33,7 +33,7 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
         cacheKey: item.cacheKey,
         cacheData: data,
       });
-      client.cache.events.emitCacheData<any, any, any>(item.cacheData, true);
+      client.cache.events.emitCacheData<any, any, any>(data, true);
     }
   };
 
