@@ -50,7 +50,23 @@ export class InternalConnectionHandler {
     if (!this.connectionState.connections[connectionName]) {
       throw new Error(`No open connection exists for the connectionName ${connectionName}`);
     }
-    if (!this.connectionState.appConnection || !message) {
+
+    if (!this.connectionState.appConnection) {
+      this.connectionState.connections[connectionName].clientMetaData = message;
+      serverLogger.info("Frontend connection does not exist...yet.", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "Missing frontend connection or message data",
+          connectionName,
+          hasFrontendConnection: !!this.connectionState.appConnection,
+          hasMessage: !!message,
+          activeConnections: Object.keys(this.connectionState.connections),
+        },
+      });
+      return;
+    }
+
+    if (!message) {
       /**
        * This error can happen when the devtools plugin connects to the fake server
        * We found this case being triggered with msw setup, which caused websocket to open

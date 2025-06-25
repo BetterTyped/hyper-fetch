@@ -127,10 +127,11 @@ export class ConnectionHandler {
         break;
       case MessageOrigin.APP:
         this.setAppConnection(conn);
-        // TODO add tests ?
-        Object.entries(this.connectionState.connections).forEach(([connName, connectionData]) => {
-          this.internalConnectionHandler.sendPluginHandshakeToApp(connName, connectionData.clientMetaData);
-        });
+        Object.entries(this.connectionState.connections)
+          .filter(([, connData]) => !!connData.clientMetaData)
+          .forEach(([connName, connectionData]) => {
+            this.internalConnectionHandler.sendPluginHandshakeToApp(connName, connectionData.clientMetaData);
+          });
         break;
       default:
         throw new Error(`Unknown origin: ${origin} for ${connectionName}`);
@@ -139,7 +140,6 @@ export class ConnectionHandler {
 
   handleClosedConnection = (connectionName: string) => {
     if (connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      // TODO - should we send this info to plugin in order to stop sending messages ?
       this.setAppConnection(null);
     }
 
@@ -162,6 +162,7 @@ export class ConnectionHandler {
         return;
       }
 
+      console.log("Connection termination terminated");
       this.connectionState.appConnection.send(
         JSON.stringify({
           ...{
