@@ -129,7 +129,7 @@ export const ResizableSidebar = ({
       [getOppositePosition(position)]: <BorderHandle position={position} />,
     },
     handleWrapperClass: getPositionClasses(position),
-    onResize: (e, direction, ref) => {
+    onResize: (_, __, ref) => {
       const width = ref.clientWidth;
       const newBreakpoint = availableBreakpoints.find((b) => width >= b.breakpoint);
       if (newBreakpoint) {

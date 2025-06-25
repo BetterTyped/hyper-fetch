@@ -59,7 +59,7 @@ export const createMenu = () => {
         {
           label: "Take screenshot",
           accelerator: "CmdOrCtrl+Shift+I",
-          click(item: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
+          click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
             if (focusedWindow)
               focusedWindow.capturePage().then((image) => {
                 clipboard.writeImage(image);
@@ -69,7 +69,7 @@ export const createMenu = () => {
         {
           label: "Reload",
           accelerator: "CmdOrCtrl+R",
-          click(item: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
+          click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
             if (focusedWindow) focusedWindow.reload();
           },
         },
@@ -79,7 +79,7 @@ export const createMenu = () => {
             if (process.platform === "darwin") return "Alt+Command+I";
             return "Ctrl+Shift+I";
           })(),
-          click(item: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
+          click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
             if (focusedWindow) focusedWindow.webContents.openDevTools();
           },
         },

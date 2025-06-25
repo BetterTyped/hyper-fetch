@@ -1,34 +1,17 @@
 {
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  },
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "allowJs": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "jsx": "preserve",
-    "outDir": "dist",
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "moduleResolution": "node",
     "strict": true,
-    "lib": ["esnext"],
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "isolatedModules": true,
-    "incremental": true,
     "baseUrl": "./src",
+    "jsx": "react-jsx",
+    "outDir": "dist",
     "paths": {
       "@/*": ["./frontend/*"],
       "@app/*": ["./app/*"],
       "@server/*": ["./server/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@testing/*": ["../__tests__/*"]
     }
   },
-  "include": ["src", "__tests__", "configs", "forge.config.ts", "vite-env.d.ts", "forge.env.d.ts", "electron.d.ts"]
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }
