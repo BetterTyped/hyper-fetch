@@ -12,6 +12,7 @@ describe("Devtools Socket Server", () => {
   });
   afterEach(async () => {
     await serverObject?.server?.close();
+    await serverObject?.wss?.close();
     jest.clearAllMocks();
   });
   describe("If connection to the frontend is established and client is connected", () => {

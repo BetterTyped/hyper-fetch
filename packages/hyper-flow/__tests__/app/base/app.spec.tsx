@@ -29,6 +29,7 @@ describe("App", () => {
   });
   afterEach(async () => {
     await serverObject?.server?.close();
+    await serverObject?.wss?.close();
     jest.clearAllMocks();
   });
 

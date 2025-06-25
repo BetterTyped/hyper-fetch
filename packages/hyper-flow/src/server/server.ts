@@ -98,13 +98,6 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       if (onServerCrash) {
         process.off("unhandledRejection", onServerCrash);
       }
-      serverLogger.warning("Server closed", {
-        context: "Server",
-        details: {
-          port,
-          reason: "Server closed event triggered",
-        },
-      });
     })
     .on("error", (error) => {
       if (onServerCrash) {
