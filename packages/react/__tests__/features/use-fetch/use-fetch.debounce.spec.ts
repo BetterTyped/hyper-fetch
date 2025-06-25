@@ -1,8 +1,9 @@
-import { waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
+import { waitFor, act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Bounce ]", () => {
   const hookDebounceOptions = { bounce: true, bounceType: "debounce", bounceTime: 50 } as const;
@@ -13,7 +14,7 @@ describe("useFetch [ Bounce ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -30,7 +31,7 @@ describe("useFetch [ Bounce ]", () => {
     describe("when request is about to change", () => {
       it("should not debounce initial request", async () => {
         const spy = jest.fn();
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseFetch(request, hookDebounceOptions);
 
         act(() => {
@@ -38,11 +39,11 @@ describe("useFetch [ Bounce ]", () => {
         });
 
         await waitForRender(0);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should debounce multiple request triggers by 100ms", async () => {
         const spy = jest.fn();
-        createRequestInterceptor(request, { delay: 0 });
+        mockRequest(request, { delay: 0 });
         const response = renderUseFetch(request, { ...hookDebounceOptions, dependencies: [{ test: 10 }] });
 
         act(() => {
@@ -55,7 +56,7 @@ describe("useFetch [ Bounce ]", () => {
 
         await waitForRender();
 
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
 
         act(() => {
           rerender();
@@ -68,7 +69,7 @@ describe("useFetch [ Bounce ]", () => {
         await waitForRender();
 
         await waitFor(() => {
-          expect(spy).toBeCalledTimes(2);
+          expect(spy).toHaveBeenCalledTimes(2);
         });
 
         act(() => {
@@ -82,7 +83,7 @@ describe("useFetch [ Bounce ]", () => {
         await waitForRender();
 
         await waitFor(() => {
-          expect(spy).toBeCalledTimes(3);
+          expect(spy).toHaveBeenCalledTimes(3);
         });
       });
     });
@@ -91,7 +92,7 @@ describe("useFetch [ Bounce ]", () => {
       describe("when request is about to change", () => {
         it("should not throttle initial request", async () => {
           const spy = jest.fn();
-          createRequestInterceptor(request);
+          mockRequest(request);
           const response = renderUseFetch(request, hookThrottleOptions);
 
           act(() => {
@@ -99,11 +100,11 @@ describe("useFetch [ Bounce ]", () => {
           });
 
           await waitForRender(0);
-          expect(spy).toBeCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
         });
         it("should throttle multiple request triggers by 100ms", async () => {
           const spy = jest.fn();
-          createRequestInterceptor(request, { delay: 0 });
+          mockRequest(request, { delay: 0 });
           const response = renderUseFetch(request, { ...hookThrottleOptions, dependencies: [{ test: 10 }] });
 
           act(() => {
@@ -116,7 +117,7 @@ describe("useFetch [ Bounce ]", () => {
 
           await waitForRender();
 
-          expect(spy).toBeCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
 
           act(() => {
             rerender();
@@ -129,7 +130,7 @@ describe("useFetch [ Bounce ]", () => {
           await waitForRender();
 
           await waitFor(() => {
-            expect(spy).toBeCalledTimes(2);
+            expect(spy).toHaveBeenCalledTimes(2);
           });
 
           act(() => {
@@ -143,7 +144,7 @@ describe("useFetch [ Bounce ]", () => {
           await waitForRender();
 
           await waitFor(() => {
-            expect(spy).toBeCalledTimes(3);
+            expect(spy).toHaveBeenCalledTimes(3);
           });
         });
       });

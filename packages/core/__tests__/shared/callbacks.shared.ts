@@ -4,6 +4,6 @@ export const testCallbacksExecution = (callbacks: Array<jest.Mock<any, any>>) =>
     if (nextSpy) {
       expect(spyFn).toHaveBeenCalledBefore(nextSpy);
     }
-    expect(spyFn).toBeCalledTimes(1);
+    expect(spyFn).toHaveBeenCalledTimes(1);
   });
 };

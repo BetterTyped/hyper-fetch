@@ -1,24 +1,24 @@
-import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore, Query } from "firebase-admin/firestore";
-import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
+import {
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  Firestore,
+  Query,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 
 import { getGroupedResultFirestore, getOrderedResultFirestore, getRef, applyFireStoreAdminConstraints } from "./utils";
-import { getStatus } from "utils";
 import { FirestoreAdminSocketAdapterType } from "adapter";
+import { getStatus } from "utils";
 
-export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
-  return (socket) => {
-    const {
-      open,
-      connecting,
-      reconnectionAttempts,
-      listeners,
-      removeListener,
-      onReconnect,
-      onListen,
-      onEvent,
-      onError,
-    } = getSocketAdapterBindings(socket, { open: true });
-
+export const firestoreAdminSockets = (database: Firestore) => {
+  return (
+    new SocketAdapter({
+      name: "firebase-admin-firestore",
+      defaultConnected: true,
+    }) as unknown as FirestoreAdminSocketAdapterType
+  ).setConnector(({ socket, onReconnect, onListen, onEvent, onError }) => {
     const connect = () => {
       throw new Error("Connect function is not implemented for Firestore Admin socket.");
     };
@@ -28,11 +28,11 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     const reconnect = () => {
-      onReconnect(disconnect, connect);
+      onReconnect({ disconnect, connect });
     };
 
-    const listen: ReturnType<FirestoreAdminSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.endpoint;
+    const listen: FirestoreAdminSocketAdapterType["listen"] = (listener, callback) => {
+      const fullUrl = socket.url + listener.topic;
       const { options } = listener;
       let pathRef: DocumentReference | Query = getRef(database, fullUrl);
       if (pathRef instanceof CollectionReference) {
@@ -44,20 +44,23 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
 
       unsubscribe = pathRef.onSnapshot(
         (snapshot) => {
-          const getSnapshotData = (s) => (s.data() ? { ...s.data(), __key: s.id } : null);
+          const getSnapshotData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
           const response =
-            snapshot instanceof DocumentSnapshot ? getSnapshotData(snapshot) : getOrderedResultFirestore(snapshot);
+            snapshot instanceof DocumentSnapshot
+              ? getSnapshotData(snapshot)
+              : getOrderedResultFirestore(snapshot as QuerySnapshot);
           const status = getStatus(response);
-          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const groupedResult =
+            options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
           callback({ data: response, extra });
-          onEvent(listener.endpoint, response, extra);
+          onEvent({ topic: listener.topic, data: response, extra });
         },
         (error) => {
-          onError(error);
+          onError({ error });
         },
       );
-      unmount = onListen(listener, callback, unsubscribe);
+      unmount = onListen({ listener, callback, onUnmount: unsubscribe });
       clearListeners = () => {
         unsubscribe();
         unmount();
@@ -71,16 +74,11 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     return {
-      open,
-      reconnectionAttempts,
-      listeners,
-      connecting,
-      listen,
-      removeListener,
-      emit,
       connect,
       reconnect,
       disconnect,
+      emit,
+      listen,
     };
-  };
+  });
 };

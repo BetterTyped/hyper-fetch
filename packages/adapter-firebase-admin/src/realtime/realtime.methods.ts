@@ -1,5 +1,6 @@
+/* eslint-disable max-params */
 import { Database } from "firebase-admin/database";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { RealtimeDBMethodsUnion } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
@@ -11,26 +12,36 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
-  request: R,
-  database: Database,
-  url: string,
+export const getRealtimeDbAdminMethods = ({
+  database,
+  url,
   onSuccess,
   onError,
-  resolve,
-  events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
-): ((
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Database;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((
   methodName: RealtimeDBMethodsUnion,
   data: {
     constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
-    data: any;
+    payload: any;
     options: Record<string, any>;
   },
 ) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = database.ref(fullUrl);
   const methods = {
-    get: async ({ constraints }) => {
+    get: async ({ constraints = [] }) => {
       const docOrQuery = isDocOrQuery(fullUrl);
       const q = applyRealtimeAdminConstraints(path, constraints);
       const snapshot = await q.get();
@@ -38,15 +49,15 @@ export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
       const status = getStatus(res);
       return { result: res, status, extra: { ref: path, snapshot } };
     },
-    set: async ({ data }) => {
+    set: async ({ data }: { data?: any }) => {
       await path.set(data);
       return { result: data, status: "success", extra: { ref: path } };
     },
-    push: async ({ data }) => {
+    push: async ({ data }: { data?: any }) => {
       const resRef = await path.push(data);
       return { result: { ...data, __key: resRef.key }, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
-    update: async ({ data }) => {
+    update: async ({ data }: { data?: any }) => {
       await path.update(data);
       return { result: data, status: "success", extra: { ref: path } };
     },
@@ -58,17 +69,17 @@ export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
 
   return async (methodName: RealtimeDBMethodsUnion, data) => {
     try {
-      events.onRequestStart();
-      const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
-      events.onResponseEnd();
-    } catch (e) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError(e, "error", {}, resolve);
-      events.onResponseEnd();
+      onRequestStart();
+      const { result, status, extra } = await methods[methodName](data as any);
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
+    } catch (error) {
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

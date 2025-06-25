@@ -1,0 +1,21 @@
+.link {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.link:hover {
+  transform: scale(1.1);
+}
+
+.wrapper {
+  width: 100%;
+  padding-bottom: 75%;
+  background: #e8e8e8;
+  transition: all 0.2s ease-in-out;
+}
+
+.link:hover .wrapper {
+  background: rgb(58, 101, 220);
+}

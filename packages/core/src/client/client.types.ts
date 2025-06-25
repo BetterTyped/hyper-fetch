@@ -1,11 +1,32 @@
 import { RequestInstance } from "request";
-import { ResponseReturnType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { Client } from "client";
-import { NegativeTypes } from "types";
+import type { ExtendRequest, ExtractClientAdapterType, TypeWithDefaults } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, AdapterType<any, any, any, any>>;
-export type ExtractAdapterTypeFromClient<T> = T extends Client<any, infer A> ? A : never;
+export type ClientInstanceProperties = {
+  error?: any;
+  adapter?: AdapterInstance;
+};
+
+export type ClientInstance<
+  ClientProperties extends ClientInstanceProperties = {
+    error?: any;
+    adapter?: AdapterInstance;
+  },
+> = Client<
+  TypeWithDefaults<ClientProperties, "error", any>,
+  TypeWithDefaults<ClientProperties, "adapter", AdapterInstance>
+>;
+
+export type RequestGenericType<QueryParams> = {
+  response?: any;
+  payload?: any;
+  error?: any;
+  queryParams?: QueryParams;
+  endpoint?: string;
+  params?: Record<string, string | number>;
+};
 
 /**
  * Configuration setup for the client
@@ -16,39 +37,40 @@ export type ClientOptionsType<C extends ClientInstance> = {
    */
   url: string;
   /**
-   * Custom adapter initialization prop
-   */
-  adapter?: AdapterType;
-  /**
    * Custom cache initialization prop
    */
-  cache?: (client: C) => C["cache"];
+  cache?: () => C["cache"];
   /**
    * Custom app manager initialization prop
    */
-  appManager?: (client: C) => C["appManager"];
+  appManager?: () => C["appManager"];
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: (client: C) => C["submitDispatcher"];
+  fetchDispatcher?: () => C["submitDispatcher"];
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: (client: C) => C["fetchDispatcher"];
+  submitDispatcher?: () => C["fetchDispatcher"];
 };
 
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<Response = any, Error = any, Adapter extends AdapterInstance = AdapterType> = (
-  response: ResponseReturnType<Response, Error, Adapter>,
-  request: RequestInstance,
-) => Promise<ResponseReturnType<any, any, Adapter>> | ResponseReturnType<any, any, Adapter>;
+export type ResponseInterceptorType<Client extends ClientInstance, Response = any, Error = any> = (
+  response: ResponseType<Response, Error, ExtractClientAdapterType<Client>>,
+  request: ExtendRequest<
+    RequestInstance,
+    {
+      client: Client;
+    }
+  >,
+) =>
+  | Promise<ResponseType<any, any, ExtractClientAdapterType<Client>>>
+  | ResponseType<any, any, ExtractClientAdapterType<Client>>;
 
 // Stringify
 
-export type StringifyCallbackType = (queryParams: QueryParamsType | string | NegativeTypes) => string;
-
-// Mapper
-
-export type DefaultEndpointMapper = (endpoint: any) => string;
+export type ModifyQueryParamsCallbackType<QueryParams, ModifiedQueryParams> = (
+  queryParams: QueryParams,
+) => ModifiedQueryParams;

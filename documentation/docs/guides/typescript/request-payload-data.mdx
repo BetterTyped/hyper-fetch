@@ -1,0 +1,91 @@
+---
+sidebar_position: 4
+title: Setting Request Payload Data Type
+sidebar_label: Request Payload Data
+---
+
+# Request Payload Data Type
+
+When sending data to a server, for instance with `POST` or `PUT` requests, ensuring the payload structure is correct is
+essential. Hyper-fetch provides a way to define a **payload type** for your requests. This gives you compile-time
+safety, preventing common errors and making your API interactions more reliable.
+
+:::secondary What you'll learn
+
+1.  How to define a **payload type** for a request that sends data.
+2.  How to pass a **type-safe payload** when sending the request.
+3.  How this improves **developer experience** with autocompletion and error checking.
+
+:::
+
+### Why is it helpful?
+
+- **Data Integrity**: Ensures that the data sent to the server matches the expected structure, preventing
+  `400 Bad Request` errors.
+- **Type Safety**: Provides compile-time validation for the payload, catching errors before the code is even run.
+- **Developer Experience**: Offers autocompletion for payload properties, speeding up development and reducing typos.
+- **Clear API Contracts**: The typed request serves as clear documentation for what data an endpoint expects.
+
+---
+
+### Example
+
+By defining a `payload` type in the `createRequest` generic, you enforce a strict structure for the data sent with the
+`.send()` method.
+
+```ts
+// import { createClient } from '@hyper-fetch/core';
+
+export const client = createClient()({
+  url: "https://api.example.com",
+});
+
+// 1. Define the response type for the creation endpoint
+type User = { id: number; name: string; email: string; age: number };
+type ResponseType = User;
+
+// 2. Define the type for the request payload
+// highlight-start
+type RequestPayloadType = {
+  name: string;
+  email: string;
+  age: number;
+};
+// highlight-end
+
+// 3. Create the request, specifying the response and payload types
+const postUser = client.createRequest<{
+  response: ResponseType;
+  payload: RequestPayloadType;
+}>()({
+  method: "POST",
+  endpoint: "/users",
+});
+
+// 4. Send the request with a type-safe payload
+// The `data` property in the `send` method is now strongly typed.
+// Try adding a property that doesn't exist in `RequestPayloadType` to see an error.
+const { data, error } = await postUser.send({
+  data: {
+    name: "Jane Doe",
+    email: "jane.doe@example.com",
+    age: 30,
+  },
+});
+
+if (data) {
+  console.log("Successfully created user:", data);
+}
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to define and use payload types!
+
+- You can specify a **`payload` type** for requests that send data to a server.
+- You can provide a **type-safe `data` object** to the `.send()` method.
+- You can build more **reliable API interactions** with compile-time checks.
+
+:::

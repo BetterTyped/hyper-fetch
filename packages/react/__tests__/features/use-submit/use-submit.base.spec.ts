@@ -1,18 +1,20 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testInitialState, testSuccessState } from "../../shared";
 
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
 describe("useSubmit [ Base ]", () => {
-  let request = createRequest<any, null>({ method: "POST" });
+  let request = createRequest<{ response: any; payload: null }>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -27,14 +29,14 @@ describe("useSubmit [ Base ]", () => {
 
   describe("when submit method gets triggered", () => {
     it("should not trigger request on mount", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await waitForRender(100);
       await testInitialState(response);
     });
     it("should trigger request with submit method", async () => {
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseSubmit(request);
 
       act(() => {
@@ -46,13 +48,13 @@ describe("useSubmit [ Base ]", () => {
     it("should listen to the data of last submitted request", async () => {
       let count = 0;
       let shouldThrow = false;
-      createRequestInterceptor(request, { fixture: count });
+      mockRequest(request, { data: count });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(100));
 
       act(() => {
         response.result.current.onSubmitRequestStart(() => {
           count += 1;
-          createRequestInterceptor(request, { fixture: count });
+          mockRequest(request, { data: count });
         });
         response.result.current.submit();
         response.result.current.submit();

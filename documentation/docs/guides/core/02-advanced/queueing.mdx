@@ -1,0 +1,124 @@
+---
+title: Guide - Request Queueing
+sidebar_label: Queueing
+---
+
+# Request Queueing
+
+In modern web applications, managing network requests efficiently is crucial for a smooth user experience. Sometimes,
+you need to ensure that requests are sent one by one, in a specific order. This is where **request queueing** comes in.
+Hyper-fetch provides a powerful queueing mechanism to handle these scenarios gracefully.
+
+This guide will walk you through setting up and using the request queue, from basic configurations to more advanced use
+cases.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to **enable queueing** on individual requests.
+2.  How to **configure queueing globally** on the client instance.
+3.  How to **handle large file uploads** using queueing to prevent network congestion.
+4.  The benefits of using queueing for **offline support** and handling requests in sequence.
+
+:::
+
+## Basic Setup
+
+Enabling queueing on a request is as simple as setting the `queued` property to `true`. When multiple requests
+configured this way are triggered, Hyper-fetch will automatically add them to a queue and execute them sequentially.
+
+Here's how you define a queued request:
+
+```ts
+import { client } from "utils/client";
+
+// This request will be queued
+export const postFile = client.createRequest()({
+  endpoint: "/files",
+  method: "POST",
+  queued: true,
+});
+```
+
+When you call `send()` on this request multiple times, each call will be added to the queue and will only start after
+the previous one has finished.
+
+```typescript
+const fileRequest = client.createRequest()({
+  endpoint: "/files",
+  method: "POST",
+  queued: true,
+});
+
+const logStatus = (message) => {
+  console.log(`${new Date().toLocaleTimeString()}: ${message}`);
+};
+
+const requests = [1, 2, 3, 4];
+logStatus(`Sending 4 requests...`);
+
+requests.forEach((req) => {
+  fileRequest.send({
+    onStart: () => logStatus(`Request ${req} started.`),
+    onFinished: ({ isSuccess }) =>
+      logStatus(`Request ${req} finished ${isSuccess ? "successfully" : "with an error"}.`),
+  });
+});
+```
+
+The example above demonstrates that even if we fire all requests at once, they are executed one by one. The `onStart`
+and `onFinished` callbacks show the lifecycle of each request in the queue.
+
+## Global Configuration
+
+If most of your requests need to be queued, you can enable it globally on the `Client` instance. This saves you from
+repeating the configuration for each request.
+
+```ts
+// diff-add-start
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({
+  url: "https://api.example.com",
+  queueOptions: {
+    queued: true, // Enable queueing for all requests
+  },
+});
+// diff-add-end
+```
+
+Any request created with this client will now be queued by default. You can still override this behavior on a
+per-request basis by setting `queued: false`.
+
+```ts
+// This request will NOT be queued, overriding the client's setting
+const importantRequest = client.createRequest()({
+  endpoint: "/important-data",
+  queued: false,
+});
+```
+
+This gives you the flexibility to manage which requests should be handled sequentially and which can be sent
+concurrently.
+
+## Offline Support
+
+Request queueing is also a cornerstone of building robust offline-first applications. When a user loses internet
+connectivity, queued requests will be held until the connection is restored, at which point they will be sent
+automatically. This ensures that no data is lost and actions are completed once the user is back online.
+
+When combined with persistence solutions like `localStorage`, the queue can even survive page reloads.
+
+---
+
+:::success Congratulations!
+
+You've learned how to use Hyper-fetch's request queueing feature!
+
+- You can enable queueing on **individual requests** using the `queued: true` option.
+- You can set up **global queueing** on the `Client` instance.
+- You understand how queueing helps in sending requests **sequentially**.
+- You know that queueing is essential for **offline support**.
+
+:::

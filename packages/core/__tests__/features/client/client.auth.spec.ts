@@ -1,5 +1,8 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client } from "client";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Client [ Auth ]", () => {
   const requestFixture = { data: "" };
@@ -8,12 +11,12 @@ describe("Client [ Auth ]", () => {
   const refreshEndpoint = "/refresh-token";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
-  let authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
-  let refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" }).setAuth(false);
+  let authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
+  let refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
 
   beforeEach(() => {
-    createRequestInterceptor(refreshRequest, { fixture: refreshFixture });
+    mockRequest(refreshRequest, { data: refreshFixture });
   });
 
   beforeAll(() => {
@@ -22,10 +25,10 @@ describe("Client [ Auth ]", () => {
 
   afterEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
-    authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
-    refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
-    resetInterceptors();
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" }).setAuth(false);
+    authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
+    refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -35,7 +38,7 @@ describe("Client [ Auth ]", () => {
 
   describe("When authenticated request get send", () => {
     it("should trigger auth middleware callback", async () => {
-      createRequestInterceptor(authRequest, { fixture: requestFixture });
+      mockRequest(authRequest, { data: requestFixture });
 
       const trigger = jest.fn();
 
@@ -44,15 +47,15 @@ describe("Client [ Auth ]", () => {
         return cmd;
       });
 
-      await authRequest.send();
+      await authRequest.send({});
 
-      expect(trigger).toBeCalledTimes(1);
+      expect(trigger).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("When non-authenticated request get send", () => {
     it("should trigger auth middleware callback", async () => {
-      createRequestInterceptor(request, { fixture: requestFixture });
+      mockRequest(request, { data: requestFixture });
 
       const trigger = jest.fn();
 
@@ -61,9 +64,9 @@ describe("Client [ Auth ]", () => {
         return cmd;
       });
 
-      await request.send();
+      await request.send({});
 
-      expect(trigger).toBeCalledTimes(0);
+      expect(trigger).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -76,7 +79,7 @@ describe("Client [ Auth ]", () => {
         const { status } = res;
 
         if (!req.used && status === 401) {
-          const { data } = await refreshRequest.send();
+          const { data } = await refreshRequest.send({});
           if (data) {
             callback?.();
             return req.setUsed(true).send({});
@@ -87,35 +90,36 @@ describe("Client [ Auth ]", () => {
     };
 
     it("should intercept error response and get the data with new token", async () => {
-      createRequestInterceptor(request, { status: 401 });
+      mockRequest(request, { status: 401 });
 
-      handleErrorIntercept(() => createRequestInterceptor(request, { fixture: requestFixture }));
+      handleErrorIntercept(() => mockRequest(request, { data: requestFixture }));
 
-      const response = await request.send();
+      const response = await request.send({});
       expect(response.data).toEqual(requestFixture);
-      expect(interceptor).toBeCalledTimes(1);
+      expect(interceptor).toHaveBeenCalledTimes(1);
     });
     it("should intercept error response and return error after another failure", async () => {
-      const errorResponse = createRequestInterceptor(request, { status: 401 });
+      const errorResponse = mockRequest(request, { status: 401 });
 
       handleErrorIntercept();
-      const { data, error } = await request.send();
+      const { data, error, status } = await request.send({});
 
+      expect(status).toBe(401);
       expect(data).toBe(null);
       expect(error).toEqual(errorResponse);
-      expect(interceptor).toBeCalledTimes(2);
+      expect(interceptor).toHaveBeenCalledTimes(2);
     });
 
     it("should try to repeat request only once", async () => {
-      createRequestInterceptor(request, { status: 401 });
+      mockRequest(request, { status: 401 });
 
       const retry = jest.fn();
 
       handleErrorIntercept(retry);
 
-      await request.send();
+      await request.send({});
 
-      expect(retry).toBeCalledTimes(1);
+      expect(retry).toHaveBeenCalledTimes(1);
     });
   });
 });

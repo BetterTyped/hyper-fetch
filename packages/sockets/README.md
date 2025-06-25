@@ -33,17 +33,17 @@
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/setup)
 
-🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview#Websockets)
+🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/overview#Websockets)
 
-✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview#Sockets)
+✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/overview#Sockets)
 
 🚀 **Type safe** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/typescript)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/offline)
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/sockets/adapter)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/authentication)
 
@@ -59,8 +59,8 @@ We have specially created hooks to support sockets.
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
+- #### [Docs](https://hyperfetch.bettertyped.com/docs/sockets/overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/sockets)
 - #### [Guides](https://hyperfetch.bettertyped.com/docs/guides/sockets/setup)

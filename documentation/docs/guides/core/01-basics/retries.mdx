@@ -1,0 +1,91 @@
+---
+sidebar_position: 11
+title: Guide - Retries
+sidebar_label: Retries
+---
+
+# Retries
+
+Handling temporary network issues or server errors gracefully is crucial for a robust application. Hyper-fetch provides
+a powerful **retries** mechanism that automatically re-sends a request if it fails. This guide will walk you through
+configuring and using retries to improve the reliability of your data-fetching logic.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to **enable and configure retries** for a request.
+2.  How to set a **custom delay** between retry attempts.
+3.  The difference between setting retries on **creation vs. dynamically**.
+4.  How to observe retry attempts in **real-time**.
+
+:::
+
+---
+
+## Basic Configuration
+
+You can configure retries directly on a request using the `retry` and `retryTime` options.
+
+- `retry`: The number of times to re-attempt the request after it fails.
+- `retryTime`: The delay in milliseconds between each retry attempt.
+
+Let's create a request that will fail (by pointing to a non-existent endpoint) and see how retries work.
+
+```tsx
+// We are using non-existent endpoint to showcase the retry mechanism
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users-fake-endpoint",
+  // highlight-start
+  retry: 3,
+  retryTime: 1000, // 1 second
+  // highlight-end
+});
+
+const sendRequest = async () => {
+  const { data, error } = await getUsers.send();
+  console.log({ data, error });
+};
+
+sendRequest();
+```
+
+In the example above, if the request to `/users-fake-endpoint` fails, Hyper-fetch will automatically retry it up to **3
+times**, with a **1-second delay** between each attempt. If all retries fail, the request will finally return an error.
+
+---
+
+## Dynamic Configuration
+
+You can also configure retries dynamically using the `.setRetry()` and `.setRetryTime()` methods. This is useful when
+you need to change the retry behavior based on application state or other conditions.
+
+These methods return a new `Request` instance, leaving the original request unchanged.
+
+```tsx live
+import { failingRequest } from "./api";
+
+// For our example we import request that will fail on purpose
+// We can set retries and retryTime on creation or dynamically
+const failingRequestWithRetries = failingRequest.setRetry(2).setRetryTime(2000); // 2 seconds
+
+const { data, error } = await failingRequestWithRetries.send();
+console.log({ data, error });
+```
+
+Here, we created a new request `getUsersWithRetries` with 2 retries and a 2-second delay, without modifying the original
+`getUsers` request.
+
+---
+
+:::success Congratulations!
+
+You've learned how to make your requests more resilient with Hyper-fetch's retry feature!
+
+- You can set **retry attempts** and **delay** when creating a request.
+- You can dynamically adjust retry behavior using the **`.setRetry()`** and **`.setRetryTime()`** methods.
+- You know that retry settings can be changed without modifying the original request.
+- You can now handle temporary network failures gracefully.
+
+:::

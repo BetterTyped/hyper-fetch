@@ -1,6 +1,6 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import {
   addQueueElement,
   client,
@@ -8,9 +8,10 @@ import {
   emitDownloadProgress,
   emitUploadProgress,
   renderUseQueue,
-  sleep,
   waitForRender,
 } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useQueue [ Actions ]", () => {
   let request = createRequest({ method: "POST" });
@@ -20,7 +21,7 @@ describe("useQueue [ Actions ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -58,7 +59,7 @@ describe("useQueue [ Actions ]", () => {
     });
     describe("when stopping request", () => {
       it("should cancel request and mark it as stopped", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
 
@@ -73,7 +74,7 @@ describe("useQueue [ Actions ]", () => {
     });
     describe("when deleting request", () => {
       it("should remove request from array", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
 
@@ -105,7 +106,7 @@ describe("useQueue [ Actions ]", () => {
     });
     describe("when starting request", () => {
       it("should allow to change request stopped status", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
 
@@ -128,10 +129,17 @@ describe("useQueue [ Actions ]", () => {
     describe("when upload progress get received", () => {
       it("should update request upload progress state", async () => {
         let timestamp = 0;
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].uploading).toBeUndefined();
+        expect(result.current.requests[0].uploading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           timestamp = +emitUploadProgress(result.current.requests[0].requestId, request)[0];
         });
@@ -147,24 +155,45 @@ describe("useQueue [ Actions ]", () => {
         });
       });
       it("should not throw when emitting wrong requestId", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           emitUploadProgress("wrong", request);
         });
         await sleep(5);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
       });
     });
     describe("when download progress get received", () => {
       it("should update request download progress state", async () => {
         let timestamp = 0;
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           timestamp = +emitDownloadProgress(result.current.requests[0].requestId, request)[0];
         });
@@ -180,15 +209,29 @@ describe("useQueue [ Actions ]", () => {
         });
       });
       it("should not throw when emitting wrong requestId", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         addQueueElement(request, { stop: true });
         const { result } = renderUseQueue(request);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
         act(() => {
           emitDownloadProgress("wrong", request);
         });
         await sleep(5);
-        expect(result.current.requests[0].downloading).toBeUndefined();
+        expect(result.current.requests[0].downloading).toStrictEqual({
+          loaded: 0,
+          progress: 0,
+          sizeLeft: 0,
+          startTimestamp: 0,
+          timeLeft: 0,
+          total: 0,
+        });
       });
     });
   });

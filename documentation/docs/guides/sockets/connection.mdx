@@ -1,0 +1,233 @@
+---
+sidebar_position: 6
+title: Socket Connection Guide
+sidebar_label: Connection
+---
+
+# Connection
+
+This guide provides a comprehensive overview of how to manage socket connections using Hyper-fetch. You'll learn how to
+control connection states, handle automatic and manual connections, and configure retry policies to build robust
+real-time applications.
+
+:::secondary What you'll learn
+
+1.  How to enable or disable **automatic connections**.
+2.  How to **manually connect and disconnect** from the socket.
+3.  How to implement **manual reconnection logic**.
+4.  How to monitor the **connection status** using callbacks.
+5.  How to configure **connection retries** and handle reconnection failures.
+
+:::
+
+---
+
+## Autoconnect
+
+By default, Hyper-fetch attempts to connect to the socket server as soon as the `Socket` instance is created. This
+behavior is controlled by the `autoConnect` option, which is set to `true` by default.
+
+You can disable autoconnect by setting `autoConnect: false` in the `Socket` constructor. This is useful when you want to
+delay the connection until a user performs a specific action, such as logging in or navigating to a certain page.
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "ws://localhost:8080",
+  autoConnect: false,
+});
+```
+
+When `autoConnect` is disabled, you'll need to manually initiate the connection.
+
+---
+
+## Manual Connect
+
+When `autoConnect` is disabled, you can manually establish a connection using the `socket.connect()` method. This gives
+you precise control over when the connection is initiated.
+
+```tsx
+function Component() {
+  const [socket] = React.useState(() => {
+    return new Socket({
+      url: "ws://localhost:8080",
+      autoConnect: false,
+    });
+  });
+
+  return (
+    <div>
+      <button onClick={() => socket.connect()}>Connect</button>
+    </div>
+  );
+}
+```
+
+The `connect` method is asynchronous and returns a promise that resolves once the connection is established.
+
+---
+
+## Disconnect
+
+You can manually close a socket connection using the `socket.disconnect()` method. This is useful for logging out a
+user, leaving a specific feature area, or performing cleanup.
+
+```tsx
+function Component() {
+  const [socket] = React.useState(() => {
+    return new Socket({
+      url: "ws://localhost:8080",
+    });
+  });
+
+  return (
+    <div>
+      <button onClick={() => socket.disconnect()}>Disconnect</button>
+    </div>
+  );
+}
+```
+
+Like `connect`, the `disconnect` method is asynchronous and returns a promise that resolves once the connection is fully
+closed.
+
+---
+
+## Reconnect
+
+Hyper-fetch provides a `socket.reconnect()` method to manually trigger a reconnection attempt. This can be useful in
+scenarios where you want to give users a way to re-establish a connection without a full page reload, such as when a
+connection is lost due to a temporary network issue.
+
+```tsx
+function Component() {
+  const [socket] = React.useState(() => {
+    return new Socket({
+      url: "ws://localhost:8080",
+    });
+  });
+
+  return (
+    <div>
+      <button onClick={() => socket.reconnect()}>Reconnect</button>
+    </div>
+  );
+}
+```
+
+The `reconnect` method will attempt to connect again, respecting the retry policies configured on the socket instance.
+
+---
+
+## Connection Status
+
+To monitor the socket's connection status, you can use the `onConnected` and `onDisconnected` callbacks. These allow you
+to react to changes in the connection state and update your UI accordingly.
+
+- `onConnected`: Triggered when the socket successfully connects.
+- `onDisconnected`: Triggered when the socket connection is closed, either manually or due to a network issue.
+
+Here's how you can use these callbacks to track the connection status:
+
+```tsx
+function Component() {
+  const [isConnected, setConnected] = React.useState(false);
+
+  const [socket] = React.useState(() => {
+    const instance = new Socket({
+      url: "ws://localhost:8080",
+    });
+
+    instance.onConnected(() => {
+      setConnected(true);
+      console.log("Socket connected");
+    });
+
+    instance.onDisconnected(() => {
+      setConnected(false);
+      console.log("Socket disconnected");
+    });
+
+    return instance;
+  });
+
+  return (
+    <div>
+      <p>Status: {isConnected ? "Connected" : "Disconnected"}</p>
+    </div>
+  );
+}
+```
+
+For React applications, consider using the `useSocketState` hook from `@hyper-fetch/react` for a more declarative way to
+handle connection states.
+
+---
+
+## Retries
+
+Hyper-fetch automatically handles reconnection attempts when a connection is lost. You can customize the retry behavior
+using the `reconnect` and `reconnectTime` options in the `Socket` constructor.
+
+- `reconnect`: The maximum number of reconnection attempts. Set to `Infinity` by default for endless retries.
+- `reconnectTime`: The time in milliseconds between each retry attempt. Defaults to `5000` (5 seconds).
+
+### Customizing Retry Logic
+
+Here's how you can configure a custom retry policy. In this example, the socket will attempt to reconnect up to 5 times,
+with a 3-second delay between each attempt.
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "ws://localhost:8080",
+  reconnect: 5,
+  reconnectTime: 3000,
+});
+```
+
+### Handling Reconnection Events
+
+You can also hook into the reconnection lifecycle with `onReconnect` and `onReconnectFailed` callbacks:
+
+- `onReconnect`: Triggered at the start of each reconnection attempt. It receives the attempt count and the total number
+  of retries.
+- `onReconnectFailed`: Triggered when all reconnection attempts have failed.
+
+```tsx
+function Component() {
+  const [socket] = React.useState(() => {
+    const instance = new Socket({
+      url: "ws://localhost:8080",
+      reconnect: 3,
+      reconnectTime: 2000,
+    });
+
+    instance.onReconnect((attempt, retries) => {
+      console.log(`Reconnection attempt ${attempt} of ${retries}`);
+    });
+
+    instance.onReconnectFailed(() => {
+      console.error("All reconnection attempts failed.");
+    });
+
+    return instance;
+  });
+
+  return <div>Check the console for reconnection events.</div>;
+}
+```
+
+---
+
+:::success Congratulations!
+
+You now know how to manage socket connections in Hyper-fetch.
+
+- You can control **automatic and manual connections**.
+- You can **disconnect and reconnect** from the server on demand.
+- You can monitor the **connection lifecycle** with callbacks.
+- You can create robust **retry strategies** for network resilience. :::

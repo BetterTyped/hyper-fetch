@@ -1,0 +1,160 @@
+---
+sidebar_position: 1
+title: GraphQL Adapter
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlAdapter.mdx)
+
+> The Hyper Fetch GraphQL Adapter provides a seamless way to integrate GraphQL with Hyper Fetch, enabling you to make
+> queries and mutations with ease.
+
+:::tip Purpose
+
+1. **Simplify GraphQL integration** in both server and browser environments.
+2. **Provide a type-safe way** to handle GraphQL operations.
+3. **Offer seamless integration** with the Hyper Fetch ecosystem.
+4. **Support both queries and mutations** with a consistent API.
+
+:::
+
+---
+
+## Installation
+
+To get started, you need to install the `@hyper-fetch/graphql` package. You will also need `graphql` and `graphql-tag`
+which are peer dependencies.
+
+```bash
+npm install @hyper-fetch/graphql graphql graphql-tag
+```
+
+---
+
+## Getting Started
+
+Whether you're developing a server-side GraphQL API or a client-side application that consumes GraphQL data, you can use
+Hyper Fetch GraphQL to interact with it. The setup process is simple and straightforward.
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+// 1. Create a client
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+// 2. Define an interface for your data
+interface User {
+  username: {
+    username: string;
+    firstName: string;
+  };
+}
+
+// 3. Create a request
+const getUser = client.createRequest<User>()({
+  endpoint: gql`
+    query GetUser {
+      user {
+        username
+        firstName
+      }
+    }
+  `,
+});
+
+// 4. Send the request and get the response
+const { data, error } = await getUser.send();
+```
+
+---
+
+## Queries
+
+To perform a query, create a request with the `gql` tag and your GraphQL query string.
+
+```ts
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+const getUsers = client.createRequest<any[]>()({
+  endpoint: gql`
+    query GetUsers {
+      users {
+        id
+        name
+      }
+    }
+  `,
+});
+```
+
+---
+
+## Mutations
+
+Mutations work just like queries. Define your mutation string and use it in a request.
+
+```ts
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+const addUser = client.createRequest<any>()({
+  endpoint: gql`
+    mutation AddUser($name: String!) {
+      addUser(name: $name) {
+        id
+        name
+      }
+    }
+  `,
+});
+```
+
+---
+
+## Variables
+
+You can pass variables to your queries and mutations using the `data` option in the `send` method.
+
+```ts
+const { data, error } = await addUser.send({
+  data: {
+    variables: { name: "John Doe" },
+  },
+});
+```
+
+This will pass the `name` variable to the `AddUser` mutation.
+
+---
+
+## Next Steps
+
+Now that you have a basic understanding of the GraphQL adapter, you can explore more advanced topics:
+
+<LinkCard
+  type="docs"
+  title="Queries"
+  description="Learn more about fetching data with GraphQL queries."
+  to="/docs/integrations/adapter-graphql/queries"
+/>
+<LinkCard
+  type="docs"
+  title="Mutations"
+  description="Discover how to modify data with GraphQL mutations."
+  to="/docs/integrations/adapter-graphql/mutations"
+/>
+<LinkCard
+  type="docs"
+  title="GraphQL Tag"
+  description="Understand how to use the gql tag for your GraphQL operations."
+  to="/docs/integrations/adapter-graphql/graphql-tag"
+/>

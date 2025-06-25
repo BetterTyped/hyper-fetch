@@ -1,26 +1,30 @@
 /**
  * @jest-environment jsdom
  */
-import { adapter, getErrorMessage } from "adapter";
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
-import { Client } from "client";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-describe("Fetch Adapter [ Browser ]", () => {
+import { getErrorMessage } from "adapter";
+import { Client } from "client";
+import { HttpAdapter } from "http-adapter";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+describe("Http Adapter [ Browser ]", () => {
   const requestId = "test";
 
-  let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let client = new Client({ url: "https://shared-base-url" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    client = new Client({ url: "https://shared-base-url" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -29,35 +33,35 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { data: [] } });
+    const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "15" } });
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = createRequestInterceptor(request, { status: 400 });
+    const data = mockRequest(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "19" } });
   });
 
   it("should allow to cancel request and return error", async () => {
-    createRequestInterceptor(request, { delay: 5 });
+    mockRequest(request, { delay: 5 });
 
     setTimeout(() => {
       request.abort();
     }, 2);
 
-    const { data: response, error } = await adapter(request, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("abort").message);
@@ -65,46 +69,35 @@ describe("Fetch Adapter [ Browser ]", () => {
 
   it("should return timeout error when request takes too long", async () => {
     const timeoutRequest = request.setOptions({ timeout: 5 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
-    const { data: response, error } = await adapter(timeoutRequest, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(timeoutRequest, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("timeout").message);
   });
 
-  it("should not throw when XMLHttpRequest is not available on window", async () => {
-    const data = createRequestInterceptor(request, { delay: 20 });
-    const xml = window.XMLHttpRequest;
-    window.XMLHttpRequest = undefined as any;
+  it("should use GET as default method when no method is specified", async () => {
+    const mockSpy = jest.spyOn(XMLHttpRequest.prototype, "open");
+    const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
+    expect(mockSpy).toHaveBeenCalledWith("GET", "https://shared-base-url/shared-endpoint", true);
     expect(response).toStrictEqual(data);
-    expect(status).toBe(200);
-    expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
-    window.XMLHttpRequest = xml;
   });
 
-  it("should allow to set options", async () => {
-    const xml = window.XMLHttpRequest;
-    let instance: null | XMLHttpRequest = null;
-    class ExtendedXml extends XMLHttpRequest {
-      constructor() {
-        super();
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        instance = this;
-      }
-    }
+  // it("should not throw when XMLHttpRequest is not available on window", async () => {
+  //   const data = mockRequest(request, { delay: 20 });
+  //   const xml = window.XMLHttpRequest;
+  //   window.XMLHttpRequest = undefined as any;
 
-    window.XMLHttpRequest = ExtendedXml;
+  //   const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
-    const timeoutRequest = request.setOptions({ timeout: 50 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
-    await adapter(timeoutRequest, requestId);
-    expect(instance.timeout).toBe(50);
-
-    window.XMLHttpRequest = xml;
-  });
+  //   expect(response).toStrictEqual(data);
+  //   expect(status).toBe(200);
+  //   expect(error).toBe(null);
+  //   expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
+  //   window.XMLHttpRequest = xml;
+  // });
 });

@@ -1,96 +1,82 @@
-import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
+import { SocketAdapter } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
 import { getOrderedResultRealtime, mapRealtimeConstraint } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "adapter";
+import { RealtimeDbOnValueMethodExtra, RealtimeDBQueryParams, RealtimeSocketAdapterType } from "adapter";
+import { RealtimePermittedMethods } from "../constraints";
 
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
-  return (socket) => {
-    const {
-      open,
-      connecting,
-      reconnectionAttempts,
-      listeners,
-      removeListener,
-      onConnect,
-      onReconnect,
-      onDisconnect,
-      onListen,
-      onOpen,
-      onClose,
-      onEvent,
-      onError,
-    } = getSocketAdapterBindings(socket, { open: true });
+  return new SocketAdapter<RealtimeDbOnValueMethodExtra, undefined, { onlyOnce?: boolean } & RealtimeDBQueryParams>({
+    name: "firebase-realtime",
+    defaultConnected: true,
+  }).setConnector(
+    ({ socket, onConnect, onReconnect, onDisconnect, onListen, onConnected, onDisconnected, onEvent, onError }) => {
+      const connect = async () => {
+        const enabled = onConnect();
 
-    const connect = () => {
-      const enabled = onConnect();
-
-      if (enabled) {
-        goOnline(database);
-        onOpen();
-      }
-    };
-
-    const disconnect = () => {
-      goOffline(database);
-      onDisconnect();
-      onClose();
-    };
-
-    const reconnect = () => {
-      onReconnect(disconnect, connect);
-    };
-
-    const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.endpoint;
-      const path = ref(database, fullUrl);
-
-      const { options } = listener;
-      const onlyOnce = options?.onlyOnce || false;
-      const params = options?.constraints?.map((constraint) => mapRealtimeConstraint(constraint)) || [];
-      const queryConstraints = query(path, ...params);
-      let unsubscribe = () => {};
-      let unmount = () => {};
-      let clearListeners = () => {};
-      unsubscribe = onValue(
-        queryConstraints,
-        (snapshot) => {
-          const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-          const status = getStatus(response);
-          const extra = { ref: path, snapshot, status };
-          callback({ data: response, extra });
-          onEvent(listener.endpoint, response, extra);
-        },
-        (error) => {
-          onError(error);
-        },
-        { onlyOnce },
-      );
-      unmount = onListen(listener, callback, unsubscribe);
-      clearListeners = () => {
-        unsubscribe();
-        unmount();
+        if (enabled) {
+          goOnline(database);
+          onConnected();
+        }
       };
 
-      return clearListeners;
-    };
+      const disconnect = async () => {
+        goOffline(database);
+        onDisconnect();
+        onDisconnected();
+      };
 
-    const emit = async () => {
-      throw new Error("Cannot emit from Realtime database socket.");
-    };
+      const reconnect = () => {
+        onReconnect({ disconnect, connect });
+      };
 
-    return {
-      open,
-      reconnectionAttempts,
-      listeners,
-      connecting,
-      listen,
-      removeListener,
-      emit,
-      connect,
-      reconnect,
-      disconnect,
-    };
-  };
+      const listen: RealtimeSocketAdapterType["listen"] = (listener, callback) => {
+        const fullUrl = socket.url + listener.topic;
+        const path = ref(database, fullUrl);
+
+        const { options } = listener;
+        const onlyOnce = options?.onlyOnce || false;
+        const params =
+          options?.constraints?.map((constraint: RealtimePermittedMethods) => mapRealtimeConstraint(constraint)) || [];
+        const queryConstraints = query(path, ...params);
+        let unsubscribe = () => {};
+        let unmount = () => {};
+        let clearListeners = () => {};
+        unsubscribe = onValue(
+          queryConstraints,
+          (snapshot) => {
+            const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+            const status = getStatus(response);
+            const extra = { ref: path, snapshot, status };
+            callback({ data: response, extra });
+            onEvent({ topic: listener.topic, data: response, extra });
+          },
+          (error) => {
+            onError({ error });
+          },
+          { onlyOnce },
+        );
+        unmount = onListen({ listener, callback, onUnmount: unsubscribe });
+        clearListeners = () => {
+          unsubscribe();
+          unmount();
+        };
+
+        return clearListeners;
+      };
+
+      const emit = async () => {
+        throw new Error("Cannot emit from Realtime database socket.");
+      };
+
+      return {
+        connect,
+        reconnect,
+        disconnect,
+        listen,
+        emit,
+      };
+    },
+  );
 };

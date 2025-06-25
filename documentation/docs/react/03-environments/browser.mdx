@@ -1,0 +1,60 @@
+---
+sidebar_position: 1
+title: Browser
+sidebar_label: Browser
+---
+
+> Hyper Fetch is configured to work in a browser environment **out-of-the-box**. This means you can integrate it into
+> any browser-based application without any initial setup.
+
+:::success Ready out-of-the-box
+
+With no additional configuration, Hyper Fetch will automatically handle the browser environment and mixed environments.
+
+:::
+
+{/* ---
+
+## More about mixed environments
+
+Hyper Fetch seamlessly supports Server-Side Rendering (SSR) scenarios, requiring no extra configuration to get started.
+It automatically handles the environment, ensuring a smooth experience whether you're rendering on the client or the
+server.
+
+<LinkCard
+  type="guides"
+  title="Server-Side Rendering (SSR)"
+  description="Learn more about Server-Side Rendering (SSR)."
+  to="/docs/guides/ssr"
+/> */}
+
+---
+
+## See more
+
+This is how we handle the browser environment. You can use this as a reference to implement your own set of rules for
+the events.
+
+### Online / Offline status handling
+
+The default events that handle online/offline status in the library are based on the events available in the web browser
+environment. To use mobile device solutions, you can change the code responsible for handling the connection status.
+
+<LinkCard
+  type="guides"
+  title="Online / Offline status handling"
+  description="Learn more about online / offline status handling."
+  to="//docs/guides/core/advanced/offline"
+/>
+
+### Focus / Blur state handling
+
+The default events that handle focus/blur state in the library are based on the events available in the web browser
+environment. To use mobile device solutions, you can change the code responsible for handling the focus/blur state.
+
+<LinkCard
+  type="guides"
+  title="Focus / Blur state handling"
+  description="Learn more about focus / blur state handling."
+  to="/docs/guides/react/basics/window-focus-blur"
+/>

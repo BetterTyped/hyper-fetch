@@ -1,0 +1,246 @@
+---
+sidebar_position: 5
+title: Adapter
+sidebar_label: Adapter
+---
+
+[Read the API Reference »](/docs/api/core/Classes/Adapter.mdx)
+
+The `Adapter` class is the backbone of Hyper Fetch's communication system. It abstracts the details of how requests are
+executed, allowing you to swap between HTTP, GraphQL, Firebase, or any custom transport layer with ease. Adapters are
+responsible for executing requests, mapping payloads and headers, handling query parameters, and integrating with the
+request lifecycle—including progress tracking, cancellation, and error handling.
+
+---
+
+:::tip Purpose
+
+1. **Handles the network communication** for all requests.
+2. Provides **hooks for mapping** headers, payloads, endpoints, and **query parameters**.
+3. Allows you to switch between HTTP, GraphQL, Firebase, and more by swapping adapters.
+4. Enables progress tracking, cancellation and error handling.
+5. **Allows** you to **override default behaviors** for advanced scenarios.
+
+:::
+
+---
+
+## Initialization
+
+By default, Hyper Fetch provides an HTTP adapter for both browser and Node environments. You can also create your own
+adapters to support other protocols or advanced use cases.
+
+```ts title="GraphQL Adapter"
+import { createClient } from "@hyper-fetch/core";
+// highlight-start
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
+// highlight-end
+
+const client = createClient({
+  url: "https://api.example.com",
+})
+  // highlight-start
+  // Change the adapter to GraphQL
+  .setAdapter(GraphqlAdapter());
+// highlight-end
+```
+
+---
+
+## Quick Start
+
+You can customize the adapter's behavior by using its configuration methods. For example, to set a custom header mapper:
+
+```ts
+client.adapter.setHeaderMapper((headers, config) => {
+  // Add custom logic for headers
+  return { ...headers, "X-Custom-Header": "value" };
+});
+```
+
+Or to change how payloads are processed:
+
+```ts
+client.adapter.setPayloadMapper((payload, config) => {
+  // Transform payload before sending
+  return JSON.stringify(payload);
+});
+```
+
+---
+
+## Available Methods
+
+<ShowMore>
+
+(@import core Adapter type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed methods docs"
+  description="Check all available methods and their descriptions"
+  to="/docs/api/core/Classes/Adapter#methods"
+/>
+
+---
+
+## Features
+
+1. ### Header Mapper
+
+The header mapper determines how headers are set for each request. By default, it handles FormData and JSON content
+types automatically. You can override this logic for advanced scenarios.
+
+```ts
+client.adapter.setHeaderMapper((headers, config) => {
+  if (config.isAuth) {
+    return { ...headers, Authorization: `Bearer ${config.token}` };
+  }
+  return headers;
+});
+```
+
+---
+
+2. ### Payload Mapper
+
+The payload mapper transforms the request body before it is sent. By default, it handles FormData and JSON. You can
+provide your own logic for custom serialization or encryption.
+
+```ts
+client.adapter.setPayloadMapper((payload, config) => {
+  // Encrypt or transform payload
+  return encryptPayload(payload);
+});
+```
+
+---
+
+3. ### Query Params Mapper
+
+The query params mapper encodes query parameters for the request URL. You can customize the encoding or provide your own
+function.
+
+```ts
+client.adapter.setQueryParamsMapper((params, config) => {
+  // Custom query string encoding
+  return customStringify(params);
+});
+```
+
+You can also set configuration for the query params mapper:
+
+```ts
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "bracket" });
+```
+
+---
+
+4. ### Endpoint Mapper
+
+The endpoint mapper allows you to transform or format the endpoint before the request is sent. Useful for multi-tenant
+APIs or dynamic routing.
+
+```ts
+client.adapter.setEndpointMapper((endpoint, config) => {
+  return `/v2${endpoint}`;
+});
+```
+
+---
+
+5. ### Defaults
+
+Set **adapter default options** for all requests sent through this adapter:
+
+```ts
+// HTTP adapter options
+client.adapter.setAdapterDefaults((request) => ({
+  timeout: 5000,
+  withCredentials: true,
+}));
+```
+
+:::warning
+
+Each adapter has its own options. Check the API reference for the available options.
+
+:::
+
+---
+
+Set global defaults for **request configuration** (method, auth, deduplication, etc.).
+
+```ts
+client.adapter.setRequestDefaults((options) => ({ ...options, deduplicate: true }));
+```
+
+---
+
+6. ### HyperFetch internal error mapping
+
+Customize how Hyper Fetch internal errors are mapped and handled:
+
+```ts
+client.adapter.setInternalErrorMapping((error) => {
+  // Map or transform error
+  return { ...error, internal: true };
+});
+```
+
+---
+
+:::info Devtools Endpoint Getter
+
+Customize how endpoints of your adapter are displayed in devtools. It allows for nice formatting of the endpoint.
+
+```ts
+client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
+```
+
+:::
+
+---
+
+## TypeScript Generics
+
+When you create custom adapter, you need to specify the types for the requests templates. Each adapter may have
+different statuses, endpoints, params, additional data returned or required. With generic types you can handle specific
+cases to ensure absolute type-safety and flexibility across different protocols and use cases.
+
+```ts
+class Adapter<
+  AdapterOptions,
+  MethodType extends string,
+  StatusType extends number | string,
+  Extra extends Record<string, any>,
+  QueryParams = unknown,
+  // ...other generics
+> {
+  /* ... */
+}
+```
+
+Each option describe the type template for requests to be created within client using your adapter.
+
+Refer to the API reference for detailed type parameters and usage examples.
+
+<LinkCard
+  type="api"
+  title="Detailed Adapter API"
+  description="Explore all available methods, their parameters, and return values for the Adapter class."
+  to="/docs/api/core/Classes/Adapter"
+/>
+
+---
+
+## Related Guides & API Docs
+
+<LinkCard
+  type="integrations"
+  title="Available Adapters"
+  description="Explore all available adapters and their descriptions."
+  to="/docs/integrations/getting-started#adapter"
+/>

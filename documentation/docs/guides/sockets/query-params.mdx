@@ -1,0 +1,145 @@
+---
+title: Query Parameters
+sidebar_label: Query Params
+---
+
+# Query Parameters
+
+Query parameters are a powerful feature for passing additional data to the server when establishing a socket connection.
+With Hyper-fetch, you can set initial query parameters and dynamically update them, which will automatically trigger a
+reconnection with the new values. This guide will walk you through managing `queryParams` for your socket connections.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to set **initial query parameters** when creating a `Socket` instance.
+2.  How to **dynamically update** `queryParams` using the `setQueryParams` method.
+3.  That updating `queryParams` automatically triggers a **socket reconnection**.
+4.  How to ensure **type-safety** for your query parameters.
+
+:::
+
+## Initial Query Parameters
+
+When you create a new `Socket` instance, you can provide initial query parameters through the `queryParams` option in
+the constructor. These parameters will be appended to the connection URL.
+
+Here's how you can set them up:
+
+(@import sockets Socket type=import)
+
+```tsx
+const socket = new Socket({
+  url: "ws://localhost:8080",
+  queryParams: {
+    userId: 123,
+    token: "abc-def",
+  },
+});
+```
+
+Hyper-fetch will automatically infer the types of your `queryParams` from the initial values, providing you with type
+safety from the start.
+
+## Dynamic Updates
+
+You can change the `queryParams` at any time using the `setQueryParams` method on your `Socket` instance. When you call
+this method, Hyper-fetch will automatically close the existing connection and establish a new one with the updated
+parameters.
+
+{/* TODO fix */}
+
+(@import sockets Socket type=method&name=setQueryParams)
+
+This is particularly useful for scenarios where connection details, like authentication tokens or dynamic filters, need
+to change during the application's lifecycle.
+
+### Example
+
+Let's see a live example of how dynamic updates work. You can change the `userId` in the input below and click
+"Reconnect" to see the `queryParams` get updated.
+
+```tsx
+function App() {
+  const [userId, setUserId] = React.useState("123");
+
+  const socket = React.useMemo(() => {
+    return new Socket({
+      url: "ws://localhost:8080",
+      queryParams: {
+        userId: "123", // initial value
+      },
+    });
+  }, []);
+
+  const [queryParams, setQueryParams] = React.useState(socket.queryParams);
+
+  const handleReconnect = () => {
+    socket.setQueryParams({ userId });
+    setQueryParams(socket.queryParams);
+  };
+
+  return (
+    <div>
+      <p>
+        Current Query Params: <b>{JSON.stringify(queryParams)}</b>
+      </p>
+      <input
+        type="text"
+        value={userId}
+        onChange={(e) => setUserId(e.target.value)}
+        className="mr-2 rounded-md border border-gray-300 px-2 py-1"
+      />
+      <button onClick={handleReconnect} className="rounded-md bg-blue-500 px-4 py-1 text-white">
+        Reconnect
+      </button>
+    </div>
+  );
+}
+```
+
+## Type-Safety
+
+While Hyper-fetch infers types automatically, you can also enforce stricter type-safety by providing an explicit type
+for your `queryParams`. This is done by passing a generic type to the `Socket` class.
+
+This practice is highly recommended to prevent runtime errors and ensure that your `queryParams` always have the correct
+shape.
+
+```ts
+// import { Socket } from '@hyper-fetch/sockets';
+
+interface MyQueryParams {
+  userId: number;
+  token: string;
+  filters?: string[];
+}
+
+const socket = new Socket<MyQueryParams>({
+  url: "ws://localhost:8080",
+  queryParams: {
+    userId: 123,
+    token: "abc-def",
+  },
+});
+
+// This will cause a TypeScript error because `userId` must be a number
+// error-next-line
+socket.setQueryParams({ userId: "not-a-number" });
+
+// This is valid
+socket.setQueryParams({ userId: 456, token: "new-token" });
+```
+
+---
+
+:::success Congratulations!
+
+You now know how to effectively manage query parameters with Hyper-fetch sockets.
+
+- You can set **initial query parameters** in the `Socket` constructor.
+- You can dynamically update query parameters with the **`setQueryParams`** method, which triggers a reconnection.
+- You can enforce **type-safety** on your `queryParams` by providing a generic type to the `Socket` instance.
+
+:::

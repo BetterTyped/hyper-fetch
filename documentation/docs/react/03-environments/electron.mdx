@@ -1,0 +1,138 @@
+---
+sidebar_position: 3
+title: Electron
+sidebar_label: Electron
+---
+
+**`Electron`** is also supported by `Hyper Fetch`. This library was designed to work with many environments, which is
+why we kept the structure of the base library very generic and modular. While `Hyper Fetch` works out-of-the-box in
+Electron's renderer process due to its browser-like nature, you can leverage Electron's APIs for more robust
+integrations.
+
+:::secondary What you'll learn
+
+- How to handle online/offline status using `is-online` in the main process.
+- How to manage application focus/blur states with `BrowserWindow` events.
+
+:::
+
+---
+
+## Online / Offline status handling
+
+The default events that handle online/offline status in the library are based on the events available in the web browser
+environment. These work in Electron but can sometimes be unreliable for determining actual internet connectivity. For a
+more accurate connection status, you can use Electron's utilities in the main process and communicate with the renderer
+process where `Hyper Fetch` is running.
+
+For example, you can use a library like `is-online` in the main process to periodically check for a connection and
+notify the renderer process via IPC.
+
+**Main Process (`main.js`)**
+
+```javascript
+// In your main electron file
+import { BrowserWindow } from 'electron';
+import isOnline from 'is-online';
+
+// This is an example of how you can check for online status in the main process
+// and send it to the renderer process.
+export const setupOnlineListener = (mainWindow: BrowserWindow) => {
+  let online = false;
+  setInterval(async () => {
+    const isOnlineStatus = await isOnline();
+    if (online !== isOnlineStatus) {
+      online = isOnlineStatus;
+      mainWindow.webContents.send('online-status', online);
+    }
+  }, 5000);
+}
+```
+
+Then, in your renderer process, you can set up your `Client` to listen for these events. Remember to handle
+`contextIsolation` by exposing `ipcRenderer` via a preload script.
+
+**Renderer Process**
+
+```tsx
+import { Client, AppManager } from "@hyper-fetch/core";
+import { ipcRenderer } from "electron"; // Assuming exposed via preload script
+
+export const client = new Client({
+  url: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      initiallyOnline: navigator.onLine,
+      onlineEvent: (setOnline) => {
+        const onlineListener = (event, isOnline: boolean) => setOnline(isOnline);
+        ipcRenderer.on("online-status", onlineListener);
+
+        return () => {
+          ipcRenderer.removeListener("online-status", onlineListener);
+        };
+      },
+    }),
+});
+```
+
+---
+
+## Application focus / blur state
+
+Similarly to the online/offline status, you can handle application focus and blur states more reliably by using
+Electron's `BrowserWindow` events from the main process rather than the browser-based `window` events.
+
+**Main Process (`main.js`)**
+
+```javascript
+// In your main electron file
+import { BrowserWindow } from 'electron';
+
+export const setupFocusListeners = (mainWindow: BrowserWindow) => {
+  mainWindow.on('focus', () => {
+    mainWindow.webContents.send('window-focused');
+  });
+
+  mainWindow.on('blur', () => {
+    mainWindow.webContents.send('window-blurred');
+  });
+}
+```
+
+Then, you can listen for these events in your renderer process and configure the `AppManager`.
+
+**Renderer Process**
+
+```tsx
+import { Client, AppManager } from "@hyper-fetch/core";
+import { ipcRenderer } from "electron"; // Assuming exposed via preload script
+
+export const client = new Client({
+  url: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      focusEvent: (setFocused) => {
+        const listener = () => setFocused();
+        ipcRenderer.on("window-focused", listener);
+
+        return () => {
+          ipcRenderer.removeListener("window-focused", listener);
+        };
+      },
+      blurEvent: (setBlurred) => {
+        const listener = () => setBlurred();
+        ipcRenderer.on("window-blurred", listener);
+
+        return () => {
+          ipcRenderer.removeListener("window-blurred", listener);
+        };
+      },
+    }),
+});
+```
+
+:::success That's it!
+
+Your app is now ready to fully use all of the features of Hyper Fetch.
+
+:::

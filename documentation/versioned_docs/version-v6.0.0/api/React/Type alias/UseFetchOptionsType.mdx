@@ -1,0 +1,68 @@
+
+
+# UseFetchOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseFetchOptionsType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseFetchOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof isEqual; dependencies?: any[]; dependencyTracking?: boolean; disabled?: boolean; initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>[data] | null; refresh?: boolean; refreshBlurred?: boolean; refreshOnBlur?: boolean; refreshOnFocus?: boolean; refreshOnReconnect?: boolean; refreshTime?: number; revalidateOnMount?: boolean } & ({ bounceTime?: number; bounceType?: debounce } | { bounceTime?: number; bounceTimeout?: number; bounceType: throttle });
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  bounce: boolean;
+  deepCompare: boolean | typeof isEqual;
+  dependencies: any[];
+  dependencyTracking: boolean;
+  disabled: boolean;
+  initialData: {
+  ...params1: ResponseReturnType<Response, Error, Adapter>;
+  ...params2: ResponseDetailsType;
+  cacheTime: number;
+  clearKey: string;
+  garbageCollection: number;
+}[data] | null;
+  refresh: boolean;
+  refreshBlurred: boolean;
+  refreshOnBlur: boolean;
+  refreshOnFocus: boolean;
+  refreshOnReconnect: boolean;
+  refreshTime: number;
+  revalidateOnMount: boolean;
+  ...params2: {bounceTime:number,bounceType:debounce} | {bounceTime:number,bounceTimeout:number,bounceType:throttle};
+}
+```
+
+</div>

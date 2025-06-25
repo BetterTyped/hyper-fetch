@@ -1,13 +1,11 @@
-import { SocketInstance } from "@hyper-fetch/sockets";
+import { Socket } from "@hyper-fetch/sockets";
 import { renderHook } from "@testing-library/react";
 
-import { useSocketState, UseSocketStateProps } from "helpers";
+import { useSocketState } from "helpers";
 
-export const renderUseSocketState = <SocketType extends SocketInstance>(
-  socket: SocketType,
-  options?: Partial<UseSocketStateProps>,
-) => {
+export const renderUseSocketState = (socket: Socket, { onRender }: { onRender?: jest.Mock } = {}) => {
   return renderHook(() => {
-    return useSocketState(socket, { dependencyTracking: false, ...options });
+    onRender?.();
+    return useSocketState(socket, { dependencyTracking: true });
   });
 };

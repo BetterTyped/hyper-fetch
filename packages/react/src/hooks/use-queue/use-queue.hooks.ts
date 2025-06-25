@@ -1,9 +1,17 @@
-import { useState, useRef } from "react";
-import { RequestInstance, getRequestDispatcher, QueueElementType } from "@hyper-fetch/core";
-import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
+import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType } from "@hyper-fetch/core";
+import { useState, useEffect, useCallback } from "react";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
+
+const canUpdate = (
+  item: Pick<QueueRequest<RequestInstance>, "success" | "failed" | "canceled" | "removed" | "resolved">,
+) => {
+  if (item.success || item.failed) {
+    return false;
+  }
+  return true;
+};
 
 /**
  * This hook allows to control dispatchers request queues
@@ -13,22 +21,20 @@ import { useConfigProvider } from "config-provider";
  */
 export const useQueue = <Request extends RequestInstance>(
   request: Request,
-  options: UseQueueOptionsType = useQueueDefaultOptions,
+  options?: UseQueueOptionsType,
 ): UseQueueReturnType<Request> => {
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
-  const { queueType = "auto" } = {
+  const { config: globalConfig } = useProvider();
+  const { dispatcherType, keepFinishedRequests } = {
     ...useQueueDefaultOptions,
     ...globalConfig.useQueueConfig,
     ...options,
   };
 
-  const { abortKey, queueKey, client } = request;
+  const { abortKey, queryKey, client } = request;
   const { requestManager } = client;
 
-  const [dispatcher] = getRequestDispatcher(request, queueType);
-
-  const unmountCallbacks = useRef<null | VoidFunction>(null);
+  const [dispatcher] = getRequestDispatcher(request, dispatcherType);
 
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Request>[]>([]);
@@ -37,60 +43,124 @@ export const useQueue = <Request extends RequestInstance>(
   // Mapping
   // ******************
 
-  const createRequestsArray = (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
-    return queueElements.map<QueueRequest<Request>>((req) => ({
-      ...req,
-      stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
-      startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
-      deleteRequest: () => dispatcher.delete(queueKey, req.requestId, abortKey),
-    }));
-  };
+  const createRequestsArray = useCallback(
+    (queueElements: QueueItemType<Request>[], prevRequests?: QueueRequest<Request>[]): QueueRequest<Request>[] => {
+      const newRequests = queueElements
+        // Keep only unique requests
+        .filter((el) => !prevRequests?.some((prevEl) => prevEl.requestId === el.requestId))
+        .map<QueueRequest<Request>>((req) => ({
+          failed: false,
+          canceled: false,
+          removed: false,
+          success: false,
+          ...req,
+          downloading: {
+            progress: 0,
+            timeLeft: 0,
+            sizeLeft: 0,
+            total: 0,
+            loaded: 0,
+            startTimestamp: 0,
+          },
+          uploading: {
+            progress: 0,
+            timeLeft: 0,
+            sizeLeft: 0,
+            total: 0,
+            loaded: 0,
+            startTimestamp: 0,
+          },
+          stopRequest: () => dispatcher.stopRequest(queryKey, req.requestId),
+          startRequest: () => dispatcher.startRequest(queryKey, req.requestId),
+          deleteRequest: () => dispatcher.delete(queryKey, req.requestId, abortKey),
+        }));
 
-  const mergePayloadType = (requestId: string, data: Partial<QueueRequest<Request>>) => {
-    setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, ...data } : el)));
-  };
+      if (keepFinishedRequests && prevRequests) {
+        return [...prevRequests, ...newRequests];
+      }
+
+      return newRequests;
+    },
+    [abortKey, dispatcher, queryKey, keepFinishedRequests],
+  );
+
+  const mergePayloadType = useCallback((requestId: string, data: Partial<QueueRequest<Request>>) => {
+    setRequests((prev) =>
+      prev.map((el) => {
+        if (el.requestId === requestId && canUpdate(el)) {
+          return { ...el, ...data };
+        }
+        return el;
+      }),
+    );
+  }, []);
 
   // ******************
   // State
   // ******************
 
   const getInitialState = () => {
-    const requestQueue = dispatcher.getQueue<Request>(queueKey);
+    const requestQueue = dispatcher.getQueue<Request>(queryKey);
 
     setStopped(requestQueue.stopped);
     setRequests(createRequestsArray(requestQueue.requests));
   };
 
-  const updateQueueState = (values: { requests: QueueRequest<Request>[]; stopped: boolean }) => {
-    setStopped(values.stopped);
-    setRequests(createRequestsArray(values.requests));
-  };
+  const updateQueueState = useCallback(
+    (values: QueueDataType<Request>) => {
+      setStopped(values.stopped);
+      setRequests((prev) => createRequestsArray(values.requests, prev));
+    },
+    [createRequestsArray],
+  );
 
   // ******************
   // Events
   // ******************
 
   const mountEvents = () => {
-    const unmountChange = dispatcher.events.onQueueChange<Request>(queueKey, updateQueueState);
-    const unmountStatus = dispatcher.events.onQueueStatus<Request>(queueKey, updateQueueState);
+    const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queryKey, updateQueueState);
+    const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queryKey, updateQueueState);
 
-    const unmountDownload = requestManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
-      mergePayloadType(requestId, { downloading: progress });
+    const unmountFailed = requestManager.events.onResponse(({ requestId, response }) => {
+      if (!response.success) {
+        setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, failed: true } : el)));
+      } else {
+        setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, success: true } : el)));
+      }
+    });
+    const unmountCanceled = requestManager.events.onAbort(({ requestId }) => {
+      setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, canceled: true } : el)));
     });
 
-    const unmountUpload = requestManager.events.onUploadProgress(queueKey, (progress, { requestId }) => {
-      mergePayloadType(requestId, { uploading: progress });
+    const unmountRemoved = requestManager.events.onRemove(({ requestId }) => {
+      setRequests((prev) =>
+        prev.map((el) => (el.requestId === requestId && canUpdate(el) ? { ...el, removed: true } : el)),
+      );
     });
+
+    const unmountDownload = requestManager.events.onDownloadProgress(
+      ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
+        mergePayloadType(requestId, { downloading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
+      },
+    );
+
+    const unmountUpload = requestManager.events.onUploadProgress(
+      ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
+        mergePayloadType(requestId, { uploading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
+      },
+    );
 
     const unmount = () => {
       unmountStatus();
       unmountChange();
       unmountDownload();
       unmountUpload();
+      unmountFailed();
+      unmountCanceled();
+      unmountRemoved();
     };
 
-    unmountCallbacks.current?.();
-    unmountCallbacks.current = unmount;
     return unmount;
   };
 
@@ -98,15 +168,26 @@ export const useQueue = <Request extends RequestInstance>(
   // Lifecycle
   // ******************
 
-  useDidMount(getInitialState);
+  useEffect(getInitialState, [createRequestsArray, dispatcher, queryKey]);
 
-  useDidUpdate(mountEvents, [stopped, requests, setRequests, setStopped], true);
+  useEffect(mountEvents, [
+    stopped,
+    requests,
+    setRequests,
+    setStopped,
+    queryKey,
+    dispatcher.events,
+    requestManager.events,
+    updateQueueState,
+    mergePayloadType,
+  ]);
 
   return {
     stopped,
     requests,
-    stop: () => dispatcher.stop(queueKey),
-    pause: () => dispatcher.pause(queueKey),
-    start: () => dispatcher.start(queueKey),
+    dispatcher,
+    stop: () => dispatcher.stop(queryKey),
+    pause: () => dispatcher.pause(queryKey),
+    start: () => dispatcher.start(queryKey),
   };
 };

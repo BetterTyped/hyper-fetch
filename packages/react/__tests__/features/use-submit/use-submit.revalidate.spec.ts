@@ -1,11 +1,14 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, renderUseSubmit } from "../../utils";
 
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+// Todo: refactor all tests after changes in the refetch function
 describe("useFetch [ refetch ]", () => {
-  let requestSubmit = createRequest<null, null>({ method: "POST" });
+  let requestSubmit = createRequest<{ response: null; payload: null }>({ method: "POST" });
   let requestFetch = createRequest({ endpoint: "fetch-test" });
 
   beforeAll(() => {
@@ -13,7 +16,7 @@ describe("useFetch [ refetch ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,17 +31,17 @@ describe("useFetch [ refetch ]", () => {
   });
 
   it("should allow to refetch other request on finished", async () => {
-    const submitMock = createRequestInterceptor(requestSubmit);
-    const errorFetchMock = createRequestInterceptor(requestFetch, { status: 400 });
+    const submitMock = mockRequest(requestSubmit);
+    const errorFetchMock = mockRequest(requestFetch, { status: 400 });
     const responseSubmit = renderUseSubmit(requestSubmit);
     const responseFetch = renderUseFetch(requestFetch);
 
     await testErrorState(errorFetchMock, responseFetch);
-    const fetchMock = createRequestInterceptor(requestFetch);
+    const fetchMock = mockRequest(requestFetch);
 
     act(() => {
       responseSubmit.result.current.onSubmitFinished(() => {
-        responseSubmit.result.current.refetch(requestFetch);
+        requestFetch.client.cache.invalidate(requestFetch);
       });
       responseSubmit.result.current.submit();
     });
@@ -49,60 +52,48 @@ describe("useFetch [ refetch ]", () => {
   it("should allow to refetch by Request", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
-    const { result } = renderUseSubmit(requestSubmit);
+    renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.refetch(requestSubmit);
+      client.cache.invalidate(requestSubmit);
     });
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(requestSubmit);
   });
   it("should allow to refetch by RegExp", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
-    const { result } = renderUseSubmit(requestSubmit);
+    renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.refetch(new RegExp(requestSubmit.cacheKey));
+      client.cache.invalidate(new RegExp(requestSubmit.cacheKey));
     });
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(new RegExp(requestSubmit.cacheKey));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(new RegExp(requestSubmit.cacheKey));
   });
   it("should allow to refetch by cacheKey", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
-    const { result } = renderUseSubmit(requestSubmit);
+    renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.refetch(requestSubmit.cacheKey);
+      client.cache.invalidate(requestSubmit.cacheKey);
     });
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(requestSubmit.cacheKey);
   });
-  it("should allow to refetch by cacheKey", async () => {
+  it("should allow to refetch without key", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.refetch([requestSubmit.cacheKey]);
+      result.current.refetch();
     });
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
-  });
-  it("should not allow to refetch without key", async () => {
-    const spy = jest.spyOn(client.cache, "invalidate");
-
-    const { result } = renderUseSubmit(requestSubmit);
-
-    act(() => {
-      result.current.refetch(undefined as string);
-    });
-
-    expect(spy).toBeCalledTimes(0);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

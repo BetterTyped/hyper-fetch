@@ -1,0 +1,105 @@
+---
+sidebar_position: 3
+title: Sockets listener
+sidebar_label: useListener
+---
+
+# useListener
+
+<div class="api-link">
+  <div class="api-link-title">useListener</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/React/Hook/useListener.mdx)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+This hook is created to **listen to events** received from the server.
+
+If you intend to `send` events to the server, we recommend choosing the
+[`useEmitter`](/documentation/04-react/03-sockets/use-emitter.mdx) hook.
+
+---
+
+## Initialization
+
+```tsx
+const { data, timestamp, connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
+```
+
+---
+
+## How it works?
+
+**`useListener`** hooks into Socket adapter and start listening to given event when a component is mounted. It uses
+dependency tracking to limit re-rendering and help with performance.
+
+Under the hood, communication with the core systems is established by event emitters. There are many `"helper hooks"`
+that get returned from the hook, like `onEvent`, `onError`, and `onReconnecting` (among others). They will help you
+handle various events in the lifecycle of sockets communication.
+
+We used this approach to avoid overloading the base hook with callback logic, which causes low code readability and
+increases complexity.
+
+```tsx
+import { useListener } from "@hyper-fetch/react";
+import { onChatMessage } from "server";
+
+const UsersListPage: React.FC = () => {
+  const [messages, setMessages] = useState([])
+  const { data, connected, connecting, onEvent, onError, onReconnecting  } = useListener(onChatMessage);
+
+  onEvent(({ data: message }) => {
+    setMessages((prev) => [...prev, message]); // [ MessageType, MessageType, MessageType ]
+  });
+
+  onError((error) => {
+    console.log(error); // Error Event
+  });
+
+  onReconnecting((reconnectingAttempt) => {
+    console.log(reconnectingAttempt); // 1
+  })
+
+  if(error && !connecting) {
+    return <Alert severity="error">{error.message}</Alert>
+  }
+
+  return (
+    <div>
+      {connecting && <Loader>}
+      {!messages.length && <div>No messages</div>}
+      {!messages.length && <div>{messages.map(message => <div>{message}</div>)}</div>}
+    </div>
+  );
+};
+```
+
+---
+
+## Options
+
+Configuration options for `useListener` must be provided as the second parameter.
+
+```tsx
+const { ... } = useListener(listener, options)
+```
+
+(@import React UseListenerOptionsType type=type=returns)
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useListener(listener);
+```
+
+(@import React useListener type=type=returns)

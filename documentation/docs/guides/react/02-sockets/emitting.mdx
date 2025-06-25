@@ -1,0 +1,116 @@
+---
+sidebar_position: 2
+title: React - Socket Emitting
+sidebar_label: Emitting
+---
+
+# Socket Emitting
+
+While listening for events is crucial, your application also needs to send data to the server. Hyper-fetch's
+`useEmitter` hook provides a clean and efficient way to emit socket events. It gives you a dedicated `emit` function to
+trigger events on demand, along with helpers to track the emitter's state and handle server acknowledgements. This hook
+is perfect for actions like sending messages, updating user status, or any other client-to-server communication.
+
+:::secondary What you'll learn
+
+1.  How to use the **`useEmitter`** hook to send data to a socket server.
+2.  How to trigger an event using the returned **`emit` function**.
+3.  How to handle server **acknowledgements** for sent events.
+4.  How to use helper hooks like **`onEvent`**, **`onError`**, and **`onReconnecting`** to manage the emitter's
+    lifecycle.
+
+:::
+
+---
+
+## Basic Usage
+
+The `useEmitter` hook takes an emitter `request` and returns an `emit` function, connection status, and several helper
+hooks. You call the `emit` function whenever you want to send data to the server. A common use case is sending data from
+a form.
+
+A powerful feature of the `emit` function is its ability to handle **acknowledgements**. You can pass a callback
+function as the second argument to `emit`, which will be executed when the server acknowledges receipt of the event.
+This is useful for confirming that a message was received or for handling any server-side validation errors.
+
+```tsx live
+function ChatInput() {
+  const [message, setMessage] = React.useState("");
+  const [status, setStatus] = React.useState("Waiting for message...");
+
+  const { emit, connected, onEvent, onError, onReconnecting } = useEmitter(sendMessage);
+
+  onEvent((emitter) => {
+    console.log("Event was sent!", emitter);
+  });
+
+  onError((err) => {
+    setStatus(`Connection error: ${err.message}`);
+  });
+
+  onReconnecting((attempt) => {
+    setStatus(`Attempting to reconnect... (${attempt})`);
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!message) return;
+
+    // The data we send
+    const payload = { message, user: "Me", timestamp: Date.now() };
+
+    // The acknowledgement callback
+    const acknowledge = (error, response) => {
+      if (error) {
+        setStatus("Server did not acknowledge the message.");
+      } else {
+        setStatus(`Server received: "${response.message}"`);
+      }
+    };
+
+    // Emit the event with payload and acknowledgement
+    emit(payload, acknowledge);
+    setMessage("");
+  };
+
+  return (
+    <div className="w-full">
+      <p>Connection status: {connected ? "Connected" : "Disconnected"}</p>
+      <form onSubmit={handleSubmit} className="flex gap-2 mt-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Write a message..."
+          className="p-2 border rounded-md flex-grow"
+        />
+        <button
+          type="submit"
+          disabled={!connected}
+          className="bg-blue-500 text-white p-2 rounded-md disabled:bg-gray-400"
+        >
+          Send
+        </button>
+      </form>
+      <p className="text-sm text-gray-600 mt-2">Status: {status}</p>
+    </div>
+  );
+}
+```
+
+In this example, `sendMessage` is a pre-defined emitter request. You can learn more about creating them in the
+[sockets guide](/docs/guides/sockets/emitting). The `emit` function takes the data payload as its first argument and an
+optional acknowledgement callback as its second.
+
+---
+
+:::success Congratulations!
+
+You've mastered emitting socket events from your React application!
+
+- You can use **`useEmitter`** to get an `emit` function for sending data.
+- You can call the **`emit` function** with a data payload to send an event.
+- You can handle server responses using **acknowledgement callbacks**.
+- You can monitor the emitter's lifecycle with **`onEvent`**, **`onError`**, and **`onReconnecting`**.
+
+:::

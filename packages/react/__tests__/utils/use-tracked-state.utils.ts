@@ -11,13 +11,13 @@ export const renderUseTrackedState = <Request extends RequestInstance>(
   const { client } = request;
   const { fetchDispatcher: dispatcher, loggerManager } = client;
 
-  const logger = loggerManager.init("test");
+  const logger = loggerManager.initialize(client, "test");
   return renderHook(() => {
     return useTrackedState({
       logger,
       request,
       dispatcher,
-      initialData: null,
+      initialResponse: null,
       deepCompare: isEqual,
       dependencyTracking: false,
       ...options,

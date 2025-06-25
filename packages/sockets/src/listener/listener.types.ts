@@ -1,27 +1,79 @@
-import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
-import { SocketAdapterInstance, ExtractListenerOptionsType, ListenerCallbackType, SocketAdapterType } from "adapter";
+import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
-import { ExtractListenerHasParams, ExtractListenerEndpointType, ExtractListenerResponseType } from "types";
+import { SocketInstance } from "socket";
+import {
+  ExtractListenerHasParamsType,
+  ExtractListenerTopicType,
+  ExtractListenerResponseType,
+  ExtractAdapterListenerOptionsType,
+  ExtractAdapterExtraType,
+  ExtractListenerSocketType,
+  ExtractSocketAdapterType,
+} from "types";
 
-export type ListenerInstance = Listener<any, any, SocketAdapterInstance, any>;
-
-export type ListenerOptionsType<Endpoint extends string, AdapterType extends SocketAdapterInstance> = {
-  endpoint: Endpoint;
-  params?: ExtractRouteParams<Endpoint>;
-  options?: ExtractListenerOptionsType<AdapterType>;
+export type ListenerInstanceProperties = {
+  response?: any;
+  topic?: string;
+  socket?: SocketInstance;
+  hasParams?: boolean;
 };
 
-export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterType> = (
-  options: ExtractRouteParams<ExtractListenerEndpointType<Listener>> extends NegativeTypes
-    ? { callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>> }
-    : ExtractListenerHasParams<Listener> extends false
+export type ListenerInstance<ListenerProperties extends ListenerInstanceProperties = {}> = Listener<
+  TypeWithDefaults<ListenerProperties, "response", any>,
+  TypeWithDefaults<ListenerProperties, "topic", any>,
+  TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
+  TypeWithDefaults<ListenerProperties, "hasParams", any>
+>;
+
+export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
+  topic: Topic;
+  options?: ExtractAdapterListenerOptionsType<AdapterType>;
+};
+
+export type ListenerConfigurationType<Params, Topic extends string, Socket extends SocketInstance> = {
+  params?: Params;
+} & Partial<ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>>>;
+
+export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
+  ExtractListenerHasParamsType<Listener> extends false
     ? {
-        params: ExtractRouteParams<ExtractListenerEndpointType<Listener>>;
-        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
+        params: ExtractRouteParams<ExtractListenerTopicType<Listener>>;
       }
     : {
         params?: never;
-        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-      },
-) => () => void;
+      };
+
+export type ListenType<Listener extends ListenerInstance, Socket extends SocketInstance> =
+  ExtractRouteParams<ExtractListenerTopicType<Listener>> extends EmptyTypes
+    ? (
+        callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
+      ) => () => void
+    : ExtractListenerHasParamsType<Listener> extends true
+      ? (
+          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
+        ) => () => void
+      : (
+          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerResponseType<Listener>>,
+        ) => () => void;
+
+export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
+  data: D;
+  extra: ExtractAdapterExtraType<AdapterType>;
+}) => void;
+
+export type ExtendListener<
+  T extends ListenerInstance,
+  Properties extends {
+    response?: any;
+    topic?: string;
+    socket?: SocketInstance;
+    hasParams?: true | false;
+  },
+> = Listener<
+  TypeWithDefaults<Properties, "response", ExtractListenerResponseType<T>>,
+  Properties["topic"] extends string ? Properties["topic"] : ExtractListenerTopicType<T>,
+  Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractListenerSocketType<T>,
+  Properties["hasParams"] extends true ? true : ExtractListenerHasParamsType<T>
+>;

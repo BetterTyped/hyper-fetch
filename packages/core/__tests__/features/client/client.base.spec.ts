@@ -1,20 +1,20 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { AppManager } from "managers";
-import { interceptorCallback } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+import { Adapter } from "adapter";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ Base ]", () => {
-  let clientInstance = new Client({ url: "shared-base-url" });
-
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    clientInstance = new Client({ url: "shared-base-url" });
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -29,8 +29,14 @@ describe("Client [ Base ]", () => {
       expect(client.url).toBe(url);
     });
     it("should assign new adapter", async () => {
-      const adapter = () => interceptorCallback()();
-      const client = new Client({ url: "shared-base-url", adapter });
+      const adapter = new Adapter({
+        name: "test",
+        defaultMethod: "GET",
+        defaultExtra: {},
+        systemErrorStatus: 0,
+        systemErrorExtra: {},
+      });
+      const client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
 
       expect(client.adapter).toBe(adapter);
     });
@@ -41,19 +47,19 @@ describe("Client [ Base ]", () => {
       expect(client.appManager).toBe(appManager);
     });
     it("should assign new cache", async () => {
-      const cache = new Cache(clientInstance);
+      const cache = new Cache();
       const client = new Client({ url: "shared-base-url", cache: () => cache });
 
       expect(client.cache).toBe(cache);
     });
     it("should assign new fetchDispatcher", async () => {
-      const fetchDispatcher = new Dispatcher(clientInstance);
+      const fetchDispatcher = new Dispatcher();
       const client = new Client({ url: "shared-base-url", fetchDispatcher: () => fetchDispatcher });
 
       expect(client.fetchDispatcher).toBe(fetchDispatcher);
     });
     it("should assign new submitDispatcher", async () => {
-      const submitDispatcher = new Dispatcher(clientInstance);
+      const submitDispatcher = new Dispatcher();
       const client = new Client({ url: "shared-base-url", submitDispatcher: () => submitDispatcher });
 
       expect(client.submitDispatcher).toBe(submitDispatcher);
@@ -70,13 +76,13 @@ describe("Client [ Base ]", () => {
           return appManager;
         },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new cache", async () => {
       const spy = jest.fn();
-      const cache = new Cache(clientInstance);
+      const cache = new Cache();
       const client = new Client({
         url: "shared-base-url",
         cache: () => {
@@ -85,13 +91,13 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new fetchDispatcher", async () => {
       const spy = jest.fn();
-      const fetchDispatcher = new Dispatcher(clientInstance);
+      const fetchDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",
         fetchDispatcher: () => {
@@ -100,13 +106,13 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new submitDispatcher", async () => {
       const spy = jest.fn();
-      const submitDispatcher = new Dispatcher(clientInstance);
+      const submitDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",
         submitDispatcher: () => {
@@ -115,25 +121,29 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new defaultExtra", async () => {
       const defaultExtra = { headers: { test: "1" } };
       const client = new Client({
         url: "shared-base-url",
-      }).setDefaultExtra(defaultExtra);
+      });
 
-      expect(client.defaultExtra).toStrictEqual(defaultExtra);
+      client.adapter.setDefaultExtra(defaultExtra);
+
+      expect(client.adapter.defaultExtra).toStrictEqual(defaultExtra);
     });
     it("should assign new defaultMethod", async () => {
       const defaultMethod = "POST";
       const client = new Client({
         url: "shared-base-url",
-      }).setDefaultMethod(defaultMethod);
+      });
 
-      expect(client.defaultMethod).toStrictEqual(defaultMethod);
+      client.adapter.setDefaultMethod(defaultMethod);
+
+      expect(client.adapter.defaultMethod).toStrictEqual(defaultMethod);
     });
   });
 });

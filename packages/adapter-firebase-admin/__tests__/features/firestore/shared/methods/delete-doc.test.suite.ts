@@ -1,22 +1,22 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("deleteDoc", () => {
     it("should allow for removing data", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const getReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "deleteDoc",
         })
@@ -40,7 +40,7 @@ export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof fire
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
 
       const request = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "deleteDoc",
         })

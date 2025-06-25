@@ -1,26 +1,7 @@
-import {
-  QueryParamType,
-  QueryParamsType,
-  QueryParamValuesType,
-  ResponseReturnType,
-  QueryStringifyOptionsType,
-  AdapterInstance,
-} from "adapter";
+import { ResponseType } from "adapter";
 import { RequestInstance } from "request";
-import { stringifyDefaultOptions } from "client";
-import { NegativeTypes } from "types";
-import { RequestInterceptorType, ResponseInterceptorType } from "./client.types";
-import { hasWindow } from "managers";
-
-// Utils
-
-export const stringifyValue = (response: string | unknown): string => {
-  try {
-    return JSON.stringify(response as string);
-  } catch (err) {
-    return "";
-  }
-};
+import { ExtendRequest, ExtractClientAdapterType } from "types";
+import { ClientInstance, RequestInterceptorType, ResponseInterceptorType } from "./client.types";
 
 export const interceptRequest = async (interceptors: RequestInterceptorType[], request: RequestInstance) => {
   let newRequest = request;
@@ -35,10 +16,10 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   return newRequest;
 };
 
-export const interceptResponse = async <GlobalErrorType, Adapter extends AdapterInstance>(
-  interceptors: ResponseInterceptorType[],
-  response: ResponseReturnType<any, GlobalErrorType, Adapter>,
-  request: RequestInstance,
+export const interceptResponse = async <GlobalErrorType, Client extends ClientInstance>(
+  interceptors: ResponseInterceptorType<Client>[],
+  response: ResponseType<any, GlobalErrorType, ExtractClientAdapterType<Client>>,
+  request: ExtendRequest<RequestInstance, { client: Client }>,
 ) => {
   let newResponse = response;
   if (!request.requestOptions.disableResponseInterceptors) {
@@ -50,146 +31,4 @@ export const interceptResponse = async <GlobalErrorType, Adapter extends Adapter
     }
   }
   return newResponse;
-};
-// Mappers
-
-export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = hasWindow() && request.data instanceof FormData;
-  const headers: HeadersInit = {};
-
-  if (!isFormData) headers["Content-Type"] = "application/json";
-
-  Object.assign(headers, request.headers);
-  return headers as HeadersInit;
-};
-
-export const getAdapterPayload = (data: unknown): string | FormData => {
-  const isFormData = hasWindow() && data instanceof FormData;
-  if (isFormData) return data;
-
-  return stringifyValue(data);
-};
-
-// Stringify
-
-const isValidValue = (options: QueryStringifyOptionsType) => {
-  return (value: QueryParamType) => {
-    const { skipNull, skipEmptyString } = options;
-
-    if (skipEmptyString && value === undefined) {
-      return false;
-    }
-    if (skipEmptyString && value === "") {
-      return false;
-    }
-    if (skipNull && value === null) {
-      return false;
-    }
-    return true;
-  };
-};
-
-const encodeValue = (
-  value: string,
-  { encode, strict }: Pick<QueryStringifyOptionsType, "encode" | "strict">,
-): string => {
-  if (encode && strict) {
-    return encodeURIComponent(value).replace(/[!'()*]/g, (s) => `%${s.charCodeAt(0).toString(16).toUpperCase()}`);
-  }
-  if (encode) {
-    return encodeURIComponent(value);
-  }
-  return value;
-};
-
-const encodeParams = (key: string, value: QueryParamType, options: QueryStringifyOptionsType) => {
-  const shouldSkip = !isValidValue(options)(value);
-
-  if (!key || shouldSkip) {
-    return "";
-  }
-
-  const parsedValue = () => {
-    if (value instanceof Date) {
-      return options.dateParser?.(value) || value.toISOString();
-    }
-
-    if (typeof value === "object" && !Array.isArray(value)) {
-      return options.objectParser?.(value) || JSON.stringify(value);
-    }
-
-    return String(value);
-  };
-
-  return `${encodeValue(key, options)}=${encodeValue(parsedValue(), options)}`;
-};
-
-const encodeArray = (key: string, array: Array<QueryParamValuesType>, options: QueryStringifyOptionsType): string => {
-  const { arrayFormat, arraySeparator } = options;
-
-  return array
-    .filter(isValidValue(options))
-    .reduce<string[]>((acc, value, index) => {
-      switch (arrayFormat) {
-        case "index": {
-          const keyValue = `${encodeValue(key, options)}[${encodeValue(String(index), options)}]=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
-          break;
-        }
-        case "bracket": {
-          const keyValue = `${encodeValue(key, options)}[]=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
-          break;
-        }
-        case "comma": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(",")];
-        }
-        case "separator": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
-        }
-        case "bracket-separator": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}[]=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
-        }
-        default: {
-          const keyValue = `${encodeValue(key, options)}=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
-        }
-      }
-
-      return acc;
-    }, [])
-    .join("&");
-};
-
-export const stringifyQueryParams = (
-  queryParams: QueryParamsType | string | NegativeTypes,
-  options: QueryStringifyOptionsType = stringifyDefaultOptions,
-): string => {
-  if (!queryParams || !Object.keys(queryParams).length) {
-    return "";
-  }
-
-  if (typeof queryParams === "string") {
-    const hasQuestionMark = queryParams[0] === "?";
-    return hasQuestionMark ? queryParams : `?${queryParams}`;
-  }
-
-  const stringified = Object.entries(queryParams)
-    .map(([key, value]): string => {
-      if (Array.isArray(value)) {
-        return encodeArray(key, value, options);
-      }
-
-      return encodeParams(key, value, options);
-    })
-    .filter(Boolean)
-    .join("&");
-
-  if (stringified) {
-    return `?${stringified}`;
-  }
-  return "";
 };

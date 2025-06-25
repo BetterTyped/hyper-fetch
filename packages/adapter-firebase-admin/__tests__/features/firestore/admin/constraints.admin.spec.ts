@@ -6,10 +6,10 @@ import { Client } from "@hyper-fetch/core";
 import { seedFirestoreDatabaseAdmin } from "../../../utils";
 import { firestoreDbAdmin } from "../../../utils/initialize.firestore.admin";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 
 describe("Firestore Admin [ Constraints ]", () => {
-  const client = new Client({ url: "teas/" }).setAdapter(firebaseAdminAdapter(firestoreDbAdmin));
+  const client = new Client({ url: "teas/" }).setAdapter(FirebaseAdminAdapter(firestoreDbAdmin));
 
   beforeEach(async () => {
     await seedFirestoreDatabaseAdmin(firestoreDbAdmin);

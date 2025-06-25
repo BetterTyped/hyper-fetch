@@ -1,9 +1,10 @@
-import { ListenerOptionsType, SocketAdapterType } from "@hyper-fetch/sockets";
-
-import { socket } from "./socket.utils";
+import { ListenerOptionsType, Socket, SocketAdapterType } from "@hyper-fetch/sockets";
 
 export const createListener = <ResponseType = { name: string; age: number }>(
   options?: Partial<ListenerOptionsType<any, SocketAdapterType>>,
 ) => {
-  return socket.createListener<ResponseType>()({ ...options, endpoint: "some-event" });
+  return new Socket({ url: "ws://localhost:1234" }).createListener<ResponseType>()({
+    ...options,
+    topic: "some-event",
+  });
 };

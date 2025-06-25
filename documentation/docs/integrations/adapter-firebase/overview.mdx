@@ -1,0 +1,147 @@
+---
+sidebar_position: 1
+title: Firebase Adapter
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/api/adapter-firebase/Functions/FirebaseAdapter.mdx)
+
+Hyper Fetch's Firebase adapters provide seamless integration with both Firebase Realtime Database and Firestore. This
+allows you to use the power and convenience of Hyper-fetch with your Firebase backend, for both web and admin
+environments, with a unified and consistent API.
+
+---
+
+:::tip Purpose
+
+1.  **Unified API**: Provides a single interface for both `Realtime Database` and `Firestore`.
+2.  **Isomorphic**: Supports both client-side (web) and server-side (admin) Firebase applications.
+3.  **Real-time Data**: Includes socket adapters for real-time data listeners.
+4.  **Standardized Queries**: Simplifies filtering and querying with a consistent constraint-based syntax.
+5.  **Simplified Data Handling**: Automatically handles Firebase-specific data structures, returning clean arrays.
+
+:::
+
+---
+
+## Choosing the Right Package
+
+Hyper-fetch offers two distinct packages for Firebase integration, tailored to different environments. Your choice
+depends on whether you are working in a client-side web application or a server-side admin environment.
+
+### Web Applications (`@hyper-fetch/firebase`)
+
+Use this package for client-side applications running in the browser.
+
+- **`firebaseAdapter`**: For standard database operations (get, set, update).
+- **`firebaseSocketsAdapter`**: For setting up real-time listeners to your database.
+
+### Server-side / Admin Environments (`@hyper-fetch/firebase-admin`)
+
+Use this package for backend applications using the Firebase Admin SDK.
+
+- **`firebaseAdminAdapter`**: For standard database operations.
+- **`firebaseSocketsAdminAdapter`**: For real-time listeners on the server.
+
+---
+
+## Client Setup
+
+Once you've chosen the right package, you need to initialize Firebase and configure the Hyper-fetch `Client`. The
+process is similar for both web and admin environments, with the main difference being the package import and Firebase
+initialization.
+
+Here's an example of setting up the client for a **web application**:
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { firebaseAdapter } from "@hyper-fetch/firebase";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+// 1. Initialize Firebase
+const app = initializeApp({
+  projectId: "demo-test-firestore",
+});
+const db = getFirestore(app);
+
+// 2. Create a Hyper-fetch client with the Firebase adapter
+const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+
+// 3. Create a request
+const getTeas = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+// 4. Send the request and check the results
+const { data, status, extra, success, error } = await getTeas.send();
+```
+
+For a **server-side application**, you would import from `@hyper-fetch/firebase-admin` and use the Firebase Admin SDK
+for initialization. The Hyper-fetch logic for creating requests and handling responses remains the same.
+
+### Response Object
+
+The response from a Firebase request includes:
+
+- `data`: The data from the database. Each document is enhanced with a `__key` property representing its ID.
+- `status`: A status of `success`, `error`, or `emptyResource` (if the request was successful but returned no data).
+- `success`: A boolean indicating if the request was successful.
+- `error`: An error object if the request failed.
+- `extra`: Additional properties, such as the `ref` and `snapshot` from Firestore for a `getDocs` method.
+
+---
+
+## Querying Data
+
+The Firebase adapters provide a standardized way to filter and limit your queries using the `constraints` query
+parameter. This approach ensures a consistent API across Realtime Database and Firestore, for both web and admin
+versions.
+
+You can build complex queries by passing an array of constraints.
+
+```tsx
+import { $limit, $orderBy, $where } from "@hyper-fetch/firebase"; // or @hyper-fetch/firebase-admin
+
+const getTeas = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+const { data } = await getTeas.send({
+  queryParams: {
+    constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)],
+  },
+});
+```
+
+:::info Available Constraints
+
+The adapter provides wrappers for most of Firebase's query methods:
+
+- **Filtering**: `$where`, `$startAt`, `$startAfter`, `$endAt`, `$endAfter`, `$equalTo`
+- **Ordering**: `$orderBy`, `$orderByChild`, `$orderByKey`, `$orderByValue`
+- **Limiting**: `$limit`, `$limitToFirst`, `$limitToLast`
+
+These functions work just like their native Firebase counterparts.
+
+:::
+
+---
+
+## Data Handling
+
+The Firebase adapters include logic to simplify data handling, particularly with array-like structures in the Realtime
+Database.
+
+:::note Automatic Array Conversion
+
+In Firebase Realtime Database, if you store an array and then remove items, it may no longer be sequential. For example,
+deleting elements `a` and `b` from `[a, b, c, d, e]` might result in Firebase returning an object like
+`{2: 'c', 4: 'e'}` instead of an array.
+
+Hyper-fetch automatically converts such objects back into an array. Each item in the resulting array will have a `__key`
+property containing its original key from the database. This ensures you always work with predictable array structures.
+
+:::

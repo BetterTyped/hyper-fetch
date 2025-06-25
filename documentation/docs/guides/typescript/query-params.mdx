@@ -1,0 +1,92 @@
+---
+sidebar_position: 6
+title: Setting Query Params Type
+sidebar_label: Query Params
+---
+
+# Query Params Type
+
+Query parameters are a fundamental part of many REST APIs, used for filtering, sorting, and pagination. Hyper-fetch
+allows you to define a **type for your query parameters**, ensuring that you pass valid values and catch potential
+errors at compile time. This leads to more robust and maintainable code.
+
+:::secondary What you'll learn
+
+1.  How to define a **type for query parameters** in a request.
+2.  How to pass **type-safe query parameters** when sending a request.
+3.  How Hyper-fetch handles **optional parameters** and provides autocompletion.
+
+:::
+
+---
+
+### Why is it helpful?
+
+- **Prevents Bugs**: Catches typos and incorrect types in query parameters at compile time, not at runtime.
+- **API Contract Adherence**: Enforces the API contract for filtering, pagination, and sorting, ensuring requests are
+  always valid.
+- **Improved DX**: Provides autocompletion for query parameter keys and values in your IDE.
+- **Self-documenting Code**: The request definition clearly documents the available query parameters and their types.
+
+---
+
+### Example
+
+Here is how to add a type for query parameters to a request. By providing the `queryParams` generic, you get full type
+safety and autocompletion when using the `.send` method.
+
+```ts
+// import { createClient } from '@hyper-fetch/core';
+
+export const client = createClient()({
+  url: "https://api.example.com",
+});
+
+// 1. Define the response type for our request
+type User = { id: number; name: string; role: "Admin" | "User" };
+type ResponseType = User[];
+
+// 2. Define the type for the query parameters
+// highlight-start
+type QueryParamsType = {
+  search?: string; // Optional search term
+  role: "Admin" | "User"; // Required role
+  tags?: string[]; // Optional array of tags
+};
+// highlight-end
+
+// 3. Create the request with the query parameters type
+const getUsers = client.createRequest<{
+  response: ResponseType;
+  queryParams: QueryParamsType;
+}>()({
+  endpoint: "/users",
+});
+
+// 4. Send the request with type-safe query parameters
+// Hyper-fetch will ensure you pass the correct types.
+// Try changing 'Admin' to 'Guest' or removing 'role' to see an error.
+const { data, error } = await getUsers.send({
+  queryParams: {
+    role: "Admin",
+    search: "John",
+    tags: ["active", "premium"],
+  },
+});
+
+if (data) {
+  console.log("Fetched users:", data);
+}
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to type-safe your query parameters!
+
+- You can define a **`queryParams` type** for any request.
+- You can confidently pass **validated and typed** query parameters when making a request.
+- You know how to handle **optional, required, and array-based** query parameters.
+
+:::

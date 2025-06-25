@@ -1,0 +1,113 @@
+---
+sidebar_position: 1
+title: Fetching Data with useFetch
+sidebar_label: Fetching
+---
+
+# Fetching Data
+
+The primary way to fetch data in a React application with Hyper-fetch is by using the `useFetch` hook. It's designed to
+handle everything you need for data fetching: loading states, error handling, and of course, the data itself. This hook
+simplifies your component logic by abstracting away the complexities of making and managing API requests.
+
+:::secondary What you'll learn
+
+1.  How to use the **`useFetch` hook** to fetch data from an API.
+2.  How to handle **loading** and **error states** in your components.
+3.  How to pass **parameters** to your requests.
+4.  What are the **main values** returned by the `useFetch` hook.
+
+:::
+
+## Basic Usage
+
+To get started, you simply pass a `request` instance to the `useFetch` hook. It will automatically execute the request
+when the component mounts.
+
+Here is a live example that fetches a list of users and displays them.
+
+```tsx live
+function UserList() {
+  // highlight-start
+  const { data: users, loading, error } = useFetch(getUsers);
+  // highlight-end
+
+  if (loading) {
+    return <div className="p-4">Loading users...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Oops! Something went wrong.</div>;
+  }
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-2">Users</h2>
+      <ul className="list-disc list-inside">{users?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>
+    </div>
+  );
+}
+```
+
+## Fetching with Parameters
+
+Often, you'll need to fetch a specific resource by an identifier. You can pass parameters to your request using the
+`.setParams()` method.
+
+This example fetches a single user by their ID.
+
+```tsx live
+function UserProfile() {
+  const [userId, setUserId] = React.useState(1);
+
+  // highlight-start
+  const { data: user, loading, error } = useFetch(getUser.setParams({ userId }));
+  // highlight-end
+
+  const loadNextUser = () => {
+    setUserId((id) => id + 1);
+  };
+
+  return (
+    <div className="p-4 border rounded-md">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">User Profile</h2>
+        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={loadNextUser}>
+          Load Next User
+        </button>
+      </div>
+      {loading && <div>Loading...</div>}
+      {error && <div className="text-red-500">Could not fetch user data.</div>}
+      {user && (
+        <div>
+          <p>
+            <span className="font-semibold">ID:</span> {user.id}
+          </p>
+          <p>
+            <span className="font-semibold">Name:</span> {user.name}
+          </p>
+          <p>
+            <span className="font-semibold">Email:</span> {user.email}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+The `useFetch` hook will automatically re-fetch the data whenever the `userId` state changes because Hyper-fetch tracks
+the dependencies of your request.
+
+---
+
+:::success Congratulations!
+
+You've learned the basics of fetching data with `useFetch`!
+
+- You can fetch **lists of data** and **single items** with parameters.
+- You can handle **loading** and **error states** to provide a better user experience.
+- You understand how `useFetch` **automatically re-fetches** when request parameters change.
+- You are ready to explore more advanced features of the [`useFetch` hook](/react/04-hooks/use-fetch.mdx).
+
+:::

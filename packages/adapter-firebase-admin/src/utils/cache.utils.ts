@@ -1,9 +1,15 @@
-import { RequestInstance } from "@hyper-fetch/core";
+import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 
-export const setCacheManually = <R extends RequestInstance>(
-  request: R,
+import { FirestoreAdapterType } from "adapter";
+
+export const setCacheManually = (
+  request: RequestInstance<{
+    client: ClientInstance<{
+      adapter: FirestoreAdapterType;
+    }>;
+  }>,
   response: { value: any; status: "success" | "error" | "emptyResource" },
-  extra,
+  extra: any,
 ) => {
   if (["success", "emptyResource"].includes(response.status)) {
     request.client.cache.set(request, {
@@ -15,19 +21,25 @@ export const setCacheManually = <R extends RequestInstance>(
       isCanceled: false,
       isOffline: false,
       retries: 0,
-      timestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
     });
   } else {
     request.client.cache.set(request, {
       data: null,
-      status: "error",
+      status: "error" as const,
       error: response.value,
       success: false,
       extra,
       isCanceled: false,
       isOffline: false,
       retries: 0,
-      timestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
     });
   }
 };

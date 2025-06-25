@@ -1,0 +1,126 @@
+---
+sidebar_position: 7
+---
+
+The library contains several managers, they are mainly used to support smaller subsystems and features.
+
+---
+
+## AppManager
+
+<div class="api-link">
+  <div class="api-link-title">AppManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/AppManager.md)
+
+  </div>
+</div>
+
+<br />
+
+This class is responsible for the application’s `online` or `offline` state and whether the application window is
+`focused` or `blurred`.
+
+For example, suppose you want to use Hyper Fetch in a React Native environment and the default web browser events won't
+work. In that case, you need to set the events that are most optimal for the current environment.
+
+:::info
+
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+
+:::
+
+```tsx
+const unmountFocusListener = builder.commandManager.events.onFocus(console.log);
+const unmountOfflineListener = builder.commandManager.events.onOffline(console.log);
+
+...
+
+unmountFocusListener()
+unmountOfflineListener()
+```
+
+### Events
+
+(@import HyperFetch getAppManagerEvents type=returns)
+
+---
+
+## CommandManager
+
+<div class="api-link">
+  <div class="api-link-title">CommandManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/CommandManager.md)
+
+  </div>
+</div>
+
+<br />
+
+The `CommandManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
+events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
+
+The `CommandManager` holds the cancellation tokens needed to terminate requests. It also manages tokens for events
+related to the request lifecycle, i.e. request `start`, `upload`, `download`, `response`, and `abort`.
+
+:::info
+
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
+
+:::
+
+```tsx
+
+const unmountUploadListener = builder.commandManager.events.onUploadProgressById(requestId, console.log);
+const unmountDownloadListener = builder.commandManager.events.onDownloadProgressById(requestId, console.log);
+
+...
+
+unmountUploadListener()
+unmountDownloadListener()
+```
+
+### AbortKey
+
+Every request added to the dispatcher creates an abort controller for itself. This controller is stored in the Map
+object under abort key with the `requestId`. This lets you abort whole groups of requests using `abortKey` or single
+requests using their `requestId`. By default, `abortKey` is automatically created on command out of its endpoint and
+method, but you can set custom values.
+
+### Events
+
+(@import HyperFetch getCommandManagerEvents type=returns)
+
+```ts
+builder.commandManager.events.onResponse((response, details) => {
+  // ...
+});
+```
+
+---
+
+## LoggerManager
+
+<div class="api-link">
+  <div class="api-link-title">LoggerManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Hyper-Fetch/Class/LoggerManager.md)
+
+  </div>
+</div>
+
+<br />
+
+LoggerManager is the main instance of the Hyper Fetch logging system. You can initiate single loggers based on it in
+subsystems; this allows you to isolate these loggers but still give them access to the parent configuration in the
+Builder.
+
+```ts
+const logger = builder.loggerManager.init("My Module")
+
+logger.error(...) // output in console => [My Module] Some message
+```

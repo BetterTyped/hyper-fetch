@@ -1,0 +1,66 @@
+{
+  "name": "shop",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/shop/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "app-build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/shop"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "run": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "shop:app-build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "shop:app-build:development",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "shop:app-build:production",
+          "hmr": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx run shop:run"],
+        "parallel": true
+      }
+    },
+    "app-preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "shop:app-build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "shop:app-build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "shop:app-build:production",
+          "dev": false
+        }
+      }
+    }
+  }
+}

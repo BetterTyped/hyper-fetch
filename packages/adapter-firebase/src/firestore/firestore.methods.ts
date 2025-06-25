@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import {
   addDoc,
   collection,
@@ -10,7 +11,7 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter/types";
 import {
@@ -22,22 +23,31 @@ import {
 import { getStatus } from "utils";
 import { getOrderedResultFirestore, mapConstraint } from "./utils";
 
-export const getFirestoreBrowserMethods = <R extends RequestInstance>(
-  request: R,
-  database: Firestore,
-  url: string,
+type DataType = {
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+  payload?: any;
+  options?: Record<string, any>;
+};
+
+export const getFirestoreBrowserMethods = ({
+  database,
+  url,
   onSuccess,
   onError,
-  resolve,
-  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
-): ((
-  methodName: FirestoreMethodsUnion,
-  data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    data?: any;
-    options?: Record<string, any>;
-  },
-) => Promise<void>) => {
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Firestore;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((methodName: FirestoreMethodsUnion, data: DataType) => Promise<void>) => {
   const [cleanUrl] = url.split("?");
   const methods = {
     getDoc: async () => {
@@ -86,19 +96,19 @@ export const getFirestoreBrowserMethods = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: FirestoreMethodsUnion, data) => {
+  return async (methodName: FirestoreMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
-      events.onResponseEnd();
-    } catch (e) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError(e, "error", {}, resolve);
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
+    } catch (error) {
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

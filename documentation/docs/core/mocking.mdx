@@ -1,0 +1,277 @@
+---
+sidebar_position: 10
+title: Mocking
+sidebar_label: Mocking
+---
+
+[Read the API Reference »](/api/core/Classes/Request.mdx#setmock)
+
+Mocking is a built-in feature of [Request](/docs/core/request). It is a feature that allows for mock the response for a
+given endpoint at the same time keeping the **complete request lifecycle** and events. Thanks to the design of the
+library, we can also micro-manage things like upload/download progresses, timings, trigger all kinds of errors for
+amazing developer experience. It is a great way to test your code in isolation, without relying on external services and
+keeping the **full type safety** of your code.
+
+---
+
+:::tip Purpose
+
+1. Control upload/download progress and timings
+2. Simulate errors and timeouts
+3. Test edge cases and custom scenarios
+4. Keep your tests fast, reliable, and independent
+
+:::
+
+---
+
+## How it works?
+
+To add a mock to a request, we need to use the `setMock(mockFn, config)` method. It accepts a function that returns a
+mock response. With this simple concept you're able to introduce any mocking approach of your choice.
+
+:::warning Reference change
+
+Method `setMock()` is the only method modifying the Request reference.
+
+This will allow us to mock every request in given group.
+
+:::
+
+```tsx live
+const getNotes = client.createRequest()({
+  endpoint: "/notes",
+});
+
+getNotes.setMock(
+  // Our mock function
+  ({ request, requestId }) => {
+    return {
+      data: {
+        items: [{ text: "This is mocked note" }],
+      },
+    };
+  },
+  // Config
+  {
+    responseTime: 500,
+    requestTime: 500,
+    totalUploaded: 1000,
+    totalDownloaded: 1000,
+  },
+);
+
+const response = await getNotes.send();
+console.log(response);
+```
+
+---
+
+## Options
+
+What you return from the mocker is used to generate the output and behavior of the mocker.
+
+### Response
+
+The base API requires you to return the response for the mocked request. This part defines how our data will look like.
+
+(@import core MockResponseType type=returns&display=table)
+
+### Config
+
+There is also additional config which can specify behavioral aspect of the mocker. How long it should be processed,
+should it throw timeout error or how much of a data we want to mock for the transfer updates.
+
+(@import core MockerConfigType type=returns&display=table)
+
+```tsx
+const request = client
+  .createRequest()({ endpoint: "shared-base-endpoint" })
+  .setMock(
+    () => {
+      // Data part
+      return {
+        data: { mocking: "is fun" },
+        status: 200,
+      };
+    },
+    {
+      // Config part
+      requestTime: 40,
+      responseTime: 60,
+      totalUploaded: 1000,
+      totalDownloaded: 1000,
+    },
+  );
+```
+
+In the example above - the request phase will take 40 milliseconds and during this phase 1000 'bytes' will be "uploaded"
+(and `onUploadProgress` events will be emitted). The response phase will take 60 millisecond and during this phase 1000
+'bytes' will be "downloaded" (and `onDownloadProgress` events will be emitted). In fact no data-exchange occurs, but we
+will make sure to simulate it for you.
+
+---
+
+## Usage and use cases
+
+#### Request context
+
+The mocker is now used by passing a callback function to `setMock`. This function receives the request context and
+returns the mock response. This allows for dynamic mocking, dependent on the passed arguments during execution.
+
+```tsx
+const mockedRequest = client
+  .createRequest()({ endpoint: "/users/:id" })
+  .setMock(({ request }) => {
+    const { params } = request;
+    if (params.id === 11) {
+      return { data: [1, 2, 3], config: { status: 222 } };
+    }
+    return { data: [4, 5, 6], status: 200 };
+  });
+```
+
+The passed method may also be asynchronous:
+
+```tsx
+const mockedRequest = client
+  .createRequest<{ response: Record<string, any> }>()({ endpoint: "users/:id" })
+  .setMock(async (request) => {
+    // Do some asynchronous processing of the payload
+    const myData = await processPayload(request.payload);
+
+    return { data: myData, status: 200 };
+  });
+```
+
+> **Note:** Only the callback function form is supported. Passing objects, arrays, or lists of functions is no longer
+> available.
+
+#### Canceling
+
+Canceling a request works the same way as in the real request. It will throw an error and the request will be canceled.
+
+```tsx live
+const request = client.createRequest()({
+  endpoint: "some-endpoint",
+});
+
+request.setMock(
+  () => {
+    return {
+      data: { mocking: "is fun" },
+      status: 200,
+    };
+  },
+  {
+    requestTime: 1000,
+    responseTime: 1000,
+  },
+);
+
+const response = request.send();
+
+setTimeout(() => {
+  request.abort();
+}, 1000);
+```
+
+#### Timeout
+
+You can simulate timeout error by setting `timeout` to `true` in the config.
+
+```tsx live
+const request = client.createRequest()({
+  endpoint: "shared-base-endpoint",
+});
+
+request.setMock(
+  () => {
+    return {
+      data: { mocking: "is fun" },
+      status: 200,
+    };
+  },
+  {
+    // It will take 2s to be processed
+    requestTime: 2000,
+    responseTime: 2000,
+    totalUploaded: 1000,
+    totalDownloaded: 1000,
+    // Timeout error will be thrown after 1s
+    timeout: 2000,
+  },
+);
+
+const response = await request.send();
+console.log(response);
+```
+
+---
+
+## Mocking state
+
+Apart from adding a mock to a request, you can also remove it or disable it.
+
+### How to remove mocker?
+
+If you need to remove the mocker from a request, use the `clearMock()` method. This way mocker is disabled and mock data
+is removed.
+
+```tsx
+request.clearMock();
+```
+
+### Disabling single mocker
+
+Instead of removing mocker, you can also disable mocker and enable mocker at will with the `request.setMockingEnabled`
+method. This way if you set mocking data, it will be kept and not removed as in the `clearMock` case.
+
+```tsx
+const mockedRequest = request.setMock({ data: fixture }); // mock is set
+... // Here mocker works as usual
+mockedRequest.setMockingEnabled(false); // Mocker is disabled
+... // Request works as usual
+mockedRequest.setMockingEnabled(true); // Mocker is enabled once again
+```
+
+### Disabling mocking for all requests
+
+If you want to disable mocking for all requests of a given `client` instance - you can use the
+`client.setMockingEnabled` method. This way all related requests will behave 'as usual' and setting/enabling mocks on
+single requests will not have any effect.
+
+```tsx
+const client = new Client(...);
+const mockedRequest_1 = newClient.createRequest()({ ... }).setMock({ data: fixture1 });
+const mockedRequest_2 = newClient.createRequest()({ ... }).setMock({ data: fixture2 });
+... // Here mocked requests return mocked data.
+client.setMockingEnabled(false) // All mocks are disabled
+... // Here requests work as usual
+client.setMockingEnabled(true) // All mocks are enabled once again
+```
+
+---
+
+## See also
+
+<LinkCard
+  type="api"
+  title="Request API Reference"
+  description="See all available methods for the Request class."
+  to="/docs/api/core/Classes/Request#methods"
+/>
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn more about the Request class and its features."
+  to="/docs/core/request"
+/>
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="Understand how to configure and use the Client."
+  to="/docs/core/client"
+/>

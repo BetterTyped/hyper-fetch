@@ -1,92 +1,126 @@
-import { RequestInstance } from "../request";
-import { getAdapterBindings, AdapterInstance, AdapterType, ResponseReturnType } from "adapter";
+import { getAdapterBindings, AdapterInstance, RequestProcessingError } from "adapter";
+import { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
-export const mocker = async <T extends AdapterInstance = AdapterType>(
-  request: RequestInstance,
-  {
-    onError,
-    onResponseEnd,
-    onTimeoutError,
-    onRequestEnd,
-    createAbortListener,
-    onResponseProgress,
-    onRequestProgress,
-    onResponseStart,
-    onBeforeRequest,
-    onRequestStart,
-    onSuccess,
-  }: Pick<
-    Awaited<ReturnType<typeof getAdapterBindings<T>>>,
-    | "onError"
-    | "onResponseEnd"
-    | "onTimeoutError"
-    | "onRequestEnd"
-    | "createAbortListener"
-    | "onResponseProgress"
-    | "onRequestProgress"
-    | "onResponseStart"
-    | "onBeforeRequest"
-    | "onRequestStart"
-    | "onSuccess"
-  >,
-) => {
-  const mock = request.mock.next();
-  const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
+export const mocker = async <T extends AdapterInstance>({
+  request,
+  requestId,
+  onError,
+  onResponseEnd,
+  onTimeoutError,
+  onRequestEnd,
+  createAbortListener,
+  onResponseProgress,
+  onRequestProgress,
+  onResponseStart,
+  onBeforeRequest,
+  onRequestStart,
+  onSuccess,
+  onAbortError,
+  adapter,
+}: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
+  if (!request.unstable_mock) {
+    throw new RequestProcessingError("Mock should be defined when calling mocker");
+  }
 
-  return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
-    const { data, status = 200, success = true, extra, config } = result;
-    const {
-      requestTime = 20,
-      responseTime = 20,
-      totalUploaded = 1,
-      totalDownloaded = 1,
-      timeout = false,
-    } = config || {};
+  let thrown = false;
 
-    createAbortListener(0 as any, {} as any, () => {}, resolve);
+  const {
+    requestTime = 20,
+    responseTime = 20,
+    totalUploaded = 1000,
+    totalDownloaded = 1000,
+    timeout,
+  } = request.unstable_mock.config;
+  const result = await request.unstable_mock.fn({ request, requestId });
 
-    onBeforeRequest();
-    onRequestStart();
+  const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
 
-    const progress = (totalTime, totalSize, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
-      new Promise((resolveProgress) => {
-        const interval = 20;
-        const dataStart = +new Date();
-        const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
-        let currentlyLoaded = 0;
-        const timer = setInterval(function handleProgressInterval() {
-          const currentTime = Math.min(totalTime, +new Date() - dataStart);
-          currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
-          if (currentTime >= totalTime) {
-            resolveProgress(true);
-            clearInterval(timer);
-          } else {
-            progressFunction({
-              total: totalSize,
-              loaded: currentlyLoaded,
-            });
-          }
-        }, interval);
-      });
-
-    const getResponse = async () => {
-      await progress(requestTime, totalUploaded, onRequestProgress);
-      onRequestEnd();
-      onResponseStart();
-      await progress(responseTime, totalDownloaded, onResponseProgress);
-      if (success) {
-        onSuccess(data, status as any, extra || {}, resolve);
-      } else {
-        onError(data, status as any, extra || {}, resolve);
-      }
-    };
-
-    if (timeout) {
-      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), 1);
-    } else {
-      setTimeout(getResponse, requestTime + responseTime + 1);
-    }
-
-    onResponseEnd();
+  createAbortListener({
+    status: adapter.systemErrorStatus,
+    extra: adapter.systemErrorExtra,
+    onAbort: () => {
+      thrown = true;
+    },
   });
+
+  onBeforeRequest();
+  onRequestStart();
+
+  const progress = (
+    totalTime: number,
+    totalSize: number,
+    progressFunction: typeof onResponseProgress | typeof onRequestProgress,
+  ) =>
+    new Promise((resolveProgress) => {
+      if (thrown) {
+        resolveProgress(true);
+        return;
+      }
+
+      const interval = 20;
+      const dataStart = +new Date();
+      const intervals = Math.ceil(totalTime / interval);
+      const chunkSize = Math.ceil(totalSize / intervals);
+      let currentlyLoaded = 0;
+      const timer = setInterval(function handleProgressInterval() {
+        if (thrown) {
+          resolveProgress(true);
+          clearInterval(timer);
+        }
+
+        const currentTime = Math.min(totalTime, +new Date() - dataStart);
+        currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
+        progressFunction({
+          total: totalSize,
+          loaded: currentTime >= totalTime ? totalSize : currentlyLoaded,
+        });
+
+        if (currentTime >= totalTime) {
+          resolveProgress(true);
+          clearInterval(timer);
+        }
+      }, interval);
+    });
+
+  if (typeof timeout === "number") {
+    setTimeout(() => {
+      thrown = true;
+      onTimeoutError({
+        status: 0 as ExtractAdapterStatusType<T>,
+        extra: extra as ExtractAdapterExtraType<T>,
+      });
+    }, timeout);
+  }
+  if (!thrown) {
+    await progress(requestTime, totalUploaded, onRequestProgress);
+  }
+  if (!thrown) {
+    onRequestEnd();
+    onResponseStart();
+  }
+  if (!thrown) {
+    await progress(responseTime, totalDownloaded, onResponseProgress);
+  }
+  if (thrown) {
+    onAbortError({
+      status: adapter.systemErrorStatus,
+      extra: adapter.systemErrorExtra,
+    });
+  } else if (success || (error && data)) {
+    onSuccess({
+      data,
+      error,
+      status: status as ExtractAdapterStatusType<T>,
+      extra: extra as ExtractAdapterExtraType<T>,
+    });
+  } else {
+    onError({
+      error,
+      status: status as ExtractAdapterStatusType<T>,
+      extra: extra as ExtractAdapterExtraType<T>,
+    });
+  }
+  if (!thrown) {
+    onResponseEnd();
+  }
 };

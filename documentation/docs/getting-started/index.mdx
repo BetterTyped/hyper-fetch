@@ -1,0 +1,77 @@
+---
+sidebar_position: 1
+title: Getting started
+sidebar_label: Intro
+---
+
+import { Cards } from "./components/cards";
+import { Environments } from "./components/environments";
+
+> **`Hyper Fetch`** is a modern, open source framework for request-based and real-time communication, purpose-built to
+> eliminate boilerplate and streamline data handling across any TypeScript environment—whether you're working in the
+> browser, on the server, or in native platforms like React Native or Electron.
+
+## Modules
+
+Our framework consist of the core modules which are responsible for the request-based and real-time communication or
+connecting to particular framework - like Hyper-Fetch React.
+
+<Cards />
+
+## Environments
+
+Core library should work in any JavaScript environment.
+
+For frontend frameworks and libraries, we release additional packages that enrich core logic and add appropriate API
+connections for the given environment (as with the addition of hooks in React).
+
+<Environments />
+
+## Integrations
+
+We also provide integrations for some of the most popular data-exchange libraries or services like Firebase.
+
+<LinkCard
+  type="promo"
+  title="Check out our integrations"
+  description="We have integrations for some of the most popular data-exchange libraries and services."
+  to="/docs/integrations/getting-started"
+/>
+
+## Our Motivation
+
+We got the idea for Hyper Fetch after leading several React projects. There are many great libraries using for fetching
+data like `Axios`, `SWR`, and `React Query`. However, the logic that they provide is detached from each other – i.e. the
+hooks are detached from the fetchers. So you often need to mix them together in order to fetch the data.
+
+This gives users a lot of customization options, but it also comes with some issues - for example how to track
+upload/download progress, how to call the requests outside of the components while still using the caching and other
+features. It is hard to inform the hooks about the request status inside of the components or SSR environments.
+
+Usually you’d need to build your logic every time you start developing a new application. And there is no
+`standard schema` nor any standards on how to manage this. It usually causes the challenges on the project level in how
+to name things, how to organize requests and of course you have to build the whole logic around it.
+
+We decided to overcome this issue by creating a _straightforward_, _opinionated_, yet _flexible_ fetching solution.
+
+## Our Goals
+
+1. Establish a consistent, neutral standard for seamless data exchange.
+2. Accelerate development by reusing logic and configurations, eliminating repetitive work across projects.
+3. Benefit from a comprehensive set of built-in fetching capabilities, easily extendable to meet custom requirements.
+4. Centralize server configurations to avoid duplication and ensure consistency between and within projects.
+5. Boost development speed: set up fetchers and dependencies in minutes, drastically reducing setup time.
+6. Effortlessly monitor request progress and manage queues with intuitive tracking tools.
+7. Leverage advanced offline support and data persistence features for robust application behavior.
+8. Improve developer experience and code quality through automated processes that prevent common errors.
+
+## Guides
+
+We have many examples and guides to help you get started.
+
+<LinkCard
+  type="guides"
+  title="Learn more with Guides"
+  description="Learn basics and advanced concepts of data exchange and caching."
+  to="/docs/guides/getting-started"
+/>

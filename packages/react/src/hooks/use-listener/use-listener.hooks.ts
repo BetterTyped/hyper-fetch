@@ -1,21 +1,16 @@
-import { useRef } from "react";
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import {
-  ListenerInstance,
-  ExtractListenerAdapterType,
-  ExtractSocketExtraType,
-  ExtractListenerResponseType,
-} from "@hyper-fetch/sockets";
+import { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import { useRef } from "react";
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
-  options: UseListenerOptionsType,
+  options?: UseListenerOptionsType,
 ) => {
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
@@ -25,11 +20,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
    */
 
   const onEventCallback = useRef<
-    | null
-    | ((response: {
-        data: ExtractListenerResponseType<ListenerType>;
-        extra: ExtractSocketExtraType<ExtractListenerAdapterType<ListenerType>>;
-      }) => void)
+    null | ((response: { data: ExtractListenerResponseType<ListenerType>; extra: Record<string, any> }) => void)
   >(null);
 
   /**
@@ -42,12 +33,11 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen({
-      callback: ({ data, extra }) => {
-        onEventCallback.current?.({ data, extra });
-        actions.setData(data);
-        actions.setTimestamp(+new Date());
-      },
+    removeListenerRef.current = listener.listen(({ data, extra }) => {
+      onEventCallback.current?.({ data, extra });
+      actions.setData(data);
+      actions.setExtra(extra);
+      actions.setTimestamp(+new Date());
     });
   };
 
@@ -77,6 +67,10 @@ export const useListener = <ListenerType extends ListenerInstance>(
     get data() {
       setRenderKey("data");
       return state.data;
+    },
+    get extra() {
+      setRenderKey("extra");
+      return state.extra;
     },
     get connected() {
       setRenderKey("connected");

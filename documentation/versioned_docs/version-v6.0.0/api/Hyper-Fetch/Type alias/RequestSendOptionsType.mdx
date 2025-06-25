@@ -1,0 +1,81 @@
+# RequestSendOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestSendOptionsType } from "@hyper-fetch/core";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[request/request.types.ts:253](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/request/request.types.ts#L253)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type RequestSendOptionsType<Request> = FetchQueryParamsType<
+  ExtractQueryParamsType<Request>,
+  ExtractHasQueryParamsType<Request>
+> &
+  FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
+  FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
+  Omit<FetchOptionsType<ExtractAdapterType<Request>>, params | data> &
+  FetchSendActionsType<Request> &
+  RequestQueueOptions;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  ...params1: HasQuery extends true ? {
+  queryParams: NegativeTypes;
+} : {
+  queryParams: QueryParams;
+};
+  ...params2: ExtractRouteParams<Endpoint> extends NegativeTypes ? {
+  params: NegativeTypes;
+} : (HasParams extends true ? {
+  params: NegativeTypes;
+} : {
+  params: NonNullable<ExtractRouteParams<Endpoint>>;
+});
+  ...params3: Payload extends NegativeTypes ? {
+  data: NegativeTypes;
+} : (HasData extends true ? {
+  data: NegativeTypes;
+} : {
+  data: NonNullable<Payload>;
+});
+  ...params4: Partial<RequestOptionsType<string, AdapterOptions>>;
+  onDownloadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;
+  onRemove: (details: RequestEventType<Request>) => void;
+  onRequestStart: (details: RequestEventType<Request>) => void;
+  onResponse: (response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, details: ResponseDetailsType) => void;
+  onResponseStart: (details: RequestEventType<Request>) => void;
+  onSettle: (requestId: string, request: Request) => void;
+  onUploadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;
+  dispatcherType: auto | fetch | submit;
+}
+```
+
+</div>

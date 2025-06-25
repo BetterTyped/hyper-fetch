@@ -1,11 +1,11 @@
-import { Cache, CacheOptionsType } from "cache";
+import { Cache, CacheAsyncStorageType, CacheOptionsType } from "cache";
 import { ClientInstance } from "client";
 
 export const createCache = (client: ClientInstance, options?: CacheOptionsType) => {
-  return new Cache(client, options);
+  return new Cache(options).initialize(client);
 };
 
-export const createLazyCacheAdapter = (storage: Map<any, any>) => {
+export const createLazyCacheAdapter = (storage: Map<any, any>): CacheAsyncStorageType => {
   return {
     get: async (key) => storage.get(key),
     set: async (key, value) => {

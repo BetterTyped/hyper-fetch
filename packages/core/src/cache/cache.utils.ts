@@ -1,11 +1,11 @@
 import { ResponseDetailsType } from "managers";
 import { RequestInstance } from "request";
-import { ExtractAdapterReturnType } from "types";
+import { ExtractAdapterResolvedType } from "types";
 
 export const getCacheData = <T extends RequestInstance>(
-  previousResponse: ExtractAdapterReturnType<T> | undefined,
-  response: ExtractAdapterReturnType<T> & ResponseDetailsType,
-): ExtractAdapterReturnType<T> & ResponseDetailsType => {
+  previousResponse: ExtractAdapterResolvedType<T> | undefined,
+  response: ExtractAdapterResolvedType<T> & ResponseDetailsType,
+): ExtractAdapterResolvedType<T> & ResponseDetailsType => {
   const { data, success } = response;
 
   const previousData = !success && previousResponse ? previousResponse.data : null;
@@ -14,14 +14,21 @@ export const getCacheData = <T extends RequestInstance>(
   return { ...response, data: computedData };
 };
 
-export const getInvalidateEventKey = (key: string): string => {
+export const getInvalidateKey = (): string => {
+  return `invalidate`;
+};
+export const getInvalidateByKey = (key: string): string => {
   return `${key}_invalidate`;
 };
-
-export const getCacheKey = (key: string): string => {
+export const getDeleteKey = (): string => {
+  return `delete`;
+};
+export const getDeleteByKey = (key: string): string => {
+  return `${key}_delete`;
+};
+export const getCacheByKey = (key: string): string => {
   return `${key}_cache`;
 };
-
-export const getCacheIdKey = (key: string): string => {
-  return `${key}_cache_by_id`;
+export const getCacheKey = (): string => {
+  return `cache`;
 };

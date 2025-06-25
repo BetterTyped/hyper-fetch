@@ -6,28 +6,37 @@ import { isEqual } from "utils";
 
 export const renderUseRequestEvents = <Request extends RequestInstance>(
   request: Request,
-  options?: UseRequestEventsPropsType<Request>,
-  trackedOptions?: UseTrackedStateProps<Request>,
+  options?: Partial<UseRequestEventsPropsType<Request>>,
+  trackedOptions?: Partial<UseTrackedStateProps<Request>>,
 ) => {
   const { client } = request;
   const { fetchDispatcher: dispatcher, loggerManager } = client;
 
-  const logger = loggerManager.init("test");
+  const logger = loggerManager.initialize(client, "test");
 
   const { result } = renderHook(() => {
     return useTrackedState({
       logger,
       request,
       dispatcher,
-      initialData: null,
+      initialResponse: null,
       deepCompare: isEqual,
       dependencyTracking: false,
       ...trackedOptions,
     });
   });
-  const [, actions, { setCacheData }] = result.current;
+  const [, actions, { setCacheData, getIsDataProcessing }] = result.current;
 
-  return renderHook(() => {
-    return useRequestEvents({ logger, actions, request, dispatcher, setCacheData, ...options });
+  return renderHook((args?: Partial<Parameters<typeof useRequestEvents>[0]>) => {
+    return useRequestEvents({
+      logger,
+      actions,
+      dispatcher,
+      setCacheData,
+      getIsDataProcessing,
+      ...options,
+      ...args,
+      request,
+    });
   });
 };

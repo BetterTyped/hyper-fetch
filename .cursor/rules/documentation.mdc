@@ -1,0 +1,324 @@
+---
+description: Best practices for writing documentation approach
+globs: **/*.mdx
+alwaysApply: false
+---
+
+# Documentation Writing Rules
+
+This document outlines the rules and best practices for creating guides for the documentation.
+
+## 1. Comprehensive and Practical Focus
+
+- We're using docusaurus and its features to build our documentation
+- Write in the markdown format
+- Keep documentation clear, concise, and up-to-date
+- Use consistent language and tone throughout
+- Write for your audience (developers, end-users, etc.)
+- Follow a logical structure with proper headings
+- Use active voice and present tense
+- Include examples for complex concepts
+- Split # and ## headings with "---" separator
+
+## 2. Ground Examples in Reality
+
+- Examples must be based on the actual implementation found in the `/packages` directory.
+- For instance, code related to `@hyper-fetch/core` should correspond to the source code in `packages/core`. Before
+  writing an example, you should review the implementation to ensure accuracy.
+
+## 3. Docs Structure
+
+Each guide should follow this structure:
+
+1.  **Introduction**: Start with a brief introduction to the topic.
+2.  **"Purpose**: Use a `:::tip` admonition with the title "Purpose" to outline the key takeaways of the guide in a
+    numbered list.
+
+Example:
+
+:::tip Purpose
+
+1.  **Unified API**: Provides a single interface for both `Realtime Database` and `Firestore`.
+2.  **Isomorphic**: Supports both client-side (web) and server-side (admin) Firebase applications.
+3.  **Real-time Data**: Includes socket adapters for real-time data listeners.
+4.  **Standardized Queries**: Simplifies filtering and querying with a consistent constraint-based syntax.
+5.  **Simplified Data Handling**: Automatically handles Firebase-specific data structures, returning clean arrays.
+
+:::
+
+3.  **Examples**: Provide clear and practical examples. Live examples are preferred.
+4.  **Summary**: Conclude with a `:::secondary` admonition that summarizes what was covered in the doc.
+5.  We should have the sections of `Key features` or `When to use it?` or `When it's helpful?` or similar. Showing more
+    of the use cases for the patterns etc. It should be a list of short and concrete sentences.
+
+## 4. Code Examples
+
+Code examples should be short and concrete, too long code example is hard to read and to understand.
+
+### Live Code Examples
+
+- There could be maximum one live block per doc added with AI, do not preffer them, if they already exist there, keep it
+  a as a live example
+- You can use globally available variables, functions, and methods without importing them.
+- To know which globals are available, you can inspect these files:
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/global-scope.ts`
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/create-global-requests.ts`
+
+### Static Code Examples
+
+- Use static code blocks for discussing or presenting patterns that don't need a live preview.
+- Utilize diffs (`// diff-add-start`, `// diff-remove-start`) or highlights (`// highlight-start`,
+  `// highlight-next-line`) to emphasize specific parts of the code. Add explanatory comments above the relevant lines.
+
+### Accuracy
+
+- Always verify code examples against the latest implementation in the `/packages/*` directories to ensure they are
+  correct and up-to-date. Reading the source files and their corresponding tests is the best way to confirm behavior.
+
+## 5. React Package Examples
+
+- For guides related to the `@hyper-fetch/react` package, you can create more elaborate examples, such as simple React
+  applications, to provide better context.
+- **Styling**: Use Tailwind CSS for styling components within examples.
+- **Elements**: To ensure consistency and simplicity, restrict component structure to basic HTML elements like `div`,
+  `p`, `span`, and heading (`h1`, `h2`, etc.) elements.
+
+---
+
+# Additional Notes
+
+## Admonitions
+
+- :::tip is good for docs and "Purpose" (Purpose - should contain numbered list of features with bold parts of text)
+- :::note great for sections: "key features", "when to use it?", "when it's helpful?"
+- :::secondary for the end of guide, or summaries of what you learnt
+- :::caution / :::warning for important and possibly unsafe details
+- :::danger for places that can cause errors or unexpected behavior This admonition should usually have the numbered
+  list
+- :::info is good for additional informations
+
+##### Bad use of admonitions
+
+```md
+:::note Some admonition title Some admonition description :::
+```
+
+#### Good use of admonitions
+
+```md
+:::note Some admonition title
+
+Some admonition description
+
+:::
+```
+
+---
+
+## Importer Usage Guide
+
+The documentation system includes a powerful import directive that allows embedding auto-generated API documentation
+into markdown files. This helps maintain consistency between code and documentation.
+
+### Basic Syntax
+
+```
+(@import {packageName} {componentName} type={contentType}&...)
+```
+
+- **packageName**: Name of the package from `/packages` directory (e.g., `core`, `client`, `react`)
+- **componentName**: Type of component to import (e.g., `class`, `function`, `interface`, `type`)
+- **contentType**: What aspect of the component to import
+
+After `&` you can chain some other dynamic options based on the type.
+
+### Finding Component Names
+
+Component names for import directives can be found by browsing the `/docs/api` directory. Each file in
+this directory represents a component from the codebase, and the filename corresponds to the component name that should
+be used in the import directive. This makes it easy to discover available components for documentation imports.
+
+### Available Content Types
+
+| Content Type   | Description                          |
+| -------------- | ------------------------------------ |
+| definition     | Complete definition of the component |
+| npm            | NPM installation information         |
+| import         | Import statement for the component   |
+| details        | Detailed component information       |
+| description    | Component description from JSDoc     |
+| generics       | Generic parameters information       |
+| method         | Single method documentation          |
+| methods        | All methods documentation            |
+| name           | Component name only                  |
+| parameters     | Function parameters                  |
+| preview        | Brief component preview              |
+| properties     | Object/interface properties          |
+| returns        | Return value information             |
+| returnsPreview | Brief return value preview           |
+| signature      | Function/method signature            |
+| sources        | Source code information              |
+| type           | Type information                     |
+
+### Usage
+
+`(@import core Client type=import)`
+
+`(@import react useFetch type=returns)`
+
+---
+
+## Best Practices
+
+- Only import essential information to keep documentation concise
+- Use preview content types for overview sections
+- Use specific content types (parameters, returns, etc.) for detailed documentation
+- Combine multiple imports to create comprehensive but organized documentation
+- Always verify that imported content appears correctly in the rendered documentation
+- Use different ways to write - blockquotes, lists, tables, headings, dividers
+
+## Documentation Links
+
+When creating links between documentation pages, follow these guidelines to ensure consistency and maintainability:
+
+---
+
+## Links
+
+The documentation supports two primary ways to create links between pages:
+
+1. **Markdown Links** - when used in the text.
+
+   ```md
+   [Link Text](mdc:documentation/docs/path/to/file.md)
+   ```
+
+   - Always use relative paths from the root
+   - All paths should start with `/docs/`
+   - Use descriptive link text that indicates the target content
+
+2. **LinkCard Component** - when used as a separate and exposed link
+
+   ```jsx
+   <LinkCard
+     type="guides" // guides | docs | integrations | promo | api
+     title="Guide Title"
+     description="Brief description of the linked content"
+     to="/docs/guides/specific-guide"
+   />
+   ```
+
+   - Use for featured links that deserve visual emphasis
+   - Use different types depending on the link source - guides | docs | integrations | promo | api
+   - Provide a clear title and concise description
+   - Use for the links taking whole paragraph
+   - Follow the same path rules as markdown links
+
+### Best Practices for Links
+
+- Ensure all links lead to files within the `/docs` directory
+- Verify links work correctly after documentation structure changes
+- Use LinkCards for navigation between major sections or to highlight important content
+- Use standard markdown links for inline references within text
+- Keep link text descriptive and meaningful (avoid "click here" or "read more")
+- Consider adding a brief context about what the reader will find in the linked document
+
+### Link Path Requirements
+
+- All link paths must follow this pattern: `/docs/[path]/[filename]`
+- Never omit the file extension, as this can break documentation navigation and versioning
+- This applies to both standard Markdown links and LinkCard component paths
+
+---
+
+## Code line Highlighting
+
+To emphasize specific lines or sections in code examples, use the following comment markers:
+
+```js
+// highlight-start
+// ... code to highlight ...
+// highlight-end
+
+// highlight-next-line
+const important = true;
+```
+
+- Place `// highlight-start` before the code you want to highlight and `// highlight-end` after.
+- Use `// highlight-next-line` to highlight only the line immediately following the comment.
+- This works for JavaScript, TypeScript, and other languages that support `//` comments. For other languages, use the
+  appropriate comment syntax (e.g., `#` for Python).
+- Use highlighting sparingly to draw attention to the most important parts of an example, such as key logic,
+  configuration, or changes.
+- Do not use highlighting for entire code blocks unless every line is essential.
+- Always ensure highlighted code is accurate and up-to-date with the actual implementation.
+
+### Red Highlighting for Errors
+
+To visually indicate lines that will cause an error (red highlight), use the following comment:
+
+```js
+// error-next-line
+throw new Error(1);
+// Throws the Error(1)
+
+// error-start
+function error() {
+  throw new Error(1);
+}
+// error-end
+// Throws the Error(1)
+```
+
+- Place `// error-...` directly above the line that should be highlighted in red as an error.
+- Use this only for lines that are expected to throw or demonstrate incorrect usage.
+- This helps readers quickly identify problematic code in examples.
+- Leave helpful comments with error details under it
+
+### Showing Code Diffs in Examples
+
+To illustrate code changes (diffs) in examples, use the following comment markers:
+
+```js
+// diff-add-next-line
+const newValue = 2;
+
+// diff-remove-next-line
+const oldValue = 1;
+
+// diff-add-start
+const foo = 1;
+const bar = 2;
+// diff-add-end
+
+// diff-remove-start
+const oldFoo = 0;
+const oldBar = 0;
+// diff-remove-end
+```
+
+- Use `// diff-remove-...` to indicate a line that should be shown as removed in a diff.
+- Use `// diff-add-...` to indicate a line that should be shown as added in a diff.
+- Place the comments directly above the relevant lines.
+- This helps readers quickly understand what has changed between code versions or in upgrade guides.
+- Only use these markers when demonstrating code changes, migrations, or upgrade steps.
+
+### Creating Live Code Examples
+
+To provide interactive, live-editable code examples in the documentation, use the `live` option in your code block:
+
+```tsx live
+function Example() {
+  return <div>Hello, world!</div>;
+}
+```
+
+```ts live
+console.log(123);
+```
+
+- Add `live` after the language identifier (e.g., `{lang} live`) to enable live editing and preview.
+- Use this for React or TypeScript code that benefits from interactive demonstration.
+- Keep live examples minimal and focused on a single concept.
+- Ensure all live examples are functional and error-free.
+- Only use live examples where interactivity adds value for the reader.

@@ -1,30 +1,66 @@
+import { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useRef } from "react";
-import { EmitterInstance } from "@hyper-fetch/sockets";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
-  options: UseEmitterOptionsType,
+  options?: UseEmitterOptionsType,
 ) => {
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking } = { ...globalConfig.useEmitter, ...options };
 
-  const onEventCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, { dependencyTracking });
 
-  const additionalCallbacks = {
-    onEvent: (callback: (emitter: EmitterType) => void) => {
-      onEventCallback.current = callback;
+  /**
+   * Callbacks
+   */
+  const onEventStartCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
+  const onEventErrorCallback = useRef<null | EmitterCallbackErrorType>(null);
+
+  useDidUpdate(
+    () => {
+      const onEventStart = () => {
+        return emitter.socket.events.onEmitterStartEventByTopic(emitter, () => {
+          onEventStartCallback.current?.(emitter);
+        });
+      };
+
+      const onEventError = () => {
+        return emitter.socket.events.onEmitterErrorByTopic(emitter, ({ error }) => {
+          onEventErrorCallback.current?.({ error });
+        });
+      };
+
+      const unmountEventStart = onEventStart();
+      const unmountEventError = onEventError();
+
+      return () => {
+        unmountEventStart();
+        unmountEventError();
+      };
     },
+    [emitter.topic, onEventStartCallback.current, onEventErrorCallback.current],
+    true,
+  );
+
+  /**
+   * Emitter
+   */
+
+  const emit: EmitType<EmitterType> = (emitOptions: Parameters<EmitType<EmitterType>>[0]) => {
+    return emitter.emit(emitOptions as any);
   };
 
-  const emit: typeof emitter.emit = (emitOptions) => {
-    actions.setTimestamp(+new Date());
-    onEventCallback.current?.(emitter);
-    return emitter.emit(emitOptions);
+  const onEmit = (callback: (emitter: EmitterType) => void) => {
+    onEventStartCallback.current = callback;
+  };
+
+  const onEmitError = (callback: EmitterCallbackErrorType) => {
+    onEventErrorCallback.current = callback;
   };
 
   return {
@@ -36,14 +72,10 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
       setRenderKey("connecting");
       return state.connecting;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
-    },
     ...actions,
     ...callbacks,
-    ...additionalCallbacks,
+    onEmit,
+    onEmitError,
     emit,
-    reconnect: emitter.socket.reconnect,
   };
 };
