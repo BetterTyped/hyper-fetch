@@ -6,7 +6,7 @@
 
 <div align="center">
 
-Framework for fetching and realtime data exchange.
+Framework for typesafe fetching and realtime data exchange.
 
 **[Documentation](https://hyperfetch.bettertyped.com/) |
 [Quick Start](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start) |
