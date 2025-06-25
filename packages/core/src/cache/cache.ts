@@ -70,7 +70,6 @@ export class Cache<Adapter extends AdapterInstance> {
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     > & { hydrated?: boolean },
-    isTriggeredExternally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
     const { cacheKey, cache, staleTime, cacheTime } = request;
@@ -115,7 +114,6 @@ export class Cache<Adapter extends AdapterInstance> {
     this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
     this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
       newCacheData,
-      isTriggeredExternally,
     );
   };
 
@@ -135,7 +133,6 @@ export class Cache<Adapter extends AdapterInstance> {
           ResponseDetailsType
       >
     >,
-    isTriggeredExtrenally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
     const { cacheKey } = request;
@@ -148,7 +145,7 @@ export class Cache<Adapter extends AdapterInstance> {
     const processedResponse =
       typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
-      this.set(request, { ...cachedData, ...processedResponse }, isTriggeredExtrenally);
+      this.set(request, { ...cachedData, ...processedResponse });
     }
   };
 

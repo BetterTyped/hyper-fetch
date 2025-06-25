@@ -103,7 +103,6 @@ export class ConnectionHandler {
         this.sendToApp(JSON.stringify({ ...message, topic: SocketTopics.APP_INSTANCE_LISTENER }));
         break;
       case MessageOrigin.APP:
-        console.log("handleEventMessage", message);
         this.sendToPlugin(connectionName, JSON.stringify(message));
         break;
       default:

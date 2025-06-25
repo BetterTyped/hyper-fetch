@@ -64,7 +64,10 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
 
   const invalidate = () => {
     if (!item) return;
-    client.cache.invalidate(item.cacheKey);
+    // TODO - figure out the way to handle this on the plugin side
+    // We need to emit the event to the plugin, capture it and run the invalidate logic
+    // ONLY if the event is triggered externally
+    client.cache.events.emitInvalidation(item.cacheKey, true);
   };
 
   const closeSidebar = () => {
@@ -72,7 +75,10 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const remove = () => {
-    client.cache.delete(item.cacheKey);
+    // TODO - figure out the way to handle this on the plugin side
+    // We need to emit the event to the plugin, capture it and run the delete logic
+    // ONLY if the event is triggered externally
+    client.cache.events.emitDelete(item.cacheKey, true);
   };
 
   const simulateError = (simulatedError: SimulatedError) => {
@@ -113,26 +119,24 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
 
   const toggleLoading = () => {
     if (!item || !latestItem) return;
-    // const request = client.createRequest()({ cacheKey: item.cacheKey, endpoint: "" });
+
+    // This is dummy data for the event, it is minimum that is required to trigger the event
+    // We don't need to pass all the data, because it will be handled anyway
+    const eventData = {
+      request: latestItem.request,
+      loading: true,
+      isRetry: false,
+      isOffline: false,
+      requestId: "",
+    };
+
     if (!hasInProgressRequest) {
       addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-      // client.requestManager.events.emitLoading({
-      //   request,
-      //   loading: true,
-      //   isRetry: false,
-      //   isOffline: false,
-      //   requestId: "",
-      // });
+      client.requestManager.events.emitLoading(eventData, true);
       addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
     } else {
       removeLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-      // client.requestManager.events.emitLoading({
-      //   request,
-      //   loading: false,
-      //   isRetry: false,
-      //   isOffline: false,
-      //   requestId: "",
-      // });
+      client.requestManager.events.emitLoading(eventData, true);
     }
   };
 

@@ -26,16 +26,16 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
   /**
    * Invalidate cache values event
    */
-  emitInvalidation: (cacheKey: string): void => {
-    emitter.emit(getInvalidateKey(), cacheKey);
-    emitter.emit(getInvalidateByKey(cacheKey));
+  emitInvalidation: (cacheKey: string, isTriggeredExternally = false): void => {
+    emitter.emit(getInvalidateKey(), cacheKey, isTriggeredExternally);
+    emitter.emit(getInvalidateByKey(cacheKey), isTriggeredExternally);
   },
   /**
    * Delete of cache values
    */
-  emitDelete: (cacheKey: string): void => {
-    emitter.emit(getDeleteKey(), cacheKey);
-    emitter.emit(getDeleteByKey(cacheKey));
+  emitDelete: (cacheKey: string, isTriggeredExternally = false): void => {
+    emitter.emit(getDeleteKey(), cacheKey, isTriggeredExternally);
+    emitter.emit(getDeleteByKey(cacheKey), isTriggeredExternally);
   },
   /**
    * Cache data listener

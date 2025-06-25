@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import {
   CoreEvents,
@@ -42,9 +43,10 @@ export const Events = ({ application }: { application: string }) => {
         connectionName: application,
       },
     });
+  });
 
+  useEffect(() => {
     const unmountOnData = client.cache.events.onData((data, isTriggeredExternally?: boolean) => {
-      console.log("onData", data, isTriggeredExternally);
       // We don't want to return the events sent to the user's application
       // It would cause infinite loop and conflicts because of latency
       if (!isTriggeredExternally) {
@@ -67,6 +69,10 @@ export const Events = ({ application }: { application: string }) => {
       });
     });
 
+    // const unmountOnInvalidation = client.cache.events.onInvalidate((cacheKey, isTriggeredExternally?: boolean) => {
+    //   console.log("onInvalidation", cacheKey);
+    // });
+
     // const unmountOnLoading = client.requestManager.events.onLoading((data) => {
     //   console.log(data);
     // });
@@ -74,7 +80,7 @@ export const Events = ({ application }: { application: string }) => {
     return () => {
       unmountOnData();
     };
-  });
+  }, [client]);
 
   return null;
 };
