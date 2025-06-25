@@ -25,7 +25,7 @@ const FirebaseIcon = isBrowser() ? require("../static/img/integration-firebase.s
 // const GoogleMapsIcon = isBrowser() ? require("../static/img/integration-google-maps.svg").default : () => null;
 const OpenApiIcon = isBrowser() ? require("../static/img/integration-openapi.svg").default : () => null;
 const EslintIcon = isBrowser() ? require("../static/img/integration-eslint.svg").default : () => null;
-const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
+const HFIcon = isBrowser() ? require("../static/img/integration-hyper-fetch.svg").default : () => null;
 
 export const integrations: Section[] = [
   {

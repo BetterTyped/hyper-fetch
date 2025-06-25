@@ -5,7 +5,7 @@ import { Book, LucideProps } from "lucide-react";
 import { isBrowser } from "./utils/is-browser";
 
 const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").default : () => null;
-const HFIcon = isBrowser() ? require("../static/img/integration-hf.svg").default : () => null;
+const HFIcon = isBrowser() ? require("../static/img/integration-hyper-fetch.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
 const HyperFlowIcon = isBrowser() ? require("../static/img/hyper-flow.svg").default : () => null;
 
