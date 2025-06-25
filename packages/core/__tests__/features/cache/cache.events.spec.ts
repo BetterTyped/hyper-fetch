@@ -25,6 +25,7 @@ describe("Cache [ Events ]", () => {
     responseTimestamp: +new Date(),
     addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
+    cached: true,
     isCanceled: false,
     isOffline: false,
     cacheKey: request.cacheKey,

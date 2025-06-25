@@ -82,7 +82,7 @@ describe("Devtools Socket Server", () => {
       const { client } = connectDevtoolsClient();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
       await waitFor(() => expect(clientReceivedMessages.length).toBeGreaterThan(0));
-      const receivedMetaData = clientReceivedMessages[0].event.eventData;
+      const receivedMetaData = clientReceivedMessages[0].event;
       expect(receivedMetaData.clientOptions).toEqual(client.options);
       expect(receivedMetaData.adapterOptions).toEqual(client.adapter.options);
     });
