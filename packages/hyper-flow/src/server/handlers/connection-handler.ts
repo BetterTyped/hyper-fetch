@@ -162,7 +162,6 @@ export class ConnectionHandler {
         return;
       }
 
-      console.log("Connection termination terminated");
       this.connectionState.appConnection.send(
         JSON.stringify({
           ...{
