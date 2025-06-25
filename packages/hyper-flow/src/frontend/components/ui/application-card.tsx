@@ -36,6 +36,7 @@ export const ApplicationCard: FC<ApplicationCardProps> = ({ name, iconUrl, adapt
   return (
     <>
       <Card
+        data-testid={`application-link-card-${name}`}
         className="group relative w-full hover:shadow-xl transition-all duration-300 gap-2 justify-between group bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-800 border border-zinc-200 dark:border-zinc-700 cursor-pointer"
         onClick={onOpen}
       >

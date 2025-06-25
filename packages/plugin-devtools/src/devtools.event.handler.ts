@@ -124,7 +124,6 @@ export class DevtoolsEventHandler {
             if (message.data.eventName === CoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE) {
               const data = message.data.eventData as EventData<typeof getDispatcherEvents, "onQueueStatusChange">;
 
-              console.log("ON_FETCH_QUEUE_STATUS_CHANGE", data);
               if (data.stopped) {
                 client.fetchDispatcher.stop(data.queryKey);
               } else {
@@ -140,7 +139,6 @@ export class DevtoolsEventHandler {
             if (message.data.eventName === CoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE) {
               const data = message.data.eventData as EventData<typeof getDispatcherEvents, "onQueueStatusChange">;
 
-              console.log("ON_SUBMIT_QUEUE_STATUS_CHANGE", data);
               if (data.stopped) {
                 client.submitDispatcher.stop(data.queryKey);
               } else {

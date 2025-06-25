@@ -8,7 +8,8 @@
       "@/*": ["./frontend/*"],
       "@app/*": ["./app/*"],
       "@server/*": ["./server/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@testing/*": ["../__tests__/*"]
     }
   }
 }
