@@ -24,9 +24,9 @@ load more data on demand.
 A clean way to implement infinite scroll is to use the `useSubmit` hook to fetch new pages when the user clicks a "Load
 More" button. This gives us precise control over when data is fetched.
 
-Here is a live example that loads a list of posts and appends more on button click:
+{/* Here is a live example that loads a list of posts and appends more on button click: */}
 
-```tsx live
+```tsx
 function InfinitePostList() {
   const [posts, setPosts] = React.useState([]);
   const [page, setPage] = React.useState(1);

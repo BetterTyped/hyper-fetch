@@ -24,9 +24,9 @@ bars, time remaining, and more.
 The `onUploadProgress` and `onDownloadProgress` callbacks receive an object with `progress` (0-100), `timeLeft` (in ms),
 `sizeLeft` (in bytes), and more. You can use this to update your UI in real-time.
 
-Here is a live example demonstrating both upload and download progress bars.
+{/* Here is a live example demonstrating both upload and download progress bars. */}
 
-```tsx live
+```tsx
 function ProgressBars() {
   const [upload, setUpload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });
   const [download, setDownload] = React.useState({ progress: 0, timeLeft: 0, sizeLeft: 0 });

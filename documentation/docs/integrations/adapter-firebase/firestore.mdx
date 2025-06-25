@@ -21,7 +21,7 @@ The Firestore adapter maps familiar Firestore SDK methods to Hyper-Fetch request
 available methods:
 
 ```tsx
-const getReq = client.createRequest<Tea[]>()({
+const getReq = client.createRequest<{ response Tea[] }>()({
   endpoint: "teas",
   method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
 });
@@ -54,7 +54,7 @@ type Tea = {
 Fetches all documents from a collection.
 
 ```tsx
-const getReq = client.createRequest<Tea[]>()({
+const getReq = client.createRequest<{ response Tea[] }>()({
   endpoint: "teas",
   method: "getDocs",
 });
@@ -76,7 +76,7 @@ Fetches a single document by its ID.
 
 ```tsx
 const req = client
-  .createRequest<Tea>()({
+  .createRequest<{ response Tea }>()({
     endpoint: "teas/:teaId",
     method: "getDoc",
   })
@@ -101,7 +101,7 @@ request options.
 ```tsx
 const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 };
 const setReq = client
-  .createRequest<Tea, Tea>()({
+  .createRequest<{ response Tea, payload: TeaSchema }>()({
     endpoint: "teas/:teaId",
     method: "setDoc",
     // options: { merge: true } // Use to merge data with an existing document
@@ -122,7 +122,7 @@ Adds a new document to a collection with a randomly generated ID.
 ```tsx
 const newData = { origin: "China", type: "Oolong", year: 2022, name: "Tie Guan Yin", amount: 50 };
 const addDocReq = client
-  .createRequest<Tea, Tea>()({
+  .createRequest<{ response Tea, payload: TeaSchema }>()({
     endpoint: "teas",
     method: "addDoc",
   })
@@ -140,7 +140,7 @@ Deletes a single document.
 
 ```tsx
 const deleteDocReq = client
-  .createRequest<null>()({
+  .createRequest()({
     endpoint: "teas/:teaId",
     method: "deleteDoc",
   })

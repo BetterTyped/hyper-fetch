@@ -68,7 +68,7 @@ interface Tea {
   name: string;
 }
 
-const getTeas = client.createRequest<Tea[]>()({
+const getTeas = client.createRequest<{ response Tea[] }>()({
   endpoint: "teas/",
   method: "get",
 });
@@ -94,7 +94,7 @@ interface Tea {
 
 const newTea: Tea = { id: "1", name: "Green Tea" };
 
-const setTea = client.createRequest<Tea, Tea>()({
+const setTea = client.createRequest<{ response Tea, payload: TeaSchema }>()({
   endpoint: "teas/:teaId",
   method: "set",
 });

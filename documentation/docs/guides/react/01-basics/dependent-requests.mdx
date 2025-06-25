@@ -25,7 +25,7 @@ will automatically fire.
 
 Let's look at an example where we first fetch a user and then, once we have the user's ID, we fetch their products.
 
-```tsx live
+```tsx
 function DependentRequestsExample() {
   // highlight-next-line
   const { data: user } = useFetch(getCurrentUser);

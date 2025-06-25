@@ -33,7 +33,7 @@ A powerful feature of the `emit` function is its ability to handle **acknowledge
 function as the second argument to `emit`, which will be executed when the server acknowledges receipt of the event.
 This is useful for confirming that a message was received or for handling any server-side validation errors.
 
-```tsx live
+```tsx
 function ChatInput() {
   const [message, setMessage] = React.useState("");
   const [status, setStatus] = React.useState("Waiting for message...");

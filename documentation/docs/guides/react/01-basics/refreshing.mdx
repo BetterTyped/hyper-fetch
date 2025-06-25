@@ -23,10 +23,10 @@ page. Hyper-fetch provides a simple and efficient way to achieve this with the `
 You can turn any `useFetch` hook into a polling mechanism by setting the `refresh` option to `true` and providing a
 `refreshTime` in milliseconds.
 
-Let's build an example that fetches a list of "live" activities and refreshes them every 5 seconds. We'll also display a
-"Last Updated" timestamp to show the refresh in action.
+{/* Let's build an example that fetches a list of "live" activities and refreshes them every 5 seconds. */}
+{/* We'll also display a "Last Updated" timestamp to show the refresh in action. */}
 
-```tsx live
+```tsx
 function LiveActivityFeed() {
   const [lastUpdated, setLastUpdated] = React.useState(new Date());
 

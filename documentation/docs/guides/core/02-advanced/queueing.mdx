@@ -76,7 +76,6 @@ If most of your requests need to be queued, you can enable it globally on the `C
 repeating the configuration for each request.
 
 ```ts
-// diff-add-start
 import { createClient } from "@hyper-fetch/core";
 
 export const client = createClient({
@@ -85,7 +84,6 @@ export const client = createClient({
     queued: true, // Enable queueing for all requests
   },
 });
-// diff-add-end
 ```
 
 Any request created with this client will now be queued by default. You can still override this behavior on a

@@ -16,7 +16,9 @@ library, like [Zod](https://zod.dev/), to validate request and response data sea
 1.  How to perform **response data validation** to ensure API responses are correct.
 2.  How to implement **request data validation** to prevent sending invalid data to the server.
 3.  Using **mappers** for centralized and reusable validation logic.
-4.  How to integrate with popular validation libraries like **Zod**. :::
+4.  How to integrate with popular validation libraries like **Zod**.
+
+:::
 
 ---
 
@@ -44,7 +46,7 @@ const UserSchema = z.object({
 type User = z.infer<typeof UserSchema>;
 
 const getUser = client
-  .createRequest<User>()({
+  .createRequest<{ response: User }>()({
     method: "GET",
     endpoint: "users/:userId",
   })
@@ -98,11 +100,11 @@ const PostSchema = z.object({
   userId: z.number(),
 });
 
-type Post = z.infer<typeof PostSchema>;
+type PostSchema = z.infer<typeof PostSchema>;
 
 // The second generic to createRequest is the payload type
 const createPost = client
-  .createRequest<Post, Post>()({
+  .createRequest<{ response: Post; payload: PostSchema }>()({
     method: "POST",
     endpoint: "/posts",
   })
@@ -117,30 +119,31 @@ const createPost = client
     return request;
   });
 
+// code-editor-split
+
 // --- Usage ---
-(async () => {
-  // Example 1: Invalid data
-  const { error: validationError } = await createPost.send({
-    data: { title: "A", body: "Short", userId: 1 },
-  });
 
-  if (validationError) {
-    // The request was not sent, and we get a ZodError
-    console.log(validationError.errors);
-  }
+// Example 1: Invalid data
+const { error: validationError } = await createPost.send({
+  data: { title: "A", body: "Short", userId: 1 },
+});
 
-  // Example 2: Valid data
-  const { data, error } = await createPost.send({
-    data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
-  });
+if (validationError) {
+  // The request was not sent, and we get a ZodError
+  console.log(validationError.errors);
+}
 
-  if (error) {
-    console.error("Request failed:", error);
-  } else {
-    // The request was sent successfully
-    console.log("Post created:", data);
-  }
-})();
+// Example 2: Valid data
+const { data, error } = await createPost.send({
+  data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
+});
+
+if (error) {
+  console.error("Request failed:", error);
+} else {
+  // The request was sent successfully
+  console.log("Post created:", data);
+}
 ```
 
 If you call `createPost.send()` with data that doesn't match `PostSchema`, the `.setRequestMapper()` will throw an

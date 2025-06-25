@@ -16,7 +16,7 @@ please check how to **[listen to queries](/docs/integrations/adapter-firebase/re
 import { firebaseAdapter } from "@hyper-fetch/firebase";
 
 const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(realtimeDbWeb));
-const req = client.createRequest<Tea[]>()({
+const req = client.createRequest<{ response Tea[] }>()({
   endpoint: "",
   method: "get",
 });
@@ -33,7 +33,7 @@ const { data, status, extra, success, error } = await req.send();
 
 ```tsx
 const setReq = client
-  .createRequest<Tea, Tea>()({
+  .createRequest<{ response Tea, payload: TeaSchema }>()({
     endpoint: ":teaId",
     method: "set",
   })
@@ -65,7 +65,7 @@ const setReq = client
 
 ```tsx
 const pushReq = client
-  .createRequest<Tea, Tea>()({
+  .createRequest<{ response Tea, payload: TeaSchema }>()({
     endpoint: "",
     method: "push",
     options: {},
@@ -85,7 +85,7 @@ created document.
 
 ```tsx
 const updateReq = client
-  .createRequest<Tea, Tea>()({
+  .createRequest<{ response Tea, payload: TeaSchema }>()({
     endpoint: ":teaId",
     method: "update",
   })
@@ -102,7 +102,7 @@ In case of `update` - data returned is the same data as passed for setting.
 
 ```tsx
 const removeReq = client
-  .createRequest<Tea>()({
+  .createRequest<{ response Tea }>()({
     endpoint: ":teaId",
     method: "remove",
   })

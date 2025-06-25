@@ -24,9 +24,9 @@ network round-trip for actions like deleting an item or adding a comment.
 A common use case for optimistic updates is deleting an item from a list. The user clicks "Delete," the item disappears
 instantly from the UI, and the delete request is sent in the background.
 
-Here's a live example of a user list where users can be deleted optimistically.
+{/* Here's a live example of a user list where users can be deleted optimistically. */}
 
-```tsx live
+```tsx
 function UserRow({ user, onListRevalidate }) {
   const [isDeleted, setIsDeleted] = React.useState(false);
 

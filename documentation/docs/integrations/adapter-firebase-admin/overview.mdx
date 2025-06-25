@@ -73,7 +73,7 @@ const db = admin.firestore();
 const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(db));
 
 // 3. Create a request
-const getTeas = client.createRequest<Tea[]>()({
+const getTeas = client.createRequest<{ response Tea[] }>()({
   endpoint: "",
   method: "getDocs",
 });
@@ -108,7 +108,7 @@ You can build complex queries by passing an array of constraints.
 ```tsx
 import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
 
-const getTeas = client.createRequest<Tea[]>()({
+const getTeas = client.createRequest<{ response Tea[] }>()({
   endpoint: "",
   method: "getDocs",
 });

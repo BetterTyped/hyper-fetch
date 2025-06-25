@@ -76,7 +76,7 @@ The available methods are:
 - `deleteDoc`
 
 ```tsx
-const request = client.createRequest<Tea[]>()({
+const request = client.createRequest<{ response Tea[] }>()({
   endpoint: "",
   method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
 });
@@ -110,7 +110,7 @@ const newData: Omit<Tea, "__key"> = {
   amount: 50,
 };
 
-const addDocReq = client.createRequest<Tea, typeof newData>()({
+const addDocReq = client.createRequest<{ response: Tea; payload: typeof newData }>()({
   endpoint: "",
   method: "addDoc",
 });
@@ -134,7 +134,7 @@ Now, let's fetch the tea we just created using its ID. The `:teaId` in the endpo
 fill in using `setParams`.
 
 ```tsx
-const getDocReq = client.createRequest<Tea>()({
+const getDocReq = client.createRequest<{ response Tea }>()({
   // highlight-next-line
   endpoint: ":teaId",
   method: "getDoc",
@@ -157,7 +157,7 @@ console.log("Fetched tea:", data);
 To fetch all the teas in our collection, we use `getDocs`. This method returns an array of documents.
 
 ```tsx
-const getDocsReq = client.createRequest<Tea[]>()({
+const getDocsReq = client.createRequest<{ response Tea[] }>()({
   endpoint: "",
   method: "getDocs",
 });

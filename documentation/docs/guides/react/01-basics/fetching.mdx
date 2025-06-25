@@ -24,9 +24,9 @@ simplifies your component logic by abstracting away the complexities of making a
 To get started, you simply pass a `request` instance to the `useFetch` hook. It will automatically execute the request
 when the component mounts.
 
-Here is a live example that fetches a list of users and displays them.
+{/* Here is a live example that fetches a list of users and displays them. */}
 
-```tsx live
+```tsx
 function UserList() {
   // highlight-start
   const { data: users, loading, error } = useFetch(getUsers);
@@ -56,7 +56,7 @@ Often, you'll need to fetch a specific resource by an identifier. You can pass p
 
 This example fetches a single user by their ID.
 
-```tsx live
+```tsx
 function UserProfile() {
   const [userId, setUserId] = React.useState(1);
 

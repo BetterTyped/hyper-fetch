@@ -28,7 +28,7 @@ after the submission completes, like resetting a form or showing a notification.
 Let's build a complete example of a to-do list application. We'll use `useSubmit` for all the mutation logic: adding a
 new to-do, toggling its completion status, and deleting it.
 
-```tsx live
+```tsx
 function TodoApp() {
   const { data: todos, loading, revalidate } = useFetch(getTodos);
   const [newTodo, setNewTodo] = React.useState("");
