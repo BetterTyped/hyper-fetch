@@ -1,0 +1,63 @@
+---
+sidebar_position: 4
+title: Development
+sidebar_label: Development
+---
+
+# Development
+
+To help you get started with Hyper Fetch, we've outlined a few best practices for structuring your project. These are
+suggestions, feel free to adapt them to your workflow.
+
+---
+
+## 1. Project Structure
+
+1. **Organize by Feature:** Start by creating an `/api` directory to house your **client** and related **requests**.
+
+2. **Entity-Based Directories:** For each entity in your system (e.g., users, todos, categories, products, groups),
+   create a separate directory within `/api` to store the corresponding requests.
+
+3. **Maximize Reusability:** By leveraging classes and an object-oriented approach, you can easily access and reuse
+   requests throughout your application. This structure also allows your tests to utilize existing configurations
+   without duplication.
+
+**Example Structure:**
+
+```
+src
+│
+├── api
+│   ├── client.ts
+│   ├── users
+│   │   └── users.api.ts
+│   ├── products
+│   │   └── products.api.ts
+│   └── ...
+├── ...
+└── ...
+```
+
+---
+
+## 2. Debugging
+
+Preferred to debug is by using [Hyper Flow](/docs/hyper-flow) - dedicated devtools for Hyper Fetch. It allows you to see
+all the requests, responses, and errors in one place - manage cache and see detailed statistics.
+
+![Hyper Flow](/img/previews/network.png)
+
+<LinkCard type="docs" title="Hyper Flow" description="Dedicated devtools for Hyper Fetch" to="/docs/hyper-flow" />
+
+### Alternatively you can debug apps in one of two ways:
+
+1. **Use the built-in logger**
+
+Use the client `setDebug(true)` method for this. It will start logging actions in the console. To adjust what type of
+logs will be shown, use `setLogLevel(3)` to get debug logs displayed in the console. Those will show you the exact data
+and information flow in the library while working on your application.
+
+2. **Create your own logger**
+
+You can create your own dev tools based on events sent from the [requestManager](/core/managers.mdx#requestmanager).
+There is no limitation, and you can receive all necessary data to create everything you may need.

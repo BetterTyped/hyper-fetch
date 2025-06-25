@@ -1,5 +1,8 @@
-import { startServer, resetInterceptors, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { client } from "../../utils";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useFetch [ Pagination ]", () => {
   beforeAll(() => {
@@ -7,7 +10,7 @@ describe("useFetch [ Pagination ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

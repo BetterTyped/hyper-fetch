@@ -1,0 +1,166 @@
+---
+sidebar_position: 3
+title: Working with Realtime database
+sidebar_label: Realtime Database
+---
+
+This document describes how to use Hyper Fetch with the Firebase Admin SDK for the Realtime Database. You'll learn how
+to perform basic CRUD operations.
+
+:::tip Purpose
+
+1.  **Perform all Realtime Database operations** like `get`, `set`, `push`, `update` and `remove`
+2.  **Listen to streaming queries** to get realtime data updates
+3.  **Use security rules** with the `@hyper-fetch/firebase` package for client-side apps
+4.  **Have fully typed** requests, responses and errors
+
+:::
+
+---
+
+## Setup
+
+First, you need to set up the `hyper-fetch` client with the Firebase Admin adapter. You will need to install
+`@hyper-fetch/firebase-admin` package.
+
+Then, create a `client` instance. It's best to do this in a separate file and export it.
+
+```ts title="client.ts"
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getDatabase } from "firebase-admin/database";
+import { createClient } from "@hyper-fetch/core";
+import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
+
+// Firebase Admin SDK initialization
+const apps = getApps();
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string);
+
+const app = apps.length
+  ? apps[0]
+  : initializeApp({
+      credential: cert(serviceAccount),
+      databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+    });
+
+const adminRealtimeDb = getDatabase(app);
+
+// Hyper Fetch Client initialization
+export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(adminRealtimeDb));
+```
+
+---
+
+## Available methods
+
+Our Realtime Database adapter provides all the methods the original SDK offers. Due to its nature, we've solved the
+realtime listening a bit differently. For the `onValue`-like usage, please check how to
+**[listen to queries](/docs/integrations/adapter-firebase-admin/realtime-queries)**.
+
+### Get
+
+To retrieve data, use the `get` method. It fetches a snapshot of the data at a given database reference.
+
+```tsx
+import { client } from "./client";
+
+interface Tea {
+  id: string;
+  name: string;
+}
+
+const getTeas = client.createRequest<{ response Tea[] }>()({
+  endpoint: "teas/",
+  method: "get",
+});
+
+const { data, extra, error } = await getTeas.send();
+
+// extra: { ref, snapshot }
+```
+
+### Set
+
+The `set` method writes or replaces data at a specified path.
+
+To remove data with `set`, you can pass `null` as the data payload.
+
+```tsx
+import { client } from "./client";
+
+interface Tea {
+  id: string;
+  name: string;
+}
+
+const newTea: Tea = { id: "1", name: "Green Tea" };
+
+const setTea = client.createRequest<{ response Tea, payload: TeaSchema }>()({
+  endpoint: "teas/:teaId",
+  method: "set",
+});
+
+const { data, extra, error } = await setTea.setParams({ teaId: "1" }).setData(newTea).send();
+
+// data: returns the same data that was set
+// extra: { ref }
+```
+
+### Push
+
+Use `push` to add a new child to a specified path. This method generates a unique key for the new child.
+
+```tsx
+import { client } from "./client";
+
+interface Tea {
+  name: string;
+}
+
+const newTea: Tea = { name: "Oolong Tea" };
+
+const pushTea = client.createRequest<Tea & { __key: string }, Tea>()({
+  endpoint: "teas/",
+  method: "push",
+});
+
+const { data, extra, error } = await pushTea.setData(newTea).send();
+
+// data: returns the pushed data with an added `__key` field containing the unique ID
+// extra: { ref, key }
+```
+
+### Update
+
+The `update` method allows you to modify data at a specified path without overwriting other child nodes.
+
+```tsx
+import { client } from "./client";
+
+const updateTea = client.createRequest<void, { name: string }>()({
+  endpoint: "teas/:teaId",
+  method: "update",
+});
+
+const { data, extra, error } = await updateTea.setParams({ teaId: "1" }).setData({ name: "Jasmine Tea" }).send();
+
+// data: returns the data that was sent for the update
+// extra: { ref }
+```
+
+### Remove
+
+To delete data from a location, use the `remove` method.
+
+```tsx
+import { client } from "./client";
+
+const removeTea = client.createRequest<void>()({
+  endpoint: "teas/:teaId",
+  method: "remove",
+});
+
+const { data, extra, error } = await removeTea.setParams({ teaId: "1" }).send();
+
+// data: null
+// extra: { ref }
+```

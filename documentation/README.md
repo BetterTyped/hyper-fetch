@@ -14,7 +14,7 @@ $ yarn
 $ yarn start
 ```
 
-This request starts a local development server and opens up a browser window. Most changes are reflected live without
+This command starts a local development server and opens up a browser window. Most changes are reflected live without
 having to restart the server.
 
 ### Build
@@ -23,14 +23,22 @@ having to restart the server.
 $ yarn build
 ```
 
-This request generates static content into the `build` directory and can be served using any static contents hosting
+This command generates static content into the `build` directory and can be served using any static contents hosting
 service.
 
 ### Deployment
 
+Using SSH:
+
 ```
-$ GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
+$ USE_SSH=true yarn deploy
 ```
 
-If you are using GitHub pages for hosting, this request is a convenient way to build the website and push to the
+Not using SSH:
+
+```
+$ GIT_USER=<Your GitHub username> yarn deploy
+```
+
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the
 `gh-pages` branch.

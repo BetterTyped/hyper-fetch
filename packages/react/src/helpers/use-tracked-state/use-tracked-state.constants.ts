@@ -4,9 +4,10 @@ export const initialState: UseTrackedStateType = {
   data: null,
   error: null,
   status: null,
-  extra: null,
-  success: null,
+  extra: {},
+  success: false,
   loading: false,
   retries: 0,
-  timestamp: null,
+  responseTimestamp: null,
+  requestTimestamp: null,
 };

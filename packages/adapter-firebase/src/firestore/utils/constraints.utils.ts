@@ -11,7 +11,7 @@ export const mapConstraint = ({ type, values }: FirestorePermittedMethods) => {
     }
     case FirestoreQueryConstraints.ORDER_BY: {
       const [field, ord] = values;
-      return orderBy(field, ord as OrderByDirection);
+      return orderBy(field as string, ord as OrderByDirection);
     }
     case FirestoreQueryConstraints.LIMIT: {
       const [limitValue] = values;

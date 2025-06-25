@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("get", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
     let clientBees = new Client({ url: "bees/" }).setAdapter(adapterFunction());
@@ -14,7 +14,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
 
     it("should return data available for endpoint", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "get",
       });
@@ -29,7 +29,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should return data for dynamic endpoint", async () => {
       const req = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
@@ -40,7 +40,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should return emptyResource status for non existing resource", async () => {
       const req = clientBees
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })
@@ -52,7 +52,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should emit lifecycle events", async () => {
       const req = clientBees
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "get",
         })

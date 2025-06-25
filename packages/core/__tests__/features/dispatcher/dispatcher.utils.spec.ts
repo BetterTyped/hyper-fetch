@@ -1,22 +1,25 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import {
   canRetryRequest,
-  QueueElementType,
-  DispatcherRequestType,
-  getDispatcherChangeEventKey,
-  getDispatcherDrainedEventKey,
-  getDispatcherStatusEventKey,
+  QueueItemType,
+  DispatcherMode,
+  getDispatcherChangeByKey,
+  getDispatcherDrainedByKey,
+  getDispatcherStatusByKey,
   getIsEqualTimestamp,
   getRequestType,
 } from "dispatcher";
 import { createDispatcher, createAdapter } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Utils ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -25,9 +28,9 @@ describe("Dispatcher [ Utils ]", () => {
 
   beforeEach(() => {
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -37,42 +40,42 @@ describe("Dispatcher [ Utils ]", () => {
 
   describe("When using request counting methods", () => {
     it("should increment request count", async () => {
-      const queueKey = "test";
-      expect(dispatcher.getQueueRequestCount(queueKey)).toBe(0);
-      dispatcher.incrementQueueRequestCount(queueKey);
-      expect(dispatcher.getQueueRequestCount(queueKey)).toBe(1);
+      const queryKey = "test";
+      expect(dispatcher.getQueueRequestCount(queryKey)).toBe(0);
+      dispatcher.incrementQueueRequestCount(queryKey);
+      expect(dispatcher.getQueueRequestCount(queryKey)).toBe(1);
     });
   });
   describe("When using getRequest method", () => {
     it("should give stored request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const requestId = dispatcher.add(request);
-      const storedRequest = dispatcher.getRequest(request.queueKey, requestId);
+      const storedRequest = dispatcher.getRequest(request.queryKey, requestId);
       expect(storedRequest).toBeDefined();
     });
     it("should not return request from empty store", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
-      const storedRequest = dispatcher.getRequest(request.queueKey, "test");
+      const storedRequest = dispatcher.getRequest(request.queryKey, "test");
       expect(storedRequest).not.toBeDefined();
     });
   });
   describe("When using clear methods", () => {
     it("should clear request from queue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
       dispatcher.add(request);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
 
-      dispatcher.clearQueue(request.queueKey);
+      dispatcher.clearQueue(request.queryKey);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
     });
   });
   describe("When using getIsEqualTimestamp util", () => {
@@ -100,23 +103,23 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using event get key utils", () => {
     it("should return true if retry is possible", async () => {
-      expect(getDispatcherDrainedEventKey("test")).toBe(`test-drained-event`);
-      expect(getDispatcherStatusEventKey("test")).toBe(`test-status-event`);
-      expect(getDispatcherChangeEventKey("test")).toBe(`test-change-event`);
+      expect(getDispatcherDrainedByKey("test")).toBe(`test-drained-event`);
+      expect(getDispatcherStatusByKey("test")).toBe(`test-status-event`);
+      expect(getDispatcherChangeByKey("test")).toBe(`test-change-event`);
     });
   });
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
-      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
-      expect(type).toBe(DispatcherRequestType.deduplicated);
+      expect(type).toBe(DispatcherMode.DEDUPLICATED);
     });
     it("should return cancelable type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
-      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
-      expect(type).toBe(DispatcherRequestType.previousCanceled);
+      expect(type).toBe(DispatcherMode.PREVIOUS_CANCELED);
     });
   });
 });

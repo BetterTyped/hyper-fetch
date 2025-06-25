@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": "./src",
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./frontend/*"],
+      "@app/*": ["./app/*"],
+      "@server/*": ["./server/*"],
+      "@shared/*": ["./shared/*"],
+      "@testing/*": ["../__tests__/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
+}

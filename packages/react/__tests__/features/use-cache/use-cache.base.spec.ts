@@ -1,10 +1,12 @@
-import { act } from "react-dom/test-utils";
+import { act } from "@testing-library/react";
 import { CacheValueType } from "@hyper-fetch/core";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer } from "../../server";
 import { client, createRequest } from "../../utils";
 import { renderUseCache } from "../../utils/use-cache.utils";
 import { testInitialState, testSuccessState } from "../../shared";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useCache [ Base ]", () => {
   let request = createRequest();
@@ -16,16 +18,19 @@ describe("useCache [ Base ]", () => {
     extra: {
       headers: {
         "content-type": "application/json",
-        "x-powered-by": "msw",
       },
     },
     retries: 0,
-    timestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
+    cacheKey: request.cacheKey,
     isCanceled: false,
     isOffline: false,
-    cacheTime: request.cacheTime,
-    clearKey: request.client.cache.clearKey,
-    garbageCollection: Infinity,
+    staleTime: request.staleTime,
+    version: request.client.cache.version,
+    cacheTime: Infinity,
   };
 
   beforeAll(() => {
@@ -33,7 +38,7 @@ describe("useCache [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -71,7 +76,8 @@ describe("useCache [ Base ]", () => {
         const response = renderUseCache(request);
 
         await testSuccessState(cacheData.data, response);
-        expect(+response.result.current.timestamp).toBe(cacheData.timestamp);
+        expect(+(response.result.current?.responseTimestamp || 0)).toBe(cacheData.responseTimestamp);
+        expect(+(response.result.current?.requestTimestamp || 0)).toBe(cacheData.requestTimestamp);
         expect(response.result.current.retries).toBe(0);
       });
       it("should allow to invalidate by Request", async () => {
@@ -80,11 +86,11 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(request);
+          result.current.invalidate(request);
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request);
       });
       it("should allow to invalidate by RegExp", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -92,11 +98,11 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(new RegExp(request.cacheKey));
+          result.current.invalidate(new RegExp(request.cacheKey));
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(new RegExp(request.cacheKey));
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(new RegExp(request.cacheKey));
       });
       it("should allow to invalidate by cacheKey", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -104,11 +110,11 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch(request.cacheKey);
+          result.current.invalidate(request.cacheKey);
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by default key", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -116,11 +122,11 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.refetch();
+          result.current.invalidate();
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
     });
   });

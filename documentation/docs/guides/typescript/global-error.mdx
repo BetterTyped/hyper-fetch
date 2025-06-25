@@ -1,0 +1,85 @@
+---
+sidebar_position: 1
+title: Typescript - Global Error
+sidebar_label: Global Error
+---
+
+# Global Error
+
+When building applications, handling errors consistently is crucial. Hyper-fetch allows you to define a **global error
+type** that can be propagated across all your requests. This ensures that you have a single source of truth for error
+shapes, making error handling more predictable and robust. We configure this during the client setup.
+
+:::secondary What you'll learn
+
+1.  How to define a **global error type** for all requests.
+2.  How to **configure the client** with the global error type.
+3.  Why it's important to include **native `Error` types** for unexpected issues.
+
+:::
+
+### Why is it helpful?
+
+- **Consistency**: Ensures all API calls across the application handle errors in a uniform way.
+- **Reduced Boilerplate**: Avoids defining error types for every single request.
+- **Type Safety**: Provides compile-time checks for error objects, preventing runtime errors.
+- **Centralized Logic**: Allows for centralized error handling logic (e.g., logging, displaying notifications).
+
+---
+
+### Example
+
+Here is how to set up a global error type on the client. This type will be inferred by all requests created from this
+client instance.
+
+```ts
+// import { createClient } from '@hyper-fetch/core';
+
+// 1. Let's assume our backend returns errors in this shape
+type MyApiError = {
+  message: string;
+  code: number;
+  timestamp: string;
+};
+
+// 2. We should also account for network errors or other unexpected issues
+type GlobalErrorType = MyApiError | Error;
+
+// 3. Now, we create a client and pass our global error type to it.
+// This generic will be propagated to all requests created from this client instance.
+// highlight-start
+export const client = createClient()({
+  url: "https://api.example.com",
+}).setExtra<{ error: GlobalErrorType }>();
+// highlight-end
+
+// 4. Example usage
+const request = client.createRequest()({
+  endpoint: "/users/1",
+});
+
+// The `error` property will now be correctly typed as `GlobalErrorType`
+const { data, error } = await request.send();
+
+if (error) {
+  if (error instanceof Error) {
+    // Handle native Error
+    console.error("A network or unexpected error occurred:", error.message);
+  } else {
+    // Handle our custom API error
+    console.error(`API Error: ${error.message} (Code: ${error.code})`);
+  }
+}
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to set up global error types in Hyper-fetch!
+
+- You can define a **centralized error type** for all your requests.
+- You know how to **configure the client** to use this global error type.
+- You can handle both **custom API errors** and **native `Error` objects** gracefully.
+
+:::

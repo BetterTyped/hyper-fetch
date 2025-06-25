@@ -1,9 +1,9 @@
-import { DateInterval, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import { Time, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseFetchOptionsType } from "hooks/use-fetch";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialData">> & {
-  initialData: null;
+type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse">> & {
+  initialResponse: null;
 };
 
 export const useFetchDefaultOptions: DefaultOptionsType = {
@@ -11,9 +11,9 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   disabled: false,
   dependencyTracking: true,
   revalidate: true,
-  initialData: null,
+  initialResponse: null,
   refresh: false,
-  refreshTime: DateInterval.hour,
+  refreshTime: Time.HOUR,
   refetchBlurred: true,
   refetchOnBlur: false,
   refetchOnFocus: false,
@@ -21,5 +21,6 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   bounce: false,
   bounceType: "debounce",
   bounceTime: 400,
+  bounceTimeout: 400,
   deepCompare: true,
 };

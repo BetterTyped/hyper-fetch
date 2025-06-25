@@ -1,10 +1,25 @@
-import { RequestInstance, NullableType, ExtractAdapterReturnType } from "@hyper-fetch/core";
+import {
+  RequestInstance,
+  NullableType,
+  ExtractAdapterResolvedType,
+  ExtendRequest,
+  EmptyTypes,
+  RequestSendOptionsType,
+} from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
-import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
 
-export type UseFetchOptionsType<T extends RequestInstance> = {
+export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
+  R,
+  {
+    hasData: RequestSendOptionsType<R>["payload"] extends EmptyTypes ? true : false;
+    hasParams: RequestSendOptionsType<R>["params"] extends EmptyTypes ? true : false;
+    hasQuery: RequestSendOptionsType<R>["queryParams"] extends EmptyTypes ? true : false;
+  }
+>;
+
+export type UseFetchOptionsType<R extends RequestInstance> = {
   /**
    * Refetch dependencies
    */
@@ -24,7 +39,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<UseFetchRequest<R>>>>;
   /**
    * Enable/disable refresh data
    */
@@ -67,6 +82,10 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
        * How long it should bounce requests.
        */
       bounceTime?: number;
+      /**
+       * Not applicable for debounce mode
+       */
+      bounceTimeout?: void;
     }
   | {
       /**
@@ -84,9 +103,9 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
     }
 );
 
-export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
-  UseTrackedStateActions<T> &
-  UseRequestEventsActionsType<T> & {
+export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<UseFetchRequest<R>> &
+  UseTrackedStateActions<UseFetchRequest<R>> &
+  UseRequestEventsActionsType<UseFetchRequest<R>> & {
     /**
      * Data related to current state of the bounce usage
      */
@@ -101,7 +120,7 @@ export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<
       reset: () => void;
     };
     /**
-     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request
      */
-    refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: () => void;
   };

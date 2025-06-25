@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": "../src",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./frontend/*"],
+      "@app/*": ["./app/*"],
+      "@server/*": ["./server/*"],
+      "@shared/*": ["./shared/*"],
+      "@testing/*": ["../__tests__/*"]
+    }
+  }
+}

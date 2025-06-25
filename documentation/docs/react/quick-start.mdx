@@ -1,0 +1,138 @@
+---
+sidebar_position: 2
+title: Quick Start
+sidebar_label: Quick Start
+---
+
+> Hyper Fetch's React package provides a set of hooks that make it easy to fetch, cache, and manage data in your React
+> applications with minimal setup.
+
+:::secondary What you'll learn
+
+- How to initialize the Hyper-Fetch client
+- How to create a request
+- How to fetch data using the `useFetch` hook
+- How to submit data using the `useSubmit` hook
+
+:::
+
+---
+
+### 1. Initialize the Client
+
+First, you need to create a `Client` instance. This client will hold the configuration for all your requests, such as
+the base URL. It's best to create it in a separate file to easily share it across your application.
+
+```tsx title="client.ts"
+import { Client } from "@hyper-fetch/core";
+
+export const client = new Client({
+  url: "https://jsonplaceholder.typicode.com",
+});
+```
+
+---
+
+### 2. Create a Request
+
+Next, define your requests. A `request` holds all the information about an endpoint, its method, and other
+configurations. These request instances will be used by the hooks.
+
+```ts title="requests.ts"
+import { client } from "./client";
+
+// We can define a type for our user for better type-safety
+type UserType = {
+  id: number;
+  name: string;
+};
+
+// Request for fetching a list of users
+export const getUsers = client.createRequest<{ response: UserType[] }>()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+// Request for creating a new user
+export const createUser = client.createRequest<{ response: UserType; payload: { name: string } }>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```
+
+---
+
+### 3. Fetch Data with `useFetch`
+
+The `useFetch` hook allows you to fetch data from an endpoint and manage the state of the request (loading, error,
+data). It automatically re-fetches data when the component mounts or dependencies change.
+
+Here's how to use it in a component:
+
+```tsx title="Users.tsx"
+import React from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./requests";
+
+export const Users = () => {
+  // highlight-next-line
+  const { data, loading, error } = useFetch(getUsers);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  return <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>;
+};
+```
+
+---
+
+### 4. Submit Data with `useSubmit`
+
+The `useSubmit` hook is designed for mutations like creating, updating, or deleting data. It gives you a `submit`
+function to trigger the request manually.
+
+Here is an example of a form that creates a new user:
+
+```tsx title="AddUserForm.tsx"
+import React, { useState } from "react";
+import { useSubmit } from "@hyper-fetch/react";
+import { createUser } from "./requests";
+
+export const AddUserForm = () => {
+  // highlight-next-line
+  const { submit, submitting, error, data } = useSubmit(createUser);
+  const [name, setName] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // highlight-next-line
+    submit({ data: { name } });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="User name" />
+      <button type="submit" disabled={submitting}>
+        {submitting ? "Adding..." : "Add User"}
+      </button>
+      {error && <div>Error: {error.message}</div>}
+      {data && <div>User created with ID: {data.id}</div>}
+    </form>
+  );
+};
+```
+
+---
+
+:::success That's it!
+
+You've learned the basics of using Hyper-Fetch with React. You can now build powerful, type-safe data-driven
+applications.
+
+:::

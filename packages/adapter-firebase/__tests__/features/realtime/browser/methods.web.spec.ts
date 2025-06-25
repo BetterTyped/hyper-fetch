@@ -1,6 +1,6 @@
 import { set, ref } from "firebase/database";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { realtimeDBBrowser } from "../../../utils";
 import { seedRealtimeDatabaseBrowser } from "../../../utils/browser/seed.browser";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
@@ -15,5 +15,5 @@ describe("Realtime Database Browser [ Methods ]", () => {
     await set(ref(realtimeDBBrowser, "teas/"), null);
   });
 
-  methodsSharedTestCases(() => firebaseAdapter(realtimeDBBrowser));
+  methodsSharedTestCases(() => FirebaseAdapter(realtimeDBBrowser));
 });

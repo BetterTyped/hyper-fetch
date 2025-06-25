@@ -1,10 +1,13 @@
-import { RequestEffect } from "effect";
-import { Client, StringifyCallbackType } from "client";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+import { Plugin } from "plugin";
+import { Client } from "client";
 import { RequestOptionsType, Request } from "request";
-import { AdapterOptionsType, QueryStringifyOptionsType } from "adapter";
 import { LoggerManager } from "managers";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
+import { HttpAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ Methods ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -15,7 +18,7 @@ describe("Client [ Methods ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -23,19 +26,19 @@ describe("Client [ Methods ]", () => {
   });
 
   describe("When using config methods", () => {
-    it("should assign default request config [setRequestDefaultOptions]", async () => {
-      const options: Partial<RequestOptionsType<string, AdapterOptionsType>> = { method: "POST" };
-      client.setRequestDefaultOptions(() => options);
+    it("should assign default request config [setRequestDefaults]", async () => {
+      const options: Partial<RequestOptionsType<string, HttpAdapterOptionsType>> = { method: "POST" };
+      client.adapter.setRequestDefaults(() => options);
       const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.requestDefaultOptions(request.requestOptions)).toEqual(options);
+      expect(client.adapter.unstable_getRequestDefaults?.(request.requestOptions)).toEqual(options);
       expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
-      const options: AdapterOptionsType = { timeout: 12312312 };
-      client.setAdapterDefaultOptions(() => options);
+      const options: HttpAdapterOptionsType = { timeout: 12312312 };
+      client.adapter.setAdapterDefaults(() => options);
 
-      expect(client.adapterDefaultOptions(request)).toEqual(options);
+      expect(client.adapter.unstable_getAdapterDefaults?.(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = {
@@ -43,36 +46,30 @@ describe("Client [ Methods ]", () => {
         dateParser: () => "date",
         objectParser: () => "object",
       };
-      client.setQueryParamsConfig(options);
+      client.adapter.setQueryParamsMapperConfig(options);
 
-      expect(client.queryParamsConfig).toEqual(options);
-      expect(client.stringifyQueryParams({ date: new Date() })).toBe("?date=date");
-      expect(client.stringifyQueryParams({ object: {} })).toBe("?object=object");
+      expect(client.adapter.unstable_queryParamsMapperConfig).toEqual(options);
+      expect(client.adapter.unstable_queryParamsMapper({ date: new Date() })).toBe("?date=date");
+      expect(client.adapter.unstable_queryParamsMapper({ object: {} })).toBe("?object=object");
     });
     it("should assign debug value [setDebug]", async () => {
-      client.setLogger((b) => new LoggerManager(b, { logger: () => null })).setDebug(true);
+      client.setLogger(() => new LoggerManager({ logger: () => null })).setDebug(true);
       expect(client.debug).toEqual(true);
     });
     it("should assign query params handling callback [setStringifyQueryParams]", async () => {
-      const callback: StringifyCallbackType = () => "";
-      client.setStringifyQueryParams(callback);
+      const callback = () => "?test=1";
+      client.adapter.setQueryParamsMapper(callback);
 
-      expect(client.stringifyQueryParams).toEqual(callback);
+      expect(client.adapter.unstable_queryParamsMapper({}, {})).toEqual("?test=1");
     });
     it("should assign logger levels [setLoggerLevel]", async () => {
-      client.setLoggerSeverity(1);
+      client.setLogLevel("info");
 
-      expect(client.loggerManager.severity).toEqual(1);
+      expect(client.loggerManager.level).toEqual("info");
     });
     it("should assign new adapter [setAdapter]", async () => {
       const callback = createAdapter();
-      client.setAdapter(() => callback);
-
-      expect(client.adapter).toEqual(callback);
-    });
-    it("should assign new adapter and return client [setAdapter]", async () => {
-      const callback = createAdapter();
-      client.setAdapter((instance) => instance.setAdapter(() => callback));
+      client.setAdapter(callback);
 
       expect(client.adapter).toEqual(callback);
     });
@@ -80,41 +77,41 @@ describe("Client [ Methods ]", () => {
       const callback = middlewareCallback();
       client.onAuth(callback).onAuth(callback);
 
-      expect(client.__onAuthCallbacks).toHaveLength(2);
-      expect(client.__onAuthCallbacks[0]).toEqual(callback);
-      expect(client.__onAuthCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onAuthCallbacks).toHaveLength(2);
+      expect(client.unstable_onAuthCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onAuthCallbacks[1]).toEqual(callback);
     });
     it("should assign error interceptors [onError]", async () => {
       const callback = interceptorCallback();
       client.onError(callback).onError(callback);
 
-      expect(client.__onErrorCallbacks).toHaveLength(2);
-      expect(client.__onErrorCallbacks[0]).toEqual(callback);
-      expect(client.__onErrorCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onErrorCallbacks).toHaveLength(2);
+      expect(client.unstable_onErrorCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onErrorCallbacks[1]).toEqual(callback);
     });
     it("should assign success interceptors [onSuccess]", async () => {
       const callback = interceptorCallback();
       client.onSuccess(callback).onSuccess(callback);
 
-      expect(client.__onSuccessCallbacks).toHaveLength(2);
-      expect(client.__onSuccessCallbacks[0]).toEqual(callback);
-      expect(client.__onSuccessCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onSuccessCallbacks).toHaveLength(2);
+      expect(client.unstable_onSuccessCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onSuccessCallbacks[1]).toEqual(callback);
     });
     it("should assign request triggers [onRequest]", async () => {
       const callback = middlewareCallback();
       client.onRequest(callback).onRequest(callback);
 
-      expect(client.__onRequestCallbacks).toHaveLength(2);
-      expect(client.__onRequestCallbacks[0]).toEqual(callback);
-      expect(client.__onRequestCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onRequestCallbacks).toHaveLength(2);
+      expect(client.unstable_onRequestCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onRequestCallbacks[1]).toEqual(callback);
     });
     it("should assign response triggers [onResponse]", async () => {
       const callback = interceptorCallback();
       client.onResponse(callback).onResponse(callback);
 
-      expect(client.__onResponseCallbacks).toHaveLength(2);
-      expect(client.__onResponseCallbacks[0]).toEqual(callback);
-      expect(client.__onResponseCallbacks[1]).toEqual(callback);
+      expect(client.unstable_onResponseCallbacks).toHaveLength(2);
+      expect(client.unstable_onResponseCallbacks[0]).toEqual(callback);
+      expect(client.unstable_onResponseCallbacks[1]).toEqual(callback);
     });
     it("should create new request on createRequest method trigger", async () => {
       const endpoint = "some-endpoint";
@@ -123,73 +120,69 @@ describe("Client [ Methods ]", () => {
       expect(newRequest instanceof Request).toBeTrue();
       expect(newRequest.endpoint).toBe(endpoint);
     });
-    it("should add single effect listeners on addEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should add single effect listeners on addPlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect(effect);
+      client.addPlugin(plugin);
 
-      expect(client.effects[0]).toBe(effect);
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins[0]).toBe(plugin);
+      expect(client.plugins).toHaveLength(1);
     });
-    it("should add effects array listeners on addEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should add plugins array listeners on addPlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect([effect]);
+      client.addPlugin(plugin);
 
-      expect(client.effects[0]).toBe(effect);
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins[0]).toBe(plugin);
+      expect(client.plugins).toHaveLength(1);
     });
-    it("should remove effect listener on removeEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should remove plugin listener on removePlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect(effect);
-      client.removeEffect(effect);
-      expect(client.effects).toHaveLength(0);
+      client.addPlugin(plugin);
+      client.removePlugin(plugin);
+      expect(client.plugins).toHaveLength(0);
 
-      client.addEffect(effect);
-      client.removeEffect(effect.getEffectKey());
-      expect(client.effects).toHaveLength(0);
+      client.addPlugin(plugin);
+      expect(client.plugins).toHaveLength(1);
     });
-    it("should not remove effect when wrong effectKey is passed", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
-      const otherEffect = new RequestEffect({ effectKey: "OTHER-EFFECT" });
+    it("should not remove plugin when wrong pluginKey is passed", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
+      const otherEffect = new Plugin({ name: "OTHER-EFFECT" });
 
-      client.addEffect(effect);
-      client.removeEffect(otherEffect);
-      expect(client.effects).toHaveLength(1);
+      client.addPlugin(plugin);
+      client.removePlugin(otherEffect);
+      expect(client.plugins).toHaveLength(1);
 
-      client.removeEffect(otherEffect.getEffectKey());
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins).toHaveLength(1);
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {
-      const callback = () => ({} as HeadersInit);
-      client.setHeaderMapper(callback);
+      const callback = () => ({ test: 123 }) as any as HeadersInit;
+      client.adapter.setHeaderMapper(callback);
 
-      expect(client.headerMapper).toEqual(callback);
+      expect(client.adapter.unstable_headerMapper({}, {})).toEqual({ test: 123 });
     });
     it("should assign payload handling callback [setPayloadMapper]", async () => {
-      const callback = () => "";
-      client.setPayloadMapper(callback);
+      const callback = () => "test-123";
+      client.adapter.setPayloadMapper(callback);
 
-      expect(client.payloadMapper).toEqual(callback);
+      expect(client.adapter.unstable_payloadMapper({}, {})).toEqual("test-123");
     });
     it("should assign endpoint handling callback [setEndpointMapper]", async () => {
-      const callback = () => "";
-      client.setEndpointMapper(callback);
+      const callback = () => "test-endpoint";
+      client.adapter.setEndpointMapper(callback);
 
-      expect(client.endpointMapper).toEqual(callback);
+      expect(client.adapter.unstable_endpointMapper({}, {})).toEqual("test-endpoint");
     });
     it("should assign key mappers", async () => {
       const callback = () => "";
       client.setAbortKeyMapper(callback);
       client.setCacheKeyMapper(callback);
-      client.setQueueKeyMapper(callback);
-      client.setEffectKeyMapper(callback);
+      client.setQueryKeyMapper(callback);
 
-      expect(client.abortKeyMapper).toEqual(callback);
-      expect(client.cacheKeyMapper).toEqual(callback);
-      expect(client.queueKeyMapper).toEqual(callback);
-      expect(client.effectKeyMapper).toEqual(callback);
+      expect(client.unstable_abortKeyMapper).toEqual(callback);
+      expect(client.unstable_cacheKeyMapper).toEqual(callback);
+      expect(client.unstable_queryKeyMapper).toEqual(callback);
     });
   });
 });

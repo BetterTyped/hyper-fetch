@@ -1,0 +1,66 @@
+{
+  "name": "eslint-plugin-hyper-fetch",
+  "version": "0.0.0",
+  "description": "Eslint plugin for HyperFetch",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "test": "jest --watchAll --maxWorkers=3 --forceExit",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "build": "yarn clean && node ../../scripts/build.js",
+    "postbuild": "rollup -c '../../rollup.config.js'",
+    "lint": "eslint . --fix",
+    "format": "prettier --write .",
+    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "tests": "yarn lint-staged",
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'eslint-hyper-fetch-v${version}'"
+  },
+  "peerDependencies": {
+    "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
+    "react": ">= 16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@hyper-fetch/sockets": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "assert": "2.1.0",
+    "path": "0.12.7"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn jest --passWithNoTests"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react",
+      "react/jest"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "keywords": [
+    "eslint",
+    "hyper-fetch"
+  ]
+}

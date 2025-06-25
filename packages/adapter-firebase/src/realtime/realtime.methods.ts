@@ -1,7 +1,8 @@
+/* eslint-disable max-params */
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/types";
+import { RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
 import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
 import {
@@ -11,22 +12,31 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
-  request: R,
-  database: Database,
-  url: string,
+type DataType = {
+  constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+  payload: any;
+  options: Record<string, any>;
+};
+
+export const getRealtimeDbBrowserMethods = ({
+  database,
+  url,
   onSuccess,
   onError,
-  resolve,
-  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
-): ((
-  methodName: RealtimeDBMethodsUnion,
-  data: {
-    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
-    data: any;
-    options: Record<string, any>;
-  },
-) => Promise<void>) => {
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Database;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((methodName: RealtimeDBMethodsUnion, data: DataType) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods = {
@@ -60,19 +70,26 @@ export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: RealtimeDBMethodsUnion, data) => {
+  return async (methodName: RealtimeDBMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
-      events.onResponseEnd();
-    } catch (e) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError(e, "error", {}, resolve);
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status: status as RealtimeDBStatuses, extra });
+      onResponseEnd();
+    } catch (error) {
+      onRequestEnd();
+      onResponseStart();
+      onError({
+        error,
+        status: "error",
+        // TODO - fix this
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        extra: {},
+      });
+      onResponseEnd();
     }
   };
 };

@@ -4,7 +4,7 @@ import { collection, getDocs, deleteDoc, Firestore } from "firebase/firestore";
 export async function deleteCollectionForBrowser(firestoreDb: Firestore, path: string) {
   const ref = collection(firestoreDb, path);
   const docsToDelete = await getDocs(ref);
-  const refs = [];
+  const refs: Promise<void>[] = [];
   const docRefs = new Promise((resolve) => {
     docsToDelete.docs.forEach((doc) => {
       refs.push(deleteDoc(doc.ref));

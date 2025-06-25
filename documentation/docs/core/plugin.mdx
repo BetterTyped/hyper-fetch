@@ -1,0 +1,192 @@
+---
+sidebar_position: 9
+title: Plugin
+sidebar_label: Plugin
+---
+
+[Read the API Reference »](/api/core/Classes/Plugin.mdx)
+
+Plugins allow you to connect into the lifecycle of the whole library. They expose different sets of the methods allowing
+you to react to particular events happening within a system.
+
+---
+
+:::tip Purpose
+
+1. Persists request side-effects
+2. Manipulates the lifecycle and allows hooking in
+
+:::
+
+---
+
+## How to use?
+
+The best way to create new plugin is to wrap the `Plugin` class into a function. This way you can pass in the
+configuration options and return the plugin instance.
+
+```ts title="Creating a new plugin"
+import { Plugin } from "@hyper-fetch/core";
+
+const MyPlugin = ({ module }: { module: string }) => {
+  // highlight-start
+  return new Plugin({
+    // Hook into creation of the request and log it
+    onRequestCreate: (request) => {
+      console.log(`[${module}] Request created`, request);
+    },
+  });
+  // highlight-end
+};
+
+const client = new Client({
+  url: "https://api.example.com",
+  // highlight-start
+}).addPlugin(MyPlugin({ module: "MyApp" }));
+// highlight-end
+```
+
+---
+
+## Available methods
+
+<ShowMore>
+
+(@import core Plugin type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed methods docs"
+  description="Check all available methods and their descriptions"
+  to="/docs/api/core/Classes/Plugin#methods"
+/>
+
+---
+
+## Use cases
+
+### Logging
+
+Plugins are heavily used by our devtools system to provide you with the live feed of what is happening in your
+application. They are great for logging, tracking, debugging and collecting metrics.
+
+### Persistence
+
+There are many applications which require you to persist the state of the application. After reloading of the browser,
+app or server you need to keep up with the unsent requests.
+
+:::note Other solutions
+
+There are many solutions for persistence, all of them approach this problem by introducing the sync mechanisms and local
+DBs. Among them you can find:
+
+- [WatermelonDB](https://github.com/Nozbe/WatermelonDB)
+- [PouchDB](https://pouchdb.com/)
+- [Lowdb](https://github.com/typicode/lowdb)
+
+:::
+
+Hyper Fetch being the fetcher and a server state manager it is able to persist the state of the application. Not only
+that - it can store and persist requests which are not triggered yet - for example if you're in the offline mode.
+
+```ts live title="Persisting requests" console
+import { getUser } from "./api";
+
+// highlight-next-line
+const jsonRequest = getUser.toJSON();
+
+console.log(jsonRequest);
+// use JSON.stringify to get the same result
+console.log(JSON.stringify(getUser, null, 4));
+```
+
+Having the request in the JSON format you can easily persist it in the persistent storage like local storage or any
+other storage you want.
+
+Now imagine our app is offline, we close it and open it again. We can see that the request is still in the persistent
+storage and we can trigger it again.
+
+```ts live title="Triggering requests" size=md console
+import { getUser } from "./api";
+
+const jsonRequest = getUser.toJSON();
+
+// Recreate the request from the JSON
+// highlight-next-line
+const request = Request.fromJSON(client, jsonRequest);
+
+request.setMock(() => ({
+  data: {
+    name: "John Doe",
+    age: 20,
+  },
+  status: 200,
+}));
+
+// Call the request
+const response = await request.send();
+
+console.log(response);
+```
+
+We don't have to do it for every request. To do so, we can attach into the Dispatcher lifecycle and on the
+`onDispatcherItemAdded` and `onDispatcherItemDeleted` events. With them we can add the stringified requests to the
+persistent storage.
+
+Then on the start of the app we can trigger the requests from the persistent storage - this is because after refresh of
+the app Dispatchers do not have access to the persisted storage with our requests. At this time we can add the requests
+to the Dispatcher and trigger them or wait a bit waiting for the app to load.
+
+```ts live title="Triggering requests" size=md console
+// Create a plugin to persist the requests
+const PersistPlugin = () => {
+  return new Plugin()
+    .onDispatcherItemAdded(({ queueItem }) => {
+      localStorage.setItem(queueItem.requestId, JSON.stringify(queueItem.request.toJSON()));
+    })
+    .onDispatcherItemDeleted(({ queueItem }) => {
+      localStorage.removeItem(queueItem.requestId);
+    })
+    .onMount(() => {
+      // Trigger the requests from the persistent storage or reload
+      const requests = Object.values(localStorage).map((request) => Request.fromJSON(client, JSON.parse(request)));
+      if (requests.length > 0) {
+        requests.forEach((request) => {
+          request.send();
+        });
+      }
+    });
+};
+
+// Add the plugin to the client
+client.addPlugin(PersistPlugin());
+```
+
+That's it! It is very simple concept, so keep that in mind when you're building your app.
+
+:::info
+
+We are waiting for your feedback on this feature. If you have any ideas or suggestions, please let us know. We are very
+determined to make it better and more useful for you.
+
+:::
+
+There are few more aspects that could be worth mentioning like:
+
+1. **Optimistic approach** when you want to reflect all of the changes from your persisting requests inside of your UI.
+
+2. Topic of the **connectivity** itself. Your backend need to track all of the persistent requests with some kind of
+   identifier from the frontend - possibly passed with a Header or a Query Parameter. **To prevent duplicates and
+   conflicts**, you need to have some kind of a logic to prevent them.
+
+These are large topics deserving their own guides, so stay tuned!
+
+---
+
+## Parameters
+
+Configuration options
+
+(@import core PluginOptionsType type=returns)

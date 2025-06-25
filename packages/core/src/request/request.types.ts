@@ -1,83 +1,101 @@
 import {
   NullableKeys,
-  NegativeTypes,
+  EmptyTypes,
   ExtractParamsType,
   ExtractPayloadType,
-  ExtractRequestQueryParamsType,
   ExtractAdapterType,
   ExtractEndpointType,
-  ExtractHasDataType,
+  ExtractHasPayloadType,
   ExtractHasParamsType,
   ExtractHasQueryParamsType,
   ExtractErrorType,
   ExtractResponseType,
   HttpMethodsType,
+  ExtractQueryParamsType,
+  ExtractAdapterOptionsType,
+  ExtractAdapterMethodType,
+  TypeWithDefaults,
 } from "types";
 import { Request } from "request";
-import {
-  ResponseReturnType,
-  QueryParamsType,
-  ProgressType,
-  ExtractAdapterOptionsType,
-  AdapterType,
-  ExtractAdapterMethodType,
-} from "adapter";
-import { RequestEventType, ResponseDetailsType } from "managers";
+import { ResponseType, RequestResponseType } from "adapter";
+import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import { ClientInstance } from "client";
 
-// Progress
-export type AdapterProgressEventType = { total: number; loaded: number };
-export type AdapterProgressType = {
-  progress: number;
-  timeLeft: number;
-  sizeLeft: number;
+// Instance
+
+export type RequestInstanceProperties = {
+  response?: any;
+  payload?: any;
+  error?: any;
+  client?: ClientInstance;
+  queryParams?: any;
+  endpoint?: string;
+  hasParams?: boolean;
+  hasQueryParams?: boolean;
+  hasPayload?: boolean;
 };
 
-// Dump
+export type RequestInstance<
+  RequestProperties extends RequestInstanceProperties = {
+    response?: any;
+    payload?: any;
+    queryParams?: any;
+    error?: any;
+    client?: ClientInstance;
+  },
+> = Request<
+  TypeWithDefaults<RequestProperties, "response", any>,
+  TypeWithDefaults<RequestProperties, "payload", any>,
+  TypeWithDefaults<RequestProperties, "queryParams", any>,
+  TypeWithDefaults<RequestProperties, "error", any>,
+  TypeWithDefaults<RequestProperties, "endpoint", any>,
+  TypeWithDefaults<RequestProperties, "client", ClientInstance>,
+  TypeWithDefaults<RequestProperties, "hasParams", any>,
+  TypeWithDefaults<RequestProperties, "hasQueryParams", any>,
+  TypeWithDefaults<RequestProperties, "hasPayload", any>
+>;
+
+// Progress
+export type ProgressEventType = { total: number; loaded: number };
 
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestJSON<
-  Request extends RequestInstance,
-  // Bellow generics provided only to overcome the typescript bugs
-  AdapterOptions = unknown,
-  QueryParams = QueryParamsType,
-  Params = ExtractParamsType<Request>,
-> = {
+export type RequestJSON<Request extends RequestInstance> = {
   requestOptions: RequestOptionsType<
-    string,
-    AdapterOptions | ExtractAdapterType<Request>,
+    ExtractEndpointType<Request>,
+    ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
-  endpoint: string;
+  endpoint: ExtractEndpointType<Request>;
   method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
   auth: boolean;
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: number;
-  cache: boolean;
   cacheTime: number;
+  cache: boolean;
+  staleTime: number;
   queued: boolean;
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
-  data: PayloadType<ExtractPayloadType<Request>>;
-  params: Params | NegativeTypes;
-  queryParams: QueryParams | NegativeTypes;
+  options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
+  payload: PayloadType<ExtractPayloadType<Request>>;
+  params: ExtractParamsType<Request> | EmptyTypes;
+  queryParams: ExtractQueryParamsType<Request> | EmptyTypes;
   abortKey: string;
   cacheKey: string;
-  queueKey: string;
-  effectKey: string;
+  queryKey: string;
   used: boolean;
   updatedAbortKey: boolean;
   updatedCacheKey: boolean;
-  updatedQueueKey: boolean;
-  updatedEffectKey: boolean;
+  updatedQueryKey: boolean;
   deduplicate: boolean;
-  deduplicateTime: number;
+  deduplicateTime: number | null;
+  isMockerEnabled: boolean;
+  hasMock: boolean;
 };
 
 // Request
@@ -85,11 +103,7 @@ export type RequestJSON<
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<
-  GenericEndpoint extends string,
-  AdapterOptions extends Record<string, any>,
-  RequestMethods = HttpMethodsType,
-> = {
+export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods = HttpMethodsType> = {
   /**
    * Determine the endpoint for request request
    */
@@ -103,7 +117,8 @@ export type RequestOptionsType<
    */
   auth?: boolean;
   /**
-   * Request method GET | POST | PATCH | PUT | DELETE or set of method names handled by adapter
+   * Request method picked from method names handled by adapter
+   * With default adapter it is GET | POST | PATCH | PUT | DELETE
    */
   method?: RequestMethods;
   /**
@@ -121,7 +136,7 @@ export type RequestOptionsType<
   /**
    * Should we trigger garbage collection or leave data in memory
    */
-  garbageCollection?: number;
+  cacheTime?: number;
   /**
    * Should we save the response to cache
    */
@@ -129,7 +144,7 @@ export type RequestOptionsType<
   /**
    * Time for which the cache is considered up-to-date
    */
-  cacheTime?: number;
+  staleTime?: number;
   /**
    * Should the requests from this request be send one-by-one
    */
@@ -161,11 +176,7 @@ export type RequestOptionsType<
   /**
    * Key which will be used to queue requests. Autogenerated by default.
    */
-  queueKey?: string;
-  /**
-   * Key which will be used to use effects. Autogenerated by default.
-   */
-  effectKey?: string;
+  queryKey?: string;
   /**
    * Should we deduplicate two requests made at the same time into one
    */
@@ -176,25 +187,26 @@ export type RequestOptionsType<
   deduplicateTime?: number;
 };
 
-export type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewDataType;
+export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;
 
-export type PayloadType<Payload> = Payload | NegativeTypes;
+export type PayloadType<Payload> = Payload | EmptyTypes;
 
-export type RequestCurrentType<
+export type RequestConfigurationType<
   Payload,
+  Params,
   QueryParams,
   GenericEndpoint extends string,
   AdapterOptions,
-  MethodsType = HttpMethodsType,
+  MethodsType,
 > = {
   used?: boolean;
-  params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
-  queryParams?: QueryParams | NegativeTypes;
-  data?: PayloadType<Payload>;
+  params?: Params | EmptyTypes;
+  queryParams?: QueryParams | EmptyTypes;
+  payload?: PayloadType<Payload>;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
-  updatedQueueKey?: boolean;
+  updatedQueryKey?: boolean;
   updatedEffectKey?: boolean;
 } & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 
@@ -202,111 +214,90 @@ export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
 export type ExtractRouteParams<T extends string> = string extends T
-  ? NegativeTypes
+  ? EmptyTypes
   : T extends `${string}:${infer Param}/${infer Rest}`
-  ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
-  : T extends `${string}:${infer Param}`
-  ? { [k in Param]: ParamType }
-  : NegativeTypes;
+    ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
+    : T extends `${string}:${infer Param}`
+      ? { [k in Param]: ParamType }
+      : EmptyTypes;
 
-export type FetchOptionsType<AdapterOptions> = Omit<
-  Partial<RequestOptionsType<string, AdapterOptions>>,
-  "endpoint" | "method"
->;
+/**
+ * If the request endpoint parameters are not filled it will throw an error
+ */
+export type FetchParamsType<Params, HasParams extends true | false> = Params extends EmptyTypes | void | never
+  ? { params?: EmptyTypes }
+  : HasParams extends true
+    ? { params?: EmptyTypes }
+    : { params: Params };
+
+/**
+ * If the request data is not filled it will throw an error
+ */
+export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends EmptyTypes | void | never
+  ? { payload?: EmptyTypes }
+  : HasPayload extends true
+    ? { payload?: EmptyTypes }
+    : { payload: Payload };
 
 /**
  * It will check if the query params are already set
  */
 export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
-  ? { queryParams?: NegativeTypes }
-  : {
-      queryParams?: QueryParams;
-    };
+  ? { queryParams?: EmptyTypes | undefined }
+  : HasQuery extends true
+    ? { queryParams?: EmptyTypes }
+    : QueryParams extends EmptyTypes | void | never
+      ? { queryParams?: QueryParams }
+      : {
+          queryParams: QueryParams;
+        };
 
-/**
- * If the request endpoint parameters are not filled it will throw an error
- */
-export type FetchParamsType<
-  Endpoint extends string,
-  HasParams extends true | false,
-> = ExtractRouteParams<Endpoint> extends NegativeTypes
-  ? { params?: NegativeTypes }
-  : HasParams extends true
-  ? { params?: NegativeTypes }
-  : { params: NonNullable<ExtractRouteParams<Endpoint>> };
-
-/**
- * If the request data is not filled it will throw an error
- */
-export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes
-  ? { data?: NegativeTypes }
-  : HasData extends true
-  ? { data?: NegativeTypes }
-  : { data: NonNullable<Payload> };
-
-export type RequestQueueOptions = {
+export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omit<
+  Partial<RequestOptionsType<string, ExtractAdapterOptionsType<ExtractAdapterType<Request>>>>,
+  "params" | "data" | "endpoint" | "method"
+> & {
   dispatcherType?: "auto" | "fetch" | "submit";
 };
 
 // Request making
 
 export type RequestSendOptionsType<Request extends RequestInstance> = FetchQueryParamsType<
-  ExtractRequestQueryParamsType<Request>,
+  ExtractQueryParamsType<Request>,
   ExtractHasQueryParamsType<Request>
 > &
-  FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
-  FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
-  Omit<FetchOptionsType<ExtractAdapterType<Request>>, "params" | "data"> &
-  FetchSendActionsType<Request> &
-  RequestQueueOptions;
+  FetchParamsType<ExtractParamsType<Request>, ExtractHasParamsType<Request>> &
+  FetchPayloadType<ExtractPayloadType<Request>, ExtractHasPayloadType<Request>> &
+  FetchQueryParamsType<ExtractQueryParamsType<Request>, ExtractHasQueryParamsType<Request>> &
+  RequestSendActionsType<Request> &
+  RequestDynamicSendOptionsType<Request>;
 
-export type FetchSendActionsType<Request extends RequestInstance> = {
-  onSettle?: (requestId: string, request: Request) => void;
-  onRequestStart?: (details: RequestEventType<Request>) => void;
-  onResponseStart?: (details: RequestEventType<Request>) => void;
-  onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
-  onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
-  onResponse?: (
-    response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
-    details: ResponseDetailsType,
-  ) => void;
-  onRemove?: (details: RequestEventType<Request>) => void;
+export type RequestSendActionsType<Request extends RequestInstance> = {
+  onBeforeSent?: (eventData: RequestEventType<Request>) => void;
+  onRequestStart?: (eventData: RequestEventType<Request>) => void;
+  onResponseStart?: (eventData: RequestEventType<Request>) => void;
+  onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
+  onDownloadProgress?: (eventData: RequestProgressEventType<Request>) => void;
+  onResponse?: (eventData: RequestResponseEventType<Request>) => void;
+  onRemove?: (eventData: RequestEventType<Request>) => void;
 };
+
+type IsNegativeType<T> = void extends T
+  ? EmptyTypes
+  : undefined extends T
+    ? EmptyTypes
+    : null extends T
+      ? EmptyTypes
+      : T;
 
 // If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
-  RequestSendOptionsType<Request>["data"] extends NegativeTypes
-    ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
-      ? (
-          options?: RequestSendOptionsType<Request>,
-        ) => Promise<
-          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-        >
-      : (
-          options: RequestSendOptionsType<Request>,
-        ) => Promise<
-          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-        >
-    : (
-        options: RequestSendOptionsType<Request>,
-      ) => Promise<
-        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-      >;
-
-// Instance
-
-export type RequestInstance = Request<
-  any,
-  any,
-  any,
-  any,
-  any,
-  any,
-  AdapterType<any, any, any, any, any>,
-  any,
-  any,
-  any
->;
+  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends EmptyTypes | void | never
+    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends EmptyTypes | void | never
+      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends EmptyTypes | void | never
+        ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+        : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+      : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+    : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>;
 
 // Mappers
 
@@ -316,7 +307,7 @@ export type RequestMapper<Request extends RequestInstance, NewRequest extends Re
 ) => NewRequest | Promise<NewRequest>;
 
 export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (
-  response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+  response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
 ) =>
-  | ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>
-  | Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>;
+  | ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>
+  | Promise<ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>>;

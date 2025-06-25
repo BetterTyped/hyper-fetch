@@ -1,64 +1,88 @@
-import { getAdapterBindings } from "@hyper-fetch/core";
-import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios";
+import { Adapter, stringifyQueryParams } from "@hyper-fetch/core";
+import axios, { AxiosHeaders, Method as AxiosMethods, AxiosRequestConfig } from "axios";
 
-import { AxiosAdapterType } from "./adapter.types";
+import { AxiosExtra, RawAxiosHeaders } from "./adapter.types";
 
-export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) => {
-  const {
-    makeRequest,
-    config,
-    headers,
-    fullUrl,
-    payload,
-    onError,
-    onResponseEnd,
-    onRequestEnd,
-    createAbortListener,
-    onResponseProgress,
-    onRequestProgress,
-    onResponseStart,
-    onBeforeRequest,
-    onRequestStart,
-    onSuccess,
-    getAbortController,
-  } = await getAdapterBindings<AxiosAdapterType>(request, requestId, 0, { headers: {} });
+export type AxiosAdapterType = typeof AxiosAdapter;
 
-  const { method } = request;
+export const AxiosAdapter = new Adapter<
+  Omit<AxiosRequestConfig, "url" | "baseURL" | "method" | "onUploadProgress" | "onDownloadProgress" | "data">,
+  AxiosMethods,
+  number,
+  AxiosExtra
+>({
+  name: "axios-adapter",
+  defaultMethod: "GET",
+  defaultExtra: { headers: {} },
+  systemErrorStatus: 0,
+  systemErrorExtra: { headers: {} },
+})
+  .setQueryParamsMapper(stringifyQueryParams)
+  .setFetcher(
+    async ({
+      url,
+      endpoint,
+      queryParams,
+      request,
+      headers,
+      payload,
+      adapter,
+      adapterOptions,
+      onError,
+      onResponseEnd,
+      onRequestEnd,
+      createAbortListener,
+      onResponseProgress,
+      onRequestProgress,
+      onResponseStart,
+      onBeforeRequest,
+      onRequestStart,
+      onSuccess,
+      getAbortController,
+    }) => {
+      const { method } = request;
 
-  onBeforeRequest();
+      const fullUrl = `${url}${endpoint}${queryParams}`;
 
-  return makeRequest((resolve) => {
-    const controller = getAbortController();
-    const unmountListener = () => createAbortListener(0, { headers: {} }, () => {}, resolve);
+      onBeforeRequest();
 
-    onRequestStart();
-    axios({
-      ...config,
-      data: payload,
-      method,
-      url: fullUrl,
-      signal: controller.signal,
-      headers: new AxiosHeaders(headers as RawAxiosRequestHeaders),
-      onUploadProgress: payload
-        ? (progressEvent) => {
-            onRequestProgress(progressEvent);
-          }
-        : undefined,
-      onDownloadProgress: (progressEvent) => {
-        onRequestEnd();
-        onResponseStart();
-        onResponseProgress(progressEvent);
-      },
-    })
-      .then((response) => {
-        onSuccess(response.data, response.status, { headers: response.headers }, resolve);
-        onResponseEnd();
+      const controller = getAbortController();
+      const unmountListener = () =>
+        createAbortListener({
+          status: 0,
+          extra: { headers: {} },
+        });
+
+      onRequestStart();
+      axios({
+        ...adapterOptions,
+        data: payload,
+        method,
+        url: fullUrl,
+        signal: controller?.signal,
+        headers: new AxiosHeaders(headers as RawAxiosHeaders),
+        onUploadProgress: (progressEvent) => {
+          onRequestProgress(progressEvent);
+        },
+        onDownloadProgress: (progressEvent) => {
+          onRequestEnd();
+          onResponseStart();
+          onResponseProgress(progressEvent);
+        },
       })
-      .catch((error) => {
-        onError(error, error.response?.status || 0, { headers: error.response?.headers }, resolve);
-      })
-      .finally(() => {
-        unmountListener();
-      });
-  });
-};
+        .then((response) => {
+          onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers } });
+          onResponseEnd();
+        })
+        .catch((error) => {
+          onError({
+            error,
+            status: error.response?.status || adapter.systemErrorStatus,
+            extra: { headers: error.response?.headers },
+          });
+        })
+        .finally(() => {
+          unmountListener();
+        });
+    },
+  );

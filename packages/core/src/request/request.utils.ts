@@ -1,6 +1,6 @@
-import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
-import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
-import { HttpMethodsEnum } from "constants/http.constants";
+import { ProgressType, ResponseType, getErrorMessage } from "adapter";
+import { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
+import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
@@ -16,7 +16,7 @@ export const stringifyKey = (value: unknown): string => {
   }
 };
 
-export const getProgressValue = ({ loaded, total }: AdapterProgressEventType): number => {
+export const getProgressValue = ({ loaded, total }: ProgressEventType): number => {
   if (!loaded || !total) return 0;
   return Number(((loaded * 100) / total).toFixed(0));
 };
@@ -24,7 +24,7 @@ export const getProgressValue = ({ loaded, total }: AdapterProgressEventType): n
 export const getRequestEta = (
   startDate: Date,
   progressDate: Date,
-  { total, loaded }: AdapterProgressEventType,
+  { total, loaded }: ProgressEventType,
 ): { sizeLeft: number; timeLeft: number | null } => {
   const timeElapsed = +progressDate - +startDate || 1;
   const uploadSpeed = loaded / timeElapsed;
@@ -39,7 +39,7 @@ export const getRequestEta = (
 export const getProgressData = (
   requestStartTime: Date,
   progressDate: Date,
-  progressEvent: AdapterProgressEventType,
+  progressEvent: ProgressEventType,
 ): ProgressType => {
   const { total, loaded } = progressEvent;
   if (Number.isNaN(total) || Number.isNaN(loaded)) {
@@ -94,16 +94,17 @@ export const getRequestKey = (
    */
   const methodKey = stringifyKey(request.method);
   const endpointKey = useInitialValues ? request.requestOptions.endpoint : stringifyKey(request.endpoint);
+  const queryParamsKey = useInitialValues ? "" : stringifyKey(request.queryParams);
 
-  return `${methodKey}_${endpointKey}`;
+  return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };
 
 export const getRequestDispatcher = <Request extends RequestInstance>(
   request: Request,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
-): [Dispatcher, boolean] => {
+): [Dispatcher<ExtractAdapterType<Request>>, isFetchDispatcher: boolean] => {
   const { fetchDispatcher, submitDispatcher } = request.client;
-  const isGet = request.method === HttpMethodsEnum.get;
+  const isGet = request.method === HttpMethods.GET;
   const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
   const dispatcher = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 
@@ -114,53 +115,51 @@ export const sendRequest = <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
 ) => {
-  const { requestManager } = request.client;
+  const { client } = request;
+  const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
   return new Promise<
-    ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
   >((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    options?.onSettle?.(requestId, request);
+    options?.onBeforeSent?.({ requestId, request });
 
-    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (...props) =>
-      options?.onRequestStart?.(...props),
+    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
+      options?.onRequestStart?.(data),
     );
 
-    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (...props) =>
-      options?.onResponseStart?.(...props),
+    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) =>
+      options?.onResponseStart?.(data),
     );
 
-    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (...props) =>
-      options?.onUploadProgress?.(...props),
+    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) =>
+      options?.onUploadProgress?.(data),
     );
 
-    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (...props) =>
-      options?.onDownloadProgress?.(...props),
+    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) =>
+      options?.onDownloadProgress?.(data),
     );
 
     // When resolved
-    const unmountResponse = requestManager.events.onResponseById<
-      ExtractResponseType<Request>,
-      ExtractErrorType<Request>,
-      ExtractAdapterType<Request>
-    >(requestId, (response, details) => {
+    const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
+      const { details, response } = values;
       isResolved = true;
 
-      const mapping = request.responseMapper?.(response);
+      const mapping = request.unstable_responseMapper?.(response);
 
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
-      const handleResponse = (success: boolean, data: any) => {
+      const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
         if (!success && isOfflineStatus) return;
 
         // When request is in retry mode we need to listen for retries end
         if (!success && willRetry) return;
 
-        options?.onResponse?.(data, details);
+        options?.onResponse?.(values);
         resolve(data);
 
         // Unmount Listeners
@@ -192,9 +191,11 @@ export const sendRequest = <Request extends RequestInstance>(
         resolve({
           data: null,
           status: null,
-          success: null,
+          success: false,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-          extra: request.client.defaultExtra,
+          extra: request.client.adapter.defaultExtra,
+          requestTimestamp: +new Date(),
+          responseTimestamp: +new Date(),
         });
 
         // Unmount Listeners

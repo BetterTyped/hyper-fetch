@@ -1,14 +1,14 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -22,7 +22,7 @@ export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof fireba
     });
     it("should return emptyResource status for non existing resource", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(adapterFunction());
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -34,7 +34,7 @@ export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof fireba
     });
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
-      const request = client.createRequest<Tea>()({
+      const request = client.createRequest<{ response: Tea }>()({
         endpoint: "",
         method: "getDocs",
       });

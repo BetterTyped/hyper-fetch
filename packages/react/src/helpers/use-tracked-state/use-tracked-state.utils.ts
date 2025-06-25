@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {
   CacheValueType,
   NullableType,
   RequestInstance,
   ExtractResponseType,
   ExtractErrorType,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   Dispatcher,
   ExtractAdapterType,
   ExtractAdapterExtraType,
   ResponseDetailsType,
+  ExtractAdapterStatusType,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
@@ -19,41 +21,48 @@ export const getDetailsState = (
 ): ResponseDetailsType => {
   return {
     retries: state?.retries || 0,
-    timestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    addedTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
     ...details,
   };
 };
 
-export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType<Date | number>) => {
-  if (!cacheTimestamp) return true;
-  return +new Date() > +cacheTimestamp + cacheTime;
+export const isStaleCacheData = (staleTime: number, staleTimestamp: NullableType<Date | number>) => {
+  if (!staleTimestamp) return true;
+  return +new Date() > +staleTimestamp + staleTime;
 };
 
 export const getValidCacheData = <T extends RequestInstance>(
   request: T,
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>,
-  cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>>,
-): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>> | null => {
-  const isStale = isStaleCacheData(request.cacheTime, cacheData?.timestamp);
+  initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
+  cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
+): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
+  const isStale = isStaleCacheData(request.staleTime, cacheData?.responseTimestamp);
 
   if (!isStale && cacheData) {
     return cacheData;
   }
 
-  if (initialData) {
+  if (initialResponse) {
     return {
       data: null,
       error: null,
       status: null,
-      success: null,
+      success: true,
       extra: null,
-      ...((initialData || {}) as Partial<ExtractAdapterReturnType<T>>),
+      cached: !!request.cache,
+      ...(initialResponse as Partial<ExtractAdapterResolvedType<T>>),
       ...getDetailsState(),
-      cacheTime: 1000,
-      clearKey: request.client.cache.clearKey,
-      garbageCollection: request.garbageCollection,
+      staleTime: 1000,
+      version: request.client.cache.version,
+      cacheKey: request.cacheKey,
+      cacheTime: request.cacheTime,
+      requestTimestamp: initialResponse?.requestTimestamp ?? +new Date(),
+      responseTimestamp: initialResponse?.responseTimestamp ?? +new Date(),
     };
   }
 
@@ -64,7 +73,7 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const getIsInitiallyLoading = ({
+export const getIsInitiallyLoading = <T extends RequestInstance>({
   queryKey,
   dispatcher,
   hasState,
@@ -72,7 +81,7 @@ export const getIsInitiallyLoading = ({
   disabled,
 }: {
   queryKey: string;
-  dispatcher: Dispatcher;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   hasState: boolean;
   revalidate?: boolean;
   disabled?: boolean;
@@ -94,30 +103,20 @@ export const getInitialState = <T extends RequestInstance>({
   disabled,
   revalidate,
 }: {
-  initialResponse: NullableType<Partial<ExtractAdapterReturnType<T>>>;
-  dispatcher: Dispatcher;
+  initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
   request: T;
-  /**
-   * useFetch only
-   */
-  disabled?: boolean;
-  /**
-   * useFetch only
-   */
-  revalidate?: boolean;
+  disabled?: boolean; // useFetch only
+  revalidate?: boolean; // useFetch only
 }): UseTrackedStateType<T> => {
-  const { client, cacheKey, responseMapper } = request;
+  const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<
-    ExtractResponseType<T>,
-    ExtractErrorType<T>,
-    ExtractAdapterExtraType<ExtractAdapterType<T>>
-  >(cacheKey);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({
-    queryKey: request.queueKey,
+    queryKey: request.queryKey,
     dispatcher,
     disabled,
     revalidate,
@@ -125,7 +124,7 @@ export const getInitialState = <T extends RequestInstance>({
   });
 
   if (cacheState) {
-    const mappedData = responseMapper ? responseMapper(cacheState) : cacheState;
+    const mappedData = unstable_responseMapper ? unstable_responseMapper(cacheState) : cacheState;
     if (mappedData instanceof Promise) {
       // For the async mapper we cannot return async values
       // So we have return the initial state instead
@@ -136,9 +135,10 @@ export const getInitialState = <T extends RequestInstance>({
       error: mappedData.error,
       status: mappedData.status,
       success: mappedData.success,
-      extra: mappedData.extra,
+      extra: (mappedData.extra || client.adapter.defaultExtra) as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheState.retries,
-      timestamp: getTimestamp(cacheState.timestamp),
+      requestTimestamp: getTimestamp(cacheState.requestTimestamp),
+      responseTimestamp: getTimestamp(cacheState.responseTimestamp),
       loading: initialLoading,
     };
   }
@@ -146,11 +146,12 @@ export const getInitialState = <T extends RequestInstance>({
   return {
     data: initialState.data,
     error: initialState.error,
-    status: initialState.status,
+    status: initialState.status as ExtractAdapterStatusType<ExtractAdapterType<T>>,
     success: initialState.success,
-    extra: request.client.defaultExtra,
+    extra: request.client.adapter.defaultExtra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
     retries: initialState.retries,
-    timestamp: getTimestamp(initialState.timestamp),
+    requestTimestamp: getTimestamp(initialState.requestTimestamp),
+    responseTimestamp: getTimestamp(initialState.responseTimestamp),
     loading: initialLoading,
   };
 };

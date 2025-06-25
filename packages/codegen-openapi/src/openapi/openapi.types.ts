@@ -10,5 +10,5 @@ export interface Operation extends OpenAPIV3.OperationObject {
 export type Document = OpenAPIV3.Document | OpenAPIV3_1.Document;
 
 export type GeneratedTypes<T extends string> = {
-  [K in `${T}PathParams` | `${T}QueryParams` | `${T}RequestBody` | `${T}ResponseType`]: string;
+  [K in `${T}PathParams` | `${T}QueryParams` | `${T}RequestBody` | `${T}ResponseType` | `${T}ErrorType`]: string;
 };

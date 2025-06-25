@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ResponseReturnType, RequestInstance } from "@hyper-fetch/core";
+import { ResponseType, RequestInstance, AdapterInstance } from "@hyper-fetch/core";
 
 import { UseFetchReturnType } from "hooks/use-fetch";
 import { UseSubmitReturnType } from "hooks/use-submit";
@@ -30,11 +30,11 @@ export const testSuccessState = async <
     expect(response.data).toBeDefined();
     expect(response.success).toBeTrue();
     expect(response.status).toBe(200);
-    expect(response.extra).toStrictEqual({
-      headers: { "content-type": "application/json", "x-powered-by": "msw" },
-    });
+    expect(response.extra).toHaveProperty("headers");
     expect(response.retries).toBeNumber();
-    expect(response.timestamp).toBeDate();
+
+    expect(response.responseTimestamp).toBeDate();
+    expect(response.requestTimestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
     } else {
@@ -58,7 +58,8 @@ export const testErrorState = async <
     expect(response.error).toStrictEqual(mock);
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
-    expect(response.timestamp).toBeDate();
+    expect(response.responseTimestamp).toBeDate();
+    expect(response.requestTimestamp).toBeDate();
     expect(response.success).toBeFalse();
     expect(response.extra).toHaveProperty("headers");
     expect(Object.keys(response.extra)).toHaveLength(1);
@@ -72,7 +73,10 @@ export const testErrorState = async <
   });
 };
 
-export const testCacheState = async <T extends ResponseReturnType<any, any, any>, H extends RenderHookResult<any, any>>(
+export const testCacheState = async <
+  T extends ResponseType<any, any, AdapterInstance>,
+  H extends RenderHookResult<any, any>,
+>(
   mock: T,
   render: H,
 ) => {

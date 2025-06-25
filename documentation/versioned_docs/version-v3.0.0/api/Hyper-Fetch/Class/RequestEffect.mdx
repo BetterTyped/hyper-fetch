@@ -1,0 +1,405 @@
+# RequestEffect
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestEffect } from "@hyper-fetch/core";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L6)
+
+</p><div class="api-docs__section">
+
+## Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="config"><td class="api-docs__param-name required">
+
+### config
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`RequestEffectOptionsType<T>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Properties
+
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="config"><h3 class="api-docs__name">
+
+### `config`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L7)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+RequestEffectOptionsType<T>;
+```
+
+</div><hr/></div></div><div class="api-docs__section">
+
+## Methods
+
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="getEffectKey"><h3 class="api-docs__name">
+
+### `getEffectKey()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+getEffectKey();
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L9)
+
+</p><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+string;
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onError"><h3 class="api-docs__name">
+
+### `onError()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onError(response, request);
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L22)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
+
+#### response
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>`
+
+</td></tr><tr param-data="request"><td class="api-docs__param-name required">
+
+#### request
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onFinished"><h3 class="api-docs__name">
+
+### `onFinished()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onFinished(response, request);
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L25)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
+
+#### response
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>`
+
+</td></tr><tr param-data="request"><td class="api-docs__param-name required">
+
+#### request
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onStart"><h3 class="api-docs__name">
+
+### `onStart()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onStart(request);
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L16)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="request"><td class="api-docs__param-name required">
+
+#### request
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onSuccess"><h3 class="api-docs__name">
+
+### `onSuccess()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onSuccess(response, request);
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L19)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
+
+#### response
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>`
+
+</td></tr><tr param-data="request"><td class="api-docs__param-name required">
+
+#### request
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onTrigger"><h3 class="api-docs__name">
+
+### `onTrigger()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onTrigger(request);
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[effect/request.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L13)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="request"><td class="api-docs__param-name required">
+
+#### request
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
+
+</div><hr/></div></div>

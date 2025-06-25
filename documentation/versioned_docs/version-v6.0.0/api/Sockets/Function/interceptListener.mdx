@@ -1,0 +1,82 @@
+# interceptListener
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { interceptListener } from "@hyper-fetch/sockets";
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+</span></div><p class="api-docs__definition">
+
+Defined in
+[socket/socket.utils.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.utils.ts#L17)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+interceptListener<Socket>(interceptors, response, socket);
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="interceptors"><td class="api-docs__param-name required">
+
+### interceptors
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`MessageCallbackType<Socket, MessageEvent<any>>[]`
+
+</td></tr><tr param-data="response"><td class="api-docs__param-name required">
+
+### response
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`MessageEvent<any>`
+
+</td></tr><tr param-data="socket"><td class="api-docs__param-name required">
+
+### socket
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`Socket`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+MessageEvent<any>;
+```
+
+</div>

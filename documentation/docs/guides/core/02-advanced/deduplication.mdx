@@ -1,0 +1,119 @@
+---
+title: Guide - Deduplication
+sidebar_label: Deduplication
+---
+
+# Deduplication
+
+When we need to limit and optimize the number of requests sent to a server, we can use **deduplication**. This feature,
+when enabled, combines multiple identical requests made in a short period into a single request, preventing redundant
+data fetching and reducing server load. We can enable it by setting the `deduplicate: true` option on a request.
+
+---
+
+:::secondary What you'll learn
+
+1.  How to **enable deduplication** on a request to optimize data fetching.
+2.  How to use `deduplicateTime` to **control the time window** for combining requests.
+3.  How to observe the effects of deduplication in a **real-world scenario**.
+
+:::
+
+## Setup
+
+To enable deduplication, you need to set the `deduplicate` option to `true` on your request. This tells Hyper-fetch to
+prevent identical requests from being sent multiple times within a short timeframe.
+
+```ts
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  deduplicate: true,
+});
+```
+
+## How it works
+
+Let's see how deduplication works in practice. In the example below, we call the `getUsers.send()` method four times in
+quick succession. Since `deduplicate` is enabled, Hyper-fetch will only send a single request to the backend. The
+subsequent calls will receive the response from the first request.
+
+```typescript
+// We are using pre-build 'getUsers' request and 'client' instance
+
+// highlight-start
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  deduplicate: true,
+});
+// highlight-end
+
+// Multiple calls of the same request
+getUsers.send({
+  onStart: ({ G, request }) => {
+    console.log("Request starting...", { G, request });
+  },
+});
+getUsers.send();
+getUsers.send();
+getUsers.send();
+
+// Only a single request will be sent to the backend,
+// and you will see only one "Request starting..." log in the console.
+```
+
+## Deduplication Time
+
+By default, deduplication occurs over a very short period (16ms). However, you can customize this window using the
+`deduplicateTime` option. This allows you to control how long Hyper-fetch should wait for identical requests to be
+deduplicated.
+
+In this example, we set `deduplicateTime` to 2000 milliseconds. Any identical request made within this window will be
+deduplicated.
+
+```typescript
+// We are using pre-build 'getUsers' request and 'client' instance
+
+// highlight-start
+const getUsersWithTime = client.createRequest()({
+  endpoint: "/users",
+  deduplicate: true,
+  deduplicateTime: 2000,
+});
+// highlight-end
+
+getUsersWithTime.send({
+  onStart: ({ G, request }) => {
+    console.log("Request starting with deduplicateTime...", { G, request });
+  },
+});
+
+setTimeout(() => {
+  getUsersWithTime.send({
+    onStart: ({ G, request }) => {
+      // This will not be logged because it's within the 2000ms window
+      console.log("Second request starting...", { G, request });
+    },
+  });
+}, 500);
+```
+
+---
+
+<LinkCard
+  type="docs"
+  title="Dispatcher"
+  description="To learn more about deduplication and alternative request modes, you can visit the Dispatcher docs."
+  to="/docs/core/dispatcher#dispatching-modes"
+/>
+
+---
+
+:::success Congratulations!
+
+You've learned how to use request deduplication in Hyper-fetch!
+
+- You can **enable deduplication** with the `deduplicate: true` option.
+- You can **customize the deduplication window** using `deduplicateTime`.
+- You understand how deduplication **optimizes network requests** by bundling identical calls.
+
+:::

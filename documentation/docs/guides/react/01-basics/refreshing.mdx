@@ -1,0 +1,89 @@
+---
+title: Auto-Refreshing Data
+sidebar_label: Refreshing
+---
+
+# Auto-Refreshing Data
+
+In many applications, especially those displaying real-time or frequently changing data like dashboards, stock tickers,
+or live scores, it's essential to keep the information up-to-date without requiring the user to manually refresh the
+page. Hyper-fetch provides a simple and efficient way to achieve this with the `refresh` options in the `useFetch` hook.
+
+:::secondary What you'll learn
+
+1.  How to **automatically refresh** data at a set interval.
+2.  How to use the **`refresh`** and **`refreshTime`** options in `useFetch`.
+3.  How to create a **live-updating component** to display fresh data.
+4.  How to use **`DateInterval`** for clear and readable time definitions.
+
+:::
+
+## Polling with `refresh`
+
+You can turn any `useFetch` hook into a polling mechanism by setting the `refresh` option to `true` and providing a
+`refreshTime` in milliseconds.
+
+{/* Let's build an example that fetches a list of "live" activities and refreshes them every 5 seconds. */}
+{/* We'll also display a "Last Updated" timestamp to show the refresh in action. */}
+
+```tsx
+function LiveActivityFeed() {
+  const [lastUpdated, setLastUpdated] = React.useState(new Date());
+
+  // highlight-start
+  const { data: activities, loading } = useFetch(getActivities, {
+    refresh: true,
+    refreshTime: DateInterval.second * 5,
+    onSuccess: () => {
+      setLastUpdated(new Date());
+    },
+  });
+  // highlight-end
+
+  return (
+    <div className="border rounded-md">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Live Activity</h2>
+        <p className="text-sm text-gray-500">Last Updated: {lastUpdated.toLocaleTimeString()}</p>
+      </div>
+      {loading && !activities ? (
+        <p className="p-4">Loading feed...</p>
+      ) : (
+        <ul className="divide-y divide-gray-200">
+          {activities?.map((activity) => (
+            <li key={activity.id} className="p-4">
+              {activity.name}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+```
+
+### How It Works
+
+1.  **`refresh: true`**: This option enables the auto-refreshing feature for the hook.
+2.  **`refreshTime: DateInterval.second * 5`**: This sets the polling interval. We specify that the data should be
+    re-fetched every 5000 milliseconds (5 seconds). Using the `DateInterval` enum from `@hyper-fetch/core` makes the
+    time definition more readable than just `5000`.
+3.  **`onSuccess` callback**: We use the `onSuccess` callback to update a `lastUpdated` state variable every time a
+    successful refresh occurs. This allows us to give visual feedback to the user that the data is fresh.
+4.  The component will now automatically call the `getActivities` request every 5 seconds, keeping the UI in sync with
+    the latest data from the server.
+
+This simple setup is all you need to add powerful real-time capabilities to your application.
+
+---
+
+:::success Congratulations!
+
+You've learned how to keep your application's data fresh with auto-refreshing!
+
+- You can enable **automatic polling** for any `useFetch` hook.
+- You know how to configure the **refresh interval** using `refreshTime`.
+- You can provide **visual feedback** to users to show when data was last updated.
+- You can use the helpful **`DateInterval`** enum for readable time values.
+
+:::

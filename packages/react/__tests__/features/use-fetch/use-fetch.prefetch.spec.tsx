@@ -1,19 +1,21 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { useFetch } from "hooks/use-fetch";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Prefetch ]", () => {
   let request = createRequest<any, undefined>();
-  let mock = createRequestInterceptor(request);
+  let mock = mockRequest(request);
 
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -23,7 +25,7 @@ describe("useFetch [ Prefetch ]", () => {
   beforeEach(() => {
     jest.resetModules();
     client.clear();
-    mock = createRequestInterceptor(request);
+    mock = mockRequest(request);
     request = createRequest();
   });
 
@@ -31,12 +33,12 @@ describe("useFetch [ Prefetch ]", () => {
     it("should pre-fetch data", async () => {
       await request.send({});
 
-      createRequestInterceptor(request, { fixture: { wrongData: 123 } });
+      mockRequest(request, { data: { wrongData: 123 } });
 
-      function Page() {
+      const Page = () => {
         const { data } = useFetch(request, { revalidate: false });
         return <div>{JSON.stringify(data)}</div>;
-      }
+      };
 
       render(<Page />);
 
@@ -46,16 +48,16 @@ describe("useFetch [ Prefetch ]", () => {
       });
     });
     it("should not show error when pre-fetching is failed and fetch again", async () => {
-      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const errorMock = mockRequest(request, { status: 400 });
 
       await request.send({});
 
-      const successMock = createRequestInterceptor(request);
+      const successMock = mockRequest(request);
 
-      function Page() {
+      const Page = () => {
         const { data } = useFetch(request, { revalidate: false });
         return <div>{JSON.stringify(data)}</div>;
-      }
+      };
 
       render(<Page />);
 

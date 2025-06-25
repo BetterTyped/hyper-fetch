@@ -1,4 +1,4 @@
-import { ExtractAdapterReturnType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
+import { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -10,7 +10,6 @@ import {
   UseTrackedStateType,
   UseTrackedStateActions,
 } from "helpers";
-import { InvalidationKeyType } from "types";
 
 export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
@@ -20,7 +19,7 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
@@ -66,7 +65,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
 > &
   UseTrackedStateActions<RequestType> & {
     /**
-     * Callback which allows to cancel ongoing requests from given queueKey.
+     * Callback which allows to cancel ongoing requests from given queryKey.
      */
     abort: () => void;
     /**
@@ -127,7 +126,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
       reset: () => void;
     };
     /**
-     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request
      */
-    refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: () => void;
   };

@@ -1,19 +1,10 @@
 import EventEmitter from "events";
-import {
-  stringifyQueryParams,
-  StringifyCallbackType,
-  QueryStringifyOptionsType,
-  LoggerManager,
-  SeverityType,
-  AppManager,
-  DateInterval,
-  QueryParamsType,
-} from "@hyper-fetch/core";
+import { LoggerManager, LogLevel, AppManager, Time } from "@hyper-fetch/core";
 
 import {
   SocketOptionsType,
   ReconnectCallbackType,
-  ReconnectStopCallbackType,
+  ReconnectFailedCallbackType,
   OpenCallbackType,
   CloseCallbackType,
   MessageCallbackType,
@@ -25,115 +16,102 @@ import {
 } from "socket";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
-import { ExtractSocketExtraType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
+import { SocketAdapterInstance } from "adapter";
+import { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
+import { WebsocketAdapter, WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
 
-export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapterType> {
+export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
   public events = getSocketEvents(this.emitter);
 
   url: string;
-  reconnect: number;
+  reconnectAttempts: number;
   reconnectTime: number;
-  auth?: QueryParamsType | string;
-  queryParams?: QueryParamsType | string;
   debug: boolean;
   autoConnect: boolean;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<Socket<AdapterType>>[] = [];
-  __onCloseCallbacks: CloseCallbackType<Socket<AdapterType>>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<Socket<AdapterType>>[] = [];
-  __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<AdapterType>>[] = [];
-  __onMessageCallbacks: MessageCallbackType<Socket<AdapterType>, any>[] = [];
-  __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<Socket<AdapterType>, any>[] = [];
+  unstable_onConnectedCallbacks: OpenCallbackType[] = [];
+  unstable_onDisconnectCallbacks: CloseCallbackType[] = [];
+  unstable_onReconnectCallbacks: ReconnectCallbackType[] = [];
+  unstable_onReconnectFailedCallbacks: ReconnectFailedCallbackType[] = [];
+  unstable_onMessageCallbacks: MessageCallbackType<any>[] = [];
+  unstable_onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
+  unstable_onErrorCallbacks: ErrorCallbackType<any>[] = [];
 
   // Config
-  adapter: ReturnType<AdapterType>;
-  loggerManager = new LoggerManager(this);
+  adapter: Adapter;
+  loggerManager = new LoggerManager();
   appManager = new AppManager();
-  queryParamsConfig?: QueryStringifyOptionsType;
 
   // Logger
-  logger = this.loggerManager.init("Socket");
+  logger = this.loggerManager.initialize(this, "Socket");
 
-  /**
-   * Method to stringify query params from objects.
-   */
-  queryParamsStringify: StringifyCallbackType = (queryParams) => {
-    return stringifyQueryParams(queryParams, this.queryParamsConfig);
-  };
-
-  constructor(public options: SocketOptionsType<AdapterType>) {
-    const {
-      url,
-      auth,
-      adapter,
-      queryParams,
-      autoConnect,
-      reconnect,
-      reconnectTime,
-      queryParamsConfig,
-      queryParamsStringify,
-    } = this.options;
+  constructor(public options: SocketOptionsType<Adapter>) {
+    const { url, adapter, reconnect, reconnectTime, queryParams } = this.options;
+    this.emitter?.setMaxListeners(1000);
     this.url = url;
-    this.auth = auth;
-    this.queryParams = queryParams;
     this.debug = false;
-    this.autoConnect = autoConnect ?? true;
-    this.reconnect = reconnect ?? Infinity;
-    this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
-
-    if (queryParamsConfig) {
-      this.queryParamsConfig = queryParamsConfig;
-    }
-    if (queryParamsStringify) {
-      this.queryParamsStringify = queryParamsStringify;
-    }
+    this.reconnectAttempts = reconnect ?? Infinity;
+    this.reconnectTime = reconnectTime ?? Time.SEC * 5;
+    this.autoConnect = true;
 
     // Adapter must be initialized at the end
-    this.adapter = (adapter ? adapter(this) : websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
+    const instanceOfAdapter = typeof adapter === "function" ? adapter() : adapter;
+    this.adapter = instanceOfAdapter || (WebsocketAdapter() as unknown as Adapter);
+    if (queryParams) {
+      this.adapter.setQueryParams(queryParams);
+    }
+    this.adapter.initialize(this);
   }
+
+  /**
+   * This method connects the socket to the server
+   */
+  connect = async () => {
+    await this.adapter.connect();
+  };
+
+  /**
+   * This method disconnects the socket from the server
+   */
+  disconnect = async () => {
+    await this.adapter.disconnect();
+  };
+
+  /**
+   * This method reconnect the socket to the server
+   */
+  reconnect = async () => {
+    await this.adapter.reconnect();
+  };
+
+  setQueryParams = (queryParams: ExtractAdapterQueryParamsType<Adapter>) => {
+    this.adapter.setQueryParams(queryParams);
+    return this;
+  };
 
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean) => {
-    this.debug = debug;
+  setDebug = (enabled: boolean) => {
+    this.debug = enabled;
     return this;
   };
 
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType) => {
-    this.loggerManager.setSeverity(severity);
+  setLogLevel = (level: LogLevel) => {
+    this.loggerManager.setSeverity(level);
     return this;
   };
 
   /**
    * Set the new logger instance to the socket
    */
-  setLogger = (callback: (socket: Socket<AdapterType>) => LoggerManager) => {
+  setLogger = (callback: (socket: Socket<Adapter>) => LoggerManager) => {
     this.loggerManager = callback(this);
-    return this;
-  };
-
-  /**
-   * Set the new auth data to the socket
-   */
-  setAuth = (auth: QueryParamsType | string) => {
-    this.auth = auth;
-    this.adapter.reconnect();
-    return this;
-  };
-
-  /**
-   * Set the new query data to the socket
-   */
-  setQuery = (queryParams: QueryParamsType | string) => {
-    this.queryParams = queryParams;
-    this.adapter.reconnect();
     return this;
   };
 
@@ -146,8 +124,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onOpen(callback: OpenCallbackType<Socket<AdapterType>>) {
-    this.__onOpenCallbacks.push(callback);
+  onConnected(callback: OpenCallbackType) {
+    this.unstable_onConnectedCallbacks.push(callback);
     return this;
   }
   /**
@@ -155,8 +133,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onClose(callback: CloseCallbackType<Socket<AdapterType>>) {
-    this.__onCloseCallbacks.push(callback);
+  onDisconnected(callback: CloseCallbackType) {
+    this.unstable_onDisconnectCallbacks.push(callback);
     return this;
   }
 
@@ -165,8 +143,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onReconnect(callback: ReconnectCallbackType<Socket<AdapterType>>) {
-    this.__onReconnectCallbacks.push(callback);
+  onReconnect(callback: ReconnectCallbackType) {
+    this.unstable_onReconnectCallbacks.push(callback);
     return this;
   }
 
@@ -175,8 +153,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onReconnectStop(callback: ReconnectStopCallbackType<Socket<AdapterType>>) {
-    this.__onReconnectStopCallbacks.push(callback);
+  onReconnectFailed(callback: ReconnectFailedCallbackType) {
+    this.unstable_onReconnectFailedCallbacks.push(callback);
     return this;
   }
 
@@ -185,8 +163,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onMessage<Event = ExtractSocketExtraType<AdapterType>>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
-    this.__onMessageCallbacks.push(callback);
+  onMessage<Event>(callback: MessageCallbackType<Event>) {
+    this.unstable_onMessageCallbacks.push(callback);
     return this;
   }
 
@@ -195,8 +173,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onSend<EmitterType extends EmitterInstance>(callback: SendCallbackType<EmitterType>) {
-    this.__onSendCallbacks.push(callback);
+  onSend(callback: SendCallbackType<EmitterInstance>) {
+    this.unstable_onSendCallbacks.push(callback);
     return this;
   }
 
@@ -205,8 +183,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onError<Event = ExtractSocketExtraType<AdapterType>>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
-    this.__onErrorCallbacks.push(callback);
+  onError<Event>(callback: ErrorCallbackType<Event>) {
+    this.unstable_onErrorCallbacks.push(callback);
     return this;
   }
 
@@ -216,12 +194,12 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * ********************
    */
 
-  __modifySend = (emitter: EmitterInstance) => {
-    return interceptEmitter(this.__onSendCallbacks, emitter);
+  unstable__modifySend = (emitter: EmitterInstance) => {
+    return interceptEmitter(this.unstable_onSendCallbacks, emitter);
   };
 
-  __modifyResponse = (data: { data: any; extra: ExtractSocketExtraType<AdapterType> }) => {
-    return interceptListener(this.__onMessageCallbacks, data, this);
+  unstable__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
+    return interceptListener(this.unstable_onMessageCallbacks, data);
   };
 
   /**
@@ -236,8 +214,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @returns
    */
   createListener = <Response>() => {
-    return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, AdapterType>) => {
-      return new Listener<Response, Endpoint, AdapterType>(this, options);
+    return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, Adapter>) => {
+      return new Listener<Response, Endpoint, Socket<Adapter>>(this, options);
     };
   };
 
@@ -246,9 +224,9 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param options
    * @returns
    */
-  createEmitter = <Payload, Response = never>() => {
-    return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, AdapterType>) => {
-      return new Emitter<Payload, Response, Endpoint, AdapterType>(this, options);
+  createEmitter = <Payload>() => {
+    return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, Adapter>) => {
+      return new Emitter<Payload, Endpoint, Socket<Adapter>>(this, options);
     };
   };
 }

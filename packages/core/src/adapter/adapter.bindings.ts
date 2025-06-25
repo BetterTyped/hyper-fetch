@@ -1,34 +1,44 @@
 import {
   getErrorMessage,
-  ResponseReturnSuccessType,
-  ResponseReturnErrorType,
+  ResponseSuccessType,
+  ResponseErrorType,
   ProgressDataType,
+  AdapterInstance,
+  RequestProcessingError,
+} from "adapter";
+import { LoggerMethods } from "managers";
+import { RequestInstance, getProgressData, ProgressEventType } from "request";
+import {
+  ExtractResponseType,
+  ExtractErrorType,
+  ExtractPayloadType,
   ExtractAdapterOptionsType,
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
-  AdapterType,
-  AdapterInstance,
-  ResponseReturnType,
-} from "adapter";
-import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
-import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
-import { mocker } from "mocker";
+} from "types";
 
-export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>(
-  req: RequestInstance,
-  requestId: string,
-  systemErrorStatus: ExtractAdapterStatusType<T>,
-  systemErrorExtra: ExtractAdapterExtraType<T>,
-) => {
-  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
+export const getAdapterBindings = async <T extends AdapterInstance>({
+  request: baseRequest,
+  requestId,
+  resolve,
+  onStartTime,
+  internalErrorMapping,
+}: {
+  request: RequestInstance;
+  requestId: string;
+  resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
+  onStartTime: (timestamp: number) => void;
+  internalErrorMapping: (error: ReturnType<typeof getErrorMessage>) => any;
+}) => {
+  const { requestManager, loggerManager } = baseRequest.client;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { unstable_payloadMapper } = baseRequest.client.adapter;
 
-  const logger = loggerManager.init("Adapter");
-
-  let processingError = null;
+  const logger = loggerManager.initialize(baseRequest.client, "Adapter");
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
-  let request = req;
+  let request = baseRequest;
 
   // Progress
   let requestTotal = 1;
@@ -37,43 +47,40 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let previousResponseTotal = 0;
 
   // Pre request modifications
-  logger.debug(`Starting request middleware callbacks`);
+  logger.debug({
+    title: `Running middleware callbacks`,
+    type: "request",
+    extra: {
+      request,
+      requestId,
+    },
+  });
 
-  try {
-    request = await request.client.__modifyRequest(req);
+  request = await request.client.unstable_modifyRequest(request);
 
-    if (request.auth) {
-      request = await request.client.__modifyAuth(req);
-    }
+  if (request.auth) {
+    request = await request.client.unstable_modifyAuth(request);
+  }
 
-    if (request.requestMapper) {
-      request = await request.requestMapper(request, requestId);
-    }
-  } catch (err) {
-    processingError = err;
+  if (request.unstable_requestMapper) {
+    request = await request.unstable_requestMapper(request, requestId);
   }
 
   // Request Setup
-  const { client, abortKey, queueKey, endpoint, data } = request;
+  const { client, abortKey } = request;
 
-  const fullUrl = url + endpoint;
+  // eslint-disable-next-line prefer-destructuring
+  let payload = request.payload;
 
-  const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
-  const headers = headerMapper(request);
-  let payload = data;
-
-  try {
-    payload = payloadMapper(data);
-    if (request.dataMapper) {
-      payload = await request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
-    }
-  } catch (err) {
-    processingError = err;
+  if (request.unstable_payloadMapper) {
+    payload = await request.unstable_payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
+  } else if (unstable_payloadMapper) {
+    payload = await unstable_payloadMapper(payload);
   }
 
-  const config: ExtractAdapterOptionsType<T> = {
-    ...request.options,
-  } as ExtractAdapterOptionsType<T>;
+  const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
+  const startTime = +new Date();
+  onStartTime(startTime);
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
@@ -95,39 +102,55 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const handleRequestProgress = (
     startTimestamp: number,
     progressTimestamp: number,
-    progressEvent: AdapterProgressEventType,
+    progressEvent: ProgressEventType,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
     if (previousRequestTotal !== 100) {
       previousRequestTotal = progress.total;
-      requestManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, request });
+      requestManager.events.emitUploadProgress({ ...progress, requestId, request });
     }
   };
 
   const handleResponseProgress = (
     startTimestamp: number,
     progressTimestamp: number,
-    progressEvent: AdapterProgressEventType,
+    progressEvent: ProgressEventType,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
     if (previousResponseTotal !== 100) {
       previousResponseTotal = progress.total;
-      requestManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, request });
+      requestManager.events.emitDownloadProgress({ ...progress, requestId, request });
     }
   };
 
   // Pre-request
 
   const onBeforeRequest = () => {
-    effects.forEach((effect) => effect.onTrigger(request));
+    logger.debug({
+      title: `Request about to be sent`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    client.triggerPlugins("onRequestTrigger", { request });
   };
 
   // Request
 
   const onRequestStart = (progress?: ProgressDataType) => {
-    effects.forEach((action) => action.onStart(request));
+    logger.info({
+      title: `Request start`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    client.triggerPlugins("onRequestStart", { request });
 
     if (progress?.total) {
       requestTotal = getTotal(requestTotal, progress);
@@ -139,7 +162,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     };
     requestStartTimestamp = +new Date();
     handleRequestProgress(requestStartTimestamp, requestStartTimestamp, initialPayload);
-    requestManager.events.emitRequestStart(queueKey, requestId, { requestId, request });
+    requestManager.events.emitRequestStart({ requestId, request });
     return requestStartTimestamp;
   };
 
@@ -184,7 +207,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     };
 
     handleResponseProgress(responseStartTimestamp, responseStartTimestamp, initialPayload);
-    requestManager.events.emitResponseStart(queueKey, requestId, { requestId, request });
+    requestManager.events.emitResponseStart({ requestId, request });
     return responseStartTimestamp;
   };
 
@@ -218,82 +241,112 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   // Success
 
-  const onSuccess = async (
-    responseData: any,
-    status: ExtractAdapterStatusType<T>,
-    extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<any, T>) => void,
-  ): Promise<ResponseReturnSuccessType<ExtractResponseType<T>, T>> => {
-    let response = {
-      data: responseData,
-      error: null,
+  const onSuccess = async ({
+    data,
+    error,
+    status,
+    extra,
+  }: {
+    data: any;
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+    error?: ExtractErrorType<T>;
+  }): Promise<ResponseSuccessType<ExtractResponseType<T>, T>> => {
+    let response: ResponseSuccessType<ExtractResponseType<T>, T> = {
+      data,
+      error: error ?? null,
       success: true,
       status,
       extra,
+      requestTimestamp: startTime,
+      responseTimestamp: +new Date(),
     };
-    response = await request.client.__modifyResponse(response, request);
-    response = await request.client.__modifySuccessResponse(response, request);
+    response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
+    response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
 
-    effects.forEach((effect) => effect.onSuccess(response, request));
-    effects.forEach((effect) => effect.onFinished(response, request));
+    client.triggerPlugins("onRequestSuccess", { response, request });
+    client.triggerPlugins("onRequestFinished", { response, request });
 
     resolve(response);
 
+    logger.info({
+      title: `Response success`,
+      type: "response",
+      extra: {
+        request,
+        requestId,
+        response,
+      },
+    });
     return response;
   };
 
   // Errors
 
-  const onError = async (
-    error: any,
-    status: ExtractAdapterStatusType<T>,
-    extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<any, T>) => void,
-  ): Promise<ResponseReturnErrorType<any, T>> => {
-    let responseData = {
-      data: null,
-      status,
-      error,
-      success: false,
-      extra,
-    } as ResponseReturnErrorType<any, T>;
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  const onError = getAdapterOnError({
+    request,
+    requestId,
+    startTime,
+    logger,
+    resolve,
+  });
 
-    responseData = await request.client.__modifyResponse(responseData, request);
-    responseData = await request.client.__modifyErrorResponse(responseData, request);
-
-    effects.forEach((effect) => effect.onError(responseData, request));
-    effects.forEach((effect) => effect.onFinished(responseData, request));
-
-    resolve(responseData);
-
-    return responseData;
+  const onAbortError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Abort error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    const error = internalErrorMapping(getErrorMessage("abort"));
+    return onError({ error, status, extra });
   };
 
-  const onAbortError = (
-    status: ExtractAdapterStatusType<T>,
-    extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
-  ) => {
-    const error = getErrorMessage("abort");
-    return onError(error, status, extra, resolve);
-  };
-
-  const onTimeoutError = (
-    status: ExtractAdapterStatusType<T>,
-    extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
-  ) => {
+  const onTimeoutError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Timeout error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
     const error = getErrorMessage("timeout");
-    return onError(error, status, extra, resolve);
+    return onError({ error, status, extra });
   };
 
-  const onUnexpectedError = (
-    status: ExtractAdapterStatusType<T>,
-    extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
-  ) => {
+  const onUnexpectedError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Unexpected error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
     const error = getErrorMessage();
-    return onError(error, status, extra, resolve);
+    return onError({ error, status, extra });
   };
 
   // Abort
@@ -302,75 +355,63 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     return requestManager.getAbortController(abortKey, requestId);
   };
 
-  const createAbortListener = (
-    status: ExtractAdapterStatusType<T>,
-    abortExtra: ExtractAdapterExtraType<T>,
-    callback: () => void,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
-  ) => {
+  const createAbortListener = ({
+    status,
+    extra,
+    onAbort = () => {},
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+    onAbort?: () => void;
+  }) => {
     const controller = getAbortController();
     if (!controller) {
-      throw new Error("Controller is not found");
+      throw new RequestProcessingError("Controller is not found");
     }
 
-    const fn = () => {
-      onAbortError(status, abortExtra, resolve);
-      callback();
-      requestManager.events.emitAbort(abortKey, requestId, request);
+    const abort = () => {
+      onAbortError({ status, extra });
+      onAbort();
+      requestManager.events.emitAbort({ requestId, request });
     };
 
     // Instant abort when we stack many requests triggered at once, and we receive aborted controller
     if (controller.signal.aborted) {
-      fn();
+      abort();
     }
 
     // Abort during the request
-    controller.signal.addEventListener("abort", fn);
+    controller.signal.addEventListener("abort", abort);
 
-    return () => controller.signal.removeEventListener("abort", fn);
+    return () => controller.signal.removeEventListener("abort", abort);
   };
 
-  const makeRequest = (
-    apiCall: (
-      resolve: (value: ResponseReturnType<any, any, T> | PromiseLike<ResponseReturnType<any, any, T>>) => void,
-    ) => void,
-  ): Promise<ResponseReturnType<any, any, T>> => {
-    if (processingError) {
-      return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
-    }
-
-    if (req.mock && req.isMockEnabled && req.client.isMockEnabled) {
-      return mocker(request, {
-        onError,
-        onResponseEnd,
-        onTimeoutError,
-        onRequestEnd,
-        createAbortListener,
-        onResponseProgress,
-        onRequestProgress,
-        onResponseStart,
-        onBeforeRequest,
-        onRequestStart,
-        onSuccess,
-      });
-    }
-    return new Promise(apiCall);
-  };
-
-  logger.debug(`Finishing request bindings creation`, {
-    fullUrl,
-    data,
-    headers,
-    payload,
-    config,
+  logger.debug({
+    title: `Mounted adapter bindings`,
+    type: "request",
+    extra: {
+      request,
+      requestId,
+      payload,
+      adapterOptions,
+    },
   });
 
+  const queryParams = baseRequest.client.adapter.unstable_queryParamsMapper(request.queryParams);
+  const endpoint = baseRequest.client.adapter.unstable_endpointMapper(request.endpoint);
+  const headers = baseRequest.client.adapter.unstable_headerMapper(request);
+  const { url } = baseRequest.client;
+
   return {
-    fullUrl,
-    data,
-    headers,
+    request,
+    requestId,
+    url,
+    endpoint,
+    queryParams,
     payload,
-    config,
+    headers,
+    adapter: baseRequest.client.adapter,
+    adapterOptions,
     getAbortController,
     getRequestStartTimestamp,
     getResponseStartTimestamp,
@@ -387,6 +428,61 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     onTimeoutError,
     onUnexpectedError,
     onError,
-    makeRequest,
   };
 };
+
+export function getAdapterOnError<T extends AdapterInstance>({
+  request,
+  requestId,
+  startTime,
+  resolve,
+  logger,
+}: {
+  request: RequestInstance;
+  requestId: string;
+  startTime: number;
+  logger: LoggerMethods;
+  resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
+}) {
+  const { client } = request;
+
+  return async ({
+    error,
+    status,
+    extra,
+  }: {
+    error: any;
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }): Promise<ResponseErrorType<any, T>> => {
+    let response: ResponseErrorType<any, T> = {
+      data: null,
+      status,
+      error,
+      success: false,
+      extra,
+      requestTimestamp: startTime,
+      responseTimestamp: +new Date(),
+    };
+
+    response = (await client.unstable_modifyResponse(response, request)) as typeof response;
+    response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
+
+    client.triggerPlugins("onRequestError", { response, request });
+    client.triggerPlugins("onRequestFinished", { response, request });
+
+    resolve(response);
+
+    logger.error({
+      title: `Request error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+        response,
+      },
+    });
+
+    return response;
+  };
+}

@@ -3,12 +3,15 @@ import {
   ExtractErrorType,
   CacheValueType,
   ExtractResponseType,
-  LoggerType,
-  ProgressType,
-  ExtractAdapterReturnType,
+  LoggerMethods,
   RequestEventType,
   RequestInstance,
-  ResponseDetailsType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+  ResponseErrorType,
+  ExtractAdapterType,
+  ResponseType,
+  ResponseSuccessType,
 } from "@hyper-fetch/core";
 
 import { UseTrackedStateActions } from "helpers";
@@ -20,8 +23,8 @@ export type UseRequestEventsLifecycleMap = Map<string, { unmount: VoidFunction }
 // Props
 export type UseRequestEventsPropsType<T extends RequestInstance> = {
   request: T;
-  dispatcher: Dispatcher;
-  logger: LoggerType;
+  dispatcher: Dispatcher<ExtractAdapterType<T>>;
+  logger: LoggerMethods;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
   getIsDataProcessing: (cacheKey: string) => boolean;
@@ -29,7 +32,7 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
 
 export type UseRequestEventsActionsType<T extends RequestInstance> = {
   /**
-   * Callback that allows canceling ongoing requests from the given queueKey.
+   * Callback that allows canceling ongoing requests from the given queryKey.
    */
   abort: () => void;
   /**
@@ -74,9 +77,9 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
 export type UseRequestEventsReturnType<T extends RequestInstance> = [
   UseRequestEventsActionsType<T>,
   {
-    addCacheDataListener: (request: RequestInstance) => VoidFunction;
+    addCacheDataListener: (request: T) => VoidFunction;
     clearCacheDataListener: VoidFunction;
-    addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction;
+    addLifecycleListeners: (request: T, requestId?: string) => VoidFunction;
     removeLifecycleListener: (requestId: string) => void;
     clearLifecycleListeners: () => void;
   },
@@ -84,26 +87,25 @@ export type UseRequestEventsReturnType<T extends RequestInstance> = [
 
 // Lifecycle
 
-export type CallbackParameters<Request, ResponseType> = {
+export type CallbackParameters<Request extends RequestInstance, ResponseType> = {
   response: ResponseType;
-  details: ResponseDetailsType;
-  request: Request;
-};
+} & Omit<RequestResponseEventType<Request>, "response">;
 
 export type OnSuccessCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractResponseType<Request>>,
+  params: CallbackParameters<Request, ResponseSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>>,
 ) => void | Promise<void>;
 export type OnErrorCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractErrorType<Request>>,
+  params: CallbackParameters<Request, ResponseErrorType<ExtractErrorType<Request>, ExtractAdapterType<Request>>>,
 ) => void | Promise<void>;
 export type OnFinishedCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractAdapterReturnType<Request>>,
+  params: CallbackParameters<
+    Request,
+    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+  >,
 ) => void | Promise<void>;
-export type OnStartCallbackType<Request extends RequestInstance> = (params: {
-  details: RequestEventType<Request>;
-  request: Request;
-}) => void | Promise<void>;
+export type OnStartCallbackType<Request extends RequestInstance> = (
+  data: RequestEventType<Request>,
+) => void | Promise<void>;
 export type OnProgressCallbackType = <Request extends RequestInstance>(
-  progress: ProgressType,
-  details: RequestEventType<Request>,
+  data: RequestProgressEventType<Request>,
 ) => void | Promise<void>;

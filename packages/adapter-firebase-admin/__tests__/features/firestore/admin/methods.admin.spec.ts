@@ -5,7 +5,7 @@
 import { seedFirestoreDatabaseAdmin } from "../../../utils";
 import { firestoreDbAdmin } from "../../../utils/initialize.firestore.admin";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 
 describe("Firestore Admin [ Methods ]", () => {
   beforeEach(async () => {
@@ -16,5 +16,5 @@ describe("Firestore Admin [ Methods ]", () => {
   afterEach(async () => {
     await firestoreDbAdmin.recursiveDelete(firestoreDbAdmin.collection("teas"));
   });
-  methodsSharedTestCases(() => firebaseAdminAdapter(firestoreDbAdmin));
+  methodsSharedTestCases(() => FirebaseAdminAdapter(firestoreDbAdmin));
 });

@@ -1,0 +1,135 @@
+---
+sidebar_position: 4
+---
+
+<div class="api-link">
+  <div class="api-link-title">useSubmit</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/React-Hyper-Fetch/Hook/useSubmit.md)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+This hook **mutates data** on the server and supports controlling requests. It uses the
+[`Submit Dispatcher`](/documentation/02-Core/Dispatcher.mdx) to handle requests and the
+[`Cache`](/documentation/02-Core/Cache.mdx) to manage the overall state of the data.
+
+The minimum requirement for `useSubmit` is a prepared [`Command`](/documentation/02-Core/Command.mdx).
+
+If you intend to `retrieve` data from the server, we recommend choosing the
+[`useFetch`](/documentation/04-React/useFetch.mdx) hook.
+
+---
+
+## Initialization
+
+```tsx
+const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+```
+
+---
+
+## How it works?
+
+**`useSubmit`** executes a command when a `submit()` function returned from it gets triggered. It uses dependency
+tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
+established by event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`,
+etc.) are returned, these will help handle the request flow and lifecycle. This approach avoids overloading the base
+hook with callback logic. It also helps improve code readability, decreases code complication, and promotes more
+organized code.
+
+```tsx
+import { useSubmit } from "@hyper-fetch/react";
+import { postLogin } from "server";
+
+interface Values {
+  email: string;
+  password: string;
+}
+
+const LoginPage: React.FC = () => {
+  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess(({ response }) => {
+    console.log(response); // { token: string, refreshToken: string }
+  });
+
+  onSubmitError(({ response }) => {
+    console.log(response); // { message: string }
+  });
+
+  onSubmitFinished(({ response }) => {
+    const [payload, error, status] = response;
+    console.log(payload); // { token: string, refreshToken: string } | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+      <Form>
+        {error && <Alert severity="error">{error.error_message}</Alert>}
+        <FormInput name="email" label="Email" placeholder="Fill your email" />
+        <FormInput type="password" name="password" label="Password" placeholder="Fill your password" />
+        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
+          Log in
+        </Button>
+      </Form>
+    </Formik>
+  );
+};
+```
+
+---
+
+## Passing data and params
+
+Data and parameters can be passed in several ways. One option is to use methods on the
+[`Command`](/documentation/02-Core/Command.mdx), such as `setData` or `setParams`.
+
+```tsx
+const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
+```
+
+However, you may need to pass parameters dynamically, which requires using `submit` function options.
+
+```tsx
+const { submit } = useSubmit(patchUser);
+
+const handleSubmit = (id: number, name: string) => {
+  submit({ data: { name }, params: { userId: id }, queryParams: { search: "test" } });
+};
+```
+
+---
+
+## Options
+
+These configuration options should be provided as a second parameter:
+
+```tsx
+const { ... } = useSubmit(command, options)
+```
+
+(@import React-Hyper-Fetch UseSubmitOptionsType type=returns)
+
+---
+
+## Returns
+
+Returned values from this hook:
+
+```tsx
+const values = useSubmit(command);
+```
+
+(@import React-Hyper-Fetch useSubmit type=returns)

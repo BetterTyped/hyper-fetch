@@ -1,6 +1,7 @@
-import { getCacheData, getCacheIdKey, getCacheKey, getInvalidateEventKey } from "cache";
-import { xhrExtra, AdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
+import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
+import { ResponseErrorType, ResponseSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
+import { HttpAdapterType, xhrExtra } from "http-adapter";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {
@@ -10,15 +11,18 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         extra: xhrExtra,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType>;
-      const errorResponse: ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType = {
+      } as ResponseSuccessType<Record<string, string>, HttpAdapterType>;
+      const errorResponse: ResponseErrorType<Record<string, string>, HttpAdapterType> & ResponseDetailsType = {
         data: null,
         error: {},
         status: 400,
         success: false,
         extra: xhrExtra,
         retries: 0,
-        timestamp: +new Date(),
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+        addedTimestamp: +new Date(),
+        triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
       };
@@ -30,10 +34,13 @@ describe("Cache [ Utils ]", () => {
         success: errorResponse.success,
         extra: errorResponse.extra,
         retries: 0,
-        timestamp: errorResponse.timestamp,
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
+        triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
-      });
+      } satisfies ReturnType<typeof getCacheData>);
     });
 
     it("should use successful response over previous data", async () => {
@@ -44,10 +51,13 @@ describe("Cache [ Utils ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        timestamp: +new Date(),
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+        addedTimestamp: +new Date(),
+        triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       const newResponse = {
         data: { test: "2" },
         error: null,
@@ -55,10 +65,13 @@ describe("Cache [ Utils ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        timestamp: +new Date(),
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+        addedTimestamp: +new Date(),
+        triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       expect(getCacheData(previousResponse, newResponse)).toStrictEqual(newResponse);
     });
 
@@ -70,10 +83,13 @@ describe("Cache [ Utils ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        timestamp: +new Date(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
+        triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       const errorResponse = {
         data: null,
         error: {},
@@ -81,23 +97,23 @@ describe("Cache [ Utils ]", () => {
         success: false,
         extra: xhrExtra,
         retries: 0,
-        timestamp: +new Date(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
+        triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseErrorType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);
     });
   });
   describe("when key getters are triggered", () => {
-    it("should get proper key from getInvalidateEventKey", async () => {
-      expect(getInvalidateEventKey("1")).toBe("1_invalidate");
+    it("should get proper key from getInvalidateByKey", async () => {
+      expect(getInvalidateByKey("1")).toBe("1_invalidate");
     });
-    it("should get proper key from getCacheKey", async () => {
-      expect(getCacheKey("1")).toBe("1_cache");
-    });
-    it("should get proper key from getCacheIdKey", async () => {
-      expect(getCacheIdKey("1")).toBe("1_cache_by_id");
+    it("should get proper key from getCacheByKey", async () => {
+      expect(getCacheByKey("1")).toBe("1_cache");
     });
   });
 });

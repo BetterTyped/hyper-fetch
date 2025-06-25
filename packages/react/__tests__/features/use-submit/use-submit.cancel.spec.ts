@@ -1,9 +1,11 @@
 import { getErrorMessage } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState } from "../../shared";
 import { client, createRequest, renderUseSubmit } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Cancel ]", () => {
   let request = createRequest<null, null>({ method: "POST" });
@@ -13,7 +15,7 @@ describe("useSubmit [ Cancel ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,7 +30,7 @@ describe("useSubmit [ Cancel ]", () => {
 
   describe("when aborting request", () => {
     it("should allow to cancel the ongoing request", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       act(() => {

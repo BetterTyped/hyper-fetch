@@ -1,0 +1,48 @@
+---
+sidebar_position: 4
+---
+
+---
+
+### Request query parameters
+
+The use of query params is based on built-in parser. We can freely change its options and format to match our needs.
+
+---
+
+### Setting query params
+
+You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
+creation.
+
+```ts
+type QueryParamsType = {
+  search: string;
+  sort: string;
+};
+
+const getUsers = builder.createCommand<Response, void, void, QueryParamsType>()({ endpoint: "/users" });
+
+// Setting the query params
+
+const command = getUsers.setQueryParams({ search: "John", sort: "age" });
+console.log(command.endpoint); // Output: "/users?search=John&sort=age"
+```
+
+```ts
+const getUsers = builder.createCommand<Response, void, void, string>()({ endpoint: "/users" });
+
+const command = getUsers.setQueryParams("search=John&sort=age");
+console.log(command.endpoint); // Output: "/users?search=John&sort=age"
+```
+
+### Custom query params format
+
+We can setup custom config with instructions how to stringify the values. It can be setup on the builder with
+`setQueryParamsConfig` method.
+
+#### Available options:
+
+(@import HyperFetch QueryStringifyOptions type=returns)
+
+---

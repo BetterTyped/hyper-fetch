@@ -4,9 +4,9 @@
     "rootDir": ".",
     "baseUrl": "./src",
     "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"]
+      "@browser-adapter": ["./adapter/http-adapter.browser.ts"],
+      "@server-adapter": ["./adapter/http-adapter.server.ts"]
     }
   },
-  "exclude": ["dist", "jest.config.ts"]
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }

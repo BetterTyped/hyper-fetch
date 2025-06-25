@@ -1,32 +1,42 @@
+/* eslint-disable max-params */
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
+import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
-import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 
-export const getFirestoreAdminMethods = <R extends RequestInstance>(
-  request: R,
-  database: Firestore,
-  url: string,
+type DataType = {
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+  payload?: any;
+  options?: Record<string, any>;
+};
+
+export const getFirestoreAdminMethods = ({
+  database,
+  url,
   onSuccess,
   onError,
-  resolve,
-  events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
-): ((
-  methodName: FirestoreMethodsUnion,
-  data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    data?: any;
-    options?: Record<string, any>;
-  },
-) => Promise<void>) => {
+  onResponseStart,
+  onRequestStart,
+  onRequestEnd,
+  onResponseEnd,
+}: {
+  database: Firestore;
+  url: string;
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"];
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"];
+  onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+  onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+  onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+  onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+}): ((methodName: FirestoreMethodsUnion, data: DataType) => Promise<void>) => {
   const [cleanUrl] = url.split("?");
   const methods = {
     getDoc: async () => {
@@ -36,7 +46,14 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
       const status = result ? "success" : "emptyResource";
       return { result, status, extra: { ref: path, snapshot } };
     },
-    getDocs: async ({ constraints = [] }) => {
+    getDocs: async ({
+      constraints = [],
+    }: {
+      constraints?: PermittedConstraints<
+        FirestorePermittedMethods,
+        FirestoreConstraintsUnion | SharedQueryConstraints
+      >[];
+    }) => {
       const path = getRef(database, cleanUrl) as CollectionReference;
       const query = applyFireStoreAdminConstraints(path, constraints);
       const querySnapshot = await query.get();
@@ -45,7 +62,7 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
 
       return { result, status, extra: { ref: path, snapshot: querySnapshot } };
     },
-    setDoc: async ({ data, options }: { data?: any; options?: Record<string, any> }) => {
+    setDoc: async ({ data, options }: { data?: any; options?: any }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       const merge = options?.merge === true;
       const res = await path.set(data, { merge });
@@ -68,19 +85,19 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: FirestoreMethodsUnion, data) => {
+  return async (methodName: FirestoreMethodsUnion, data: DataType) => {
     try {
-      events.onRequestStart();
+      onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
-      events.onRequestEnd();
-      events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
-      events.onResponseEnd();
-    } catch (e) {
-      events.onRequestEnd();
-      events.onResponseStart();
-      onError(e, "error", {}, resolve);
-      events.onResponseEnd();
+      onRequestEnd();
+      onResponseStart();
+      onSuccess({ data: result, status, extra });
+      onResponseEnd();
+    } catch (error) {
+      onRequestEnd();
+      onResponseStart();
+      onError({ error, status: "error", extra: {} });
+      onResponseEnd();
     }
   };
 };

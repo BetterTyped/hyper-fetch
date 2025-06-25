@@ -1,22 +1,24 @@
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 describe("Listener [ Base ]", () => {
+  const { startServer } = createWebsocketMockingServer();
   let socket = createSocket();
   let listener = createListener(socket);
 
-  beforeEach(() => {
-    createWsServer();
+  beforeEach(async () => {
+    startServer();
     socket = createSocket();
     listener = createListener(socket);
     jest.resetAllMocks();
   });
 
-  it("should initialize Listener with correct endpoint", async () => {
-    const endpoint = "my-custom-endpoint";
-    listener = createListener(socket, { endpoint });
-    expect(listener.endpoint).toBe(endpoint);
+  it("should initialize Listener with correct topic", async () => {
+    const topic = "my-custom-topic";
+    listener = createListener(socket, { topic });
+    expect(listener.topic).toBe(topic);
   });
 
   it("should allow to set additional adapter options", async () => {
@@ -26,8 +28,8 @@ describe("Listener [ Base ]", () => {
   });
 
   it("should allow to set params", async () => {
-    const newListener = socket.createListener()({ endpoint: "test/:testId" }).setParams({ testId: 1 });
-    expect(newListener.endpoint).toBe("test/1");
-    expect(newListener.clone().endpoint).toBe("test/1");
+    const newListener = socket.createListener()({ topic: "test/:testId" }).setParams({ testId: 1 });
+    expect(newListener.topic).toBe("test/1");
+    expect(newListener.clone().topic).toBe("test/1");
   });
 });

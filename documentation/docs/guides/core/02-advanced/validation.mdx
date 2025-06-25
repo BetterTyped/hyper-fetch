@@ -1,0 +1,159 @@
+---
+title: Guide - Validation
+sidebar_label: Validation
+---
+
+Data validation is a critical aspect of building robust and reliable applications. It ensures that the data flowing
+through your application, both from the server and from user inputs, adheres to a predefined structure and set of rules.
+Without proper validation, you risk encountering unexpected errors, data corruption, and security vulnerabilities.
+
+Hyper Fetch provides a powerful and flexible way to handle validation by leveraging mappers. When a mapper throws an
+error, Hyper Fetch catches it and treats it as a request error. This mechanism allows you to integrate any validation
+library, like [Zod](https://zod.dev/), to validate request and response data seamlessly.
+
+:::secondary What you'll learn
+
+1.  How to perform **response data validation** to ensure API responses are correct.
+2.  How to implement **request data validation** to prevent sending invalid data to the server.
+3.  Using **mappers** for centralized and reusable validation logic.
+4.  How to integrate with popular validation libraries like **Zod**.
+
+:::
+
+---
+
+## Response Validation
+
+Response validation is the process of verifying that the data received from the server matches the expected format. This
+is crucial for preventing runtime errors in your application when an API returns an unexpected response.
+
+We can use the `.setResponseMapper()` method on a request to inspect the raw response and validate its structure. If the
+validation fails, we can throw an error, which Hyper Fetch will catch and place in the `error` state of the request.
+
+Let's see an example using `zod`:
+
+```ts
+import { z } from "zod";
+
+const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  username: z.string(),
+  email: z.string().email(),
+});
+
+// We can infer the type from the schema
+type User = z.infer<typeof UserSchema>;
+
+const getUser = client
+  .createRequest<{ response: User }>()({
+    method: "GET",
+    endpoint: "users/:userId",
+  })
+  .setResponseMapper(async (response) => {
+    // For most adapters, we need to get the JSON data from the response
+    const data = await response.json();
+
+    // Now we can parse it against our schema.
+    // If parsing fails, Zod throws an error that Hyper Fetch will catch.
+    UserSchema.parse(data);
+
+    // If validation succeeds, we return the parsed data.
+    return data;
+  });
+
+// Usage
+(async () => {
+  const { data, error } = await getUser.setParams({ userId: 1 }).send();
+
+  if (error) {
+    // Here error will be an instance of ZodError if validation failed
+    console.error(error);
+  } else {
+    console.log(data);
+  }
+})();
+```
+
+In this example, if the data received from `/users/:userId` does not conform to the `UserSchema`,
+`UserSchema.parse(data)` will throw a `ZodError`. Hyper Fetch will catch this error, stop the request processing, and
+you will get the `ZodError` instance in the `error` property of the request's return value.
+
+---
+
+## Request Validation
+
+Just as we validate responses, it's equally important to validate data before sending it to the server. This prevents
+invalid data from reaching your API, which can help avoid unnecessary API calls and potential server-side errors.
+
+Request validation can be implemented using the `.setRequestMapper()` method. This mapper receives the request instance
+before it's sent, allowing you to inspect and validate its payload.
+
+Here's how you can validate a request payload with `zod`:
+
+```ts
+import { z } from "zod";
+
+const PostSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters long"),
+  body: z.string().min(10, "Body must be at least 10 characters long"),
+  userId: z.number(),
+});
+
+type PostSchema = z.infer<typeof PostSchema>;
+
+// The second generic to createRequest is the payload type
+const createPost = client
+  .createRequest<{ response: Post; payload: PostSchema }>()({
+    method: "POST",
+    endpoint: "/posts",
+  })
+  .setRequestMapper((request) => {
+    // We access the data payload of the request
+    const dataToValidate = request.data;
+
+    // We parse it against our schema
+    PostSchema.parse(dataToValidate); // This will throw if validation fails
+
+    // If validation is successful, we must return the request instance
+    return request;
+  });
+
+// code-editor-split
+
+// --- Usage ---
+
+// Example 1: Invalid data
+const { error: validationError } = await createPost.send({
+  data: { title: "A", body: "Short", userId: 1 },
+});
+
+if (validationError) {
+  // The request was not sent, and we get a ZodError
+  console.log(validationError.errors);
+}
+
+// Example 2: Valid data
+const { data, error } = await createPost.send({
+  data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
+});
+
+if (error) {
+  console.error("Request failed:", error);
+} else {
+  // The request was sent successfully
+  console.log("Post created:", data);
+}
+```
+
+If you call `createPost.send()` with data that doesn't match `PostSchema`, the `.setRequestMapper()` will throw an
+error. The request will be aborted before it is sent, and the error will be returned.
+
+---
+
+:::success Congratulations! You've learned how to implement robust data validation in Hyper Fetch!
+
+1.  You can perform **response validation** using `.setResponseMapper()` to ensure data from the server is safe to use.
+2.  You can implement **request validation** with `.setRequestMapper()` to prevent sending invalid data.
+3.  You know how to use **mappers** to integrate third-party validation libraries like Zod.
+4.  You can create **type-safe requests** where the types are inferred directly from your validation schemas. :::

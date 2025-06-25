@@ -4,47 +4,70 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "start": "npx rimraf docs/api & docusaurus start",
-    "build": "docusaurus build",
+    "start": "docusaurus clear && docusaurus start",
+    "build": "docusaurus clear && docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typescheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.2.0",
-    "@docusaurus/preset-classic": "^2.2.0",
-    "@hyper-fetch/core": "^3.0.1",
-    "@hyper-fetch/react": "^3.0.1",
-    "@mdx-js/react": "^1.6.21",
-    "@svgr/webpack": "^5.5.0",
+    "@docsgen/core": "^1.2.6",
+    "@docsgen/docusaurus": "^1.2.6",
+    "@docusaurus/core": "^3.8.1",
+    "@docusaurus/faster": "^3.8.1",
+    "@docusaurus/preset-classic": "^3.8.1",
+    "@docusaurus/remark-plugin-npm2yarn": "^3.8.1",
+    "@docusaurus/theme-live-codeblock": "^3.8.1",
+    "@docusaurus/theme-mermaid": "^3.8.1",
+    "@hyper-fetch/core": "link:../node_modules/@hyper-fetch/core",
+    "@hyper-fetch/react": "link:../node_modules/@hyper-fetch/react",
+    "@mdx-js/react": "^3.0.0",
+    "@radix-ui/react-tabs": "^1.1.11",
+    "@radix-ui/react-toast": "^1.2.13",
+    "@react-theater/scroll": "^1.0.0",
+    "@react-three/drei": "^9.115.0",
+    "@react-three/fiber": "^8.17.10",
+    "@sapphire/docusaurus-plugin-npm2yarn2pnpm": "^2.0.2",
     "@tippyjs/react": "^4.2.6",
-    "cli-progress": "^3.11.1",
-    "clsx": "^1.1.1",
-    "docusaurus-docgen": "^1.2.1",
-    "docusaurus-plugin-sass": "^0.2.2",
-    "file-loader": "^6.2.0",
-    "gsap": "2.1.3",
-    "mdx-mermaid": "^1.2.3",
-    "mermaid": "^8.13.8",
-    "prism-react-renderer": "^1.3.3",
-    "react": "^17.0.1",
-    "react-countup": "^6.3.2",
-    "react-dom": "^17.0.1",
-    "sass": "^1.53.0",
-    "semantic-release": "^19.0.5",
-    "unified": "^10.1.1",
-    "url-loader": "^4.1.1"
+    "autoprefixer": "^10.4.16",
+    "clsx": "^1.2.1",
+    "codehike": "^1.0.6",
+    "docusaurus-plugin-sass": "^0.2.5",
+    "events": "^3.3.0",
+    "gsap": "3.12.5",
+    "link": "^2.1.1",
+    "lucide-react": "^0.453.0",
+    "motion": "^12.9.4",
+    "postcss": "^8.4.31",
+    "prismjs": "^1.29.0",
+    "react": "link:../node_modules/react",
+    "react-dom": "link:../node_modules/react-dom",
+    "react-live": "4.1.8",
+    "react-slick": "^0.29.0",
+    "sass": "^1.80.5",
+    "slick-carousel": "^1.8.1",
+    "sonner": "^2.0.3",
+    "swiper": "^8.4.7",
+    "tailwindcss": "^3.3.5",
+    "three": "^0.170.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^2.2.0",
-    "@tsconfig/docusaurus": "^1.0.4",
-    "@types/node": "^18.11.3",
-    "rollup-plugin-delete": "^2.0.0",
-    "typescript": "^4.3.5"
+    "@docusaurus/module-type-aliases": "^3.8.1",
+    "@docusaurus/tsconfig": "^3.8.1",
+    "@docusaurus/types": "^3.8.1",
+    "@types/prismjs": "^1.26.3",
+    "@types/react-slick": "^0.23.11",
+    "tslib": "^2.6.2",
+    "typescript": "~5.2.2"
+  },
+  "resolutions": {
+    "wrap-ansi": "7.0.0",
+    "string-width": "4.2.3",
+    "strip-ansi": "6.0.1"
   },
   "browserslist": {
     "production": [
@@ -53,9 +76,12 @@
       "not op_mini all"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
     ]
+  },
+  "engines": {
+    "node": ">=18.0"
   }
 }

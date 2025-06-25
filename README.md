@@ -6,10 +6,10 @@
 
 <div align="center">
 
-Framework for fetching and realtime data exchange.
+Framework for typesafe fetching and realtime data exchange.
 
 **[Documentation](https://hyperfetch.bettertyped.com/) |
-[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) |
+[Quick Start](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start) |
 [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
 
 </div>
@@ -72,11 +72,11 @@ all while facilitating **real-time data exchange**.
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
@@ -90,7 +90,7 @@ all while facilitating **real-time data exchange**.
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
-#### [Core](https://hyperfetch.bettertyped.com/docs/documentation/core/overview)
+#### [Core](https://hyperfetch.bettertyped.com/docs/core/overview)
 
 ```bash
 npm install --save @hyper-fetch/core
@@ -98,7 +98,7 @@ or
 yarn add @hyper-fetch/core
 ```
 
-#### [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview)
+#### [Sockets](https://hyperfetch.bettertyped.com/docs/sockets/overview)
 
 ```bash
 npm install --save @hyper-fetch/sockets
@@ -106,7 +106,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### [React](https://hyperfetch.bettertyped.com/docs/documentation/react/overview)
+#### [React](https://hyperfetch.bettertyped.com/docs/react/overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react
@@ -190,7 +190,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >Firebase</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >Adapter Firebase</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
@@ -206,7 +206,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin" >Firebase Admin</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin" >Adapter Firebase Admin</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
@@ -222,7 +222,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >GraphQL</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >Adapter GraphQL</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
@@ -238,7 +238,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios" >Axios</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios" >Adapter Axios</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
@@ -254,7 +254,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi / Swagger</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
@@ -265,6 +265,22 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
           <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-devtools" >Plugin Devtools</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/plugin-devtools?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/plugin-devtools.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=E10098&logo=package" />
         </a>
       </td>
     </tr>

@@ -1,13 +1,17 @@
-import { useRef } from "react";
 import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
-import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
+import {
+  RequestInstance,
+  ExtractAdapterStatusType,
+  ExtractAdapterType,
+  ExtractAdapterExtraType,
+} from "@hyper-fetch/core";
+import { useRef } from "react";
 
 import { useRequestEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
-import { useConfigProvider } from "config-provider";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
+import { useProvider } from "provider";
 import { getBounceData } from "utils";
-import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -15,32 +19,29 @@ import { InvalidationKeyType } from "types";
  * @param options Hook options
  * @returns
  */
-export const useFetch = <RequestType extends RequestInstance>(
-  request: RequestType,
-  options: UseFetchOptionsType<RequestType> = useFetchDefaultOptions,
-): UseFetchReturnType<RequestType> => {
+export const useFetch = <R extends RequestInstance>(
+  request: R extends UseFetchRequest<R> ? R : UseFetchRequest<R>,
+  options?: UseFetchOptionsType<R>,
+): UseFetchReturnType<R> => {
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const {
-    dependencies = useFetchDefaultOptions.dependencies,
-    disabled = useFetchDefaultOptions.disabled,
-    dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    revalidate = useFetchDefaultOptions.revalidate,
-    initialData = useFetchDefaultOptions.initialData,
-    refresh = useFetchDefaultOptions.refresh,
-    refreshTime = useFetchDefaultOptions.refreshTime,
-    refetchBlurred = useFetchDefaultOptions.refetchBlurred,
-    refetchOnBlur = useFetchDefaultOptions.refetchOnBlur,
-    refetchOnFocus = useFetchDefaultOptions.refetchOnFocus,
-    refetchOnReconnect = useFetchDefaultOptions.refetchOnReconnect,
-    bounce = useFetchDefaultOptions.bounce,
-    bounceType = useFetchDefaultOptions.bounceType,
-    bounceTime = useFetchDefaultOptions.bounceTime,
-    // TODO: handle type error
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    bounceTimeout = useFetchDefaultOptions.bounceTime,
-    deepCompare = useFetchDefaultOptions.deepCompare,
+    dependencies,
+    disabled,
+    dependencyTracking,
+    revalidate,
+    initialResponse,
+    refresh,
+    refreshTime,
+    refetchBlurred,
+    refetchOnBlur,
+    refetchOnFocus,
+    refetchOnReconnect,
+    bounce,
+    bounceType,
+    bounceTime,
+    bounceTimeout,
+    deepCompare,
   } = {
     ...useFetchDefaultOptions,
     ...globalConfig.useFetchConfig,
@@ -52,36 +53,35 @@ export const useFetch = <RequestType extends RequestInstance>(
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const refreshDebounce = useDebounce({ delay: refreshTime });
 
-  const { cacheKey, queueKey, client } = request;
+  const { cacheKey, queryKey, client } = request;
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
 
   const ignoreReact18DoubleRender = useRef(true);
-  const logger = useRef(loggerManager.init("useFetch")).current;
+  const logger = useRef(loggerManager.initialize(client, "useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
   /**
    * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] =
-    useTrackedState<RequestType>({
-      logger,
-      request,
-      dispatcher,
-      initialData,
-      deepCompare,
-      dependencyTracking,
-      disabled,
-      revalidate,
-    });
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<R>({
+    logger,
+    request: request as R,
+    dispatcher,
+    initialResponse,
+    deepCompare,
+    dependencyTracking,
+    disabled,
+    revalidate,
+  });
 
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useRequestEvents({
+  const [callbacks, listeners] = useRequestEvents<R>({
     logger,
     actions,
-    request,
+    request: request as R,
     dispatcher,
     setCacheData,
     getIsDataProcessing,
@@ -94,10 +94,10 @@ export const useFetch = <RequestType extends RequestInstance>(
   // ******************
   const handleFetch = () => {
     if (!disabled) {
-      logger.debug(`Fetching data`);
-      dispatcher.add(request);
+      logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
+      dispatcher.add(request as R);
     } else {
-      logger.debug(`Cannot add to fetch queue`, { disabled });
+      logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }
   };
 
@@ -115,15 +115,15 @@ export const useFetch = <RequestType extends RequestInstance>(
       const isBlurred = !appManager.isFocused;
 
       // If window tab is not active should we refresh the cache
-      const isFetching = dispatcher.hasRunningRequests(request.queueKey);
-      const isQueued = dispatcher.getIsActiveQueue(request.queueKey);
+      const isFetching = dispatcher.hasRunningRequests(request.queryKey);
+      const isQueued = dispatcher.getIsActiveQueue(request.queryKey);
       const isActive = isFetching || isQueued;
       const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
 
       if (canRefreshBlurred || canRefreshFocused) {
         handleFetch();
-        logger.debug(`Performing refresh request`);
+        logger.debug({ title: `Performing refresh request`, type: "system", extra: { request } });
       }
 
       // Start new refresh counter
@@ -131,23 +131,9 @@ export const useFetch = <RequestType extends RequestInstance>(
     });
   }
 
-  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.invalidate(invalidateKey);
-    }
-  };
-
-  const refetch = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
-    if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleInvalidation);
-    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleInvalidation(invalidateKey);
-    } else {
-      handleFetch();
-      handleRefresh();
-    }
+  const refetch = () => {
+    handleFetch();
+    handleRefresh();
   };
 
   // ******************
@@ -156,8 +142,8 @@ export const useFetch = <RequestType extends RequestInstance>(
 
   // This help us to check for currently running requests
   const getIsFetchingIdentity = () => {
-    // We need to check if the queueKey have the same cacheKey elements ongoing
-    return dispatcher.getRunningRequests(queueKey).some((running) => running.request.cacheKey === cacheKey);
+    // We need to check if the queryKey have the same cacheKey elements ongoing
+    return dispatcher.getRunningRequests(queryKey).some((running) => running.request.cacheKey === cacheKey);
   };
 
   const initialFetchData = () => {
@@ -181,7 +167,7 @@ export const useFetch = <RequestType extends RequestInstance>(
        * This way it will not wait for debouncing but fetch data right away
        */
       if (bounce) {
-        logger.debug(`Bounce request with ${bounceType}`, { queueKey, request });
+        logger.debug({ title: `Bounce request with ${bounceType}`, type: "system", extra: { queryKey, request } });
         bounceFunction(() => handleFetch());
       } else {
         handleFetch();
@@ -196,8 +182,8 @@ export const useFetch = <RequestType extends RequestInstance>(
   // ******************
 
   const handleMountEvents = () => {
-    addCacheDataListener(request);
-    addLifecycleListeners(request);
+    addCacheDataListener(request as R);
+    addLifecycleListeners(request as R);
 
     const focusUnmount = appManager.events.onFocus(() => {
       if (refetchOnFocus) {
@@ -218,7 +204,8 @@ export const useFetch = <RequestType extends RequestInstance>(
       }
     });
 
-    const invalidateUnmount = cache.events.onInvalidate(cacheKey, handleFetch);
+    const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleFetch);
+    const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleFetch);
 
     const unmount = () => {
       clearCacheDataListener();
@@ -226,6 +213,7 @@ export const useFetch = <RequestType extends RequestInstance>(
       blurUnmount();
       onlineUnmount();
       invalidateUnmount();
+      deletionUnmount();
     };
 
     return unmount;
@@ -278,7 +266,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     },
     get status() {
       setRenderKey("status");
-      return state.status;
+      return state.status as ExtractAdapterStatusType<ExtractAdapterType<R>>;
     },
     get success() {
       setRenderKey("success");
@@ -286,19 +274,23 @@ export const useFetch = <RequestType extends RequestInstance>(
     },
     get extra() {
       setRenderKey("extra");
-      return state.extra;
+      return state.extra as ExtractAdapterExtraType<ExtractAdapterType<R>>;
     },
     get retries() {
       setRenderKey("retries");
       return state.retries;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
+    get responseTimestamp() {
+      setRenderKey("responseTimestamp");
+      return state.responseTimestamp;
+    },
+    get requestTimestamp() {
+      setRenderKey("requestTimestamp");
+      return state.requestTimestamp;
     },
     bounce: getBounceData(bounceData),
     ...actions,
-    ...callbacks,
+    ...(callbacks as any),
     refetch,
   };
 };

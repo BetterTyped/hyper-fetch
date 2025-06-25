@@ -1,7 +1,9 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../../server";
 import { createRequest, renderUseRequestEvents } from "../../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useRequestEvents [ Utils ]", () => {
   let request = createRequest();
@@ -11,7 +13,7 @@ describe("useRequestEvents [ Utils ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -31,7 +33,7 @@ describe("useRequestEvents [ Utils ]", () => {
     });
     it("should unmount lifecycle events when handling requests by queue/cache keys", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseRequestEvents(request);
 
       await act(async () => {
@@ -43,16 +45,16 @@ describe("useRequestEvents [ Utils ]", () => {
         await request.send({});
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should listen to every request id events", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseRequestEvents(request);
 
       await act(async () => {
         await request.send({
-          onSettle: (requestId) => {
+          onBeforeSent: ({ requestId }) => {
             response.result.current[0].onRequestStart(spy);
             response.result.current[1].addLifecycleListeners(request, requestId);
             response.result.current[1].addLifecycleListeners(request, requestId);
@@ -61,7 +63,7 @@ describe("useRequestEvents [ Utils ]", () => {
         });
       });
 
-      expect(spy).toBeCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(3);
     });
   });
 });

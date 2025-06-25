@@ -1,0 +1,141 @@
+---
+sidebar_position: 3
+title: Socket
+sidebar_label: Socket
+---
+
+[Read the API Reference »](/api/sockets/Classes/Socket.mdx)
+
+**`Socket`** is the central class for configuring your server connection in the Hyper Fetch sockets module. It
+initializes all core subsystems—such as `offline`, `events`, and `interceptors`—and provides a unified way to create and
+manage listeners and emitters based on its configuration. By keeping all data and logic encapsulated within a single
+socket instance, you ensure that each socket remains isolated and independent from others.
+
+---
+
+:::tip Purpose
+
+1. **Orchestrates** the components and flow of the sockets library
+2. Creates **listeners** and **emitters** to provide global setup and environment
+3. Isolates sockets from each other and their events
+
+:::
+
+---
+
+## Initialization
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+export const socket = new Socket({ url: "ws://localhost:3000" });
+```
+
+---
+
+## Features
+
+Here are the main features of the `Socket` class.
+
+### Adapters
+
+You can pick between two built-in modes for the data exchange:
+
+1. **WebSocket mode** (default)
+2. **Server Sent Events (SSE) mode**
+
+You can change it with the `SSE` adapter:
+
+```tsx
+import { sseAdapter } from "@hyper-fetch/sockets";
+
+new Socket({ url: "ws://localhost:3000" }).setAdapter(sseAdapter);
+```
+
+---
+
+### Interceptors
+
+There are a few methods for intercepting a response from a request:
+
+- `onSend` — triggered before sending an event.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onSend((event) => {
+  // Modify the event before it is sent
+  event.payload = { ...event.payload, token: "1234567890" };
+  return event;
+});
+```
+
+- `onError` — triggered on error from socket.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onError((error) => {
+  // Modify the error before it is emitted to other sub-systems
+  error.message = "An error occurred";
+  return error;
+});
+```
+
+- `onMessage` — triggered on any received message.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onMessage((message) => {
+  // Modify the message before it is emitted to other sub-systems
+  message.data = { ...message.data, token: "1234567890" };
+  return message;
+});
+```
+
+You can modify received data or payload with these interceptors before it is emitted to other sub-systems.
+
+---
+
+### Query Params
+
+Sockets has a built-in query params encoding function; you can modify its options or provide your own function. Use the
+`queryParamsConfig` method and the options listed below.
+
+(@import core QueryStringifyOptionsType type=returns)
+
+To change the encoding function, use the `queryParamsStringify` method:
+
+```tsx
+export const socket = new Socket({
+  url: "ws://localhost:3000",
+  queryParams: { param1: [1, 2, 3], param2: "test" },
+  queryParamsStringify: (value: string) => encode(value),
+});
+```
+
+---
+
+### Authentication
+
+To exchange authenticated events, set up the `queryParams` parameter with authentication parameter.
+
+```tsx
+export const socket = new Socket({
+  url: "ws://localhost:3000",
+  queryParams: { authToken: "1234567890" },
+});
+```
+
+<LinkCard
+  type="guides"
+  title="Authentication guide"
+  description="Learn how to set up authentication for your sockets."
+  to="/docs/guides/sockets/authentication"
+/>
+
+---
+
+## TypeScript
+
+Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
+adapter type and **will automatically change** to any new adapter type you pass to the `Socket` class.
+
+---
+
+{/* ## See More */}

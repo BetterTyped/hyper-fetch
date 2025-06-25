@@ -1,4 +1,4 @@
-import { Client } from "client";
+import { Client, ClientInstance } from "client";
 
-export type ExtractClientGlobalError<T> = T extends Client<infer G, any> ? G : never;
-export type ExtractClientAdapterType<T> = T extends Client<any, infer A> ? A : never;
+export type ExtractClientGlobalError<T extends ClientInstance> = T extends Client<infer P, any> ? P : never;
+export type ExtractClientAdapterType<T extends ClientInstance> = T extends Client<any, infer P> ? P : never;

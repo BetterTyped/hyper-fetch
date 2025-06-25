@@ -1,3 +1,6 @@
+import { createClient } from "@hyper-fetch/core";
+
+import { getValidCacheData, getInitialState, initialState } from "helpers";
 import { isEmpty, isEqual } from "utils";
 
 describe("useTrackedState [ Utils ]", () => {
@@ -96,6 +99,162 @@ describe("useTrackedState [ Utils ]", () => {
       expect(isEqual({ someKey: null }, { someKey: null })).toBe(true);
       expect(isEqual({ someKey: date }, { someKey: date })).toBe(true);
       expect(isEqual({}, {})).toBe(true);
+      expect(isEqual([null], [null])).toBe(true);
+    });
+
+    it("should return false when comparison throws an error", async () => {
+      // Create an object with a getter that throws
+      const throwingObj = {
+        get evil() {
+          throw new Error("Comparison error");
+        },
+      };
+
+      const obj1 = { prop: throwingObj };
+      const obj2 = { prop: { key: 2 } };
+
+      // Should return false when comparison throws
+      expect(isEqual(obj1, obj2)).toBe(false);
+    });
+  });
+
+  describe("when getValidCacheData gets triggered", () => {
+    const mockRequest = {
+      staleTime: 1000,
+      client: {
+        cache: {
+          version: 1,
+        },
+      },
+      cacheKey: "test-key",
+      cacheTime: 2000,
+    } as any;
+
+    it("should return initialResponse data when cache is stale", () => {
+      const initialResponse = {
+        data: "test-data",
+        status: 200,
+        success: true,
+        requestTimestamp: new Date().getTime(),
+        responseTimestamp: new Date().getTime(),
+      };
+
+      const result = getValidCacheData(mockRequest, initialResponse, null);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          data: "test-data",
+          error: null,
+          status: 200,
+          success: true,
+          extra: null,
+          staleTime: 1000,
+          version: 1,
+          cacheKey: "test-key",
+          cacheTime: 2000,
+        }),
+      );
+    });
+
+    it("should return null when no cache data and no initialResponse", () => {
+      const result = getValidCacheData(mockRequest, null, null);
+      expect(result).toBeNull();
+    });
+
+    it("should return cache data when not stale", () => {
+      const currentTime = new Date().getTime();
+      const cacheData = {
+        data: "cached-data",
+        error: null,
+        status: 200,
+        success: true,
+        extra: null,
+        responseTimestamp: currentTime, // Recent timestamp within stale time
+      } as any;
+
+      const result = getValidCacheData(mockRequest, null, cacheData);
+      expect(result).toBe(cacheData);
+    });
+  });
+
+  describe("when getInitialState handles async responseMapper", () => {
+    it("should return initialState when responseMapper returns a Promise", () => {
+      const mockRequest = {
+        client: {
+          cache: { get: jest.fn().mockReturnValue(null) },
+          defaultExtra: null,
+        },
+        queryKey: "test",
+        cacheKey: "test",
+        unstable_responseMapper: () => Promise.resolve({ data: "test" }),
+      } as any;
+
+      const mockDispatcher = {
+        getQueue: jest.fn().mockReturnValue({ stopped: false }),
+        hasRunningRequests: jest.fn().mockReturnValue(false),
+      } as any;
+
+      const result = getInitialState({
+        initialResponse: { data: "test" },
+        dispatcher: mockDispatcher,
+        request: mockRequest,
+        disabled: false,
+        revalidate: false,
+      });
+
+      expect(result).toEqual(initialState);
+    });
+  });
+
+  describe("when getInitialState handles sync responseMapper", () => {
+    it("should apply sync responseMapper to cache data", () => {
+      const currentTime = new Date().getTime();
+      const cacheData = {
+        data: "original-data",
+        error: null,
+        status: 200,
+        success: true,
+        extra: null,
+        responseTimestamp: currentTime,
+        retries: 0,
+      };
+
+      const client = createClient({ url: "http://localhost:3000" });
+      const mockRequest = client.createRequest()({ endpoint: "/test" });
+      mockRequest.unstable_responseMapper = (data: any) => ({
+        ...data,
+        data: `mapped-${data.data}`,
+      });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      client.cache = {
+        get: jest.fn().mockReturnValue(cacheData),
+        version: "1",
+      };
+
+      const mockDispatcher = {
+        getQueue: jest.fn().mockReturnValue({ stopped: false }),
+        hasRunningRequests: jest.fn().mockReturnValue(false),
+      } as any;
+
+      const result = getInitialState({
+        initialResponse: null,
+        dispatcher: mockDispatcher,
+        request: mockRequest,
+        disabled: false,
+        revalidate: false,
+      });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          data: "mapped-original-data",
+          error: null,
+          status: 200,
+          success: true,
+          loading: false,
+        }),
+      );
     });
   });
 });

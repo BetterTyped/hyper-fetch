@@ -1,0 +1,66 @@
+---
+sidebar_position: 6
+title: React hooks - useCache
+sidebar_label: useCache
+---
+
+# useCache
+
+<div class="api-link">
+  <div class="api-link-title">useCache</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/React/Hook/useCache.mdx)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+This hook allows us to manipulate the passed request’s [`Cache`](/documentation/02-core/managers.mdx) and receive change
+callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable
+connection between the hook's request and the cache.
+
+```tsx
+const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUsers);
+
+onSuccess((payload) => {
+  console.log(payload); // [ User, User, User ]
+});
+
+onError((error) => {
+  console.log(error); // { message: string }
+});
+
+onFinished(([payload, error, status]) => {
+  console.log(payload); // [ User, User, User ] | null
+  console.log(error); // { message: string } | null
+  console.log(status); // 200 / 400 / 404 / 500 ...
+});
+```
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useCache(request, options)
+```
+
+(@import React UseCacheOptionsType type=returns)
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useCache(request);
+```
+
+(@import React useAppManager type=returns)
