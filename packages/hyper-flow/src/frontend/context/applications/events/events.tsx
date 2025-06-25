@@ -41,6 +41,9 @@ export const Events = ({ application }: { application: string }) => {
         messageType: MessageType.INTERNAL,
         eventType: InternalEvents.APP_INITIALIZED,
         connectionName: application,
+        origin: MessageOrigin.APP,
+        environment,
+        eventData: null,
       },
     });
   });

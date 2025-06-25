@@ -3,6 +3,7 @@ import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Socket } from "@hyper-fetch/sockets";
 import {
+  AppInternalMessage,
   HFEventMessage,
   InternalEvents,
   MessageOrigin,
@@ -52,7 +53,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       topic: SocketTopics.APP_INSTANCE_LISTENER,
     });
 
-    const eventEmitter = socket.createEmitter<HFEventMessage["data"]>()({
+    const eventEmitter = socket.createEmitter<HFEventMessage["data"] | AppInternalMessage["data"]>()({
       topic: SocketTopics.PLUGIN_LISTENER,
     });
 
