@@ -190,7 +190,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >Firebase</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >Adapter Firebase</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
@@ -206,7 +206,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin" >Firebase Admin</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin" >Adapter Firebase Admin</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
@@ -222,7 +222,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >GraphQL</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >Adapter GraphQL</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
@@ -238,7 +238,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios" >Axios</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios" >Adapter Axios</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
@@ -254,7 +254,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi / Swagger</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
@@ -265,6 +265,22 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
           <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-devtools" >Plugin Devtools</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/plugin-devtools?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/plugin-devtools.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
