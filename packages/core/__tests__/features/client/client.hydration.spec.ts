@@ -60,7 +60,7 @@ describe("Client [ Hydration ]", () => {
       expect(dehydratedResponse).toStrictEqual(expect.objectContaining({ cacheKey: request.cacheKey, response }));
 
       const newClient = new Client({ url: "shared-base-url" });
-      const cacheData = {
+      const cacheData: CacheValueType = {
         data: "123456789",
         status: 200,
         error: null,
@@ -74,6 +74,7 @@ describe("Client [ Hydration ]", () => {
         isCanceled: false,
         isOffline: false,
         hydrated: false,
+        cached: true,
       };
 
       newClient.cache.set(mockedRequest, cacheData);
