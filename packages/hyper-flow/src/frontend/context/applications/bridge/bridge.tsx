@@ -2,8 +2,13 @@ import { memo } from "react";
 import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Socket } from "@hyper-fetch/sockets";
-import { HFEventMessage, InternalEvents, MessageOrigin, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
-import { SocketTopics } from "@shared/topics";
+import {
+  HFEventMessage,
+  InternalEvents,
+  MessageOrigin,
+  PluginInternalMessage,
+  SocketTopics,
+} from "@hyper-fetch/plugin-devtools";
 
 import { useConnectionStore } from "@/store/applications/connection.store";
 import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
@@ -48,21 +53,20 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
     });
 
     const eventEmitter = socket.createEmitter<HFEventMessage["data"]>()({
-      topic: SocketTopics.APP_INSTANCE_EMITTER,
+      topic: SocketTopics.PLUGIN_LISTENER,
     });
 
     socket.connect();
 
     devtoolsListener.listen((event) => {
-      const { connectionName, messageType, eventData, eventType, environment, clientOptions, adapterOptions } =
-        event.data;
+      const { connectionName, messageType, eventType, environment, clientOptions, adapterOptions } = event.data;
 
       const name = connectionName;
       nameRef.current = name;
 
       switch (eventType) {
         case InternalEvents.PLUGIN_INITIALIZED: {
-          const client = new Client({ url: eventData.clientOptions.url });
+          const client = new Client({ url: clientOptions.url });
 
           addConnection({
             name,

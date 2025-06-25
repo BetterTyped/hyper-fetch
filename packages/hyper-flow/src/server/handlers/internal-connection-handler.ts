@@ -1,7 +1,12 @@
 import { WebSocket } from "ws";
-import { AppInternalMessage, InternalEvents, MessageType, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
+import {
+  AppInternalMessage,
+  InternalEvents,
+  MessageType,
+  PluginInternalMessage,
+  SocketTopics,
+} from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
-import { SocketTopics } from "@shared/topics";
 
 import { AppConnectionStatus, ConnectionMap } from "../types/connection.type";
 
@@ -67,12 +72,7 @@ export class InternalConnectionHandler {
       JSON.stringify({
         ...{
           topic: SocketTopics.APP_MAIN_LISTENER,
-          data: {
-            messageType: MessageType.INTERNAL,
-            eventType: InternalEvents.PLUGIN_INITIALIZED,
-            connectionName,
-            eventData: message.data.eventData,
-          },
+          data: message.data,
         },
       }),
     );
@@ -95,7 +95,7 @@ export class InternalConnectionHandler {
     this.connectionState.connections[connectionName].ws?.send(
       JSON.stringify({
         data: { messageType: MessageType.INTERNAL, eventType: InternalEvents.APP_INITIALIZED },
-        topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER,
+        topic: SocketTopics.PLUGIN_LISTENER,
       }),
     );
     this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.INITIALIZED;

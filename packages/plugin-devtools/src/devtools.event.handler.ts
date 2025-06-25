@@ -9,12 +9,13 @@ import {
   PluginInternalMessagePayload,
 } from "./types/messages.types";
 import { DevtoolsPluginOptions } from "./types/plugin.types";
+import { SocketTopics } from "./types/topics";
 
 export class DevtoolsEventHandler {
   client: ClientInstance;
   socket: Socket;
   // TODO - fix type, it can be either internal or simply an event
-  socketEmitter: Emitter<PluginInternalMessagePayload, any, any>;
+  socketEmitter: Emitter<PluginInternalMessagePayload | HFEventMessagePayload, any, any>;
   socketListener: Listener<any, any, any>;
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
@@ -47,11 +48,10 @@ export class DevtoolsEventHandler {
 
     this.logger = client.loggerManager.initialize(client, "DevtoolsEventHandler");
 
-    // TODO - move topic names?
     this.socketEmitter = this.socket.createEmitter<PluginInternalMessagePayload>()({
-      topic: "DEVTOOLS_PLUGIN_EMITTER",
+      topic: SocketTopics.PLUGIN_EMITTER,
     });
-    this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
+    this.socketListener = this.socket.createListener<any>()({ topic: SocketTopics.PLUGIN_LISTENER });
     this.socket.connect();
     this.socket.onDisconnected(() => {
       if (debug) {
@@ -68,16 +68,13 @@ export class DevtoolsEventHandler {
         this.logger.info({ title: "Connected", type: "system", extra: {} });
       }
       this.isConnected = true;
-      // TODO - fix type
       this.socketEmitter.emit({
         payload: {
           messageType: MessageType.INTERNAL,
           eventType: InternalEvents.PLUGIN_INITIALIZED,
-          eventData: {
-            clientOptions: this.client.options,
-            adapterOptions: this.client.adapter.options,
-            environment: this.environment,
-          },
+          clientOptions: this.client.options,
+          adapterOptions: this.client.adapter.options,
+          environment: this.environment,
           connectionName: this.connectionName,
           origin: MessageOrigin.PLUGIN,
         },
@@ -86,9 +83,9 @@ export class DevtoolsEventHandler {
     this.socketListener.listen((message) => {
       switch (message.data.messageType) {
         case MessageType.EVENT: {
-          console.log("MESSAGE", message);
-          // Pass events to the appropriate event handler
-          // example client.cache.emitter.emit(eventName, eventData, true);
+          if (message.data.eventSource === EventSourceType.CACHE) {
+            client.cache.emitter.emit(message.data.eventName, message.data.eventData, true);
+          }
           break;
         }
         case MessageType.INTERNAL: {
@@ -96,7 +93,9 @@ export class DevtoolsEventHandler {
             this.isInitialized = true;
             while (this.eventQueue.length > 0) {
               const nextEvent = this.eventQueue.shift();
-              this.socketEmitter.emit({ payload: nextEvent });
+              if (nextEvent) {
+                this.socketEmitter.emit({ payload: nextEvent });
+              }
             }
           } else {
             this.logger.error({

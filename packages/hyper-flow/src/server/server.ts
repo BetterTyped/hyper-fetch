@@ -70,7 +70,7 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
         context: "WebSocketServer",
         details: { message },
       });
-      connectionHandler.handleMessage(connectionInfo.connectionName, message);
+      connectionHandler.handleMessage(message);
     });
   });
 

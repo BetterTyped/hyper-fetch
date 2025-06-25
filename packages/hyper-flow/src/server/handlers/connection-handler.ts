@@ -6,9 +6,9 @@ import {
   MessageOrigin,
   MessageType,
   PluginInternalMessage,
+  SocketTopics,
 } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
-import { SocketTopics } from "@shared/topics";
 
 import { AppConnectionStatus, ConnectionMap, PluginConnectionStatus } from "../types/connection.type";
 import { InternalConnectionHandler } from "./internal-connection-handler";
@@ -48,7 +48,8 @@ export class ConnectionHandler {
    * Plugin
    * -----------------------------------------------------------------------------------------------*/
 
-  sendToPlugin = (pluginConnectionName: string, message: string) => {
+  sendToPlugin = (message: { data: BaseMessagePayload }) => {
+    const pluginConnectionName = message.data.connectionName;
     if (!this.connectionState.connections[pluginConnectionName]) {
       throw new Error(`No connection exists for the connectionName ${pluginConnectionName}`);
     }
@@ -60,12 +61,14 @@ export class ConnectionHandler {
           connectionName: pluginConnectionName,
           pluginStatus: this.connectionState.connections[pluginConnectionName].pluginStatus,
           frontendStatus: this.connectionState.connections[pluginConnectionName].appStatus,
-          messageType: JSON.parse(message)?.data?.messageType,
+          messageType: message?.data?.messageType,
         },
       });
       return;
     }
-    this.connectionState.connections[pluginConnectionName].ws.send(message);
+    this.connectionState.connections[pluginConnectionName].ws.send(
+      JSON.stringify({ ...message, topic: SocketTopics.PLUGIN_LISTENER }),
+    );
   };
 
   addPluginConnection = (connectionName: string, connection: WebSocket) => {
@@ -84,26 +87,26 @@ export class ConnectionHandler {
    * Handlers
    * -----------------------------------------------------------------------------------------------*/
 
-  handleMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
+  handleMessage = (message: { data: BaseMessagePayload }) => {
     switch (message.data.messageType) {
       case MessageType.INTERNAL:
         this.internalConnectionHandler.handleInternalMessage(message as PluginInternalMessage | AppInternalMessage);
         break;
       case MessageType.EVENT:
-        this.handleEventMessage(connectionName, message);
+        this.handleEventMessage(message);
         break;
       default:
         throw new Error(`Unknown messageType: ${message.data.messageType}`);
     }
   };
 
-  handleEventMessage = (connectionName: string, message: { data: BaseMessagePayload }) => {
+  handleEventMessage = (message: { data: BaseMessagePayload }) => {
     switch (message.data.origin) {
       case MessageOrigin.PLUGIN:
         this.sendToApp(JSON.stringify({ ...message, topic: SocketTopics.APP_INSTANCE_LISTENER }));
         break;
       case MessageOrigin.APP:
-        this.sendToPlugin(connectionName, JSON.stringify(message));
+        this.sendToPlugin(message);
         break;
       default:
         throw new Error(`Unknown origin: ${message.data.origin}`);
