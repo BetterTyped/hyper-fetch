@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { CacheValueType } from "@hyper-fetch/core";
-import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles, LoaderIcon } from "lucide-react";
+import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -40,26 +40,22 @@ import {
 import { SimulatedError } from "@/store/applications/apps.store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { useNetworkStore } from "@/store/applications/network.store";
 
 export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { application, client } = useDevtools();
   const [selectedError, setSelectedError] = useState<SimulatedError | null>(null);
-  const closeDetails = useCacheStore((state) => state.closeDetails);
-  const { addLoadingKeys, removeLoadingKeys, loadingKeys } = useCacheStore(
-    useShallow((state) => ({
-      addLoadingKeys: state.addLoadingKey,
-      removeLoadingKeys: state.removeLoadingKey,
-      loadingKeys: state.applications[application.name].loadingKeys,
+  const { setCacheItem, closeDetails } = useCacheStore(
+    useShallow((selector) => ({
+      setCacheItem: selector.setCacheItem,
+      closeDetails: selector.closeDetails,
     })),
   );
-  const requests = useNetworkStore((state) => state.applications[application.name].requests);
 
   const { settings } = application;
 
   const invalidate = () => {
     if (!item) return;
-    client.cache.invalidate(item.cacheKey);
+    client.cache.events.emitInvalidation(item.cacheKey, true);
   };
 
   const closeSidebar = () => {
@@ -67,7 +63,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const remove = () => {
-    client.cache.delete(item.cacheKey);
+    client.cache.events.emitDelete(item.cacheKey, true);
   };
 
   const simulateError = (simulatedError: SimulatedError) => {
@@ -79,35 +75,14 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
       responseTimestamp: Date.now(),
       extra: client.adapter.defaultExtra,
       success: false,
+      cached: true,
     };
-    client.cache.storage.set(item.cacheKey, data);
-    client.cache.events.emitCacheData({ ...data, cached: true });
-  };
-
-  const latestItem = useMemo(() => {
-    if (!item) return null;
-
-    const element = requests.find((el) => el.request.cacheKey === item.cacheKey);
-    if (!element)
-      return {
-        request: {
-          cacheKey: item.cacheKey,
-        } as any,
-        requestId: "",
-      };
-    return element;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.cacheKey, requests?.length]);
-  const hasInProgressRequest = item ? requests.some((i) => i.request.cacheKey === item.cacheKey) : false;
-  const isLoading = item ? loadingKeys.has(item.cacheKey) : false;
-
-  const toggleLoading = () => {
-    if (!item || !latestItem) return;
-    if (!hasInProgressRequest) {
-      addLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-    } else {
-      removeLoadingKeys({ application: application.name, cacheKey: item.cacheKey });
-    }
+    setCacheItem({
+      application: application.name,
+      cacheKey: item.cacheKey,
+      cacheData: data,
+    });
+    client.cache.events.emitCacheData(data, true);
   };
 
   return (
@@ -124,8 +99,8 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
-            <Sparkles className="h-4 w-4" />
+          <Button variant="quaternary" size="sm">
+            <Sparkles className="size-4" />
             Actions
           </Button>
         </DropdownMenuTrigger>
@@ -136,10 +111,6 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={toggleLoading}>
-            <LoaderIcon className="mr-2 h-4 w-4" />
-            {isLoading ? "Restore" : "Set"} loading
-          </DropdownMenuItem>
           {/* Simulate Error */}
           <Dialog>
             <DialogTrigger asChild>

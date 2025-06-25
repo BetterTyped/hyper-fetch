@@ -1,12 +1,23 @@
 import { WebSocket } from "ws";
 
+export enum AppConnectionStatus {
+  PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
+  INITIALIZED = "INITIALIZED",
+}
+
+export enum PluginConnectionStatus {
+  CONNECTED = "CONNECTED",
+  HANGUP = "HANGUP",
+}
+
 export type ConnectionMap = Record<
   string, // connectionName
   {
     ws: WebSocket | null;
-    frontendStatus: "pending" | "sent" | "initialized";
+    appStatus: AppConnectionStatus;
     events?: any[];
-    status: "connected" | "hangup";
+    pluginStatus: PluginConnectionStatus;
     clientMetaData?: any;
   }
 >;

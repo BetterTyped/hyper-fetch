@@ -1,7 +1,8 @@
 import { Plugin, RequestInstance } from "@hyper-fetch/core";
 
 import { DevtoolsEventHandler } from "./devtools.event.handler";
-import { DevtoolsPluginOptions, EmitableCustomEvents } from "./devtools.types";
+import { CustomEvents, EventSourceType } from "./types/events.types";
+import { DevtoolsPluginOptions } from "./types/plugin.types";
 
 export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
   const plugin = new Plugin({
@@ -18,7 +19,12 @@ export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
 
   plugin.onRequestCreate(({ request }) => {
     plugin.data.requests.push(request);
-    plugin.data.eventHandler?.sendEvent(EmitableCustomEvents.REQUEST_CREATED, plugin.data.requests);
+    plugin.data.eventHandler?.sendEvent({
+      eventSource: EventSourceType.CUSTOM_EVENT,
+      eventName: CustomEvents.REQUEST_CREATED,
+      data: plugin.data.requests,
+      isTriggeredExternally: false,
+    });
   });
 
   return plugin;

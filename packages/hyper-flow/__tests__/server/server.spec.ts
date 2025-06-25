@@ -1,6 +1,7 @@
 import { waitFor } from "@testing-library/react";
+import { InternalEvents, MessageType } from "@hyper-fetch/plugin-devtools";
+import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
 
-import { MessageType } from "../../src/shared/types/messages.types";
 import { StartServer, startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 
@@ -11,6 +12,7 @@ describe("Devtools Socket Server", () => {
   });
   afterEach(async () => {
     await serverObject?.server?.close();
+    await serverObject?.wss?.close();
     jest.clearAllMocks();
   });
   describe("If connection to the frontend is established and client is connected", () => {
@@ -20,9 +22,11 @@ describe("Devtools Socket Server", () => {
         socketAddress: "localhost",
         socketPort: 2137,
       });
-      await connectDevtoolsClient();
+      connectDevtoolsClient();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
+      expect(connections!["test-client"].appStatus).toEqual(AppConnectionStatus.IN_PROGRESS);
+      expect(connections!["test-client"].pluginStatus).toEqual(PluginConnectionStatus.CONNECTED);
     });
   });
   describe("If connection to the frontend app is established and then disconnected and reconnected again", () => {
@@ -48,7 +52,11 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(connections?.["test-client"].ws).toBeNull());
       await waitFor(() => expect(receivedMessage).toBeTruthy());
       expect(receivedMessage).toEqual({
-        event: { messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP, connectionName: "test-client" },
+        event: {
+          messageType: MessageType.INTERNAL,
+          connectionName: "test-client",
+          eventType: InternalEvents.PLUGIN_HANGUP,
+        },
       });
 
       await socket.disconnect();
@@ -75,7 +83,7 @@ describe("Devtools Socket Server", () => {
       const { client } = connectDevtoolsClient();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
       await waitFor(() => expect(clientReceivedMessages.length).toBeGreaterThan(0));
-      const receivedMetaData = clientReceivedMessages[0].event.eventData;
+      const receivedMetaData = clientReceivedMessages[0].event;
       expect(receivedMetaData.clientOptions).toEqual(client.options);
       expect(receivedMetaData.adapterOptions).toEqual(client.adapter.options);
     });

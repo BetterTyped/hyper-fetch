@@ -17,24 +17,25 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param data
    */
   emitCacheData: <Response, Error, Adapter extends AdapterInstance>(
-    data: CacheValueType<Response, Error, Adapter> & { cached: boolean; isTriggeredExternally?: boolean },
+    data: CacheValueType<Response, Error, Adapter> & { cached: boolean },
+    isTriggeredExternally = false,
   ): void => {
-    emitter.emit(getCacheKey(), data);
-    emitter.emit(getCacheByKey(data.cacheKey), data);
+    emitter.emit(getCacheKey(), data, isTriggeredExternally);
+    emitter.emit(getCacheByKey(data.cacheKey), data, isTriggeredExternally);
   },
   /**
    * Invalidate cache values event
    */
-  emitInvalidation: (cacheKey: string): void => {
-    emitter.emit(getInvalidateKey(), cacheKey);
-    emitter.emit(getInvalidateByKey(cacheKey));
+  emitInvalidation: (cacheKey: string, isTriggeredExternally = false): void => {
+    emitter.emit(getInvalidateKey(), cacheKey, isTriggeredExternally);
+    emitter.emit(getInvalidateByKey(cacheKey), isTriggeredExternally);
   },
   /**
    * Delete of cache values
    */
-  emitDelete: (cacheKey: string): void => {
-    emitter.emit(getDeleteKey(), cacheKey);
-    emitter.emit(getDeleteByKey(cacheKey));
+  emitDelete: (cacheKey: string, isTriggeredExternally = false): void => {
+    emitter.emit(getDeleteKey(), cacheKey, isTriggeredExternally);
+    emitter.emit(getDeleteByKey(cacheKey), isTriggeredExternally);
   },
   /**
    * Cache data listener
@@ -42,9 +43,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @returns
    */
   onData: <Response, Error, Adapter extends AdapterInstance>(
-    callback: (
-      data: CacheValueType<Response, Error, Adapter> & { cached: boolean; isTriggeredExternally: boolean },
-    ) => void,
+    callback: (data: CacheValueType<Response, Error, Adapter> & { cached: boolean }) => void,
   ): VoidFunction => {
     emitter.on(getCacheKey(), callback);
     return () => emitter.removeListener(getCacheKey(), callback);

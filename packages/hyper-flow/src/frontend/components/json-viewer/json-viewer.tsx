@@ -72,7 +72,7 @@ export const JSONViewer = ({
         valueRenderer={(value, raw, ...path: (string | number)[]) => (
           <Value value={value} raw={raw} path={path} onChange={handleOnChange(path)} disabled={!onChange} />
         )}
-        labelRenderer={(path, nodeType, expanded, expandable) => (
+        labelRenderer={(path, _, __, expandable) => (
           <Label label={path[0]} getRaw={() => getRaw(data, path)} expandable={expandable} />
         )}
       />

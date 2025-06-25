@@ -2,12 +2,18 @@ import { memo } from "react";
 import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Socket } from "@hyper-fetch/sockets";
-import { BaseMessage, MessageType } from "@shared/types/messages.types";
-import { SocketTopics } from "@shared/topics";
+import {
+  AppInternalMessage,
+  HFEventMessage,
+  InternalEvents,
+  MessageOrigin,
+  PluginInternalMessage,
+  SocketTopics,
+} from "@hyper-fetch/plugin-devtools";
 
-import { ConnectionName } from "@/constants/connection.name";
-import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
+import { ConnectionName } from "@/constants/connection.name";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
   const addConnection = useConnectionStore((state) => state.addConnection);
@@ -23,7 +29,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       reconnect: Infinity,
       reconnectTime: 4000,
     })
-      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND })
+      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP })
       .onConnected(() => {
         if (!nameRef.current) return;
 
@@ -39,42 +45,43 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
         });
       });
 
-    const devtoolsListener = socket.createListener<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
+    const devtoolsListener = socket.createListener<PluginInternalMessage["data"]>()({
+      topic: SocketTopics.APP_MAIN_LISTENER,
     });
 
-    const eventListener = socket.createListener<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER,
+    const eventListener = socket.createListener<HFEventMessage["data"]>()({
+      topic: SocketTopics.APP_INSTANCE_LISTENER,
     });
 
-    const eventEmitter = socket.createEmitter<BaseMessage["data"]>()({
-      topic: SocketTopics.DEVTOOLS_APP_CLIENT_EMITTER,
+    const eventEmitter = socket.createEmitter<HFEventMessage["data"] | AppInternalMessage["data"]>()({
+      topic: SocketTopics.PLUGIN_LISTENER,
     });
 
     socket.connect();
 
-    // TODO - Kacper fix this type?
-    devtoolsListener.listen((event: any) => {
-      const { connectionName, messageType, eventData } = event.data;
+    devtoolsListener.listen((event) => {
+      const { connectionName, messageType, eventType, environment, clientOptions, adapterOptions } = event.data;
 
       const name = connectionName;
       nameRef.current = name;
 
-      switch (messageType) {
-        case MessageType.DEVTOOLS_PLUGIN_INIT: {
-          const client = new Client({ url: eventData.clientOptions.url });
+      switch (eventType) {
+        case InternalEvents.PLUGIN_INITIALIZED: {
+          const client = new Client({ url: clientOptions.url });
 
           addConnection({
             name,
-            metaData: eventData,
+            clientOptions,
+            adapterOptions,
             client,
             connected: true,
             eventListener,
             eventEmitter,
+            environment,
           });
           addApplication({
             name,
-            environment: eventData.environment,
+            environment,
             adapterName: client.adapter.name,
             url: client.url,
             settings: {
@@ -86,7 +93,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           });
           return;
         }
-        case MessageType.DEVTOOLS_PLUGIN_HANGUP: {
+        case InternalEvents.PLUGIN_HANGUP: {
           updateConnection(nameRef.current, {
             connected: false,
           });

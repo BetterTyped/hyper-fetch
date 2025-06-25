@@ -29,6 +29,7 @@ export type CacheValueType<
     staleTime: number;
     version: string;
     cacheTime: number;
+    cached: boolean;
     hydrated?: boolean;
   };
 

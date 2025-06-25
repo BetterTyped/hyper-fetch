@@ -1,27 +1,29 @@
 import { ClientInstance } from "@hyper-fetch/core";
 import { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
 import { create } from "zustand";
-import { BaseMessage } from "@shared/types/messages.types";
+import { AppInternalMessage, HFEventMessage } from "@hyper-fetch/plugin-devtools";
 
 export type Connection = {
   name: string;
   // devtoolsSocket: SocketInstance;
   client: ClientInstance;
-  metaData: {
-    clientOptions: { url?: string };
-    // TODO - not sure if any is the best approach
-    adapterOptions: {
-      name?: string;
-      defaultMethod?: any;
-      defaultExtra?: any;
-      systemErrorStatus?: any;
-      systemErrorExtra?: any;
-      defaultRequestOptions?: any;
-    };
+  environment: string;
+  clientOptions: { url?: string };
+  adapterOptions: {
+    name?: string;
+    defaultMethod?: string;
+    // TODO - change to Record (transform with json.parse)
+    defaultExtra?: string;
+    // TODO - change to Record (transform with json.parse)
+    systemErrorStatus?: string;
+    // TODO - change to Record (transform with json.parse)
+    systemErrorExtra?: string;
+    // TODO - change to Record (transform with json.parse)
+    defaultRequestOptions?: string;
   };
   connected: boolean;
-  eventListener: ExtendListener<ListenerInstance, { response: BaseMessage["data"] }>;
-  eventEmitter: ExtendEmitter<EmitterInstance, { payload: BaseMessage["data"] }>;
+  eventListener: ExtendListener<ListenerInstance, { response: HFEventMessage["data"] }>;
+  eventEmitter: ExtendEmitter<EmitterInstance, { payload: HFEventMessage["data"] | AppInternalMessage["data"] }>;
 };
 
 type ConnectionStore = {

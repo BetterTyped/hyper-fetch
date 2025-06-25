@@ -49,66 +49,67 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
    */
 
   // Deduplicated
-  emitDeduplicated: (data: RequestDeduplicatedEventType<RequestInstance>): void => {
-    emitter.emit(getRequestDeduplicatedKey(), data);
-    emitter.emit(getRequestDeduplicatedByIdKey(data.requestId), data);
-    emitter.emit(getRequestDeduplicatedByCacheKey(data.request.cacheKey), data);
-    emitter.emit(getRequestDeduplicatedByQueryKey(data.request.queryKey), data);
+  emitDeduplicated: (data: RequestDeduplicatedEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getRequestDeduplicatedKey(), data, isTriggeredExternally);
+    emitter.emit(getRequestDeduplicatedByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getRequestDeduplicatedByCacheKey(data.request.cacheKey), data, isTriggeredExternally);
+    emitter.emit(getRequestDeduplicatedByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   // Loading
-  emitLoading: (data: RequestLoadingEventType<RequestInstance>): void => {
-    emitter.emit(getLoadingKey(), data);
-    emitter.emit(getLoadingByIdKey(data.requestId), data);
-    emitter.emit(getLoadingByCacheKey(data.request.cacheKey), data);
-    emitter.emit(getLoadingByQueryKey(data.request.queryKey), data);
+  emitLoading: (data: RequestLoadingEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getLoadingKey(), data, isTriggeredExternally);
+    emitter.emit(getLoadingByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getLoadingByCacheKey(data.request.cacheKey), data, isTriggeredExternally);
+    emitter.emit(getLoadingByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   // Start
-  emitRequestStart: (data: RequestEventType<RequestInstance>): void => {
-    emitter.emit(getRequestStartKey(), data);
-    emitter.emit(getRequestStartByIdKey(data.requestId), data);
-    emitter.emit(getRequestStarByQueryKey(data.request.queryKey), data);
+  emitRequestStart: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getRequestStartKey(), data, isTriggeredExternally);
+    emitter.emit(getRequestStartByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getRequestStarByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
-  emitResponseStart: (data: RequestEventType<RequestInstance>): void => {
-    emitter.emit(getResponseStartKey(), data);
-    emitter.emit(getResponseStartByIdKey(data.requestId), data);
-    emitter.emit(getResponseStartByQueryKey(data.request.queryKey), data);
+  emitResponseStart: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getResponseStartKey(), data, isTriggeredExternally);
+    emitter.emit(getResponseStartByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getResponseStartByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   // Progress
-  emitUploadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
-    emitter.emit(getUploadProgressKey(), data);
-    emitter.emit(getUploadProgressByIdKey(data.requestId), data);
-    emitter.emit(getUploadProgressByQueryKey(data.request.queryKey), data);
+  emitUploadProgress: (data: RequestProgressEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getUploadProgressKey(), data, isTriggeredExternally);
+    emitter.emit(getUploadProgressByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getUploadProgressByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
-  emitDownloadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
-    emitter.emit(getDownloadProgressKey(), data);
-    emitter.emit(getDownloadProgressByIdKey(data.requestId), data);
-    emitter.emit(getDownloadProgressByQueryKey(data.request.queryKey), data);
+  emitDownloadProgress: (data: RequestProgressEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getDownloadProgressKey(), data, isTriggeredExternally);
+    emitter.emit(getDownloadProgressByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getDownloadProgressByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   // Response
   emitResponse: <Adapter extends AdapterInstance>(
     data: RequestResponseEventType<ExtendRequest<RequestInstance, { client: Client<any, Adapter> }>>,
+    isTriggeredExternally = false,
   ): void => {
-    emitter.emit(getResponseKey(), data);
-    emitter.emit(getResponseByIdKey(data.requestId), data);
-    emitter.emit(getResponseByCacheKey(data.request.cacheKey), data);
+    emitter.emit(getResponseKey(), data, isTriggeredExternally);
+    emitter.emit(getResponseByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getResponseByCacheKey(data.request.cacheKey), data, isTriggeredExternally);
   },
 
   // Abort
-  emitAbort: (data: RequestEventType<RequestInstance>): void => {
-    emitter.emit(getAbortKey(), data);
-    emitter.emit(getAbortByIdKey(data.requestId), data);
-    emitter.emit(getAbortByAbortKey(data.request.abortKey), data);
+  emitAbort: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getAbortKey(), data, isTriggeredExternally);
+    emitter.emit(getAbortByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getAbortByAbortKey(data.request.abortKey), data, isTriggeredExternally);
   },
 
   // Remove
-  emitRemove: (data: RequestRemovedEventType<RequestInstance>): void => {
-    emitter.emit(getRemoveKey(), data);
-    emitter.emit(getRemoveByIdKey(data.requestId), data);
-    emitter.emit(getRemoveByQueryKey(data.request.queryKey), data);
+  emitRemove: (data: RequestRemovedEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getRemoveKey(), data, isTriggeredExternally);
+    emitter.emit(getRemoveByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getRemoveByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   /**

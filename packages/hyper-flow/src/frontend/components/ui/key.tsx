@@ -39,7 +39,12 @@ export const Key = ({
         {getKeyIcon(type)}
         <span className="block max-w-full truncate whitespace-nowrap">{value}</span>
       </TooltipTrigger>
-      <TooltipContent>This is {names[type]}</TooltipContent>
+      <TooltipContent>
+        <div className="text-base">
+          This is <b>{names[type]}</b>
+        </div>
+        <div className="text-xs text-muted-foreground">{value}</div>
+      </TooltipContent>
     </Tooltip>
   );
 };

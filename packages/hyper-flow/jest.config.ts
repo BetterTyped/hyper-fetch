@@ -12,6 +12,7 @@ config.moduleNameMapper = {
   "^@shared\/(.*)$": "<rootDir>/src/shared/$1",
   "^@server\/(.*)$": "<rootDir>/src/server/$1",
   "^@app\/(.*)$": "<rootDir>/src/app/$1",
+  "^@testing\/(.*)$": "<rootDir>/__tests__/$1",
 };
 
 export default config;

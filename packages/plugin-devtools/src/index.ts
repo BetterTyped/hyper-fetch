@@ -1,3 +1,5 @@
 export * from "./devtools.plugin";
-export * from "./devtools.event.handler";
-export * from "./devtools.types";
+export * from "./types/events.types";
+export * from "./types/messages.types";
+export * from "./types/plugin.types";
+export * from "./types/topics";

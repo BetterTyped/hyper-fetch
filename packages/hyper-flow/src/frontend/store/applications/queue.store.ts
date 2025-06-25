@@ -10,6 +10,7 @@ type QueueStore = {
       queues: Map<QueryKey, QueueDataType<RequestInstance>>;
       searchTerm: string;
       detailsId: string | null;
+      loadingKeys: Set<QueryKey>;
     };
   };
   initialize: (applicationName: string) => void;
@@ -17,18 +18,23 @@ type QueueStore = {
   setSearchTerm: (application: string, searchTerm: string) => void;
   openDetails: (application: string, queryKey: QueryKey) => void;
   closeDetails: (application: string) => void;
+  addLoadingKey: (data: { application: string; queryKey: QueryKey }) => void;
+  removeLoadingKey: (data: { application: string; queryKey: QueryKey }) => void;
 };
+
+const getInitialState = (): QueueStore["applications"][string] => ({
+  queues: new Map(),
+  detailsId: null,
+  searchTerm: "",
+  loadingKeys: new Set(),
+});
 
 export const useQueueStore = create<QueueStore>((set) => ({
   applications: {},
   initialize: (applicationName: string) => {
     set((state) =>
       produce(state, (draft) => {
-        draft.applications[applicationName] = {
-          queues: new Map(),
-          detailsId: null,
-          searchTerm: "",
-        };
+        draft.applications[applicationName] = getInitialState();
       }),
     );
   },
@@ -36,11 +42,7 @@ export const useQueueStore = create<QueueStore>((set) => ({
     set((state) =>
       produce(state, (draft) => {
         if (!draft.applications[application]) {
-          draft.applications[application] = {
-            queues: new Map(),
-            detailsId: null,
-            searchTerm: "",
-          };
+          draft.applications[application] = getInitialState();
         }
 
         // Update queues
@@ -66,6 +68,26 @@ export const useQueueStore = create<QueueStore>((set) => ({
     set((state) =>
       produce(state, (draft) => {
         draft.applications[application].detailsId = null;
+      }),
+    );
+  },
+  addLoadingKey: ({ application, queryKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].loadingKeys.add(queryKey);
+      }),
+    );
+  },
+  removeLoadingKey: ({ application, queryKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        if (!draft.applications[application]) {
+          draft.applications[application] = getInitialState();
+        }
+        draft.applications[application].loadingKeys.delete(queryKey);
       }),
     );
   },

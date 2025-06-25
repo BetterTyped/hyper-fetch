@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, Boxes, FileSliders } from "lucide-react";
 import { AdapterInstance, CacheValueType } from "@hyper-fetch/core";
+import { useShallow } from "zustand/react/shallow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JSONViewer } from "@/components/json-viewer/json-viewer";
@@ -10,9 +11,15 @@ import { DevtoolsCacheEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useCacheStore } from "@/store/applications/cache.store";
 
 export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
-  const { client } = useDevtools();
+  const { client, application } = useDevtools();
+  const { setCacheItem } = useCacheStore(
+    useShallow((selector) => ({
+      setCacheItem: selector.setCacheItem,
+    })),
+  );
 
   const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("cache");
@@ -21,9 +28,12 @@ export const SectionData = ({ item }: { item: DevtoolsCacheEvent }) => {
     if (item) {
       const data = { ...item.cacheData, ...newData, version: client.cache.version, cached: true };
 
-      client.cache.storage.set<any, any, any>(item.cacheKey, data);
-      client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
-      client.cache.events.emitCacheData<any, any, any>(data);
+      setCacheItem({
+        application: application.name,
+        cacheKey: item.cacheKey,
+        cacheData: data,
+      });
+      client.cache.events.emitCacheData<any, any, any>(data, true);
     }
   };
 

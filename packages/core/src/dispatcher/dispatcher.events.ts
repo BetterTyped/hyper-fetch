@@ -12,17 +12,26 @@ import {
 import { RequestInstance } from "request";
 
 export const getDispatcherEvents = (emitter: EventEmitter) => ({
-  emitDrained: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherDrainedKey(), values);
-    emitter.emit(getDispatcherDrainedByKey(values.queryKey), values);
+  emitDrained: <Request extends RequestInstance>(
+    values: QueueDataType<Request>,
+    isTriggeredExternally?: boolean,
+  ): void => {
+    emitter.emit(getDispatcherDrainedKey(), values, isTriggeredExternally);
+    emitter.emit(getDispatcherDrainedByKey(values.queryKey), values, isTriggeredExternally);
   },
-  emitQueueStatusChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherStatusKey(), values);
-    emitter.emit(getDispatcherStatusByKey(values.queryKey), values);
+  emitQueueStatusChanged: <Request extends RequestInstance>(
+    values: QueueDataType<Request>,
+    isTriggeredExternally?: boolean,
+  ): void => {
+    emitter.emit(getDispatcherStatusKey(), values, isTriggeredExternally);
+    emitter.emit(getDispatcherStatusByKey(values.queryKey), values, isTriggeredExternally);
   },
-  emitQueueChanged: <Request extends RequestInstance>(values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherChangeKey(), values);
-    emitter.emit(getDispatcherChangeByKey(values.queryKey), values);
+  emitQueueChanged: <Request extends RequestInstance>(
+    values: QueueDataType<Request>,
+    isTriggeredExternally?: boolean,
+  ): void => {
+    emitter.emit(getDispatcherChangeKey(), values, isTriggeredExternally);
+    emitter.emit(getDispatcherChangeByKey(values.queryKey), values, isTriggeredExternally);
   },
   /**
    * When queue becomes empty

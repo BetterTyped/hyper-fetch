@@ -1,0 +1,86 @@
+---
+sidebar_position: 3
+title: Connecting Devtools
+sidebar_label: Connecting Devtools
+---
+
+Hyper Flow is a devtool that provides real-time insights into your application's requests, cache, and queue, making
+debugging and development faster and more efficient. Connecting it to your Hyper Fetch client is straightforward.
+
+---
+
+:::tip Purpose
+
+This guide will walk you through connecting the Hyper Fetch Devtools plugin to your client instance. You will learn how
+to:
+
+1.  **Install** the necessary devtools package.
+2.  **Initialize** and **connect** the devtools plugin to your Hyper Fetch client.
+3.  **Verify** the connection and start monitoring your requests.
+
+:::
+
+---
+
+## Step-by-step Guide
+
+Connecting the devtools is a simple process that involves installing the plugin and adding it to your client.
+
+1. ### Installation
+
+First, you need to install the `@hyper-fetch/plugin-devtools` package.
+
+```npm2yarn2pnpm
+npm install @hyper-fetch/plugin-devtools
+```
+
+2. ### Connecting to the Client
+
+Once installed, import `DevtoolsPlugin` and `createClient`. Then, use the `client.addPlugin` method to connect it. The
+plugin requires an `appName` to identify your application in the devtools.
+
+<LinkCard
+  type="integrations"
+  title="Devtools Plugin"
+  description="Learn more how to install it and what it does"
+  href="/docs/integrations/plugin-devtools"
+/>
+
+```typescript title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+// Create a client instance
+export const client = createClient({
+  url: "https://api.your-app.com",
+  // highlight-start
+}).addPlugin(DevtoolsPlugin({ appName: "My Awesome App" })); // Add the plugin to the client
+// highlight-end
+```
+
+You should replace `"My Awesome App"` with a name that uniquely identifies your application in Hyper Flow.
+
+3. ### Verifying the Connection
+
+Once you've added the plugin, run your application and make a request using Hyper Fetch. If the connection is
+successful, you will see your application appear in the Hyper Flow devtools, and your requests will be logged in
+real-time.
+
+This setup is typically done once in a central file where you configure your Hyper Fetch client.
+
+---
+
+## Verifying the Connection
+
+Once you've added the plugin, run your application and make a request using Hyper Fetch. If the connection is
+successful, you will see your application appear in the Hyper Flow devtools, and your requests will be logged in
+real-time.
+
+---
+
+:::secondary
+
+In this guide, you learned how to connect the Hyper Fetch Devtools plugin to your client. This enables real-time
+monitoring of your application's data exchange, which is invaluable for debugging and development.
+
+:::

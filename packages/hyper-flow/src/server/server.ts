@@ -1,16 +1,18 @@
 import { createServer, Server } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 import url from "url";
-import { SocketTopics } from "@shared/topics";
+import { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
 
-import { DevtoolsClientHandshakeMessage, MessageType, MessageTypes } from "../shared/types/messages.types";
 import { ConnectionHandler } from "./handlers/connection-handler";
 
-const getConnectionName = (requestUrl: string) => {
+const getConnectionInfo = (requestUrl: string) => {
   const queryParams = url.parse(requestUrl, true).query;
-  const { connectionName } = (queryParams || {}) as { connectionName: string };
-  return connectionName;
+  const { connectionName, origin } = (queryParams || {}) as { connectionName?: string; origin?: MessageOrigin };
+  if (!connectionName || !origin) {
+    return null;
+  }
+  return { connectionName, origin };
 };
 
 export type StartServer = {
@@ -28,9 +30,9 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
   const connectionHandler = new ConnectionHandler();
 
   wss.on("connection", (wsConn, request) => {
-    const connectionName = getConnectionName(request.url || "");
+    const connectionInfo = getConnectionInfo(request.url || "");
 
-    if (!connectionName) {
+    if (!connectionInfo) {
       serverLogger.error("WebSocket connection attempt failed", {
         context: "WebSocketServer",
         details: {
@@ -42,13 +44,13 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       return;
     }
 
-    connectionHandler.handleNewConnection(connectionName, wsConn);
+    connectionHandler.handleNewConnection(connectionInfo, wsConn);
 
     wsConn.on("error", (error) => {
       serverLogger.error("WebSocket connection error", {
         context: "WebSocketServer",
         details: {
-          connectionName,
+          connectionInfo,
           error: error.message,
           stack: error.stack,
         },
@@ -56,61 +58,15 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     });
 
     wsConn.on("close", () => {
-      const closedConnectionName = getConnectionName(request.url || "");
-      if (!closedConnectionName) {
+      if (!connectionInfo) {
         return;
       }
-      connectionHandler.handleClosedConnection(closedConnectionName);
+      connectionHandler.handleClosedConnection(connectionInfo.connectionName);
     });
 
-    wsConn.on("message", (msg: MessageTypes) => {
-      const message = JSON.parse(msg.toString()) as MessageTypes;
-      serverLogger.info("Received message from devtools plugin", {
-        context: "WebSocketServer",
-        details: {
-          connectionName,
-          messageType: message.data.messageType,
-        },
-      });
-      switch (message.data.messageType) {
-        // Received info from connected plugin and informing devtools frontend
-        case MessageType.PLUGIN_INITIALIZED: {
-          connectionHandler.sendConnectedAppsInfoToDevtoolsFrontend(
-            message.data.connectionName,
-            message as DevtoolsClientHandshakeMessage,
-          );
-          return;
-        }
-        // Received info from devtools frontend that client apps have been created
-        case MessageType.DEVTOOLS_PLUGIN_CONFIRM: {
-          connectionHandler.handleDevtoolsFrontendInitialization(message.data.connectionName);
-          return;
-        }
-        // RECEIVED FROM HF_DEVTOOLS_FRONTEND --SENDING TO-- HF_DEVTOOLS_PLUGIN
-        case MessageType.HF_DEVTOOLS_EVENT: {
-          connectionHandler.sendMessageToDevtoolsPlugin(
-            message.data.connectionName,
-            JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }),
-          );
-          return;
-        }
-        // RECEIVED FROM HF_DEVTOOLS_PLUGIN --SENDING TO-- HF_DEVTOOLS_FRONTEND
-        case MessageType.HF_APP_EVENT: {
-          connectionHandler.sendMessageToDevtoolsFrontend(
-            JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER }),
-          );
-          return;
-        }
-        default:
-          serverLogger.warning("Unhandled message type received", {
-            context: "WebSocketServer",
-            details: {
-              messageType: message.data.messageType,
-              connectionName: message.data.connectionName,
-              fullMessage: message,
-            },
-          });
-      }
+    wsConn.on("message", (msg: { data: BaseMessagePayload }) => {
+      const message = JSON.parse(msg.toString()) as { data: BaseMessagePayload };
+      connectionHandler.handleMessage(message);
     });
   });
 
@@ -142,13 +98,6 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       if (onServerCrash) {
         process.off("unhandledRejection", onServerCrash);
       }
-      serverLogger.warning("Server closed", {
-        context: "Server",
-        details: {
-          port,
-          reason: "Server closed event triggered",
-        },
-      });
     })
     .on("error", (error) => {
       if (onServerCrash) {
@@ -176,8 +125,8 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     return {
       server,
       wss,
-      connections: connectionHandler.connections,
-      DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.devtoolsFrontendConnection,
+      connections: connectionHandler.connectionState.connections,
+      DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.connectionState.appConnection,
     };
   }
   serverLogger.error("Server failed to start", {

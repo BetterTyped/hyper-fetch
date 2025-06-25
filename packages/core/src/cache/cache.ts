@@ -62,7 +62,6 @@ export class Cache<Adapter extends AdapterInstance> {
    * Set the cache data to the storage
    * @param request
    * @param response
-   * @param isTriggeredExternally - informs whether trigger comes from an external source, such as devtools
    * @returns
    */
   set = <Request extends RequestCacheType<RequestInstance>>(
@@ -71,7 +70,6 @@ export class Cache<Adapter extends AdapterInstance> {
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     > & { hydrated?: boolean },
-    isTriggeredExternally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
     const { cacheKey, cache, staleTime, cacheTime } = request;
@@ -92,6 +90,7 @@ export class Cache<Adapter extends AdapterInstance> {
       version: this.version,
       cacheKey,
       cacheTime,
+      cached: !!request.cache,
     };
 
     // Only success data is valid for the cache store
@@ -113,12 +112,9 @@ export class Cache<Adapter extends AdapterInstance> {
     }
 
     this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
-      ...newCacheData,
-      isTriggeredExternally,
-      cached: request.cache,
-      cacheKey,
-    });
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+      newCacheData,
+    );
   };
 
   /**
@@ -137,7 +133,6 @@ export class Cache<Adapter extends AdapterInstance> {
           ResponseDetailsType
       >
     >,
-    isTriggeredExtrenally = false,
   ): void => {
     this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
     const { cacheKey } = request;
@@ -150,7 +145,7 @@ export class Cache<Adapter extends AdapterInstance> {
     const processedResponse =
       typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
-      this.set(request, { ...cachedData, ...processedResponse }, isTriggeredExtrenally);
+      this.set(request, { ...cachedData, ...processedResponse });
     }
   };
 

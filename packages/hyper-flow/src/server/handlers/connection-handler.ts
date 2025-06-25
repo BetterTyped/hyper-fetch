@@ -1,154 +1,175 @@
 import { WebSocket } from "ws";
+import {
+  AppInternalMessage,
+  BaseMessagePayload,
+  InternalEvents,
+  MessageOrigin,
+  MessageType,
+  PluginInternalMessage,
+  SocketTopics,
+} from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
 
-import { ConnectionMap } from "../types/connection.type";
-import { ConnectionName } from "../../frontend/constants/connection.name";
-import { SocketTopics } from "../../shared/topics";
-import { DevtoolsClientHandshakeMessage, EmitableCustomEvents, MessageType } from "../../shared/types/messages.types";
+import { AppConnectionStatus, ConnectionMap, PluginConnectionStatus } from "../types/connection.type";
+import { InternalConnectionHandler } from "./internal-connection-handler";
+
+import { ConnectionName } from "@/constants/connection.name";
+
+type ConnectionState = {
+  connections: ConnectionMap;
+  appConnection: WebSocket | null;
+};
 
 export class ConnectionHandler {
-  connections: ConnectionMap = {};
-  devtoolsFrontendConnection: WebSocket | null = null;
-
-  setDevtoolsFrontendConnection = (connection: WebSocket | null) => {
-    this.devtoolsFrontendConnection = connection;
+  connectionState: ConnectionState = {
+    connections: {},
+    appConnection: null,
   };
 
-  sendConnectedAppsInfoToDevtoolsFrontend = (connectionName: string, message: DevtoolsClientHandshakeMessage) => {
-    if (!this.connections[connectionName]) {
-      throw new Error(`No open connection exists for the connectionName ${connectionName}`);
-    }
-    if (!this.devtoolsFrontendConnection || !message) {
-      /**
-       * This error can happen when the devtools plugin connects to the fake server
-       * We found this case being triggered with msw setup, which caused websocket to open
-       * We early return here to avoid the error on the startup of the devtools app
-       */
-      serverLogger.error("Failed to send connected apps info to devtools frontend", {
-        context: "ConnectionHandler",
-        details: {
-          reason: "Missing frontend connection or message data",
-          connectionName,
-          hasFrontendConnection: !!this.devtoolsFrontendConnection,
-          hasMessage: !!message,
-          activeConnections: Object.keys(this.connections),
-        },
-      });
-      return;
-    }
-    this.devtoolsFrontendConnection.send(
-      JSON.stringify({
-        ...{
-          topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
-          data: { messageType: MessageType.DEVTOOLS_PLUGIN_INIT, connectionName, eventData: message.data.eventData },
-        },
-      }),
-    );
-    this.connections[connectionName].frontendStatus = "sent";
-    this.connections[connectionName].clientMetaData = message;
+  internalConnectionHandler: InternalConnectionHandler;
+
+  constructor() {
+    this.internalConnectionHandler = new InternalConnectionHandler(this.connectionState);
+  }
+
+  /* -------------------------------------------------------------------------------------------------
+   * App
+   * -----------------------------------------------------------------------------------------------*/
+
+  setAppConnection = (connection: WebSocket | null) => {
+    this.connectionState.appConnection = connection;
   };
 
-  sendMessageToDevtoolsPlugin = (devtoolsConnectionName: string, message: string) => {
-    if (!this.connections[devtoolsConnectionName]) {
-      throw new Error(`No connection exists for the connectionName ${devtoolsConnectionName}`);
+  sendToApp = (message: string) => {
+    this.connectionState.appConnection?.send(message);
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Plugin
+   * -----------------------------------------------------------------------------------------------*/
+
+  sendToPlugin = (message: { data: BaseMessagePayload }) => {
+    const pluginConnectionName = message.data.connectionName;
+    if (!this.connectionState.connections[pluginConnectionName]) {
+      throw new Error(`No connection exists for the connectionName ${pluginConnectionName}`);
     }
-    if (!this.connections[devtoolsConnectionName].ws) {
+    if (!this.connectionState.connections[pluginConnectionName].ws) {
       serverLogger.error("Failed to send message to devtools plugin", {
         context: "ConnectionHandler",
         details: {
           reason: "WebSocket connection is not available",
-          connectionName: devtoolsConnectionName,
-          connectionStatus: this.connections[devtoolsConnectionName].status,
-          frontendStatus: this.connections[devtoolsConnectionName].frontendStatus,
-          messageType: JSON.parse(message)?.data?.messageType,
+          connectionName: pluginConnectionName,
+          pluginStatus: this.connectionState.connections[pluginConnectionName].pluginStatus,
+          frontendStatus: this.connectionState.connections[pluginConnectionName].appStatus,
+          messageType: message?.data?.messageType,
         },
       });
       return;
     }
-    this.connections[devtoolsConnectionName].ws.send(message);
-  };
-
-  sendMessageToDevtoolsFrontend = (message: string) => {
-    this.devtoolsFrontendConnection?.send(message);
-  };
-
-  handleDevtoolsFrontendInitialization = (connectionName: string) => {
-    if (!this.connections[connectionName]) {
-      serverLogger.error("Failed to initialize devtools frontend", {
-        context: "ConnectionHandler",
-        details: {
-          reason: "Connection not found in active connections",
-          connectionName,
-          activeConnections: Object.keys(this.connections),
-        },
-      });
-      return;
-    }
-    this.sendMessageToDevtoolsPlugin(
-      connectionName,
-      JSON.stringify({
-        data: { messageType: "CLIENT_INITIALIZED" },
-        topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER,
-      }),
+    this.connectionState.connections[pluginConnectionName].ws.send(
+      JSON.stringify({ ...message, topic: SocketTopics.PLUGIN_LISTENER }),
     );
-    this.connections[connectionName].frontendStatus = "initialized";
   };
 
   addPluginConnection = (connectionName: string, connection: WebSocket) => {
-    if (!this.connections[connectionName]) {
-      this.connections[connectionName] = { ws: connection, frontendStatus: "pending", status: "connected" };
+    if (!this.connectionState.connections[connectionName]) {
+      this.connectionState.connections[connectionName] = {
+        ws: connection,
+        appStatus: AppConnectionStatus.PENDING,
+        pluginStatus: PluginConnectionStatus.CONNECTED,
+      };
     } else {
-      this.connections[connectionName].ws = connection;
+      this.connectionState.connections[connectionName].ws = connection;
     }
   };
 
-  handleNewConnection = (connectionName: string | string[], conn: WebSocket): void => {
-    if (connectionName && !Array.isArray(connectionName) && connectionName !== ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      this.addPluginConnection(connectionName, conn);
-    }
+  /* -------------------------------------------------------------------------------------------------
+   * Handlers
+   * -----------------------------------------------------------------------------------------------*/
 
-    if (connectionName && connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      this.setDevtoolsFrontendConnection(conn);
-      if (Object.keys(this.connections).length !== 0) {
-        Object.entries(this.connections).forEach(([connName, connectionData]) => {
-          this.sendConnectedAppsInfoToDevtoolsFrontend(connName, connectionData.clientMetaData);
-        });
-      }
+  handleMessage = (message: { data: BaseMessagePayload }) => {
+    switch (message.data.messageType) {
+      case MessageType.INTERNAL:
+        this.internalConnectionHandler.handleInternalMessage(message as PluginInternalMessage | AppInternalMessage);
+        break;
+      case MessageType.EVENT:
+        this.handleEventMessage(message);
+        break;
+      default:
+        throw new Error(`Unknown messageType: ${message.data.messageType}`);
+    }
+  };
+
+  handleEventMessage = (message: { data: BaseMessagePayload }) => {
+    switch (message.data.origin) {
+      case MessageOrigin.PLUGIN:
+        this.sendToApp(JSON.stringify({ ...message, topic: SocketTopics.APP_INSTANCE_LISTENER }));
+        break;
+      case MessageOrigin.APP:
+        this.sendToPlugin(message);
+        break;
+      default:
+        throw new Error(`Unknown origin: ${message.data.origin}`);
+    }
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Connections
+   * -----------------------------------------------------------------------------------------------*/
+
+  handleNewConnection = (
+    { connectionName, origin }: { connectionName: string; origin: MessageOrigin },
+    conn: WebSocket,
+  ): void => {
+    switch (origin) {
+      case MessageOrigin.PLUGIN:
+        this.addPluginConnection(connectionName, conn);
+        break;
+      case MessageOrigin.APP:
+        this.setAppConnection(conn);
+        Object.entries(this.connectionState.connections)
+          .filter(([, connData]) => !!connData.clientMetaData)
+          .forEach(([connName, connectionData]) => {
+            this.internalConnectionHandler.sendPluginHandshakeToApp(connName, connectionData.clientMetaData);
+          });
+        break;
+      default:
+        throw new Error(`Unknown origin: ${origin} for ${connectionName}`);
     }
   };
 
   handleClosedConnection = (connectionName: string) => {
     if (connectionName === ConnectionName.HF_DEVTOOLS_FRONTEND) {
-      this.setDevtoolsFrontendConnection(null);
+      this.setAppConnection(null);
     }
 
-    if (this.connections[connectionName]) {
-      const hangupConnection = this.connections[connectionName];
+    if (this.connectionState.connections[connectionName]) {
+      const hangupConnection = this.connectionState.connections[connectionName];
       hangupConnection.ws = null;
-      hangupConnection.status = "hangup";
+      hangupConnection.pluginStatus = PluginConnectionStatus.HANGUP;
 
-      if (!this.devtoolsFrontendConnection) {
+      if (!this.connectionState.appConnection) {
         serverLogger.error("Connection termination failed", {
           context: "ConnectionHandler",
           details: {
             reason: "Devtools frontend connection is not available",
             connectionName,
-            connectionStatus: hangupConnection.status,
-            frontendStatus: hangupConnection.frontendStatus,
-            activeConnections: Object.keys(this.connections),
+            pluginStatus: hangupConnection.pluginStatus,
+            appStatus: hangupConnection.appStatus,
+            activeConnections: Object.keys(this.connectionState.connections),
           },
         });
         return;
       }
 
-      this.devtoolsFrontendConnection.send(
+      this.connectionState.appConnection.send(
         JSON.stringify({
           ...{
-            topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
+            topic: SocketTopics.APP_MAIN_LISTENER,
             data: {
-              messageType: MessageType.DEVTOOLS_PLUGIN_HANGUP,
+              messageType: MessageType.INTERNAL,
+              eventType: InternalEvents.PLUGIN_HANGUP,
               connectionName,
-              eventType: EmitableCustomEvents.PLUGIN_HANGUP,
             },
           },
         }),
