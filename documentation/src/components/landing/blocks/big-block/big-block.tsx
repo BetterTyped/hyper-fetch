@@ -41,7 +41,7 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
             </div>
             {/* Text */}
             <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8 md:pr-0">
-              <div className="mb-5">
+              <div className="mt-6 mb-5 md:mt-0">
                 <div>
                   <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-3xl">
                     {title}
@@ -61,7 +61,7 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
               </div>
             </div>
             {/* Image */}
-            <div className="relative w-full min-h-[300px] overflow-hidden">{img}</div>
+            <div className="hidden md:visible relative w-full min-h-[300px] overflow-hidden">{img}</div>
           </div>
         </div>
       </HighlighterItem>

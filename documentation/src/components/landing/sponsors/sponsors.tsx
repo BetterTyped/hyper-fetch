@@ -33,7 +33,7 @@ export const Sponsors = () => {
             <img
               src="https://github.com/prc5/sponsors/blob/main/packages/all/sponsorkit/sponsors.png?raw=true"
               alt="My Sponsors"
-              className="max-w-[900px] mx-auto"
+              className="max-w-[900px] mx-auto w-full"
             />
           </a>
         </div>

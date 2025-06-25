@@ -19,6 +19,16 @@ const environments = [
     icon: "✅",
   },
   {
+    name: "Next.js",
+    description: "Fully supported Next.js environments with hooks, integrations, hydration and SSR.",
+    icon: "✅",
+  },
+  {
+    name: "Electron",
+    description: "Fully supported Electron environments with hooks and integrations.",
+    icon: "✅",
+  },
+  {
     name: "SSR",
     description: "Fully supported SSR environments (Next.js, Astro, Tanstack Router) with hydration abilities.",
     icon: "✅",

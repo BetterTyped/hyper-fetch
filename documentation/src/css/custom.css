@@ -1460,6 +1460,12 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
+  .navbar__items--right > a:last-of-type {
+    @apply hidden;
+  }
+  .navbar-sidebar__item.menu ul > a {
+    @apply mt-4;
+  }
 }
 @media (max-width: 500px) {
   .footer__item {

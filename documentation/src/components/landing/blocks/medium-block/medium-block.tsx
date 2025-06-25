@@ -22,7 +22,7 @@ export const MediumBlock = ({
         >
           <div className="flex flex-col h-full">
             <div className="grid grid-cols-[3fr_1fr] h-full">
-              <div className="flex flex-col justify-between md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8 h-full">
+              <div className="flex flex-col justify-between md:max-w-[480px] shrink-0 order-1 md:order-none px-6 py-4 md:px-8 md:py-4 h-full">
                 <div className="mt-4 flex-1">
                   <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
                     {title}
@@ -35,7 +35,9 @@ export const MediumBlock = ({
                   Learn more <ArrowRight className="w-4 h-4" />
                 </span>
               </div>
-              <div className="relative w-full h-full overflow-hidden">{img}</div>
+              <div className="absolute md:relative w-full h-full overflow-hidden -z-[1] opacity-30 md:opacity-100">
+                {img}
+              </div>
             </div>
           </div>
         </div>

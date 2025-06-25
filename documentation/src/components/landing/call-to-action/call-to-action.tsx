@@ -49,16 +49,16 @@ export const CallToAction = () => {
             <Description className="text-lg text-zinc-400 mb-8 max-w-2xl mx-auto">
               Spend less time on boilerplate and more on building amazing features that your users will love.
             </Description>
-            <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
+            <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center items-center mb-8">
               <Link
                 to="docs/getting-started"
-                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"
+                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all w-fit md:w-auto"
               >
                 Get Started <ArrowRight className="w-[16px] ml-2" />
               </Link>
               <Link
                 to="/docs/hyper-flow/download"
-                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
+                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl text-center w-fit md:w-auto"
               >
                 <Download className="w-[16px] mr-2" /> Download Devtools
               </Link>
