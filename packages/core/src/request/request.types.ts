@@ -17,7 +17,7 @@ import {
   TypeWithDefaults,
 } from "types";
 import { Request } from "request";
-import { ResponseType, RequestResponseType } from "adapter";
+import { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { ClientInstance } from "client";
 
@@ -215,9 +215,11 @@ export type ParamsType = Record<string, ParamType>;
 
 export type ExtractRouteParams<T extends string> = string extends T
   ? EmptyTypes
-  : T extends `${string}:${infer Param}/${infer Rest}`
+  : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    T extends `${string}:${infer Param}/${infer Rest}`
     ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
-    : T extends `${string}:${infer Param}`
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      T extends `${string}:${infer Param}`
       ? { [k in Param]: ParamType }
       : EmptyTypes;
 
@@ -306,8 +308,11 @@ export type RequestMapper<Request extends RequestInstance, NewRequest extends Re
   requestId: string,
 ) => NewRequest | Promise<NewRequest>;
 
-export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (
-  response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
-) =>
-  | ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>
-  | Promise<ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>>;
+export type ResponseMapper<
+  Request extends RequestInstance,
+  MappedResponse extends ResponseSuccessType<any, any> | ResponseErrorType<any, any>,
+> = (
+  response:
+    | ResponseSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>
+    | ResponseErrorType<ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+) => MappedResponse | Promise<MappedResponse>;

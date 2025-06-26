@@ -14,8 +14,8 @@ import {
   ResponseMapper,
   ExtractRouteParams,
 } from "request";
-import { ClientInstance, RequestGenericType } from "client";
-import { ResponseType } from "adapter";
+import { ClientInstance } from "client";
+import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
 import {
   ExtractAdapterType,
   ExtractClientAdapterType,
@@ -25,7 +25,6 @@ import {
   ExtractPayloadType,
   ExtractQueryParamsType,
   EmptyTypes,
-  TypeWithDefaults,
   ExtractAdapterMethodType,
   ExtractAdapterOptionsType,
   HydrateDataType,
@@ -100,7 +99,7 @@ export class Request<
   /** @internal */
   unstable_requestMapper?: RequestMapper<any, any>;
   /** @internal */
-  unstable_responseMapper?: ResponseMapper<this, any, any>;
+  unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -356,22 +355,18 @@ export class Request<
    * @param responseMapper our mapping callback
    * @returns new response
    */
-  public setResponseMapper = <Properties extends Pick<RequestGenericType<QueryParams>, "response" | "error">>(
-    responseMapper?: ResponseMapper<
-      this,
-      TypeWithDefaults<Properties, "response", Response>,
-      TypeWithDefaults<Properties, "error", LocalError>
-    >,
+  public setResponseMapper = <MappedResponse extends ResponseSuccessType<any, any> | ResponseErrorType<any, any>>(
+    responseMapper?: ResponseMapper<this, MappedResponse>,
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
     cloned.unstable_responseMapper = responseMapper;
 
     return cloned as unknown as Request<
-      TypeWithDefaults<Properties, "response", Response>,
+      MappedResponse extends ResponseType<infer R, any, any> ? R : Response,
       Payload,
       QueryParams,
-      TypeWithDefaults<Properties, "error", LocalError>,
+      MappedResponse extends ResponseType<any, infer E, any> ? E : LocalError,
       Endpoint,
       Client,
       HasPayload,
