@@ -11,6 +11,7 @@ import {
   ExtractAdapterExtraType,
   ResponseDetailsType,
   ExtractAdapterStatusType,
+  ResponseType,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
@@ -124,7 +125,9 @@ export const getInitialState = <T extends RequestInstance>({
   });
 
   if (cacheState) {
-    const mappedData = unstable_responseMapper ? unstable_responseMapper(cacheState) : cacheState;
+    const mappedData = unstable_responseMapper
+      ? unstable_responseMapper(cacheState as ResponseType<any, any, ExtractAdapterType<T>>)
+      : cacheState;
     if (mappedData instanceof Promise) {
       // For the async mapper we cannot return async values
       // So we have return the initial state instead
@@ -133,7 +136,7 @@ export const getInitialState = <T extends RequestInstance>({
     return {
       data: mappedData.data,
       error: mappedData.error,
-      status: mappedData.status,
+      status: mappedData.status as ExtractAdapterStatusType<ExtractAdapterType<T>>,
       success: mappedData.success,
       extra: (mappedData.extra || client.adapter.defaultExtra) as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheState.retries,

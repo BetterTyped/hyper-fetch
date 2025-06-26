@@ -147,7 +147,9 @@ export const sendRequest = <Request extends RequestInstance>(
       const { details, response } = values;
       isResolved = true;
 
-      const mapping = request.unstable_responseMapper?.(response);
+      const mapping = request.unstable_responseMapper?.(
+        response as ResponseType<any, any, ExtractAdapterType<Request>>,
+      );
 
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
@@ -173,14 +175,14 @@ export const sendRequest = <Request extends RequestInstance>(
           const responseData = await mapping;
 
           const { success } = responseData;
-          handleResponse(success, responseData);
+          handleResponse(success, responseData as ResponseType<any, any, ExtractAdapterType<Request>>);
         })();
       }
       // For sync mapping operations we should not use async actions
       else {
         const data = mapping || response;
         const { success } = data;
-        handleResponse(success, data);
+        handleResponse(success, data as ResponseType<any, any, ExtractAdapterType<Request>>);
       }
     });
 

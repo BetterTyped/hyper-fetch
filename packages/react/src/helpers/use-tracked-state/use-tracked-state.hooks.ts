@@ -7,6 +7,7 @@ import {
   RequestInstance,
   ExtractAdapterType,
   ExtractAdapterExtraType,
+  ResponseType,
 } from "@hyper-fetch/core";
 import { useRef } from "react";
 
@@ -187,17 +188,27 @@ export const useTrackedState = <T extends RequestInstance>({
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
     setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: true });
-    const data = unstable_responseMapper ? unstable_responseMapper(cacheData) : cacheData;
+    const data = unstable_responseMapper
+      ? unstable_responseMapper(cacheData as ResponseType<any, any, ExtractAdapterType<T>>)
+      : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
         const promiseData = await data;
-        handleCacheData({ ...cacheData, ...promiseData });
+        handleCacheData({ ...cacheData, ...promiseData } as CacheValueType<
+          ExtractResponseType<T>,
+          ExtractErrorType<T>,
+          ExtractAdapterType<T>
+        >);
         setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: false });
       })();
     }
     setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: false });
-    return handleCacheData({ ...cacheData, ...data });
+    return handleCacheData({ ...cacheData, ...data } as CacheValueType<
+      ExtractResponseType<T>,
+      ExtractErrorType<T>,
+      ExtractAdapterType<T>
+    >);
   };
 
   // ******************

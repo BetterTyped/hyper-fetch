@@ -7,6 +7,7 @@ import {
   ExtractAdapterType,
   RequestProgressEventType,
   RequestResponseEventType,
+  ResponseType,
 } from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-hooks/lifecycle";
 import { useRef } from "react";
@@ -140,11 +141,16 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const handleResponse = () => {
     return (values: RequestResponseEventType<R>) => {
-      const data = unstable_responseMapper ? unstable_responseMapper(values.response) : values.response;
+      const data = unstable_responseMapper
+        ? unstable_responseMapper(values.response as ResponseType<any, any, ExtractAdapterType<R>>)
+        : values.response;
 
       if (data instanceof Promise) {
         return (async () => {
-          handleResponseCallbacks({ ...values, response: await data });
+          handleResponseCallbacks({
+            ...values,
+            response: (await data) as ResponseType<any, any, ExtractAdapterType<R>>,
+          });
         })();
       }
       return handleResponseCallbacks(values);
