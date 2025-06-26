@@ -67,7 +67,7 @@ const getPackagesList = () => {
 
 const config: Config = {
   title: "HyperFetch",
-  tagline: "Take the HyperFetch.",
+  tagline: "Use HyperFetch today.",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
