@@ -277,7 +277,7 @@ const config: Config = {
         // },
         {
           type: "custom-myButton",
-          to: "/docs/hyper-flow",
+          to: "/docs/hyper-flow/download",
           position: "right",
           children: "Download Devtools",
           navbarIcon: true,

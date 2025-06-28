@@ -907,14 +907,14 @@ main .col:not(.col--3) ol li {
   @apply border-zinc-300 dark:border-zinc-800;
 }
 
-main blockquote {
+blockquote {
   @apply border-l-0 pl-0 mt-8;
 }
-.docs-wrapper main blockquote > p {
+blockquote > p {
   line-height: 1.7 !important;
   @apply font-medium italic text-xl bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
 }
-.docs-wrapper .dark main blockquote > p {
+.dark blockquote > p {
   @apply from-zinc-200/90 via-zinc-50 to-zinc-200/80;
 }
 
@@ -1008,7 +1008,7 @@ body .theme-code-block {
 
 body .theme-code-block pre *,
 .api-playground__editor * {
-  @apply !leading-[1.2] !text-sm;
+  @apply !leading-[1.4] !text-sm;
 }
 
 .theme-code-block > div:first-child:not(:last-child) {
@@ -1320,11 +1320,20 @@ article {
 }
 
 article .markdown p:first-of-type img {
-  @apply bg-gradient-to-br from-transparent via-zinc-300/20 to-transparent rounded-3xl p-px mb-8;
+  @apply bg-gradient-to-br from-transparent via-zinc-300/20 to-transparent rounded-3xl p-px -mb-4;
 }
 
 article header h2 a {
   @apply pb-6 text-3xl sm:text-4xl font-extrabold text-black dark:text-white;
+}
+
+/* Date */
+article header > div.margin-vert--md {
+  margin: -6px 0px -10px !important;
+}
+/* Creator */
+article header > div.margin-top--md {
+  margin-bottom: -8px !important;
 }
 
 .avatar__photo {
