@@ -10,7 +10,7 @@ import {
   ExtractEmitterPayloadType,
   ExtractEmitterHasPayloadType,
 } from "@hyper-fetch/sockets";
-import { ExtractRouteParams, EmptyTypes } from "@hyper-fetch/core";
+import { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {
@@ -41,7 +41,7 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
       T,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      { hasParams: ExtractRouteParams<ExtractListenerTopicType<T>> extends EmptyTypes ? false : true }
+      { hasParams: ExtractUrlParams<ExtractListenerTopicType<T>> extends EmptyTypes ? false : true }
     >,
     event: ExtractListenerResponseType<T> extends Record<string, any>
       ? ExtractListenerResponseType<T>
@@ -63,7 +63,7 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
       {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        hasParams: ExtractRouteParams<ExtractEmitterTopicType<T>> extends EmptyTypes ? false : true;
+        hasParams: ExtractUrlParams<ExtractEmitterTopicType<T>> extends EmptyTypes ? false : true;
         hasData: Data extends void ? (ExtractEmitterHasPayloadType<T> extends false ? true : false) : false;
       }
     >,

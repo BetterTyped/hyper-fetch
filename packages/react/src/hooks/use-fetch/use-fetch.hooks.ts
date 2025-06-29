@@ -20,7 +20,7 @@ import { getBounceData } from "utils";
  * @returns
  */
 export const useFetch = <R extends RequestInstance>(
-  request: R extends UseFetchRequest<R> ? R : UseFetchRequest<R>,
+  request: UseFetchRequest<R>,
   options?: UseFetchOptionsType<R>,
 ): UseFetchReturnType<R> => {
   // Build the configuration options
@@ -66,7 +66,7 @@ export const useFetch = <R extends RequestInstance>(
    */
   const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<R>({
     logger,
-    request: request as R,
+    request: request as unknown as R,
     dispatcher,
     initialResponse,
     deepCompare,
@@ -81,7 +81,7 @@ export const useFetch = <R extends RequestInstance>(
   const [callbacks, listeners] = useRequestEvents<R>({
     logger,
     actions,
-    request: request as R,
+    request: request as unknown as R,
     dispatcher,
     setCacheData,
     getIsDataProcessing,
@@ -95,7 +95,7 @@ export const useFetch = <R extends RequestInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
-      dispatcher.add(request as R);
+      dispatcher.add(request as unknown as R);
     } else {
       logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }
@@ -182,8 +182,8 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
 
   const handleMountEvents = () => {
-    addCacheDataListener(request as R);
-    addLifecycleListeners(request as R);
+    addCacheDataListener(request as unknown as R);
+    addLifecycleListeners(request as unknown as R);
 
     const focusUnmount = appManager.events.onFocus(() => {
       if (refetchOnFocus) {

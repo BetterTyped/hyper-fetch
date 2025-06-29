@@ -213,11 +213,11 @@ export type RequestConfigurationType<
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
-export type ExtractRouteParams<T extends string> = string extends T
+export type ExtractUrlParams<T extends string> = string extends T
   ? EmptyTypes
   : // eslint-disable-next-line @typescript-eslint/no-unused-vars
     T extends `${string}:${infer Param}/${infer Rest}`
-    ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
+    ? { [k in Param | keyof ExtractUrlParams<Rest>]: ParamType }
     : // eslint-disable-next-line @typescript-eslint/no-unused-vars
       T extends `${string}:${infer Param}`
       ? { [k in Param]: ParamType }

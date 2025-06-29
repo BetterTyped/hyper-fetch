@@ -1,4 +1,4 @@
-import { ExtractRouteParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
+import { ExtractUrlParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
 import { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
@@ -53,7 +53,7 @@ export class Emitter<
     return cloned;
   };
 
-  setParams(params: NonNullable<ExtractRouteParams<Topic>>) {
+  setParams(params: NonNullable<ExtractUrlParams<Topic>>) {
     return this.clone<Payload, HasPayload, true>({ params });
   }
 

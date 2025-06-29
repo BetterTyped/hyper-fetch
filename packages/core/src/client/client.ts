@@ -401,11 +401,7 @@ export class Client<
    *
    * @template Response Your response
    */
-  createRequest = <
-    RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {
-      error?: Error;
-    },
-  >(
+  createRequest = <RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {}>(
     /**
      * `createRequest` must be initialized twice(currying).
      *
@@ -425,14 +421,13 @@ export class Client<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _USE_DOUBLE_INITIALIZATION?: never,
   ) => {
+    type DefaultQueryParams = ExtractAdapterDefaultQueryParamsType<Adapter>;
+
     type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
     type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
     type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
-    type QueryParams = TypeWithDefaults<
-      RequestProperties,
-      "queryParams",
-      ExtractAdapterDefaultQueryParamsType<Adapter>
-    >;
+    /** we pass never to prevent the type from being empty, but we allow it to be undefined (optional) */
+    type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", DefaultQueryParams, never>;
 
     return <
       EndpointType extends ExtractAdapterEndpointType<Adapter>,

@@ -1,4 +1,4 @@
-import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
+import { ExtractUrlParams, ParamsType } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
 import { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
@@ -27,12 +27,12 @@ export class Listener<
     return this.clone({ options });
   }
 
-  setParams(params: ExtractRouteParams<Topic>) {
+  setParams(params: ExtractUrlParams<Topic>) {
     return this.clone<true>({ params });
   }
 
   clone<NewHasParams extends true | false = HasParams>(
-    options?: ListenerConfigurationType<ExtractRouteParams<Topic>, Topic, Socket>,
+    options?: ListenerConfigurationType<ExtractUrlParams<Topic>, Topic, Socket>,
   ) {
     const newInstance = new Listener<Response, Topic, Socket, NewHasParams>(this.socket, {
       ...this.listenerOptions,

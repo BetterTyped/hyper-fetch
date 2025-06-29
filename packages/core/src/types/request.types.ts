@@ -1,5 +1,5 @@
 import { ResponseType } from "adapter";
-import { ExtractRouteParams, Request, RequestInstance } from "request";
+import { ExtractUrlParams, Request, RequestInstance } from "request";
 import { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
 import { Client, ClientInstance } from "client";
 import { TypeWithDefaults } from "./helpers.types";
@@ -28,7 +28,7 @@ export type ExtractLocalErrorType<T> = T extends Request<any, any, any, infer E,
 export type ExtractParamsType<T> =
   T extends Request<any, any, any, any, infer E, any, any, any, any>
     ? E extends string
-      ? ExtractRouteParams<E>
+      ? ExtractUrlParams<E>
       : never
     : never;
 

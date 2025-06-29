@@ -12,7 +12,7 @@ import {
   RequestInstance,
   RequestMapper,
   ResponseMapper,
-  ExtractRouteParams,
+  ExtractUrlParams,
 } from "request";
 import { ClientInstance } from "client";
 import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
@@ -66,7 +66,7 @@ export class Request<
   headers?: HeadersInit;
   auth: boolean;
   method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
-  params: ExtractRouteParams<Endpoint> | EmptyTypes;
+  params: ExtractUrlParams<Endpoint> | EmptyTypes;
   payload: PayloadType<Payload>;
   queryParams: QueryParams | EmptyTypes;
   options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
@@ -101,6 +101,10 @@ export class Request<
   /** @internal */
   unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
 
+  unstable_hasParams: HasParams = false as HasParams;
+  unstable_hasPayload: HasPayload = false as HasPayload;
+  unstable_hasQuery: HasQuery = false as HasQuery;
+
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
   private updatedQueryKey: boolean;
@@ -115,7 +119,7 @@ export class Request<
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
           Payload,
-          Endpoint extends string ? ExtractRouteParams<Endpoint> : never,
+          Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
           QueryParams,
           Endpoint,
           ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
@@ -445,7 +449,7 @@ export class Request<
     const json = this.toJSON();
     const initialRequestConfiguration: RequestConfigurationType<
       Payload,
-      Endpoint extends string ? ExtractRouteParams<Endpoint> : never,
+      Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
@@ -462,7 +466,7 @@ export class Request<
       payload: configuration?.payload || this.payload,
       params: (configuration?.params || this.params) as
         | EmptyTypes
-        | (Endpoint extends string ? ExtractRouteParams<Endpoint> : never),
+        | (Endpoint extends string ? ExtractUrlParams<Endpoint> : never),
     };
 
     const cloned = new Request<
@@ -479,7 +483,7 @@ export class Request<
 
     // Inherit methods
     cloned.unstable_payloadMapper = this.unstable_payloadMapper;
-    cloned.unstable_responseMapper = this.unstable_responseMapper;
+    cloned.unstable_responseMapper = this.unstable_responseMapper as typeof cloned.unstable_responseMapper;
     cloned.unstable_requestMapper = this.unstable_requestMapper;
 
     cloned.unstable_mock = this.unstable_mock;

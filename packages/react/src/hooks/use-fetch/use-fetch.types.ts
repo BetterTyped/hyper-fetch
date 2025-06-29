@@ -4,20 +4,24 @@ import {
   ExtractAdapterResolvedType,
   ExtendRequest,
   EmptyTypes,
-  RequestSendOptionsType,
+  ExtractPayloadType,
+  ExtractParamsType,
+  ExtractQueryParamsType,
 } from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { isEqual } from "utils";
 
-export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
+export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
   R,
   {
-    hasData: RequestSendOptionsType<R>["payload"] extends EmptyTypes ? true : false;
-    hasParams: RequestSendOptionsType<R>["params"] extends EmptyTypes ? true : false;
-    hasQuery: RequestSendOptionsType<R>["queryParams"] extends EmptyTypes ? true : false;
+    hasData: ExtractPayloadType<R> extends EmptyTypes ? boolean : true;
+    hasParams: ExtractParamsType<R> extends EmptyTypes ? boolean : true;
+    hasQuery: ExtractQueryParamsType<R> extends EmptyTypes ? boolean : true;
   }
 >;
+
+export type UseFetchRequest<R extends RequestInstance> = R extends UseFetchCastRequest<R> ? R : UseFetchCastRequest<R>;
 
 export type UseFetchOptionsType<R extends RequestInstance> = {
   /**
@@ -39,7 +43,7 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<UseFetchRequest<R>>>>;
+  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<R>>>;
   /**
    * Enable/disable refresh data
    */
@@ -103,9 +107,9 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
     }
 );
 
-export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<UseFetchRequest<R>> &
-  UseTrackedStateActions<UseFetchRequest<R>> &
-  UseRequestEventsActionsType<UseFetchRequest<R>> & {
+export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<R> &
+  UseTrackedStateActions<R> &
+  UseRequestEventsActionsType<R> & {
     /**
      * Data related to current state of the bounce usage
      */

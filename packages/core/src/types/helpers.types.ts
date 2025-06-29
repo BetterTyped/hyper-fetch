@@ -23,6 +23,11 @@ export type TypeWithDefaults<
   Types extends Record<string, any>,
   Key extends keyof Types,
   Value,
-> = Key extends keyof Types ? Exclude<Types[Key], EmptyTypes | void | never> : Value;
+  ExcludedTypes = void | never,
+> = Key extends keyof Types
+  ? Exclude<Types[Key], ExcludedTypes> extends never
+    ? Value
+    : Exclude<Types[Key], ExcludedTypes>
+  : Value;
 
 export type SyncOrAsync<T> = T | Promise<T>;
