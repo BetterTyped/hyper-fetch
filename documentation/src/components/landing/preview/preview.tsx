@@ -37,7 +37,7 @@ export function Preview(): JSX.Element {
               className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"
               to="/docs/hyper-flow/download"
             >
-              Download Devtools
+              Get Devtools Access
             </Link>
           </div>
         </FadeIn>

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable react/no-array-index-key */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -9,129 +11,105 @@ import React, { useEffect } from "react";
 import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
-import { ArrowRight, Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
-import { getAnimationValue } from "@site/src/utils/animation";
+import { ArrowRight } from "lucide-react";
 import { Description, FadeIn, Particles, Title } from "@site/src/components";
+import { cn } from "@site/src/lib/utils";
+import typeSageImg from "@site/static/img/type-safe.png";
 
 import "./animation.scss";
+import { FeaturesCard } from "./features-card";
+import { PointerHighlight } from "../../ui/pointer-highlight";
+import { GlowingStarsBackgroundCard, GlowingStarsDescription, GlowingStarsTitle } from "../../ui/glowing-stars";
+import { Scan } from "./scan";
+import { AnimatedBeamDemo } from "./environments";
 
 type FeatureItem = {
-  name: string;
-  description: string;
-  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
-  link: JSX.Element;
+  name: () => React.ReactNode;
+  description: () => React.ReactNode;
+  icon: () => React.ReactNode;
+  link: () => React.ReactNode;
 };
-
-// const FeatureList: FeatureItem[] = [
-//   {
-//     description: "Simple setup",
-//     link: <Link to="/docs/guides/basic/setup">Read more</Link>,
-//   },
-//   {
-//     description: "Automatic caching",
-//     link: <Link to="/docs/documentation/core/cache">Read more</Link>,
-//   },
-//   {
-//     description: "Built-in adapter",
-//     link: <Link to="/docs/documentation/core/adapter">Read more</Link>,
-//   },
-//   {
-//     description: "Request cancellation",
-//     link: <Link to="/docs/guides/advanced/cancellation">Read more</Link>,
-//   },
-//   {
-//     description: "Persistence",
-//     link: <Link to="/docs/guides/advanced/persistence">Read more</Link>,
-//   },
-//   {
-//     description: "Easy to test",
-//     link: <Link to="/docs/documentation/getting-started/testing">Read more</Link>,
-//   },
-//   {
-//     description: "Window Focus/Blur Events",
-//     link: <Link to="/docs/guides/react/core/window-focus-blur">Read more</Link>,
-//   },
-//   {
-//     description: "SSR Support",
-//     link: <Link to="/docs/documentation/getting-started/environment">Read more</Link>,
-//   },
-//   {
-//     description: "Authentication",
-//     link: <Link to="/docs/guides/basic/authentication">Read more</Link>,
-//   },
-//   {
-//     description: "Queueing",
-//     link: <Link to="/docs/guides/advanced/queueing">Read more</Link>,
-//   },
-//   {
-//     description: "Offline first ready",
-//     link: <Link to="/docs/guides/advanced/offline">Read more</Link>,
-//   },
-//   {
-//     description: "Prefetching",
-//     link: <Link to="/docs/guides/advanced/prefetching">Read more</Link>,
-//   },
-// ];
 
 const features: FeatureItem[] = [
   {
-    name: "Automatic caching",
-    description: "Automatically caches responses and reuses them when making the same request again.",
-    icon: Database,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/core/cache">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
+    name: () => (
+      <h5 className="text-4xl font-extrabold flex flex-wrap gap-2">
+        End to end{" "}
+        <h5 className="text-4xl font-extrabold underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2">
+          type-safety
+        </h5>
+      </h5>
+    ),
+    description: () => (
+      <Description>
+        From request definition to response handling, every piece of your data flow is <b>fully typed</b>. Get
+        IntelliSense for endpoints, parameters, and responses. Catch errors at <b>compile-time</b>, not runtime.
+      </Description>
+    ),
+    icon: () => (
+      <FeaturesCard>
+        <img
+          src={typeSageImg}
+          alt="Type-safe by design"
+          className="absolute w-[70%] h-auto top-6 left-1/2 -translate-x-1/2 rounded-lg z-[9999]"
+        />
+        <GlowingStarsBackgroundCard className="relative">
+          <GlowingStarsTitle className="text-center">Type-safe by design</GlowingStarsTitle>
+          <GlowingStarsDescription className="text-center mx-auto">
+            The power of sharing types between your backend and frontend.
+          </GlowingStarsDescription>
+        </GlowingStarsBackgroundCard>
+      </FeaturesCard>
+    ),
+    link: () => (
+      <Link className="text-sm flex gap-1 items-center" to="/docs/core/request#typescript">
+        Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
   {
-    name: "Data Persistance",
-    description: "Persists your data to the local storage or indexedDB to reuse it when needed.",
-    icon: Atom,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/advanced/persistence">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
+    name: () => (
+      <h5 className="text-4xl font-extrabold flex flex-wrap gap-2">
+        Built for{" "}
+        <PointerHighlight
+          containerClassName="[&>div]:z-[-1]"
+          rectangleClassName="bg-gradient-to-r from-rose-500/40 to-orange-500/40 brightness-150 border-none"
+        >
+          <h5 className="text-4xl font-extrabold px-2">AI and LLMs</h5>{" "}
+        </PointerHighlight>
+      </h5>
+    ),
+    description: () => (
+      <Description>
+        Handle <b>streaming responses</b>, real-time updates, and long-running AI conversations with ease. Built-in
+        support for <b>Server-Sent Events</b>, WebSockets, and request cancellation for modern AI applications.
+      </Description>
+    ),
+    icon: () => (
+      <FeaturesCard right>
+        <Scan />
+      </FeaturesCard>
+    ),
+    link: () => (
+      <Link className="text-sm flex gap-1 items-center" to="/docs/getting-started/ai">
+        Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
   {
-    name: "Server Components",
-    description: "Supports server-side rendering and server components out of the box.",
-    icon: Server,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/react/environments/browser">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
-      </Link>
+    name: () => "Framework Agnostic",
+    description: () => (
+      <Description>
+        Works seamlessly with <b>React, Next.js, Remix, Astro, Node.js</b>, and any JavaScript framework. Same API, same
+        patterns, same performance benefits - whether you&apos;re building <b>SPAs, SSR apps, or static sites</b>.
+      </Description>
     ),
-  },
-  {
-    name: "Built-in Authentication",
-    description: "Built-in authentication allow you to easily manage user sessions.",
-    icon: Fingerprint,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/basics/authentication">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
-      </Link>
-    ),
-  },
-  {
-    name: "Offline First",
-    description:
-      "Automatically uses cached data when the user is offline, and updates the cache when the user is online.",
-    icon: Wifi,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="//docs/guides/core/advanced/offline">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
-      </Link>
-    ),
-  },
-  {
-    name: "Prefetching",
-    description: "Prefetch data before components mount, so that it's available instantly when needed.",
-    icon: TrendingUpDown,
-    link: (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/core/advanced/prefetching">
-        Read more <ArrowRight className="size-3 translate-y-[1px]" />
+    icon: () => {
+      return <AnimatedBeamDemo />;
+    },
+    link: () => (
+      <Link className="text-sm flex gap-1 items-center" to="/docs/getting-started#environments">
+        Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
@@ -177,7 +155,7 @@ export function Features(): JSX.Element {
 
   return (
     <section className="relative pb-20 pt-10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-10">
         {/* Illustration */}
         <div
           className="absolute inset-0 -z-10 -mx-28 rounded-t-[3rem] pointer-events-none overflow-hidden opacity-40"
@@ -214,7 +192,7 @@ export function Features(): JSX.Element {
         </FadeIn>
 
         {/* Section header */}
-        <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
+        <div className="max-w-3xl mx-auto text-center pb-20 md:pb-32">
           <FadeIn start={0.01} end={0.18}>
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
@@ -237,36 +215,34 @@ export function Features(): JSX.Element {
 
         {/* Features list */}
         <Theatre>
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+          <div className="grid gap-32">
             {/* Feature */}
             {features.map((feature, index) => (
-              <FadeIn
-                key={index}
-                start={0.1 + getAnimationValue(3, 0.05, index)}
-                end={0.3 + getAnimationValue(3, 0.05, index)}
-              >
-                <div className="flex flex-col gap-2 h-full">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <feature.icon className="size-7" />
-                    <h5 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{feature.name}</h5>
-                  </div>
-                  <p className="text-lg text-zinc-500 dark:text-zinc-400 flex-1">{feature.description}</p>
-                  {feature.link}
+              <div className="grid md:grid-cols-2 gap-10 md:gap-20 items-center">
+                <div className={cn("flex items-center justify-center", index % 2 === 0 && "order-2")}>
+                  <feature.icon />
                 </div>
-              </FadeIn>
+                <div>
+                  <FadeIn start={0.02} end={0.2}>
+                    <h5 className="text-4xl font-extrabold">
+                      <feature.name />
+                    </h5>
+                  </FadeIn>
+                  <FadeIn start={0.05} end={0.3}>
+                    <div className="flex-1 mt-1 max-w-md">
+                      <feature.description />
+                    </div>
+                  </FadeIn>
+                  <FadeIn start={0.08} end={0.35}>
+                    <div className="mt-4">
+                      <feature.link />
+                    </div>
+                  </FadeIn>
+                </div>
+              </div>
             ))}
           </div>
         </Theatre>
-        <div className="my-12">
-          <FadeIn start={0.05} end={0.2}>
-            <p className="text-md text-zinc-400">
-              You can find more details in{" "}
-              <Link className="text-yellow-500" to="/docs/getting-started/comparison">
-                Comparison
-              </Link>
-            </p>
-          </FadeIn>
-        </div>
       </div>
     </section>
   );

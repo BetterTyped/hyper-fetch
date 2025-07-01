@@ -49,19 +49,19 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
                   <Description size="none">{description}</Description>
                 </div>
               </div>
-              <div>
-                <div className="btn-sm text-zinc-800 hover:text-black dark:text-zinc-300 dark:hover:text-white transition duration-150 ease-in-out group dark:[background:linear-gradient(theme(colors.slate.900),_theme(colors.slate.900))_padding-box,_conic-gradient(theme(colors.slate.400),_theme(colors.slate.700)_25%,_theme(colors.slate.700)_75%,_theme(colors.slate.400)_100%)_border-box] relative before:absolute before:inset-0 dark:before:bg-zinc-800/30 before:rounded-full before:pointer-events-none">
-                  <span className="relative inline-flex items-center">
-                    Learn more{" "}
-                    <span className="tracking-normal text-blue-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">
-                      →
-                    </span>
+              <div className="mt-auto">
+                <span className="relative inline-flex items-center">
+                  Learn more{" "}
+                  <span className="tracking-normal text-blue-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">
+                    →
                   </span>
-                </div>
+                </span>
               </div>
             </div>
             {/* Image */}
-            <div className="hidden md:visible relative w-full min-h-[300px] overflow-hidden">{img}</div>
+            <div className="invisible md:visible relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden">
+              {img}
+            </div>
           </div>
         </div>
       </HighlighterItem>

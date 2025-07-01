@@ -34,8 +34,18 @@ module.exports = {
         shine: "shine var(--duration) infinite linear",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
         "shiny-text": "shiny-text 8s infinite",
+        move: "move 5s linear infinite",
+        ripple: "ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite",
       },
       keyframes: {
+        move: {
+          "0%": {
+            transform: "translateX(-200px)",
+          },
+          "100%": {
+            transform: "translateX(200px)",
+          },
+        },
         endless: {
           "0%": { transform: "translateY(0)" },
           "100%": { transform: "translateY(-245px)" },
@@ -61,6 +71,14 @@ module.exports = {
           },
           "30%, 60%": {
             "background-position": "calc(100% + var(--shiny-width)) 0",
+          },
+        },
+        ripple: {
+          "0%, 100%": {
+            transform: "translate(-50%, -50%) scale(1)",
+          },
+          "50%": {
+            transform: "translate(-50%, -50%) scale(0.9)",
           },
         },
       },
