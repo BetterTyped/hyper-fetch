@@ -45,10 +45,10 @@ jobs:
       matrix:
         test-group:
           [
-            adapter-axios,
-            adapter-firebase-admin,
-            adapter-firebase,
-            adapter-graphql,
+            axios,
+            firebase-admin,
+            firebase,
+            graphql,
             codegen-openapi,
             hyper-flow,
             plugin-devtools,
