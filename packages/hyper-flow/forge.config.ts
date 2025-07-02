@@ -10,11 +10,31 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import fs from "node:fs";
 import dotenv from "dotenv";
+import { z } from "zod";
 
-const dotEnvFile = fs.readFileSync(".env", "utf8");
-const env = dotenv.parse(dotEnvFile);
+// Utils
+function getEnv() {
+  const envSchema = z.object({
+    APPLE_ID: z.string(),
+    APPLE_PASSWORD: z.string(),
+    APPLE_TEAM_ID: z.string(),
+    GITHUB_TOKEN: z.string(),
+  });
+
+  try {
+    const dotEnvFile = fs.readFileSync(".env", "utf8");
+    const env = dotenv.parse(dotEnvFile);
+    return envSchema.parse(env);
+  } catch (error) {
+    return envSchema.parse(process.env);
+  }
+}
+
+// Options
 const productName = "Hyper Flow";
+const env = getEnv();
 
+// Forge Configuration
 const config: ForgeConfig = {
   packagerConfig: {
     name: "Hyper Flow",
