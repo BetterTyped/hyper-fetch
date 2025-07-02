@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "ws": "^8.18.1",
-    "electron": "36.1.0",
+    "electron": "36.6.0",
     "@better-hooks/lifecycle": "^2.0.0",
     "@better-hooks/performance": "^2.0.0",
     "@electron-forge/publisher-s3": "^7.8.0",
