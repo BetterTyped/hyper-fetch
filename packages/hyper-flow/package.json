@@ -13,7 +13,7 @@
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
     "start": "rimraf node_modules/.vite && electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make",
+    "build": "electron-forge make",
     "release": "electron-forge publish",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
