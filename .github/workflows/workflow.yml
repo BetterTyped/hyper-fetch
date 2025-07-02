@@ -1,6 +1,12 @@
 name: Workflow
 on: push
 
+
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  # Allow cancellation except on release branches (main, beta, alpha) where release job runs
+  cancel-in-progress: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha') }}
+
 jobs:
   prepare-environment:
     runs-on: ubuntu-latest
