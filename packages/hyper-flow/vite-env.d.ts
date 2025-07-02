@@ -1,16 +1,5 @@
 /// <reference types="vite/client" />
 
-import { ElectronAPI } from "@electron-toolkit/preload";
-
-import type { ExtendedElectronAPI } from "app/preload";
-
-declare global {
-  interface Window {
-    electron: ElectronAPI & ExtendedElectronAPI;
-    api: unknown;
-  }
-}
-
 interface ImportMetaEnv {
   readonly VITE_PUBLIC_POSTHOG_HOST: string;
   readonly VITE_PUBLIC_POSTHOG_KEY: string;
