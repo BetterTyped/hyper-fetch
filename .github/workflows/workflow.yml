@@ -40,18 +40,6 @@ jobs:
     timeout-minutes: 40
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        test-group: [
-            forms,
-            hooks,
-            query-params,
-            # router,
-            state,
-            types,
-            utils,
-          ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
