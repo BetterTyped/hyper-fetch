@@ -6,7 +6,8 @@ import svgr from "vite-plugin-svgr";
 import { config } from "./vite.base.config";
 
 // https://vitejs.dev/config
-export default defineConfig((props: any) => {
+// @ts-ignore
+export default defineConfig((props) => {
   const options = config(props);
   return {
     ...options,
