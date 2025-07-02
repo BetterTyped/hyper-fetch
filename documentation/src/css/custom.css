@@ -1383,8 +1383,6 @@ aside nav h3 {
 }
 
 html {
-  background: transparent !important;
-  background-color: transparent !important;
   font-family: Figtree;
 }
 
@@ -1392,10 +1390,14 @@ html {
   background-color: transparent;
 }
 
-html[data-theme="light"] {
-  --text-primary: #fff;
+html {
+  /* --text-primary: #fff;
   --text-secondary: #1c1c1d;
   --background: var(--text-secondary);
+  --ifm-background-color: var(--text-secondary); */
+  --text-primary: rgb(255, 255, 255);
+  --text-secondary: #e7e6e6;
+  --background: #1c1c1d;
   --ifm-background-color: var(--text-secondary);
 }
 
