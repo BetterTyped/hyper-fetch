@@ -13,5 +13,6 @@
       "@testing/*": ["../__tests__/*"]
     }
   },
+  "types": ["vite-env.d.ts", "forge.env.d.ts", "electron.d.ts"],
   "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }
