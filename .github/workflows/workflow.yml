@@ -79,7 +79,7 @@ jobs:
       - name: Build
         run: yarn build
       - name: Test package
-        run: yarn nx test:pipeline ${{ matrix.test-group }}
+        run: yarn nx run ${{ matrix.test-group }}:"test:pipeline"
       - name: Send Report
         uses: paambaati/codeclimate-action@v3.0.0
         env:
