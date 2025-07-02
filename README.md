@@ -151,7 +151,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         <a href="https://www.npmjs.com/package/@hyper-fetch/core">
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+        <a href="https://www.npmjs.com/package/@hyper-fetch/core">
           <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/core?color=E10098&logo=package" />
         </a>
       </td>

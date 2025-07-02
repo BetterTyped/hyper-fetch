@@ -41,9 +41,9 @@ const config: ForgeConfig = {
     asar: true,
     icon: "./src/app/images/icon",
     osxNotarize: {
-      appleId: env.APPLE_ID!,
-      appleIdPassword: env.APPLE_PASSWORD!,
-      teamId: env.APPLE_TEAM_ID!,
+      appleId: env.APPLE_ID,
+      appleIdPassword: env.APPLE_PASSWORD,
+      teamId: env.APPLE_TEAM_ID,
     },
     osxSign: {
       optionsForFile: () => ({
