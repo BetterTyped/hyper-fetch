@@ -77,7 +77,7 @@ const config: ForgeConfig = {
         owner: "BetterTyped",
         name: "hyper-fetch",
       },
-      authToken: env.GITHUB_TOKEN!,
+      authToken: env.GITHUB_TOKEN,
       prerelease: false,
       /**
        * Notice that you have configured Forge to publish your release as a draft.
