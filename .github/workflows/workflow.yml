@@ -1,12 +1,6 @@
 name: Workflow
-on:
-  push:
-    branches:
-      - main
 
-concurrency:
-  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
-  cancel-in-progress: true
+on: push
 
 jobs:
   prepare-environment:
@@ -81,6 +75,7 @@ jobs:
 
  release:
     name: Release
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
