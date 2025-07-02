@@ -12,7 +12,7 @@
   "scripts": {
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.{ts,tsx}' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",

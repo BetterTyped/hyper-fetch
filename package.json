@@ -23,7 +23,7 @@
     "postbuild": "nx build testing --skip-nx-cache",
     "build": "yarn reset && nx run-many --target=build --parallel=5 --excludeTaskDependencies=true --exclude=testing --skip-nx-cache",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "test": "yarn reset && nx run-many --target=test-pipeline --parallel=1 --skip-nx-cache",
+    "test": "yarn reset && nx run-many --target=test:pipeline --parallel=1 --skip-nx-cache",
     "lint": "yarn reset && nx run-many --target=lint --parallel=2 --skip-nx-cache",
     "typescheck": "yarn reset && nx run-many --target=typescheck --parallel=10 --skip-nx-cache",
     "release": "yarn reset && nx run-many --target=release --parallel=1 --skip-nx-cache",

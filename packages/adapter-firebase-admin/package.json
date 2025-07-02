@@ -13,7 +13,7 @@
     "clean": "npx rimraf dist",
     "test": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
     "coverage": "firebase emulators:exec 'jest --watchAll=false --coverage --detectOpenHandles --forceExit --runInBand'",
-    "test-pipeline": "./test.sh",
+    "test:pipeline": "./test.sh",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "yarn clean && node ../../scripts/build.js",

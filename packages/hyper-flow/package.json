@@ -10,7 +10,7 @@
     "dev": "vite",
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
     "start": "rimraf node_modules/.vite && electron-forge start",
     "package:app": "electron-forge package",
     "make:app": "electron-forge make",

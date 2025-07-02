@@ -11,6 +11,8 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 import dotenv from "dotenv";
 import { z } from "zod";
 
+import { appConfig } from "./src/app/config";
+
 dotenv.config();
 
 // Utils
@@ -26,13 +28,13 @@ function getEnv() {
 }
 
 // Options
-const productName = "Hyper Flow";
 const env = getEnv();
 
 // Forge Configuration
 const config: ForgeConfig = {
   packagerConfig: {
-    name: "Hyper Flow",
+    name: appConfig.name,
+    executableName: appConfig.id,
     asar: true,
     icon: "./src/app/images/icon",
     osxNotarize: {
@@ -48,34 +50,50 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerZIP({}, ["darwin"]),
-    new MakerRpm({}),
     // Windows
     new MakerSquirrel({
-      name: productName,
-      authors: "BetterTyped",
-      setupExe: "hyper-flow.exe",
+      name: appConfig.name,
+      authors: appConfig.repository.owner,
+      setupExe: appConfig.id,
       setupIcon: "./src/app/images/icon.ico",
     }),
+    new MakerZIP({}, ["darwin"]),
     // Linux
     new MakerDeb({
       options: {
-        name: "hyper-flow",
-        productName,
+        name: appConfig.id,
+        productName: appConfig.name,
+        bin: appConfig.name,
         icon: "./src/app/images/icon.png",
+        categories: ["Office", "Utility"],
+        genericName: appConfig.name,
+        description: appConfig.description,
+        productDescription: appConfig.description,
+        section: "javascript",
+      },
+    }),
+    new MakerRpm({
+      options: {
+        name: appConfig.id,
+        productName: appConfig.name,
+        icon: "./src/app/images/icon.png",
+        categories: ["Office", "Utility"],
+        genericName: appConfig.name,
+        description: appConfig.description,
+        productDescription: appConfig.description,
       },
     }),
     // Mac OS
     new MakerDMG({
-      name: productName,
+      name: appConfig.name,
       icon: "./src/app/images/icon.icns",
     }),
   ],
   publishers: [
     new PublisherGithub({
       repository: {
-        owner: "BetterTyped",
-        name: "hyper-fetch",
+        owner: appConfig.repository.owner,
+        name: appConfig.repository.name,
       },
       authToken: env.GITHUB_TOKEN,
       prerelease: false,
