@@ -951,7 +951,7 @@ span,
 div {
   @apply text-zinc-700 dark:text-zinc-300;
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 b,
