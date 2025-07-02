@@ -4,18 +4,32 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { MakerDMG } from "@electron-forge/maker-dmg";
-import { PublisherS3 } from "@electron-forge/publisher-s3";
+import { PublisherGithub } from "@electron-forge/publisher-github";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
+import fs from "node:fs";
+import dotenv from "dotenv";
 
-import { bucket } from "./src/shared/constants/auto-updater";
+const dotEnvFile = fs.readFileSync(".env", "utf8");
+const env = dotenv.parse(dotEnvFile);
+const productName = "Hyper Flow";
 
 const config: ForgeConfig = {
   packagerConfig: {
     name: "Hyper Flow",
     asar: true,
     icon: "./src/app/images/icon",
+    osxNotarize: {
+      appleId: env.APPLE_ID!,
+      appleIdPassword: env.APPLE_PASSWORD!,
+      teamId: env.APPLE_TEAM_ID!,
+    },
+    osxSign: {
+      optionsForFile: () => ({
+        entitlements: "./src/app/macos/entitlements.mac.plist",
+      }),
+    },
   },
   rebuildConfig: {},
   makers: [
@@ -23,7 +37,7 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     // Windows
     new MakerSquirrel({
-      name: "Hyper Flow",
+      name: productName,
       authors: "BetterTyped",
       setupExe: "hyper-flow.exe",
       setupIcon: "./src/app/images/icon.ico",
@@ -32,21 +46,30 @@ const config: ForgeConfig = {
     new MakerDeb({
       options: {
         name: "hyper-flow",
-        productName: "Hyper Flow",
+        productName,
         icon: "./src/app/images/icon.png",
       },
     }),
     // Mac OS
     new MakerDMG({
-      name: "Hyper Flow",
-      format: "ULFO",
+      name: productName,
       icon: "./src/app/images/icon.icns",
     }),
   ],
   publishers: [
-    new PublisherS3({
-      bucket,
-      public: true,
+    new PublisherGithub({
+      repository: {
+        owner: "BetterTyped",
+        name: "hyper-fetch",
+      },
+      authToken: env.GITHUB_TOKEN!,
+      prerelease: false,
+      /**
+       * Notice that you have configured Forge to publish your release as a draft.
+       * This will allow you to see the release with its generated artifacts without actually publishing it to your end users.
+       * You can manually publish your releases via GitHub after writing release notes and double-checking that your distributables work.
+       */
+      draft: true,
     }),
   ],
   plugins: [

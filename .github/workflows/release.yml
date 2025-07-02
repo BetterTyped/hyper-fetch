@@ -1,4 +1,6 @@
 name: Release packages
+permissions:
+  contents: write
 
 on:
   push:

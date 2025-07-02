@@ -14,7 +14,7 @@
     "start": "rimraf node_modules/.vite && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish-app": "electron-forge publish",
+    "release": "electron-forge publish",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
