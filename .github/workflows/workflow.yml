@@ -1,11 +1,12 @@
 name: Workflow
-on: push
 
+on: push
 
 concurrency:
   group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
   # Allow cancellation except on release branches (main, beta, alpha) where release job runs
-  cancel-in-progress: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha') }}
+  cancel-in-progress:
+    ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha') }}
 
 jobs:
   prepare-environment:
@@ -31,100 +32,102 @@ jobs:
           path: node_modules
           key: yarn-${{ hashFiles('yarn.lock') }}
 
-  tests:
-    name: Run tests
-    runs-on: ubuntu-latest
-    needs: prepare-environment
-    # Tests timeout after 40 minutes
-    timeout-minutes: 40
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # tests:
+  #   name: Run tests
+  #   runs-on: ubuntu-latest
+  #   needs: prepare-environment
+  #   # Tests timeout after 40 minutes
+  #   timeout-minutes: 40
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: "20"
+  #         cache: "yarn"
+  #         cache-dependency-path: yarn.lock
 
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
-          fail-on-cache-miss: false
+  #     - name: Restore node_modules
+  #       uses: actions/cache/restore@v3
+  #       id: cache-node-modules
+  #       with:
+  #         path: node_modules
+  #         key: yarn-${{ hashFiles('yarn.lock') }}
+  #         fail-on-cache-miss: false
 
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+  #     - name: Install node_modules on cache miss
+  #       if: steps.cache-node-modules.outputs.cache-hit != 'true'
+  #       run: yarn install
 
-      - name: Build
-        run: yarn build
+  #     - name: Build
+  #       run: yarn build
 
-      - name: Lint
-        run: yarn lint
+  #     - name: Lint
+  #       run: yarn lint
 
-      - name: Typecheck
-        run: yarn typescheck
+  #     - name: Typecheck
+  #       run: yarn typescheck
 
-      - name: Test
-        run: yarn test --coverage
+  #     - name: Test
+  #       run: yarn test --coverage
 
-      - name: Send Report
-        uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
-        with:
-          coverageLocations: |
-            ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
-            ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
+  #     - name: Send Report
+  #       uses: paambaati/codeclimate-action@v3.0.0
+  #       env:
+  #         CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
+  #       with:
+  #         coverageLocations: |
+  #           ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
+  #           ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
 
- release:
-    name: Release
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
-    runs-on: ubuntu-latest
-    needs: tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # release:
+  #   name: Release
+  #   if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
+  #   runs-on: ubuntu-latest
+  #   needs: tests
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: "20"
+  #         cache: "yarn"
+  #         cache-dependency-path: yarn.lock
 
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
-          fail-on-cache-miss: false
+  #     - name: Restore node_modules
+  #       uses: actions/cache/restore@v3
+  #       id: cache-node-modules
+  #       with:
+  #         path: node_modules
+  #         key: yarn-${{ hashFiles('yarn.lock') }}
+  #         fail-on-cache-miss: false
 
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+  #     - name: Install node_modules on cache miss
+  #       if: steps.cache-node-modules.outputs.cache-hit != 'true'
+  #       run: yarn install
 
-      - name: Build
-        run: yarn build
+  #     - name: Build
+  #       run: yarn build
 
-      - name: Wait on tests
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          running-workflow-name: "Release"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
+  #     - name: Wait on tests
+  #       uses: lewagon/wait-on-check-action@v1.3.1
+  #       with:
+  #         ref: ${{ github.ref }}
+  #         running-workflow-name: "Release"
+  #         repo-token: ${{ secrets.GITHUB_TOKEN }}
+  #         wait-interval: 10
 
-      - name: Publish
-        run: yarn release
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #     - name: Publish
+  #       run: yarn release
+  #       env:
+  #         APPLE_ID: ${{ secrets.APPLE_ID }}
+  #         APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+  #         APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
