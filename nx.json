@@ -1,12 +1,5 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "implicitDependencies": {
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
-    ".eslintrc.json": "*"
-  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],

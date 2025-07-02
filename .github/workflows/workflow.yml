@@ -80,14 +80,15 @@ jobs:
         run: yarn build
       - name: Test package
         run: yarn nx run ${{ matrix.test-group }}:"test:pipeline"
-      - name: Send Report
-        uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
-        with:
-          coverageLocations: |
-            ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
-            ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
+      # This will no longer work as we test one package at the time and we don't have coverage for all packages
+      # - name: Send Report
+      #   uses: paambaati/codeclimate-action@v3.0.0
+      #   env:
+      #     CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
+      #   with:
+      #     coverageLocations: |
+      #       ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
+      #       ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
 
   release:
     name: Release

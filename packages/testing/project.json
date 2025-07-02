@@ -1,5 +1,4 @@
 {
   "name": "testing",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["!sockets", "!core", "!graphql"]
+  "$schema": "../../node_modules/nx/schemas/project-schema.json"
 }
