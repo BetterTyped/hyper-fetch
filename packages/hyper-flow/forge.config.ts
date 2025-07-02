@@ -8,9 +8,10 @@ import { PublisherGithub } from "@electron-forge/publisher-github";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
-import fs from "node:fs";
 import dotenv from "dotenv";
 import { z } from "zod";
+
+dotenv.config();
 
 // Utils
 function getEnv() {
@@ -21,13 +22,7 @@ function getEnv() {
     GITHUB_TOKEN: z.string(),
   });
 
-  try {
-    const dotEnvFile = fs.readFileSync(".env", "utf8");
-    const env = dotenv.parse(dotEnvFile);
-    return envSchema.parse(env);
-  } catch (error) {
-    return envSchema.parse(process.env);
-  }
+  return envSchema.parse(process.env);
 }
 
 // Options
