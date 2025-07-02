@@ -1383,6 +1383,8 @@ aside nav h3 {
 }
 
 html {
+  background: transparent !important;
+  background-color: transparent !important;
   font-family: Figtree;
 }
 
