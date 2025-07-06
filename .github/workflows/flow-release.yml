@@ -79,6 +79,8 @@ jobs:
         run: yarn install
       - name: Install macos-alias
         run: yarn add macos-alias -W -D
+      - name: Rebuild native modules
+        run: yarn rebuild
       - name: Clean xcode
         run: |
           sudo rm -rf /Library/Developer/CommandLineTools
