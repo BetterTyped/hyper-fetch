@@ -20,7 +20,7 @@
       "path": "./packages/core"
     },
     {
-      "path": "./packages/flow"
+      "path": "./packages/hyper-flow"
     },
     {
       "path": "./packages/plugin-devtools/"
