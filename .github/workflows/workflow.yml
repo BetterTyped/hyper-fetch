@@ -54,6 +54,11 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Cache node_modules
+        uses: actions/cache/save@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Build
         run: yarn build
       - name: App build
@@ -87,6 +92,11 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Cache node_modules
+        uses: actions/cache/save@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Build
         run: yarn build
       - name: App build
