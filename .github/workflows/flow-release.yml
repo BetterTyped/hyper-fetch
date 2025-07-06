@@ -53,6 +53,11 @@ jobs:
         run: yarn build
       - name: Release
         run: yarn nx run hyper-flow:publish:app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_mac:
     runs-on: macos-latest
@@ -79,6 +84,11 @@ jobs:
         run: yarn build
       - name: Release
         run: yarn nx run hyper-flow:publish:app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_win:
     runs-on: windows-latest
@@ -105,3 +115,8 @@ jobs:
         run: yarn build
       - name: Release
         run: yarn nx run hyper-flow:publish:app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
