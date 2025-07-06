@@ -1,5 +1,5 @@
 {
-  "name": "@hyper-fetch/hyper-flow",
+  "name": "hyper-flow",
   "description": "Manage your API with Hyper Flow",
   "version": "0.0.1",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
@@ -12,8 +12,8 @@
     "test": "jest --watchAll --maxWorkers=3 --forceExit",
     "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
     "start": "rimraf node_modules/.vite && electron-forge start",
-    "package:app": "electron-forge package -- --arch=arm64",
-    "make:app": "electron-forge make -- --arch=arm64",
+    "package:app": "electron-forge package",
+    "make:app": "electron-forge make",
     "publish:app": "electron-forge publish",
     "release": "yarn semantic-release --extends ./release.config.js -t 'hyper-flow-v${version}'",
     "lint": "eslint . --fix",

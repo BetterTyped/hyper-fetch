@@ -44,9 +44,9 @@ const config: ForgeConfig = {
       teamId: env.APPLE_TEAM_ID,
     },
     osxSign: {
-      // optionsForFile: () => ({
-      //   entitlements: "./src/app/macos/entitlements.mac.plist",
-      // }),
+      optionsForFile: () => ({
+        entitlements: "./src/env/macos/entitlements.mac.plist",
+      }),
       identity: process.env.SIGN_ID,
     },
   },
