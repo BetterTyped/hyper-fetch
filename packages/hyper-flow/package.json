@@ -15,7 +15,7 @@
     "package:app": "electron-forge package -- --arch=arm64",
     "make:app": "electron-forge make -- --arch=arm64",
     "publish:app": "electron-forge publish",
-    "release": "yarn publish:app",
+    "release": "yarn semantic-release --extends ./release.config.js -t 'hyper-flow-v${version}'",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",

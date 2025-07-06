@@ -77,6 +77,84 @@ jobs:
             ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
 
+  build_on_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: App build
+        run: yarn nx run hyper-flow:make:app
+
+  build_on_mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: App build
+        run: yarn nx run hyper-flow:make:app
+
+  build_on_win:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: App build
+        run: yarn nx run hyper-flow:make:app
+
   release:
     name: Release
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
@@ -95,16 +173,16 @@ jobs:
           cache: "yarn"
           cache-dependency-path: yarn.lock
 
-      # - name: Restore node_modules
-      #   uses: actions/cache/restore@v3
-      #   id: cache-node-modules
-      #   with:
-      #     path: node_modules
-      #     key: yarn-${{ hashFiles('yarn.lock') }}
-      #     fail-on-cache-miss: false
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
 
       - name: Install node_modules on cache miss
-        # if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile --production=false
 
       - name: Build

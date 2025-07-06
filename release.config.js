@@ -37,7 +37,6 @@ module.exports = {
             },
             {
               type: "refactor",
-              scope: "core-*",
               release: "minor",
             },
             {

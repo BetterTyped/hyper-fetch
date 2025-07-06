@@ -1,0 +1,107 @@
+name: Hyper Flow Release
+on:
+  push:
+    tags:
+      - "hyper-flow-v*"
+
+jobs:
+  prepare-environment:
+    name: Prepare environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+        env:
+          FORCE_COLOR: 0
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+
+  publish_on_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: Release
+        run: yarn nx run hyper-flow:publish:app
+
+  publish_on_mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: Release
+        run: yarn nx run hyper-flow:publish:app
+
+  publish_on_win:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.9.0"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          fail-on-cache-miss: false
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --production=false
+      - name: Build
+        run: yarn build
+      - name: Release
+        run: yarn nx run hyper-flow:publish:app
