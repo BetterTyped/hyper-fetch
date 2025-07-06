@@ -23,12 +23,13 @@ jobs:
         env:
           FORCE_COLOR: 0
       - name: Install node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile --force
       - name: Cache node_modules
         uses: actions/cache/save@v3
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
 
   build_on_linux:
     name: Build HyperFlow on Linux
@@ -48,7 +49,7 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -81,7 +82,7 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -114,7 +115,7 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -151,7 +152,7 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -196,7 +197,7 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
 
       - name: Install node_modules on cache miss
