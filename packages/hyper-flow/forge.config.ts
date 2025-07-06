@@ -65,7 +65,7 @@ const config: ForgeConfig = {
       options: {
         name: appConfig.id,
         productName: appConfig.name,
-        bin: appConfig.name,
+        bin: appConfig.id,
         icon: "./src/app/images/icon.png",
         categories: ["Office", "Utility"],
         genericName: appConfig.name,
@@ -78,6 +78,7 @@ const config: ForgeConfig = {
       options: {
         name: appConfig.id,
         productName: appConfig.name,
+        bin: appConfig.id,
         icon: "./src/app/images/icon.png",
         categories: ["Office", "Utility"],
         genericName: appConfig.name,

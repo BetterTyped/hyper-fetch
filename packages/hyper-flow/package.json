@@ -38,6 +38,7 @@
     "@types/electron-squirrel-startup": "^1.0.2",
     "@vitejs/plugin-react": "^4.3.4",
     "bufferutil": "^4.0.9",
+    "macos-alias": "~0.2.5",
     "tailwindcss": "^4.0.9",
     "ts-node": "^10.9.2",
     "utf-8-validate": "^6.0.5",
