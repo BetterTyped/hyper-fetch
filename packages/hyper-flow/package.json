@@ -43,11 +43,11 @@
     "utf-8-validate": "^6.0.5",
     "vite": "^5.4.14",
     "vite-plugin-svgr": "^4.3.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "electron": "36.6.0"
   },
   "dependencies": {
     "ws": "^8.18.1",
-    "electron": "36.6.0",
     "@better-hooks/lifecycle": "^2.0.0",
     "@better-hooks/performance": "^2.0.0",
     "@electron-forge/publisher-s3": "^7.8.0",
