@@ -1,6 +1,5 @@
 name: Debug Yarn Cache
-on:
-  workflow_dispatch:
+on: push
 
 jobs:
   debug_yarn_cache:
