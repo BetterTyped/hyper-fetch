@@ -78,7 +78,7 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
       - name: Install macos-alias
-        run: yarn add macos-alias@0.2.11 -W -D
+        run: yarn add macos-alias@0.2.19 -W -D
       - name: Clean xcode
         run: |
           sudo rm -rf /Library/Developer/CommandLineTools
