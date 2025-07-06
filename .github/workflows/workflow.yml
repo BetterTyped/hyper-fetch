@@ -124,6 +124,10 @@ jobs:
         run: yarn install
       - name: Install macos-alias
         run: yarn add macos-alias@0.2.11 -W -D
+      - name: Clean xcode
+        run: |
+          sudo rm -rf /Library/Developer/CommandLineTools
+          xcode-select --install
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3

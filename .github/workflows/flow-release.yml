@@ -79,6 +79,10 @@ jobs:
         run: yarn install
       - name: Install macos-alias
         run: yarn add macos-alias@0.2.11 -W -D
+      - name: Clean xcode
+        run: |
+          sudo rm -rf /Library/Developer/CommandLineTools
+          xcode-select --install
       - name: Build
         run: yarn build
       - name: Release
