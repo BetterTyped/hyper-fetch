@@ -74,17 +74,18 @@ jobs:
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
-      - name: Install macos-alias
-        run: yarn add macos-alias -W -D
-      - name: Rebuild native modules
-        run: yarn rebuild
       - name: Clean xcode
         run: |
           sudo rm -rf /Library/Developer/CommandLineTools
           xcode-select --install
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install
+      - name: Install macos-alias with proper build environment
+        run: |
+          export CC=clang
+          export CXX=clang++
+          yarn add macos-alias -W -D
       - name: Build
         run: yarn build
       - name: Release
