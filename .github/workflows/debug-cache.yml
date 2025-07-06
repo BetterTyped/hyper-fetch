@@ -1,15 +1,8 @@
-name: Debug Cache Export
-on:
-  workflow_dispatch:
-    inputs:
-      cache_key_pattern:
-        description: "Cache key pattern to export (e.g., yarn-*)"
-        required: true
-        default: "yarn-*"
-        type: string
+name: Debug Yarn Cache
+on: push
 
 jobs:
-  export_cache:
+  debug_yarn_cache:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,73 +35,20 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Create cache inspection archive
+      - name: Create cache info
         run: |
-          mkdir -p cache-inspection
-          echo "Cache hit: ${{ steps.cache-node-modules.outputs.cache-hit }}" > cache-inspection/cache-info.txt
-          echo "Cache key: ${{ steps.cache-node-modules.outputs.cache-primary-key }}" >> cache-inspection/cache-info.txt
-          echo "Cache matched key: ${{ steps.cache-node-modules.outputs.cache-matched-key }}" >> cache-inspection/cache-info.txt
-          echo "Timestamp: $(date)" >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
+          mkdir -p cache-info
+          echo "Cache hit: ${{ steps.cache-node-modules.outputs.cache-hit }}" > cache-info/yarn-cache-info.txt
+          echo "Cache key: ${{ steps.cache-node-modules.outputs.cache-primary-key }}" >> cache-info/yarn-cache-info.txt
+          echo "Cache matched key: ${{ steps.cache-node-modules.outputs.cache-matched-key }}" >> cache-info/yarn-cache-info.txt
+          echo "Timestamp: $(date)" >> cache-info/yarn-cache-info.txt
+          echo "" >> cache-info/yarn-cache-info.txt
+          echo "Yarn.lock hash: $(shasum yarn.lock)" >> cache-info/yarn-cache-info.txt
+          echo "Node modules size: $(du -sh node_modules 2>/dev/null || echo 'not found')" >> cache-info/yarn-cache-info.txt
 
-          # Export node_modules structure
-          echo "=== NODE_MODULES STRUCTURE ===" >> cache-inspection/cache-info.txt
-          find node_modules -maxdepth 2 -type d | head -100 >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
-
-          # Export package.json info
-          echo "=== PACKAGE.JSON INFO ===" >> cache-inspection/cache-info.txt
-          cat package.json >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
-
-          # Export yarn.lock hash
-          echo "=== YARN.LOCK HASH ===" >> cache-inspection/cache-info.txt
-          shasum yarn.lock >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
-
-          # Export yarn info
-          echo "=== YARN INFO ===" >> cache-inspection/cache-info.txt
-          yarn --version >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
-
-          # Export node_modules size
-          echo "=== NODE_MODULES SIZE ===" >> cache-inspection/cache-info.txt
-          du -sh node_modules || echo "node_modules not found" >> cache-inspection/cache-info.txt
-          echo "" >> cache-inspection/cache-info.txt
-
-          # List some key dependency versions
-          echo "=== KEY DEPENDENCIES ===" >> cache-inspection/cache-info.txt
-          ls node_modules/ | grep -E "(react|next|typescript|webpack)" | head -20 >> cache-inspection/cache-info.txt || echo "No key dependencies found" >> cache-inspection/cache-info.txt
-
-          # Create a partial node_modules archive (first 50 packages)
-          mkdir -p cache-inspection/node_modules_sample
-          ls node_modules/ | head -50 | while read dir; do
-            if [ -d "node_modules/$dir" ]; then
-              cp -r "node_modules/$dir" "cache-inspection/node_modules_sample/" 2>/dev/null || true
-            fi
-          done
-
-      - name: Upload cache inspection as artifact
+      - name: Upload cache info
         uses: actions/upload-artifact@v4
         with:
-          name: cache-inspection-${{ github.run_number }}
-          path: cache-inspection/
-          retention-days: 30
-
-      - name: Create full node_modules archive (if small enough)
-        run: |
-          NODE_MODULES_SIZE=$(du -s node_modules | cut -f1)
-          if [ $NODE_MODULES_SIZE -lt 500000 ]; then  # Less than ~500MB
-            echo "Creating full node_modules archive..."
-            tar -czf cache-inspection/node_modules_full.tar.gz node_modules/
-          else
-            echo "node_modules too large for full archive. Size: ${NODE_MODULES_SIZE}KB" > cache-inspection/node_modules_too_large.txt
-          fi
-
-      - name: Upload full node_modules if available
-        uses: actions/upload-artifact@v4
-        if: hashFiles('cache-inspection/node_modules_full.tar.gz') != ''
-        with:
-          name: node_modules-full-${{ github.run_number }}
-          path: cache-inspection/node_modules_full.tar.gz
+          name: yarn-cache-info-${{ github.run_number }}
+          path: cache-info/
           retention-days: 7
