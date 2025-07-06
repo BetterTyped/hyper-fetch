@@ -15,7 +15,7 @@
     "package:app": "electron-forge package -- --arch=arm64",
     "make:app": "electron-forge make -- --arch=arm64",
     "publish:app": "electron-forge publish",
-    "release": "yarn make:app && yarn package:app && yarn publish:app",
+    "release": "yarn package:app && yarn make:app && yarn publish:app",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
