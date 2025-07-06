@@ -19,7 +19,7 @@ jobs:
         run: corepack enable
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
         env:
@@ -45,7 +45,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -80,7 +80,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -114,7 +114,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -152,7 +152,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -198,7 +198,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.9.0"
+          node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
 
