@@ -21,6 +21,7 @@ function getEnv() {
     APPLE_ID: z.string(),
     APPLE_PASSWORD: z.string(),
     APPLE_TEAM_ID: z.string(),
+    SIGN_ID: z.string(),
     GITHUB_TOKEN: z.string(),
   });
 
@@ -46,6 +47,7 @@ const config: ForgeConfig = {
       optionsForFile: () => ({
         entitlements: "./src/app/macos/entitlements.mac.plist",
       }),
+      identity: process.env.SIGN_ID,
     },
   },
   rebuildConfig: {},

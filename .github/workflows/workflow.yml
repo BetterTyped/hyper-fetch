@@ -85,6 +85,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_on_mac:
@@ -132,6 +133,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_on_win:
@@ -171,6 +173,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   tests:
