@@ -22,9 +22,8 @@ jobs:
           cache-dependency-path: yarn.lock
         env:
           FORCE_COLOR: 0
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+      - name: Install node_modules
+        run: yarn install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -54,7 +53,7 @@ jobs:
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: App build
@@ -86,8 +85,7 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: App build
@@ -119,8 +117,7 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: App build
@@ -157,7 +154,7 @@ jobs:
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Lint
@@ -203,7 +200,7 @@ jobs:
 
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --production=false
+        run: yarn install --frozen-lockfile
 
       - name: Build
         run: yarn build
