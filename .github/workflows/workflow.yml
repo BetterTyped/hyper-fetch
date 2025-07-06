@@ -84,6 +84,7 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
@@ -116,6 +117,7 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
