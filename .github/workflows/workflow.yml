@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
         env:
@@ -42,7 +42,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -75,7 +75,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -108,7 +108,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -145,7 +145,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Restore node_modules
@@ -162,9 +162,8 @@ jobs:
         run: yarn build
       - name: Lint
         run: yarn lint
-      # Watch out - node_modules cache may affect this step - remove cache in case of issues
-      # - name: Typecheck
-      #   run: yarn typescheck
+      - name: Typecheck
+        run: yarn typescheck
       - name: Test
         run: yarn test --coverage
       - name: Send Report
@@ -190,7 +189,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20.9.0"
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: yarn.lock
 
