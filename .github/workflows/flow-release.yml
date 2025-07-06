@@ -27,9 +27,6 @@ jobs:
       - name: Install node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install HyperFlow dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: cd packages/hyper-flow && yarn install
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -67,9 +64,6 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install HyperFlow dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: cd packages/hyper-flow && yarn install
       - name: Build
         run: yarn build
       - name: Release
@@ -108,9 +102,6 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install HyperFlow dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: cd packages/hyper-flow && yarn install
       - name: Build
         run: yarn build
       - name: Release
@@ -149,9 +140,6 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install HyperFlow dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: cd packages/hyper-flow && yarn install
       - name: Build
         run: yarn build
       - name: Release
