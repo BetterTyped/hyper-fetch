@@ -1,5 +1,6 @@
 name: Debug Yarn Cache
-on: push
+on:
+  workflow_dispatch:
 
 jobs:
   debug_yarn_cache:
@@ -35,20 +36,30 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
-      - name: Create cache info
+      - name: Create cache archive
         run: |
-          mkdir -p cache-info
-          echo "Cache hit: ${{ steps.cache-node-modules.outputs.cache-hit }}" > cache-info/yarn-cache-info.txt
-          echo "Cache key: ${{ steps.cache-node-modules.outputs.cache-primary-key }}" >> cache-info/yarn-cache-info.txt
-          echo "Cache matched key: ${{ steps.cache-node-modules.outputs.cache-matched-key }}" >> cache-info/yarn-cache-info.txt
-          echo "Timestamp: $(date)" >> cache-info/yarn-cache-info.txt
-          echo "" >> cache-info/yarn-cache-info.txt
-          echo "Yarn.lock hash: $(shasum yarn.lock)" >> cache-info/yarn-cache-info.txt
-          echo "Node modules size: $(du -sh node_modules 2>/dev/null || echo 'not found')" >> cache-info/yarn-cache-info.txt
+          mkdir -p cache-export
 
-      - name: Upload cache info
+          # Create basic info file
+          echo "Cache hit: ${{ steps.cache-node-modules.outputs.cache-hit }}" > cache-export/cache-info.txt
+          echo "Cache key: ${{ steps.cache-node-modules.outputs.cache-primary-key }}" >> cache-export/cache-info.txt
+          echo "Cache matched key: ${{ steps.cache-node-modules.outputs.cache-matched-key }}" >> cache-export/cache-info.txt
+          echo "Timestamp: $(date)" >> cache-export/cache-info.txt
+          echo "Yarn.lock hash: $(shasum yarn.lock)" >> cache-export/cache-info.txt
+          echo "Node modules size: $(du -sh node_modules 2>/dev/null || echo 'not found')" >> cache-export/cache-info.txt
+
+          # Create node_modules archive
+          if [ -d "node_modules" ]; then
+            echo "Creating node_modules archive..."
+            tar -czf cache-export/node_modules.tar.gz node_modules/
+            echo "Archive created: $(ls -lh cache-export/node_modules.tar.gz)"
+          else
+            echo "node_modules directory not found" > cache-export/no-node-modules.txt
+          fi
+
+      - name: Upload cached node_modules
         uses: actions/upload-artifact@v4
         with:
-          name: yarn-cache-info-${{ github.run_number }}
-          path: cache-info/
+          name: cached-node-modules-${{ github.run_number }}
+          path: cache-export/
           retention-days: 7
