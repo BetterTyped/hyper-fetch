@@ -36,7 +36,7 @@ export const getJestConfig = (): Config.InitialOptions => ({
     ],
   },
   transformIgnorePatterns: [
-    "node_modules/(?!(chalk|react|react-json-tree|color|color-convert|color-string|react-base16-styling|lodash-es)/)",
+    "node_modules/(?!(chalk|react|react-json-tree|color|color-convert|color-string|react-base16-styling|lodash-es|prettier)/)",
   ],
   // Fixes msw https://github.com/mswjs/msw/issues/1786
   testEnvironmentOptions: {
