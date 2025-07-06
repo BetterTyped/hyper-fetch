@@ -45,6 +45,7 @@
     "use-immer": "^0.11.0"
   },
   "devDependencies": {
+    "@sentry/electron": "^6.5.0",
     "@babel/plugin-proposal-decorators": "^7.24.6",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.2",
