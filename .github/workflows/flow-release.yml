@@ -22,7 +22,6 @@ jobs:
       - name: Install node_modules
         run: yarn install --frozen-lockfile
       - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: node_modules
