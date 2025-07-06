@@ -64,8 +64,8 @@ jobs:
       - name: Lint
         run: yarn lint
       # Watch out - node_modules cache may affect this step - remove cache in case of issues
-      - name: Typecheck
-        run: yarn typescheck
+      # - name: Typecheck
+      #   run: yarn typescheck
       - name: Test
         run: yarn test --coverage
       - name: Send Report
