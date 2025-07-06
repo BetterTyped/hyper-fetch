@@ -165,6 +165,14 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Build
         run: yarn build
       - name: App build
