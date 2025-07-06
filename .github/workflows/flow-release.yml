@@ -21,7 +21,7 @@ jobs:
           FORCE_COLOR: 0
       - name: Install node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Cache node_modules
         uses: actions/cache/save@v3
         with:
@@ -48,7 +48,7 @@ jobs:
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Build
         run: yarn build
       - name: Release
@@ -79,7 +79,7 @@ jobs:
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Build
         run: yarn build
       - name: Release
@@ -110,7 +110,7 @@ jobs:
           fail-on-cache-miss: false
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Build
         run: yarn build
       - name: Release
