@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
       - uses: actions/setup-node@v4
         with:
           node-version: "20.19.3"
@@ -39,8 +37,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -74,8 +70,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -108,8 +102,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -146,8 +138,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -191,8 +181,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enable corepack
-        run: corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
