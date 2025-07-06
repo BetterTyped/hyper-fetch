@@ -24,7 +24,10 @@ jobs:
           FORCE_COLOR: 0
       - name: Install node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install  --force
+        run: yarn install
+      - name: Install HyperFlow dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: cd packages/hyper-flow && yarn install
       - name: Cache node_modules
         uses: actions/cache/save@v3
         with:
@@ -54,6 +57,9 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Install HyperFlow dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: cd packages/hyper-flow && yarn install
       - name: Cache node_modules
         uses: actions/cache/save@v3
         with:
@@ -92,6 +98,9 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Install HyperFlow dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: cd packages/hyper-flow && yarn install
       - name: Cache node_modules
         uses: actions/cache/save@v3
         with:
@@ -130,6 +139,9 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+      - name: Install HyperFlow dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: cd packages/hyper-flow && yarn install
       - name: Build
         run: yarn build
       - name: App build
@@ -213,6 +225,10 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
+
+      - name: Install HyperFlow dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: cd packages/hyper-flow && yarn install
 
       - name: Build
         run: yarn build

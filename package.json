@@ -45,8 +45,6 @@
     "use-immer": "^0.11.0"
   },
   "devDependencies": {
-    "@sentry/electron": "^6.5.0",
-    "electron": "36.6.0",
     "@babel/plugin-proposal-decorators": "^7.24.6",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.2",
@@ -56,8 +54,6 @@
     "@mui/material": "^5.8.4",
     "@ngneat/falso": "^7.3.0",
     "@nx/storybook": "^20.8.1",
-    "@electron-forge/plugin-vite": "^7.7.0",
-    "vite-plugin-svgr": "^4.3.0",
     "@storybook/addon-essentials": "8.6.12",
     "@storybook/addon-interactions": "8.6.12",
     "@storybook/core-server": "8.6.12",
@@ -133,7 +129,7 @@
     "tslib": "^2.3.0",
     "typescript": "5.7.3",
     "undici": "6.19.0",
-    "vite": "^5.4.14",
+    "vite": "6.3.4",
     "vite-plugin-eslint": "^1.8.1",
     "vite-tsconfig-paths": "4.3.2",
     "vitest": "^2.0.5"
@@ -184,6 +180,5 @@
     "graphql-tag": "^2.12.6",
     "http": "*",
     "stream": "*"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }
