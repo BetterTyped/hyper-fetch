@@ -206,7 +206,7 @@ jobs:
   tests:
     name: Run tests
     runs-on: ubuntu-latest
-    needs: prepare-environment
+    needs: [prepare-environment, build_on_linux, build_on_mac, build_on_win]
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     permissions:
