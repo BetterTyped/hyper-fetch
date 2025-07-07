@@ -16,7 +16,7 @@
   },
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
-    "prepare": "yarn install-peers",
+    "prepare": "yarn install-peers && yarn husky install",
     "reset": "yarn nx reset",
     "start": "yarn reset && nx run-many --target=start --parallel=10",
     "start:app": "yarn reset && nx serve",

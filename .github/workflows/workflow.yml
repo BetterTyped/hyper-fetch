@@ -63,11 +63,6 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
-      - name: Configure yarn to use Git Bash
-        run: |
-          $bashPath = (Get-Command bash.exe).Source
-          yarn config set script-shell "$bashPath"
-        shell: powershell
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
@@ -85,8 +80,6 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --network-timeout 1000000
-        env:
-          HUSKY: 0
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -95,6 +88,11 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
+      - name: Configure yarn to use Git Bash
+        run: |
+          $bashPath = (Get-Command bash.exe).Source
+          yarn config set script-shell "$bashPath"
+        shell: powershell
       - name: Build
         run: yarn build
       - name: App build

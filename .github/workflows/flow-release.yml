@@ -123,11 +123,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_win:
-    name: Publish Hyper Flow on Windows
+    name: Build HyperFlow on Windows
     runs-on: windows-latest
+    needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    needs: build_on_mac
     defaults:
       run:
         shell: bash
@@ -140,11 +140,6 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
-      - name: Configure yarn to use Git Bash
-        run: |
-          $bashPath = (Get-Command bash.exe).Source
-          yarn config set script-shell "$bashPath"
-        shell: powershell
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
@@ -161,7 +156,20 @@ jobs:
           key: yarn-${{ hashFiles('yarn.lock') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --network-timeout 1000000
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ hashFiles('yarn.lock') }}
+      - name: Configure yarn to use Git Bash
+        run: |
+          $bashPath = (Get-Command bash.exe).Source
+          yarn config set script-shell "$bashPath"
+        shell: powershell
       - name: Build
         run: yarn build
       - name: Release
