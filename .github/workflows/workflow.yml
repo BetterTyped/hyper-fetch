@@ -88,14 +88,21 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Configure yarn to use Git Bash
-        run: yarn config set script-shell /bin/bash
+      - name: Configure yarn to use bash for scripts
+        run: |
+          # Configure yarn to use bash for running package.json scripts
+          yarn config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"
         shell: powershell
       - name: Build
         run: yarn build
+        env:
+          MSYS_NO_PATHCONV: 1
+          MSYS2_ARG_CONV_EXCL: "*"
       - name: App build
         run: yarn nx run hyper-flow:make:app
         env:
+          MSYS_NO_PATHCONV: 1
+          MSYS2_ARG_CONV_EXCL: "*"
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
