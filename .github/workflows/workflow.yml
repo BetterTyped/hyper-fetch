@@ -39,12 +39,65 @@ jobs:
             '**/node_modules'
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
 
+  build_on_win:
+    name: Build HyperFlow on Windows
+    runs-on: windows-latest
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.3"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: |
+          echo "::set-output name=dir::$(yarn cache dir)"
+          echo "::set-output name=version::$(yarn -v)"
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: |
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --network-timeout 1000000 --ignore-optional
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Build
+        run: yarn build
+      - name: App build
+        run: yarn nx run hyper-flow:make:app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build_on_linux:
     name: Build HyperFlow on Linux
     runs-on: ubuntu-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    needs: prepare-environment
+    needs: build_on_win
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -138,60 +191,6 @@ jobs:
           npm install -g node-gyp
           npm rebuild
           yarn install --force
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            '**/node_modules'
-          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Build
-        run: yarn build
-      - name: App build
-        run: yarn nx run hyper-flow:make:app
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build_on_win:
-    name: Build HyperFlow on Windows
-    runs-on: windows-latest
-    # Tests timeout after 40 minutes
-    timeout-minutes: 40
-    needs: build_on_mac
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: |
-            **/node_modules
-            **/.eslintcache
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --network-timeout 1000000 --ignore-optional
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
