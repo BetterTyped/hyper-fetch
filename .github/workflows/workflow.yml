@@ -95,6 +95,7 @@ jobs:
     runs-on: macos-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    needs: build_on_linux
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -161,6 +162,7 @@ jobs:
     runs-on: windows-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    needs: build_on_mac
     defaults:
       run:
         shell: bash

@@ -58,6 +58,7 @@ jobs:
   publish_on_mac:
     name: Publish Hyper Flow on Mac
     runs-on: macos-latest
+    needs: build_on_linux
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
@@ -126,6 +127,7 @@ jobs:
     runs-on: windows-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    needs: build_on_mac
     defaults:
       run:
         shell: bash
