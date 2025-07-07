@@ -45,11 +45,6 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Configure yarn to use bash for scripts
-        run: |
-          # Configure yarn to use bash for running package.json scripts
-          yarn config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"
-        shell: powershell
       - name: Build
         run: yarn build
       - name: Release
