@@ -17,7 +17,7 @@
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "yarn clean && node ../../scripts/build.js",
-    "postbuild": "rollup -c '../../rollup.config.js'",
+    "postbuild": "yarn rollup -c '../../rollup.config.js'",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
