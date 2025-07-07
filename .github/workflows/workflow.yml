@@ -68,7 +68,7 @@ jobs:
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --ignore-optional
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -100,6 +100,10 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
       - name: Import codesign certs
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -124,8 +128,15 @@ jobs:
         run: yarn install
       - name: Install macos-alias
         run: yarn add macos-alias@0.2.12 -W
+      - name: Clear native modules cache
+        run: |
+          find . -name "*.node" -delete
+          find . -name "build" -type d -exec rm -rf {} + || true
       - name: Rebuild native modules
-        run: npm rebuild
+        run: |
+          npm install -g node-gyp
+          npm rebuild
+          yarn install --force
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -173,7 +184,7 @@ jobs:
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --network-timeout 1000000
+        run: yarn install --network-timeout 1000000 --ignore-optional
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -226,7 +237,7 @@ jobs:
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --ignore-optional
       - name: Build
         run: yarn build
       - name: Lint
