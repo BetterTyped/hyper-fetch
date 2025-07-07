@@ -1,6 +1,8 @@
+/**
+ * @type {import("semantic-release").Config}
+ */
 module.exports = {
-  // We want to publish only single release notes for the core package release config
-  publish: "@semantic-release/npm",
+  publish: undefined,
   success: false,
   fail: false,
 
