@@ -11,6 +11,8 @@ jobs:
     needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,6 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -112,6 +116,8 @@ jobs:
     needs: build_on_linux
     # Tests timeout after 40 minutes
     timeout-minutes: 40
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
