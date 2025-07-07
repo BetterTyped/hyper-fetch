@@ -89,7 +89,7 @@ jobs:
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
       - name: Configure yarn to use Git Bash
-        run: yarn config set script-shell "C:\Program Files\Git\bin\bash.exe"
+        run: yarn config set script-shell /bin/bash
         shell: powershell
       - name: Build
         run: yarn build
