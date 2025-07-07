@@ -1,6 +1,6 @@
 export const appConfig = {
-  id: "hyper-flow",
-  name: "Hyper Flow",
+  id: "HyperFlow",
+  name: "HyperFlow",
   description: "Manage your API with Hyper Flow",
   repository: {
     owner: "BetterTyped",

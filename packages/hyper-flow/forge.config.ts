@@ -54,7 +54,7 @@ const config: ForgeConfig = {
   makers: [
     // Windows
     new MakerSquirrel({
-      name: appConfig.name,
+      name: appConfig.id,
       authors: appConfig.repository.owner,
       setupExe: appConfig.id,
       setupIcon: "./src/app/images/icon.ico",
