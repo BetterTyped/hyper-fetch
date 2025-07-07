@@ -43,7 +43,9 @@ jobs:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
   build_on_win:
     name: Build HyperFlow on Windows
@@ -73,7 +75,10 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --network-timeout 1000000
@@ -84,7 +89,10 @@ jobs:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Build
         run: yarn build
       - name: App build
@@ -122,7 +130,10 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
@@ -133,7 +144,10 @@ jobs:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Build
         run: yarn build
       - name: App build
@@ -182,7 +196,10 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
@@ -200,7 +217,10 @@ jobs:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Build
         run: yarn build
       - name: App build
@@ -242,7 +262,10 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
@@ -293,7 +316,10 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
