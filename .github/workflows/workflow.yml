@@ -51,12 +51,6 @@ jobs:
     needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    defaults:
-      run:
-        shell: bash
-    env:
-      MSYS_NO_PATHCONV: 1
-      MSYS2_ARG_CONV_EXCL: "*"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,6 +85,11 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
+      - name: Configure yarn to use bash for scripts
+        run: |
+          # Configure yarn to use bash for running package.json scripts
+          yarn config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"
+        shell: powershell
       - name: Build
         run: yarn build
       - name: App build
