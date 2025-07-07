@@ -5,6 +5,57 @@ on:
       - "hyper-flow-v*"
 
 jobs:
+  publish_on_win:
+    name: Build HyperFlow on Windows
+    runs-on: windows-latest
+    needs: prepare-environment
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.3"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: |
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
+      - name: Restore node_modules
+        uses: actions/cache/restore@v3
+        id: cache-node-modules
+        with:
+          path: |
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install node_modules on cache miss
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: yarn install --network-timeout 1000000
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ hashFiles('yarn.lock') }}
+      - name: Build
+        run: yarn build
+      - name: Release
+        run: yarn nx run hyper-flow:publish:app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish_on_linux:
     name: Publish Hyper Flow on Linux
     runs-on: ubuntu-latest
@@ -111,65 +162,6 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Build
-        run: yarn build
-      - name: Release
-        run: yarn nx run hyper-flow:publish:app
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish_on_win:
-    name: Build HyperFlow on Windows
-    runs-on: windows-latest
-    needs: prepare-environment
-    # Tests timeout after 40 minutes
-    timeout-minutes: 40
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
-      - name: Restore node_modules
-        uses: actions/cache/restore@v3
-        id: cache-node-modules
-        with:
-          path: |
-            **/node_modules
-            **/.eslintcache
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Install node_modules on cache miss
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --network-timeout 1000000
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            '**/node_modules'
-          key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Configure yarn to use Git Bash
-        run: |
-          $bashPath = (Get-Command bash.exe).Source
-          yarn config set script-shell "$bashPath"
-        shell: powershell
       - name: Build
         run: yarn build
       - name: Release
