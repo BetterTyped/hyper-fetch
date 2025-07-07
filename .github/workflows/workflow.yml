@@ -128,10 +128,6 @@ jobs:
         run: yarn install
       - name: Install macos-alias
         run: yarn add macos-alias@0.2.12 -W
-      - name: Clear native modules cache
-        run: |
-          find . -name "*.node" -delete
-          find . -name "build" -type d -exec rm -rf {} + || true
       - name: Rebuild native modules
         run: |
           npm install -g node-gyp
