@@ -31,8 +31,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Install node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
@@ -65,8 +65,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
@@ -116,8 +116,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
@@ -176,8 +176,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
@@ -236,8 +236,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
@@ -287,8 +287,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
