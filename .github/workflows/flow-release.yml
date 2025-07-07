@@ -8,6 +8,8 @@ jobs:
   publish_on_linux:
     name: Publish Hyper Flow on Linux
     runs-on: ubuntu-latest
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,6 +58,8 @@ jobs:
   publish_on_mac:
     name: Publish Hyper Flow on Mac
     runs-on: macos-latest
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -120,6 +124,8 @@ jobs:
   publish_on_win:
     name: Publish Hyper Flow on Windows
     runs-on: windows-latest
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
     defaults:
       run:
         shell: bash
