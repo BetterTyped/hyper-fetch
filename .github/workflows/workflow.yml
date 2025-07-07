@@ -164,6 +164,8 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
+      - name: Configure yarn to use bash
+        run: yarn config set script-shell "bash"
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
