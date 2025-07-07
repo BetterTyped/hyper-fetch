@@ -26,7 +26,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: cache-node-modules
         with:
           path: |
@@ -39,7 +39,7 @@ jobs:
         run: yarn install --network-timeout 1000000
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -76,7 +76,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: cache-node-modules
         with:
           path: |
@@ -89,7 +89,7 @@ jobs:
         run: yarn install --ignore-optional
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -136,7 +136,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         id: cache-node-modules
         with:
           path: |
@@ -156,7 +156,7 @@ jobs:
           yarn install --force
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}

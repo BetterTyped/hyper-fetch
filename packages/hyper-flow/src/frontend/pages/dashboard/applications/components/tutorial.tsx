@@ -4,7 +4,7 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 
 export const Tutorial = () => {
   const handleClick = () => {
-    window.open("https://hyperfetch.bettertyped.com/docs/guides/devtools/getting-started", "_blank");
+    window.open("https://hyperfetch.bettertyped.com/docs/integrations/plugin-devtools", "_blank");
   };
 
   return (
