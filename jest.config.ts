@@ -1,10 +1,10 @@
-import { getJestProjects } from "@nx/jest";
+import { getJestProjectsAsync } from "@nx/jest";
 import type { Config } from "@jest/types";
 import path from "path";
 
-export default {
-  projects: getJestProjects(),
-};
+export default async () => ({
+  projects: await getJestProjectsAsync(),
+});
 
 export const getJestConfig = (): Config.InitialOptions => ({
   cache: false,

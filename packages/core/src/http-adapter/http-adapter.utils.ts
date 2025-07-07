@@ -49,7 +49,7 @@ export const handleResponse = (
 };
 
 export const parseErrorResponse = <T extends RequestInstance>(response: unknown): ExtractErrorType<T> => {
-  return response ? parseResponse(response) : getErrorMessage();
+  return response ? parseResponse(response) : (getErrorMessage() as ExtractErrorType<T>);
 };
 
 // Stringify
