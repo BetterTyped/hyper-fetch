@@ -91,15 +91,12 @@ jobs:
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
           key: yarn-${{ hashFiles('yarn.lock') }}
-      - name: Configure yarn to use bash for scripts
-        run: |
-          # Configure yarn to use bash for running package.json scripts
-          yarn config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"
-        shell: powershell
       - name: Build
         run: yarn build
+        shell: powershell
       - name: App build
         run: yarn nx run hyper-flow:make:app
+        shell: powershell
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
@@ -123,8 +120,8 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
-          echo "::set-output name=dir::$(yarn cache dir)"
-          echo "::set-output name=version::$(yarn -v)"
+          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
