@@ -120,6 +120,9 @@ jobs:
   publish_on_win:
     name: Publish Hyper Flow on Windows
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
