@@ -6,6 +6,7 @@ on:
 
 jobs:
   publish_on_linux:
+    name: Publish Hyper Flow on Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,7 +33,15 @@ jobs:
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --ignore-optional
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Build
         run: yarn build
       - name: Release
@@ -45,6 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_mac:
+    name: Publish Hyper Flow on Mac
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -55,6 +65,10 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
       - name: Import codesign certs
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -74,18 +88,24 @@ jobs:
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Clean xcode
-        run: |
-          sudo rm -rf /Library/Developer/CommandLineTools
-          xcode-select --install
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
-      - name: Install macos-alias with proper build environment
+      - name: Install macos-alias
+        run: yarn add macos-alias@0.2.12 -W
+      - name: Rebuild native modules
         run: |
-          export CC=clang
-          export CXX=clang++
-          yarn add macos-alias -W -D
+          npm install -g node-gyp
+          npm rebuild
+          yarn install --force
+      - name: Cache node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            '**/node_modules'
+          key: yarn-${{ runner.os }}-${{ steps.yarn-cache-dir-path.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
       - name: Build
         run: yarn build
       - name: Release
@@ -98,6 +118,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_win:
+    name: Publish Hyper Flow on Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
