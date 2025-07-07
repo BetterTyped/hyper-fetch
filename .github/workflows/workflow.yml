@@ -94,7 +94,7 @@ jobs:
 
   build_on_linux:
     name: Build HyperFlow on Linux
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, prepare-environment]
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     needs: build_on_win
