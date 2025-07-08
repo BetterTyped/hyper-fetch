@@ -20,7 +20,7 @@
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
-    "update:version": "node ../../scripts/update-package-version.js --prefix 'hyper-flow-v'"
+    "update:version": "node ../../scripts/update-package-version.js --prefix hyper-flow-v"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.7.0",
