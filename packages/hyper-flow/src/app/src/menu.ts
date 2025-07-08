@@ -5,7 +5,7 @@ export const isMac = process.platform === "darwin";
 export const createMenu = () => {
   const template: Array<Electron.MenuItemConstructorOptions | Electron.MenuItem> = [
     {
-      label: "Hyper Flow",
+      label: "HyperFlow",
       submenu: [
         {
           label: "Quit",

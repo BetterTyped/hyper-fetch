@@ -26,14 +26,14 @@
 
 ## About
 
-**`Hyper Fetch DevTools Plugin`** is an essential bridge between your application and Hyper Flow. It enables real-time
+**`Hyper Fetch DevTools Plugin`** is an essential bridge between your application and HyperFlow. It enables real-time
 streaming of request data, allowing you to monitor, debug, and optimize your application's network operations. This
-plugin is the foundation that powers Hyper Flow's advanced developer tools, providing the data pipeline needed for
+plugin is the foundation that powers HyperFlow's advanced developer tools, providing the data pipeline needed for
 comprehensive request inspection and management.
 
 ## Key Features
 
-🔮 **Real-time Data Streaming** - Seamless streaming of request data to Hyper Flow
+🔮 **Real-time Data Streaming** - Seamless streaming of request data to HyperFlow
 
 🎯 **Request Lifecycle Tracking** - Complete visibility into request lifecycle events
 
@@ -53,7 +53,7 @@ comprehensive request inspection and management.
 
 ## Integration
 
-The DevTools Plugin is designed to work seamlessly with Hyper Flow. To get started:
+The DevTools Plugin is designed to work seamlessly with HyperFlow. To get started:
 
 1. Install the plugin:
 
@@ -71,13 +71,13 @@ const client = createClient({
   url: "https://api.example.com",
 }).addPlugin(
   DevtoolsPlugin({
-    // Name displayed in the Hyper Flow
+    // Name displayed in the HyperFlow
     appName: "Adjusted App",
   }),
 );
 ```
 
-3. Connect to Hyper Flow to start receiving real-time data.
+3. Connect to HyperFlow to start receiving real-time data.
 
 ## Help me keep working on this project ❤️
 
@@ -94,5 +94,5 @@ const client = createClient({
 ## Other Packages
 
 - - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-- #### [Hyper Flow](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/flow)
+- #### [HyperFlow](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/flow)
 - #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)

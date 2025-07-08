@@ -82,7 +82,7 @@ export const Blocks = () => {
             <Highlighter className="grid md:grid-cols-12 gap-6 group">
               <Link to="/docs/hyper-flow" className="!no-underline md:col-span-12">
                 <BigBlock
-                  title="Hyper Flow"
+                  title="HyperFlow"
                   description="Inspect, debug, and manage your requests in real-time. Gain full visibility into caching, queuing, and the entire request lifecycle."
                   img={
                     <img

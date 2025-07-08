@@ -1,4 +1,4 @@
-name: Hyper Flow Release
+name: HyperFlow Release
 on:
   push:
     tags:
@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_linux:
-    name: Publish Hyper Flow on Linux
+    name: Publish HyperFlow on Linux
     runs-on: ubuntu-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
@@ -119,7 +119,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_on_mac:
-    name: Publish Hyper Flow on Mac
+    name: Publish HyperFlow on Mac
     runs-on: macos-latest
     needs: build_on_linux
     # Tests timeout after 40 minutes

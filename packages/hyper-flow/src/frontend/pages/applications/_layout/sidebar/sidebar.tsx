@@ -119,7 +119,7 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <img src={logo} alt="Hyper Flow" className="size-10 mx-auto mb-2" />
+          <img src={logo} alt="HyperFlow" className="size-10 mx-auto mb-2" />
         </SidebarFooter>
       </Sidebar>
     </SidebarProvider>

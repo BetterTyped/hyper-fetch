@@ -26,7 +26,7 @@ if (started) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    title: "Hyper Flow",
+    title: "HyperFlow",
     transparent: true,
     frame: false,
     width: process.env.NODE_ENV === "production" ? 1200 : 1600,

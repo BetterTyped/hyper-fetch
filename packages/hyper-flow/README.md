@@ -1,4 +1,4 @@
-# ⚛️ Hyper Flow
+# ⚛️ HyperFlow
 
 <p>
   <a href="https://bettertyped.com/">
@@ -20,9 +20,9 @@
 
 ## About
 
-**`Hyper Flow`** is a powerful set of developer tools designed to enhance Hyper Fetch with advanced request management
+**`HyperFlow`** is a powerful set of developer tools designed to enhance Hyper Fetch with advanced request management
 capabilities. It provides a comprehensive suite of utilities for `monitoring`, `debugging`, and `optimizing` your
-application's network requests. With Hyper Flow, you can gain deep insights into your application's data flow and ensure
+application's network requests. With HyperFlow, you can gain deep insights into your application's data flow and ensure
 optimal performance.
 
 ## Key Features

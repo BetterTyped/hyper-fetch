@@ -1,11 +1,11 @@
 export type DevtoolsPluginOptions = {
   /**
-   * Name of your application, it will be displayed in the Hyper Flow app
+   * Name of your application, it will be displayed in the HyperFlow app
    */
   appName: string;
   /**
-   * URL of the Hyper Flow server
-   * Needed only if you change the default port in the Hyper Flow app
+   * URL of the HyperFlow server
+   * Needed only if you change the default port in the HyperFlow app
    * @default "ws://localhost:2137"
    */
   url?: string;
