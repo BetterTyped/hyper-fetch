@@ -73,7 +73,7 @@ export const createMenu = () => {
             if (focusedWindow) focusedWindow.reload();
           },
         },
-        process.env.NODE_ENV !== "production" && {
+        {
           label: "Toggle Developer Tools",
           accelerator: (() => {
             if (process.platform === "darwin") return "Alt+Command+I";

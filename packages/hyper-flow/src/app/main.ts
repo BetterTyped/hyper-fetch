@@ -29,7 +29,7 @@ const createWindow = () => {
     title: "HyperFlow",
     transparent: true,
     frame: false,
-    width: process.env.NODE_ENV === "production" ? 1200 : 1600,
+    width: import.meta.env.VITE_ENVIRONMENT === "production" ? 1200 : 1600,
     height: 800,
     minWidth: 800,
     minHeight: 600,
@@ -48,11 +48,11 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  if (process.env.NODE_ENV !== "production") {
-    mainWindow.webContents.openDevTools({
-      mode: "right",
-    });
-  }
+  // if (import.meta.env.VITE_ENVIRONMENT !== "production") {
+  //   mainWindow.webContents.openDevTools({
+  //     mode: "right",
+  //   });
+  // }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     // config.fileProtocol is my custom file protocol
