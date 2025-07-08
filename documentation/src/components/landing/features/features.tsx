@@ -35,9 +35,9 @@ const features: FeatureItem[] = [
     name: () => (
       <h5 className="text-4xl font-extrabold flex flex-wrap gap-2">
         End to end{" "}
-        <h5 className="text-4xl font-extrabold underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2">
+        <span className="text-4xl font-extrabold underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2">
           type-safety
-        </h5>
+        </span>
       </h5>
     ),
     description: () => (
@@ -75,7 +75,7 @@ const features: FeatureItem[] = [
           containerClassName="[&>div]:z-[-1]"
           rectangleClassName="bg-gradient-to-r from-rose-500/40 to-orange-500/40 brightness-150 border-none"
         >
-          <h5 className="text-4xl font-extrabold px-2">AI and LLMs</h5>{" "}
+          <span className="text-4xl font-extrabold px-2">AI and LLMs</span>{" "}
         </PointerHighlight>
       </h5>
     ),
@@ -97,7 +97,7 @@ const features: FeatureItem[] = [
     ),
   },
   {
-    name: () => "Framework Agnostic",
+    name: () => <h5 className="text-4xl font-extrabold flex flex-wrap gap-2">Framework Agnostic</h5>,
     description: () => (
       <Description>
         Works seamlessly with <b>React, Next.js, Remix, Astro, Node.js</b>, and any JavaScript framework. Same API, same
@@ -218,15 +218,13 @@ export function Features(): JSX.Element {
           <div className="grid gap-32">
             {/* Feature */}
             {features.map((feature, index) => (
-              <div className="grid md:grid-cols-2 gap-10 md:gap-20 items-center">
+              <div className="grid md:grid-cols-2 gap-10 md:gap-20 items-center" key={index}>
                 <div className={cn("flex items-center justify-center", index % 2 === 0 && "order-2")}>
                   <feature.icon />
                 </div>
                 <div>
                   <FadeIn start={0.02} end={0.2}>
-                    <h5 className="text-4xl font-extrabold">
-                      <feature.name />
-                    </h5>
+                    <feature.name />
                   </FadeIn>
                   <FadeIn start={0.05} end={0.3}>
                     <div className="flex-1 mt-1 max-w-md">

@@ -53,7 +53,8 @@
     "sonner": "^2.0.3",
     "swiper": "^8.4.7",
     "tailwindcss": "^3.3.5",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "vanilla-cookieconsent": "^3.1.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.8.1",

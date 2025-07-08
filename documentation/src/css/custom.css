@@ -32,6 +32,15 @@ html body {
   --docsearch-highlight-color: theme(colors.cyan.500);
 }
 
+.cm__title,
+.pm__title {
+  @apply !text-zinc-200;
+}
+
+#cc-main .cc__link {
+  @apply !text-zinc-300;
+}
+
 .tabs-container {
   @apply !w-full !flex !flex-col;
 }

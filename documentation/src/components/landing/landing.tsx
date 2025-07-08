@@ -15,6 +15,7 @@ import { Features } from "./features/features";
 import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
 import { About } from "./about/about";
+import { Cookies } from "../cookies/cookies";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -52,6 +53,7 @@ export const Landing = () => {
         <Sponsors />
         <CallToAction />
       </div>
+      <Cookies />
     </Layout>
   );
 };
