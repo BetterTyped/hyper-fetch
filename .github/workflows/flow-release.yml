@@ -7,7 +7,7 @@ on: push
 
 jobs:
   publish_on_win:
-    name: Build HyperFlow on Windows
+    name: Publish HyperFlow on Windows
     runs-on: windows-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40

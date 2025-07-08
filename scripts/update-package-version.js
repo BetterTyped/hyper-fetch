@@ -64,37 +64,24 @@ function extractVersion(tag, prefix) {
  */
 function getGitTags(prefix) {
   try {
-    // Determine shell based on platform
     const isWindows = process.platform === "win32";
-    const shellOptions = isWindows ? { shell: true } : {};
 
-    let output;
-
-    try {
-      // Try with --sort first (newer git versions)
-      output = execSync("git tag --sort=-version:refname", {
-        encoding: "utf8",
-        stdio: ["pipe", "pipe", "pipe"],
-        ...shellOptions,
-      });
-    } catch (sortError) {
-      console.log("--sort option not available, falling back to basic git tag");
-      // Fallback for older git versions or Windows compatibility
-      output = execSync("git tag", {
-        encoding: "utf8",
-        stdio: ["pipe", "pipe", "pipe"],
-        ...shellOptions,
-      });
-    }
-
-    console.log("Output:", JSON.stringify(output)); // Debug output
+    // Get all tags sorted by version (descending)
+    const output = isWindows
+      ? execSync("git tag --sort=-version:refname", {
+          encoding: "utf8",
+          stdio: ["pipe", "pipe", "pipe"],
+          shell: true,
+        })
+      : execSync("git tag --sort=-version:refname", {
+          encoding: "utf8",
+          stdio: ["pipe", "pipe", "pipe"],
+        });
 
     const tags = output
       .trim()
       .split("\n")
       .filter((tag) => tag.trim() !== "");
-
-    console.log("Tags:", tags); // Debug tags
 
     const versions = [];
 
@@ -104,11 +91,6 @@ function getGitTags(prefix) {
         versions.push(version);
       }
     });
-
-    // Sort versions manually if git --sort wasn't available
-    versions.sort((a, b) => compareVersions(b, a)); // Sort descending
-
-    console.log("Versions:", versions); // Debug versions
 
     return versions;
   } catch (error) {
