@@ -237,7 +237,7 @@ jobs:
   tests:
     name: Run tests
     runs-on: ubuntu-latest
-    needs: [build_on_linux]
+    needs: [build_on_linux, build_on_mac, build_on_win]
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     permissions:
@@ -292,7 +292,7 @@ jobs:
     name: Release
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
-    needs: [tests, build_on_linux, build_on_mac, build_on_win]
+    needs: [tests]
     permissions:
       contents: write
     steps:
