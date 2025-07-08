@@ -54,6 +54,7 @@
     "@mui/material": "^5.8.4",
     "@ngneat/falso": "^7.3.0",
     "@nx/storybook": "21.2.2",
+    "@semantic-release/git": "^10.0.1",
     "@storybook/addon-essentials": "8.6.12",
     "@storybook/addon-interactions": "8.6.12",
     "@storybook/core-server": "8.6.12",
