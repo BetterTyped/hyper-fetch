@@ -100,7 +100,7 @@ const config: ForgeConfig = {
       },
       authToken: env.GITHUB_TOKEN,
       prerelease: false,
-      generateReleaseNotes: true,
+      generateReleaseNotes: false,
       tagPrefix: "hyper-flow-v",
       /**
        * Notice that you have configured Forge to publish your release as a draft.

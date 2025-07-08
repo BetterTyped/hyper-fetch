@@ -311,3 +311,4 @@ jobs:
     needs: release
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     uses: ./.github/workflows/flow-release.yml
+    secrets: inherit
