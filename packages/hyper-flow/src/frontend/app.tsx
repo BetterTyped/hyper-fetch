@@ -1,6 +1,8 @@
 import { RouterProvider, createMemoryHistory, createRouter } from "@tanstack/react-router";
 
 import { routeTree } from "./routeTree.gen";
+import { useTracking } from "./store/general/tracking.store";
+import { useEffect } from "react";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -17,5 +19,13 @@ const memoryHistory = createMemoryHistory({
 });
 
 export function App() {
+  const { firstOpen, setFirstOpen } = useTracking();
+
+  useEffect(() => {
+    if (!firstOpen) {
+      setFirstOpen(false);
+    }
+  }, [firstOpen]);
+
   return <RouterProvider router={router} history={memoryHistory} />;
 }

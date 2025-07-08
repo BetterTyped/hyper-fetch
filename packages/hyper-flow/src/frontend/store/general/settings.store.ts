@@ -6,6 +6,8 @@ export type Settings = {
 };
 
 type SettingsStore = {
+  // User open app for the first time
+  firstOpen: boolean;
   serverStatus: "running" | "crashed";
   settings: Settings;
   setSettings: (settings: Partial<Settings>) => void;
@@ -16,6 +18,7 @@ type SettingsStore = {
 export const useSettings = create<SettingsStore>()(
   persist(
     (set) => ({
+      firstOpen: false,
       settings: {
         serverPort: 2137,
       },

@@ -53,6 +53,11 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   publish_on_linux:
     name: Publish HyperFlow on Linux
@@ -105,6 +110,11 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   publish_on_mac:
     name: Publish HyperFlow on Mac
@@ -172,3 +182,8 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SIGN_ID: ${{ secrets.SIGN_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

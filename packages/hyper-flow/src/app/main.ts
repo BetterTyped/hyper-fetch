@@ -29,7 +29,7 @@ const createWindow = () => {
     title: "HyperFlow",
     transparent: true,
     frame: false,
-    width: import.meta.env.VITE_ENVIRONMENT === "production" ? 1200 : 1600,
+    width: 1200,
     height: 800,
     minWidth: 800,
     minHeight: 600,
