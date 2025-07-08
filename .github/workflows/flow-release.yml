@@ -38,7 +38,7 @@ jobs:
 
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --network-timeout 1000000
+        run: yarn install --frozen-lockfile --network-timeout 1000000
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -91,7 +91,7 @@ jobs:
 
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -156,14 +156,14 @@ jobs:
 
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Install macos-alias
         run: yarn add macos-alias@0.2.12 -W
       - name: Rebuild native modules
         run: |
           npm install -g node-gyp
           npm rebuild
-          yarn install --force
+          yarn install --frozen-lockfile --force
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
