@@ -65,21 +65,20 @@ function extractVersion(tag, prefix) {
 function getGitTags(prefix) {
   try {
     // Get all tags sorted by version (descending)
-    // Using shell: true for better Windows compatibility
     const output = execSync("git tag --sort=-version:refname", {
       encoding: "utf8",
-      shell: true,
-      windowsHide: true,
+      stdio: ["pipe", "pipe", "pipe"],
+      shell: "/bin/bash",
     });
 
-    console.log("Output:", output);
+    console.log("Output:", JSON.stringify(output)); // Debug output
 
     const tags = output
       .trim()
-      .split(/\r?\n/) // Handle both Windows (\r\n) and Unix (\n) line endings
+      .split("\n")
       .filter((tag) => tag.trim() !== "");
 
-    console.log("Tags:", tags);
+    console.log("Tags:", tags); // Debug tags
 
     const versions = [];
 
@@ -90,12 +89,11 @@ function getGitTags(prefix) {
       }
     });
 
-    console.log("Versions:", versions);
+    console.log("Versions:", versions); // Debug versions
 
     return versions;
   } catch (error) {
     console.error("Error getting git tags:", error.message);
-    console.error("Make sure Git is installed and available in PATH");
     return [];
   }
 }
@@ -151,24 +149,15 @@ function main() {
   let packagePath = path.join(process.cwd(), "package.json");
   let dryRun = false;
 
-  // Helper function to strip quotes from arguments (Windows compatibility)
-  function stripQuotes(str) {
-    // Remove matching quotes from both ends
-    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
-      return str.slice(1, -1);
-    }
-    return str;
-  }
-
   // Parse command line arguments
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
 
     if (arg === "--prefix" && i + 1 < args.length) {
-      prefix = stripQuotes(args[i + 1]);
+      prefix = args[i + 1];
       i++;
     } else if (arg === "--package" && i + 1 < args.length) {
-      packagePath = stripQuotes(args[i + 1]);
+      packagePath = args[i + 1];
       i++;
     } else if (arg === "--dry-run") {
       dryRun = true;
