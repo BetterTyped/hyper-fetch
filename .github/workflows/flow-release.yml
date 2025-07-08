@@ -1,9 +1,8 @@
 name: HyperFlow Release
-on: push
-# on:
-#   push:
-#     tags:
-#       - "hyper-flow-v[0-9]+.[0-9]+.[0-9]+"
+on:
+  push:
+    tags:
+      - "hyper-flow-v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   publish_on_win:
