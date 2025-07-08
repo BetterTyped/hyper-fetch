@@ -38,7 +38,7 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -69,7 +69,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
@@ -85,7 +85,7 @@ jobs:
         run: yarn install --frozen-lockfile --network-timeout 1000000
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -108,6 +108,8 @@ jobs:
     name: Build HyperFlow on Linux
     runs-on: ubuntu-latest
     needs: prepare-environment
+    # Tests timeout after 40 minutes
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -123,7 +125,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
@@ -139,7 +141,7 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -190,7 +192,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
@@ -213,7 +215,7 @@ jobs:
           yarn install --frozen-lockfile --force
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v3
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -255,7 +257,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
@@ -309,7 +311,7 @@ jobs:
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
           echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
