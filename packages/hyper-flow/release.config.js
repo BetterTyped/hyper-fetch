@@ -1,8 +1,5 @@
-/**
- * @type {import("semantic-release").Config}
- */
 module.exports = {
-  publish: undefined,
+  publish: false,
   success: false,
   fail: false,
 
@@ -21,34 +18,9 @@ module.exports = {
   ],
   release: {
     plugins: [
-      [
-        "@semantic-release/commit-analyzer",
-        {
-          releaseRules: [
-            {
-              scope: "no-release",
-              release: false,
-            },
-            {
-              breaking: true,
-              release: "major",
-            },
-            {
-              type: "feat",
-              release: "minor",
-            },
-            {
-              type: "refactor",
-              release: "minor",
-            },
-            {
-              type: "*",
-              release: "patch",
-            },
-          ],
-        },
-      ],
+      "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
       "@semantic-release/github",
     ],
   },
