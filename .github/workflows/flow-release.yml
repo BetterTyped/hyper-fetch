@@ -5,42 +5,11 @@ on:
       - "hyper-flow-v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  prepare-environment:
-    name: Prepare environment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
-        env:
-          FORCE_COLOR: 0
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
-      - name: Install node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
-      - name: Cache node_modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-            '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
   publish_on_win:
     name: Build HyperFlow on Windows
     runs-on: windows-latest
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    needs: prepare-environment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,7 +59,6 @@ jobs:
   publish_on_linux:
     name: Publish HyperFlow on Linux
     runs-on: ubuntu-latest
-    needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
@@ -143,7 +111,6 @@ jobs:
   publish_on_mac:
     name: Publish HyperFlow on Mac
     runs-on: macos-latest
-    needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
