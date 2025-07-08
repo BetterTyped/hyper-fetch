@@ -245,7 +245,6 @@ jobs:
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
@@ -276,7 +275,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -297,7 +295,6 @@ jobs:
             **/.eslintcache
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
@@ -306,7 +303,11 @@ jobs:
       - name: Publish
         run: yarn release
         env:
-          # Note that we use RELEASE_TOKEN instead of GITHUB_TOKEN - this is to trigger the flow-release.yml workflow
-          # GITHUB_TOKEN do not trigger other workflows - especially the tag push events
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  hyper-flow-release:
+    name: Trigger HyperFlow Release
+    needs: release
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
+    uses: ./.github/workflows/flow-release.yml
