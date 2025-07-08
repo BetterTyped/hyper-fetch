@@ -49,13 +49,6 @@ module.exports = {
         },
       ],
       "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/git",
-        {
-          assets: ["package.json"],
-          message: "🤖 chore: ${nextRelease.version} [skip ci]",
-        },
-      ],
       "@semantic-release/github",
     ],
   },

@@ -14,12 +14,13 @@
     "start": "rimraf node_modules/.vite && yarn electron-forge start",
     "package:app": "yarn electron-forge package",
     "make:app": "yarn electron-forge make",
-    "publish:app": "yarn electron-forge publish",
+    "publish:app": "yarn update:version && yarn electron-forge publish",
     "release": "yarn semantic-release --extends ./release.config.js -t 'hyper-flow-v${version}'",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
-    "tests": "yarn lint-staged"
+    "tests": "yarn lint-staged",
+    "update:version": "node ../../scripts/update-package-version.js --prefix 'hyper-flow-v'"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.7.0",
