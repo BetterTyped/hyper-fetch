@@ -66,17 +66,18 @@ function getGitTags(prefix) {
   try {
     const isWindows = process.platform === "win32";
 
+    // Fetch tags first (needed for CI environments)
+    execSync("git fetch --tags", {
+      stdio: "pipe",
+      ...(isWindows ? { shell: true } : {}),
+    });
+
     // Get all tags sorted by version (descending)
-    const output = isWindows
-      ? execSync("git tag --sort=-version:refname", {
-          encoding: "utf8",
-          stdio: ["pipe", "pipe", "pipe"],
-          shell: true,
-        })
-      : execSync("git tag --sort=-version:refname", {
-          encoding: "utf8",
-          stdio: ["pipe", "pipe", "pipe"],
-        });
+    const output = execSync("git tag --sort=-version:refname", {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+      ...(isWindows ? { shell: true } : {}),
+    });
 
     const tags = output
       .trim()
