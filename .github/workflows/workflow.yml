@@ -328,5 +328,7 @@ jobs:
       - name: Publish
         run: yarn release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Note that we use RELEASE_TOKEN instead of GITHUB_TOKEN - this is to trigger the flow-release.yml workflow
+          # GITHUB_TOKEN do not trigger other workflows - especially the tag push events
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
