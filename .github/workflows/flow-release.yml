@@ -20,8 +20,6 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
-      - name: Run version update
-        run: node ./scripts/update-package-version.js --prefix "hyper-flow-v"
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
