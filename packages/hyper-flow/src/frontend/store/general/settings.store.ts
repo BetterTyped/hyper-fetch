@@ -6,8 +6,6 @@ export type Settings = {
 };
 
 type SettingsStore = {
-  // User open app for the first time
-  firstOpen: boolean;
   serverStatus: "running" | "crashed";
   settings: Settings;
   setSettings: (settings: Partial<Settings>) => void;
