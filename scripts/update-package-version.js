@@ -86,6 +86,8 @@ function getGitTags(prefix) {
       }
     });
 
+    console.log("Tags:", tags);
+
     return versions;
   } catch (error) {
     console.error("Error getting git tags:", error.message);
@@ -147,7 +149,11 @@ function main() {
 
   // Helper function to strip quotes from arguments (Windows compatibility)
   function stripQuotes(str) {
-    return str.replace(/^['"]|['"]$/g, "");
+    // Remove matching quotes from both ends
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+      return str.slice(1, -1);
+    }
+    return str;
   }
 
   // Parse command line arguments
