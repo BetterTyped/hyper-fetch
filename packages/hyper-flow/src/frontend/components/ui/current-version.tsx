@@ -8,7 +8,8 @@ export const CurrentVersion = memo(({ className, ...props }: React.ComponentProp
   const version = String(window.electron.getAppVersion());
 
   const name = useMemo(() => {
-    if (version === "0.0.0") {
+    // 0.0.0 or 0.0.1 is a development version
+    if (version.startsWith("0")) {
       return "Next";
     }
     return `v${version}`;
