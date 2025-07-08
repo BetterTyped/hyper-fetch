@@ -65,14 +65,16 @@ function extractVersion(tag, prefix) {
 function getGitTags(prefix) {
   try {
     // Get all tags sorted by version (descending)
+    // Using shell: true for better Windows compatibility
     const output = execSync("git tag --sort=-version:refname", {
       encoding: "utf8",
-      stdio: ["pipe", "pipe", "pipe"],
+      shell: true,
+      windowsHide: true,
     });
 
     const tags = output
       .trim()
-      .split("\n")
+      .split(/\r?\n/) // Handle both Windows (\r\n) and Unix (\n) line endings
       .filter((tag) => tag.trim() !== "");
 
     const versions = [];
@@ -87,6 +89,7 @@ function getGitTags(prefix) {
     return versions;
   } catch (error) {
     console.error("Error getting git tags:", error.message);
+    console.error("Make sure Git is installed and available in PATH");
     return [];
   }
 }
@@ -142,15 +145,20 @@ function main() {
   let packagePath = path.join(process.cwd(), "package.json");
   let dryRun = false;
 
+  // Helper function to strip quotes from arguments (Windows compatibility)
+  function stripQuotes(str) {
+    return str.replace(/^['"]|['"]$/g, "");
+  }
+
   // Parse command line arguments
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
 
     if (arg === "--prefix" && i + 1 < args.length) {
-      prefix = args[i + 1];
+      prefix = stripQuotes(args[i + 1]);
       i++;
     } else if (arg === "--package" && i + 1 < args.length) {
-      packagePath = args[i + 1];
+      packagePath = stripQuotes(args[i + 1]);
       i++;
     } else if (arg === "--dry-run") {
       dryRun = true;

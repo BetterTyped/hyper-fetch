@@ -1,7 +1,7 @@
 {
   "name": "hyper-flow",
   "description": "Manage your API with HyperFlow",
-  "version": "0.0.1",
+  "version": "7.0.4",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "GPL-3.0-or-later",
