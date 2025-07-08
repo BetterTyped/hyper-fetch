@@ -72,10 +72,14 @@ function getGitTags(prefix) {
       windowsHide: true,
     });
 
+    console.log("Output:", output);
+
     const tags = output
       .trim()
       .split(/\r?\n/) // Handle both Windows (\r\n) and Unix (\n) line endings
       .filter((tag) => tag.trim() !== "");
+
+    console.log("Tags:", tags);
 
     const versions = [];
 
@@ -86,7 +90,7 @@ function getGitTags(prefix) {
       }
     });
 
-    console.log("Tags:", tags);
+    console.log("Versions:", versions);
 
     return versions;
   } catch (error) {
