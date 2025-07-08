@@ -2,7 +2,7 @@ name: HyperFlow Release
 on:
   push:
     tags:
-      - "hyper-flow-v*"
+      - "hyper-flow-v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   publish_on_win:
@@ -11,8 +11,6 @@ jobs:
     needs: prepare-environment
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +36,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install --network-timeout 1000000
@@ -65,10 +64,7 @@ jobs:
   publish_on_linux:
     name: Publish HyperFlow on Linux
     runs-on: ubuntu-latest
-    # Tests timeout after 40 minutes
-    timeout-minutes: 40
-    permissions:
-      contents: write
+    needs: prepare-environment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,9 +90,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --ignore-optional
+        run: yarn install
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -107,6 +104,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
       - name: Build
         run: yarn build
       - name: Release
@@ -121,11 +119,9 @@ jobs:
   publish_on_mac:
     name: Publish HyperFlow on Mac
     runs-on: macos-latest
-    needs: build_on_linux
     # Tests timeout after 40 minutes
     timeout-minutes: 40
-    permissions:
-      contents: write
+    needs: prepare-environment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -138,7 +134,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-        python-version: "3.11"
+          python-version: "3.11"
       - name: Import codesign certs
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -160,6 +156,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
