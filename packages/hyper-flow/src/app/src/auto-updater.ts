@@ -1,5 +1,4 @@
 import { updateElectronApp, UpdateSourceType } from "update-electron-app";
-import { bucket, updatesDir } from "@shared/constants/auto-updater";
 
 /**
  * Your app will check for updates at startup, then every ten minutes. This interval is configurable.
@@ -10,8 +9,9 @@ import { bucket, updatesDir } from "@shared/constants/auto-updater";
 export const autoUpdater = () => {
   updateElectronApp({
     updateSource: {
-      type: UpdateSourceType.StaticStorage,
-      baseUrl: `https://${bucket}.s3.amazonaws.com/${updatesDir}/${process.platform}/${process.arch}`,
+      type: UpdateSourceType.ElectronPublicUpdateService,
+      repo: "BetterTyped/hyper-fetch",
     },
+    updateInterval: "1 hour",
   });
 };
