@@ -1,9 +1,10 @@
 import React from "react";
+import { cn } from "@site/src/lib/utils";
 
-export const Loader: React.FC = () => {
+export const Loader: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <div className="flex justify-center items-center w-fit h-fit">
-      <span role="status" aria-live="polite" aria-label="Loading" className="inline-block w-12 h-12">
+      <span role="status" aria-live="polite" aria-label="Loading" className={cn("inline-block size-12", className)}>
         <svg
           className="animate-spin text-blue-600"
           width="48"

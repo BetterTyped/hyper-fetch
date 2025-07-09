@@ -10,8 +10,11 @@ import { TinyLoader } from "../components/tiny-loader";
 import { Alert, AlertTitle, AlertDescription } from "../components/alert";
 import { CircularProgress } from "../components/circular-progress";
 import { Chip } from "../components/chip";
+import { Button } from "../components/button";
 import { TextField } from "../components/text-field";
 import { RequestsLifecycle } from "../components/client-requests/components/request-lifecycle";
+import { Table } from "../components/table";
+import { Separator } from "../components/separator";
 
 export const globalScope = {
   React,
@@ -34,6 +37,9 @@ export const globalScope = {
   AlertDescription,
   CircularProgress,
   Chip,
+  Button,
+  Table,
+  Separator,
   TextField,
   RequestsLifecycle,
 };

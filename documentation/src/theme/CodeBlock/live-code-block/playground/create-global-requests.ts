@@ -5,7 +5,7 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
   return {
     getUsers: client
       .createRequest<{
-        response: { name: string; age: number }[];
+        response: { id: number; name: string; age: number }[];
         queryParams?: { search: string };
       }>()({
         endpoint: "/users",
@@ -14,11 +14,11 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
       .setMock(
         ({ request }) => ({
           data: [
-            { name: "John Doe", age: 20 },
-            { name: "Jane Doe", age: 21 },
-            { name: "Jim Doe", age: 22 },
-            { name: "Jill Doe", age: 23 },
-            { name: "Jack Doe", age: 24 },
+            { id: 1, name: "John Doe", age: 20 },
+            { id: 2, name: "Jane Doe", age: 21 },
+            { id: 3, name: "Jim Doe", age: 22 },
+            { id: 4, name: "Jill Doe", age: 23 },
+            { id: 5, name: "Jack Doe", age: 24 },
           ].filter((user) => {
             if (request.queryParams?.search) {
               return user.name.toLowerCase().includes(request.queryParams.search.toLowerCase());
@@ -129,13 +129,22 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
     createUser: client
       .createRequest<{
         response: { id: number; name: string };
+        payload: { name: string };
       }>()({
         endpoint: "/users",
         method: "POST",
       })
-      .setMock(() => ({
-        data: { id: Math.floor(Math.random() * 1000), name: "John Doe" },
-        status: 200,
-      })),
+      .setMock(
+        ({ request }) => {
+          return {
+            data: { id: Math.floor(Math.random() * 1000), name: request.payload.name || "John Doe" },
+            status: 200,
+          };
+        },
+        {
+          requestTime: 200,
+          responseTime: 200,
+        },
+      ),
   };
 };

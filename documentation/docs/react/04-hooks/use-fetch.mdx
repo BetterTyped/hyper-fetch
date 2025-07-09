@@ -55,9 +55,7 @@ function App() {
     <div>
       <h3 className="mb-4">Users:</h3>
       <div className="flex flex-wrap gap-2">
-        {data.map((user) => {
-          return <Chip>{user.name}</Chip>;
-        })}
+        <Table data={data} loading={loading} />
       </div>
     </div>
   );
@@ -100,13 +98,10 @@ function App() {
         <div>
           <h3 className="mb-4">Users:</h3>
           <div className="flex flex-wrap gap-2">
-            {data.map((user) => {
-              return <Chip>{user.name}</Chip>;
-            })}
+            <Table data={data} loading={loading} />
           </div>
         </div>
       )}
-      {data && !data.length && <div>No users found</div>}
       {loading && <CircularProgress />}
     </div>
   );
@@ -129,7 +124,7 @@ import { useFetch } from "@hyper-fetch/react";
 import { getUsers } from "./api/users";
 
 const UsersListPage = () => {
-  const { data, onSuccess, onError, onFinished } = useFetch(getUsers);
+  const { data, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
 
   onSuccess(({ response }) => {
     toast({
@@ -159,9 +154,7 @@ const UsersListPage = () => {
     <div>
       <h3 className="mb-4">Users:</h3>
       <div className="flex flex-wrap gap-2">
-        {data?.map((user) => {
-          return <Chip>{user.name}</Chip>;
-        })}
+        <Table data={data} loading={loading} />
       </div>
     </div>
   );

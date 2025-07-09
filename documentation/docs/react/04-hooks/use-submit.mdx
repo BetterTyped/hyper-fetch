@@ -37,12 +37,12 @@ import { useSubmit } from "@hyper-fetch/react";
 import { createUser } from "./api/users";
 
 function App() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState("John Doe");
   const { submit, submitting, onSubmitSuccess, onSubmitError, data } = useSubmit(createUser);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    submit({ data: { name } });
+    submit({ payload: { name } });
   };
 
   onSubmitSuccess(() => {
@@ -71,13 +71,15 @@ function App() {
         onChange={(e) => setName(e.target.value)}
         disabled={submitting}
       />
-      <Button type="submit" disabled={submitting}>
+      <Button type="submit" loading={submitting}>
         {submitting ? "Creating..." : "Create User"}
       </Button>
       {data && (
-        <Alert severity="success">
-          <p>New user created with ID: {data.id}</p>
-        </Alert>
+        <div>
+          <Separator />
+          <h3 className="text-lg font-bold mb-2">New user created</h3>
+          <Table data={[data]} />
+        </div>
       )}
     </form>
   );
