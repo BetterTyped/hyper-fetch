@@ -38,21 +38,12 @@ import { createUser } from "./api/users";
 
 function App() {
   const [name, setName] = useState("John Doe");
-  const { submit, submitting, onSubmitSuccess, onSubmitError, data } = useSubmit(createUser);
+  const { submit, submitting, onSubmitError, data } = useSubmit(createUser);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     submit({ payload: { name } });
   };
-
-  onSubmitSuccess(() => {
-    toast({
-      title: "Success",
-      message: "User created successfully!",
-      type: "success",
-    });
-    setName("");
-  });
 
   onSubmitError((response) => {
     toast({
