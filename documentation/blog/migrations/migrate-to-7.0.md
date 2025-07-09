@@ -129,7 +129,7 @@ need to update this in your application's component tree.
 import { ConfigProvider } from "@hyper-fetch/react";
 
 const App = () => {
-  return <ConfigProvider client={client}>...</ConfigProvider>;
+  return <ConfigProvider>...</ConfigProvider>;
 };
 
 // code-editor-split
@@ -138,7 +138,7 @@ const App = () => {
 import { HyperFetchProvider } from "@hyper-fetch/react";
 
 const App = () => {
-  return <HyperFetchProvider client={client}>...</HyperFetchProvider>;
+  return <HyperFetchProvider>...</HyperFetchProvider>;
 };
 ```
 
