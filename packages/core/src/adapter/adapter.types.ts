@@ -144,9 +144,9 @@ export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance>
 
 export type ProgressDataType = {
   /** Total size in bytes */
-  total: number;
+  total?: number;
   /** Loaded size in bytes */
-  loaded: number;
+  loaded?: number;
 };
 
 export type ProgressType = {
