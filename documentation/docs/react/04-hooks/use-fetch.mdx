@@ -39,10 +39,6 @@ import { getUsers } from "./api/users";
 function App() {
   const { data, loading, error } = useFetch(getUsers);
 
-  if (loading) {
-    return <CircularProgress />;
-  }
-
   if (error) {
     return (
       <Alert severity="error">
@@ -102,7 +98,6 @@ function App() {
           </div>
         </div>
       )}
-      {loading && <CircularProgress />}
     </div>
   );
 }
