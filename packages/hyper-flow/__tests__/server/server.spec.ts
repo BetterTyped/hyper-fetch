@@ -110,4 +110,10 @@ describe("Devtools Socket Server", () => {
       await waitFor(() => expect(clientReceivedMessages.length).toBeGreaterThan(0));
     });
   });
+  describe("If something already blocks the port", () => {
+    it("should not crash but return message", async () => {
+      const secondServer = await startServer({ port: 2137 });
+      expect(secondServer.errorMessage).toBe("Port 2137 is already in use");
+    });
+  });
 });
