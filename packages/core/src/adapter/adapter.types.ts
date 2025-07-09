@@ -143,15 +143,23 @@ export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance>
 // Progress
 
 export type ProgressDataType = {
-  total?: number;
-  loaded?: number;
+  /** Total size in bytes */
+  total: number;
+  /** Loaded size in bytes */
+  loaded: number;
 };
 
 export type ProgressType = {
+  /** Progress in percentage (0-100) */
   progress: number;
+  /** Time left in seconds (null if not available) */
   timeLeft: number | null;
+  /** Size left in bytes */
   sizeLeft: number;
+  /** Total size in bytes */
   total: number;
+  /** Loaded size in bytes */
   loaded: number;
+  /** Start timestamp in milliseconds */
   startTimestamp: number;
 };

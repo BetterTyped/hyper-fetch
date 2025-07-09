@@ -126,5 +126,16 @@ export const createGlobalRequests = (client: Client<Error, HttpAdapterType>) => 
           totalDownloaded: 500,
         },
       ),
+    createUser: client
+      .createRequest<{
+        response: { id: number; name: string };
+      }>()({
+        endpoint: "/users",
+        method: "POST",
+      })
+      .setMock(() => ({
+        data: { id: Math.floor(Math.random() * 1000), name: "John Doe" },
+        status: 200,
+      })),
   };
 };
