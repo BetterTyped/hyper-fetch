@@ -10,7 +10,6 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import dotenv from "dotenv";
 import { z } from "zod";
-import { app } from "electron";
 
 import { appConfig } from "./src/app/config";
 
@@ -36,7 +35,7 @@ const env = getEnv();
 const config: ForgeConfig = {
   packagerConfig: {
     name: appConfig.name,
-    executableName: `${appConfig.id}-${process.platform}-${process.arch}`,
+    executableName: appConfig.id,
     asar: true,
     icon: "./src/app/images/icon",
     osxNotarize: {
@@ -57,7 +56,7 @@ const config: ForgeConfig = {
     new MakerSquirrel({
       name: appConfig.id,
       authors: appConfig.repository.owner,
-      setupExe: `${appConfig.id}-win32-${app.getVersion()}.exe`,
+      setupExe: `${appConfig.id}.exe`,
       setupIcon: "./src/app/images/icon.ico",
     }),
     // Linux
@@ -65,7 +64,7 @@ const config: ForgeConfig = {
       options: {
         name: appConfig.id,
         productName: appConfig.name,
-        bin: `${appConfig.id}-${process.platform}-${app.getVersion()}`,
+        bin: appConfig.id,
         icon: "./src/app/images/icon.png",
         categories: ["Office", "Utility"],
         genericName: appConfig.name,
@@ -78,7 +77,7 @@ const config: ForgeConfig = {
       options: {
         name: appConfig.id,
         productName: appConfig.name,
-        bin: `${appConfig.id}-${process.platform}-${app.getVersion()}`,
+        bin: appConfig.id,
         icon: "./src/app/images/icon.png",
         categories: ["Office", "Utility"],
         genericName: appConfig.name,
@@ -88,7 +87,7 @@ const config: ForgeConfig = {
     }),
     // Mac OS
     new MakerDMG({
-      name: `${appConfig.id}-mac-arm64-${app.getVersion()}`,
+      name: appConfig.name,
       icon: "./src/app/images/icon.icns",
     }),
     // ZIP for auto-updater
