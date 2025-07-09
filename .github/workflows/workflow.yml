@@ -270,11 +270,15 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
     needs: [tests]
+    outputs:
+      released: ${{ steps.check_release.outputs.released }}
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -300,15 +304,35 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
+      - name: Get latest tag before release
+        id: pre_release_tag
+        run: echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT
       - name: Publish
         run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Get latest tag after release
+        id: post_release_tag
+        run: |
+          git fetch --tags
+          echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT
+      - name: Check if a new tag was created
+        id: check_release
+        run: |
+          if [[ "${{ steps.pre_release_tag.outputs.tag }}" == "${{ steps.post_release_tag.outputs.tag }}" ]]; then
+            echo "No new tag was created"
+            echo "released=false" >> $GITHUB_OUTPUT
+          else
+            echo "New tag ${{ steps.post_release_tag.outputs.tag }} was created"
+            echo "released=true" >> $GITHUB_OUTPUT
+          fi
 
   hyper-flow-release:
     name: Trigger HyperFlow Release
     needs: release
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
+    if:
+      ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha') &&
+      needs.release.outputs.released == 'true' }}
     uses: ./.github/workflows/flow-release.yml
     secrets: inherit
