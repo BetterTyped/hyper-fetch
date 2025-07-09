@@ -1092,7 +1092,7 @@ pre[class*="language-"] {
 }
 
 pre[class*="language-"] > code {
-  @apply bg-[#171717];
+  @apply bg-[rgb(26,26,26)];
 }
 
 .code-block-diff-add-line {
@@ -1620,7 +1620,7 @@ html[data-theme="dark"] .navbar-sidebar .github {
   padding-top: 10px;
   padding-bottom: 10px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 .custom-sidebar-menu a.menu__link--active {
   color: inherit !important;
@@ -1791,9 +1791,37 @@ button.DocSearch-Button {
 }
 
 .table-of-contents__link {
-  font-size: 14px !important;
+  font-size: 15px !important;
   line-height: 1.4 !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
+  margin-bottom: 10px !important;
+}
+
+html body .table-of-contents__link:hover {
+  @apply !text-white;
+}
+
+.table-of-contents li {
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+}
+
+.table-of-contents__link--active {
+  position: relative;
+}
+.table-of-contents__link--active::before {
+  position: absolute;
+  display: flex;
+  content: "";
+  left: -10px;
+  right: -10px;
+  top: -5px;
+  bottom: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  background: #9f9f9f10;
+  padding: 5px 15px;
+  border-radius: 6px;
 }
 
 .table-of-contents {

@@ -8,7 +8,6 @@
   position: sticky;
   top: 100px;
   height: calc(100vh - 180px);
-  overflow-y: auto;
 }
 
 .tocWrapper h6 {
@@ -27,6 +26,9 @@
 }
 
 .tableOfContents {
+  overflow-y: auto;
+  height: calc(100vh - 180px);
+
   /* position: sticky;
   top: calc(var(--ifm-navbar-height) + 1rem); */
 }
