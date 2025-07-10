@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 
 export const Table = ({ data, loading }: { data: Record<string, any>[]; loading?: boolean }) => {
-  if (loading) {
+  if (loading && !data?.length) {
     return (
       <div className="flex flex-col items-center justify-center w-full">
         <Loader2 className="animate-spin" />
