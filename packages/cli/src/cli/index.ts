@@ -2,13 +2,15 @@
 import { Command } from "commander";
 import { select } from "@inquirer/prompts";
 
-import { generate } from "../commands/generate";
 import pkg from "../../package.json";
+import { generate } from "commands/generate";
+import { add } from "commands/add";
 
 const program = new Command();
 
 program.name("hyper-fetch").description("CLI for Hyper Fetch").version(pkg.version);
 
+program.addCommand(add);
 program.addCommand(generate);
 
 program.action(async () => {
