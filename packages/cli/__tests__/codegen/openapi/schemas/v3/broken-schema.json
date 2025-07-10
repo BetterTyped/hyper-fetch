@@ -1,0 +1,3604 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/signup": {
+      "post": {
+        "operationId": "AuthController_signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupSuccessDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign up new user",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login user",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupSuccessDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Refresh access token",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Logout user",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/password-reset/request": {
+      "post": {
+        "operationId": "AuthController_requestPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Request password reset email",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Reset password with token",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/2fa/enable": {
+      "post": {
+        "operationId": "AuthController_enable2FA",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorCodeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enable 2FA",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/2fa/verify": {
+      "post": {
+        "operationId": "AuthController_verify2FA",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Verify 2FA setup",
+        "tags": ["auth"]
+      }
+    },
+    "/api/auth/2fa/login": {
+      "post": {
+        "operationId": "AuthController_verify2FALogin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupSuccessDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with 2FA code",
+        "tags": ["auth"]
+      }
+    },
+    "/api/user/me": {
+      "get": {
+        "operationId": "UserController_getUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["user"]
+      },
+      "put": {
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["user"]
+      }
+    },
+    "/api/user/{id}": {
+      "get": {
+        "operationId": "UserController_getUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["user"]
+      },
+      "put": {
+        "operationId": "UserController_updateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["user"]
+      },
+      "delete": {
+        "operationId": "UserController_deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["user"]
+      }
+    },
+    "/api/organization/{organizationId}/category": {
+      "get": {
+        "operationId": "CategoryController_findAll",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all categories",
+        "tags": ["Content category"]
+      },
+      "post": {
+        "operationId": "CategoryController_create",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create category",
+        "tags": ["Content category"]
+      }
+    },
+    "/api/organization/{organizationId}/category/{id}": {
+      "get": {
+        "operationId": "CategoryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get category by id",
+        "tags": ["Content category"]
+      },
+      "put": {
+        "operationId": "CategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update category",
+        "tags": ["Content category"]
+      },
+      "delete": {
+        "operationId": "CategoryController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete category",
+        "tags": ["Content category"]
+      }
+    },
+    "/api/organization/{organizationId}/content": {
+      "get": {
+        "operationId": "ContentController_findAll",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pathId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get items created by the current user(creator)",
+        "tags": ["Content"]
+      },
+      "post": {
+        "operationId": "ContentController_create",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create content",
+        "tags": ["Content"]
+      }
+    },
+    "/api/organization/{organizationId}/content/{id}": {
+      "get": {
+        "operationId": "ContentController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get content by id",
+        "tags": ["Content"]
+      },
+      "put": {
+        "operationId": "ContentController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update content",
+        "tags": ["Content"]
+      },
+      "delete": {
+        "operationId": "ContentController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete content",
+        "tags": ["Content"]
+      }
+    },
+    "/api/organization/{organizationId}/content/image": {
+      "post": {
+        "operationId": "ContentController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentImageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentImageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload image for later use in content",
+        "tags": ["Content"]
+      }
+    },
+    "/api/organization/{organizationId}/content/answer": {
+      "post": {
+        "operationId": "ContentController_postAnswer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentAnswerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentAnswerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload image for later use in content",
+        "tags": ["Content"]
+      }
+    },
+    "/api/organization/{organizationId}/group": {
+      "get": {
+        "operationId": "GroupController_findAll",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get groups within organization",
+        "tags": ["Content/user groups"]
+      },
+      "post": {
+        "operationId": "GroupController_create",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create group",
+        "tags": ["Content/user groups"]
+      }
+    },
+    "/api/organization/{organizationId}/group/{id}": {
+      "get": {
+        "operationId": "GroupController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get group by id",
+        "tags": ["Content/user groups"]
+      },
+      "put": {
+        "operationId": "GroupController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update group",
+        "tags": ["Content/user groups"]
+      },
+      "delete": {
+        "operationId": "GroupController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete group",
+        "tags": ["Content/user groups"]
+      }
+    },
+    "/api/organization": {
+      "get": {
+        "operationId": "OrganizationController_getOrganizations",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all users organizations",
+        "tags": ["Organization"]
+      },
+      "post": {
+        "operationId": "OrganizationController_createOrganization",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create new organization",
+        "tags": ["Organization"]
+      }
+    },
+    "/api/organization/{id}": {
+      "get": {
+        "operationId": "OrganizationController_getOrganizationDetails",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get organization details",
+        "tags": ["Organization"]
+      },
+      "put": {
+        "operationId": "OrganizationController_updateOrganization",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update organization details",
+        "tags": ["Organization"]
+      },
+      "delete": {
+        "operationId": "OrganizationController_deleteOrganization",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete organization",
+        "tags": ["Organization"]
+      }
+    },
+    "/api/organization/{organizationId}/path": {
+      "get": {
+        "operationId": "PathController_findAll",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all content paths within organization",
+        "tags": ["Content paths"]
+      },
+      "post": {
+        "operationId": "PathController_create",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create path",
+        "tags": ["Content paths"]
+      }
+    },
+    "/api/organization/{organizationId}/path/{id}": {
+      "get": {
+        "operationId": "PathController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get path by id",
+        "tags": ["Content paths"]
+      },
+      "put": {
+        "operationId": "PathController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update path",
+        "tags": ["Content paths"]
+      },
+      "delete": {
+        "operationId": "PathController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete path",
+        "tags": ["Content paths"]
+      }
+    },
+    "/api/organization/{organizationId}/user": {
+      "get": {
+        "operationId": "UserController_findAll",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all users within organization",
+        "tags": ["Users within organization"]
+      }
+    },
+    "/api/organization/{organizationId}/user/invite": {
+      "get": {
+        "operationId": "UserController_inviteToOrganization",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Users within organization"]
+      }
+    },
+    "/api/organization/{organizationId}/user/{userId}": {
+      "delete": {
+        "operationId": "UserController_deleteUserFromOrganization",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": ["Users within organization"]
+      }
+    },
+    "/api/marketplace": {
+      "get": {
+        "operationId": "MarketplaceController_getMarketplaceItems",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceListResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get marketplace items",
+        "tags": ["Marketplace"]
+      },
+      "post": {
+        "operationId": "MarketplaceController_createMarketplaceItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketplaceItemCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create marketplace item",
+        "tags": ["Marketplace"]
+      }
+    },
+    "/api/marketplace/purchased": {
+      "get": {
+        "operationId": "MarketplaceController_getMarketplacePurchasedItems",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "search",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceListResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get marketplace items purchased by the current user",
+        "tags": ["Marketplace"]
+      }
+    },
+    "/api/marketplace/{id}": {
+      "get": {
+        "operationId": "MarketplaceController_getMarketplaceItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceItemResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get marketplace item",
+        "tags": ["Marketplace"]
+      },
+      "put": {
+        "operationId": "MarketplaceController_updateMarketplaceItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarketplaceItemUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update marketplace item",
+        "tags": ["Marketplace"]
+      },
+      "delete": {
+        "operationId": "MarketplaceController_deleteMarketplaceItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete marketplace item",
+        "tags": ["Marketplace"]
+      }
+    },
+    "/api/marketplace/purchase": {
+      "post": {
+        "operationId": "MarketplaceController_createPurchase",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create purchase",
+        "tags": ["Marketplace"]
+      }
+    },
+    "/api/dashboard/stats": {
+      "get": {
+        "operationId": "DashboardController_getDashboardStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardStatsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user stats",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/dashboard/recent": {
+      "get": {
+        "operationId": "DashboardController_getRecentScenarios",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardRecentScenariosResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get recent scenarios",
+        "tags": ["Dashboard"]
+      }
+    },
+    "/api/dashboard/suggestions": {
+      "get": {
+        "operationId": "DashboardController_getSuggestions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardSuggestionsResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get suggestions",
+        "tags": ["Dashboard"]
+      }
+    }
+  },
+  "info": {
+    "title": "FenceApp",
+    "description": "FenceApp API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "SignupDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "token": {
+            "type": "string",
+            "example": "token123"
+          }
+        },
+        "required": ["email", "password", "name"]
+      },
+      "SignupSuccessDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "accessToken"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "refreshToken"
+          }
+        },
+        "required": ["accessToken", "refreshToken"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The user's id"
+          },
+          "organizationId": {
+            "type": "string",
+            "description": "The user's organization id"
+          },
+          "organization": {
+            "type": "string",
+            "description": "The user's organization name"
+          },
+          "name": {
+            "type": "string",
+            "description": "The user's name"
+          },
+          "email": {
+            "type": "string",
+            "description": "The user's email"
+          },
+          "role": {
+            "type": "string",
+            "description": "The user's role",
+            "enum": ["ADMIN", "CREATOR", "USER"]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The user's created at"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The user's updated at"
+          },
+          "lastLogin": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The user's last login"
+          },
+          "rank": {
+            "type": "string",
+            "description": "The user's rank"
+          },
+          "points": {
+            "type": "number",
+            "description": "The user's points"
+          },
+          "onboarded": {
+            "type": "boolean",
+            "description": "The user's onboarded status"
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "organization",
+          "name",
+          "email",
+          "role",
+          "createdAt",
+          "updatedAt",
+          "lastLogin",
+          "rank",
+          "points",
+          "onboarded"
+        ]
+      },
+      "MessageDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "message"
+          }
+        },
+        "required": ["message"]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          }
+        },
+        "required": ["email"]
+      },
+      "NewPasswordDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "example": "newpassword123"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["password", "token"]
+      },
+      "TwoFactorCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": ["code"]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "userOrganizations": {
+            "example": [
+              {
+                "organizationId": "123e4567-e89b-12d3-a456-426614174000",
+                "role": "ADMIN"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["id", "name", "email", "avatarUrl", "createdAt", "updatedAt", "userOrganizations"]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The user's name"
+          },
+          "position": {
+            "type": "string",
+            "description": "The user's position"
+          },
+          "department": {
+            "type": "string",
+            "description": "The user's department"
+          },
+          "twoFactorEnabled": {
+            "type": "boolean",
+            "description": "The user's two factor enabled"
+          },
+          "groups": {
+            "description": "User's groups",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CategoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Category Name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Category Description"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          }
+        },
+        "required": ["id", "name", "description", "createdAt", "updatedAt"]
+      },
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryResponseDto"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "CategoryCreateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "description": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "CategoryUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "description": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "contentIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "description", "contentIds"]
+      },
+      "ContentTaskResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "title": {
+            "type": "string",
+            "example": "Task 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Learn how to identify and exploit network vulnerabilities safely."
+          },
+          "type": {
+            "type": "object",
+            "example": "radio"
+          }
+        },
+        "required": ["id", "title", "description", "type"]
+      },
+      "ContentGoalResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Goal 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Description 1"
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "ContentAnswer": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "answer": {
+            "type": "string",
+            "example": "some-choice-id"
+          },
+          "selectedAnswer": {
+            "type": "string",
+            "example": "some-choice-id"
+          }
+        },
+        "required": ["taskId", "answer", "selectedAnswer"]
+      },
+      "ContentItemResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/ContentItemDto"
+          }
+        },
+        "required": ["content"]
+      },
+      "ContentItemListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentItemResponse"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "ContentTaskDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "title": {
+            "type": "string",
+            "example": "Task 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Learn how to identify and exploit network vulnerabilities safely."
+          },
+          "type": {
+            "type": "string",
+            "example": "radio",
+            "enum": ["lecture", "radio", "checkbox", "ranking", "quiz", "virtual"]
+          }
+        },
+        "required": ["id", "title", "description", "type"]
+      },
+      "ContentGoalDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Goal 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Description 1"
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "ContentItemDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Network Penetration Testing"
+          },
+          "description": {
+            "type": "string",
+            "example": "Learn how to identify and exploit network vulnerabilities safely."
+          },
+          "image": {
+            "type": "string",
+            "example": "/images/cybsec.webp"
+          },
+          "introduction": {
+            "type": "string",
+            "example": "Introduction to Network Penetration Testing"
+          },
+          "conclusion": {
+            "type": "string",
+            "example": "Great job! You've learned how to identify and exploit network vulnerabilities safely."
+          },
+          "marketing": {
+            "type": "string",
+            "example": "In this course, you will learn how to identify and exploit network vulnerabilities safely."
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentTaskDto"
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentGoalDto"
+            }
+          },
+          "categories": {
+            "example": ["Category 1", "Category 2"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "image",
+          "introduction",
+          "conclusion",
+          "marketing",
+          "tasks",
+          "goals",
+          "categories"
+        ]
+      },
+      "ContentGroupDto": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "required": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": ["groupId", "required"]
+      },
+      "ContentCreateDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Content title"
+          },
+          "description": {
+            "type": "string",
+            "example": "Content description"
+          },
+          "difficulty": {
+            "type": "string",
+            "example": "Content difficulty"
+          },
+          "marketing": {
+            "type": "string",
+            "example": "Super awesome content"
+          },
+          "introduction": {
+            "type": "string",
+            "example": "Content introduction"
+          },
+          "conclusion": {
+            "type": "string",
+            "example": "Content conclusion"
+          },
+          "groupRelation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentGroupDto"
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentGoalDto"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/"
+            }
+          },
+          "categoryIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pathIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "price": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "difficulty",
+          "marketing",
+          "introduction",
+          "conclusion",
+          "groupRelation",
+          "goals",
+          "tasks",
+          "categoryIds",
+          "pathIds"
+        ]
+      },
+      "ContentUpdateDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Content title"
+          },
+          "description": {
+            "type": "string",
+            "example": "Content description"
+          },
+          "difficulty": {
+            "type": "string",
+            "example": "Content difficulty"
+          },
+          "marketing": {
+            "type": "string",
+            "example": "Super awesome content"
+          },
+          "introduction": {
+            "type": "string",
+            "example": "Content introduction"
+          },
+          "conclusion": {
+            "type": "string",
+            "example": "Content conclusion"
+          },
+          "groupRelation": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentGroupDto"
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentGoalDto"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/"
+            }
+          },
+          "categoryIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pathIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "price": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "difficulty",
+          "marketing",
+          "introduction",
+          "conclusion",
+          "groupRelation",
+          "goals",
+          "tasks",
+          "categoryIds",
+          "pathIds"
+        ]
+      },
+      "ContentImageDto": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "object",
+            "properties": {
+              "image": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "required": ["image"]
+      },
+      "ContentImageResponse": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "example": "/images/cybsec.webp"
+          }
+        },
+        "required": ["image"]
+      },
+      "ContentAnswerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "taskId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "answer": {
+            "type": "object",
+            "example": "true"
+          }
+        },
+        "required": ["id", "taskId", "answer"]
+      },
+      "ContentAnswerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "taskId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "answer": {
+            "type": "object",
+            "example": "true"
+          }
+        },
+        "required": ["id", "taskId", "answer"]
+      },
+      "GroupContentDto": {
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "required": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": ["contentId", "required"]
+      },
+      "GroupResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Group name"
+          },
+          "groupContent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupContentDto"
+            }
+          },
+          "userIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          }
+        },
+        "required": ["id", "name", "groupContent", "userIds", "createdAt", "updatedAt"]
+      },
+      "GroupListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupResponseDto"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "GroupCreateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Group name"
+          },
+          "groupContent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupContentDto"
+            }
+          },
+          "userIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "groupContent"]
+      },
+      "GroupUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Group name"
+          },
+          "groupContent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupContentDto"
+            }
+          },
+          "userIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "groupContent"]
+      },
+      "OrganizationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Organization name"
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Company name"
+          },
+          "vatId": {
+            "type": "string",
+            "example": "VAT ID"
+          },
+          "addressStreet": {
+            "type": "string",
+            "example": "Address street"
+          },
+          "addressFlat": {
+            "type": "string",
+            "example": "Address flat"
+          },
+          "addressCity": {
+            "type": "string",
+            "example": "Address city"
+          },
+          "addressState": {
+            "type": "string",
+            "example": "Address state"
+          },
+          "addressZip": {
+            "type": "string",
+            "example": "Address zip"
+          },
+          "addressCountry": {
+            "type": "string",
+            "example": "Address country"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "example": "Website URL"
+          },
+          "size": {
+            "type": "string",
+            "example": "Size"
+          },
+          "industry": {
+            "type": "string",
+            "example": "Industry"
+          },
+          "ownerId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "companyName",
+          "vatId",
+          "addressStreet",
+          "addressCity",
+          "addressZip",
+          "addressCountry",
+          "websiteUrl",
+          "size",
+          "industry",
+          "ownerId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OrganizationListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationResponseDto"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "CreateOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Organization name"
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Company name"
+          },
+          "vatId": {
+            "type": "string",
+            "example": "VAT ID"
+          },
+          "addressStreet": {
+            "type": "string",
+            "example": "Address street"
+          },
+          "addressFlat": {
+            "type": "string",
+            "example": "Address flat"
+          },
+          "addressCity": {
+            "type": "string",
+            "example": "Address city"
+          },
+          "addressState": {
+            "type": "string",
+            "example": "Address state"
+          },
+          "addressZip": {
+            "type": "string",
+            "example": "Address zip"
+          },
+          "addressCountry": {
+            "type": "string",
+            "example": "Address country"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "example": "Website URL"
+          },
+          "size": {
+            "type": "string",
+            "example": "Size"
+          },
+          "industry": {
+            "type": "string",
+            "example": "Industry"
+          }
+        },
+        "required": [
+          "name",
+          "companyName",
+          "vatId",
+          "addressStreet",
+          "addressCity",
+          "addressState",
+          "addressZip",
+          "addressCountry",
+          "websiteUrl",
+          "size",
+          "industry"
+        ]
+      },
+      "UpdateOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Organization name"
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Company name"
+          },
+          "vatId": {
+            "type": "string",
+            "example": "VAT ID"
+          },
+          "addressStreet": {
+            "type": "string",
+            "example": "Address street"
+          },
+          "addressFlat": {
+            "type": "string",
+            "example": "Address flat"
+          },
+          "addressCity": {
+            "type": "string",
+            "example": "Address city"
+          },
+          "addressState": {
+            "type": "string",
+            "example": "Address state"
+          },
+          "addressZip": {
+            "type": "string",
+            "example": "Address zip"
+          },
+          "addressCountry": {
+            "type": "string",
+            "example": "Address country"
+          },
+          "websiteUrl": {
+            "type": "string",
+            "example": "Website URL"
+          },
+          "size": {
+            "type": "string",
+            "example": "Size"
+          },
+          "industry": {
+            "type": "string",
+            "example": "Industry"
+          }
+        },
+        "required": [
+          "name",
+          "companyName",
+          "vatId",
+          "addressStreet",
+          "addressCity",
+          "addressState",
+          "addressZip",
+          "addressCountry",
+          "websiteUrl",
+          "size",
+          "industry"
+        ]
+      },
+      "PathResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Path name"
+          },
+          "description": {
+            "type": "string",
+            "example": "Path description"
+          },
+          "contentIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-03-20T12:00:00Z"
+          }
+        },
+        "required": ["id", "name", "description", "contentIds", "createdAt", "updatedAt"]
+      },
+      "PathListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathResponseDto"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "PathCreateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "description": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "contentIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "PathUpdateDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "description": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "contentIds": {
+            "example": ["123e4567-e89b-12d3-a456-426614174000"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponseDto"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "InviteResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": ["token"]
+      },
+      "DeleteUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User deleted from organization"
+          }
+        },
+        "required": ["message"]
+      },
+      "Goal": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Goal 1"
+          },
+          "description": {
+            "type": "string",
+            "example": "Description 1"
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "MarketplaceItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "title": {
+            "type": "string",
+            "example": "Network Penetration Testing"
+          },
+          "description": {
+            "type": "string",
+            "example": "Learn how to identify and exploit network vulnerabilities safely."
+          },
+          "marketing": {
+            "type": "string",
+            "example": "This course is for beginners who want to learn how to identify and exploit network vulnerabilities safely."
+          },
+          "image": {
+            "type": "string",
+            "example": "/images/cybsec.webp"
+          },
+          "isPurchased": {
+            "type": "boolean",
+            "example": false
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "progress": {
+            "type": "number",
+            "example": 75
+          },
+          "price": {
+            "type": "string",
+            "example": "$100.00"
+          },
+          "categories": {
+            "example": ["Cybersecurity", "Programming"],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "goals": {
+            "example": [
+              {
+                "name": "Goal 1",
+                "description": "Description 1"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Goal"
+            }
+          },
+          "difficulty": {
+            "type": "string",
+            "example": "Beginner"
+          },
+          "publishedAt": {
+            "type": "string",
+            "example": "2021-01-01"
+          },
+          "organization": {
+            "type": "string",
+            "example": "Organization 1"
+          },
+          "tasksCount": {
+            "type": "number",
+            "example": "100"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "marketing",
+          "image",
+          "isPurchased",
+          "isCompleted",
+          "progress",
+          "price",
+          "categories",
+          "goals",
+          "difficulty",
+          "publishedAt",
+          "organization",
+          "tasksCount"
+        ]
+      },
+      "MarketplaceListResponse": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "number",
+            "example": 0
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 100
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceItemResponse"
+            }
+          }
+        },
+        "required": ["offset", "limit", "total", "data"]
+      },
+      "MarketplaceItemCreateDto": {
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "price": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": ["contentId", "price"]
+      },
+      "MarketplaceItemUpdateDto": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": ["price"]
+      },
+      "PurchaseCreateDto": {
+        "type": "object",
+        "properties": {
+          "marketplaceItemId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "organizationId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": ["marketplaceItemId", "organizationId"]
+      },
+      "DashboardStatsResponse": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "type": "number",
+            "description": "Completed scenarios"
+          },
+          "started": {
+            "type": "number",
+            "description": "Started scenarios"
+          },
+          "points": {
+            "type": "number",
+            "description": "Points"
+          },
+          "rank": {
+            "type": "object",
+            "description": "Rank"
+          },
+          "nextMilestone": {
+            "type": "object",
+            "description": "Next Milestone"
+          }
+        },
+        "required": ["completed", "started", "points", "rank", "nextMilestone"]
+      },
+      "DashboardRecentScenariosResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          },
+          "progress": {
+            "type": "number",
+            "description": "Progress"
+          },
+          "image": {
+            "type": "string",
+            "description": "Image"
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "description": "Is completed"
+          },
+          "price": {
+            "type": "string",
+            "description": "Price"
+          },
+          "isPurchased": {
+            "type": "boolean",
+            "description": "Is purchased"
+          }
+        },
+        "required": ["id", "title", "description", "progress", "image", "isCompleted", "price", "isPurchased"]
+      },
+      "DashboardSuggestionsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          },
+          "image": {
+            "type": "string",
+            "description": "Image"
+          },
+          "trending": {
+            "type": "boolean",
+            "description": "Trending"
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "description": "Is completed"
+          },
+          "price": {
+            "type": "string",
+            "description": "Price"
+          },
+          "isPurchased": {
+            "type": "boolean",
+            "description": "Is purchased"
+          }
+        },
+        "required": ["id", "title", "description", "image", "trending", "isCompleted", "price", "isPurchased"]
+      }
+    }
+  }
+}

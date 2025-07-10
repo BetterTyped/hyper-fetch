@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": "./src",
+    "jsx": "react-jsx"
+  },
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
+}
