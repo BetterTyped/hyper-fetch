@@ -5,8 +5,8 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { Document } from "codegens/openapi";
-import { getAvailableOperations } from "codegens/openapi/operations";
+import { Document } from "codegen/openapi";
+import { getAvailableOperations } from "codegen/openapi/operations";
 
 describe("Operations", () => {
   let schema: string;

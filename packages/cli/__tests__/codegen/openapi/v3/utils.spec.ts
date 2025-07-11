@@ -1,8 +1,8 @@
 import { promises as fsPromises } from "fs";
 import path from "path";
 
-import { getBaseUrl, isUrl, normalizeOperationId } from "codegens/openapi/utils";
-import { Document } from "codegens/openapi";
+import { getBaseUrl, isUrl, normalizeOperationId } from "codegen/openapi/utils";
+import { Document } from "codegen/openapi";
 
 describe("Utils", () => {
   it("should check if provided path is url or not", () => {
@@ -18,7 +18,7 @@ describe("Utils", () => {
   });
 
   it("should return available server link or empty string", async () => {
-    const file = await fsPromises.readFile(path.resolve(__dirname, "./schemas/v3/petstore-expanded.json"), "utf8");
+    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
     const schema = JSON.parse(file);
     const baseUrl = getBaseUrl(schema);
     const emptyString = getBaseUrl({} as unknown as Document);

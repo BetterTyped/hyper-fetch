@@ -7,18 +7,22 @@ sidebar_label: SDK
 [Read the API Reference »](/docs/api/core/Functions/createSdk.mdx)
 
 The **`SDK`** feature in Hyper Fetch provides a powerful, type-safe way to structure your API interactions. It allows
-you to define your entire API surface as a typed object, which then generates request instances for you. This approach
-promotes a highly organized and maintainable codebase, where endpoints are accessed with intuitive dot-notation.
+you to define your entire API surface as a typed object, which then **uses recursive proxies to generate request
+instances on-the-fly**. This approach, **inspired by tRPC**, promotes a highly organized and maintainable codebase where
+endpoints are accessed with an intuitive dot-notation.
 
 ---
 
 :::tip Purpose
 
 1.  **Type-Safe API**: Define your entire API with TypeScript for end-to-end type safety.
-2.  **Intuitive Syntax**: Access your endpoints with a clean, dot-notation syntax (e.g., `sdk.users.get()`).
-3.  **Automatic Request Generation**: Automatically creates `Request` instances with the correct method and endpoint.
-4.  **Dynamic Paths**: Easily handle dynamic URL segments like `/users/:id`.
-5.  **Centralized Definition**: Keep your API structure defined in one place, making it easy to manage and update.
+2.  **Intuitive, tRPC-like Syntax**: Access your endpoints with a clean, dot-notation syntax (e.g., `sdk.users.get()`).
+3.  **On-the-fly Request Generation**: Uses recursive proxies to automatically create `Request` instances with the
+    correct method and endpoint as you access them.
+4.  **Extremely Performant**: Because requests are generated on-demand, there's virtually no performance overhead, no
+    matter how large your API is.
+5.  **Dynamic Paths**: Easily handle dynamic URL segments like `/users/:id`.
+6.  **Centralized Definition**: Keep your API structure defined in one place, making it easy to manage and update.
 
 :::
 
@@ -103,6 +107,30 @@ type MyApiSchema = {
   };
 };
 ```
+
+---
+
+## How It Works: The Magic of Proxies
+
+You might be wondering how the `sdk` object provides all these methods without you having to implement them. The magic
+lies in **Recursive Proxy Generation**.
+
+The `sdk` object is not a simple JavaScript object with predefined properties. Instead, it's a `Proxy` that dynamically
+constructs requests as you access its properties. When you write `sdk.users.get`, you're triggering a chain of proxy
+getters:
+
+1.  `sdk.users`: The proxy intercepts this and internally notes down `users` as the first part of the endpoint path. It
+    then returns a _new_ proxy to handle the next property.
+2.  `.get`: This access is caught by the new proxy. It recognizes `get` as an HTTP method, finalizes the request
+    configuration (`GET /users`), and returns a fully configured `Request` instance, ready to be used.
+
+This approach has two major benefits:
+
+- **Performance**: It's incredibly fast. The SDK doesn't generate all possible request instances upfront. It only
+  creates a request when you explicitly access it. This means the startup time and memory footprint are minimal, even
+  for very large and complex APIs.
+- **Developer Experience**: It provides a fluid, tRPC-like experience where you can explore your API surface with
+  dot-notation, guided by TypeScript's autocompletion, while the underlying complexity is handled for you.
 
 ---
 

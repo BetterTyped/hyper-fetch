@@ -70,6 +70,47 @@ npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagg
 
 ---
 
+## Example
+
+```bash
+npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+```
+
+Then to use generated SDK you can do the following:
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+// This is the path to the generated SDK
+// highlight-start
+import { createSdk } from "./path-to-my-sdk";
+// highlight-end
+
+const client = createClient({
+  url: "http://localhost:3000",
+});
+// Export the sdk
+// highlight-start
+export const sdk = createSdk(client);
+// highlight-end
+
+// code-editor-split
+
+import { sdk } from "./client";
+
+// Use the sdk
+// highlight-start
+const { data, error } = await sdk.store.inventory.get.send();
+// highlight-end
+
+if (error) {
+  console.error(error);
+}
+
+console.log(data);
+```
+
+---
+
 ## Available arguments
 
 Run the following command to see the available arguments:

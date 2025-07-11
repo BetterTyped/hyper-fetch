@@ -6,8 +6,8 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "codegens/openapi";
-import { HttpMethod } from "codegens/openapi/http-methods.enum";
+import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "codegen/openapi";
+import { HttpMethod } from "codegen/openapi/http-methods.enum";
 
 const expectedMetadata = {
   findPets: {
