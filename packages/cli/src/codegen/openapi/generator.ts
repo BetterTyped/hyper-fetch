@@ -34,7 +34,7 @@ const formatSchema = (obj: any, indent = 1): string => {
       return "";
     })
     .join("\n");
-  return `{\n${entries}\n${"  ".repeat(indent - 1)}}`;
+  return entries;
 };
 
 export class OpenapiRequestGenerator {
@@ -127,11 +127,11 @@ export class OpenapiRequestGenerator {
       currentLevel[method.toLowerCase()] = requestInstanceType;
     });
 
-    const sdkSchema = `export type SdkSchema = ${formatSchema(schemaTree)}`;
+    const sdkSchema = `export type SdkSchema<Client extends ClientInstance> = {\n${formatSchema(schemaTree)}\n}`;
 
     const createSdkFn = `
 export const createSdk = <Client extends ClientInstance>(client: Client) => {
-  return coreCreateSdk<Client, SdkSchema>(client);
+  return coreCreateSdk<Client, SdkSchema<Client>>(client);
 };
 `;
 
