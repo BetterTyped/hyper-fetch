@@ -78,15 +78,8 @@ export const add = new Command()
 
       logger.info("Installing SDKs...");
 
-      // const packageManager = await getPackageManager(options.cwd);
-      // await execa(packageManager, ["add", ...selectedSdks], {
-      //   stdio: "inherit",
-      //   cwd: options.cwd,
-      // });
-
       for (const sdk of selectedSdks) {
-        // const item = registry.find((s) => s.meta.name === sdk)!;
-        // const sdkPath = item.versions[item.versions.length - 1].path;
+        //  TODO: implement
       }
 
       logger.success("SDKs installed successfully!");
