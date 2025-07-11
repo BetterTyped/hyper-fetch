@@ -6,7 +6,7 @@ import * as _path from "path";
 import * as prettier from "prettier";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { createClient } from "@hyper-fetch/core";
+import { ClientInstance, createClient, createSdk as coreCreateSdk, RequestInstance } from "@hyper-fetch/core";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
@@ -20,6 +20,23 @@ interface RefError {
   message: string;
 }
 
+const formatSchema = (obj: any, indent = 1): string => {
+  const indentation = "  ".repeat(indent);
+  const entries = Object.entries(obj)
+    .map(([key, value]) => {
+      const formattedKey = key.includes("-") ? `"${key}"` : key;
+      if (typeof value === "string") {
+        return `${indentation}${formattedKey}: ${value};`;
+      }
+      if (typeof value === "object" && value !== null) {
+        return `${indentation}${formattedKey}: {\n${formatSchema(value, indent + 1)}\n${indentation}};`;
+      }
+      return "";
+    })
+    .join("\n");
+  return `{\n${entries}\n${"  ".repeat(indent - 1)}}`;
+};
+
 export class OpenapiRequestGenerator {
   protected openapiDocument: Document;
   constructor(openapiDocument: any) {
@@ -28,15 +45,18 @@ export class OpenapiRequestGenerator {
 
   async generateFile({ config, fileName }: { config: Config; fileName: string }) {
     const defaultFileName = "openapi.client";
-    const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
+    const { schemaTypes, generatedTypes, sdkSchema, createSdkFn } = await this.generateRequestsFromSchema();
     const contents = [
       `import { client } from "./client";`,
+      `import { createSdk as coreCreateSdk, ClientInstance, RequestInstance } from "@hyper-fetch/core";`,
       "\n\n",
       schemaTypes,
       "\n\n",
       generatedTypes.join("\n\n"),
       "\n\n",
-      generatedRequests.join("\n\n"),
+      sdkSchema,
+      "\n\n",
+      createSdkFn,
     ].join("");
     const prettierOpts = {
       printWidth: 120,
@@ -84,21 +104,71 @@ export class OpenapiRequestGenerator {
     const { schemaTypes, exportedTypes } = await OpenapiRequestGenerator.prepareSchema(this.openapiDocument);
 
     const generatedTypes: string[] = [];
-    const generatedRequests: string[] = [];
-    const metadata: ReturnType<(typeof OpenapiRequestGenerator)["generateMethodMetadata"]>[] = [];
+    const schemaTree: Record<string, any> = {};
 
     getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
       const operationTypes = OpenapiRequestGenerator.generateTypes(meta);
-      const generatedRequest = OpenapiRequestGenerator.generateHyperFetchRequest(meta, operationTypes);
+      const requestInstanceType = OpenapiRequestGenerator.generateRequestInstanceType(meta, operationTypes);
 
-      metadata.push(meta);
       generatedTypes.push(Object.values(operationTypes).join("\n"));
-      generatedRequests.push(generatedRequest);
+
+      const { path, method } = meta;
+      const segments = path.split("/").filter(Boolean);
+
+      let currentLevel = schemaTree;
+      for (const segment of segments) {
+        const key = segment.startsWith(":") ? `$${segment.slice(1)}` : segment;
+        if (!currentLevel[key]) {
+          currentLevel[key] = {};
+        }
+        currentLevel = currentLevel[key];
+      }
+      currentLevel[method.toLowerCase()] = requestInstanceType;
     });
 
-    return { metadata, schemaTypes, generatedTypes, generatedRequests };
+    const sdkSchema = `export type SdkSchema = ${formatSchema(schemaTree)}`;
+
+    const createSdkFn = `
+export const createSdk = <Client extends ClientInstance>(client: Client) => {
+  return coreCreateSdk<Client, SdkSchema>(client);
+};
+`;
+
+    return { schemaTypes, generatedTypes, sdkSchema, createSdkFn };
   };
+
+  static generateRequestInstanceType({ id, path }: { id: string; path: string }, types: Record<string, string>) {
+    const Response = types[`${createTypeBaseName(id)}ResponseType`]
+      ? `${createTypeBaseName(id)}ResponseType`
+      : undefined;
+    const Payload = types[`${createTypeBaseName(id)}RequestBody`] ? `${createTypeBaseName(id)}RequestBody` : undefined;
+    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : undefined;
+    const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
+      ? `${createTypeBaseName(id)}QueryParams`
+      : undefined;
+
+    const genericTypes: string[] = [];
+
+    genericTypes.push(`client: Client`);
+    genericTypes.push(`endpoint: "${path}"`);
+
+    if (Response) {
+      genericTypes.push(`response: ${Response}`);
+    }
+    if (Payload) {
+      genericTypes.push(`payload: ${Payload}`);
+    }
+    if (LocalError) {
+      genericTypes.push(`error: ${LocalError}`);
+    }
+    if (QueryParams) {
+      genericTypes.push(`queryParams: ${QueryParams}`);
+    }
+
+    return `RequestInstance<{ ${genericTypes.join(", ")} }>`;
+  }
+
   static generateHyperFetchRequest(
     { id, path, method }: { id: string; path: string; method: string },
     types: Record<string, string>,
