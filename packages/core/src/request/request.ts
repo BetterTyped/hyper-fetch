@@ -385,7 +385,7 @@ export class Request<
     let stringEndpoint = String(endpoint);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        stringEndpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+        stringEndpoint = stringEndpoint.replace(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 

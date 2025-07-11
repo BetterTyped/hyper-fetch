@@ -59,9 +59,7 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
               </div>
             </div>
             {/* Image */}
-            <div className="invisible md:visible relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden">
-              {img}
-            </div>
+            <div className="hidden md:block relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden">{img}</div>
           </div>
         </div>
       </HighlighterItem>

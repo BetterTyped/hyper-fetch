@@ -254,17 +254,17 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi / Swagger</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli" >CLI</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
-          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/codegen-openapi?logoColor=fff&logo=trending-up" />
+        <a href="https://www.npmjs.com/package/hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/hyper-fetch?logoColor=fff&logo=trending-up" />
         </a>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
-          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/codegen-openapi.svg?logo=npm"/>
+        <a href="https://www.npmjs.com/package/hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/hyper-fetch.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        <a href="https://www.npmjs.com/package/hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/hyper-fetch?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -298,12 +298,22 @@ import { Client } from "@hyper-fetch/core";
 export const client = new Client({ url: "http://localhost:3000" });
 
 // Create reusable requests for later use
-export const postData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
+export const postData = client.createRequest<{
+  response: ResponseType;
+  payload: PayloadType;
+  error: LocalErrorType;
+  queryParams: QueryParamsType;
+}>()({
   method: "POST",
   endpoint: "/data/:accountId",
 });
 
-export const getData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
+export const getData = client.createRequest<{
+  response: ResponseType;
+  payload: PayloadType;
+  error: LocalErrorType;
+  queryParams: QueryParamsType;
+}>()({
   method: "GET",
   endpoint: "/user",
 });

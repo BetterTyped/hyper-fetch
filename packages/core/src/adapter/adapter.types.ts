@@ -103,6 +103,7 @@ export type QueryParamsType = Record<string, QueryParamType>;
 
 // Responses
 
+// It cannot be a union type because graphql may return both data and error
 export type RequestResponseType<Request extends RequestInstance> = {
   data: ExtractResponseType<Request> | null;
   error: ExtractErrorType<Request> | null;
@@ -112,6 +113,7 @@ export type RequestResponseType<Request extends RequestInstance> = {
   responseTimestamp: number;
   requestTimestamp: number;
 };
+
 export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;

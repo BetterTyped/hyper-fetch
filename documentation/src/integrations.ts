@@ -160,23 +160,4 @@ export const integrations: Section[] = [
     category: "Adapter",
     package: "firebase-admin",
   },
-  {
-    label: "Codegen Openapi",
-    description: "Generate type-safe clients and requests from OpenAPI specifications to streamline development.",
-    dir: "codegen-openapi",
-    isPackage: true,
-    paths: ["codegen-openapi"],
-    img: OpenApiIcon,
-    text: "drop-shadow-sm !text-lime-500 dark:!text-lime-400",
-    textAction: "focus:!text-lime-500 focus:dark:!text-lime-400 active:!text-lime-600 active:dark:!text-lime-300",
-    textHover: "hover:!text-lime-500 hover:dark:!text-lime-400",
-    icon: "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 bg-lime-400 dark:bg-lime-500 !bg-opacity-30",
-    iconHover:
-      "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 group-hover:bg-lime-400 group-hover:dark:bg-lime-500 !bg-opacity-40",
-    border: "border-lime-500 dark:border-lime-400",
-    borderHover: "hover:border-lime-500 hover:dark:border-lime-400",
-    featured: true,
-    category: "Codegen",
-    package: "codegen-openapi",
-  },
 ];
