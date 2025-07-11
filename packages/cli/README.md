@@ -1,4 +1,4 @@
-# 🪄 Hyper Fetch Openapi Request Generator
+# 🪄 Hyper Fetch CLI
 
 <p>
   <a href="https://bettertyped.com/">
@@ -10,8 +10,8 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/cli.svg?logo=npm&color=e76f51" />
+  <a href="https://www.npmjs.com/package/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/hyper-fetch.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -22,24 +22,25 @@
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/openapi-green.svg?logo=openapi&logoColor=fff" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/cli?color=64BC4B&logo=package" />
+  <a href="https://www.npmjs.com/package/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/hyper-fetch?color=64BC4B&logo=package" />
   </a>
 </p>
 
 ## About
 
-**`Hyper Fetch Generator-Openapi`** is our request generator from openapi (V3) json schema. Just provide a file path or
-link and generate all the requests.
+**`Hyper Fetch CLI`** is our command line featuring request generator from openapi (V3) json schema.
 
 ## Features
 
-✨ Generate code from **OpenApi V3** schema - both types and actual requests. ✨ **Flexible** - after generation you can
-edit Hyper Fetch client and all related requests. ✨ **No additional boilerplate** - if you know Hyper Fetch, you don't
-need anything else. ✨ **Simplicity**:
+✨ **Generate code** - from **OpenApi V3** / **Swagger** schema - both types and actual requests.
+
+✨ **Flexible** - after generation you can edit Hyper Fetch client and all related requests.
+
+✨ **No additional boilerplate** - if you know Hyper Fetch, you don't need anything else.
 
 ```tsx
-npx @hyper-fetch/cli --schema https://petstore3.swagger.io/api/v3/openapi.json
+npx hyper-fetch
 ```
 
 ...and it works! All code generated and ready to use.

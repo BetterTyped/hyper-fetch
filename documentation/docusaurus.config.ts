@@ -39,7 +39,7 @@ const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "hyper-flow", "testing"].includes(p))
+    .filter((p) => ![".DS_Store", "hyper-flow", "cli", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });

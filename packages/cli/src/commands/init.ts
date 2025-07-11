@@ -8,9 +8,11 @@ import { spinner } from "../utils/spinner";
 import { configSchema, Config } from "config/schema";
 import { logger } from "utils/logger";
 import { getTsConfigAliasPrefix } from "config/get-ts-alias";
+import { showHelp } from "utils/show-help";
 
 const initOptionsSchema = z.object({
-  cwd: z.string(),
+  yes: z.boolean().optional().describe("skip confirmation prompt."),
+  cwd: z.string().describe("the working directory. defaults to the current directory."),
 });
 
 type Step = {
@@ -21,42 +23,58 @@ type Step = {
 export const init = new Command()
   .name("Init")
   .description("Initialize HyperFetch Client configuration.")
+  .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
+  .option("-h, --help <help>", "display help for command")
   .action(async (opts) => {
     try {
-      const { cwd } = initOptionsSchema.parse(opts);
+      const help = process.argv.includes("--help") || process.argv.includes("-h");
+
+      if (help) {
+        return showHelp(initOptionsSchema);
+      }
+
+      const { cwd, yes } = initOptionsSchema.parse(opts);
 
       let config: Partial<Config> = {};
 
-      // 1. ask for the path to the main directory
-      let mainPath = await select({
-        message: "Select the main directory for your project:",
-        choices: [
-          { name: "src", value: "src" },
-          { name: "app", value: "app" },
-          { name: "other", value: "other" },
-        ],
-      });
+      let mainPath: string;
+      let apiDir: string;
 
-      if (mainPath === "other") {
-        mainPath = await input({
-          message: "Enter the path to the main directory:",
+      if (yes) {
+        mainPath = "src";
+        apiDir = "api";
+      } else {
+        // 1. ask for the path to the main directory
+        mainPath = await select({
+          message: "Select the main directory for your project:",
+          choices: [
+            { name: "src", value: "src" },
+            { name: "app", value: "app" },
+            { name: "other", value: "other" },
+          ],
+        });
+
+        if (mainPath === "other") {
+          mainPath = await input({
+            message: "Enter the path to the main directory:",
+            validate: (value) => {
+              if (!value) return "Path cannot be empty.";
+              return true;
+            },
+          });
+        }
+
+        // 2. text field - asking for the directory of api
+        apiDir = await input({
+          message: "Enter the name of the API directory:",
+          default: "api",
           validate: (value) => {
-            if (!value) return "Path cannot be empty.";
+            if (!value) return "Directory name cannot be empty.";
             return true;
           },
         });
       }
-
-      // 2. text field - asking for the directory of api
-      const apiDir = await input({
-        message: "Enter the name of the API directory:",
-        default: "api",
-        validate: (value) => {
-          if (!value) return "Directory name cannot be empty.";
-          return true;
-        },
-      });
 
       const fullPath = path.join(cwd, mainPath, apiDir);
       const relativePath = path.join(mainPath, apiDir);

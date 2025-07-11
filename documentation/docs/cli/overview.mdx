@@ -1,0 +1,85 @@
+---
+sidebar_position: 1
+title: CLI
+sidebar_label: Overview
+---
+
+CLI is a tool that allows to automate some of the hyper-fetch features. It's a great way to get started with Hyper-Fetch
+and to automate your workflow by generating code and adding sdks.
+
+```bash
+npx hyper-fetch@latest
+```
+
+This basic command will open the wizard to guide you through the setup process.
+
+---
+
+:::tip Purpose
+
+1.  **Generate code** from your api schema.
+2.  **Add sdks** to your project from the remote locations.
+3.  **Automate your workflow** by generating code and adding sdks.
+
+:::
+
+---
+
+## Usage
+
+You can use it in two ways - by going through wizard or passing individual arguments.
+
+### Wizard
+
+To use the wizard, run the following command:
+
+```bash
+npx hyper-fetch@latest
+```
+
+It will guide you through the process of generating the client, requests and data models.
+
+### Custom arguments
+
+You can also pass individual arguments to the command. Which is useful for the scripts.
+
+```bash
+npx hyper-fetch@latest {command}
+```
+
+Example:
+
+```bash
+npx hyper-fetch@latest generate
+```
+
+---
+
+## More
+
+We will be covering individual commands in the next sections.
+
+<LinkCard
+  type="docs"
+  title="Initialize a cli project"
+  description="Learn how to initialize new cli project"
+  to="/docs/cli/init"
+/>
+
+<LinkCard
+  type="docs"
+  title="Generate sdk"
+  description="Learn how to generate sdk from your api"
+  to="/docs/cli/generate"
+/>
+
+---
+
+:::success Congratulations!
+
+You've learned how to use the CLI in Hyper-fetch!
+
+1.  You can use the wizard to guide you through the setup process.
+2.  You can pass individual arguments to the command for more control.
+
+:::

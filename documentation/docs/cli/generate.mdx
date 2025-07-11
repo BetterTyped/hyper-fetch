@@ -1,0 +1,90 @@
+---
+sidebar_position: 3
+title: Generate
+sidebar_label: Generate
+---
+
+The `generate` command is a tool that allows you to generate a ready-to-use Hyper-Fetch client, typed requests and data
+models based on your schema. It supports multiple templates, including OpenAPI and Swagger.
+
+```bash
+npx hyper-fetch@latest generate
+```
+
+---
+
+:::tip Purpose
+
+By using the code generator, you can:
+
+1.  **Automatically generate** a ready-to-use Hyper-Fetch client.
+2.  **Create typed requests** for all your API endpoints.
+3.  **Define data models** based on your schema components.
+4.  **Boost productivity** by eliminating manual setup for API integration.
+
+:::
+
+---
+
+## Usage
+
+You can use it in two ways - by going through wizard or passing individual arguments.
+
+Remember to initialize a project first - this way hyper-fetch will be able to find the project's configuration and
+generate files in the correct location.
+
+:::info Initialize a project
+
+If you don't have a project yet, you can initialize one with the [`init`](/docs/cli/init) command.
+
+```bash
+npx hyper-fetch@latest init
+```
+
+:::
+
+1. ### Wizard
+
+To use the wizard, run the following command:
+
+```bash
+npx hyper-fetch@latest generate
+```
+
+It will guide you through the process of generating the client, requests and data models.
+
+2. ### Custom arguments
+
+You can also pass individual arguments to the command. Which is useful for the scripts.
+
+```bash
+npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+```
+
+<LinkCard
+  type="docs"
+  title="Initialize a cli project"
+  description="Learn how to initialize a cli project and generate code from your api"
+  to="/docs/cli/init"
+/>
+
+---
+
+## Available arguments
+
+Run the following command to see the available arguments:
+
+```bash
+npx hyper-fetch@latest generate --help
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to use the code generator in Hyper-fetch!
+
+1.  You can use the wizard to guide you through the process.
+2.  You can pass individual arguments to the command for more control.
+
+:::

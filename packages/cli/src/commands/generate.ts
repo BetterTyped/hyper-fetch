@@ -2,19 +2,20 @@ import { Command } from "commander";
 import { z } from "zod";
 import path from "path";
 import fs from "fs-extra";
-import { input, select } from "@inquirer/prompts";
+import { input, select, confirm } from "@inquirer/prompts";
 import { handleError } from "utils/handle-error";
 import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegens/openapi/generator";
 import { spinner } from "utils/spinner";
 import { logger } from "utils/logger";
+import { showHelp } from "utils/show-help";
 
 export const generateOptionsSchema = z.object({
-  template: z.enum(["openapi", "swagger"]),
-  url: z.string(),
-  fileName: z.string(),
-  cwd: z.string(),
-  overwrite: z.boolean().optional(),
+  template: z.enum(["openapi", "swagger"]).describe("API provider template to use"),
+  url: z.string().describe("The URL to generate the schema from"),
+  fileName: z.string().describe("The output file for the SDK."),
+  cwd: z.string().describe("The working directory. defaults to the current directory."),
+  overwrite: z.boolean().optional().describe("Overwrite existing files."),
 });
 
 export const generate = new Command()
@@ -25,8 +26,14 @@ export const generate = new Command()
   .option("-f, --fileName <fileName>", "The output file for the SDK.")
   .option("-o, --overwrite", "overwrite existing files.")
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
+  .option("-h, --help <help>", "display help for command")
   .action(async (opts: z.infer<typeof generateOptionsSchema>) => {
     try {
+      const help = process.argv.includes("--help") || process.argv.includes("-h");
+
+      if (help) {
+        return showHelp(generateOptionsSchema);
+      }
       const { config } = await preFlightGenerate(opts);
 
       if (!opts.template) {
@@ -59,7 +66,7 @@ export const generate = new Command()
 
       const fileExists = fs.existsSync(path.join(opts.cwd, opts.fileName));
       if (opts.overwrite === undefined && fileExists) {
-        opts.overwrite = await confirm("Overwrite existing files?");
+        opts.overwrite = await confirm({ message: "Overwrite existing files?" });
       }
 
       if (opts.overwrite === false && fileExists) {

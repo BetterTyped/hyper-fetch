@@ -8,6 +8,7 @@ const ReactIcon = isBrowser() ? require("../static/img/integration-react.svg").d
 const HFIcon = isBrowser() ? require("../static/img/integration-hyper-fetch.svg").default : () => null;
 const SocketsIcon = isBrowser() ? require("../static/img/integration-sockets.svg").default : () => null;
 const HyperFlowIcon = isBrowser() ? require("../static/img/hyper-flow.svg").default : () => null;
+const CliIcon = isBrowser() ? require("../static/img/integration-cli.svg").default : () => null;
 
 export type Section = {
   label: string;
@@ -148,5 +149,25 @@ export const modules: Section[] = [
     category: "Framework",
     package: "react",
     isPro: true,
+  },
+  {
+    label: "CLI",
+    description: "The CLI for Hyper Fetch, use it to generate code from your api, add sdks, and more.",
+    dir: "cli",
+    isPackage: true,
+    paths: ["cli"],
+    img: CliIcon,
+    text: "drop-shadow-sm !text-lime-500 dark:!text-lime-400",
+    textAction: "focus:!text-lime-500 focus:dark:!text-lime-400 active:!text-lime-600 active:dark:!text-lime-300",
+    textHover: "hover:!text-lime-500 hover:dark:!text-lime-400",
+    icon: "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 bg-lime-400 dark:bg-lime-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 group-hover:bg-lime-400 group-hover:dark:bg-lime-500 !bg-opacity-40",
+    border: "border-lime-500 dark:border-lime-400",
+    borderHover: "hover:border-lime-500 hover:dark:border-lime-400",
+    featured: true,
+    category: "CLI",
+    package: "hyper-fetch",
+    isNew: true,
   },
 ];

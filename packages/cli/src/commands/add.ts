@@ -6,14 +6,15 @@ import { z } from "zod";
 import { logger } from "../utils/logger";
 import { handleError } from "../utils/handle-error";
 import { preFlightAdd } from "preflights/preflight-add";
+import { showHelp } from "utils/show-help";
 
 // const registry: Registry[] = getRegistry();
 
 export const addOptionsSchema = z.object({
-  sdks: z.array(z.string()).optional(),
-  yes: z.boolean(),
-  overwrite: z.boolean(),
-  cwd: z.string(),
+  sdks: z.array(z.string()).optional().describe("names, url or local path to the sdks"),
+  yes: z.boolean().optional().describe("skip confirmation prompt."),
+  overwrite: z.boolean().optional().describe("overwrite existing files."),
+  cwd: z.string().describe("the working directory. defaults to the current directory."),
 });
 
 async function promptForSdks() {
@@ -36,8 +37,15 @@ export const add = new Command()
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
   .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-o, --overwrite", "overwrite existing files.", false)
+  .option("-h, --help <help>", "display help for command")
   .action(async (sdks: string[], opts: z.infer<typeof addOptionsSchema>) => {
     try {
+      const help = process.argv.includes("--help") || process.argv.includes("-h");
+
+      if (help) {
+        return showHelp(addOptionsSchema);
+      }
+
       await preFlightAdd({
         ...opts,
         sdks,

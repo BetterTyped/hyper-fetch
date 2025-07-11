@@ -4,9 +4,7 @@ import { select } from "@inquirer/prompts";
 
 import pkg from "../../package.json";
 import { generate } from "commands/generate";
-import { add } from "commands/add";
 import { init } from "commands/init";
-import { logger } from "utils/logger";
 
 const program = new Command();
 
@@ -14,7 +12,7 @@ program.name("hyper-fetch").description("CLI for Hyper Fetch").version(pkg.versi
 
 const commands = {
   init,
-  add,
+  // add,
   generate,
 };
 
