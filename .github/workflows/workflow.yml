@@ -7,10 +7,6 @@ on:
       - beta
       - alpha
   pull_request:
-    branches:
-      - main
-      - beta
-      - alpha
 
 # concurrency:
 #   group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
