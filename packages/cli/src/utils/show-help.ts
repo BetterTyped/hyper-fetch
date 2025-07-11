@@ -32,5 +32,6 @@ export const showHelp = (schema: z.ZodType) => {
 
   table.push(...rows);
 
+  // eslint-disable-next-line no-console
   console.log(table.toString());
 };
