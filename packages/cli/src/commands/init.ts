@@ -1,9 +1,10 @@
 import { Command } from "commander";
 import { input, select } from "@inquirer/prompts";
-import { handleError } from "../utils/handle-error";
 import { z } from "zod";
 import path from "path";
 import { existsSync, mkdir, readFileSync, writeFile } from "fs-extra";
+
+import { handleError } from "../utils/handle-error";
 import { spinner } from "../utils/spinner";
 import { configSchema, Config } from "config/schema";
 import { logger } from "utils/logger";
@@ -151,17 +152,6 @@ export const init = new Command()
         {
           name: `Create api.json configuration file`,
           action: async (currentConfig) => {
-            const defaultConfig: Omit<Config, "resolvedPaths"> = {
-              tsx: true,
-              aliases: {
-                api: `${aliasPrefix}/${apiDir}`,
-                hooks: `${aliasPrefix}/hooks`,
-                ui: `${aliasPrefix}/components/ui`,
-                components: `${aliasPrefix}/components`,
-                lib: `${aliasPrefix}/lib`,
-              },
-            };
-
             const finalConfig = {
               ...defaultConfig,
               ...currentConfig,
@@ -181,8 +171,10 @@ export const init = new Command()
       logger.break();
       logger.info("Starting HyperFetch CLI initialization...");
 
+      // eslint-disable-next-line no-restricted-syntax
       for (const step of steps) {
         const s = spinner(step.name).start();
+        // eslint-disable-next-line no-await-in-loop
         const result = await step.action(config);
         if (result) {
           config = result;

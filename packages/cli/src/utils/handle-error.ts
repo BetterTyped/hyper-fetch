@@ -16,6 +16,7 @@ export function handleError(error: unknown) {
 
   if (error instanceof z.ZodError) {
     logger.error("Validation failed:");
+    // eslint-disable-next-line no-restricted-syntax
     for (const [key, value] of Object.entries(error.flatten().fieldErrors)) {
       logger.error(`- ${chalk.cyan(key)}: ${value}`);
     }

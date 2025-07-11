@@ -1,12 +1,33 @@
 import path from "path";
 import fs from "fs-extra";
-import { highlighter } from "utils/highlighter";
-import { resolveImport } from "utils/resolve-import";
 import { loadConfig } from "tsconfig-paths";
 
+import { highlighter } from "utils/highlighter";
+import { resolveImport } from "utils/resolve-import";
 import { logger } from "../utils/logger";
 import { handleError } from "../utils/handle-error";
 import { configSchema, Config } from "config/schema";
+
+export async function resolveConfigPaths(cwd: string, config: Omit<Config, "resolvedPaths">): Promise<Config> {
+  // Read tsconfig.json.
+  const tsConfig = await loadConfig(cwd);
+
+  if (tsConfig.resultType === "failed") {
+    throw new Error(`Failed to load ${config.tsx ? "tsconfig" : "jsconfig"}.json. ${tsConfig.message ?? ""}`.trim());
+  }
+
+  return configSchema.parse({
+    ...config,
+    resolvedPaths: {
+      cwd,
+      api: await resolveImport(config.aliases.api, tsConfig),
+      components: await resolveImport(config.aliases.components, tsConfig),
+      lib: await resolveImport(config.aliases.lib, tsConfig),
+      hooks: await resolveImport(config.aliases.hooks, tsConfig),
+      ui: await resolveImport(config.aliases.ui, tsConfig),
+    },
+  });
+}
 
 export async function getConfig(cwd: string): Promise<Config | null> {
   // Check for existing api.json file.
@@ -34,26 +55,5 @@ export async function getConfig(cwd: string): Promise<Config | null> {
     throw new Error(`Invalid configuration found in ${highlighter.info(cwd)}.`);
   }
 
-  return await resolveConfigPaths(cwd, data);
-}
-
-export async function resolveConfigPaths(cwd: string, config: Omit<Config, "resolvedPaths">): Promise<Config> {
-  // Read tsconfig.json.
-  const tsConfig = await loadConfig(cwd);
-
-  if (tsConfig.resultType === "failed") {
-    throw new Error(`Failed to load ${config.tsx ? "tsconfig" : "jsconfig"}.json. ${tsConfig.message ?? ""}`.trim());
-  }
-
-  return configSchema.parse({
-    ...config,
-    resolvedPaths: {
-      cwd,
-      api: await resolveImport(config.aliases["api"], tsConfig),
-      components: await resolveImport(config.aliases["components"], tsConfig),
-      lib: await resolveImport(config.aliases["lib"], tsConfig),
-      hooks: await resolveImport(config.aliases["hooks"], tsConfig),
-      ui: await resolveImport(config.aliases["ui"], tsConfig),
-    },
-  });
+  return resolveConfigPaths(cwd, data);
 }

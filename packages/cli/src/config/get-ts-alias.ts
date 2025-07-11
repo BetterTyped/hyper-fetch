@@ -8,6 +8,7 @@ export async function getTsConfigAliasPrefix(cwd: string) {
   }
 
   // This assume that the first alias is the prefix.
+  // eslint-disable-next-line no-restricted-syntax
   for (const [alias, paths] of Object.entries(tsConfig.paths)) {
     if (
       paths.includes("./*") ||

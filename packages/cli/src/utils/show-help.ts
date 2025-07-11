@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { zodToTable } from "./zod-to-table";
 import Table from "cli-table3";
+
+import { zodToTable } from "./zod-to-table";
 
 export const showHelp = (schema: z.ZodType) => {
   const rows = zodToTable(schema).map(({ name, description }) => [`--${name}`, description || ""]);

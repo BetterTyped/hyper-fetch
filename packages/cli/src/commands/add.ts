@@ -79,9 +79,9 @@ export const add = new Command()
 
       logger.info("Installing SDKs...");
 
-      for (const sdk of selectedSdks) {
-        //  TODO: implement
-      }
+      // for (const sdk of selectedSdks) {
+      //  TODO: implement
+      // }
 
       logger.success("SDKs installed successfully!");
     } catch (error) {

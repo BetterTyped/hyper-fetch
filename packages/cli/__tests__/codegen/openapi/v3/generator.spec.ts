@@ -164,7 +164,6 @@ describe("Generator", () => {
       },
       fileName: "schemaApiRequests",
     });
-    console.log(generatedFileNamePath);
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });

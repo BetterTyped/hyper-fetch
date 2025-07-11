@@ -1,12 +1,13 @@
 import path from "path";
+import fs from "fs-extra";
+import { z } from "zod";
+
 import { generateOptionsSchema } from "commands/generate";
 import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
 import { Config } from "config/schema";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
-import fs from "fs-extra";
-import { z } from "zod";
 import { handleError } from "utils/handle-error";
 
 export async function preFlightGenerate(options: z.infer<typeof generateOptionsSchema>): Promise<{

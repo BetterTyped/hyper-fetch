@@ -2,7 +2,6 @@ import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core
 import RefParser from "@apidevtools/json-schema-ref-parser";
 import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
 import { find, chain, isEmpty } from "lodash";
-import * as _path from "path";
 import * as prettier from "prettier";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -75,7 +74,7 @@ export class OpenapiRequestGenerator {
     const fName = fileName || defaultFileName;
     const extension = config.tsx ? ".ts" : ".js";
     const hasExtension = [".ts", ".js", ".tsx", ".jsx"].some((ext) => fName.endsWith(ext));
-    const generatedPath = _path.join(config.resolvedPaths.api, `${fName}${hasExtension ? "" : extension}`);
+    const generatedPath = path.join(config.resolvedPaths.api, `${fName}${hasExtension ? "" : extension}`);
 
     const file = await prettier.format(contents, prettierOpts);
     await fs.writeFile(generatedPath, file, {
@@ -113,10 +112,11 @@ export class OpenapiRequestGenerator {
 
       generatedTypes.push(Object.values(operationTypes).join("\n"));
 
-      const { path, method } = meta;
-      const segments = path.split("/").filter(Boolean);
+      const { path: relPath, method } = meta;
+      const segments = relPath.split("/").filter(Boolean);
 
       let currentLevel = schemaTree;
+      // eslint-disable-next-line no-restricted-syntax
       for (const segment of segments) {
         const key = segment.startsWith(":") ? `$${segment.slice(1)}` : segment;
         if (!currentLevel[key]) {
@@ -138,7 +138,10 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
     return { schemaTypes, generatedTypes, sdkSchema, createSdkFn };
   };
 
-  static generateRequestInstanceType({ id, path }: { id: string; path: string }, types: Record<string, string>) {
+  static generateRequestInstanceType(
+    { id, path: relPath }: { id: string; path: string },
+    types: Record<string, string>,
+  ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
       ? `${createTypeBaseName(id)}ResponseType`
       : undefined;
@@ -151,7 +154,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
     const genericTypes: string[] = [];
 
     genericTypes.push(`client: Client`);
-    genericTypes.push(`endpoint: "${path}"`);
+    genericTypes.push(`endpoint: "${relPath}"`);
 
     if (Response) {
       genericTypes.push(`response: ${Response}`);
@@ -170,7 +173,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
   }
 
   static generateHyperFetchRequest(
-    { id, path, method }: { id: string; path: string; method: string },
+    { id, path: relPath, method }: { id: string; path: string; method: string },
     types: Record<string, string>,
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
@@ -211,7 +214,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
 
     return `export const ${getVariableName(
       createTypeBaseName(id),
-    )} = client.createRequest${genericType}()({method: "${method}", endpoint: "${path}"})`;
+    )} = client.createRequest${genericType}()({method: "${method}", endpoint: "${relPath}"})`;
   }
 
   static generateTypes({
@@ -264,7 +267,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
     const requestBodyType = find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/requestBody` })?.path;
     const responseTypePaths = chain(exportTypes)
       .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/2`))
-      .map(({ path }) => path)
+      .map(({ path: responsePath }) => responsePath)
       .value();
     const errorTypePaths = chain(exportTypes)
       .filter(
@@ -272,7 +275,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
           schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) ||
           schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/5`),
       )
-      .map(({ path }) => path)
+      .map(({ path: errorPath }) => errorPath)
       .value();
 
     const responseType = !isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
@@ -294,13 +297,13 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
     // Validate refs before processing
     const errors: RefError[] = [];
 
-    function validateRefs(obj: any, path = "") {
+    function validateRefs(obj: any, refPath = "") {
       if (!obj || typeof obj !== "object") return;
 
       // Check if current object has $ref
       if (obj.$ref && typeof obj.$ref === "string" && obj.$ref.endsWith("/")) {
         errors.push({
-          path,
+          path: refPath,
           ref: obj.$ref,
           message: `Invalid reference "${obj.$ref}" - reference path cannot end with '/'`,
         });
@@ -308,7 +311,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
 
       // Recursively check all object properties
       Object.entries(obj).forEach(([key, value]) => {
-        const newPath = path ? `${path}.${key}` : key;
+        const newPath = refPath ? `${refPath}.${key}` : key;
         validateRefs(value, newPath);
       });
     }

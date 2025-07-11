@@ -1,8 +1,10 @@
+/* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import { z } from "zod";
 import path from "path";
 import fs from "fs-extra";
 import { input, select, confirm } from "@inquirer/prompts";
+
 import { handleError } from "utils/handle-error";
 import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegen/openapi/generator";
