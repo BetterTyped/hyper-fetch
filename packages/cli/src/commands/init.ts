@@ -97,6 +97,8 @@ export const init = new Command()
         aliases: defaultAliases,
       };
 
+      logger.break();
+
       const steps: Step[] = [
         {
           name: `Initialize API directory at ${relativePath}`,
