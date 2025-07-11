@@ -20,6 +20,7 @@ export type StartServer = {
   wss: WebSocketServer | null;
   connections: Record<string, any>;
   DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
+  errorMessage?: string;
 };
 
 export const startServer = async (options: { port: number; onServerCrash?: () => void }): Promise<StartServer> => {
@@ -113,13 +114,19 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       });
     });
 
-  const startingServer = new Promise((resolve) => {
+  const startingServer: Promise<{ isReady: boolean; message?: string }> = new Promise((resolve) => {
     server.on(`listening`, () => {
-      resolve(true);
+      resolve({ isReady: true });
+    });
+    server.on("error", (err: { code: string }) => {
+      if (err.code === "EADDRINUSE") {
+        return resolve({ isReady: false, message: `Port ${port} is already in use` });
+      }
+      return resolve({ isReady: false, message: `Error: ${err.code}` });
     });
   });
 
-  const isReady = await startingServer;
+  const { isReady, message } = await startingServer;
 
   if (isReady) {
     return {
@@ -136,5 +143,5 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       error: "Server failed to start",
     },
   });
-  return { server: null, wss: null, connections: {}, DEVTOOLS_FRONTEND_WS_CONNECTION: null };
+  return { server: null, wss: null, connections: {}, DEVTOOLS_FRONTEND_WS_CONNECTION: null, errorMessage: message };
 };

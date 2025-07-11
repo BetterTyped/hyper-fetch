@@ -45,9 +45,12 @@ function compareVersions(v1, v2) {
  * @returns {string|null} - Extracted version or null if invalid
  */
 function extractVersion(tag, prefix) {
-  if (!tag.startsWith(prefix)) return null;
-
-  const version = tag.substring(prefix.length);
+  let version = tag;
+  if (tag.startsWith(prefix)) {
+    version = tag.substring(prefix.length);
+  } else if (!/^\d/.test(tag)) {
+    return null;
+  }
 
   // Basic semver validation (major.minor.patch with optional pre-release)
   const semverRegex = /^\d+\.\d+\.\d+(?:-[a-zA-Z0-9-.]+)?$/;
@@ -147,7 +150,7 @@ function main() {
   const args = process.argv.slice(2);
 
   // Default configuration
-  let prefix = "v";
+  let prefix = "";
   let packagePath = path.join(process.cwd(), "package.json");
   let dryRun = false;
 
@@ -183,7 +186,7 @@ Examples:
     }
   }
 
-  console.log(`🔍 Looking for git tags with prefix: "${prefix}"`);
+  console.log(`🔍 Looking for git tags"${prefix ? `with prefix: "${prefix}"` : ""}"`);
 
   // Check if package.json exists
   if (!fs.existsSync(packagePath)) {
