@@ -304,6 +304,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
+        env:
+          NODE_ENV: production
       - name: Get latest tag before release
         id: pre_release_tag
         run: echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT

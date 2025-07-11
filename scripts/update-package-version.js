@@ -240,6 +240,6 @@ Examples:
 }
 
 // Run the script
-if (require.main === module) {
+if (require.main === module && process.env.NODE_ENV === "production") {
   main();
 }

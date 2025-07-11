@@ -29,7 +29,7 @@
 
 ## About
 
-**`Hyper Fetch CLI`** is our command line featuring request generator from openapi (V3) json schema.
+**`Hyper Fetch CLI`** is our command line featuring request sdk generators.
 
 ## Features
 
