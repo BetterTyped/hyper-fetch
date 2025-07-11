@@ -20,7 +20,7 @@
     "prebuild": "yarn update:version",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "yarn rollup -c ../../rollup.config.js",
-    "update:version": "node ../../scripts/update-version.js --prefix hyper-fetch-cli-v",
+    "update:version": "node ../../scripts/update-package-version.js --prefix hyper-fetch-cli-v",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typescheck": "tsc --noEmit --emitDeclarationOnly false",
