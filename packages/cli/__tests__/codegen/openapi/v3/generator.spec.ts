@@ -123,7 +123,6 @@ describe("Generator", () => {
       fileName: "openapi.client",
     });
     expect(generatedFileNamePath).toEndWith("openapi.client.ts");
-    await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with js extension", async () => {
@@ -144,7 +143,6 @@ describe("Generator", () => {
       fileName: "openapi.client",
     });
     expect(generatedFileNamePath).toEndWith("openapi.client.js");
-    await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name", async () => {
@@ -165,7 +163,6 @@ describe("Generator", () => {
       fileName: "schemaApiRequests",
     });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
-    await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name without duplication for .ts ending if provided", async () => {
@@ -186,7 +183,6 @@ describe("Generator", () => {
       fileName: "schemaApiRequests.ts",
     });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
-    await fsPromises.rm(generatedFileNamePath);
   });
 
   // it("Should generate file with provided baseUrl", async () => {
