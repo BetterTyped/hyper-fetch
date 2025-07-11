@@ -5,6 +5,7 @@
 
 import { promises as fsPromises } from "fs";
 import * as path from "path";
+import * as fs from "fs-extra";
 
 import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "codegen/openapi";
 import { HttpMethod } from "codegen/openapi/http-methods.enum";
@@ -85,6 +86,9 @@ describe("Generator", () => {
   beforeAll(async () => {
     const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
     schema = JSON.parse(file);
+
+    // Ensure the directory exists before writing the file
+    await fs.ensureDir(path.join(__dirname, "../__temp__"));
   });
 
   it("should generate hyper fetch requests", async () => {
