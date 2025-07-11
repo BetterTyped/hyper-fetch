@@ -15,7 +15,7 @@ export async function getConfig(cwd: string): Promise<Config | null> {
     logger.error(
       `An invalid ${highlighter.info("api.json")} file was found at ${highlighter.info(
         cwd,
-      )}.\nBefore you can add SDKs, you must create a valid ${highlighter.info(
+      )}.\nBefore you can add or generate SDKs, you must create a valid ${highlighter.info(
         "api.json",
       )} file by running the ${highlighter.info("init")} command.`,
     );

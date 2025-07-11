@@ -30,6 +30,7 @@ async function promptForSdks() {
   return sdks;
 }
 
+// TODO: figure out a way to add sdks from registry?
 export const add = new Command()
   .name("Add")
   .description("Add SDK from registry to your project")
