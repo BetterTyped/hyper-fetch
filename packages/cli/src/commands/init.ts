@@ -92,7 +92,6 @@ export const init = new Command()
       };
 
       const defaultConfig: Omit<Config, "resolvedPaths"> = {
-        $schema: "https://hyperfetch.bettertyped.com/api.json",
         tsx: true,
         aliases: defaultAliases,
       };
@@ -153,7 +152,6 @@ export const init = new Command()
           name: `Create api.json configuration file`,
           action: async (currentConfig) => {
             const defaultConfig: Omit<Config, "resolvedPaths"> = {
-              $schema: "https://hyperfetch.bettertyped.com/api.json",
               tsx: true,
               aliases: {
                 api: `${aliasPrefix}/${apiDir}`,

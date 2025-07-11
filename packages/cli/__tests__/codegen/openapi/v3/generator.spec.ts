@@ -83,7 +83,7 @@ describe("Generator", () => {
   let schema: string;
 
   beforeAll(async () => {
-    const file = await fsPromises.readFile(path.resolve(__dirname, "../../schemas/v3/petstore-expanded.json"), "utf8");
+    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
     schema = JSON.parse(file);
   });
 
@@ -109,10 +109,16 @@ describe("Generator", () => {
     const generator = new OpenapiRequestGenerator(schema);
     const generatedFileNamePath = await generator.generateFile({
       config: {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        tsx: false,
+        tsx: true,
         aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
-        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: {
+          cwd: __dirname,
+          api: path.join(__dirname, "../__temp__"),
+          hooks: path.join(__dirname, "hooks"),
+          ui: path.join(__dirname, "ui"),
+          components: path.join(__dirname, "components"),
+          lib: path.join(__dirname, "lib"),
+        },
       },
       fileName: "openapi.client",
     });
@@ -120,17 +126,45 @@ describe("Generator", () => {
     await fsPromises.rm(generatedFileNamePath);
   });
 
+  it("Should generate file with js extension", async () => {
+    const generator = new OpenapiRequestGenerator(schema);
+    const generatedFileNamePath = await generator.generateFile({
+      config: {
+        tsx: false,
+        aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: {
+          cwd: __dirname,
+          api: path.join(__dirname, "../__temp__"),
+          hooks: path.join(__dirname, "hooks"),
+          ui: path.join(__dirname, "ui"),
+          components: path.join(__dirname, "components"),
+          lib: path.join(__dirname, "lib"),
+        },
+      },
+      fileName: "openapi.client",
+    });
+    expect(generatedFileNamePath).toEndWith("openapi.client.js");
+    await fsPromises.rm(generatedFileNamePath);
+  });
+
   it("Should generate file with provided name", async () => {
     const generator = new OpenapiRequestGenerator(schema);
     const generatedFileNamePath = await generator.generateFile({
       config: {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        tsx: false,
+        tsx: true,
         aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
-        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: {
+          cwd: __dirname,
+          api: path.join(__dirname, "../__temp__"),
+          hooks: path.join(__dirname, "hooks"),
+          ui: path.join(__dirname, "ui"),
+          components: path.join(__dirname, "components"),
+          lib: path.join(__dirname, "lib"),
+        },
       },
       fileName: "schemaApiRequests",
     });
+    console.log(generatedFileNamePath);
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
@@ -139,10 +173,16 @@ describe("Generator", () => {
     const generator = new OpenapiRequestGenerator(schema);
     const generatedFileNamePath = await generator.generateFile({
       config: {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        tsx: false,
+        tsx: true,
         aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
-        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: {
+          cwd: __dirname,
+          api: path.join(__dirname, "../__temp__"),
+          hooks: path.join(__dirname, "hooks"),
+          ui: path.join(__dirname, "ui"),
+          components: path.join(__dirname, "components"),
+          lib: path.join(__dirname, "lib"),
+        },
       },
       fileName: "schemaApiRequests.ts",
     });
@@ -156,7 +196,7 @@ describe("Generator", () => {
   //   const generatedFileNamePath = await generator.generateFile({ url: "http://baseurl.com" });
   //   const imported = await import(generatedFileNamePath);
   //   expect(imported.client.url).toEqual(baseUrl);
-  //   await fsPromises.rm(generatedFileNamePath);
+  //
   // });
 
   describe("HTTP Method handling", () => {

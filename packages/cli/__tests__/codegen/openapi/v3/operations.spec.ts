@@ -11,7 +11,7 @@ import { getAvailableOperations } from "codegens/openapi/operations";
 describe("Operations", () => {
   let schema: string;
   beforeAll(async () => {
-    const file = await fsPromises.readFile(path.resolve(__dirname, "../../schemas/v3/petstore-expanded.json"), "utf8");
+    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
     schema = JSON.parse(file);
   });
 

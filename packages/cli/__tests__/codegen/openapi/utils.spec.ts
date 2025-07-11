@@ -18,7 +18,7 @@ describe("Utils", () => {
   });
 
   it("should return available server link or empty string", async () => {
-    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
+    const file = await fsPromises.readFile(path.resolve(__dirname, "./schemas/v3/petstore-expanded.json"), "utf8");
     const schema = JSON.parse(file);
     const baseUrl = getBaseUrl(schema);
     const emptyString = getBaseUrl({} as unknown as Document);
