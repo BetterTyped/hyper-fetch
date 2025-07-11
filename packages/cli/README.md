@@ -40,7 +40,7 @@
 ✨ **No additional boilerplate** - if you know Hyper Fetch, you don't need anything else.
 
 ```tsx
-npx hyper-fetch
+npx @hyper-fetch/cli@latest
 ```
 
 ...and it works! All code generated and ready to use.

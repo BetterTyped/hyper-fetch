@@ -1,5 +1,5 @@
 {
-  "name": "hyper-fetch",
+  "name": "@hyper-fetch/cli",
   "version": "0.0.0",
   "description": "Hyper Fetch cli for code generation and utilities",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",

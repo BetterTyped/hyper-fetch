@@ -13,7 +13,7 @@ export function CliSdkDemo() {
   const steps = [
     {
       title: "Generate from OpenAPI",
-      command: "npx hyper-fetch generate",
+      command: "npx @hyper-fetch/cli generate",
       status: "running",
     },
     {

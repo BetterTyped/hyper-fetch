@@ -8,7 +8,7 @@ The `generate` command is a tool that allows you to generate a ready-to-use Hype
 models based on your schema. It supports multiple templates, including OpenAPI and Swagger.
 
 ```bash
-npx hyper-fetch@latest generate
+npx @hyper-fetch/cli@latest generate
 ```
 
 ---
@@ -38,7 +38,7 @@ generate files in the correct location.
 If you don't have a project yet, you can initialize one with the [`init`](/docs/cli/init) command.
 
 ```bash
-npx hyper-fetch@latest init
+npx @hyper-fetch/cli@latest init
 ```
 
 :::
@@ -48,7 +48,7 @@ npx hyper-fetch@latest init
 To use the wizard, run the following command:
 
 ```bash
-npx hyper-fetch@latest generate
+npx @hyper-fetch/cli@latest generate
 ```
 
 It will guide you through the process of generating the client, requests and data models.
@@ -58,7 +58,7 @@ It will guide you through the process of generating the client, requests and dat
 You can also pass individual arguments to the command. Which is useful for the scripts.
 
 ```bash
-npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
 ```
 
 <LinkCard
@@ -73,7 +73,7 @@ npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagg
 ## Example
 
 ```bash
-npx hyper-fetch@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
 ```
 
 Then to use generated SDK you can do the following:
@@ -116,7 +116,7 @@ console.log(data);
 Run the following command to see the available arguments:
 
 ```bash
-npx hyper-fetch@latest generate --help
+npx @hyper-fetch/cli@latest generate --help
 ```
 
 ---
