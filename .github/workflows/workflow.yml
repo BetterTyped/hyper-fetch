@@ -7,7 +7,10 @@ on:
       - beta
       - alpha
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+      - beta
+      - alpha
 
 # concurrency:
 #   group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
@@ -278,7 +281,7 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SIGN_ID: ${{ secrets.SIGN_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
