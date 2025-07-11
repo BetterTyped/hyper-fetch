@@ -15,14 +15,11 @@ endpoints are accessed with an intuitive dot-notation.
 
 :::tip Purpose
 
-1.  **Type-Safe API**: Define your entire API with TypeScript for end-to-end type safety.
-2.  **Intuitive, tRPC-like Syntax**: Access your endpoints with a clean, dot-notation syntax (e.g., `sdk.users.get()`).
-3.  **On-the-fly Request Generation**: Uses recursive proxies to automatically create `Request` instances with the
-    correct method and endpoint as you access them.
-4.  **Extremely Performant**: Because requests are generated on-demand, there's virtually no performance overhead, no
-    matter how large your API is.
-5.  **Dynamic Paths**: Easily handle dynamic URL segments like `/users/:id`.
-6.  **Centralized Definition**: Keep your API structure defined in one place, making it easy to manage and update.
+1.  **Type-Safe API**: Full TypeScript coverage for endpoints, responses, and parameters.
+2.  **tRPC-like Syntax**: Access endpoints with dot-notation (e.g., `sdk.users.get()`).
+3.  **Zero Performance Overhead**: Generates requests on-demand using proxies.
+4.  **Dynamic URL Support**: Handle parameterized routes like `/users/:id`.
+5.  **Centralized Schema**: Define your entire API structure in one place.
 
 :::
 

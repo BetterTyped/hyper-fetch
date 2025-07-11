@@ -6,7 +6,7 @@ import * as _path from "path";
 import * as prettier from "prettier";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { ClientInstance, createClient, createSdk as coreCreateSdk, RequestInstance } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
