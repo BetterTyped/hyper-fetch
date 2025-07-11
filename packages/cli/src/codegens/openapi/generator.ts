@@ -3,14 +3,17 @@ import RefParser from "@apidevtools/json-schema-ref-parser";
 import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
 import { find, chain, isEmpty } from "lodash";
 import { promises as fsPromises } from "fs";
-import * as process from "process";
 import * as _path from "path";
 import * as prettier from "prettier";
+import * as fs from "fs";
+import * as path from "path";
+import { createClient } from "@hyper-fetch/core";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
-import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName } from "./utils";
+import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, isUrl } from "./utils";
 import { HttpMethod } from "./http-methods.enum";
+import { Config } from "config/schema";
 
 interface RefError {
   path: string;
@@ -24,7 +27,7 @@ export class OpenapiRequestGenerator {
     this.openapiDocument = openapiDocument as Document;
   }
 
-  async generateFile({ fileName }: { fileName?: string }) {
+  async generateFile({ config, fileName }: { config: Config; fileName: string }) {
     const defaultFileName = "openapi.client";
     const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
     const contents = [
@@ -51,12 +54,38 @@ export class OpenapiRequestGenerator {
     };
 
     const fName = fileName || defaultFileName;
-    const generatedPath = _path.join(process.cwd(), `${fName}${fName.endsWith(".ts") ? "" : ".ts"}`);
+    const generatedPath = _path.join(
+      config.resolvedPaths.cwd,
+      config.resolvedPaths.api,
+      `${fName}${fName.endsWith(".ts") ? "" : ".ts"}`,
+    );
 
     await fsPromises.writeFile(generatedPath, `${prettier.format(contents, prettierOpts)}`);
 
     return generatedPath;
   }
+
+  static getSchemaFromUrl = async ({ url, config }: { url: string; config: Config }) => {
+    let openapiSchema: Document;
+    if (isUrl(url)) {
+      const client = createClient({ url });
+      const getSchema = client.createRequest<{ response: Document }>()({ endpoint: "" });
+      const { data, error } = await getSchema.send();
+      if (error) {
+        throw error;
+      }
+      if (data) {
+        openapiSchema = data;
+        return;
+      }
+      throw new Error("Failed to fetch schema");
+    } else {
+      const f = fs.readFileSync(path.join(config.resolvedPaths.cwd, url), "utf-8");
+      openapiSchema = JSON.parse(f);
+    }
+
+    return openapiSchema;
+  };
 
   generateRequestsFromSchema = async () => {
     const { schemaTypes, exportedTypes } = await OpenapiRequestGenerator.prepareSchema(this.openapiDocument);

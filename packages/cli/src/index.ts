@@ -1,1 +1,1 @@
-export * from "codegen/openapi";
+export * from "codegens/openapi";

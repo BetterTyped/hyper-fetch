@@ -1,8 +1,8 @@
-import { ProgressType, ResponseType, getErrorMessage } from "adapter";
+import { ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
 import { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
 import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import { ExtractAdapterType, ExtractErrorType } from "types";
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -114,14 +114,12 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
 export const sendRequest = <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
-) => {
+): Promise<RequestResponseType<Request>> => {
   const { client } = request;
   const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
-  return new Promise<
-    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-  >((resolve) => {
+  return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
     options?.onBeforeSent?.({ requestId, request });
