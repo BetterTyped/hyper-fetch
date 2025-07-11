@@ -13,7 +13,7 @@ export const FeaturesCard = ({
   right?: boolean;
 }) => {
   return (
-    <div className="relative min-h-[500px] w-full flex items-center justify-center">
+    <div className="relative md:min-h-[500px] w-full flex items-center justify-center">
       <div
         className={cn(
           "absolute -z-[1] w-[400px] h-[400px] top-12 blur-lg rounded-full opacity-20",

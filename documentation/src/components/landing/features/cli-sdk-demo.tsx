@@ -1,9 +1,10 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { cn } from "@site/src/lib/utils";
+import { Terminal, Sparkles, Code, Check, MousePointer2 } from "lucide-react";
+
 import { FeaturesCard } from "./features-card";
 import { Box } from "./box";
-import { Terminal, Sparkles, Code, Check, MousePointer2 } from "lucide-react";
 
 export function CliSdkDemo() {
   const [step, setStep] = useState(0);
@@ -51,9 +52,9 @@ export function CliSdkDemo() {
               <Terminal className="size-4 text-purple-400" />
               <span className="text-sm font-medium text-purple-400">Terminal</span>
               <div className="flex gap-1 ml-auto">
-                <div className="size-2 rounded-full bg-red-400"></div>
-                <div className="size-2 rounded-full bg-yellow-400"></div>
-                <div className="size-2 rounded-full bg-green-400"></div>
+                <div className="size-2 rounded-full bg-red-400" />
+                <div className="size-2 rounded-full bg-yellow-400" />
+                <div className="size-2 rounded-full bg-green-400" />
               </div>
             </div>
             <div className="flex-1 p-4 font-mono text-sm">
@@ -95,10 +96,10 @@ export function CliSdkDemo() {
                 <div className="space-y-1">
                   <div className="text-purple-400">// Generated SDK with full types</div>
                   {step >= 3 && (
-                    <div className="relative">
-                      <div className="text-gray-300">
-                        <span className="!text-blue-500">const</span> <span className="!text-blue-400">response</span> ={" "}
-                        <span className="!text-purple-500">await</span>{" "}
+                    <span className="text-gray-300">
+                      <span className="!text-blue-500">const</span> <span className="!text-blue-400">response</span> ={" "}
+                      <span className="!text-purple-500">await</span>{" "}
+                      <span className="relative">
                         <span className="!text-yellow-400 relative">
                           sdk
                           {/* Mouse cursor over "sdk" */}
@@ -122,38 +123,37 @@ export function CliSdkDemo() {
                               <MousePointer2 className="size-4 stroke-white fill-black drop-shadow-md rotate-12" />
                             </motion.div>
                           </AnimatePresence>
+                          {/* Autocomplete suggestions */}
+                          <AnimatePresence>
+                            {step >= 3 && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                                transition={{ duration: 0.3, delay: 0.3 }}
+                                className="absolute top-6 right-0 md:right-[-150px] translate-x-1/2 flex justify-end"
+                              >
+                                <div className="text-xs space-y-1 bg-gray-800 border border-gray-600 rounded-md p-2 shadow-lg min-w-[250px]">
+                                  <div className="flex items-center gap-2 bg-blue-600 px-2 py-1 rounded text-white text-xs md:text-base">
+                                    <span>users</span>
+                                    <span className="md:text-xs text-blue-200">• GET /users</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 px-2 py-1 text-gray-300 hover:bg-gray-700 rounded text-xs md:text-base">
+                                    <span>posts</span>
+                                    <span className="md:text-xs text-gray-400">• GET /posts</span>
+                                  </div>
+                                  <div className="hidden md:flex items-center gap-2 px-2 py-1 text-gray-300 hover:bg-gray-700 rounded text-xs">
+                                    <span>products</span>
+                                    <span className="md:text-xs text-gray-400">• GET /products</span>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </span>
-                        .
-                      </div>
-
-                      {/* Autocomplete suggestions */}
-                      <AnimatePresence>
-                        {step >= 3 && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: -10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                            transition={{ duration: 0.3, delay: 0.3 }}
-                            className="absolute top-6 left-0 right-0 flex justify-end"
-                          >
-                            <div className="text-xs space-y-1 bg-gray-800 border border-gray-600 rounded-md p-2 shadow-lg ">
-                              <div className="flex items-center gap-2 bg-blue-600 px-2 py-1 rounded text-white">
-                                <span>users</span>
-                                <span className="text-xs text-blue-200">• GET /users</span>
-                              </div>
-                              <div className="flex items-center gap-2 px-2 py-1 text-gray-300 hover:bg-gray-700 rounded">
-                                <span>posts</span>
-                                <span className="text-xs text-gray-400">• GET /posts</span>
-                              </div>
-                              <div className="flex items-center gap-2 px-2 py-1 text-gray-300 hover:bg-gray-700 rounded">
-                                <span>products</span>
-                                <span className="text-xs text-gray-400">• GET /products</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                      </span>
+                      .
+                    </span>
                   )}
 
                   <div className="text-gray-500 mt-4">

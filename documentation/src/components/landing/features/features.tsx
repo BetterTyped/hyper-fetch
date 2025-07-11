@@ -214,7 +214,8 @@ export function Features(): JSX.Element {
                       className={cn(
                         "flex items-center justify-center",
                         `${graphicColSpan}`,
-                        index % 2 === 0 && "order-2",
+                        "order-1",
+                        index % 2 === 0 && "md:order-2",
                       )}
                     >
                       <feature.graphic />
@@ -236,7 +237,7 @@ export function Features(): JSX.Element {
                     </div>
                   </div>
                   {index !== features.length - 1 && (
-                    <div className="flex justify-center items-center pt-24 pb-12">
+                    <div className="flex justify-center items-center pt-12 md:pt-24 pb-12">
                       <div className="flex gap-3">
                         {[...Array(5)].map((_, i) => (
                           <div
