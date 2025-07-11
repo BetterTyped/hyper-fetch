@@ -46,7 +46,6 @@ export class OpenapiRequestGenerator {
     const defaultFileName = "openapi.client";
     const { schemaTypes, generatedTypes, sdkSchema, createSdkFn } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { client } from "./client";`,
       `import { createSdk as coreCreateSdk, ClientInstance, RequestInstance } from "@hyper-fetch/core";`,
       "\n\n",
       schemaTypes,
