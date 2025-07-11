@@ -2,7 +2,6 @@ import path from "path";
 import fs from "fs-extra";
 import { highlighter } from "utils/highlighter";
 import { resolveImport } from "utils/resolve-import";
-import { cosmiconfig } from "cosmiconfig";
 import { loadConfig } from "tsconfig-paths";
 
 import { logger } from "../utils/logger";
@@ -10,12 +9,6 @@ import { handleError } from "../utils/handle-error";
 import { configSchema, Config } from "config/schema";
 
 export async function getConfig(cwd: string): Promise<Config | null> {
-  const explorer = cosmiconfig("components", {
-    searchPlaces: ["api.json"],
-  });
-
-  console.log(explorer);
-
   // Check for existing api.json file.
   if (!fs.existsSync(path.resolve(cwd, "api.json"))) {
     logger.break();

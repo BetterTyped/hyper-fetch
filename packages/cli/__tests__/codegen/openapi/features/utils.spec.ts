@@ -1,8 +1,8 @@
 import { promises as fsPromises } from "fs";
 import path from "path";
 
-import { getBaseUrl, isUrl, normalizeOperationId } from "../../src/openapi/utils";
-import { Document } from "../../../../src";
+import { getBaseUrl, isUrl, normalizeOperationId } from "codegens/openapi/utils";
+import { Document } from "codegens/openapi";
 
 describe("Utils", () => {
   it("should check if provided path is url or not", () => {

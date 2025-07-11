@@ -6,8 +6,8 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "../../../../../src";
-import { HttpMethod } from "openapi/http-methods.enum";
+import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "codegens/openapi";
+import { HttpMethod } from "codegens/openapi/http-methods.enum";
 
 const expectedMetadata = {
   findPets: {
@@ -107,21 +107,45 @@ describe("Generator", () => {
 
   it("Should generate file with default name", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile({});
+    const generatedFileNamePath = await generator.generateFile({
+      config: {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        tsx: false,
+        aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+      },
+      fileName: "openapi.client",
+    });
     expect(generatedFileNamePath).toEndWith("openapi.client.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile({ fileName: "schemaApiRequests" });
+    const generatedFileNamePath = await generator.generateFile({
+      config: {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        tsx: false,
+        aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+      },
+      fileName: "schemaApiRequests",
+    });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name without duplication for .ts ending if provided", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile({ fileName: "schemaApiRequests.ts" });
+    const generatedFileNamePath = await generator.generateFile({
+      config: {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        tsx: false,
+        aliases: { api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+        resolvedPaths: { cwd: ".", api: "api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+      },
+      fileName: "schemaApiRequests.ts",
+    });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });

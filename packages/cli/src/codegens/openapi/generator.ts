@@ -2,10 +2,9 @@ import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core
 import RefParser from "@apidevtools/json-schema-ref-parser";
 import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
 import { find, chain, isEmpty } from "lodash";
-import { promises as fsPromises } from "fs";
 import * as _path from "path";
 import * as prettier from "prettier";
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as path from "path";
 import { createClient } from "@hyper-fetch/core";
 
@@ -54,37 +53,31 @@ export class OpenapiRequestGenerator {
     };
 
     const fName = fileName || defaultFileName;
-    const generatedPath = _path.join(
-      config.resolvedPaths.cwd,
-      config.resolvedPaths.api,
-      `${fName}${fName.endsWith(".ts") ? "" : ".ts"}`,
-    );
+    const extension = config.tsx ? ".ts" : ".js";
+    const hasExtension = [".ts", ".js", ".tsx", ".jsx"].some((ext) => fName.endsWith(ext));
+    const generatedPath = _path.join(config.resolvedPaths.api, `${fName}${hasExtension ? "" : extension}`);
 
-    await fsPromises.writeFile(generatedPath, `${prettier.format(contents, prettierOpts)}`);
+    const file = await prettier.format(contents, prettierOpts);
+    await fs.writeFile(generatedPath, file, {
+      flag: "w",
+    });
 
     return generatedPath;
   }
 
   static getSchemaFromUrl = async ({ url, config }: { url: string; config: Config }) => {
-    let openapiSchema: Document;
     if (isUrl(url)) {
       const client = createClient({ url });
       const getSchema = client.createRequest<{ response: Document }>()({ endpoint: "" });
       const { data, error } = await getSchema.send();
-      if (error) {
-        throw error;
-      }
       if (data) {
-        openapiSchema = data;
-        return;
+        return data;
       }
-      throw new Error("Failed to fetch schema");
-    } else {
-      const f = fs.readFileSync(path.join(config.resolvedPaths.cwd, url), "utf-8");
-      openapiSchema = JSON.parse(f);
+      throw error || new Error("Failed to fetch schema");
     }
 
-    return openapiSchema;
+    const schema = fs.readFileSync(path.join(config.resolvedPaths.cwd, url), "utf-8");
+    return JSON.parse(schema);
   };
 
   generateRequestsFromSchema = async () => {

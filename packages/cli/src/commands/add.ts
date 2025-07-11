@@ -13,7 +13,6 @@ export const addOptionsSchema = z.object({
   sdks: z.array(z.string()).optional(),
   yes: z.boolean(),
   overwrite: z.boolean(),
-  srcDir: z.boolean(),
   cwd: z.string(),
 });
 
@@ -34,11 +33,9 @@ export const add = new Command()
   .name("Add")
   .description("Add SDK from registry to your project")
   .argument("[sdks...]", "names, url or local path to the sdks")
+  .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
   .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-o, --overwrite", "overwrite existing files.", false)
-  .option("--src-dir", "use the src directory when creating a new project.", false)
-  .option("--no-src-dir", "do not use the src directory when creating a new project.")
-  .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
   .action(async (sdks: string[], opts: z.infer<typeof addOptionsSchema>) => {
     try {
       await preFlightAdd({

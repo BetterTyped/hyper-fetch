@@ -1,37 +1,36 @@
 import { Command } from "commander";
 import { z } from "zod";
+import path from "path";
+import fs from "fs-extra";
 import { input, select } from "@inquirer/prompts";
 import { handleError } from "utils/handle-error";
 import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegens/openapi/generator";
 import { spinner } from "utils/spinner";
+import { logger } from "utils/logger";
 
 export const generateOptionsSchema = z.object({
-  template: z.enum(["openapi", "swagger"]).optional(),
-  url: z.url("A valid URL must be provided.").optional(),
+  template: z.enum(["openapi", "swagger"]),
+  url: z.string(),
+  fileName: z.string(),
   cwd: z.string(),
-  output: z.string(),
-  dir: z.string(),
+  overwrite: z.boolean().optional(),
 });
 
 export const generate = new Command()
-  .name("Generate SDK")
+  .name("Generate")
   .description("Generate SDK from a schema, url or service")
   .option("-t, --template <template>", "API provider template to use")
   .option("-u, --url <url>", "The URL to generate the schema from")
-  .option("-o, --output <output>", "The output file for the SDK.")
-  .option("-d, --dir <dir>", "The directory to generate the SDK in.")
+  .option("-f, --fileName <fileName>", "The output file for the SDK.")
+  .option("-o, --overwrite", "overwrite existing files.")
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
   .action(async (opts: z.infer<typeof generateOptionsSchema>) => {
     try {
       const { config } = await preFlightGenerate(opts);
 
-      const options = generateOptionsSchema.parse(opts);
-
-      let { template, url } = options;
-
-      if (!template) {
-        template = await select({
+      if (!opts.template) {
+        opts.template = await select({
           message: "What source we want to use?",
           choices: [
             { name: "OpenAPI (v3)", value: "openapi" },
@@ -40,8 +39,8 @@ export const generate = new Command()
         });
       }
 
-      if (!url) {
-        url = await input({
+      if (!opts.url) {
+        opts.url = await input({
           message: "Enter the URL to generate the schema from:",
           validate: (value) => {
             const result = z.url("Please enter a valid URL.").safeParse(value);
@@ -51,25 +50,43 @@ export const generate = new Command()
         });
       }
 
-      const componentSpinner = spinner(`Writing components.json.`).start();
-      switch (template) {
+      if (!opts.fileName) {
+        opts.fileName = await input({
+          message: "Enter the file name for the SDK:",
+          default: `api-${opts.template}.sdk.ts`,
+        });
+      }
+
+      const fileExists = fs.existsSync(path.join(opts.cwd, opts.fileName));
+      if (opts.overwrite === undefined && fileExists) {
+        opts.overwrite = await confirm("Overwrite existing files?");
+      }
+
+      if (opts.overwrite === false && fileExists) {
+        return logger.info(`File ${opts.fileName} already exists. Use --overwrite to overwrite.`);
+      }
+
+      const options = generateOptionsSchema.parse(opts);
+
+      const componentSpinner = spinner(`Writing ${options.fileName}...`).start();
+      switch (options.template) {
         case "openapi": {
-          const openapiSchema = await OpenapiRequestGenerator.getSchemaFromUrl({ url, config });
+          const openapiSchema = await OpenapiRequestGenerator.getSchemaFromUrl({ url: options.url!, config });
           const generator = new OpenapiRequestGenerator(openapiSchema);
-          await generator.generateFile({ fileName: opts?.output, config });
+          await generator.generateFile({ fileName: options.fileName, config });
           componentSpinner.succeed();
           return process.exit(0);
         }
         case "swagger": {
-          const openapiSchema = await OpenapiRequestGenerator.getSchemaFromUrl({ url, config });
+          const openapiSchema = await OpenapiRequestGenerator.getSchemaFromUrl({ url: options.url!, config });
           const generator = new OpenapiRequestGenerator(openapiSchema);
-          await generator.generateFile({ fileName: opts?.output, config });
+          await generator.generateFile({ fileName: options.fileName, config });
           componentSpinner.succeed();
           return process.exit(0);
         }
         default: {
           componentSpinner.fail();
-          throw new Error(`Invalid template: ${template}`);
+          throw new Error(`Invalid template: ${options.template}`);
         }
       }
     } catch (err) {
