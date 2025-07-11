@@ -60,15 +60,23 @@ export const init = new Command()
 
       const fullPath = path.join(cwd, mainPath, apiDir);
       const relativePath = path.join(mainPath, apiDir);
+      const configPath = path.join(cwd, "api.json");
 
       const aliasPrefix = (await getTsConfigAliasPrefix(cwd)) || "";
+      const alias = aliasPrefix ? `${aliasPrefix}/` : "";
 
       const defaultAliases: Config["aliases"] = {
-        api: `${aliasPrefix}/${apiDir}`,
-        hooks: `${aliasPrefix}/hooks`,
-        ui: `${aliasPrefix}/components/ui`,
-        components: `${aliasPrefix}/components`,
-        lib: `${aliasPrefix}/lib`,
+        api: `${alias}${apiDir}`,
+        hooks: `${alias}hooks`,
+        ui: `${alias}components/ui`,
+        components: `${alias}components`,
+        lib: `${alias}lib`,
+      };
+
+      const defaultConfig: Omit<Config, "resolvedPaths"> = {
+        $schema: "https://hyperfetch.bettertyped.com/api.json",
+        tsx: true,
+        aliases: defaultAliases,
       };
 
       const steps: Step[] = [
@@ -83,14 +91,20 @@ export const init = new Command()
         {
           name: "Setup configuration",
           action: async (currentConfig) => {
-            const configPath = path.join(fullPath, "api.json");
             if (existsSync(configPath)) {
               const existingConfig = JSON.parse(readFileSync(configPath, "utf8"));
-              const { success, error, data } = configSchema.omit({ resolvedPaths: true }).safeParse(existingConfig);
+              const { success, error, data } = configSchema.omit({ resolvedPaths: true }).safeParse({
+                ...defaultConfig,
+                ...existingConfig,
+                aliases: {
+                  ...defaultConfig.aliases,
+                  ...existingConfig.aliases,
+                },
+              });
 
               if (error) {
                 logger.break();
-                logger.error(`Invalid configuration found in ${path.join(fullPath, "api.json")}.`);
+                logger.error(`Invalid configuration found in ${configPath}.`);
                 handleError(error);
                 logger.break();
               }
@@ -118,7 +132,6 @@ export const init = new Command()
         {
           name: `Create api.json configuration file`,
           action: async (currentConfig) => {
-            const configPath = path.join(fullPath, "api.json");
             const defaultConfig: Omit<Config, "resolvedPaths"> = {
               $schema: "https://hyperfetch.bettertyped.com/api.json",
               tsx: true,
@@ -161,7 +174,7 @@ export const init = new Command()
 
       logger.break();
       logger.info("Configuration has been generated successfully! 🎉");
-      logger.info(`You can now find your configuration at ${path.join(relativePath, "api.json")}`);
+      logger.info(`You can now find your configuration at ${configPath}`);
     } catch (err) {
       handleError(err);
     }
