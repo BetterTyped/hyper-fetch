@@ -7,13 +7,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
 import { ArrowRight } from "lucide-react";
 import { Description, FadeIn, Particles, Title } from "@site/src/components";
 import { cn } from "@site/src/lib/utils";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import "./animation.scss";
 import { FeaturesCard } from "./features-card";
@@ -101,6 +102,16 @@ const features: FeatureItem[] = [
 ];
 
 export function Features(): JSX.Element {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useWindowSize(([width]) => {
+    if (width < 768 && !isMobile) {
+      setIsMobile(true);
+    } else if (width >= 768 && isMobile) {
+      setIsMobile(false);
+    }
+  });
+
   useEffect(() => {
     const bolt = document.querySelector(".bolt");
     const element = bolt.querySelector("div");
@@ -206,6 +217,7 @@ export function Features(): JSX.Element {
               const gridTotal = feature.gridTotal || "md:grid-cols-2";
               const graphicColSpan = feature.graphicColSpan || "md:col-span-1";
               const textColSpan = feature.textColSpan || "md:col-span-1";
+              const order = index % 2 === 0 ? "md:order-1" : "!md:order-0";
 
               return (
                 <div>
@@ -214,8 +226,7 @@ export function Features(): JSX.Element {
                       className={cn(
                         "flex items-center justify-center",
                         `${graphicColSpan}`,
-                        "order-1",
-                        index % 2 === 0 && "md:order-2",
+                        isMobile ? "order-1" : order,
                       )}
                     >
                       <feature.graphic />
