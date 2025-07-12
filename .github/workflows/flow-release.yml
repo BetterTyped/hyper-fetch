@@ -48,6 +48,7 @@ jobs:
       - name: Release
         run: yarn nx run hyper-flow:publish:app
         env:
+          NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -105,6 +106,7 @@ jobs:
       - name: Release
         run: yarn nx run hyper-flow:publish:app
         env:
+          NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -177,6 +179,7 @@ jobs:
       - name: Release
         run: yarn nx run hyper-flow:publish:app
         env:
+          NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
