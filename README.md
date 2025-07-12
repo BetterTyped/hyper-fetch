@@ -257,14 +257,14 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli" >CLI</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/dm/hyper-fetch?logoColor=fff&logo=trending-up" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/cli?logoColor=fff&logo=trending-up" />
         </a>
-        <a href="https://www.npmjs.com/package/hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/v/hyper-fetch.svg?logo=npm"/>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/cli.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/hyper-fetch?color=E10098&logo=package" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/cli?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
