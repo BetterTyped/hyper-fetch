@@ -101,8 +101,6 @@ const config: ForgeConfig = {
       },
       authToken: env.GITHUB_TOKEN,
       prerelease: false,
-      generateReleaseNotes: false,
-      tagPrefix: "",
       /**
        * Notice that you have configured Forge to publish your release as a draft.
        * This will allow you to see the release with its generated artifacts without actually publishing it to your end users.
