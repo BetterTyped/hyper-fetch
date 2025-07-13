@@ -24,7 +24,7 @@ export interface HttpAdapterRequest extends Omit<XMLHttpRequest, "responseType">
 export type HttpAdapterOptionsType = Partial<HttpAdapterRequest>;
 
 export type HttpAdapterExtraType = {
-  headers: Record<string, string>;
+  headers: Record<string, string> | Headers;
 };
 
 // Headers
