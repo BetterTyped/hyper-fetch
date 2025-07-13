@@ -6,14 +6,8 @@ export type ClientGenericType = {
   error?: ClientErrorType;
 };
 
-export function createClient<
-  ClientProperties extends ClientGenericType = {
-    error?: ClientErrorType;
-  },
->(
-  options: ClientOptionsType<Client<NonNullable<TypeWithDefaults<ClientProperties, "error", ClientErrorType>>>>,
-): Client<NonNullable<TypeWithDefaults<ClientProperties, "error", ClientErrorType>>, HttpAdapterType> {
-  return new Client<NonNullable<TypeWithDefaults<ClientProperties, "error", ClientErrorType>>, HttpAdapterType>(
-    options,
-  );
+export function createClient<ClientProperties extends ClientGenericType = {}>(
+  options: ClientOptionsType<Client<NonNullable<TypeWithDefaults<ClientProperties, "error", Error>>>>,
+): Client<NonNullable<TypeWithDefaults<ClientProperties, "error", Error>>, HttpAdapterType> {
+  return new Client<NonNullable<TypeWithDefaults<ClientProperties, "error", Error>>, HttpAdapterType>(options);
 }
