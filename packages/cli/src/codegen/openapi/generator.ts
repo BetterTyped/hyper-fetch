@@ -46,7 +46,7 @@ export class OpenapiRequestGenerator {
     const defaultFileName = "openapi.client";
     const { schemaTypes, generatedTypes, sdkSchema, createSdkFn } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { createSdk as coreCreateSdk, ClientInstance, RequestInstance } from "@hyper-fetch/core";`,
+      `import { createSdk as coreCreateSdk, ClientInstance, Request } from "@hyper-fetch/core";`,
       "\n\n",
       schemaTypes,
       "\n\n",
@@ -138,7 +138,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
   };
 
   static generateRequestInstanceType(
-    { id, path: relPath }: { id: string; path: string },
+    { id, path: endpoint }: { id: string; path: string },
     types: Record<string, string>,
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
@@ -150,25 +150,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
       ? `${createTypeBaseName(id)}QueryParams`
       : undefined;
 
-    const genericTypes: string[] = [];
-
-    genericTypes.push(`client: Client`);
-    genericTypes.push(`endpoint: "${relPath}"`);
-
-    if (Response) {
-      genericTypes.push(`response: ${Response}`);
-    }
-    if (Payload) {
-      genericTypes.push(`payload: ${Payload}`);
-    }
-    if (LocalError) {
-      genericTypes.push(`error: ${LocalError}`);
-    }
-    if (QueryParams) {
-      genericTypes.push(`queryParams: ${QueryParams}`);
-    }
-
-    return `RequestInstance<{ ${genericTypes.join(", ")} }>`;
+    return `Request<${Response}, ${Payload}, ${QueryParams}, ${LocalError}, "${endpoint}", Client>`;
   }
 
   static generateHyperFetchRequest(
