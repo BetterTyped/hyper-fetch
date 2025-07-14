@@ -90,6 +90,7 @@ export const getMockSetup = <Request extends RequestInstance, Status extends num
     status,
     delayTime,
     data,
+    streamChunkDelay: options.streamChunkDelay || 0,
   };
 };
 
@@ -98,12 +99,26 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
   options: MockRequestOptions<Request, Status>,
 ) => {
   const { method } = request;
-  const { status, delayTime, data } = getMockSetup(options);
+  const { status, delayTime, data, streamChunkDelay } = getMockSetup(options);
   const url = getEndpointMockingRegex(request.endpoint);
 
   const requestResolver: HttpResponseResolver = async () => {
     if (delayTime) {
       await delay(delayTime);
+    }
+
+    if (data instanceof ReadableStream) {
+      const latencyStream = new TransformStream({
+        start() {},
+        async transform(chunk, controller) {
+          await delay(streamChunkDelay);
+          controller.enqueue(chunk);
+        },
+      });
+      const resStream = data.pipeThrough(latencyStream) as unknown as ReadableStream;
+      return new HttpResponse(resStream, {
+        headers: { "content-type": "text/plain" },
+      });
     }
 
     const { requestManager } = request.client;

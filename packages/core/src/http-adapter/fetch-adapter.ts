@@ -2,45 +2,9 @@ import { Adapter } from "../adapter/adapter";
 import { HttpAdapterOptionsType, HttpAdapterExtraType } from "./http-adapter.types";
 import { HttpMethods } from "constants/http.constants";
 import { HttpMethodsType, HttpStatusType } from "types";
-import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
+import { stringifyQueryParams } from "./http-adapter.utils";
 import { QueryParamsType } from "adapter";
 import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
-
-// const handlePayload = (payload: any, headers: Record<string, string>) => {
-//         // Handle payload
-//         if (payload) {
-//             // Check if FormData is available (browser environment)
-//             if (typeof FormData !== "undefined" && payload instanceof FormData) {
-//               fetchOptions.body = payload;
-//             } else if (typeof payload === "string") {
-//               fetchOptions.body = payload;
-//             } else if (payload instanceof ArrayBuffer || payload instanceof Uint8Array) {
-//               fetchOptions.body = payload;
-//             } else if (payload instanceof ReadableStream) {
-//               fetchOptions.body = payload;
-//             } else if (typeof Buffer !== "undefined" && Buffer.isBuffer(payload)) {
-//               // Handle Node.js Buffer
-//               fetchOptions.body = payload;
-//             } else if (
-//               typeof payload === "object" &&
-//               payload !== null &&
-//               "pipe" in payload &&
-//               typeof (payload as any).pipe === "function"
-//             ) {
-//               // Handle Node.js streams (Readable, Transform, Duplex, etc.)
-//               fetchOptions.body = payload as any;
-//             } else {
-//               // For JSON payloads, ensure content-type is set
-//               if (!headers["Content-Type"] && !headers["content-type"]) {
-//                 fetchOptions.headers = {
-//                   ...headers,
-//                   "Content-Type": "application/json",
-//                 };
-//               }
-//               fetchOptions.body = JSON.stringify(payload);
-//             }
-//           }
-// }
 
 /**
  * Fetch adapter that works in both browser and server environments
@@ -173,6 +137,7 @@ export const FetchAdapter = () =>
                 extra: { headers: responseHeaders },
               });
             } else {
+              // TODO - add parseResponse/parseBody etc. + responseEncoding passing.
               onSuccess({
                 data: response.body,
                 status: response.status,

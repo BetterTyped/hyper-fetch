@@ -1,5 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+import { Readable } from "stream";
 
 import { createAdapter, createDispatcher } from "../../utils";
 import {
@@ -70,6 +71,23 @@ describe("Mocker [ Base ]", () => {
         responseTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
       });
+    });
+  });
+
+  describe("When passing stream as a response", () => {
+    it("should return stream as a response", async () => {
+      const responseData = ["1", "2", "3", "4", "5"];
+      const rs = Readable.from(responseData);
+      const webStream = Readable.toWeb(rs);
+      const mockedRequest = request.setMock(() => ({ data: webStream, status: 200 }));
+      const response = await mockedRequest.send();
+      const responseChunks = [];
+      for await (const chunk of response.data) {
+        responseChunks.push(chunk);
+      }
+
+      expect(response.data instanceof ReadableStream).toBeTruthy();
+      expect(responseChunks).toStrictEqual(responseData);
     });
   });
 

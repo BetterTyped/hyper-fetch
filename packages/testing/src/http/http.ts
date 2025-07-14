@@ -9,7 +9,7 @@ export type MockRequestOptions<Request extends RequestInstance, Status extends n
 > & {
   status?: Status;
   delay?: number;
-  streamResponse?: boolean;
+  streamChunkDelay?: number;
 };
 
 export const createHttpMockingServer = () => {
