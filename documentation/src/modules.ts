@@ -148,7 +148,7 @@ export const modules: Section[] = [
     borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
     category: "Framework",
     package: "react",
-    isPro: true,
+    // isPro: true,
   },
   {
     label: "CLI",
