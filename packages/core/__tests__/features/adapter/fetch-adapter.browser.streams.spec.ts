@@ -1,10 +1,7 @@
 /**
- * @jest-environment node
+ * @jest-environment jsdom
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-import { Readable } from "stream";
-import path from "path";
-import fs from "fs";
 
 import { getErrorMessage } from "adapter";
 import { Client, ClientInstance } from "client";
@@ -26,9 +23,12 @@ const createStreamingRequest = (client: ClientInstance) => {
 
   const responseData = ["1", "2", "3", "4", "5"];
 
-  const rs = Readable.from(responseData);
-  const webStream = Readable.toWeb(rs);
-  return { request, responseData, webStream, requestId };
+  const rs = new ReadableStream({
+    start(controller) {
+      responseData.forEach((chunk) => controller.enqueue(chunk));
+    },
+  });
+  return { request, responseData, webStream: rs, requestId };
 };
 
 describe("Fetch Adapter", () => {
@@ -52,9 +52,9 @@ describe("Fetch Adapter", () => {
     describe("When receiving a stream as a response", () => {
       it("should allow for handling it as a stream", async () => {
         const { request, responseData, webStream, requestId } = createStreamingRequest(client);
-
         mockRequest(request, { data: webStream });
         const { data: response, error, status } = await FetchHttpAdapter().initialize(client).fetch(request, requestId);
+        console.log("RESPONSE", response);
         const responseChunks = [];
         for await (const chunk of response) {
           responseChunks.push(chunk);
