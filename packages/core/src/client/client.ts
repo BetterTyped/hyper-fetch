@@ -475,7 +475,3 @@ export class Client<
     };
   };
 }
-
-const getUser = client.createRequest<{ response: UserType }>()({ 
-  endpoint: "/users/:userId” 
-});
