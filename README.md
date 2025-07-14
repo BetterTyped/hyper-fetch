@@ -27,9 +27,6 @@ Framework for typesafe fetching and realtime data exchange.
   <a href="https://github.com/semantic-release/semantic-release">
     <img src="https://custom-icon-badges.demolab.com/badge/semver-commitzen-e10079?logo=semantic-release&color=9146ff" />
   </a>
-  <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
-    <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
-  </a>
   <a href="https://bestofjs.org/projects/hyper-fetch" rel="nofollow">
     <img alt="Best of JS" src="https://img.shields.io/endpoint?url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=BetterTyped%2Fhyper-fetch%26since=daily" style="max-width: 100%;">
   </a>
