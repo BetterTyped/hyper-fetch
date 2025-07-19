@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
-import { Description, FadeIn, Highlighter, Title } from "@site/src/components";
+import { Description, Highlighter, Title } from "@site/src/components";
 import { BrainCircuit, LayoutDashboard, Milestone } from "lucide-react";
+import { motion } from "motion/react";
 
 import { SmallBlock } from "../blocks/small-block/small-block";
 
@@ -34,28 +35,49 @@ export const About = () => {
     <section className="relative pb-20 pt-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="max-w-3xl mx-auto text-center pb-6 md:pb-12">
-          <FadeIn start={0.01} end={0.18}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
                 Unified Fetching Layer
               </div>
             </div>
-          </FadeIn>
-          <FadeIn start={0} end={0.15}>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
               Learn once, use everywhere
             </Title>
-          </FadeIn>
-          <FadeIn start={0.02} end={0.2}>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
             <Description className="text-lg !text-zinc-400">
               Hyper-Fetch is the data-exchange framework for modern development needs. It provides first-class
               type-safety, an exceptional developer experience, and deep architectural flexibility.
             </Description>
-          </FadeIn>
+          </motion.div>
         </div>
         <Highlighter className="grid md:grid-cols-3 gap-8">
           {aboutFeatures.map((feature, index) => (
-            <FadeIn key={feature.title} start={0.1 + index * 0.1} end={0.3 + index * 0.1}>
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
+              viewport={{ once: true }}
+            >
               <Link to={feature.link} className="!no-underline h-full">
                 <SmallBlock
                   icon={<feature.icon className="size-6 text-yellow-500" />}
@@ -64,7 +86,7 @@ export const About = () => {
                   promo={feature.promo}
                 />
               </Link>
-            </FadeIn>
+            </motion.div>
           ))}
         </Highlighter>
       </div>

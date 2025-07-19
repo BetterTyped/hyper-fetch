@@ -46,7 +46,7 @@ export const Hero = () => {
         >
           Integrate with any API. <br />
           <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">
-            Simply,{" "}
+            Simple,{" "}
             <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
               TypeSafe
               <span

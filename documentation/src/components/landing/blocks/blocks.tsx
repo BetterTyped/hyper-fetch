@@ -1,9 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
+import { motion } from "motion/react";
 import { Particles } from "@site/src/components/particles";
 import { Highlighter } from "@site/src/components/highlighter";
-import { FadeIn } from "@site/src/components/fade-in/fade-in";
-import { Stage } from "@react-theater/scroll";
 import { Description, Title } from "@site/src/components";
 import App from "@site/static/img/previews/app.png";
 
@@ -27,34 +26,52 @@ export const Blocks = () => {
           <div className="">
             <div className="max-w-3xl mx-auto text-center pb-6 md:pb-10">
               <div className="relative">
-                <Stage onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
-                  <div className="sticky top-0">
-                    <FadeIn start={0.05} end={0.25}>
-                      <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                        Simply
-                      </div>
-                    </FadeIn>
-                    <h2 className="h2 pb-2 flex justify-center flex-col md:flex-row">
-                      <FadeIn start={0.05} end={0.25}>
-                        <Title as="span" size="lg">
-                          Faster.
-                        </Title>
-                      </FadeIn>
-                      <FadeIn start={0.1} end={0.3}>
-                        <Title as="span" size="lg">
-                          Better.
-                        </Title>
-                      </FadeIn>
-                    </h2>
-                  </div>
-                </Stage>
+                <div className="sticky top-0">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
+                      Simply
+                    </div>
+                  </motion.div>
+                  <h2 className="h2 pb-2 flex justify-center flex-col md:flex-row">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                      viewport={{ once: true }}
+                    >
+                      <Title as="span" size="lg">
+                        Faster.
+                      </Title>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.3 }}
+                      viewport={{ once: true }}
+                    >
+                      <Title as="span" size="lg">
+                        Better.
+                      </Title>
+                    </motion.div>
+                  </h2>
+                </div>
               </div>
-              <FadeIn start={0.1} end={0.3}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
                 <Description className="text-lg text-zinc-400">
                   Hyper Fetch provides a powerful, type-safe, backend & framework agnostic architecture for efficient
                   data exchange.
                 </Description>
-              </FadeIn>
+              </motion.div>
             </div>
           </div>
           {/* Highlighted boxes */}

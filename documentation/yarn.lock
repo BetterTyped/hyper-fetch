@@ -3567,14 +3567,6 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.6.1.tgz#913d3a68c5cbc1124fdb18eff919432f7b6abdde"
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
-"@react-theater/scroll@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@react-theater/scroll/-/scroll-1.0.0.tgz#118ce667b5b0ab71f9a025c28c2b5b669f93b047"
-  integrity sha512-T0KyXUKeHqQM7022gzcMfSaU2CUiiM2jEAOdSPTesaQfhevQlOEZB2iJi2ZC+PWmyXx76rHVxZBA/eZe+iZdXQ==
-  dependencies:
-    "@better-hooks/lifecycle" "^2.0.0"
-    "@better-hooks/performance" "^2.0.0"
-
 "@react-three/drei@^9.115.0":
   version "9.115.0"
   resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.115.0.tgz#48d3effe00c67c3c8bccfb35c3b6106bf2cebc17"

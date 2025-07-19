@@ -1,13 +1,13 @@
 /* eslint-disable react/no-array-index-key */
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { Description, FadeIn, Highlighter, HighlighterItem, Title } from "@site/src/components";
+import { Description, Highlighter, HighlighterItem, Title } from "@site/src/components";
 import { useWindowSize } from "@site/src/hooks/use-window-size";
-import { Theatre } from "@react-theater/scroll";
 import { getAnimationValue } from "@site/src/utils/animation";
 import Link from "@docusaurus/Link";
 import { ArrowRight } from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "@site/src/lib/utils";
+import { motion } from "motion/react";
 
 export const Cards = () => {
   const [width] = useWindowSize();
@@ -32,16 +32,21 @@ export const Cards = () => {
   }, [sidebar, columns]);
 
   return (
-    <Theatre>
+    <>
       <Highlighter className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3 mt-10">
         {list.slice(0, 9).map((item, index) => {
           return (
-            <FadeIn
+            <motion.div
               key={index}
-              start={0.05 + getAnimationValue(columns, 0.08, index)}
-              end={0.25 + getAnimationValue(columns, 0.08, index)}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.6,
+                delay: 0.05 + getAnimationValue(columns, 0.08, index),
+              }}
+              viewport={{ once: true }}
             >
-              <Link to={item.link.path} key={index} style={{ textDecoration: "none" }}>
+              <Link to={item.link.path} style={{ textDecoration: "none" }}>
                 <HighlighterItem
                   className={cn(
                     "relative bg-zinc-50 dark:bg-zinc-900/80 h-full z-20 overflow-hidden rounded-2xl",
@@ -72,7 +77,7 @@ export const Cards = () => {
                   </div>
                 </HighlighterItem>
               </Link>
-            </FadeIn>
+            </motion.div>
           );
         })}
       </Highlighter>
@@ -81,6 +86,6 @@ export const Cards = () => {
           View all integrations <ArrowRight className="w-5 h-5" />
         </Link>
       </div>
-    </Theatre>
+    </>
   );
 };

@@ -1,8 +1,9 @@
-import { Description, FadeIn, HighlighterItem, Title } from "@site/src/components";
+import { Description, HighlighterItem, Title } from "@site/src/components";
 import { cn } from "@site/src/lib/utils";
-import { getAnimationValue } from "@site/src/utils/animation";
 import { ArrowRight } from "lucide-react";
 import { ShineBorder } from "@site/src/components/ui/shine-beam";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export const SmallBlock = ({
   title,
@@ -17,12 +18,20 @@ export const SmallBlock = ({
   index?: number;
   promo?: boolean;
 }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
-    <FadeIn
+    <motion.div
+      ref={ref}
       className="w-full h-full overflow-hidden md:col-span-3"
-      start={0.05 + getAnimationValue(4, 0.05, index)}
-      end={0.2 + getAnimationValue(4, 0.05, index)}
-      translateY={40}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.1,
+        ease: "easeOut",
+      }}
     >
       <HighlighterItem className="h-full">
         {promo && <ShineBorder shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]} />}
@@ -51,6 +60,6 @@ export const SmallBlock = ({
           </div>
         </div>
       </HighlighterItem>
-    </FadeIn>
+    </motion.div>
   );
 };

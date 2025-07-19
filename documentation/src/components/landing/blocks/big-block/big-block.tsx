@@ -1,9 +1,16 @@
-import { Particles, FadeIn, HighlighterItem, Title, Description } from "@site/src/components";
+import { Particles, HighlighterItem, Title, Description } from "@site/src/components";
 import { cn } from "@site/src/lib/utils";
+import { motion } from "motion/react";
 
 export const BigBlock = ({ title, description, img }: { title: string; description: string; img: React.ReactNode }) => {
   return (
-    <FadeIn className="w-full overflow-hidden" start={0.2} end={0.5} translateY={40}>
+    <motion.div
+      className="w-full overflow-hidden"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
+    >
       <HighlighterItem>
         <div
           className={cn(
@@ -63,6 +70,6 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
           </div>
         </div>
       </HighlighterItem>
-    </FadeIn>
+    </motion.div>
   );
 };

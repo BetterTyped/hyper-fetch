@@ -28,7 +28,6 @@
     "@mdx-js/react": "^3.0.0",
     "@radix-ui/react-tabs": "^1.1.11",
     "@radix-ui/react-toast": "^1.2.13",
-    "@react-theater/scroll": "^1.0.0",
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.17.10",
     "@sapphire/docusaurus-plugin-npm2yarn2pnpm": "^2.0.2",

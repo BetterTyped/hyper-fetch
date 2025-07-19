@@ -1,6 +1,7 @@
-import { Description, FadeIn, HighlighterItem, Title } from "@site/src/components";
+import { Description, HighlighterItem, Title } from "@site/src/components";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@site/src/lib/utils";
+import { motion } from "motion/react";
 
 export const MediumBlock = ({
   img,
@@ -12,7 +13,13 @@ export const MediumBlock = ({
   description: string;
 }) => {
   return (
-    <FadeIn className="w-full h-full overflow-hidden" start={0.1} end={0.4} translateY={40}>
+    <motion.div
+      className="w-full h-full overflow-hidden"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
       <HighlighterItem>
         <div
           className={cn(
@@ -42,6 +49,6 @@ export const MediumBlock = ({
           </div>
         </div>
       </HighlighterItem>
-    </FadeIn>
+    </motion.div>
   );
 };
