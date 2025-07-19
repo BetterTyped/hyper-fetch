@@ -16,6 +16,7 @@ import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
 import { About } from "./about/about";
 import { Cookies } from "../cookies/cookies";
+import { CodePreview } from "./code/code";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -42,6 +43,7 @@ export const Landing = () => {
     <Layout title="Seamless Requests and Real-Time Connectivity" description={siteConfig.tagline}>
       <div className="relative z-10 w-[100vw] max-w-[100vw] overflow-x-hidden translate-y-[-88px]">
         <Hero />
+        <CodePreview />
         <Clients />
         <About />
         <Preview />
