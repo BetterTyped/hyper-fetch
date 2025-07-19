@@ -20,7 +20,7 @@ export const CodePreview = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl w-[calc(100%-40px)] mb-10">
+    <div className="mx-auto max-w-6xl w-[calc(100%-40px)] mb-10 -mt-10 md:mt-0 ">
       <div className="flex items-center justify-center relative">
         <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-yellow-500/10 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-yellow-500/10 blur-3xl -z-10 rounded-md" />
         <video
