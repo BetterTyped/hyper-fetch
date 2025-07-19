@@ -832,30 +832,26 @@ main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
   padding-left: 30px;
 }
 
+main .col:not(.col--3):not(.toc):not(.table-of-contents) ol {
+  list-style: none;
+  counter-reset: list-counter;
+}
+
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li {
   @apply relative mb-4 pl-3 text-lg;
-  list-style: decimal;
+  counter-increment: list-counter;
 }
 
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li::before {
   @apply absolute left-[-23px] top-[0.5px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li::marker {
-  @apply text-zinc-200 dark:text-zinc-400 text-sm;
-}
-
-/* h1 */
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h1:first-child)::marker {
-  @apply text-3xl;
+  @apply flex items-center justify-center text-zinc-200 dark:text-zinc-400 text-sm;
+  content: counter(list-counter) ".";
 }
 /* h2 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h2:first-child)::before {
   @apply absolute left-[-36px] top-[10px] w-[40px] h-[40px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h2:first-child)::marker {
   @apply text-2xl;
+  content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h2:first-child {
   @apply translate-y-[3px];
@@ -863,10 +859,8 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h
 /* h3 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h3:first-child)::before {
   @apply absolute left-[-31px] top-[1.5px] w-[35px] h-[35px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h3:first-child)::marker {
   @apply text-xl;
+  content: "";
 }
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h3:first-child {
   @apply translate-y-[2px];
@@ -875,27 +869,21 @@ main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li > h
 /* h4 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h4:first-child)::before {
   @apply absolute left-[-27px] top-[0px] w-[30px] h-[30px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h4:first-child)::marker {
   @apply text-lg;
+  content: "";
 }
 /* h5 */
 
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h5:first-child)::before {
   @apply absolute left-[-25px] top-[0px] w-[28px] h-[28px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h5:first-child)::marker {
   @apply text-base;
+  content: "";
 }
 /* h6 */
 main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) > li:has(> h6:first-child)::before {
   @apply absolute left-[-23px] top-[-1px] w-[26px] h-[26px] rounded-full z-[-1] bg-zinc-200 dark:bg-zinc-700;
-  content: "";
-}
-main .col:not(.col--3) ol:not(.toc):not(.toaster):not(.table-of-contents) li:has(> h6:first-child)::marker {
   @apply text-sm;
+  content: "";
 }
 
 /* else */
