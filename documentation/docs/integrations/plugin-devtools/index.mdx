@@ -29,7 +29,7 @@ requests and responses, inspect and modify cache and to control the requests.
 Install the ESLint plugin using npm or yarn:
 
 ```bash npm2yarn2pnpm
-npm install @hyper-fetch/devtools-plugin
+npm install @hyper-fetch/plugin-devtools
 ```
 
 ---
@@ -41,7 +41,7 @@ Import the plugin and use it in your application:
 (@import plugin-devtools DevtoolsPlugin type=import)
 
 ```tsx
-import { DevtoolsPlugin } from "@hyper-fetch/devtools-plugin";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
 const client = new Client({ url: "http://localhost:3000" }).addPlugin(
   DevtoolsPlugin({
