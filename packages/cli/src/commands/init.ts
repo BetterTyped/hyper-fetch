@@ -1,8 +1,8 @@
 import { Command } from "commander";
 import { input, select } from "@inquirer/prompts";
 import { z } from "zod";
-import path from "path";
-import { existsSync, mkdir, readFileSync, writeFile } from "fs-extra";
+import * as path from "node:path";
+import * as fs from "fs-extra";
 
 import { handleError } from "../utils/handle-error";
 import { spinner } from "../utils/spinner";
@@ -103,16 +103,16 @@ export const init = new Command()
         {
           name: `Initialize API directory at ${relativePath}`,
           action: async () => {
-            if (!existsSync(fullPath)) {
-              await mkdir(fullPath, { recursive: true });
+            if (!fs.existsSync(fullPath)) {
+              await fs.mkdir(fullPath, { recursive: true });
             }
           },
         },
         {
           name: "Setup configuration",
           action: async (currentConfig) => {
-            if (existsSync(configPath)) {
-              const existingConfig = JSON.parse(readFileSync(configPath, "utf8"));
+            if (fs.existsSync(configPath)) {
+              const existingConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
               const { success, error, data } = configSchema.omit({ resolvedPaths: true }).safeParse({
                 ...defaultConfig,
                 ...existingConfig,
@@ -163,7 +163,7 @@ export const init = new Command()
 
             configSchema.omit({ resolvedPaths: true }).parse(finalConfig);
 
-            await writeFile(configPath, JSON.stringify(finalConfig, null, 2));
+            await fs.writeFile(configPath, JSON.stringify(finalConfig, null, 2));
           },
         },
       ];

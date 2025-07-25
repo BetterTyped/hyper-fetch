@@ -1,10 +1,10 @@
-import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
+import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator.js";
 import RefParser from "@apidevtools/json-schema-ref-parser";
-import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
-import { find, chain, isEmpty } from "lodash";
+import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type.js";
+import * as lodash from "lodash";
 import * as prettier from "prettier";
 import * as fs from "fs-extra";
-import * as path from "path";
+import * as path from "node:path";
 import { createClient } from "@hyper-fetch/core";
 
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
@@ -239,18 +239,22 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
   ) {
     const { operationId, method, path: relPath } = operation;
     const normalizedOperationId = normalizeOperationId(operationId);
-    const pathParametersType = find(exportTypes, {
+    const pathParametersType = lodash.find(exportTypes, {
       schemaRef: `#/paths/${normalizedOperationId}/pathParameters`,
     })?.path;
-    const queryParametersType = find(exportTypes, {
+    const queryParametersType = lodash.find(exportTypes, {
       schemaRef: `#/paths/${normalizedOperationId}/queryParameters`,
     })?.path;
-    const requestBodyType = find(exportTypes, { schemaRef: `#/paths/${normalizedOperationId}/requestBody` })?.path;
-    const responseTypePaths = chain(exportTypes)
+    const requestBodyType = lodash.find(exportTypes, {
+      schemaRef: `#/paths/${normalizedOperationId}/requestBody`,
+    })?.path;
+    const responseTypePaths = lodash
+      .chain(exportTypes)
       .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/2`))
       .map(({ path: responsePath }) => responsePath)
       .value();
-    const errorTypePaths = chain(exportTypes)
+    const errorTypePaths = lodash
+      .chain(exportTypes)
       .filter(
         ({ schemaRef }) =>
           schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) ||
@@ -259,8 +263,8 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
       .map(({ path: errorPath }) => errorPath)
       .value();
 
-    const responseType = !isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
-    const errorType = !isEmpty(errorTypePaths) ? errorTypePaths.join(" | ") : "undefined";
+    const responseType = !lodash.isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
+    const errorType = !lodash.isEmpty(errorTypePaths) ? errorTypePaths.join(" | ") : "undefined";
 
     return {
       id: normalizedOperationId,

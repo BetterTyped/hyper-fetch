@@ -10,8 +10,8 @@
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "cli": "src/cli/index.ts",
-  "climain": "dist/cli.cjs.js",
-  "bin": "dist/cli.cjs.js",
+  "climain": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "clean": "npx rimraf dist",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest --watchAll --maxWorkers=3 --forceExit",
@@ -40,7 +40,7 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "dependencies": {
-    "@anttiviljami/dtsgenerator": "^3.12.2",
+    "@anttiviljami/dtsgenerator": "^3.20.0",
     "@apidevtools/json-schema-ref-parser": "^11.9.3",
     "@hyper-fetch/core": "*",
     "@inquirer/prompts": "^7.6.0",

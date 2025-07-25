@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs-extra";
+import * as path from "node:path";
+import * as fs from "fs-extra";
 import { z } from "zod";
 
 import { addOptionsSchema } from "commands/add";
