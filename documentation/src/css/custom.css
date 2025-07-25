@@ -1868,17 +1868,17 @@ aside {
   font-size: 14px;
 }
 
-body.dark {
+body {
   --text-primary: #fff;
-  --text-secondary: #1c1c1d;
-  --background: var(--text-secondary);
+  --text-secondary: #656565;
+  --background: #1c1c1d;
 }
 
-body:not(.dark) {
+/* body:not(.dark) {
   --text-primary: #1c1c1d;
   --text-secondary: #fff;
   --background: var(--text-secondary);
-}
+} */
 
 body {
   margin: 0;

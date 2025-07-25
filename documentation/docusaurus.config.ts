@@ -39,7 +39,7 @@ const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "hyper-flow", "cli", "testing"].includes(p))
+    .filter((p) => ![".DS_Store", "hyper-flow", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });
@@ -109,12 +109,7 @@ const config: Config = {
     locales: ["en"],
   },
 
-  scripts: [
-    {
-      src: "/js/theme.js",
-      async: false,
-    },
-  ],
+  scripts: [],
 
   headTags: [
     {
@@ -163,6 +158,8 @@ const config: Config = {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
           // Appends TailwindCSS and AutoPrefixer.
+          // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+          postcssOptions.plugins.push(require("postcss-import"));
           // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
           postcssOptions.plugins.push(require("tailwindcss"));
           // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require

@@ -6,6 +6,7 @@ module.exports = {
     "./docusaurus.config.ts",
   ],
   darkMode: ["class", '[data-theme="dark"]'],
+  corePlugins: { preflight: false },
   theme: {
     extend: {
       fontSize: {
