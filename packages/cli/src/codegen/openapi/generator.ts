@@ -1,6 +1,6 @@
-import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator.js";
+import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
 import RefParser from "@apidevtools/json-schema-ref-parser";
-import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type.js";
+import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
 import * as lodash from "lodash";
 import * as prettier from "prettier";
 import * as fs from "fs-extra";
