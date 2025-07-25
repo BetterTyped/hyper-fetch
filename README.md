@@ -60,24 +60,24 @@ all while facilitating **real-time data exchange**.
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/basics/setup)
 
-🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
+🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/advanced/cancellation)
 
 ✨ **Deduplicate similar requests** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/core/advanced/deduplication)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/advanced/queueing)
 
 💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/advanced/offline)
 
 📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/basics/authentication)
 
-🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
+🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/core/basics/retries/)
 
 ## Help me keep working on this project ❤️
 
