@@ -90,28 +90,49 @@ const MessageComponent: React.FC = () => {
 To handle side effects such as notifications, logging, or triggering other actions, `useEmitter` provides a set of event
 handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
 
-1.  `onEvent`: Fires before we send event message.
-2.  `onError`: Fires when an error occurs.
-3.  `onReconnecting`: Fires when the socket is attempting to reconnect.
+1.  `onEmit`: Fires before we send event message.
+2.  `onEmitError`: Fires when an error occurs during the emission.
+3.  `onConnected`: Fires when the socket connection is successfully opened.
+4.  `onDisconnected`: Fires when the socket connection is closed.
+5.  `onConnecting`: Fires when the socket is connecting.
+6.  `onReconnecting`: Fires when the socket is attempting to reconnect.
+7.  `onReconnectingFailed`: Fires when the socket fails to reconnect.
 
 ```tsx
 import { useEmitter } from "@hyper-fetch/react";
 import { emitMessage } from "./api";
 
 const MessageComponent: React.FC = () => {
-  const { emit, onEvent, onError, onReconnecting } = useEmitter(emitMessage);
+  const { emit, onEmit, onEmitError, onConnected, onDisconnected, onConnecting, onReconnecting, onReconnectingFailed } =
+    useEmitter(emitMessage);
 
-  onEvent((emitter) => {
+  onEmit((emitter) => {
     // Event before we send event message
     console.log(emitter); // Emitter instance
   });
 
-  onError((error) => {
+  onEmitError((error) => {
     console.log(error); // Error Event
   });
 
-  onReconnecting((reconnectingAttempt) => {
-    console.log(reconnectingAttempt); // 1
+  onConnected(() => {
+    toast({ type: "info", message: "Socket connection opened." });
+  });
+
+  onDisconnected(() => {
+    toast({ type: "warning", message: "Socket connection closed." });
+  });
+
+  onConnecting(() => {
+    toast({ type: "info", message: "Socket is connecting." });
+  });
+
+  onReconnecting(({ attempts }) => {
+    toast({ type: "warning", message: `Reconnecting... (attempt ${attempts})` });
+  });
+
+  onReconnectingFailed(({ attempts }) => {
+    toast({ type: "error", message: `Reconnecting failed after ${attempts} attempts.` });
   });
 
   // ...

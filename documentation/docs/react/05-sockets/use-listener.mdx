@@ -44,7 +44,7 @@ export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
 Now, use it in your component to listen for new messages. The `onEvent` helper hook lets you react to incoming data and
 update your component's state.
 
-```tsx live title="Listening to chat messages"
+```tsx title="Listening to chat messages"
 import { useListener } from "@hyper-fetch/react";
 import { onChatMessage } from "./api/socket";
 
@@ -87,17 +87,20 @@ cluttering your component's rendering logic.
 
 1.  **`onEvent`**: Fires whenever a new event is received from the server.
 2.  **`onError`**: Fires when a connection or subscription error occurs.
-3.  **`onOpen`**: Fires when the socket connection is successfully opened.
-4.  **`onClose`**: Fires when the socket connection is closed.
-5.  **`onReconnecting`**: Fires when the socket is attempting to reconnect.
+3.  **`onConnected`**: Fires when the socket connection is successfully opened.
+4.  **`onDisconnected`**: Fires when the socket connection is closed.
+5.  **`onConnecting`**: Fires when the socket is connecting.
+6.  **`onReconnecting`**: Fires when the socket is attempting to reconnect.
+7.  **`onReconnectingFailed`**: Fires when the socket fails to reconnect.
 
-```tsx live title="Using event handlers"
+```tsx title="Using event handlers"
 import { useListener } from "@hyper-fetch/react";
 import { onChatMessage } from "./api/socket";
 
 function App() {
   const [messages, setMessages] = useState([]);
-  const { onEvent, onError, onOpen, onClose, onReconnecting } = useListener(onChatMessage);
+  const { onEvent, onError, onConnected, onDisconnected, onConnecting, onReconnecting, onReconnectingFailed } =
+    useListener(onChatMessage);
 
   onEvent(({ data: message }) => {
     toast({ type: "success", message: `New message: ${message.text}` });
@@ -108,16 +111,24 @@ function App() {
     toast({ type: "error", message: `Connection error: ${error.message}` });
   });
 
-  onOpen(() => {
+  onConnected(() => {
     toast({ type: "info", message: "Socket connection opened." });
   });
 
-  onClose(() => {
+  onDisconnected(() => {
     toast({ type: "warning", message: "Socket connection closed." });
   });
 
-  onReconnecting((attempt) => {
-    toast({ type: "warning", message: `Reconnecting... (attempt ${attempt})` });
+  onConnecting(() => {
+    toast({ type: "info", message: "Socket is connecting." });
+  });
+
+  onReconnecting(({ attempts }) => {
+    toast({ type: "warning", message: `Reconnecting... (attempt ${attempts})` });
+  });
+
+  onReconnectingFailed(({ attempts }) => {
+    toast({ type: "error", message: `Reconnecting failed after ${attempts} attempts.` });
   });
 
   return (
