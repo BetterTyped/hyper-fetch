@@ -119,9 +119,9 @@ All React hooks (`useFetch`, `useSubmit`, etc.) have been updated to align with 
 improvement, TypeScript will now raise an error if you attempt to dispatch a request without setting all required
 parameters (e.g., URL params, payload), preventing runtime errors.
 
-### Provider Renamed: `<ConfigProvider />` → `<HyperFetchProvider />`
+### Provider Renamed: `<ConfigProvider />` → `<Provider />`
 
-For better clarity and naming consistency, the `<ConfigProvider />` has been renamed to `<HyperFetchProvider />`. You'll
+For better clarity and naming consistency, the `<ConfigProvider />` has been renamed to `<Provider />`. You'll
 need to update this in your application's component tree.
 
 ```tsx
@@ -135,10 +135,10 @@ const App = () => {
 // code-editor-split
 
 // Now
-import { HyperFetchProvider } from "@hyper-fetch/react";
+import { Provider } from "@hyper-fetch/react";
 
 const App = () => {
-  return <HyperFetchProvider>...</HyperFetchProvider>;
+  return <Provider>...</Provider>;
 };
 ```
 
