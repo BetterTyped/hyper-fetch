@@ -14,7 +14,7 @@ page. Hyper-fetch provides a simple and efficient way to achieve this with the `
 1.  How to **automatically refresh** data at a set interval.
 2.  How to use the **`refresh`** and **`refreshTime`** options in `useFetch`.
 3.  How to create a **live-updating component** to display fresh data.
-4.  How to use **`DateInterval`** for clear and readable time definitions.
+4.  How to use **`Time`** enum for clear and readable time definitions.
 
 :::
 
@@ -27,13 +27,15 @@ You can turn any `useFetch` hook into a polling mechanism by setting the `refres
 {/* We'll also display a "Last Updated" timestamp to show the refresh in action. */}
 
 ```tsx
+import { Time } from "@hyper-fetch/core"
+
 function LiveActivityFeed() {
   const [lastUpdated, setLastUpdated] = React.useState(new Date());
 
   // highlight-start
   const { data: activities, loading } = useFetch(getActivities, {
     refresh: true,
-    refreshTime: DateInterval.second * 5,
+    refreshTime: Time.second * 5,
     onSuccess: () => {
       setLastUpdated(new Date());
     },
@@ -65,8 +67,8 @@ function LiveActivityFeed() {
 ### How It Works
 
 1.  **`refresh: true`**: This option enables the auto-refreshing feature for the hook.
-2.  **`refreshTime: DateInterval.second * 5`**: This sets the polling interval. We specify that the data should be
-    re-fetched every 5000 milliseconds (5 seconds). Using the `DateInterval` enum from `@hyper-fetch/core` makes the
+2.  **`refreshTime: Time.second * 5`**: This sets the polling interval. We specify that the data should be
+    re-fetched every 5000 milliseconds (5 seconds). Using the `Time` enum from `@hyper-fetch/core` makes the
     time definition more readable than just `5000`.
 3.  **`onSuccess` callback**: We use the `onSuccess` callback to update a `lastUpdated` state variable every time a
     successful refresh occurs. This allows us to give visual feedback to the user that the data is fresh.
@@ -84,6 +86,6 @@ You've learned how to keep your application's data fresh with auto-refreshing!
 - You can enable **automatic polling** for any `useFetch` hook.
 - You know how to configure the **refresh interval** using `refreshTime`.
 - You can provide **visual feedback** to users to show when data was last updated.
-- You can use the helpful **`DateInterval`** enum for readable time values.
+- You can use the helpful **`Time`** enum for readable time values.
 
 :::

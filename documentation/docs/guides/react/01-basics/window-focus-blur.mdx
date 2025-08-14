@@ -27,10 +27,11 @@ then try interacting with the browser window (e.g., switch to another tab and co
 tools to simulate being offline and online.
 
 ```tsx
+import { Time } from "@hyper-fetch/core"
 function WindowEventsDemo() {
   const [options, setOptions] = React.useState({
     refresh: true,
-    refreshTime: DateInterval.second * 5,
+    refreshTime: Time.second * 5,
     refreshOnFocus: true,
     refreshOnBlur: false,
     refreshOnReconnect: true,

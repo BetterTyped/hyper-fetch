@@ -8,7 +8,7 @@ const ConfigContext = React.createContext<ProviderValueType>({
 });
 
 /**
- * Context provider with configuration for hooks
+ * Provider with configuration for hooks
  * @param options
  * @returns
  */
