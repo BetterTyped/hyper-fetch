@@ -25,10 +25,12 @@ export function handleError(error: unknown) {
   }
 
   if (error instanceof Error) {
-    logger.error(error?.message || JSON.stringify({ error }));
+    logger.error(error.message);
     logger.break();
     process.exit(1);
   }
+
+  logger.error(JSON.stringify({ error }));
 
   logger.break();
   process.exit(1);
