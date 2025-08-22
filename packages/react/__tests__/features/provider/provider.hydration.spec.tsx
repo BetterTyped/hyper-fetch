@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { HttpAdapterExtraType, Client } from "@hyper-fetch/core";
 import { render, waitFor } from "@testing-library/react";
 
-import { UseFetchRequest, UseFetchReturnType, useFetch } from "hooks/use-fetch";
+import { UseFetchReturnType, useFetch } from "hooks/use-fetch";
 import { UseSubmitReturnType, useSubmit } from "hooks/use-submit";
 import { Provider } from "provider";
 
@@ -118,7 +118,7 @@ describe("Provider [ Hydration ]", () => {
   describe("given app is rendered on the Client", () => {
     describe("when hydration data is passed down to the Provider", () => {
       it("should hydrate the data for useFetch hook", async () => {
-        let useFetchResults: UseFetchReturnType<UseFetchRequest<typeof request>> | undefined;
+        let useFetchResults: UseFetchReturnType<typeof request> | undefined;
         hydrate();
         const Children = () => {
           useFetchResults = useFetch(request);

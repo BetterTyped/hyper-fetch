@@ -1,27 +1,18 @@
-import {
-  RequestInstance,
-  NullableType,
-  ExtractAdapterResolvedType,
-  ExtendRequest,
-  EmptyTypes,
-  ExtractPayloadType,
-  ExtractParamsType,
-  ExtractQueryParamsType,
-} from "@hyper-fetch/core";
+import { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { isEqual } from "utils";
 
-export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
-  R,
-  {
-    hasData: ExtractPayloadType<R> extends EmptyTypes ? boolean : true;
-    hasParams: ExtractParamsType<R> extends EmptyTypes ? boolean : true;
-    hasQuery: ExtractQueryParamsType<R> extends EmptyTypes ? boolean : true;
-  }
->;
+// export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
+//   R,
+//   {
+//     hasData: ExtractPayloadType<R> extends EmptyTypes ? boolean : true;
+//     hasParams: ExtractParamsType<R> extends EmptyTypes ? boolean : true;
+//     hasQuery: ExtractQueryParamsType<R> extends EmptyTypes ? boolean : true;
+//   }
+// >;
 
-export type UseFetchRequest<R extends RequestInstance> = R extends UseFetchCastRequest<R> ? R : UseFetchCastRequest<R>;
+// export type UseFetchRequest<R extends RequestInstance> = R extends UseFetchCastRequest<R> ? R : UseFetchCastRequest<R>;
 
 export type UseFetchOptionsType<R extends RequestInstance> = {
   /**

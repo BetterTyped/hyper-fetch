@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ExtractAdapterResolvedType, RequestInstance } from "@hyper-fetch/core";
-import { UseFetchRequest, useFetch } from "@hyper-fetch/react";
+import { useFetch } from "@hyper-fetch/react";
 import { Stack, Button } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -14,7 +14,7 @@ import { Request } from "../../components/request";
 import { getUser } from "../../api";
 
 export const ClientComponents: React.FC<{
-  fallback: Partial<ExtractAdapterResolvedType<UseFetchRequest<RequestInstance>>>;
+  fallback: Partial<ExtractAdapterResolvedType<RequestInstance>>;
 }> = (props) => {
   const [dep, setDep] = useState(+new Date());
   const [disabled, setDisabled] = useState(true);

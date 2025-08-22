@@ -9,7 +9,7 @@ import {
 import { useRef } from "react";
 
 import { useRequestEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
 import { useProvider } from "provider";
 import { getBounceData } from "utils";
 
@@ -20,7 +20,7 @@ import { getBounceData } from "utils";
  * @returns
  */
 export const useFetch = <R extends RequestInstance>(
-  request: UseFetchRequest<R>,
+  request: R,
   options?: UseFetchOptionsType<R>,
 ): UseFetchReturnType<R> => {
   // Build the configuration options

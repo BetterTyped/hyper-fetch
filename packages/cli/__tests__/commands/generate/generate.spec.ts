@@ -1,11 +1,11 @@
+import * as fs from "fs-extra";
 import { jest } from "@jest/globals";
+import { input, select, confirm } from "@inquirer/prompts";
 
 import { generate } from "commands/generate";
 import { handleError } from "utils/handle-error";
 import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegen/openapi/generator";
-import { input, select, confirm } from "@inquirer/prompts";
-import * as fs from "fs-extra";
 
 // Mocks
 jest.mock("utils/handle-error", () => ({ handleError: jest.fn() }));
@@ -23,7 +23,6 @@ jest.mock("codegen/openapi/generator", () => {
   class FakeGenerator {
     static getSchemaFromUrl = jest.fn(async () => ({ openapi: "3.0.0", paths: {} }));
     generateFile = jest.fn(async () => undefined);
-    constructor() {}
   }
   return { OpenapiRequestGenerator: FakeGenerator };
 });
