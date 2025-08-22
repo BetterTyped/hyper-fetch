@@ -16,14 +16,14 @@ jest.mock("preflights/preflight-generate", () => {
     resolvedPaths: { cwd: "/tmp", api: "/tmp", hooks: "/tmp", ui: "/tmp", components: "/tmp", lib: "/tmp" },
   };
   return {
-    preFlightGenerate: jest.fn(async (_opts: unknown) => ({ errors: {}, config: fakeConfig })),
+    preFlightGenerate: jest.fn(async () => ({ errors: {}, config: fakeConfig })),
   };
 });
 jest.mock("codegen/openapi/generator", () => {
   class FakeGenerator {
-    static getSchemaFromUrl = jest.fn(async (_opts: unknown) => ({ openapi: "3.0.0", paths: {} }));
-    generateFile = jest.fn(async (_opts: unknown) => undefined);
-    constructor(_schema: unknown) {}
+    static getSchemaFromUrl = jest.fn(async () => ({ openapi: "3.0.0", paths: {} }));
+    generateFile = jest.fn(async () => undefined);
+    constructor() {}
   }
   return { OpenapiRequestGenerator: FakeGenerator };
 });
