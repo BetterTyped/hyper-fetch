@@ -138,7 +138,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
   };
 
   static generateRequestInstanceType(
-    { id, path: endpoint }: { id: string; path: string },
+    { id, path: endpoint, queryParamsRequired }: { id: string; path: string; queryParamsRequired?: boolean },
     types: Record<string, string>,
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
@@ -150,11 +150,19 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
       ? `${createTypeBaseName(id)}QueryParams`
       : undefined;
 
-    return `Request<${Response}, ${Payload}, ${QueryParams}, ${LocalError}, "${endpoint}", Client>`;
+    const QueryParamsGeneric =
+      QueryParams && queryParamsRequired === false ? `${QueryParams} | undefined` : QueryParams;
+
+    return `Request<${Response}, ${Payload}, ${QueryParamsGeneric}, ${LocalError}, "${endpoint}", Client>`;
   }
 
   static generateHyperFetchRequest(
-    { id, path: relPath, method }: { id: string; path: string; method: string },
+    {
+      id,
+      path: relPath,
+      method,
+      queryParamsRequired,
+    }: { id: string; path: string; method: string; queryParamsRequired?: boolean },
     types: Record<string, string>,
   ) {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
@@ -186,7 +194,8 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
       addToGenericType("error", LocalError);
     }
     if (QueryParams) {
-      addToGenericType("query", QueryParams);
+      const key = queryParamsRequired === false ? "queryParams?" : "queryParams";
+      addToGenericType(key, QueryParams);
     }
 
     if (genericType) {
@@ -265,6 +274,14 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
 
     const responseType = !lodash.isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
     const errorType = !lodash.isEmpty(errorTypePaths) ? errorTypePaths.join(" | ") : "undefined";
+    const queryParamsRequired = Array.isArray(operation.parameters)
+      ? operation.parameters.every((p) => {
+          if ("in" in p && p.in === "query" && p.required === false) {
+            return true;
+          }
+          return false;
+        })
+      : undefined;
 
     return {
       id: normalizedOperationId,
@@ -275,6 +292,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client) => {
       responseType,
       path: adjustPathParamsFormat(relPath),
       method: method ? method.toUpperCase() : HttpMethod.GET,
+      queryParamsRequired,
     };
   }
 
