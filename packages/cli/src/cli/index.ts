@@ -5,6 +5,7 @@ import { select } from "@inquirer/prompts";
 import pkg from "../../package.json";
 import { generate } from "commands/generate";
 import { init } from "commands/init";
+import { handleError } from "utils/handle-error";
 
 const program = new Command();
 
@@ -47,6 +48,7 @@ const main = async () => {
         process.exit(0);
       }
     }
+    handleError(e);
     process.exit(1);
   }
 };
