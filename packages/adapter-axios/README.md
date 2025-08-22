@@ -13,9 +13,6 @@
   <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
     <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51" />
   </a>
-  <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
-    <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
-  </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
