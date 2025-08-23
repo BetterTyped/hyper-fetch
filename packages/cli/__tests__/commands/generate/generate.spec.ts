@@ -32,7 +32,6 @@ jest.mock("utils/spinner", () => ({
   })),
 }));
 jest.mock("utils/logger", () => ({ logger: { info: jest.fn(), error: jest.fn(), log: jest.fn() } }));
-jest.mock("fs-extra", () => ({ existsSync: jest.fn(() => false) }));
 jest.mock("@inquirer/prompts", () => ({
   input: jest.fn(),
   select: jest.fn(),
@@ -55,8 +54,6 @@ describe("cli generate command", () => {
   });
 
   it("bypasses prompts and generates when params are provided", async () => {
-    (fs.existsSync as jest.Mock).mockReturnValue(false);
-
     process.argv = [
       "/usr/local/bin/node",
       "cli",
@@ -85,8 +82,6 @@ describe("cli generate command", () => {
   });
 
   it("handles invalid params by displaying error", async () => {
-    (fs.existsSync as jest.Mock).mockReturnValue(false);
-
     process.argv = [
       "/usr/local/bin/node",
       "cli",
