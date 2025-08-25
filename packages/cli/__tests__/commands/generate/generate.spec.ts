@@ -1,4 +1,3 @@
-import * as fs from "fs-extra";
 import { jest } from "@jest/globals";
 import { input, select, confirm } from "@inquirer/prompts";
 
