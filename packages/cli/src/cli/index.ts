@@ -43,12 +43,12 @@ const main = async () => {
 
     await program.parseAsync([process.argv[0], process.argv[1], chosenCommand]);
   } catch (e) {
+    handleError(e);
     if (e instanceof Error) {
       if (e.message.includes("User force closed the prompt")) {
         process.exit(0);
       }
     }
-    handleError(e);
     process.exit(1);
   }
 };
