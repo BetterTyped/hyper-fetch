@@ -41,7 +41,7 @@ const main = async () => {
       });
       await program.parseAsync([process.argv[0], process.argv[1], chosenCommand]);
     } else {
-      await program.parseAsync(process.argv);
+      await program.parseAsync([process.argv[0], process.argv[1], chosenCommand, ...process.argv.slice(3)]);
     }
   } catch (e) {
     handleError(e);
