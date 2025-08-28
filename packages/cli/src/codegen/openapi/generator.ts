@@ -164,8 +164,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
       ? `${createTypeBaseName(id)}QueryParams`
       : undefined;
 
-    const QueryParamsGeneric =
-      QueryParams && queryParamsRequired === false ? `${QueryParams} | undefined` : QueryParams;
+    const QueryParamsGeneric = QueryParams && !queryParamsRequired ? `${QueryParams} | undefined` : QueryParams;
 
     return `Request<${Response}, ${Payload}, ${QueryParamsGeneric}, ${LocalError}, "${endpoint}", Client>`;
   }
@@ -208,7 +207,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
       addToGenericType("error", LocalError);
     }
     if (QueryParams) {
-      const key = queryParamsRequired === false ? "queryParams?" : "queryParams";
+      const key = !queryParamsRequired ? "queryParams?" : "queryParams";
       addToGenericType(key, QueryParams);
     }
 
@@ -289,13 +288,10 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
     const responseType = !lodash.isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
     const errorType = !lodash.isEmpty(errorTypePaths) ? errorTypePaths.join(" | ") : "undefined";
     const queryParamsRequired = Array.isArray(operation.parameters)
-      ? operation.parameters.every((p) => {
-          if ("in" in p && p.in === "query" && p.required === false) {
-            return true;
-          }
-          return false;
+      ? operation.parameters.some((p) => {
+          return "in" in p && p.in === "query" && p.required === true;
         })
-      : undefined;
+      : false;
 
     return {
       id: normalizedOperationId,
