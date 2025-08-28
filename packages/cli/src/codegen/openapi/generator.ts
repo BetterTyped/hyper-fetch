@@ -85,11 +85,14 @@ export class OpenapiRequestGenerator {
 
   static getSchemaFromUrl = async ({ url, config }: { url: string; config: Config }) => {
     if (isUrl(url)) {
-      const client = createClient({ url });
+      const client = createClient<{ error: { code?: string; message: string } }>({ url });
       const getSchema = client.createRequest<{ response: Document }>()({ endpoint: "" });
       const { data, error } = await getSchema.send();
       if (data) {
         return data;
+      }
+      if (error?.code === "ECONNREFUSED") {
+        throw new Error(`Cannot reach the server: ${url}`);
       }
       throw error || new Error("Failed to fetch schema");
     }
