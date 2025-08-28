@@ -39,9 +39,10 @@ const main = async () => {
           description: cmd.description(),
         })),
       });
+      await program.parseAsync([process.argv[0], process.argv[1], chosenCommand]);
+    } else {
+      await program.parseAsync(process.argv);
     }
-
-    await program.parseAsync([process.argv[0], process.argv[1], chosenCommand]);
   } catch (e) {
     handleError(e);
     if (e instanceof Error) {

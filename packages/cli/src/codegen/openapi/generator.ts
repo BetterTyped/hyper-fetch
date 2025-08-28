@@ -117,20 +117,34 @@ export class OpenapiRequestGenerator {
       let currentLevel = schemaTree;
       // eslint-disable-next-line no-restricted-syntax
       for (const segment of segments) {
-        const key = segment.startsWith(":") ? `$${segment.slice(1)}` : segment;
+        let key: string;
+        if (segment.startsWith(":")) {
+          // Parameter segment - keep the $ prefix
+          key = `$${segment.slice(1)}`;
+        } else if (segment.includes("-")) {
+          // Convert kebab-case to camelCase for path segments
+          key = segment.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+        } else {
+          key = segment;
+        }
+
         if (!currentLevel[key]) {
           currentLevel[key] = {};
         }
         currentLevel = currentLevel[key];
       }
-      currentLevel[method.toLowerCase()] = requestInstanceType;
+      // Prefix method names with $
+      currentLevel[`$${method.toLowerCase()}`] = requestInstanceType;
     });
 
     const sdkSchema = `export type SdkSchema<Client extends ClientInstance> = {\n${formatSchema(schemaTree)}\n}`;
 
     const createSdkFn = `
-export const createSdk = <Client extends ClientInstance>(client: Client) => {
-  return coreCreateSdk<Client, SdkSchema<Client>>(client);
+
+export type { Components };
+
+export const createSdk = <Client extends ClientInstance>(client: Client, options?: Parameters<typeof coreCreateSdk>[1] | undefined) => {
+  return coreCreateSdk<Client, SdkSchema<Client>>(client, options);
 };
 `;
 

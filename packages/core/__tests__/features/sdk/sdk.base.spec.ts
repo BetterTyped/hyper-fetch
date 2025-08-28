@@ -11,25 +11,25 @@ type TestClient = Client<Error, HttpAdapterType>;
 
 type TestSchema = {
   users: {
-    get: RequestInstance<{
+    $get: RequestInstance<{
       client: TestClient;
       queryParams: { page: number; limit: number };
       endpoint: "/users";
     }>;
     $userId: {
-      get: RequestInstance<{
+      $get: RequestInstance<{
         client: TestClient;
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
-      delete: RequestInstance<{
+      $delete: RequestInstance<{
         client: TestClient;
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
       posts: {
         $postId: {
-          delete: RequestInstance<{
+          $delete: RequestInstance<{
             client: TestClient;
             response: { id: string; title: string };
             endpoint: "/users/:userId/posts/:postId";
@@ -37,6 +37,12 @@ type TestSchema = {
         };
       };
     };
+  };
+  acceptInvitation: {
+    $post: RequestInstance<{
+      client: TestClient;
+      endpoint: "/accept-invitation";
+    }>;
   };
 };
 
@@ -60,7 +66,7 @@ describe("SDK [ Base ]", () => {
     const sdk = createSdk<TestClient, TestSchema>(client);
     expect(sdk).toBeDefined();
 
-    const request = sdk.users.$userId.get;
+    const request = sdk.users.$userId.$get;
 
     expect(request).toBeInstanceOf(Request);
     expect(request.method).toBe("GET");
@@ -71,7 +77,7 @@ describe("SDK [ Base ]", () => {
     const sdk = createSdk<TestClient, TestSchema>(client);
     expect(sdk).toBeDefined();
 
-    const request = sdk.users.$userId.posts.$postId.delete;
+    const request = sdk.users.$userId.posts.$postId.$delete;
 
     expect(request).toBeInstanceOf(Request);
     expect(request.method).toBe("DELETE");
@@ -82,7 +88,7 @@ describe("SDK [ Base ]", () => {
     const sdk = createSdk<TestClient, TestSchema>(client);
     expect(sdk).toBeDefined();
 
-    const request = sdk.users.$userId.get.setParams({ userId: "1" });
+    const request = sdk.users.$userId.$get.setParams({ userId: "1" });
 
     expect(request).toBeInstanceOf(Request);
     expect(request.endpoint).toBe("/users/1");
@@ -93,10 +99,32 @@ describe("SDK [ Base ]", () => {
     const sdk = createSdk<TestClient, TestSchema>(client);
     expect(sdk).toBeDefined();
 
-    const request = sdk.users.$userId.posts.$postId.delete.setParams({ userId: "1", postId: "2" });
+    const request = sdk.users.$userId.posts.$postId.$delete.setParams({ userId: "1", postId: "2" });
 
     expect(request).toBeInstanceOf(Request);
     expect(request.endpoint).toBe("/users/1/posts/2");
     expect(request.params).toEqual({ userId: "1", postId: "2" });
+  });
+
+  it("should handle kebab-case to camelCase conversion", () => {
+    const sdk = createSdk<TestClient, TestSchema>(client, { camelCaseToKebabCase: true });
+    expect(sdk).toBeDefined();
+
+    const request = sdk.acceptInvitation.$post;
+
+    expect(request).toBeInstanceOf(Request);
+    expect(request.method).toBe("POST");
+    expect(request.endpoint).toBe("/accept-invitation");
+  });
+
+  it("should not handle kebab-case to camelCase conversion", () => {
+    const sdk = createSdk<TestClient, TestSchema>(client, { camelCaseToKebabCase: false });
+    expect(sdk).toBeDefined();
+
+    const request = sdk.acceptInvitation.$post;
+
+    expect(request).toBeInstanceOf(Request);
+    expect(request.method).toBe("POST");
+    expect(request.endpoint).toBe("/acceptInvitation");
   });
 });
