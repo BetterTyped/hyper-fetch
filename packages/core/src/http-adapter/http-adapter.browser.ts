@@ -41,8 +41,9 @@ export const getAdapter = () =>
         onRequestProgress,
         onSuccess,
       }) => {
-        const { method, client, endpoint } = request;
-        const fullUrl = `${client.url}${endpoint}`;
+        const { method, client, endpoint, queryParams } = request;
+        const queryString = queryParams ? stringifyQueryParams(queryParams) : "";
+        const fullUrl = `${client.url}${endpoint}${queryString}`;
         const xhr = new XMLHttpRequest();
         xhr.timeout = defaultTimeout;
         const onAbort = () => xhr.abort();

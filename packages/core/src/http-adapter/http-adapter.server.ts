@@ -45,7 +45,7 @@ export const getAdapter = () =>
         onRequestStart,
         onSuccess,
       }) => {
-        const { method, client, endpoint } = request;
+        const { method, client, endpoint, queryParams } = request;
         const { url } = client;
         const httpClient = client.url.includes("https://") ? https : http;
         const options = {
@@ -69,7 +69,8 @@ export const getAdapter = () =>
           options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
         }
 
-        const fullUrl = `${url}${endpoint}`;
+        const queryString = queryParams ? stringifyQueryParams(queryParams) : "";
+        const fullUrl = `${url}${endpoint}${queryString}`;
 
         const unmountListener = createAbortListener({
           status: 0,
