@@ -72,9 +72,10 @@ export const stringifyValue = (response: string | unknown): string => {
 
 export const getAdapterHeaders = (request: RequestInstance) => {
   const isFormData = hasWindow() && request.payload instanceof FormData;
+  const isObject = typeof request.payload === "object" && request.payload !== null;
   const headers: HeadersInit = {};
 
-  if (!isFormData) headers["Content-Type"] = "application/json";
+  if (!isFormData && isObject) headers["Content-Type"] = "application/json";
 
   Object.assign(headers, request.headers);
   return headers as HeadersInit;
