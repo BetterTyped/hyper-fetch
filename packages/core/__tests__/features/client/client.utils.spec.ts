@@ -151,7 +151,7 @@ describe("Client [ Utils ]", () => {
 
   describe("When using headerMapper", () => {
     it("should assign default headers with headers mapper", async () => {
-      const defaultHeaders = { "Content-Type": "application/json" };
+      const defaultHeaders = {};
       const headers = client.adapter.unstable_headerMapper(request, undefined);
 
       expect(headers).toEqual(defaultHeaders);
@@ -167,6 +167,14 @@ describe("Client [ Utils ]", () => {
     it("should not re-assign form data headers", async () => {
       const defaultHeaders = { "Content-Type": "some-custom-format" };
       const formDataRequest = request.setHeaders(defaultHeaders);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
+
+      expect(headers).toEqual(defaultHeaders);
+    });
+    it("should add content type header for object payload", async () => {
+      const defaultHeaders = { "Content-Type": "application/json" };
+      const data = { data: [] } as any;
+      const formDataRequest = request.setPayload(data);
       const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
 
       expect(headers).toEqual(defaultHeaders);
