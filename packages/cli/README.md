@@ -26,7 +26,8 @@
 
 ## About
 
-**`Hyper Fetch CLI`** is our command line featuring request sdk generators.
+**`Hyper Fetch CLI`** is our command line featuring request sdk generators. It is based on the shadcn work to support
+the API registries.
 
 ## Features
 

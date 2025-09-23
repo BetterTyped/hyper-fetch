@@ -90,11 +90,14 @@ export const init = new Command()
         ui: `${alias}components/ui`,
         components: `${alias}components`,
         lib: `${alias}lib`,
+        utils: `${alias}utils`,
       };
 
       const defaultConfig: Omit<Config, "resolvedPaths"> = {
         tsx: true,
+        rsc: false,
         aliases: defaultAliases,
+        registries: {},
       };
 
       logger.break();

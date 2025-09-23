@@ -7,7 +7,7 @@ import { input, select, confirm } from "@inquirer/prompts";
 
 import { handleError } from "utils/handle-error";
 import { preFlightGenerate } from "preflights/preflight-generate";
-import { OpenapiRequestGenerator } from "codegen/openapi/generator";
+import { OpenapiRequestGenerator } from "features/codegen/openapi/generator";
 import { spinner } from "utils/spinner";
 import { logger } from "utils/logger";
 import { showHelp } from "utils/show-help";
