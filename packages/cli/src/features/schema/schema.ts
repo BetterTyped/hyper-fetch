@@ -46,11 +46,24 @@ export const registryItemSchema = z.object({
   files: z.array(registryItemFileSchema).optional(), // Setup for where to find the files to copy into user project
 });
 
+export const registryIndexSchema = z.array(registryItemSchema);
+
 export const registrySchema = z.object({
   name: z.string(),
   version: z.string(),
   homepage: z.string(),
   items: z.array(registryItemSchema),
+});
+
+export const registryResolvedItemsTreeSchema = registryItemSchema.pick({
+  dependencies: true,
+  devDependencies: true,
+  files: true,
+  tailwind: true,
+  cssVars: true,
+  css: true,
+  envVars: true,
+  docs: true,
 });
 
 export type RegistrySchema = z.infer<typeof registrySchema>;

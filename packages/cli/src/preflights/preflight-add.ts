@@ -7,25 +7,19 @@ import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
+import { Config } from "config/schema";
 
-export async function preFlightAdd(options: z.infer<typeof addOptionsSchema>) {
-  const errors: Record<string, boolean> = {};
-
+export async function preFlightAdd(options: z.infer<typeof addOptionsSchema>): Promise<{ config: Config }> {
   // Ensure target directory exists.
   // Check for empty project. We assume if no package.json exists, the project is empty.
   if (!fs.existsSync(options.cwd) || !fs.existsSync(path.resolve(options.cwd, "package.json"))) {
-    errors[ERRORS.MISSING_DIR_OR_EMPTY_PROJECT] = true;
-    return {
-      errors,
-      config: null,
-    };
+    throw new ERRORS.ConfigParseError(options.cwd, "Missing directory or empty project");
   }
 
   try {
     const config = await getConfig(options.cwd);
 
     return {
-      errors,
       config: config!,
     };
   } catch (error) {

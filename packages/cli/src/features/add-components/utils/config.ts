@@ -1,4 +1,4 @@
-import { BUILTIN_REGISTRIES, FALLBACK_STYLE } from "registry/constants";
+import { BUILTIN_REGISTRIES, FALLBACK_STYLE } from "features/add-components/utils/constants";
 import { configSchema } from "config/schema";
 import { Config, createConfig } from "utils/get-config";
 import deepmerge from "deepmerge";

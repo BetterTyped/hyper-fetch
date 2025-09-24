@@ -94,6 +94,7 @@ export const init = new Command()
       };
 
       const defaultConfig: Omit<Config, "resolvedPaths"> = {
+        $schema: "https://hyperfetch.com/schema.json",
         tsx: true,
         rsc: false,
         aliases: defaultAliases,

@@ -1,12 +1,13 @@
 import { Command } from "commander";
 import { checkbox, confirm } from "@inquirer/prompts";
-import { z } from "zod";
+import { config, z } from "zod";
 
 // import { Registry } from "registry/schema";
 import { logger } from "../utils/logger";
 import { handleError } from "../utils/handle-error";
 import { preFlightAdd } from "preflights/preflight-add";
 import { showHelp } from "utils/show-help";
+import { addComponents } from "features/add-components/add-components";
 
 // const registry: Registry[] = getRegistry();
 
@@ -47,7 +48,7 @@ export const add = new Command()
         return showHelp(addOptionsSchema);
       }
 
-      await preFlightAdd({
+      const { config } = await preFlightAdd({
         ...opts,
         sdks,
       });
@@ -79,9 +80,12 @@ export const add = new Command()
 
       logger.info("Installing SDKs...");
 
-      // for (const sdk of selectedSdks) {
-      //  TODO: implement
-      // }
+      await addComponents(selectedSdks, config, {
+        overwrite: options.overwrite,
+        // silent: options.silent,
+        // isNewProject: options.isNewProject,
+        // baseStyle: options.baseStyle,
+      });
 
       logger.success("SDKs installed successfully!");
     } catch (error) {

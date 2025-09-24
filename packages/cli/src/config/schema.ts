@@ -1,5 +1,27 @@
 import { z } from "zod";
 
+export const registryConfigItemSchema = z.union([
+  // Simple string format: "https://example.com/{name}.json"
+  z.string().refine((s) => s.includes("{name}"), {
+    message: "Registry URL must include {name} placeholder",
+  }),
+  // Advanced object format with auth options
+  z.object({
+    url: z.string().refine((s) => s.includes("{name}"), {
+      message: "Registry URL must include {name} placeholder",
+    }),
+    params: z.record(z.string(), z.string()).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+  }),
+]);
+
+export const registryConfigSchema = z.record(
+  z.string().refine((key) => key.startsWith("@"), {
+    message: "Registry names must start with @ (e.g., @v0, @acme)",
+  }),
+  registryConfigItemSchema,
+);
+
 export const configSchema = z.object({
   $schema: z.string(),
   tsx: z.boolean(),
@@ -12,16 +34,7 @@ export const configSchema = z.object({
     lib: z.string(),
     utils: z.string(),
   }),
-  registries: z
-    .record(
-      z.string(),
-      z.object({
-        url: z.url(),
-        headers: z.record(z.string(), z.string()).optional(),
-        queryParams: z.record(z.string(), z.string()).optional(),
-      }),
-    )
-    .optional(),
+  registries: registryConfigSchema.optional(),
   resolvedPaths: z.object({
     cwd: z.string(),
     api: z.string(),

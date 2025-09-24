@@ -3,13 +3,13 @@ import z from "zod";
 import { Config } from "config/schema";
 import { handleError } from "utils/handle-error";
 import { spinner } from "utils/spinner";
-import { updateDependencies } from "../updaters/update-dependencies";
-import { updateFiles } from "../updaters/update-files";
+import { updateDependencies } from "./updaters/update-dependencies";
+import { updateFiles } from "./updaters/update-files";
 import { logger } from "utils/logger";
 import { registryItemFileSchema } from "features/schema/schema";
 import { isSafeTarget } from "utils/is-safe-target";
-import { resolveRegistryTree } from "features/schema/resolve-registry-tree";
-import { configWithDefaults } from "features/schema/config-with-defaults";
+import { configWithDefaults } from "features/add-components/utils/config";
+import { resolveRegistryTree } from "./utils/resolver";
 
 function validateFilesTarget(files: z.infer<typeof registryItemFileSchema>[], cwd: string) {
   for (const file of files) {
@@ -23,7 +23,7 @@ function validateFilesTarget(files: z.infer<typeof registryItemFileSchema>[], cw
   }
 }
 
-export async function addProjectComponents(
+export async function addComponents(
   components: string[],
   config: Config,
   options: {
