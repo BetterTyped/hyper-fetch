@@ -3,17 +3,17 @@ import * as fs from "fs-extra";
 import { z } from "zod";
 
 import { addOptionsSchema } from "commands/add";
-import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
 import { Config } from "config/schema";
+import { ConfigParseError } from "features/add-components/utils/errors";
 
 export async function preFlightAdd(options: z.infer<typeof addOptionsSchema>): Promise<{ config: Config }> {
   // Ensure target directory exists.
   // Check for empty project. We assume if no package.json exists, the project is empty.
   if (!fs.existsSync(options.cwd) || !fs.existsSync(path.resolve(options.cwd, "package.json"))) {
-    throw new ERRORS.ConfigParseError(options.cwd, "Missing directory or empty project");
+    throw new ConfigParseError(options.cwd, "Missing directory or empty project");
   }
 
   try {

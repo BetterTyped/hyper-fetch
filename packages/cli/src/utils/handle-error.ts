@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { z } from "zod";
+import { ZodError } from "zod";
 
 import { logger } from "utils/logger";
 
@@ -14,7 +14,7 @@ export function handleError(error: unknown) {
     process.exit(1);
   }
 
-  if (error instanceof z.ZodError) {
+  if (error instanceof ZodError) {
     logger.error("Validation failed:");
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, value] of Object.entries(error.flatten().fieldErrors)) {

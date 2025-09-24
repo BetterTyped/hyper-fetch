@@ -1,25 +1,10 @@
-import { BUILTIN_REGISTRIES, FALLBACK_STYLE } from "features/add-components/utils/constants";
+import { BUILTIN_REGISTRIES } from "features/add-components/utils/constants";
 import { configSchema } from "config/schema";
 import { Config, createConfig } from "utils/get-config";
 import deepmerge from "deepmerge";
 
-function resolveStyleFromConfig(config: Partial<Config> | Config) {
-  if (!config.style) {
-    return FALLBACK_STYLE;
-  }
-
-  // Check if we should use new-york-v4 for Tailwind v4.
-  // We assume that if tailwind.config is empty, we're using Tailwind v4.
-  if (config.style === "new-york" && config.tailwind?.config === "") {
-    return FALLBACK_STYLE;
-  }
-
-  return config.style;
-}
-
 export function configWithDefaults(config?: Partial<Config> | Config) {
   const baseConfig = createConfig({
-    style: FALLBACK_STYLE,
     registries: BUILTIN_REGISTRIES,
   });
 
@@ -30,7 +15,6 @@ export function configWithDefaults(config?: Partial<Config> | Config) {
   return configSchema.parse(
     deepmerge(baseConfig, {
       ...config,
-      style: resolveStyleFromConfig(config),
       registries: { ...BUILTIN_REGISTRIES, ...config.registries },
     }),
   );

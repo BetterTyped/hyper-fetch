@@ -2,7 +2,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-params */
 import { select } from "@inquirer/prompts";
-import { execa } from "execa";
 
 import { Config } from "config/schema";
 import { RegistryItemSchema } from "features/schema/schema";
@@ -112,44 +111,52 @@ async function installWithPackageManager(
   }
 
   if (dependencies?.length) {
+    const { execa } = await import("execa");
     await execa(packageManager, ["add", ...dependencies], {
       cwd,
     });
   }
 
   if (devDependencies?.length) {
+    const { execa } = await import("execa");
     await execa(packageManager, ["add", "-D", ...devDependencies], { cwd });
   }
 }
 
 async function installWithNpm(dependencies: string[], devDependencies: string[], cwd: string, flag?: string) {
   if (dependencies.length) {
+    const { execa } = await import("execa");
     await execa("npm", ["install", ...(flag ? [`--${flag}`] : []), ...dependencies], { cwd });
   }
 
   if (devDependencies.length) {
+    const { execa } = await import("execa");
     await execa("npm", ["install", ...(flag ? [`--${flag}`] : []), "-D", ...devDependencies], { cwd });
   }
 }
 
 async function installWithDeno(dependencies: string[], devDependencies: string[], cwd: string) {
   if (dependencies?.length) {
+    const { execa } = await import("execa");
     await execa("deno", ["add", ...dependencies.map((dep) => `npm:${dep}`)], {
       cwd,
     });
   }
 
   if (devDependencies?.length) {
+    const { execa } = await import("execa");
     await execa("deno", ["add", "-D", ...devDependencies.map((dep) => `npm:${dep}`)], { cwd });
   }
 }
 
 async function installWithExpo(dependencies: string[], devDependencies: string[], cwd: string) {
   if (dependencies.length) {
+    const { execa } = await import("execa");
     await execa("npx", ["expo", "install", ...dependencies], { cwd });
   }
 
   if (devDependencies.length) {
+    const { execa } = await import("execa");
     await execa("npx", ["expo", "install", "-- -D", ...devDependencies], {
       cwd,
     });

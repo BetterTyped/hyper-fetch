@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { HttpsProxyAgent } from "https-proxy-agent";
 import { promises as fs } from "fs";
 import { homedir } from "os";
 import path from "path";
@@ -13,7 +12,7 @@ import {
   RegistryNotFoundError,
   RegistryParseError,
   RegistryUnauthorizedError,
-} from "utils/errors";
+} from "../utils/errors";
 import { registryItemSchema } from "features/schema/schema";
 import { createClient } from "@hyper-fetch/core";
 

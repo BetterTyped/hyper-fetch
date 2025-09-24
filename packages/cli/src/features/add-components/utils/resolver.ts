@@ -8,8 +8,8 @@ import { fetchRegistry, fetchRegistryLocal } from "./fetcher";
 import { parseRegistryAndItemFromString } from "./parser";
 import { deduplicateFilesByTarget, isLocalFile, isUrl } from "./helpers";
 import { registryIndexSchema, registryItemSchema, registryResolvedItemsTreeSchema } from "features/schema/schema";
-import { Config, getTargetStyleFromConfig } from "utils/get-config";
-import { RegistryNotConfiguredError, RegistryParseError } from "utils/errors";
+import { Config } from "utils/get-config";
+import { RegistryNotConfiguredError, RegistryParseError } from "../utils/errors";
 import { logger } from "utils/logger";
 import { handleError } from "utils/handle-error";
 import { setRegistryHeaders } from "./context";
@@ -79,7 +79,7 @@ export async function fetchRegistryItems(items: string[], config: Config, option
         }
       }
 
-      const path = `styles/${config?.style ?? "new-york-v4"}/${item}.json`;
+      const path = `styles/${item}.json`;
       const [result] = await fetchRegistry([path], options);
       try {
         return registryItemSchema.parse(result);
@@ -344,11 +344,7 @@ async function resolveRegistryDependencies(url: string, config: Config, options:
 
   const { registryNames } = await resolveDependenciesRecursively([url], config, options, new Set());
 
-  const style = config.resolvedPaths?.cwd
-    ? await getTargetStyleFromConfig(config.resolvedPaths.cwd, config.style)
-    : config.style;
-
-  const urls = registryNames.map((name) => resolveRegistryUrl(isUrl(name) ? name : `styles/${style}/${name}.json`));
+  const urls = registryNames.map((name) => resolveRegistryUrl(isUrl(name) ? name : `styles/${name}.json`));
 
   return Array.from(new Set(urls));
 }

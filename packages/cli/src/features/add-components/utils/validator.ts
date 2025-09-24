@@ -4,7 +4,7 @@ import { buildUrlAndHeadersForRegistryItem } from "./builder";
 import { configWithDefaults } from "./config";
 import { clearRegistryContext } from "./context";
 import { extractEnvVars } from "./env";
-import { RegistryMissingEnvironmentVariablesError } from "utils/errors";
+import { RegistryMissingEnvironmentVariablesError } from "../utils/errors";
 import { registryConfigItemSchema } from "config/schema";
 import { Config } from "utils/get-config";
 

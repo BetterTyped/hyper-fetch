@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { checkbox, confirm } from "@inquirer/prompts";
-import { config, z } from "zod";
+import { z } from "zod";
 
 // import { Registry } from "registry/schema";
 import { logger } from "../utils/logger";

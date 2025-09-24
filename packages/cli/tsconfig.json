@@ -3,7 +3,12 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": "./src",
-    "jsx": "react-jsx"
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true
   },
   "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }

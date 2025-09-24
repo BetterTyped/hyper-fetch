@@ -1,13 +1,13 @@
 import path from "path";
 // import { BUILTIN_REGISTRIES } from "registry/constants";
-import { configSchema, rawConfigSchema, workspaceConfigSchema } from "schema";
-import { getProjectInfo } from "utils/get-project-info";
+import { configSchema, rawConfigSchema } from "../config/schema";
 import { highlighter } from "utils/highlighter";
 import { resolveImport } from "utils/resolve-import";
 import { cosmiconfig } from "cosmiconfig";
 import fg from "fast-glob";
 import { loadConfig } from "tsconfig-paths";
 import { z } from "zod";
+import { BUILTIN_REGISTRIES } from "features/add-components/utils/constants";
 
 export const DEFAULT_STYLE = "default";
 export const DEFAULT_COMPONENTS = "@/components";
@@ -31,11 +31,6 @@ export async function getConfig(cwd: string) {
     return null;
   }
 
-  // Set default icon library if not provided.
-  if (!config.iconLibrary) {
-    config.iconLibrary = config.style === "new-york" ? "radix" : "lucide";
-  }
-
   return await resolveConfigPaths(cwd, config);
 }
 
@@ -57,8 +52,7 @@ export async function resolveConfigPaths(cwd: string, config: z.infer<typeof raw
     ...config,
     resolvedPaths: {
       cwd,
-      tailwindConfig: config.tailwind.config ? path.resolve(cwd, config.tailwind.config) : "",
-      tailwindCss: path.resolve(cwd, config.tailwind.css),
+      api: await resolveImport(config.aliases.api, tsConfig),
       utils: await resolveImport(config.aliases["utils"], tsConfig),
       components: await resolveImport(config.aliases["components"], tsConfig),
       ui: config.aliases["ui"]
@@ -105,36 +99,6 @@ export async function getRawConfig(cwd: string): Promise<z.infer<typeof rawConfi
   }
 }
 
-// Note: we can check for -workspace.yaml or "workspace" in package.json.
-// Since cwd is not necessarily the root of the project.
-// We'll instead check if ui aliases resolve to a different root.
-export async function getWorkspaceConfig(config: Config) {
-  let resolvedAliases: any = {};
-
-  for (const key of Object.keys(config.aliases)) {
-    if (!isAliasKey(key, config)) {
-      continue;
-    }
-
-    const resolvedPath = config.resolvedPaths[key];
-    const packageRoot = await findPackageRoot(config.resolvedPaths.cwd, resolvedPath);
-
-    if (!packageRoot) {
-      resolvedAliases[key] = config;
-      continue;
-    }
-
-    resolvedAliases[key] = await getConfig(packageRoot);
-  }
-
-  const result = workspaceConfigSchema.safeParse(resolvedAliases);
-  if (!result.success) {
-    return null;
-  }
-
-  return result.data;
-}
-
 export async function findPackageRoot(cwd: string, resolvedPath: string) {
   const commonRoot = findCommonRoot(cwd, resolvedPath);
   const relativePath = path.relative(commonRoot, resolvedPath);
@@ -173,12 +137,6 @@ export function findCommonRoot(cwd: string, resolvedPath: string) {
   return commonParts.join(path.sep);
 }
 
-// TODO: Cache this call.
-export async function getTargetStyleFromConfig(cwd: string, fallback: string) {
-  const projectInfo = await getProjectInfo(cwd);
-  return projectInfo?.tailwindVersion === "v4" ? "new-york-v4" : fallback;
-}
-
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
@@ -192,27 +150,24 @@ type DeepPartial<T> = {
  */
 export function createConfig(partial?: DeepPartial<Config>): Config {
   const defaultConfig: Config = {
+    $schema: "https://hyperfetch.com/schema.json",
     resolvedPaths: {
       cwd: process.cwd(),
-      tailwindConfig: "",
-      tailwindCss: "",
+      api: "",
       utils: "",
       components: "",
       ui: "",
       lib: "",
       hooks: "",
     },
-    style: "",
-    tailwind: {
-      config: "",
-      css: "",
-      baseColor: "",
-      cssVariables: false,
-    },
     rsc: false,
     tsx: true,
     aliases: {
+      api: "",
+      hooks: "",
+      ui: "",
       components: "",
+      lib: "",
       utils: "",
     },
     registries: {
@@ -228,10 +183,6 @@ export function createConfig(partial?: DeepPartial<Config>): Config {
       resolvedPaths: {
         ...defaultConfig.resolvedPaths,
         ...(partial.resolvedPaths || {}),
-      },
-      tailwind: {
-        ...defaultConfig.tailwind,
-        ...(partial.tailwind || {}),
       },
       aliases: {
         ...defaultConfig.aliases,

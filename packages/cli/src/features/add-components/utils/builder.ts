@@ -5,11 +5,10 @@ import { parseRegistryAndItemFromString } from "./parser";
 import { isUrl } from "./helpers";
 import { registryConfigItemSchema } from "config/schema";
 import { Config } from "utils/get-config";
-import { RegistryNotConfiguredError } from "utils/errors";
+import { RegistryNotConfiguredError } from "../utils/errors";
 import { validateRegistryConfig } from "./validator";
 
 const NAME_PLACEHOLDER = "{name}";
-const STYLE_PLACEHOLDER = "{style}";
 const ENV_VAR_PATTERN = /\${(\w+)}/g;
 const QUERY_PARAM_SEPARATOR = "?";
 const QUERY_PARAM_DELIMITER = "&";
@@ -32,28 +31,18 @@ export function buildUrlAndHeadersForRegistryItem(name: string, config?: Config)
   validateRegistryConfig(registry, registryConfig);
 
   return {
-    url: buildUrlFromRegistryConfig(item, registryConfig, config),
+    url: buildUrlFromRegistryConfig(item, registryConfig),
     headers: buildHeadersFromRegistryConfig(registryConfig),
   };
 }
 
-export function buildUrlFromRegistryConfig(
-  item: string,
-  registryConfig: z.infer<typeof registryConfigItemSchema>,
-  config?: Config,
-) {
+export function buildUrlFromRegistryConfig(item: string, registryConfig: z.infer<typeof registryConfigItemSchema>) {
   if (typeof registryConfig === "string") {
     let url = registryConfig.replace(NAME_PLACEHOLDER, item);
-    if (config?.style && url.includes(STYLE_PLACEHOLDER)) {
-      url = url.replace(STYLE_PLACEHOLDER, config.style);
-    }
     return expandEnvVars(url);
   }
 
   let baseUrl = registryConfig.url.replace(NAME_PLACEHOLDER, item);
-  if (config?.style && baseUrl.includes(STYLE_PLACEHOLDER)) {
-    baseUrl = baseUrl.replace(STYLE_PLACEHOLDER, config.style);
-  }
   baseUrl = expandEnvVars(baseUrl);
 
   if (!registryConfig.params) {

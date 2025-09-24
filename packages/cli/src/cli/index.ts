@@ -3,9 +3,10 @@ import { Command } from "commander";
 import { select } from "@inquirer/prompts";
 
 import pkg from "../../package.json";
-import { generate } from "commands/generate";
-import { init } from "commands/init";
 import { handleError } from "utils/handle-error";
+import { init } from "commands/init";
+import { generate } from "commands/generate";
+import { add } from "commands/add";
 
 const program = new Command();
 
@@ -13,7 +14,7 @@ program.name("hyper-fetch").description("CLI for Hyper Fetch").version(pkg.versi
 
 const commands = {
   init,
-  // add,
+  add,
   generate,
 };
 
