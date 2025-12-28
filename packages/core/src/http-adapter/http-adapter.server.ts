@@ -66,7 +66,17 @@ export const getAdapter = () =>
         onBeforeRequest();
 
         if (payload) {
-          options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+          // Calculate Content-Length based on the exact bytes that will be sent.
+          // If payload is already a string or Buffer (as produced by getAdapterPayload),
+          // avoid double-stringifying which would lead to incorrect Content-Length.
+          const payloadAsAny = payload as unknown;
+          const isString = typeof payloadAsAny === "string";
+          const isBuffer = Buffer.isBuffer(payloadAsAny);
+          const contentLength =
+            isString || isBuffer
+              ? Buffer.byteLength(payloadAsAny as string | Buffer)
+              : Buffer.byteLength(JSON.stringify(payloadAsAny));
+          options.headers["Content-Length"] = contentLength;
         }
 
         const queryString = queryParams ? stringifyQueryParams(queryParams) : "";
