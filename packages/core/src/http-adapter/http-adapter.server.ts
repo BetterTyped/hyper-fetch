@@ -72,11 +72,14 @@ export const getAdapter = () =>
           const payloadAsAny = payload as unknown;
           const isString = typeof payloadAsAny === "string";
           const isBuffer = Buffer.isBuffer(payloadAsAny);
-          const contentLength = isString
-            ? Buffer.byteLength(payloadAsAny)
-            : isBuffer
-              ? payloadAsAny.length
-              : Buffer.byteLength(JSON.stringify(payloadAsAny));
+          let contentLength: number;
+          if (isString) {
+            contentLength = Buffer.byteLength(payloadAsAny);
+          } else if (isBuffer) {
+            contentLength = payloadAsAny.length;
+          } else {
+            contentLength = Buffer.byteLength(JSON.stringify(payloadAsAny));
+          }
           options.headers["Content-Length"] = contentLength;
         }
 
