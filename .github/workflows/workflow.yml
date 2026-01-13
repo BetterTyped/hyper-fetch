@@ -293,7 +293,8 @@ jobs:
       released: ${{ steps.check_release.outputs.released }}
     permissions:
       id-token: write # Required for OIDC
-      contents: read
+      contents: write # Required for semantic-release to push tags / create releases
+      issues: write # Required for @semantic-release/github to open "release failing" issue
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -331,7 +332,7 @@ jobs:
       - name: Publish
         run: yarn release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Get latest tag after release
         id: post_release_tag
         run: |
