@@ -333,6 +333,7 @@ jobs:
         run: yarn release
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Get latest tag after release
         id: post_release_tag
         run: |
