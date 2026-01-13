@@ -292,7 +292,8 @@ jobs:
     outputs:
       released: ${{ steps.check_release.outputs.released }}
     permissions:
-      contents: write
+      id-token: write # Required for OIDC
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -304,6 +305,7 @@ jobs:
           node-version: "20.19.3"
           cache: "yarn"
           cache-dependency-path: yarn.lock
+          registry-url: "https://registry.npmjs.org"
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: |
@@ -330,7 +332,6 @@ jobs:
         run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Get latest tag after release
         id: post_release_tag
         run: |
