@@ -292,9 +292,10 @@ jobs:
     outputs:
       released: ${{ steps.check_release.outputs.released }}
     permissions:
-      id-token: write # Required for OIDC
-      contents: write # Required for semantic-release to push tags / create releases
-      issues: write # Required for @semantic-release/github to open "release failing" issue
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
       - name: Checkout
         uses: actions/checkout@v4
