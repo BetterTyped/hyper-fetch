@@ -214,7 +214,7 @@ describe("useTrackedState [ Actions ]", () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setLoading((prev: boolean) => {
+        result.current[1].setLoading((prev: boolean | null) => {
           expect(prev).toBe(false);
           return true;
         });

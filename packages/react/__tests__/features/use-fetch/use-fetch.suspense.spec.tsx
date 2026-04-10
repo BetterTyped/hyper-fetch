@@ -1,5 +1,6 @@
 import React, { Suspense, StrictMode, Component, useState, ReactNode } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { useFetch } from "hooks/use-fetch";
