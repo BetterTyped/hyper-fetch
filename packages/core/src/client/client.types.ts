@@ -29,6 +29,15 @@ export type RequestGenericType<QueryParams> = {
 };
 
 /**
+ * Auto-detected runtime environment that affects cache behavior:
+ *
+ * - `"client"` — Browser environment. Cache is enabled globally by default.
+ * - `"server"` — Node.js / non-browser environment. Cache is disabled by default to prevent
+ *   cross-request data leaks. Enable per-request caching via `request.setScope(scopeId)`.
+ */
+export type ClientMode = "client" | "server";
+
+/**
  * Configuration setup for the client
  */
 export type ClientOptionsType<C extends ClientInstance> = {

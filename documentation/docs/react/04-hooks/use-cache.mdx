@@ -90,6 +90,30 @@ client.cache.invalidate(request);
 
 ---
 
+## Clear State
+
+The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
+
+```tsx title="Using clearState"
+import { useCache } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersCache() {
+  const { data, clearState } = useCache(getUsers);
+
+  return (
+    <div>
+      {data && <Table data={data} />}
+      <button type="button" onClick={clearState}>
+        Clear Cache State
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
 ## Options
 
 Configuration options for this hook provided as a second parameter.

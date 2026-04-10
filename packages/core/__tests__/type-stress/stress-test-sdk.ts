@@ -18,188 +18,156 @@ type AnalyticsResponse = { pageViews: number; uniqueVisitors: number; bounceRate
 type TeamResponse = { id: number; name: string; memberCount: number };
 
 // Build a large SDK schema type — each path has multiple methods
+type SdkRequest<T extends Record<string, any> = {}> = ReturnType<ReturnType<typeof client.createRequest<T>>>;
+
 type SdkSchema = {
   users: {
-    $GET: ReturnType<typeof client.createRequest<{ response: UserResponse[] }>>;
-    $POST: ReturnType<typeof client.createRequest<{ response: UserResponse; payload: Omit<UserResponse, "id"> }>>;
+    $GET: SdkRequest<{ response: UserResponse[] }>;
+    $POST: SdkRequest<{ response: UserResponse; payload: Omit<UserResponse, "id"> }>;
     $userId: {
-      $GET: ReturnType<typeof client.createRequest<{ response: UserResponse }>>;
-      $PUT: ReturnType<typeof client.createRequest<{ response: UserResponse; payload: Partial<UserResponse> }>>;
-      $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+      $GET: SdkRequest<{ response: UserResponse }>;
+      $PUT: SdkRequest<{ response: UserResponse; payload: Partial<UserResponse> }>;
+      $DELETE: SdkRequest<{ response: void }>;
       posts: {
-        $GET: ReturnType<typeof client.createRequest<{ response: PostResponse[] }>>;
-        $POST: ReturnType<typeof client.createRequest<{ response: PostResponse; payload: Omit<PostResponse, "id"> }>>;
+        $GET: SdkRequest<{ response: PostResponse[] }>;
+        $POST: SdkRequest<{ response: PostResponse; payload: Omit<PostResponse, "id"> }>;
         $postId: {
-          $GET: ReturnType<typeof client.createRequest<{ response: PostResponse }>>;
-          $PUT: ReturnType<typeof client.createRequest<{ response: PostResponse; payload: Partial<PostResponse> }>>;
-          $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+          $GET: SdkRequest<{ response: PostResponse }>;
+          $PUT: SdkRequest<{ response: PostResponse; payload: Partial<PostResponse> }>;
+          $DELETE: SdkRequest<{ response: void }>;
           comments: {
-            $GET: ReturnType<typeof client.createRequest<{ response: CommentResponse[] }>>;
-            $POST: ReturnType<
-              typeof client.createRequest<{ response: CommentResponse; payload: Omit<CommentResponse, "id"> }>
-            >;
+            $GET: SdkRequest<{ response: CommentResponse[] }>;
+            $POST: SdkRequest<{ response: CommentResponse; payload: Omit<CommentResponse, "id"> }>;
             $commentId: {
-              $GET: ReturnType<typeof client.createRequest<{ response: CommentResponse }>>;
-              $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+              $GET: SdkRequest<{ response: CommentResponse }>;
+              $DELETE: SdkRequest<{ response: void }>;
             };
           };
         };
       };
       settings: {
-        $GET: ReturnType<typeof client.createRequest<{ response: SettingsResponse }>>;
-        $PUT: ReturnType<typeof client.createRequest<{ response: SettingsResponse; payload: SettingsResponse }>>;
+        $GET: SdkRequest<{ response: SettingsResponse }>;
+        $PUT: SdkRequest<{ response: SettingsResponse; payload: SettingsResponse }>;
       };
       notifications: {
-        $GET: ReturnType<
-          typeof client.createRequest<{
-            response: NotificationResponse[];
-            queryParams: { page: number; limit: number };
-          }>
-        >;
+        $GET: SdkRequest<{
+          response: NotificationResponse[];
+          queryParams: { page: number; limit: number };
+        }>;
         $notificationId: {
-          $PATCH: ReturnType<
-            typeof client.createRequest<{ response: NotificationResponse; payload: { read: boolean } }>
-          >;
-          $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+          $PATCH: SdkRequest<{ response: NotificationResponse; payload: { read: boolean } }>;
+          $DELETE: SdkRequest<{ response: void }>;
         };
       };
       teams: {
-        $GET: ReturnType<typeof client.createRequest<{ response: TeamResponse[] }>>;
+        $GET: SdkRequest<{ response: TeamResponse[] }>;
       };
     };
   };
   products: {
-    $GET: ReturnType<
-      typeof client.createRequest<{
-        response: ProductResponse[];
-        queryParams: { category?: string; minPrice?: number };
-      }>
-    >;
-    $POST: ReturnType<typeof client.createRequest<{ response: ProductResponse; payload: Omit<ProductResponse, "id"> }>>;
+    $GET: SdkRequest<{
+      response: ProductResponse[];
+      queryParams: { category?: string; minPrice?: number };
+    }>;
+    $POST: SdkRequest<{ response: ProductResponse; payload: Omit<ProductResponse, "id"> }>;
     $productId: {
-      $GET: ReturnType<typeof client.createRequest<{ response: ProductResponse }>>;
-      $PUT: ReturnType<typeof client.createRequest<{ response: ProductResponse; payload: Partial<ProductResponse> }>>;
-      $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+      $GET: SdkRequest<{ response: ProductResponse }>;
+      $PUT: SdkRequest<{ response: ProductResponse; payload: Partial<ProductResponse> }>;
+      $DELETE: SdkRequest<{ response: void }>;
       reviews: {
-        $GET: ReturnType<typeof client.createRequest<{ response: { rating: number; text: string }[] }>>;
-        $POST: ReturnType<
-          typeof client.createRequest<{
-            response: { rating: number; text: string };
-            payload: { rating: number; text: string };
-          }>
-        >;
+        $GET: SdkRequest<{ response: { rating: number; text: string }[] }>;
+        $POST: SdkRequest<{
+          response: { rating: number; text: string };
+          payload: { rating: number; text: string };
+        }>;
       };
       variants: {
-        $GET: ReturnType<typeof client.createRequest<{ response: { id: number; color: string; size: string }[] }>>;
+        $GET: SdkRequest<{ response: { id: number; color: string; size: string }[] }>;
         $variantId: {
-          $GET: ReturnType<typeof client.createRequest<{ response: { id: number; color: string; size: string } }>>;
-          $PATCH: ReturnType<
-            typeof client.createRequest<{
-              response: { id: number; color: string; size: string };
-              payload: { color?: string; size?: string };
-            }>
-          >;
+          $GET: SdkRequest<{ response: { id: number; color: string; size: string } }>;
+          $PATCH: SdkRequest<{
+            response: { id: number; color: string; size: string };
+            payload: { color?: string; size?: string };
+          }>;
         };
       };
     };
   };
   orders: {
-    $GET: ReturnType<typeof client.createRequest<{ response: OrderResponse[]; queryParams: { status?: string } }>>;
-    $POST: ReturnType<
-      typeof client.createRequest<{
-        response: OrderResponse;
-        payload: { items: { productId: number; quantity: number }[] };
-      }>
-    >;
+    $GET: SdkRequest<{ response: OrderResponse[]; queryParams: { status?: string } }>;
+    $POST: SdkRequest<{
+      response: OrderResponse;
+      payload: { items: { productId: number; quantity: number }[] };
+    }>;
     $orderId: {
-      $GET: ReturnType<typeof client.createRequest<{ response: OrderResponse }>>;
-      $PATCH: ReturnType<typeof client.createRequest<{ response: OrderResponse; payload: { status: string } }>>;
+      $GET: SdkRequest<{ response: OrderResponse }>;
+      $PATCH: SdkRequest<{ response: OrderResponse; payload: { status: string } }>;
       items: {
-        $GET: ReturnType<
-          typeof client.createRequest<{ response: { productId: number; quantity: number; price: number }[] }>
-        >;
+        $GET: SdkRequest<{ response: { productId: number; quantity: number; price: number }[] }>;
         $itemId: {
-          $PATCH: ReturnType<
-            typeof client.createRequest<{ response: { quantity: number }; payload: { quantity: number } }>
-          >;
-          $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+          $PATCH: SdkRequest<{ response: { quantity: number }; payload: { quantity: number } }>;
+          $DELETE: SdkRequest<{ response: void }>;
         };
       };
       payments: {
-        $GET: ReturnType<typeof client.createRequest<{ response: PaymentResponse[] }>>;
-        $POST: ReturnType<
-          typeof client.createRequest<{ response: PaymentResponse; payload: { amount: number; method: string } }>
-        >;
+        $GET: SdkRequest<{ response: PaymentResponse[] }>;
+        $POST: SdkRequest<{ response: PaymentResponse; payload: { amount: number; method: string } }>;
       };
     };
   };
   analytics: {
     overview: {
-      $GET: ReturnType<
-        typeof client.createRequest<{ response: AnalyticsResponse; queryParams: { from: string; to: string } }>
-      >;
+      $GET: SdkRequest<{ response: AnalyticsResponse; queryParams: { from: string; to: string } }>;
     };
     users: {
-      $GET: ReturnType<
-        typeof client.createRequest<{
-          response: { activeUsers: number; newUsers: number };
-          queryParams: { period: string };
-        }>
-      >;
+      $GET: SdkRequest<{
+        response: { activeUsers: number; newUsers: number };
+        queryParams: { period: string };
+      }>;
     };
     revenue: {
-      $GET: ReturnType<
-        typeof client.createRequest<{ response: { total: number; byMonth: { month: string; amount: number }[] } }>
-      >;
+      $GET: SdkRequest<{ response: { total: number; byMonth: { month: string; amount: number }[] } }>;
     };
   };
   auth: {
     login: {
-      $POST: ReturnType<
-        typeof client.createRequest<{
-          response: { token: string; refreshToken: string };
-          payload: { email: string; password: string };
-        }>
-      >;
+      $POST: SdkRequest<{
+        response: { token: string; refreshToken: string };
+        payload: { email: string; password: string };
+      }>;
     };
     register: {
-      $POST: ReturnType<
-        typeof client.createRequest<{
-          response: UserResponse;
-          payload: { email: string; password: string; name: string };
-        }>
-      >;
+      $POST: SdkRequest<{
+        response: UserResponse;
+        payload: { email: string; password: string; name: string };
+      }>;
     };
     refresh: {
-      $POST: ReturnType<
-        typeof client.createRequest<{ response: { token: string }; payload: { refreshToken: string } }>
-      >;
+      $POST: SdkRequest<{ response: { token: string }; payload: { refreshToken: string } }>;
     };
     logout: {
-      $POST: ReturnType<typeof client.createRequest<{ response: void }>>;
+      $POST: SdkRequest<{ response: void }>;
     };
     forgotPassword: {
-      $POST: ReturnType<typeof client.createRequest<{ response: { message: string }; payload: { email: string } }>>;
+      $POST: SdkRequest<{ response: { message: string }; payload: { email: string } }>;
     };
     resetPassword: {
-      $POST: ReturnType<
-        typeof client.createRequest<{ response: { message: string }; payload: { token: string; password: string } }>
-      >;
+      $POST: SdkRequest<{ response: { message: string }; payload: { token: string; password: string } }>;
     };
   };
   teams: {
-    $GET: ReturnType<typeof client.createRequest<{ response: TeamResponse[] }>>;
-    $POST: ReturnType<typeof client.createRequest<{ response: TeamResponse; payload: { name: string } }>>;
+    $GET: SdkRequest<{ response: TeamResponse[] }>;
+    $POST: SdkRequest<{ response: TeamResponse; payload: { name: string } }>;
     $teamId: {
-      $GET: ReturnType<typeof client.createRequest<{ response: TeamResponse }>>;
-      $PUT: ReturnType<typeof client.createRequest<{ response: TeamResponse; payload: Partial<TeamResponse> }>>;
-      $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
+      $GET: SdkRequest<{ response: TeamResponse }>;
+      $PUT: SdkRequest<{ response: TeamResponse; payload: Partial<TeamResponse> }>;
+      $DELETE: SdkRequest<{ response: void }>;
       members: {
-        $GET: ReturnType<typeof client.createRequest<{ response: UserResponse[] }>>;
-        $POST: ReturnType<typeof client.createRequest<{ response: void; payload: { userId: number } }>>;
+        $GET: SdkRequest<{ response: UserResponse[] }>;
+        $POST: SdkRequest<{ response: void; payload: { userId: number } }>;
         $memberId: {
-          $DELETE: ReturnType<typeof client.createRequest<{ response: void }>>;
-          $PATCH: ReturnType<typeof client.createRequest<{ response: { role: string }; payload: { role: string } }>>;
+          $DELETE: SdkRequest<{ response: void }>;
+          $PATCH: SdkRequest<{ response: { role: string }; payload: { role: string } }>;
         };
       };
     };

@@ -31,6 +31,7 @@ describe("useCache [ Base ]", () => {
     staleTime: request.staleTime,
     version: request.client.cache.version,
     cacheTime: Infinity,
+    cached: true,
   };
 
   beforeAll(() => {

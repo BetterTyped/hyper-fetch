@@ -247,7 +247,53 @@ export const getUser = client.createRequest()({
 
 ---
 
-5. ### Plugins
+5. ### Cache Modes (Client / Server / Isomorphic)
+
+The `Client` automatically detects whether it's running in the browser or on the server and sets its mode accordingly.
+This affects how caching behaves — on the server, caching is **disabled by default** to prevent cross-user data leaks.
+
+```tsx
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "http://localhost:3000" });
+// Mode is auto-detected: "client" in browser, "server" in Node.js
+```
+
+On the server, use `setScope` to explicitly opt in to caching with per-user/session isolation:
+
+```tsx
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Server-side: NOT cached (safe by default)
+getUser.setParams({ userId: 1 }).send();
+
+// Server-side: CACHED — scoped to this user's session
+getUser
+  .setParams({ userId: 1 })
+  .setScope(req.session.id)
+  .send();
+```
+
+:::warning Server-Side Safety
+
+Without `setScope`, responses are never cached on the server. This prevents user A from seeing user B's data.
+Always scope to the current user/session context in server environments.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="Learn more about cache modes, scoping, and persistence."
+  to="/docs/core/cache"
+/>
+
+---
+
+6. ### Plugins
 
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
 the events happening inside of the Hyper Fetch.

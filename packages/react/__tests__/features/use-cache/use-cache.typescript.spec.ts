@@ -50,7 +50,7 @@ describe("useCache [Types]", () => {
 
     it("should type error with custom error type", () => {
       const error = null as unknown as GetUserWithErrorReturn["error"];
-      expectType<{ code: number; message: string } | null>().assert(error);
+      expectType<{ code: number; message: string } | Error | null>().assert(error);
     });
   });
 
@@ -90,7 +90,7 @@ describe("useCache [Types]", () => {
   describe("return type: invalidate", () => {
     it("should have invalidate function", () => {
       const invalidate = (() => null) as unknown as GetUsersReturn["invalidate"];
-      expectType<Function>().assert(invalidate);
+      expectType<(...args: any[]) => any>().assert(invalidate);
     });
 
     it("should allow invalidate with no arguments", () => {

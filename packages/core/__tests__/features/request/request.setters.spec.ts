@@ -6,14 +6,14 @@ const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Setters ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/users/:userId" });
+  let request = client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/users/:userId" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/users/:userId" });
+    request = client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/users/:userId" });
     resetMocks();
     jest.resetAllMocks();
   });

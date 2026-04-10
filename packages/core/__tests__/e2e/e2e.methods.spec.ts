@@ -4,7 +4,7 @@
 import { Client } from "@hyper-fetch/core";
 import { createE2EServer, echoHandler, jsonHandler, statusHandler, headHandler } from "@hyper-fetch/testing";
 
-const { route, startServer, stopServer, getUrl } = createE2EServer();
+const { route, startServer, stopServer } = createE2EServer();
 
 let baseUrl: string;
 
@@ -132,14 +132,14 @@ describe("E2E [ HTTP Methods ]", () => {
     const client = new Client({ url: baseUrl });
     const request = client.createRequest<{ response: null }>()({
       endpoint: "/users",
-      method: "HEAD",
+      method: "HEAD" as any,
     });
 
     const { error, status, extra } = await request.send();
 
     expect(error).toBeNull();
     expect(status).toBe(200);
-    expect(extra.headers["x-total-count"]).toBe("42");
+    expect(extra!.headers["x-total-count"]).toBe("42");
   });
 });
 
@@ -223,7 +223,7 @@ describe("E2E [ Headers ]", () => {
 
     expect(error).toBeNull();
     expect(data!.headers["x-api-key"]).toBe("test-key");
-    expect(data!.headers["authorization"]).toBe("Bearer token123");
+    expect(data!.headers.authorization).toBe("Bearer token123");
   });
 
   it("should receive custom response headers", async () => {
@@ -237,7 +237,7 @@ describe("E2E [ Headers ]", () => {
 
     expect(error).toBeNull();
     expect(data).toStrictEqual({ ok: true });
-    expect(extra.headers["x-custom-header"]).toBe("custom-value");
-    expect(extra.headers["x-request-id"]).toBe("abc-123");
+    expect(extra!.headers["x-custom-header"]).toBe("custom-value");
+    expect(extra!.headers["x-request-id"]).toBe("abc-123");
   });
 });

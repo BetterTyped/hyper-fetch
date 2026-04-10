@@ -1,0 +1,144 @@
+---
+sidebar_position: 5
+title: React hooks - useStream
+sidebar_label: useStream
+---
+
+# useStream
+
+The `useStream` hook consumes **streaming responses** chunk-by-chunk in React components. It works with any request
+that uses the fetch adapter's streaming mode, providing both accumulated text (for LLM/SSE use cases) and raw binary
+chunks (for file downloads).
+
+:::tip Purpose
+
+1. **Text streaming**: Consume AI/LLM chat responses word-by-word as they arrive.
+2. **Binary streaming**: Stream file downloads with progress tracking.
+3. **Full lifecycle control**: Start, abort, and reset streams programmatically.
+4. **Reactive updates**: Component re-renders as each chunk arrives.
+
+:::
+
+---
+
+## Quick Start
+
+Provide a [`Request`](/docs/core/request) instance and call `start()` to begin streaming.
+
+```tsx title="AI Chat Streaming"
+import { useStream } from "@hyper-fetch/react";
+import { chatCompletion } from "./api/ai";
+
+function AiChat() {
+  const { text, streaming, done, start, abort } = useStream(chatCompletion.setPayload({ prompt: "Hello!" }));
+
+  return (
+    <div>
+      <div className="whitespace-pre-wrap">{text}</div>
+      {streaming && <p>Streaming...</p>}
+      {done && <p>Complete!</p>}
+      <button type="button" onClick={start} disabled={streaming}>
+        Start
+      </button>
+      <button type="button" onClick={abort} disabled={!streaming}>
+        Stop
+      </button>
+    </div>
+  );
+}
+```
+
+:::info Streaming in Core
+
+For the stream to work, the fetch adapter must return a `ReadableStream`. This happens automatically when the request
+is sent with `streaming: true` — the `useStream` hook handles this for you.
+
+:::
+
+---
+
+## Auto Start
+
+Set `autoStart: true` to begin streaming immediately when the component mounts.
+
+```tsx title="Auto-starting stream"
+import { useStream } from "@hyper-fetch/react";
+import { getEvents } from "./api/events";
+
+function EventFeed() {
+  const { text, streaming } = useStream(getEvents, { autoStart: true });
+
+  return (
+    <div>
+      {streaming && <span>Live</span>}
+      <pre>{text}</pre>
+    </div>
+  );
+}
+```
+
+---
+
+## Resetting State
+
+Use `reset()` to clear all accumulated data and allow a fresh stream. This also aborts any in-progress stream.
+
+```tsx title="Reset and re-stream"
+function StreamWithReset() {
+  const { text, start, reset, done } = useStream(chatRequest);
+
+  return (
+    <div>
+      <pre>{text}</pre>
+      {done && (
+        <button type="button" onClick={() => { reset(); start(); }}>
+          Stream Again
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoStart` | `boolean` | `false` | When `true`, the stream starts automatically on mount. |
+
+---
+
+## Return Values
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `text` | `string` | Accumulated text from all stream chunks decoded as UTF-8. |
+| `chunks` | `Uint8Array[]` | Raw binary chunks received from the stream. |
+| `streaming` | `boolean` | Whether the stream is currently being consumed. |
+| `done` | `boolean` | Whether the stream has finished (all chunks consumed). |
+| `error` | `Error \| null` | Error from the request or stream consumption. |
+| `extra` | `object \| null` | Response extra metadata (headers, etc.). |
+| `status` | `number \| null` | HTTP status code from the response. |
+| `start` | `() => void` | Start consuming the stream. |
+| `abort` | `() => void` | Abort the ongoing stream. |
+| `reset` | `() => void` | Reset state to initial values, allowing a fresh stream. |
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="useFetch"
+  description="Learn more about the useFetch hook for standard data fetching."
+  to="/docs/react/hooks/use-fetch"
+/>
+
+<LinkCard
+  type="docs"
+  title="Adapter"
+  description="Learn about the fetch adapter and streaming support."
+  to="/docs/core/adapter"
+/>

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
+import { createTrackedProxy } from "utils";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
@@ -63,30 +64,21 @@ export const useListener = <ListenerType extends ListenerInstance>(
     stopListener();
   });
 
-  return {
-    get data() {
-      setRenderKey("data");
-      return state.data;
+  const trackedKeys = ["data", "extra", "connected", "connecting", "timestamp"] as const;
+
+  return createTrackedProxy(
+    {
+      data: state.data,
+      extra: state.extra,
+      connected: state.connected,
+      connecting: state.connecting,
+      timestamp: state.timestamp,
+      ...actions,
+      ...callbacks,
+      ...additionalCallbacks,
+      listen,
     },
-    get extra() {
-      setRenderKey("extra");
-      return state.extra;
-    },
-    get connected() {
-      setRenderKey("connected");
-      return state.connected;
-    },
-    get connecting() {
-      setRenderKey("connecting");
-      return state.connecting;
-    },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
-    },
-    ...actions,
-    ...callbacks,
-    ...additionalCallbacks,
-    listen,
-  };
+    trackedKeys,
+    setRenderKey,
+  );
 };

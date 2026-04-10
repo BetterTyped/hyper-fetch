@@ -10,8 +10,14 @@ describe("Graphql Mocking [ Base ]", () => {
   let client = createClient({
     url: "https://shared-base-url/graphql",
   }).setAdapter(GraphqlAdapter());
-  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse; error: { message: string }[] }>()({
+    endpoint: getUserQuery,
+  });
+  let mutation = client.createRequest<{
+    response: GetUserQueryResponse;
+    payload: LoginMutationVariables;
+    error: { message: string }[];
+  }>()({
     endpoint: loginMutation,
   });
 
@@ -23,8 +29,14 @@ describe("Graphql Mocking [ Base ]", () => {
     client = createClient({
       url: "https://shared-base-url/graphql",
     }).setAdapter(GraphqlAdapter());
-    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+    request = client.createRequest<{ response: GetUserQueryResponse; error: { message: string }[] }>()({
+      endpoint: getUserQuery,
+    });
+    mutation = client.createRequest<{
+      response: GetUserQueryResponse;
+      payload: LoginMutationVariables;
+      error: { message: string }[];
+    }>()({
       endpoint: loginMutation,
     });
 

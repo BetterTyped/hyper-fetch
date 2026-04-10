@@ -268,6 +268,37 @@ describe("E2E [ Streaming ]", () => {
     const lastLoaded = progressEvents[progressEvents.length - 1];
     expect(lastLoaded).toBeGreaterThan(0);
   });
+
+  it("should return ReadableStream when streaming option is enabled", async () => {
+    const client = new Client({ url: baseUrl });
+    const request = client
+      .createRequest<{ response: any }>()({
+        endpoint: "/stream",
+        method: "GET",
+      })
+      .setOptions({ streaming: true });
+
+    const { data, error, status } = await request.send();
+
+    expect(error).toBeNull();
+    expect(status).toBe(200);
+    expect(data).toBeDefined();
+    expect(typeof (data as any).getReader).toBe("function");
+
+    const reader = (data as any as ReadableStream<Uint8Array>).getReader();
+    const chunks: string[] = [];
+    const decoder = new TextDecoder();
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // eslint-disable-next-line no-await-in-loop
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+
+    expect(chunks.join("")).toBe("chunk1chunk2chunk3");
+  });
 });
 
 describe("E2E [ File Download ]", () => {

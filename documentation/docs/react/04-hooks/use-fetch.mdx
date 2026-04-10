@@ -207,6 +207,113 @@ const UsersListPage = () => {
 
 ---
 
+## Suspense Mode
+
+`useFetch` supports React's [Suspense](https://react.dev/reference/react/Suspense) for data loading out of the box.
+When enabled, the hook throws a Promise while the request is loading, which is caught by the nearest `<Suspense>` boundary.
+Once the request resolves, the component re-renders with data immediately available — no `loading` state needed.
+
+```tsx title="Using Suspense"
+import { Suspense } from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersList() {
+  const { data } = useFetch(getUsers, { suspense: true });
+
+  return (
+    <ul>
+      {data.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+function App() {
+  return (
+    <Suspense fallback={<p>Loading users...</p>}>
+      <UsersList />
+    </Suspense>
+  );
+}
+```
+
+:::info React 18+ Required
+
+Suspense mode requires React 18 or later. You can combine it with `<ErrorBoundary>` components to handle error states
+declaratively.
+
+:::
+
+---
+
+## Keep Previous Data
+
+By default, when the cache key changes (e.g. switching from one resource to another), `useFetch` clears the previous
+state and shows a fresh loading cycle. This prevents stale data from one resource leaking into another.
+
+You can control this behavior with the `keepPreviousData` option:
+
+- `"auto"` (default) — Clears state when URL params change (different resource), preserves state when only query
+  params change (pagination/filtering).
+- `"preserve"` — Always keeps previous data visible until new data arrives. Ideal for pagination and infinite scroll.
+- `"clean"` — Always resets state to initial values when cache key changes.
+
+```tsx title="Pagination with keepPreviousData"
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersList() {
+  const [page, setPage] = useState(1);
+  const { data, loading } = useFetch(getUsers.setQueryParams({ page }), {
+    keepPreviousData: "preserve",
+  });
+
+  return (
+    <div>
+      <Table data={data} loading={loading} />
+      <button type="button" onClick={() => setPage((p) => p + 1)}>
+        Next Page
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## Clear State
+
+The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
+This is useful when you need to manually reset the UI, for example after a user action or before navigating away.
+
+```tsx title="Using clearState"
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersList() {
+  const { data, error, clearState, refetch } = useFetch(getUsers);
+
+  const handleReset = () => {
+    clearState();
+    refetch();
+  };
+
+  return (
+    <div>
+      {data && <Table data={data} />}
+      {error && <p>Something went wrong</p>}
+      <button type="button" onClick={handleReset}>
+        Reset & Reload
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
 ## Options
 
 Customize the behavior of `useFetch` by passing an options object as the second argument.

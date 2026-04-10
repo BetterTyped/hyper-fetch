@@ -10,7 +10,7 @@ describe("Cache [ Events ]", () => {
   const cacheKey = "test";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
   let cache = createCache(client);
   const spy = jest.fn();
 
@@ -36,7 +36,7 @@ describe("Cache [ Events ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
     cache = createCache(client);
     jest.resetAllMocks();
   });

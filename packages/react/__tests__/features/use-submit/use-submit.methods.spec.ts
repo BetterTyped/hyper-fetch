@@ -7,9 +7,7 @@ import { client, createRequest, renderUseSubmit } from "../../utils";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Methods ]", () => {
-  let request = createRequest<{
-    queryParams?: string;
-  }>({ method: "POST" });
+  let request = createRequest({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -25,7 +23,7 @@ describe("useSubmit [ Methods ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    request = createRequest<{ queryParams?: string }>({ method: "POST" });
+    request = createRequest({ method: "POST" });
     client.clear();
   });
 

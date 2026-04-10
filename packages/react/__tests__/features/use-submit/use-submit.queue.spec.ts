@@ -7,7 +7,7 @@ import { client, createRequest, renderUseSubmit, waitForRender } from "../../uti
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Queue ]", () => {
-  let request = createRequest<{ response: any; payload: null }>({ method: "POST", queued: true });
+  let request = createRequest({ method: "POST", queued: true });
 
   beforeAll(() => {
     startServer();

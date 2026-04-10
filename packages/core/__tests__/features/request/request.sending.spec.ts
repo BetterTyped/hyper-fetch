@@ -43,7 +43,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return mapped adapter response", async () => {
-      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec({});
+      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } } as typeof res)).exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
       const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
@@ -70,7 +70,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should return mapped adapter response", async () => {
       const { responseTimestamp, requestTimestamp, ...response } = await request
-        .setResponseMapper((res) => ({ ...res, data: { nested: res.data } }))
+        .setResponseMapper((res) => ({ ...res, data: { nested: res.data } } as typeof res))
         .send({});
 
       expect(response).toStrictEqual({
@@ -83,7 +83,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should return async mapped adapter response", async () => {
       const { responseTimestamp, requestTimestamp, ...response } = await request
-        .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } }))
+        .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } } as typeof res))
         .send({});
 
       expect(response).toStrictEqual({

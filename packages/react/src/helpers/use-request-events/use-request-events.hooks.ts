@@ -8,6 +8,7 @@ import {
   RequestProgressEventType,
   RequestResponseEventType,
   ResponseType,
+  scopeKey,
 } from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-hooks/lifecycle";
 import { useRef } from "react";
@@ -113,7 +114,7 @@ export const useRequestEvents = <R extends RequestInstance>({
       // This prevents the UI from flickering with { data: null, loading: false }
       if (isProcessing) return;
 
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(req.queryKey);
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
       if (loading || canDisableLoading) {
         actions.setLoading(loading);
       }
@@ -172,7 +173,10 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
+    const loadingUnmount = requestManager.events.onLoadingByQueue(
+      scopeKey(req.queryKey, req.scope),
+      handleGetLoadingEvent(req),
+    );
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
@@ -251,11 +255,13 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const abort = () => {
-    const { abortKey } = request;
+    const ak = scopeKey(request.abortKey, request.scope);
     const requests = dispatcher.getAllRunningRequests();
     requests.forEach((requestData) => {
-      if (requestData.request.abortKey === abortKey) {
-        dispatcher.delete(requestData.request.queryKey, requestData.requestId, abortKey);
+      const reqAk = scopeKey(requestData.request.abortKey, requestData.request.scope);
+      if (reqAk === ak) {
+        const qk = scopeKey(requestData.request.queryKey, requestData.request.scope);
+        dispatcher.delete(qk, requestData.requestId, reqAk);
       }
     });
   };

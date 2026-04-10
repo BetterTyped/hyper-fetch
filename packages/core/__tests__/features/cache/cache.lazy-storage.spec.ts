@@ -22,6 +22,7 @@ describe("Cache [ Lazy Storage ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    cached: true,
     staleTime,
     version,
     cacheTime: Infinity,

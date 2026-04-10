@@ -22,6 +22,7 @@ describe("Provider [ Hydration ]", () => {
         cacheKey: request.cacheKey,
         cache: true,
         cacheTime: Infinity,
+        scope: null,
         staleTime: 1000,
         timestamp: Date.now(),
         response: {

@@ -23,6 +23,12 @@ export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "
    * Request timeout in milliseconds. Defaults to 5000ms.
    */
   timeout?: number;
+  /**
+   * When true, the response `data` will be a `ReadableStream<Uint8Array>` instead of parsed JSON/text.
+   * This enables streaming consumption of the response body (e.g., for SSE, large file downloads,
+   * or real-time text generation from LLMs).
+   */
+  streaming?: boolean;
 };
 
 /**

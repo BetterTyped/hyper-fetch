@@ -94,6 +94,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   updatedQueryKey: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
+  scope: string | null;
   isMockerEnabled: boolean;
   hasMock: boolean;
 };
@@ -208,6 +209,7 @@ export type RequestConfigurationType<
   updatedCacheKey?: boolean;
   updatedQueryKey?: boolean;
   updatedEffectKey?: boolean;
+  scope?: string | null;
 } & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 
 export type ParamType = string | number;

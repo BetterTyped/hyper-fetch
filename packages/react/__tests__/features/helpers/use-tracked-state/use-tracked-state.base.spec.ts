@@ -78,6 +78,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -102,6 +103,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -135,6 +137,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -169,6 +172,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -202,6 +206,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -215,7 +220,7 @@ describe("useTrackingState [ Events ]", () => {
       it("should map the data", async () => {
         const { result } = renderUseTrackedState(
           request.setResponseMapper((response) => {
-            return { ...response, data: "new-data" };
+            return { ...response, data: "new-data" } as typeof response;
           }),
         );
 
@@ -238,6 +243,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -254,7 +260,7 @@ describe("useTrackingState [ Events ]", () => {
 
         const { result, rerender } = renderUseTrackedState(
           request.setResponseMapper((response) => {
-            return { ...response, data: "new-data" };
+            return { ...response, data: "new-data" } as typeof response;
           }),
         );
 
@@ -269,7 +275,7 @@ describe("useTrackingState [ Events ]", () => {
       it("should map the async data", async () => {
         const { result } = renderUseTrackedState(
           request.setResponseMapper(async (response) => {
-            return Promise.resolve({ ...response, data: "new-data" });
+            return Promise.resolve({ ...response, data: "new-data" } as typeof response);
           }),
         );
 
@@ -292,6 +298,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -327,6 +334,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -361,6 +369,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -391,9 +400,9 @@ describe("useTrackingState [ Events ]", () => {
           request.setResponseMapper(async (response) => {
             mapperCallCount += 1;
             if (mapperCallCount === 1) {
-              return firstPromise.then(() => ({ ...response, data: "first-data" }));
+              return firstPromise.then(() => ({ ...response, data: "first-data" } as typeof response));
             }
-            return secondPromise.then(() => ({ ...response, data: "second-data" }));
+            return secondPromise.then(() => ({ ...response, data: "second-data" } as typeof response));
           }),
         );
 
@@ -417,6 +426,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -439,6 +449,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -487,6 +498,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 
@@ -517,6 +529,7 @@ describe("useTrackingState [ Events ]", () => {
             staleTime: request.staleTime,
             version: request.client.cache.version,
             cacheTime: Infinity,
+            cached: true,
           });
         });
 

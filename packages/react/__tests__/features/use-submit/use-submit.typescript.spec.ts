@@ -76,7 +76,7 @@ describe("useSubmit [Types]", () => {
     });
 
     it("should type void response correctly", () => {
-      type DeleteData = UseSubmitReturnType<ReturnType<typeof deleteUser.setParams>>["data"];
+      type DeleteData = UseSubmitReturnType<typeof deleteUser>["data"];
       const data = null as unknown as DeleteData;
       expectType<void | null>().assert(data);
     });
@@ -90,7 +90,7 @@ describe("useSubmit [Types]", () => {
 
     it("should type error with custom error type", () => {
       const error = null as unknown as PostWithCustomErrorReturn["error"];
-      expectType<{ code: string; message: string } | null>().assert(error);
+      expectType<{ code: string; message: string } | Error | null>().assert(error);
     });
   });
 

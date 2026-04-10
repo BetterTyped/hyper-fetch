@@ -1,10 +1,4 @@
-import {
-  parseResponse,
-  getErrorMessage,
-  Adapter,
-  QueryParamsType,
-  stringifyKey,
-} from "@hyper-fetch/core";
+import { parseResponse, getErrorMessage, Adapter, QueryParamsType, stringifyKey } from "@hyper-fetch/core";
 
 import {
   gqlExtra,

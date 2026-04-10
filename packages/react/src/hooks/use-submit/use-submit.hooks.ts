@@ -16,7 +16,7 @@ import { useMemo, useRef } from "react";
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
 import { useTrackedState, useRequestEvents } from "helpers";
 import { useProvider } from "provider";
-import { getBounceData } from "utils";
+import { createTrackedProxy, getBounceData } from "utils";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -199,48 +199,41 @@ export const useSubmit = <RequestType extends RequestInstance>(
     addCacheDataListener(request);
   });
 
-  return {
-    submit: handleSubmit,
-    get data() {
-      setRenderKey("data");
-      return state.data;
-    },
-    get error() {
-      setRenderKey("error");
-      return state.error;
-    },
-    get submitting() {
-      setRenderKey("loading");
-      return state.loading;
-    },
-    get status() {
-      setRenderKey("status");
-      return state.status;
-    },
-    get success() {
-      setRenderKey("success");
-      return state.success;
-    },
-    get extra() {
-      setRenderKey("extra");
-      return state.extra;
-    },
-    get retries() {
-      setRenderKey("retries");
-      return state.retries;
-    },
-    get responseTimestamp() {
-      setRenderKey("responseTimestamp");
-      return state.responseTimestamp;
-    },
-    get requestTimestamp() {
-      setRenderKey("requestTimestamp");
-      return state.requestTimestamp;
-    },
-    abort: callbacks.abort,
-    ...actions,
-    ...handlers,
-    bounce: getBounceData(bounceData),
-    refetch,
+  const setSubmitRenderKey = (key: string) => {
+    setRenderKey((key === "submitting" ? "loading" : key) as keyof import("helpers").UseTrackedStateType);
   };
+
+  const trackedKeys = [
+    "data",
+    "error",
+    "submitting",
+    "status",
+    "success",
+    "extra",
+    "retries",
+    "responseTimestamp",
+    "requestTimestamp",
+  ] as const;
+
+  return createTrackedProxy(
+    {
+      submit: handleSubmit,
+      data: state.data,
+      error: state.error,
+      submitting: state.loading,
+      status: state.status,
+      success: state.success,
+      extra: state.extra,
+      retries: state.retries,
+      responseTimestamp: state.responseTimestamp,
+      requestTimestamp: state.requestTimestamp,
+      abort: callbacks.abort,
+      ...actions,
+      ...handlers,
+      bounce: getBounceData(bounceData),
+      refetch,
+    },
+    trackedKeys,
+    setSubmitRenderKey,
+  ) as UseSubmitReturnType<RequestType>;
 };

@@ -12,9 +12,41 @@ import {
   ResponseDetailsType,
   ExtractAdapterStatusType,
   ResponseType,
+  scopeKey,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
+
+/**
+ * Extracts the "identity" portion of a cache key (method + endpoint with resolved params),
+ * stripping the query params part. Cache keys follow the format: `method_endpoint_queryParams`.
+ */
+const getCacheKeyIdentity = (cacheKey: string): string => {
+  const lastUnderscoreIndex = cacheKey.lastIndexOf("_");
+  if (lastUnderscoreIndex === -1) return cacheKey;
+  return cacheKey.substring(0, lastUnderscoreIndex);
+};
+
+/**
+ * Determines whether state should be cleared when the cache key changes.
+ *
+ * - `"clean"` — always clear
+ * - `"preserve"` — never clear
+ * - `"auto"` — clear when the resource identity changed (URL params), preserve when only query params changed
+ */
+export const getShouldClearState = (
+  mode: "auto" | "preserve" | "clean",
+  oldCacheKey: string,
+  newCacheKey: string,
+): boolean => {
+  if (oldCacheKey === newCacheKey) return false;
+
+  if (mode === "clean") return true;
+  if (mode === "preserve") return false;
+
+  // "auto" — compare the identity part (method + endpoint with params)
+  return getCacheKeyIdentity(oldCacheKey) !== getCacheKeyIdentity(newCacheKey);
+};
 
 export const getDetailsState = (
   state?: UseTrackedStateType<RequestInstance>,
@@ -117,7 +149,7 @@ export const getInitialState = <T extends RequestInstance>({
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({
-    queryKey: request.queryKey,
+    queryKey: scopeKey(request.queryKey, request.scope),
     dispatcher,
     disabled,
     revalidate,

@@ -19,7 +19,7 @@ describe("Socket [ Utils ]", () => {
 
     socket.onMessage(() => null);
     expect(() =>
-      interceptListener(socket.unstable_onMessageCallbacks, { data: {}, extra: {} } as any, socket),
+      interceptListener(socket.unstable_onMessageCallbacks, { data: {}, extra: {} } as any),
     ).toThrow();
   });
 

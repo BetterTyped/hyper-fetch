@@ -1597,26 +1597,33 @@ html[data-theme="dark"] .navbar-sidebar .github {
 }
 
 .menu__list-item-collapsible {
-  @apply !bg-transparent mt-5 !text-inherit !cursor-pointer;
+  @apply !bg-transparent mt-5 !cursor-pointer !text-inherit;
 }
-.menu__list-item-collapsible .menu__link {
+.menu__list-item-collapsible * {
+  @apply !text-inherit;
+}
+.menu__list-item-collapsible .menu__link * {
   @apply text-xs uppercase !text-inherit font-bold tracking-wider !cursor-pointer;
 }
 
 .menu__link {
   padding-top: 10px;
   padding-bottom: 10px;
+  @apply !text-inherit;
+}
+
+.menu__link * {
   font-weight: 600;
   font-size: 15px;
 }
-.custom-sidebar-menu a.menu__link--active {
+.custom-sidebar-menu a.menu__link--active * {
   color: inherit !important;
 }
 .menu__link--active:not(.menu__link--sublist) {
   @apply dark:bg-zinc-800 bg-zinc-300/40;
 }
 
-.menu__list-item > .menu__link {
+.menu__list-item > .menu__link * {
   @apply hover:dark:text-white hover:text-zinc-900;
 }
 

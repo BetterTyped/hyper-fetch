@@ -204,6 +204,41 @@ client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
 
 ---
 
+6. ### Streaming
+
+The default HTTP adapter supports **response streaming** via the native `ReadableStream` API. When a request is
+configured with `streaming: true`, the adapter returns the raw `response.body` stream instead of buffering the entire
+response. This is used internally by the [`useStream`](/docs/react/hooks/use-stream) hook.
+
+```ts title="Streaming a response"
+const streamRequest = client.createRequest()({
+  endpoint: "/api/chat/completions",
+  method: "POST",
+  options: { streaming: true },
+});
+
+const { data } = await streamRequest.send();
+
+// data is a ReadableStream<Uint8Array>
+const reader = data.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  console.log(decoder.decode(value, { stream: true }));
+}
+```
+
+:::tip React Integration
+
+For React apps, use the [`useStream`](/docs/react/hooks/use-stream) hook instead of manually consuming the stream.
+It handles chunk accumulation, lifecycle management, and reactive re-renders automatically.
+
+:::
+
+---
+
 ## TypeScript Generics
 
 When you create custom adapter, you need to specify the types for the requests templates. Each adapter may have

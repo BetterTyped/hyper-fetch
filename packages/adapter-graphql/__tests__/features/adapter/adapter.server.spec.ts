@@ -3,6 +3,7 @@
  */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
+
 import { GraphqlAdapter, GraphqlMethod } from "../../../src/adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";

@@ -23,6 +23,7 @@ const getUser = client.createRequest<{
   endpoint: "/users/:userId",
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getUserWithQuery = client.createRequest<{
   response: { id: string; name: string }[];
   queryParams: { search: string; page: number };
@@ -71,7 +72,7 @@ describe("useFetch [Types]", () => {
 
     it("should type error with custom error type", () => {
       const error = null as unknown as GetUserWithErrorReturn["error"];
-      expectType<{ code: number; message: string; details: string[] } | null>().assert(error);
+      expectType<{ code: number; message: string; details: string[] } | Error | null>().assert(error);
     });
   });
 
@@ -111,9 +112,7 @@ describe("useFetch [Types]", () => {
   describe("return type: actions", () => {
     it("should have setData accepting the response type", () => {
       const setData = (() => null) as unknown as GetUsersReturn["setData"];
-      expectFunctionParametersType(setData).assert([
-        [{ id: "1", name: "test" }],
-      ]);
+      expectFunctionParametersType(setData).assert([[{ id: "1", name: "test" }]]);
     });
 
     it("should have setData accepting null", () => {

@@ -29,7 +29,7 @@ describe("Cache [ Base ]", () => {
   };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
   let cache = createCache(client);
 
   beforeAll(() => {
@@ -38,7 +38,7 @@ describe("Cache [ Base ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
     resetMocks();
     jest.resetAllMocks();
@@ -167,7 +167,7 @@ describe("Cache [ Base ]", () => {
       cache.delete(request.cacheKey);
 
       // Cannot update if cache is not set
-      cache.update(request.setCache(true), (prev) => {
+      cache.update(request.setCache(true), ((prev: any) => {
         expect(prev).toBeNull();
         return {
           ...prev,
@@ -177,7 +177,7 @@ describe("Cache [ Base ]", () => {
             field4: "value4",
           },
         };
-      });
+      }) as any);
 
       result = cache.get(request.cacheKey);
       expect(result).toBeUndefined();
@@ -251,6 +251,7 @@ describe("Cache [ Base ]", () => {
         isOffline: false,
         addedTimestamp: Date.now(),
         triggerTimestamp: Date.now(),
+        cached: true,
       };
       cache.storage.set(mockRequest.cacheKey, data);
 
@@ -343,6 +344,7 @@ describe("Cache [ Base ]", () => {
           isOffline: false,
           addedTimestamp: Date.now(),
           triggerTimestamp: Date.now(),
+          cached: true,
         });
       });
 

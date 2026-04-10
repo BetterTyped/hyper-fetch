@@ -257,13 +257,13 @@ describe("useTrackedState [ Actions ]", () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setExtra((prev: null | Record<string, any>) => {
-          expect(prev).not.toStrictEqual({ count: 1 });
-          return { count: 1 };
+        result.current[1].setExtra((prev: any) => {
+          expect(prev).not.toStrictEqual({ count: 1, headers: {} });
+          return { count: 1, headers: {} };
         });
       });
 
-      expect(result.current[0].extra).toEqual({ count: 1 });
+      expect(result.current[0].extra).toEqual({ count: 1, headers: {} });
     });
   });
   describe("when using setRetries action", () => {

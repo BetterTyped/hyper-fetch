@@ -152,8 +152,8 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map the data on deps change", async () => {
       mockRequest(request);
-      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
-      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
+      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 } as typeof response));
+      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 } as typeof response));
 
       const { result, rerender } = renderUseFetch(request1);
 
@@ -200,7 +200,7 @@ describe("useFetch [ Base ]", () => {
       const mappedRequest = request.setResponseMapper((response) => ({
         ...response,
         data: mappedData,
-      }));
+      } as typeof response));
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest);
 
@@ -212,7 +212,7 @@ describe("useFetch [ Base ]", () => {
       const mappedRequest = request.setResponseMapper(async (response) => ({
         ...response,
         data: mappedData,
-      }));
+      } as typeof response));
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest, { disabled: true });
 

@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import {
   RequestSendOptionsType,
+  RequestSendActionsType,
   ParamsType,
   RequestSendType,
   PayloadType,
@@ -13,6 +14,7 @@ import {
   RequestMapper,
   ResponseMapper,
   ExtractUrlParams,
+  scopeKey,
 } from "request";
 import { ClientInstance } from "client";
 import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
@@ -92,6 +94,14 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
+  scope: string | null;
+
+  /**
+   * Instance-level lifecycle hooks. These callbacks fire for every `send()` / `exec()` call
+   * made on this request instance (and its clones), without needing to pass them to `send()` each time.
+   * Useful for cross-cutting concerns like logging, analytics, or toast notifications.
+   */
+  $hooks: RequestSendActionsType<RequestInstance> = {};
 
   isMockerEnabled = false;
 
@@ -122,13 +132,13 @@ export class Request<
     readonly requestOptions: ClientRequestOptions<Endpoint, Client>,
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
-        Payload,
-        Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
-        QueryParams,
-        Endpoint,
-        ClientAdapterOptions<Client>,
-        ClientAdapterMethod<Client>
-      >
+          Payload,
+          Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
+          QueryParams,
+          Endpoint,
+          ClientAdapterOptions<Client>,
+          ClientAdapterMethod<Client>
+        >
       | undefined,
   ) {
     const configuration: ClientRequestOptions<Endpoint, Client> = {
@@ -177,6 +187,7 @@ export class Request<
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
+    this.scope = initialRequestConfiguration?.scope ?? null;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
     this.updatedQueryKey = initialRequestConfiguration?.updatedQueryKey ?? false;
@@ -206,6 +217,18 @@ export class Request<
 
   public setOptions = (options: ClientAdapterOptions<Client>) => {
     return this.clone<HasPayload, HasParams, true>({ options });
+  };
+
+  /**
+   * Set a scope identifier for this request.
+   * All keys (cache, queue, abort) are prefixed with this scope, isolating
+   * the request from other scopes. In "server" client mode, setting a scope
+   * also enables caching (which is otherwise disabled to prevent cross-request leaks).
+   */
+  public setScope = (scopeId: string) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.scope = scopeId;
+    return cloned;
   };
 
   public setCancelable = (cancelable: boolean) => {
@@ -393,6 +416,7 @@ export class Request<
       updatedQueryKey: this.updatedQueryKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
+      scope: this.scope,
       isMockerEnabled: this.isMockerEnabled,
       hasMock: !!this.unstable_mock,
     };
@@ -454,13 +478,14 @@ export class Request<
 
     cloned.unstable_mock = this.unstable_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
+    cloned.$hooks = { ...this.$hooks };
 
     return cloned;
   }
 
   public abort = () => {
     const { requestManager } = this.client;
-    requestManager.abortByKey(this.abortKey);
+    requestManager.abortByKey(scopeKey(this.abortKey, this.scope));
 
     return this.clone();
   };
@@ -481,6 +506,7 @@ export class Request<
         cacheTime: this.cacheTime,
         staleTime: this.staleTime,
         cacheKey: this.cacheKey,
+        scope: this.scope,
         timestamp: +new Date(),
         hydrated: true,
         cache: true,
@@ -499,6 +525,7 @@ export class Request<
       cacheTime: this.cacheTime,
       staleTime: this.staleTime,
       cacheKey: this.cacheKey,
+      scope: this.scope,
       timestamp: +new Date(),
       hydrated: true,
       cache: true,
@@ -554,13 +581,15 @@ export class Request<
 
     const requestId = this.client.unstable_requestIdMapper(this);
 
+    const scopedAbortKey = scopeKey(this.abortKey, this.scope);
+
     // Listen for aborting
-    requestManager.addAbortController(this.abortKey, requestId);
+    requestManager.addAbortController(scopedAbortKey, requestId);
 
     const response = await adapter.fetch(request, requestId);
 
     // Stop listening for aborting
-    requestManager.removeAbortController(this.abortKey, requestId);
+    requestManager.removeAbortController(scopedAbortKey, requestId);
 
     if (request.unstable_responseMapper) {
       return request.unstable_responseMapper(response);

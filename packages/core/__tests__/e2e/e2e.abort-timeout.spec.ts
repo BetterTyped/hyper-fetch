@@ -4,7 +4,7 @@
 import { Client } from "@hyper-fetch/core";
 import { createE2EServer, delayHandler, jsonHandler } from "@hyper-fetch/testing";
 
-const { route, startServer, stopServer, getUrl } = createE2EServer();
+const { route, startServer, stopServer } = createE2EServer();
 
 describe("E2E [ Abort & Timeout ]", () => {
   let baseUrl: string;

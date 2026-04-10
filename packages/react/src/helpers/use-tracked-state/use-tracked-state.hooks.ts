@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import {
   ExtractErrorType,
   CacheValueType,
@@ -8,8 +8,9 @@ import {
   ExtractAdapterType,
   ExtractAdapterExtraType,
   ResponseType,
+  scopeKey,
 } from "@hyper-fetch/core";
-import { useRef } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 import { isEqual } from "utils";
 import {
@@ -18,7 +19,13 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getInitialState, getIsInitiallyLoading, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
+import {
+  getInitialState,
+  getIsInitiallyLoading,
+  getShouldClearState,
+  getValidCacheData,
+  isStaleCacheData,
+} from "./use-tracked-state.utils";
 
 /**
  *
@@ -34,17 +41,40 @@ export const useTrackedState = <T extends RequestInstance>({
   initialResponse,
   deepCompare,
   dependencyTracking,
+  keepPreviousData = "auto",
   disabled,
   revalidate,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queryKey, staleTime, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const forceUpdate = useForceUpdate();
-
   const state = useRef<UseTrackedStateType<T>>(getInitialState({ initialResponse, dispatcher, request, disabled }));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
   const isProcessingData = useRef("");
+  const previousCacheKey = useRef(cacheKey);
+
+  // ******************
+  // useSyncExternalStore
+  // ******************
+
+  const versionRef = useRef(0);
+  const listenerRef = useRef<(() => void) | null>(null);
+
+  const subscribe = useCallback((listener: () => void) => {
+    listenerRef.current = listener;
+    return () => {
+      listenerRef.current = null;
+    };
+  }, []);
+
+  const getSnapshot = useCallback(() => versionRef.current, []);
+
+  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  const emitChange = () => {
+    versionRef.current += 1;
+    listenerRef.current?.();
+  };
 
   // ******************
   // Utils
@@ -61,7 +91,7 @@ export const useTrackedState = <T extends RequestInstance>({
 
   const renderKeyTrigger = (keys: Array<keyof UseTrackedStateType>) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) forceUpdate();
+    if (shouldRerender) emitChange();
   };
 
   const setRenderKey = (renderKey: keyof UseTrackedStateType) => {
@@ -76,23 +106,31 @@ export const useTrackedState = <T extends RequestInstance>({
 
   useDidUpdate(
     () => {
+      const oldKey = previousCacheKey.current;
+      previousCacheKey.current = cacheKey;
+
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
       // Handle initial loading state
       state.current.loading = getIsInitiallyLoading({
-        queryKey: request.queryKey,
+        queryKey: scopeKey(request.queryKey, request.scope),
         dispatcher,
         disabled,
         revalidate,
         hasState: !!cacheState,
       });
 
-      if (cacheState) {
-        // Don't update the state when we are fetching data for new cacheKey
-        // So on paginated page we will have previous page access until the new one will be fetched
-        // However: When we have some cached data, we can use it right away
+      // Determine whether to clear state based on keepPreviousData mode
+      const shouldClear = getShouldClearState(keepPreviousData, oldKey, cacheKey);
+
+      if (shouldClear && !cacheState) {
+        // Reset state to initial values when no cached data exists for the new key
+        const resetState = getInitialState({ initialResponse, dispatcher, request, disabled, revalidate });
+        state.current = resetState;
+        renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T>)[]);
+      } else if (cacheState) {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         setCacheData(cacheState);
       }
@@ -273,6 +311,20 @@ export const useTrackedState = <T extends RequestInstance>({
 
       state.current.requestTimestamp = getTimestamp(state.current.requestTimestamp);
       renderKeyTrigger(["requestTimestamp"]);
+    },
+    clearState: () => {
+      state.current = {
+        data: null,
+        error: null,
+        loading: false,
+        status: null,
+        success: false,
+        extra: null,
+        retries: 0,
+        responseTimestamp: null,
+        requestTimestamp: null,
+      } as UseTrackedStateType<T>;
+      renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T>)[]);
     },
   };
 

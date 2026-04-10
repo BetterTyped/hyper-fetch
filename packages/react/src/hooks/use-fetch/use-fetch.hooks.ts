@@ -5,13 +5,18 @@ import {
   ExtractAdapterStatusType,
   ExtractAdapterType,
   ExtractAdapterExtraType,
+  scopeKey,
 } from "@hyper-fetch/core";
 import { useRef } from "react";
 
 import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
 import { useProvider } from "provider";
-import { getBounceData } from "utils";
+import { createTrackedProxy, getBounceData } from "utils";
+
+type SuspenseEntry = { promise: Promise<void>; resolve: () => void; cleanup: () => void };
+const suspensePromiseMap = new Map<string, SuspenseEntry>();
+const suspenseResultMap = new Map<string, { data: any; error: any; status: any; extra: any; success: boolean }>();
 
 /**
  * This hooks aims to retrieve data from server.
@@ -26,11 +31,13 @@ export const useFetch = <R extends RequestInstance>(
   // Build the configuration options
   const { config: globalConfig } = useProvider();
   const {
+    suspense,
     dependencies,
     disabled,
     dependencyTracking,
     revalidate,
     initialResponse,
+    keepPreviousData,
     refresh,
     refreshTime,
     refetchBlurred,
@@ -71,6 +78,7 @@ export const useFetch = <R extends RequestInstance>(
     initialResponse,
     deepCompare,
     dependencyTracking,
+    keepPreviousData,
     disabled,
     revalidate,
   });
@@ -115,8 +123,9 @@ export const useFetch = <R extends RequestInstance>(
       const isBlurred = !appManager.isFocused;
 
       // If window tab is not active should we refresh the cache
-      const isFetching = dispatcher.hasRunningRequests(request.queryKey);
-      const isQueued = dispatcher.getIsActiveQueue(request.queryKey);
+      const scopedQueryKey = scopeKey(request.queryKey, request.scope);
+      const isFetching = dispatcher.hasRunningRequests(scopedQueryKey);
+      const isQueued = dispatcher.getIsActiveQueue(scopedQueryKey);
       const isActive = isFetching || isQueued;
       const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
@@ -251,46 +260,94 @@ export const useFetch = <R extends RequestInstance>(
     ignoreReact18DoubleRender.current = true;
   });
 
-  return {
-    get data() {
-      setRenderKey("data");
-      return state.data;
+  // ******************
+  // Suspense
+  // ******************
+  if (suspense && !disabled) {
+    // Apply any cached suspense result (covers error responses that aren't stored in cache)
+    const suspenseResult = suspenseResultMap.get(cacheKey);
+    if (suspenseResult) {
+      suspenseResultMap.delete(cacheKey);
+      if (suspenseResult.data !== null) state.data = suspenseResult.data;
+      if (suspenseResult.error !== null) state.error = suspenseResult.error;
+      if (suspenseResult.status !== null) state.status = suspenseResult.status;
+      if (suspenseResult.extra !== null) state.extra = suspenseResult.extra;
+      state.success = suspenseResult.success;
+    }
+
+    const hasData = state.data !== null || state.error !== null;
+
+    if (!hasData) {
+      let entry = suspensePromiseMap.get(cacheKey);
+      if (!entry) {
+        let resolvePromise: () => void;
+        const promise = new Promise<void>((r) => {
+          resolvePromise = r;
+        });
+
+        const unsubscribe = cache.events.onDataByKey(cacheKey, (cacheData: any) => {
+          suspenseResultMap.set(cacheKey, {
+            data: cacheData.data ?? null,
+            error: cacheData.error ?? null,
+            status: cacheData.status ?? null,
+            extra: cacheData.extra ?? null,
+            success: cacheData.success ?? false,
+          });
+          resolvePromise();
+          unsubscribe();
+          suspensePromiseMap.delete(cacheKey);
+        });
+
+        entry = { promise, resolve: resolvePromise!, cleanup: unsubscribe };
+        suspensePromiseMap.set(cacheKey, entry);
+      }
+
+      // Ensure the request is dispatched before suspending —
+      // effects never run when a component suspends.
+      if (!dispatcher.hasRunningRequests(queryKey)) {
+        dispatcher.add(request as unknown as R);
+      }
+
+      throw entry.promise;
+    }
+
+    // Data has arrived — clean up any leftover entry
+    const entry = suspensePromiseMap.get(cacheKey);
+    if (entry) {
+      entry.cleanup();
+      suspensePromiseMap.delete(cacheKey);
+    }
+  }
+
+  const trackedKeys = [
+    "data",
+    "error",
+    "loading",
+    "status",
+    "success",
+    "extra",
+    "retries",
+    "responseTimestamp",
+    "requestTimestamp",
+  ] as const;
+
+  return createTrackedProxy(
+    {
+      data: state.data,
+      error: state.error,
+      loading: state.loading,
+      status: state.status as ExtractAdapterStatusType<ExtractAdapterType<R>>,
+      success: state.success,
+      extra: state.extra as ExtractAdapterExtraType<ExtractAdapterType<R>>,
+      retries: state.retries,
+      responseTimestamp: state.responseTimestamp,
+      requestTimestamp: state.requestTimestamp,
+      bounce: getBounceData(bounceData),
+      ...actions,
+      ...(callbacks as any),
+      refetch,
     },
-    get error() {
-      setRenderKey("error");
-      return state.error;
-    },
-    get loading() {
-      setRenderKey("loading");
-      return state.loading;
-    },
-    get status() {
-      setRenderKey("status");
-      return state.status as ExtractAdapterStatusType<ExtractAdapterType<R>>;
-    },
-    get success() {
-      setRenderKey("success");
-      return state.success;
-    },
-    get extra() {
-      setRenderKey("extra");
-      return state.extra as ExtractAdapterExtraType<ExtractAdapterType<R>>;
-    },
-    get retries() {
-      setRenderKey("retries");
-      return state.retries;
-    },
-    get responseTimestamp() {
-      setRenderKey("responseTimestamp");
-      return state.responseTimestamp;
-    },
-    get requestTimestamp() {
-      setRenderKey("requestTimestamp");
-      return state.requestTimestamp;
-    },
-    bounce: getBounceData(bounceData),
-    ...actions,
-    ...(callbacks as any),
-    refetch,
-  };
+    trackedKeys,
+    setRenderKey,
+  ) as UseFetchReturnType<R>;
 };

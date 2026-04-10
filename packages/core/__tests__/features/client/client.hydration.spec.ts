@@ -1,4 +1,5 @@
 import { Client } from "client";
+import { CacheValueType } from "cache";
 
 describe("Client [ Hydration ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -60,7 +61,7 @@ describe("Client [ Hydration ]", () => {
       expect(dehydratedResponse).toStrictEqual(expect.objectContaining({ cacheKey: request.cacheKey, response }));
 
       const newClient = new Client({ url: "shared-base-url" });
-      const cacheData: CacheValueType = {
+      const cacheData = {
         data: "123456789",
         status: 200,
         error: null,
@@ -75,7 +76,7 @@ describe("Client [ Hydration ]", () => {
         isOffline: false,
         hydrated: false,
         cached: true,
-      };
+      } as CacheValueType;
 
       newClient.cache.set(mockedRequest, cacheData);
 

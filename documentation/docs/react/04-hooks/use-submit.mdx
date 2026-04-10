@@ -227,6 +227,38 @@ const handleSubmit = (id: number, name: string) => {
 
 ---
 
+## Clear State
+
+The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
+
+```tsx title="Using clearState"
+import { useSubmit } from "@hyper-fetch/react";
+import { createUser } from "./api/users";
+
+function CreateUserForm() {
+  const { submit, data, error, clearState } = useSubmit(createUser);
+
+  const handleReset = () => {
+    clearState();
+  };
+
+  return (
+    <div>
+      <button type="button" onClick={() => submit({ payload: { name: "John" } })}>
+        Create User
+      </button>
+      {data && <p>User created!</p>}
+      {error && <p>Error creating user</p>}
+      <button type="button" onClick={handleReset}>
+        Reset
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
 ## Options
 
 Customize the behavior of `useSubmit` by passing an options object as the second argument.

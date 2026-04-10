@@ -12,7 +12,7 @@ import {
 import { ClientInstance } from "client";
 import { EventEmitter } from "utils";
 import { ResponseDetailsType, LoggerMethods } from "managers";
-import { RequestInstance } from "request";
+import { RequestInstance, scopeKey } from "request";
 import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
 
 /**
@@ -333,8 +333,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Cancel all started requests, but do NOT remove it from main storage
    */
   cancelRunningRequests = (queryKey: string) => {
-    this.runningRequests.get(queryKey)?.forEach((request) => {
-      this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
+    this.runningRequests.get(queryKey)?.forEach((req) => {
+      const ak = scopeKey(req.request.abortKey, req.request.scope);
+      this.client.requestManager.abortByRequestId(ak, req.requestId);
     });
     this.deleteRunningRequests(queryKey);
   };
@@ -344,7 +345,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   cancelRunningRequest = (queryKey: string, requestId: string) => {
     const requests = this.getRunningRequests(queryKey).filter((request) => {
       if (request.requestId === requestId) {
-        this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
+        const ak = scopeKey(request.request.abortKey, request.request.scope);
+        this.client.requestManager.abortByRequestId(ak, request.requestId);
         return false;
       }
       return true;
@@ -413,7 +415,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Add request to the dispatcher handler
    */
   add = (request: RequestInstance) => {
-    const { queryKey } = request;
+    const queryKey = scopeKey(request.queryKey, request.scope);
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
@@ -503,7 +505,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const { request, requestId } = storageItem;
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
-    const { retry, retryTime, queryKey, abortKey, offline } = request;
+    const { retry, retryTime, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
+    const queryKey = scopeKey(rawQueryKey, scope);
+    const abortKey = scopeKey(rawAbortKey, scope);
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageItem.retries, retry);

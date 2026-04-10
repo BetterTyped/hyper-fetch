@@ -1,4 +1,4 @@
-import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType } from "@hyper-fetch/core";
+import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType, scopeKey } from "@hyper-fetch/core";
 import { useState, useEffect, useCallback } from "react";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
@@ -31,7 +31,9 @@ export const useQueue = <Request extends RequestInstance>(
     ...options,
   };
 
-  const { abortKey, queryKey, client } = request;
+  const { abortKey: rawAbortKey, queryKey: rawQueryKey, scope, client } = request;
+  const abortKey = scopeKey(rawAbortKey, scope);
+  const queryKey = scopeKey(rawQueryKey, scope);
   const { requestManager } = client;
 
   const [dispatcher] = getRequestDispatcher(request, dispatcherType);

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useRequestEvents, useTrackedState } from "helpers";
 import { useProvider } from "provider";
+import { createTrackedProxy } from "utils";
 
 export const useCache = <T extends RequestInstance>(
   request: T,
@@ -72,44 +73,33 @@ export const useCache = <T extends RequestInstance>(
     cache.invalidate(cacheKeys ?? cacheKey);
   };
 
-  return {
-    get data() {
-      setRenderKey("data");
-      return state.data;
+  const trackedKeys = [
+    "data",
+    "error",
+    "loading",
+    "status",
+    "success",
+    "extra",
+    "retries",
+    "responseTimestamp",
+    "requestTimestamp",
+  ] as const;
+
+  return createTrackedProxy(
+    {
+      data: state.data,
+      error: state.error,
+      loading: state.loading,
+      status: state.status,
+      success: state.success,
+      extra: state.extra,
+      retries: state.retries,
+      responseTimestamp: state.responseTimestamp,
+      requestTimestamp: state.requestTimestamp,
+      ...actions,
+      invalidate,
     },
-    get error() {
-      setRenderKey("error");
-      return state.error;
-    },
-    get loading() {
-      setRenderKey("loading");
-      return state.loading;
-    },
-    get status() {
-      setRenderKey("status");
-      return state.status;
-    },
-    get success() {
-      setRenderKey("success");
-      return state.success;
-    },
-    get extra() {
-      setRenderKey("extra");
-      return state.extra;
-    },
-    get retries() {
-      setRenderKey("retries");
-      return state.retries;
-    },
-    get responseTimestamp() {
-      setRenderKey("responseTimestamp");
-      return state.responseTimestamp;
-    },
-    get requestTimestamp() {
-      setRenderKey("requestTimestamp");
-      return state.requestTimestamp;
-    },
-    ...actions,
-    invalidate,
-  };
+    trackedKeys,
+    setRenderKey,
+  ) as UseCacheReturnType<T>;
 };

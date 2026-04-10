@@ -40,7 +40,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should throw error when emitting", async () => {
     startServer();
 
-    expect(() => socket.adapter.emit({} as any, {})).rejects.toThrow();
+    expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
   });
 
   it("should reconnect when going online", async () => {

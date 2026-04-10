@@ -13,12 +13,12 @@ describe("Emitter [ Emit ]", () => {
   const message = { topic: "Maciej", age: 99 };
 
   let socket = createSocket();
-  let emitter = createEmitter<DataType>(socket, { timeout: 4000 });
+  let emitter = createEmitter<DataType>(socket);
 
   beforeEach(async () => {
     startServer();
     socket = createSocket();
-    emitter = createEmitter<DataType>(socket, { timeout: 4000 });
+    emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
     await waitForConnection(socket);
   });

@@ -7,11 +7,13 @@ type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>
 };
 
 export const useFetchDefaultOptions: DefaultOptionsType = {
+  suspense: false,
   dependencies: [],
   disabled: false,
   dependencyTracking: true,
   revalidate: true,
   initialResponse: null,
+  keepPreviousData: "auto",
   refresh: false,
   refreshTime: Time.HOUR,
   refetchBlurred: true,

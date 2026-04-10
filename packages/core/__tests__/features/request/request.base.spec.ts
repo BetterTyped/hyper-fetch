@@ -135,7 +135,7 @@ describe("Fetch Adapter [ Base ]", () => {
     const mapperRequest = client
       .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
       .setResponseMapper((res) => {
-        return { ...res, data: null, error: new Error(message) };
+        return { ...res, data: null, error: new Error(message) } as typeof res;
       });
     mockRequest(mapperRequest);
 

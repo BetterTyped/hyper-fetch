@@ -41,7 +41,7 @@ describe("Adapter [ Base ]", () => {
       expect(adapter.unstable_payloadMapperConfig).toBe(config);
     });
     it("should set devtools endpoint getter", () => {
-      const mapper = (req: RequestInstance) => req.endpoint;
+      const mapper = (endpoint: string) => endpoint;
       adapter.setDevtoolsEndpointGetter(mapper);
       expect(adapter.unstable_devtoolsEndpointGetter).toBe(mapper);
     });
@@ -202,7 +202,7 @@ describe("Adapter [ Base ]", () => {
       // hack to prevent logger from being missed (not initialized)
       newAdapter.logger = client.loggerManager.initialize(client, "Adapter");
 
-      const data = await newAdapter.fetch(request, "test");
+      const data = await newAdapter.fetch(request as any, "test");
 
       expect(data.error.message).toStrictEqual(
         new RequestProcessingError("Adapter test-adapter is not initialized").message,

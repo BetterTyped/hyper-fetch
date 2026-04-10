@@ -49,7 +49,7 @@ export const getAdapter = () =>
         const fullUrl = `${client.url}${endpoint}${queryString}`;
 
         const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, ...restOptions } = adapterOptions || {};
+        const { timeout: timeoutMs = defaultTimeout, streaming = false, ...restOptions } = adapterOptions || {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -104,45 +104,58 @@ export const getAdapter = () =>
           const extra: HttpAdapterExtraType = { headers: responseHeaders };
           const { status } = response;
 
-          let body: string;
+          if (streaming && response.body) {
+            onResponseEnd();
+            unmountListener();
 
-          if (response.body && typeof response.body.getReader === "function") {
-            const reader = response.body.getReader();
-            const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
-            let receivedLength = 0;
-            const chunks: Uint8Array[] = [];
+            if (response.ok) {
+              onSuccess({ data: response.body as any, status, extra });
+            } else {
+              const errorBody = await response.text();
+              const error = parseErrorResponse(errorBody);
+              onError({ error, status, extra });
+            }
+          } else {
+            let body: string;
 
-            // eslint-disable-next-line no-constant-condition
-            while (true) {
-              // eslint-disable-next-line no-await-in-loop
-              const { done, value } = await reader.read();
-              if (done) break;
-              chunks.push(value);
-              receivedLength += value.length;
-              onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
+            if (response.body && typeof response.body.getReader === "function") {
+              const reader = response.body.getReader();
+              const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
+              let receivedLength = 0;
+              const chunks: Uint8Array[] = [];
+
+              // eslint-disable-next-line no-constant-condition
+              while (true) {
+                // eslint-disable-next-line no-await-in-loop
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                receivedLength += value.length;
+                onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
+              }
+
+              const allChunks = new Uint8Array(receivedLength);
+              let position = 0;
+              // eslint-disable-next-line no-restricted-syntax
+              for (const chunk of chunks) {
+                allChunks.set(chunk, position);
+                position += chunk.length;
+              }
+              body = new TextDecoder().decode(allChunks);
+            } else {
+              body = await response.text();
             }
 
-            const allChunks = new Uint8Array(receivedLength);
-            let position = 0;
-            // eslint-disable-next-line no-restricted-syntax
-            for (const chunk of chunks) {
-              allChunks.set(chunk, position);
-              position += chunk.length;
+            onResponseEnd();
+            unmountListener();
+
+            if (response.ok) {
+              const data = parseResponse(body);
+              onSuccess({ data, status, extra });
+            } else {
+              const error = parseErrorResponse(body);
+              onError({ error, status, extra });
             }
-            body = new TextDecoder().decode(allChunks);
-          } else {
-            body = await response.text();
-          }
-
-          onResponseEnd();
-          unmountListener();
-
-          if (response.ok) {
-            const data = parseResponse(body);
-            onSuccess({ data, status, extra });
-          } else {
-            const error = parseErrorResponse(body);
-            onError({ error, status, extra });
           }
         } catch (err: any) {
           if (timeoutId) clearTimeout(timeoutId);

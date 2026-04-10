@@ -4,6 +4,10 @@ import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType } from "types";
 
+export const scopeKey = (key: string, scope: string | null): string => {
+  return scope ? `${scope}__${key}` : key;
+};
+
 export const stringifyKey = (value: unknown): string => {
   try {
     if (typeof value === "string") return value;
@@ -122,23 +126,29 @@ export const sendRequest = <Request extends RequestInstance>(
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
+    const hooks = request.$hooks;
     options?.onBeforeSent?.({ requestId, request });
+    hooks?.onBeforeSent?.({ requestId, request });
 
-    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
-      options?.onRequestStart?.(data),
-    );
+    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
+      options?.onRequestStart?.(data);
+      hooks?.onRequestStart?.(data);
+    });
 
-    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) =>
-      options?.onResponseStart?.(data),
-    );
+    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
+      options?.onResponseStart?.(data);
+      hooks?.onResponseStart?.(data);
+    });
 
-    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) =>
-      options?.onUploadProgress?.(data),
-    );
+    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
+      options?.onUploadProgress?.(data);
+      hooks?.onUploadProgress?.(data);
+    });
 
-    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) =>
-      options?.onDownloadProgress?.(data),
-    );
+    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
+      options?.onDownloadProgress?.(data);
+      hooks?.onDownloadProgress?.(data);
+    });
 
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
@@ -160,6 +170,7 @@ export const sendRequest = <Request extends RequestInstance>(
         if (!success && willRetry) return;
 
         options?.onResponse?.(values);
+        hooks?.onResponse?.(values);
         resolve(data);
 
         // Unmount Listeners
@@ -188,6 +199,7 @@ export const sendRequest = <Request extends RequestInstance>(
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
       if (!isResolved) {
         options?.onRemove?.(...props);
+        hooks?.onRemove?.(...props);
         resolve({
           data: null,
           status: null,

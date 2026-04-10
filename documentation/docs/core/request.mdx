@@ -796,7 +796,36 @@ await errorRequest.send({
 
 ---
 
-9. ### Validation
+9. ### Scoping
+
+Use `setScope` to isolate all keys (cache, queue, abort) by scope (user, session, tenant, etc.). On the server, this
+is required to enable caching at all. On the client, it acts as an optional key prefix for organization.
+
+```tsx
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Scoped cache — isolated per session
+const scopedRequest = getUser
+  .setParams({ userId: 1 })
+  .setScope(sessionId);
+
+const { data } = await scopedRequest.send();
+```
+
+:::info
+
+`setScope` returns a new cloned request (immutable). The scope string is included in `toJSON()` so it survives
+serialization through dispatchers and queues. All keys — cache, queue, and abort — are prefixed with the scope,
+ensuring complete isolation between scoped requests.
+
+:::
+
+---
+
+10. ### Validation
 
 Validation enables you to check the request data before it is sent, and the response data after it is received. This
 helps ensure that only valid data is processed by your application, and that errors are caught early in the data flow.
@@ -820,6 +849,43 @@ console.log(error); // Error: Must be 18+
   description="Learn about validating request data before sending and response data upon receipt."
   to="/docs/guides/core/advanced/validation"
 />
+
+---
+
+## Instance Hooks ($hooks)
+
+The `$hooks` API provides **persistent, instance-level lifecycle hooks** on a `Request`. Unlike per-`send()` callbacks
+(which are one-shot), `$hooks` callbacks run on every send of that request instance. They survive `.clone()` and are
+ideal for cross-cutting concerns like logging, analytics, or auth token injection.
+
+```tsx title="Adding persistent hooks"
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+getUser.$hooks = {
+  onBeforeSent: ({ requestId }) => {
+    console.log(`Request ${requestId} about to be sent`);
+  },
+  onResponse: ({ response }) => {
+    analytics.track("api_call", { endpoint: "/users/:userId", status: response.status });
+  },
+};
+
+// Hooks fire on every send
+await getUser.setParams({ userId: 1 }).send();
+await getUser.setParams({ userId: 2 }).send();
+```
+
+:::info Serialization
+
+`$hooks` is a **runtime-only** property. It is excluded from `toJSON()` serialization, so hooks are not persisted
+to storage or queues. When a request is restored from JSON, hooks are simply not present (no crash).
+
+The `$` prefix convention indicates runtime-only properties throughout Hyper Fetch.
+
+:::
 
 ---
 

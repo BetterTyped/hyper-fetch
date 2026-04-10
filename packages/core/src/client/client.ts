@@ -39,6 +39,7 @@ export class Client<
   Adapter extends AdapterInstance = HttpAdapterType,
 > {
   readonly url: string;
+  readonly mode: "client" | "server" | "isomorphic";
   public debug: boolean;
 
   // Private
@@ -81,6 +82,7 @@ export class Client<
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
     const { url, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.url = url;
+    this.mode = typeof window !== "undefined" && typeof document !== "undefined" ? "client" : "server";
     this.adapter = HttpAdapter() as Adapter;
 
     this.appManager = appManager?.() || new AppManager();

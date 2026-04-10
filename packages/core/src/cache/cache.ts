@@ -11,7 +11,7 @@ import {
   CacheSetState,
   RequestCacheType,
 } from "cache";
-import { Request, RequestInstance } from "request";
+import { Request, RequestInstance, scopeKey } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 import { EventEmitter } from "utils";
 
@@ -72,7 +72,8 @@ export class Cache<Adapter extends AdapterInstance> {
     > & { hydrated?: boolean },
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
-    const { cacheKey, cache, staleTime, cacheTime } = request;
+    const { cacheKey: rawCacheKey, cache, staleTime, cacheTime, scope } = request;
+    const cacheKey = scopeKey(rawCacheKey, scope);
     const previousCacheData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
@@ -93,8 +94,11 @@ export class Cache<Adapter extends AdapterInstance> {
       cached: !!request.cache,
     };
 
+    const isServerMode = this.client.mode === "server";
+    const isCachingAllowed = cache && (!isServerMode || !!(request as any).scope);
+
     // Only success data is valid for the cache store
-    if (processedResponse.success && cache) {
+    if (processedResponse.success && isCachingAllowed) {
       this.logger.debug({ title: "Saving response to cache storage", type: "system", extra: { request, data } });
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
