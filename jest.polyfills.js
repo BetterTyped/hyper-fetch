@@ -10,17 +10,18 @@
 
 if (typeof globalThis === "object") {
   const { TextDecoder, TextEncoder } = require("node:util");
-  const { ReadableStream, TransformStream } = require("node:stream/web");
+  const { ReadableStream, TransformStream, WritableStream } = require("node:stream/web");
 
   Object.defineProperties(globalThis, {
     TextDecoder: { value: TextDecoder },
     TextEncoder: { value: TextEncoder },
     ReadableStream: { value: ReadableStream },
     TransformStream: { value: TransformStream },
+    WritableStream: { value: WritableStream },
   });
 
   const { Blob, File } = require("node:buffer");
-  const { Headers, FormData, Request, Response } = require("undici");
+  const { fetch, Headers, FormData, Request, Response } = require("undici");
   const { BroadcastChannel } = require("node:worker_threads");
 
   Object.defineProperties(globalThis, {
@@ -28,6 +29,7 @@ if (typeof globalThis === "object") {
     File: { value: File },
     Headers: { value: Headers },
     FormData: { value: FormData },
+    fetch: { value: fetch, writable: true, configurable: true },
     Request: { value: Request, configurable: true },
     Response: { value: Response, configurable: true },
     BroadcastChannel: { value: BroadcastChannel },

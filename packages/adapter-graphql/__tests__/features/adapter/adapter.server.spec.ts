@@ -3,8 +3,6 @@
  */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
-import https from "https";
-
 import { GraphqlAdapter, GraphqlMethod } from "../../../src/adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
@@ -13,7 +11,6 @@ const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockin
 
 describe("Graphql Adapter [ Server ]", () => {
   const requestId = "test";
-  const requestCopy = https.request;
   let clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let requestHttp = clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
@@ -42,7 +39,6 @@ describe("Graphql Adapter [ Server ]", () => {
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
-    https.globalAgent.destroy();
     resetMocks();
   });
 
@@ -71,11 +67,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(res.data).toBeDefined();
   });
 
-  it("should pick https module", async () => {
-    mockRequest(request);
-    client.requestManager.addAbortController(request.abortKey, requestId);
+  it("should handle http and https urls", async () => {
+    mockRequest(requestHttp);
 
-    const res = await clientHttp.adapter.fetch(request, requestId);
+    const res = await requestHttp.send();
 
     expect(res.data).toBeDefined();
   });
@@ -174,19 +169,13 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should allow to set options", async () => {
-    let receivedOptions: any;
+    const timeoutRequest = request.setOptions({ timeout: 5 });
+    mockRequest(timeoutRequest, { delay: 500 });
 
-    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    const { error, status } = await timeoutRequest.send();
 
-    const timeoutRequest = request.setOptions({ timeout: 10 });
-    mockRequest(timeoutRequest, { delay: 20 });
-
-    await timeoutRequest.send();
-
-    expect(receivedOptions.timeout).toBe(10);
+    expect(status).toBe(0);
+    expect(error).toBeDefined();
   });
 
   // it("should allow to calculate payload size", async () => {

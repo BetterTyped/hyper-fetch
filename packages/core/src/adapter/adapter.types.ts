@@ -103,13 +103,16 @@ export type QueryParamsType = Record<string, QueryParamType>;
 
 // Responses
 
+type RequestAdapterStatus<Req extends RequestInstance> = ExtractAdapterStatusType<ExtractAdapterType<Req>>;
+type RequestAdapterExtra<Req extends RequestInstance> = ExtractAdapterExtraType<ExtractAdapterType<Req>>;
+
 // It cannot be a union type because graphql may return both data and error
 export type RequestResponseType<Request extends RequestInstance> = {
   data: ExtractResponseType<Request> | null;
   error: ExtractErrorType<Request> | null;
-  status: ExtractAdapterStatusType<ExtractAdapterType<Request>> | null;
+  status: RequestAdapterStatus<Request> | null;
   success: true | false;
-  extra: ExtractAdapterExtraType<ExtractAdapterType<Request>> | null;
+  extra: RequestAdapterExtra<Request> | null;
   responseTimestamp: number;
   requestTimestamp: number;
 };

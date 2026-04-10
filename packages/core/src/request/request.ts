@@ -33,6 +33,14 @@ import {
 import { Time } from "constants/time.constants";
 import { MockerConfigType, MockResponseType } from "mocker";
 
+type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
+type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
+type ClientRequestOptions<E, C extends ClientInstance> = RequestOptionsType<
+  E,
+  ClientAdapterOptions<C>,
+  ClientAdapterMethod<C>
+>;
+
 /**
  * Request is a class that represents a request sent to the server. It contains all the necessary information to make a request, like endpoint, method, headers, data, and much more.
  * It is executed at any time via methods like `send` or `exec`.
@@ -65,11 +73,11 @@ export class Request<
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
+  method: ClientAdapterMethod<Client>;
   params: ExtractUrlParams<Endpoint> | EmptyTypes;
   payload: PayloadType<Payload>;
   queryParams: QueryParams | EmptyTypes;
-  options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
+  options?: ClientAdapterOptions<Client> | undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -111,32 +119,20 @@ export class Request<
 
   constructor(
     readonly client: Client,
-    readonly requestOptions: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >,
+    readonly requestOptions: ClientRequestOptions<Endpoint, Client>,
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
-          Payload,
-          Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
-          QueryParams,
-          Endpoint,
-          ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-          ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-        >
+        Payload,
+        Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
+        QueryParams,
+        Endpoint,
+        ClientAdapterOptions<Client>,
+        ClientAdapterMethod<Client>
+      >
       | undefined,
   ) {
-    const configuration: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    > = {
-      ...(this.client.adapter.unstable_getRequestDefaults?.(requestOptions) as RequestOptionsType<
-        Endpoint,
-        ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-        ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-      >),
+    const configuration: ClientRequestOptions<Endpoint, Client> = {
+      ...(this.client.adapter.unstable_getRequestDefaults?.(requestOptions) as ClientRequestOptions<Endpoint, Client>),
       ...requestOptions,
     };
     const {
@@ -208,7 +204,7 @@ export class Request<
     return this.clone<HasPayload, HasParams, true>({ queryParams });
   };
 
-  public setOptions = (options: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>) => {
+  public setOptions = (options: ClientAdapterOptions<Client>) => {
     return this.clone<HasPayload, HasParams, true>({ options });
   };
 
@@ -216,53 +212,23 @@ export class Request<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (
-    retry: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["retry"],
-  ) => {
+  public setRetry = (retry: ClientRequestOptions<Endpoint, Client>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (
-    retryTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["retryTime"],
-  ) => {
+  public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
-  public setCacheTime = (
-    cacheTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["cacheTime"],
-  ) => {
+  public setCacheTime = (cacheTime: ClientRequestOptions<Endpoint, Client>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
-  public setCache = (
-    cache: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["cache"],
-  ) => {
+  public setCache = (cache: ClientRequestOptions<Endpoint, Client>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setStaleTime = (
-    staleTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["staleTime"],
-  ) => {
+  public setStaleTime = (staleTime: ClientRequestOptions<Endpoint, Client>["staleTime"]) => {
     return this.clone({ staleTime });
   };
 
@@ -442,8 +408,8 @@ export class Request<
       (typeof this)["params"],
       QueryParams,
       Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+      ClientAdapterOptions<Client>,
+      ClientAdapterMethod<Client>
     >,
   ) {
     const json = this.toJSON();
@@ -452,8 +418,8 @@ export class Request<
       Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
       QueryParams,
       Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+      ClientAdapterOptions<Client>,
+      ClientAdapterMethod<Client>
     > = {
       ...json,
       ...configuration,

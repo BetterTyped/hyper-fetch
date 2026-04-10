@@ -7,25 +7,13 @@
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "client": "dist/browser/index.js",
-  "browser": "dist/browser/index.js",
-  "server": "dist/server/index.js",
-  "node": "dist/server/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/index.d.ts"
-      },
-      "browser": {
-        "require": "./dist/browser/index.js",
-        "import": "./dist/browser/index.js"
-      },
-      "default": {
-        "require": "./dist/index.js",
-        "import": "./dist/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },

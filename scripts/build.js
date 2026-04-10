@@ -4,7 +4,7 @@ const { nodeExternalsPlugin } = require("esbuild-node-externals");
 
 const pkg = require(`${process.cwd()}/package.json`);
 
-const isIsomorphicBuild = ["@hyper-fetch/core", "@hyper-fetch/graphql"].includes(pkg.name);
+const isIsomorphicBuild = false;
 const isNodeOnly = ["@hyper-fetch/cli", "eslint-plugin-hyper-fetch"].includes(pkg.name);
 
 /**

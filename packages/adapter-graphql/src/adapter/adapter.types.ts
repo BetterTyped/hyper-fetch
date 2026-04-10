@@ -10,8 +10,12 @@ export type GraphQlExtraType = { headers: HeadersInit; extensions: Record<string
 
 export type GraphQlEndpointType = string | DocumentNode;
 
+export type FetchGraphqlAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "body" | "signal"> & {
+  timeout?: number;
+};
+
 export type GraphqlAdapterType = Adapter<
-  Partial<XMLHttpRequest>,
+  FetchGraphqlAdapterOptionsType,
   GraphqlMethod,
   number,
   GraphQlExtraType,

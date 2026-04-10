@@ -131,24 +131,13 @@ describe("Graphql Adapter [ Browser ]", () => {
   // });
 
   it("should allow to set options", async () => {
-    const xml = window.XMLHttpRequest;
-    let instance: null | XMLHttpRequest = null;
-    class ExtendedXml extends XMLHttpRequest {
-      constructor() {
-        super();
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        instance = this;
-      }
-    }
+    const timeoutRequest = request.setOptions({ timeout: 5 });
+    mockRequest(timeoutRequest, { delay: 500 });
 
-    window.XMLHttpRequest = ExtendedXml;
+    const { error, status } = await timeoutRequest.send();
 
-    const timeoutRequest = request.setOptions({ timeout: 50 });
-    mockRequest(timeoutRequest, { delay: 20 });
-    await timeoutRequest.send();
-    expect(instance!.timeout).toBe(50);
-
-    window.XMLHttpRequest = xml;
+    expect(status).toBe(0);
+    expect(error).toBeDefined();
   });
 
   it("should handle undefined response data as null", async () => {

@@ -6,7 +6,7 @@ import { stringifyQueryParams } from "./http-adapter.utils";
  */
 
 export type HttpAdapterType = DeclareAdapterType<{
-  adapterOptions: HttpAdapterOptionsType;
+  adapterOptions: FetchAdapterOptionsType;
   methodType: HttpMethodsType;
   statusType: HttpStatusType;
   extra: HttpAdapterExtraType;
@@ -16,11 +16,24 @@ export type HttpAdapterType = DeclareAdapterType<{
 }>;
 
 /**
- * Options
+ * Options passed to the native fetch adapter. Extends RequestInit with a `timeout` option.
+ */
+export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "body" | "signal"> & {
+  /**
+   * Request timeout in milliseconds. Defaults to 5000ms.
+   */
+  timeout?: number;
+};
+
+/**
+ * @deprecated Use FetchAdapterOptionsType instead. This type is kept for backward compatibility with custom adapters based on XMLHttpRequest.
  */
 export interface HttpAdapterRequest extends Omit<XMLHttpRequest, "responseType"> {
   responseType: XMLHttpRequestResponseType | "stream";
 }
+/**
+ * @deprecated Use FetchAdapterOptionsType instead.
+ */
 export type HttpAdapterOptionsType = Partial<HttpAdapterRequest>;
 
 export type HttpAdapterExtraType = {

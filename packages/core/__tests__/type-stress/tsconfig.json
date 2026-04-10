@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["./stress-test-500.ts"],
+  "exclude": [],
+  "compilerOptions": { "noEmit": true }
+}

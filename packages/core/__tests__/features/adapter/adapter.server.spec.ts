@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-import http from "http";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { getErrorMessage } from "adapter";
@@ -10,15 +9,12 @@ import { HttpAdapter } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
-describe("Http Adapter [ Server ]", () => {
+describe("Http Adapter [ Fetch ]", () => {
   const requestId = "test";
   const abortKey = "abort-key";
-  const requestCopy = http.request;
 
   let client = new Client({ url: "http://shared-base-url" });
-  let clientHttps = new Client({ url: "https://shared-base-url" });
   let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
-  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
   beforeAll(() => {
     startServer();
@@ -26,15 +22,11 @@ describe("Http Adapter [ Server ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "http://shared-base-url" });
-    clientHttps = new Client({ url: "https://shared-base-url" });
     client.appManager.isBrowser = false;
-    clientHttps.appManager.isBrowser = false;
 
     request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
-    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
     client.requestManager.addAbortController(abortKey, requestId);
-    clientHttps.requestManager.addAbortController(abortKey, requestId);
 
     resetMocks();
     jest.resetAllMocks();
@@ -50,11 +42,6 @@ describe("Http Adapter [ Server ]", () => {
     mockRequest(request);
     client.appManager.isBrowser = true;
     await expect(() => HttpAdapter().initialize(client).fetch(request, requestId)).not.toThrow();
-  });
-
-  it("should pick https module", async () => {
-    mockRequest(requestHttps);
-    await expect(() => HttpAdapter().initialize(client).fetch(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
@@ -130,48 +117,38 @@ describe("Http Adapter [ Server ]", () => {
     expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
   });
 
-  it("should allow to calculate payload size", async () => {
-    let receivedOptions: any;
+  it("should send payload with object data", async () => {
     const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
-
-    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    client.requestManager.addAbortController(mutation.abortKey, requestId);
     mockRequest(mutation);
 
-    await mutation.send({
+    const { error, status } = await mutation.send({
       payload: {
         username: "Kacper",
         password: "Kacper1234",
       },
     });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+    expect(error).toBeNull();
+    expect(status).toBe(200);
   });
 
-  it("should allow to calculate Buffer size", async () => {
-    let receivedOptions: any;
+  it("should send payload with string data", async () => {
     const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
-
-    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    client.requestManager.addAbortController(mutation.abortKey, requestId);
     mockRequest(mutation);
 
-    const buffer = Buffer.from("test");
-
-    await mutation.send({
-      payload: buffer as any,
+    const { error, status } = await mutation.send({
+      payload: "raw-string-payload",
     });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+    expect(error).toBeNull();
+    expect(status).toBe(200);
   });
 });

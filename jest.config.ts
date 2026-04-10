@@ -25,24 +25,15 @@ export const getJestConfig = (): Config.InitialOptions => ({
     "<rootDir>/__tests__/jest.setup.ts",
     `${__dirname}/jest.polyfills.js`,
   ],
-  moduleNameMapper: {
-    "@browser-adapter": [
-      "<rootDir>/src/http-adapter/http-adapter.browser.ts",
-      "<rootDir>/src/adapter/http-adapter.browser.ts",
-    ],
-    "@server-adapter": [
-      "<rootDir>/src/http-adapter/http-adapter.server.ts",
-      "<rootDir>/src/adapter/http-adapter.server.ts",
-    ],
-  },
+  moduleNameMapper: {},
   transformIgnorePatterns: [
-    "node_modules/(?!(chalk|react|react-json-tree|color|color-convert|color-string|react-base16-styling|lodash-es|prettier)/)",
+    "node_modules/(?!(chalk|react|react-json-tree|color|color-convert|color-string|react-base16-styling|lodash-es|prettier|rettime|msw|until-async|@mswjs)/)",
   ],
   // Fixes msw https://github.com/mswjs/msw/issues/1786
   testEnvironmentOptions: {
     customExportConditions: [""],
   },
   transform: {
-    "^.+\\.[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
+    "^.+\\.m?[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
   },
 });

@@ -246,13 +246,11 @@ export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload
  */
 export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: EmptyTypes | undefined }
-  : HasQuery extends true
-    ? { queryParams?: EmptyTypes }
-    : QueryParams extends EmptyTypes | void | never
-      ? { queryParams?: QueryParams }
-      : {
-          queryParams: QueryParams;
-        };
+  : QueryParams extends EmptyTypes | void | never
+    ? { queryParams?: QueryParams }
+    : {
+        queryParams: QueryParams;
+      };
 
 export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omit<
   Partial<RequestOptionsType<string, ExtractAdapterOptionsType<ExtractAdapterType<Request>>>>,
@@ -269,7 +267,6 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
 > &
   FetchParamsType<ExtractParamsType<Request>, ExtractHasParamsType<Request>> &
   FetchPayloadType<ExtractPayloadType<Request>, ExtractHasPayloadType<Request>> &
-  FetchQueryParamsType<ExtractQueryParamsType<Request>, ExtractHasQueryParamsType<Request>> &
   RequestSendActionsType<Request> &
   RequestDynamicSendOptionsType<Request>;
 
@@ -291,15 +288,19 @@ type IsNegativeType<T> = void extends T
       ? EmptyTypes
       : T;
 
-// If no data or params provided - options should be optional. If either data or params are provided - mandatory.
+type HasRequiredSendFields<Opts> =
+  IsNegativeType<Opts extends { payload: infer P } ? P : void> extends EmptyTypes | void | never
+    ? IsNegativeType<Opts extends { params: infer P } ? P : void> extends EmptyTypes | void | never
+      ? IsNegativeType<Opts extends { queryParams: infer Q } ? Q : void> extends EmptyTypes | void | never
+        ? false
+        : true
+      : true
+    : true;
+
 export type RequestSendType<Request extends RequestInstance> =
-  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends EmptyTypes | void | never
-    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends EmptyTypes | void | never
-      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends EmptyTypes | void | never
-        ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
-        : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
-      : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
-    : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>;
+  HasRequiredSendFields<RequestSendOptionsType<Request>> extends true
+    ? (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+    : (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>;
 
 // Mappers
 

@@ -27,8 +27,8 @@ request lifecycle—including progress tracking, cancellation, and error handlin
 
 ## Initialization
 
-By default, Hyper Fetch provides an HTTP adapter for both browser and Node environments. You can also create your own
-adapters to support other protocols or advanced use cases.
+By default, Hyper Fetch provides a unified HTTP adapter built on the native `fetch` API, which works in both browser and
+Node.js environments (Node 18+). You can also create your own adapters to support other protocols or advanced use cases.
 
 ```ts title="GraphQL Adapter"
 import { createClient } from "@hyper-fetch/core";
@@ -156,10 +156,10 @@ client.adapter.setEndpointMapper((endpoint, config) => {
 Set **adapter default options** for all requests sent through this adapter:
 
 ```ts
-// HTTP adapter options
+// HTTP adapter options (based on native fetch RequestInit)
 client.adapter.setAdapterDefaults((request) => ({
   timeout: 5000,
-  withCredentials: true,
+  credentials: "include",
 }));
 ```
 
@@ -242,5 +242,5 @@ Refer to the API reference for detailed type parameters and usage examples.
   type="integrations"
   title="Available Adapters"
   description="Explore all available adapters and their descriptions."
-  to="/docs/integrations/getting-started#adapter"
+  to="/docs/integrations/getting-started"
 />

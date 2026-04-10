@@ -89,16 +89,6 @@ const config: Config = {
       removeLegacyPostBuildHeadAttribute: true, // required
       useCssCascadeLayers: false,
     },
-    experimental_faster: {
-      rspackBundler: true,
-      rspackPersistentCache: true,
-      ssgWorkerThreads: true,
-      swcJsLoader: true,
-      swcJsMinimizer: true,
-      swcHtmlMinimizer: true,
-      lightningCssMinimizer: true,
-      mdxCrossCompilerCache: true,
-    },
   },
 
   // Even if you don't use internationalization, you can use this field to set
