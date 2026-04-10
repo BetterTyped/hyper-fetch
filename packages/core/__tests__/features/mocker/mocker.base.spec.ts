@@ -500,6 +500,79 @@ describe("Mocker [ Base ]", () => {
     ).rejects.toThrow("Request processing error");
   });
 
+  describe("When mock returns error without success and without data", () => {
+    it("should call onError path when success is false and no data", async () => {
+      const errorObj = new Error("mock error");
+      const mockedRequest = request.setMock(() => ({
+        data: null,
+        error: errorObj,
+        status: 500,
+        success: false,
+      }));
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toEqual(errorObj);
+      expect(response.status).toBe(500);
+      expect(response.success).toBe(false);
+    });
+  });
+
+  describe("When mock config has no timeout", () => {
+    it("should skip timeout setup when timeout is not a number", async () => {
+      const mockedRequest = request.setMock(
+        () => ({
+          data: fixture,
+          status: 200,
+        }),
+        { requestTime: 20, responseTime: 20 },
+      );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toStrictEqual(fixture);
+      expect(response.status).toBe(200);
+      expect(response.success).toBe(true);
+    });
+  });
+
+  describe("When request is aborted before progress completes", () => {
+    it("should handle abort via timeout=0 before response progress starts", async () => {
+      const mockedRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setMock(
+          () => ({
+            data: fixture,
+            status: 200,
+          }),
+          { requestTime: 100, responseTime: 100, timeout: 0 },
+        );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toBeDefined();
+    });
+
+    it("should resolve progress immediately when abort already triggered", async () => {
+      const mockedRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setMock(
+          () => ({
+            data: fixture,
+            status: 200,
+          }),
+          { requestTime: 200, responseTime: 200, timeout: 1 },
+        );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toBeDefined();
+    });
+  });
+
   describe("When handling different response scenarios", () => {
     it("should handle success with data", async () => {
       const mockedRequest = request.setMock(() => ({

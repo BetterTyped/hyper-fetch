@@ -174,6 +174,33 @@ describe("Adapter [ Base ]", () => {
     });
   });
 
+  describe("when using default unstable_devtoolsEndpointGetter", () => {
+    it("should return the endpoint unchanged by default", () => {
+      const result = adapter.unstable_devtoolsEndpointGetter("/test/endpoint");
+      expect(result).toBe("/test/endpoint");
+    });
+  });
+
+  describe("when using unstable_getRequestDefaults", () => {
+    it("should allow setting and calling unstable_getRequestDefaults", () => {
+      const defaults = { method: HttpMethods.POST };
+      const callback = jest.fn().mockReturnValue(defaults);
+
+      adapter.setRequestDefaults(callback);
+      expect(adapter.unstable_getRequestDefaults).toBeDefined();
+
+      const result = adapter.unstable_getRequestDefaults!({
+        endpoint: "/test",
+      } as any);
+      expect(callback).toHaveBeenCalledWith({ endpoint: "/test" });
+      expect(result).toBe(defaults);
+    });
+
+    it("should be undefined by default", () => {
+      expect(adapter.unstable_getRequestDefaults).toBeUndefined();
+    });
+  });
+
   describe("when checking default mappers", () => {
     it("should have default header mapper", () => {
       expect(adapter.unstable_headerMapper).toBe(getAdapterHeaders);

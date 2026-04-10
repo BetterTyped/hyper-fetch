@@ -214,6 +214,94 @@ describe("RequestManager [ Events ]", () => {
       });
     });
   });
+  describe("When using deduplicated event listeners", () => {
+    it("should trigger onDeduplicated callback when emitDeduplicated fires", () => {
+      const spy = jest.fn();
+      client.requestManager.events.onDeduplicated(spy);
+
+      const eventData = { request, requestId: "test-id" };
+      client.requestManager.events.emitDeduplicated(eventData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(eventData);
+    });
+
+    it("should trigger onDeduplicatedByQueue callback for matching queryKey", () => {
+      const spy = jest.fn();
+      client.requestManager.events.onDeduplicatedByQueue(request.queryKey, spy);
+
+      const eventData = { request, requestId: "test-id" };
+      client.requestManager.events.emitDeduplicated(eventData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(eventData);
+    });
+
+    it("should trigger onDeduplicatedByCache callback for matching cacheKey", () => {
+      const spy = jest.fn();
+      client.requestManager.events.onDeduplicatedByCache(request.cacheKey, spy);
+
+      const eventData = { request, requestId: "test-id" };
+      client.requestManager.events.emitDeduplicated(eventData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(eventData);
+    });
+
+    it("should trigger onDeduplicatedById callback for matching requestId", () => {
+      const spy = jest.fn();
+      const requestId = "specific-request-id";
+      client.requestManager.events.onDeduplicatedById(requestId, spy);
+
+      const eventData = { request, requestId };
+      client.requestManager.events.emitDeduplicated(eventData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(eventData);
+    });
+
+    it("should cleanup onDeduplicated listener", () => {
+      const spy = jest.fn();
+      const cleanup = client.requestManager.events.onDeduplicated(spy);
+      cleanup();
+
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should cleanup onDeduplicatedByQueue listener", () => {
+      const spy = jest.fn();
+      const cleanup = client.requestManager.events.onDeduplicatedByQueue(request.queryKey, spy);
+      cleanup();
+
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should cleanup onDeduplicatedByCache listener", () => {
+      const spy = jest.fn();
+      const cleanup = client.requestManager.events.onDeduplicatedByCache(request.cacheKey, spy);
+      cleanup();
+
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should cleanup onDeduplicatedById listener", () => {
+      const spy = jest.fn();
+      const requestId = "specific-request-id";
+      const cleanup = client.requestManager.events.onDeduplicatedById(requestId, spy);
+      cleanup();
+
+      client.requestManager.events.emitDeduplicated({ request, requestId });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("When request manager aborts the request", () => {
     it("should allow to abort request by id", async () => {
       mockRequest(request);

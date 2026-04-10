@@ -240,6 +240,27 @@ describe("Socket Adapter [ SSE ]", () => {
     expect(socketWithoutAutoConnect.adapter.connected).toBe(false);
   });
 
+  it("should return null from getServerSentEventsAdapter when window access throws", () => {
+    const originalWindow = global.window;
+    Object.defineProperty(global, "window", {
+      get() {
+        throw new ReferenceError("window is not defined");
+      },
+      configurable: true,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { getServerSentEventsAdapter } = require("../../../src/adapter-sse/sse-adapter.utils");
+    const result = getServerSentEventsAdapter("http://localhost:1234", {});
+    expect(result).toBeNull();
+
+    Object.defineProperty(global, "window", {
+      value: originalWindow,
+      writable: true,
+      configurable: true,
+    });
+  });
+
   it("should properly clean up error event listeners on disconnect", async () => {
     const errorSpy = jest.fn();
     socket.events.onError(errorSpy);

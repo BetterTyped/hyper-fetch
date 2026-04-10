@@ -3,6 +3,15 @@
     "strict": true,
     "noEmit": true,
     "baseUrl": "../src",
-    "jsx": "react-jsx"
-  }
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "paths": {
+      "hooks/*": ["hooks/*"],
+      "helpers/*": ["helpers/*"],
+      "utils/*": ["utils/*"],
+      "provider": ["provider"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
 }

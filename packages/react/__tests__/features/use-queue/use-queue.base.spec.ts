@@ -106,4 +106,262 @@ describe("useQueue [ Base ]", () => {
       });
     });
   });
+  describe("given keepFinishedRequests is true", () => {
+    describe("when requests finish", () => {
+      it("should keep finished requests in the list", async () => {
+        mockRequest(request);
+        addQueueElement(request, { stop: true });
+        const { result } = renderUseQueue(request, { keepFinishedRequests: true });
+
+        expect(result.current.requests).toHaveLength(1);
+
+        addQueueElement(request, { stop: true });
+
+        await waitFor(() => {
+          expect(result.current.requests.length).toBeGreaterThanOrEqual(1);
+        });
+      });
+    });
+  });
+  describe("given queue events fire", () => {
+    describe("when a request succeeds", () => {
+      it("should mark the request as success", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitResponse({
+            requestId,
+            response: {
+              data: "ok",
+              error: null,
+              status: 200,
+              success: true,
+              extra: {},
+              responseTimestamp: +new Date(),
+              requestTimestamp: +new Date(),
+            },
+            request,
+          } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.success).toBe(true);
+        });
+      });
+    });
+    describe("when a request fails", () => {
+      it("should mark the request as failed", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitResponse({
+            requestId,
+            response: {
+              data: null,
+              error: { message: "fail" },
+              status: 500,
+              success: false,
+              extra: {},
+              responseTimestamp: +new Date(),
+              requestTimestamp: +new Date(),
+            },
+            request,
+          } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.failed).toBe(true);
+        });
+      });
+    });
+    describe("when a request is aborted", () => {
+      it("should mark the request as canceled", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitAbort({ requestId, request } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.canceled).toBe(true);
+        });
+      });
+    });
+    describe("when a request is removed", () => {
+      it("should mark the request as removed", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitRemove({ requestId, request } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.removed).toBe(true);
+        });
+      });
+
+      it("should not mark non-matching requests when event fires", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitResponse({
+            requestId: "non-matching-id",
+            response: {
+              data: null,
+              error: { message: "fail" },
+              status: 500,
+              success: false,
+              extra: {},
+              responseTimestamp: +new Date(),
+              requestTimestamp: +new Date(),
+            },
+            request,
+          } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.failed).toBe(false);
+          expect(req?.success).toBe(false);
+        });
+
+        act(() => {
+          client.requestManager.events.emitResponse({
+            requestId: "non-matching-id-2",
+            response: {
+              data: "ok",
+              error: null,
+              status: 200,
+              success: true,
+              extra: {},
+              responseTimestamp: +new Date(),
+              requestTimestamp: +new Date(),
+            },
+            request,
+          } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.success).toBe(false);
+        });
+
+        act(() => {
+          client.requestManager.events.emitAbort({ requestId: "non-matching-id-3", request } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.canceled).toBe(false);
+        });
+
+        act(() => {
+          client.requestManager.events.emitRemove({ requestId: "non-matching-id-4", request } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.removed).toBe(false);
+        });
+      });
+
+      it("should not mark as removed if already succeeded", async () => {
+        mockRequest(request);
+        let requestId = "";
+        const { result } = renderUseQueue(request);
+
+        act(() => {
+          requestId = addQueueElement(request, { stop: true });
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+
+        act(() => {
+          client.requestManager.events.emitResponse({
+            requestId,
+            response: {
+              data: "ok",
+              error: null,
+              status: 200,
+              success: true,
+              extra: {},
+              responseTimestamp: +new Date(),
+              requestTimestamp: +new Date(),
+            },
+            request,
+          } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.success).toBe(true);
+        });
+
+        act(() => {
+          client.requestManager.events.emitRemove({ requestId, request } as any);
+        });
+
+        await waitFor(() => {
+          const req = result.current.requests.find((r: any) => r.requestId === requestId);
+          expect(req?.removed).toBe(false);
+        });
+      });
+    });
+  });
 });

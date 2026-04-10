@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, QueryParamsType } from "../../../src";
+import { Client, QueryParamsType, Request } from "../../../src";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -194,6 +194,31 @@ describe("Fetch Adapter [ Base ]", () => {
       const result = request.read();
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe("fromJSON()", () => {
+    it("should reconstruct a request from its JSON representation", () => {
+      const original = client
+        .createRequest<{ response: { id: number }; payload: { name: string } }>()({
+          endpoint: "/users/:userId",
+          method: "POST",
+        })
+        .setHeaders({ "X-Custom": "value" })
+        .setAuth(false)
+        .setRetry(3)
+        .setRetryTime(500);
+
+      const json = original.toJSON();
+      const restored = Request.fromJSON(client, json);
+
+      expect(restored).toBeInstanceOf(Request);
+      expect(restored.endpoint).toBe(original.endpoint);
+      expect(restored.method).toBe(original.method);
+      expect(restored.headers).toStrictEqual(original.headers);
+      expect(restored.auth).toBe(original.auth);
+      expect(restored.retry).toBe(original.retry);
+      expect(restored.retryTime).toBe(original.retryTime);
     });
   });
 });

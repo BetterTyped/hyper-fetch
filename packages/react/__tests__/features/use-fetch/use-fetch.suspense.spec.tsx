@@ -1,4 +1,4 @@
-import { Suspense, StrictMode, Component, useState, ReactNode } from "react";
+import React, { Suspense, StrictMode, Component, useState, ReactNode } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 

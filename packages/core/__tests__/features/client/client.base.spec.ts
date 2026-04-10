@@ -65,6 +65,18 @@ describe("Client [ Base ]", () => {
       expect(client.submitDispatcher).toBe(submitDispatcher);
     });
   });
+  describe("When using key mapper setters", () => {
+    it("should set request id mapper", () => {
+      const client = new Client({ url: "shared-base-url" });
+      const customMapper = (request: any) => `custom-${request.endpoint}`;
+
+      const result = client.setRequestIdMapper(customMapper);
+
+      expect(client.unstable_requestIdMapper).toBe(customMapper);
+      expect(result).toBe(client);
+    });
+  });
+
   describe("When client is getting cleared", () => {
     it("should assign new appManager", async () => {
       const spy = jest.fn();

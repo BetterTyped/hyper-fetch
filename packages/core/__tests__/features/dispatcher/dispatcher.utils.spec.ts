@@ -121,5 +121,22 @@ describe("Dispatcher [ Utils ]", () => {
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.PREVIOUS_CANCELED);
     });
+    it("should return deduplicated when deduplicateTime is 0 (falsy)", async () => {
+      const request = client
+        .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
+        .setDeduplicateTime(0);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.DEDUPLICATED);
+    });
+    it("should return all-at-once when deduplicateTime expired", async () => {
+      const request = client
+        .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
+        .setDeduplicateTime(1);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      duplicated.timestamp = +new Date() - 1000;
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
+    });
   });
 });

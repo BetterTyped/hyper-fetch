@@ -169,14 +169,15 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(error).toStrictEqual([getErrorMessage()]);
   });
 
-  it("should allow to set options", async () => {
+  it("should allow to set options and timeout the request", async () => {
     const timeoutRequest = request.setOptions({ timeout: 5 });
     mockRequest(timeoutRequest, { delay: 500 });
 
-    const { error, status } = await timeoutRequest.send();
+    const { data, error, status } = await timeoutRequest.send();
 
+    expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error).toBeDefined();
+    expect(error).toStrictEqual(getErrorMessage("timeout"));
   });
 
   // it("should allow to calculate payload size", async () => {
