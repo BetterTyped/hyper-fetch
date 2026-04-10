@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import "@testing-library/jest-dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { useFetch } from "hooks/use-fetch";
+import { useFetch } from "../../../src/hooks/use-fetch";
 import { createRequest, client } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
