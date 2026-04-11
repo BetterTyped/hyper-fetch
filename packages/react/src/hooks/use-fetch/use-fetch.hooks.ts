@@ -114,7 +114,7 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
 
   function handleRefresh() {
-    if (!refresh) {
+    if (!refresh || disabled) {
       refreshDebounce.reset();
       return;
     }
@@ -195,19 +195,19 @@ export const useFetch = <R extends RequestInstance>(
     addLifecycleListeners(request as unknown as R);
 
     const focusUnmount = appManager.events.onFocus(() => {
-      if (refetchOnFocus) {
+      if (refetchOnFocus && !disabled) {
         handleFetch();
         handleRefresh();
       }
     });
     const blurUnmount = appManager.events.onBlur(() => {
-      if (refetchOnBlur) {
+      if (refetchOnBlur && !disabled) {
         handleFetch();
         handleRefresh();
       }
     });
     const onlineUnmount = appManager.events.onOnline(() => {
-      if (refetchOnReconnect) {
+      if (refetchOnReconnect && !disabled) {
         handleFetch();
         handleRefresh();
       }
@@ -236,7 +236,7 @@ export const useFetch = <R extends RequestInstance>(
    * Initialization of the events related to data exchange with cache and queue
    * This allows to share the state with other hooks and keep it related
    */
-  useDidUpdate(handleMountEvents, [updateKey], true);
+  useDidUpdate(handleMountEvents, [updateKey, disabled], true);
 
   /**
    * Initial fetch triggered once data is stale or we use the refetch strategy
