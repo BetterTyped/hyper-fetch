@@ -10,7 +10,6 @@
     "dev": "vite",
     "clean": "npx rimraf dist",
     "test": "vitest run",
-    "test:pipeline": "vitest run",
     "start": "rimraf node_modules/.vite && yarn electron-forge start",
     "package:app": "yarn electron-forge package",
     "make:app": "yarn electron-forge make",

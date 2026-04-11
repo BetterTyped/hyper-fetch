@@ -12,7 +12,6 @@
   "scripts": {
     "test": "firebase emulators:exec 'npx vitest run'",
     "coverage": "firebase emulators:exec 'npx vitest run --coverage'",
-    "test:pipeline": "firebase emulators:exec 'npx vitest run'",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "vite build",

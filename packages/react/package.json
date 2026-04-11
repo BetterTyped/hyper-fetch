@@ -23,7 +23,6 @@
   },
   "scripts": {
     "test": "vitest run",
-    "test:pipeline": "vitest run",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "vite build",
     "lint": "eslint . --fix",

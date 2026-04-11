@@ -14,7 +14,6 @@
   "bin": "dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "test:pipeline": "vitest run",
     "dev": "npx tsx ./src/cli/index.ts",
     "prebuild": "yarn update:version",
     "build": "vite build",
