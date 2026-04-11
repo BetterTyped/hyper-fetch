@@ -1,5 +1,5 @@
 import { Socket } from "socket";
-import { ListenerCallbackType, ListenerInstance } from "listener";
+import { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { EmitterInstance } from "emitter";
 import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterExtraType } from "types";
@@ -86,7 +86,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     callback,
     onUnmount = () => null,
   }: {
-    listener: Pick<ListenerInstance, "topic">;
+    listener: Pick<ListenerOfAdapter<T>, "topic">;
     callback: ListenerCallbackType<T, any>;
     onUnmount?: VoidFunction;
   }): (() => void) => {

@@ -2,7 +2,7 @@ import { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/cor
 
 import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
-import { SocketInstance } from "socket";
+import { Socket, SocketInstance } from "socket";
 import {
   ExtractListenerHasParamsType,
   ExtractListenerTopicType,
@@ -26,6 +26,8 @@ export type ListenerInstance<ListenerProperties extends ListenerInstanceProperti
   TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
   TypeWithDefaults<ListenerProperties, "hasParams", any>
 >;
+
+export type ListenerOfAdapter<A extends SocketAdapterInstance> = Listener<any, any, Socket<A>, any>;
 
 export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;

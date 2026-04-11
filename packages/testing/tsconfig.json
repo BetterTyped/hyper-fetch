@@ -3,11 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "paths": {
-      "@hyper-fetch/core": ["../../core/src"],
-      "@hyper-fetch/sockets": ["../../sockets/src"]
-    }
+    "skipDefaultLibCheck": true
   },
   "include": ["./src", "./__tests__", "typings.d.ts"],
   "exclude": ["node_modules", "dist"]

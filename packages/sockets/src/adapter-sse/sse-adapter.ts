@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { QueryParamsType, stringifyQueryParams } from "@hyper-fetch/core";
 
-import { ExtendListener, ListenerCallbackType, ListenerInstance } from "listener";
+import { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
 import { getServerSentEventsAdapter } from "./sse-adapter.utils";
 import { SSEAdapterOptionsType } from "./sse-adapter.types";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
-import { Socket } from "socket";
 
 /**
  * -------------------------------------------
@@ -159,7 +158,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         };
 
         const listen = (
-          listener: ExtendListener<ListenerInstance, { socket: Socket<ServerSentEventsAdapterType> }>,
+          listener: ListenerOfAdapter<ServerSentEventsAdapterType>,
           callback: ListenerCallbackType<ServerSentEventsAdapterType, any>,
         ) => {
           return onListen({ listener, callback });
