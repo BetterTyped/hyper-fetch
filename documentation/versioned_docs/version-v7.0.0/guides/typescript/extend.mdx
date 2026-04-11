@@ -1,0 +1,116 @@
+---
+sidebar_position: 0
+title: Typescript - Extend Request
+sidebar_label: Extend Request
+---
+
+import { RequestInstance } from "@hyper-fetch/core";
+
+In Hyper-Fetch, you can create highly reusable functions and components by building them to work with generic
+`RequestInstance` objects. This approach allows you to enforce specific type constraints, ensuring that any request
+passed to your component has the expected shape—for example, a response that is an array of items for an autocomplete
+component.
+
+This guide will walk you through how to extend requests using TypeScript generics to build flexible, type-safe, and
+modular features.
+
+:::secondary What you'll learn
+
+1.  How to create **generic functions** that accept `RequestInstance` objects.
+2.  How to use **TypeScript generics** to enforce type constraints on requests.
+3.  A practical example of building a **reusable autocomplete** function.
+4.  The benefits of this pattern for creating **type-safe** and **modular** code.
+
+:::
+
+### The Core Concept
+
+The key to this pattern is TypeScript's generics. By creating a function or component that accepts a generic type, you
+can set constraints on what kind of requests are allowed. By default, you can create a generic function that accepts any
+request instance like this:
+
+```ts
+import { RequestInstance } from "@hyper-fetch/core";
+
+function someFunction<T extends RequestInstance>(request: T) {
+  // This function will accept any Request passed as a parameter.
+}
+```
+
+However, the real power comes from making this more specific. The `RequestInstance` type from `@hyper-fetch/core` is a
+generic type itself, allowing you to specify the expected `response`, `payload`, `queryParams`, and `error` types. For
+many reusable components, you might only care about the `response` type.
+
+### Practical Example: Autocomplete
+
+Let's build on this concept with a generic `autocomplete` function. We want this function to accept any request that
+returns an array of strings (`string[]`) in its response. Any other response type should result in a TypeScript error.
+
+First, let's define two requests: one that fits our criteria and one that does not.
+
+```ts
+// highlight-start
+// We assume 'client' is a pre-configured Client instance
+// For example:
+// import { createClient } from "@hyper-fetch/core";
+// const client = createClient({ url: "..." });
+// highlight-end
+
+// This request's response is `string[]`, which is what our function expects.
+const getSuggestions = client.createRequest<{ response: string[] }>()({
+  endpoint: "suggestions",
+});
+
+// This request's response is `string`, which should be rejected.
+const getUsername = client.createRequest<{ response: string }>()({
+  endpoint: "username",
+});
+```
+
+Now, let's create our generic `autocomplete` function. We'll use a generic constraint to ensure the `request` parameter
+has a `response` type of `string[]`.
+
+```ts
+function autocomplete<Request extends RequestInstance<{ response: string[] }>>(request: Request) {
+  // Now, inside this function, TypeScript knows that `request.send()`
+  // will eventually return a `data` property of type `string[]` on success.
+  console.log("Request received, can be used for fetching suggestions.");
+  return request.send();
+}
+```
+
+With this setup, TypeScript will enforce our constraint at compile time.
+
+```ts
+// ✅ Correct Usage
+// This works because `getSuggestions` has a response type of `string[]`.
+// highlight-next-line
+autocomplete(getSuggestions);
+
+// ⛔ Incorrect Usage
+// This will cause a TypeScript error because `getUsername`'s response is `string`, not `string[]`.
+// error-next-line
+autocomplete(getUsername);
+```
+
+### When to Use It?
+
+This pattern is powerful for building reusable, type-safe components and functions. Use it for:
+
+- **Generic UI Components** like `<DataTable />` or `<SelectField />`.
+- **Type-safe utilities** for data processing.
+- **Abstracting business logic** into reusable functions.
+
+By using this approach, you promote code reuse and maintain strong type safety across your application.
+
+---
+
+:::success Congratulations!
+
+You've learned how to extend Hyper-Fetch requests for building flexible and type-safe components!
+
+- You can create **generic functions** that constrain request types.
+- You understand how to enforce a specific **response shape** on a request.
+- You are able to build **reusable components** that are decoupled from specific API endpoints.
+
+:::

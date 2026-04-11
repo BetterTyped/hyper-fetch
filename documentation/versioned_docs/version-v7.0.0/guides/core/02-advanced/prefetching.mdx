@@ -1,0 +1,155 @@
+---
+title: Guide - Prefetching
+sidebar_label: Prefetching
+---
+
+# Prefetching
+
+**Prefetching** is a powerful technique for improving user experience by loading data before it's explicitly needed.
+When data is prefetched, it's available in the cache, so when the user navigates to a new view, the content can be
+displayed instantly without a loading spinner. With Hyper Fetch, prefetching is incredibly simple to implement.
+
+:::secondary What you'll learn
+
+1.  What **prefetching** is and why it's beneficial for user experience.
+2.  How to implement **basic prefetching** for static data.
+3.  How to prefetch data for **dynamic routes** based on user interactions.
+4.  How prefetching leverages the **cache** to provide instant data access.
+
+:::
+
+---
+
+## The Concept
+
+The core idea behind prefetching is to anticipate a user's next move and fetch the necessary data in advance. For
+example, if a user is likely to click on a user's profile from a list, you can start fetching that profile's data as
+soon as the list is displayed, or even when the user hovers over the list item.
+
+Hyper Fetch's design makes this trivial. By simply executing a request with `.send()`, you trigger the entire
+data-fetching lifecycle, including:
+
+1.  Sending the request to the server.
+2.  Receiving the response.
+3.  **Storing the response in the cache.**
+
+Later, when a component or part of your application logic needs this data, executing the same request again will make
+Hyper Fetch find it in the cache and deliver it instantly.
+
+---
+
+## Basic Prefetching
+
+The most straightforward use case for prefetching is loading data that a user is very likely to need soon. For example,
+you might prefetch a list of items for a dashboard page as soon as the user logs in.
+
+Let's say we have a request to fetch a list of users.
+
+```ts
+// highlight-next-line
+// Note: All examples on this page are live and executable.
+// highlight-next-line
+// We will use mock data to show you the result of the request.
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users",
+  options: {
+    mock: {
+      data: [
+        { id: 1, name: "John" },
+        { id: 2, name: "Jane" },
+      ],
+    },
+  },
+});
+```
+
+To prefetch this data, you just need to call `.send()` on the request instance at an appropriate time in your
+application's lifecycle—for example, when a related component mounts or when the app initializes.
+
+```typescript
+getUsers.send({
+  onSuccess: ({ response }) => {
+    // highlight-next-line
+    // The data is now in the cache, ready for instant access.
+    console.log("Prefetched data:", response.data);
+  },
+});
+```
+
+> After executing, the data is stored in the cache. Subsequent calls to the `getUsers` request will retrieve the data
+> from the cache instantly, as long as it hasn't been invalidated.
+
+---
+
+## Dynamic Prefetching
+
+A more advanced and common scenario is prefetching data that depends on user interaction, like hovering over a link.
+This is where prefetching truly shines, as it can make UI transitions feel seamless.
+
+Consider a request that fetches details for a specific user by their ID.
+
+```ts
+// highlight-next-line
+// Note: All examples on this page are live and executable.
+// highlight-next-line
+// We will use mock data to show you the result of the request.
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+  options: {
+    mock: ({ params }) => ({
+      data: { id: params.userId, name: `User ${params.userId}` },
+    }),
+  },
+});
+```
+
+You can trigger a prefetch when the user hovers over a UI element associated with a particular user. This way, if they
+decide to click, the data will likely already be loaded.
+
+Here's how you might implement a prefetching function for a user's details:
+
+```typescript
+function prefetchUser(userId) {
+  // We set the required parameter and send the request.
+  // The response will be cached against the request key, which includes the user ID.
+  getUser.setParams({ userId }).send({
+    onSuccess: ({ response }) => {
+      console.log(`Prefetched user ${userId}:`, response.data);
+    },
+  });
+}
+
+// Simulate hovering over two different users
+prefetchUser(1);
+prefetchUser(2);
+```
+
+> In a real application, you would call `prefetchUser` inside a `onMouseEnter` or `onPointerEnter` event handler. Each
+> time it's called with a new `userId`, Hyper Fetch will cache the response separately for that user.
+
+---
+
+## Prefetching and the Cache
+
+Prefetching is effective because of Hyper Fetch's built-in caching layer. When you call `.send()`, the request's
+response is automatically cached. The cache key is generated based on the request's endpoint, method, parameters, and
+other properties, ensuring that each unique request has its own cache entry.
+
+When you later try to fetch the same data, Hyper Fetch checks the cache first. If a fresh (not stale) response is found,
+it's returned immediately, and **no network request is made**. This is what creates the "instant" experience for the
+user.
+
+---
+
+:::success Congratulations!
+
+You've learned how to leverage prefetching in Hyper Fetch to build faster and more responsive applications.
+
+- You understand that **prefetching** is about loading data in advance to improve perceived performance.
+- You can implement **basic prefetching** for static data by simply calling `.send()`.
+- You know how to implement **dynamic prefetching** for data that depends on user interactions.
+- You understand how prefetching and **caching** work together to provide instant data access.
+
+:::

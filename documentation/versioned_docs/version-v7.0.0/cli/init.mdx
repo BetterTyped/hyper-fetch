@@ -1,0 +1,69 @@
+---
+sidebar_position: 2
+title: Initialize
+sidebar_label: Initialize
+---
+
+The `init` command is a tool that allows you to initialize a new Hyper-Fetch project. It will create a new project with
+the default configuration.
+
+```bash
+npx @hyper-fetch/cli@latest init
+```
+
+---
+
+:::tip Purpose
+
+By using the `init` command, you can:
+
+1.  **Guided Setup**: Initialize your project with an interactive wizard.
+2.  **Centralized Configuration**: Create an `api.json` to manage all code generation settings.
+3.  **Path Aliases**: Automatically detect and configure TypeScript/JavaScript path aliases.
+4.  **Foundation for Codegen**: Prepare your project for the `generate` command.
+
+:::
+
+---
+
+## Usage
+
+You can use it by going through wizard which will ask you about the project's configuration.
+
+To use the wizard, run the following command:
+
+```bash
+npx @hyper-fetch/cli@latest init
+```
+
+It will guide you through the process of generating the `api.json` configuration. This file will be used by other
+commands and will allow us to generate files in the correct locations with correct imports paths.
+
+<LinkCard
+  type="docs"
+  title="Generate a client"
+  description="Learn how to generate code from your api with the `generate` command."
+  to="/docs/cli/generate"
+/>
+
+---
+
+## Available arguments
+
+Run the following command to see the available arguments:
+
+```bash
+npx @hyper-fetch/cli@latest init --help
+```
+
+---
+
+:::success Congratulations!
+
+You've learned how to initialize a Hyper-fetch project!
+
+1.  You can use the wizard to guide you through the setup process.
+2.  Your project now has an `api.json` file to store configuration.
+3.  You're ready to use other commands like `generate`.
+
+:::

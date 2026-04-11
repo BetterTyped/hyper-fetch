@@ -1,0 +1,104 @@
+---
+sidebar_position: 2
+title: Working with Queries
+sidebar_label: Queries
+---
+
+Queries are used to fetch data from your GraphQL API. With Hyper Fetch, you can define your queries using `graphql-tag`
+and execute them with the configured client.
+
+:::tip What you'll learn
+
+- How to create a basic GraphQL query.
+- How to use TypeScript with your queries.
+- How to pass variables to your queries.
+
+:::
+
+---
+
+## Basic Query
+
+Here's how to create a simple query to fetch a user's data.
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+// 1. Initialize Client with adapter
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+// 2. Define an interface for your data
+interface User {
+  user: {
+    username: string;
+    firstName: string;
+  };
+}
+
+// 3. Create a request
+const getUser = client.createRequest<User>()({
+  endpoint: gql`
+    query GetUser {
+      user {
+        username
+        firstName
+      }
+    }
+  `,
+});
+
+// 4. Send the request
+const { data, error } = await getUser.send();
+```
+
+---
+
+## Query Variables
+
+You often need to pass variables to your queries to filter results or fetch specific data. You can do this by defining
+variables in your GraphQL query and passing them in the `send` method.
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+// 1. Define types for the response and variables
+type User = {
+  username: string;
+  firstName: string;
+};
+type Variables = {
+  userId: string;
+};
+
+// 2. Create the request with variables in the query
+const getUser = client.createRequest<{ user: User }, Variables>()({
+  endpoint: gql`
+    query GetUserById($userId: ID!) {
+      user(id: $userId) {
+        username
+        firstName
+      }
+    }
+  `,
+});
+
+// 3. Pass variables when sending the request
+const { data, error } = await getUser.send({
+  data: {
+    variables: { userId: "1" },
+  },
+});
+```
+
+You can also use the `.setData()` method to set variables before sending the request. This is useful when you want to
+separate setting the data from sending the request.
+
+```ts
+const { data, error } = await getUser.setData({ userId: "1" }).send();
+```

@@ -1,0 +1,130 @@
+---
+title: Request Extractors
+sidebar_label: Request Extractors
+---
+
+# Request Extractors
+
+As your requests become more complex with response types, payloads, parameters, and errors, their inferred types can
+become large and unwieldy. Hyper-fetch provides a set of **utility type extractors** that allow you to easily grab a
+specific piece of a request's type. This is incredibly useful for creating reusable types, passing types to other
+functions, or simply for better readability.
+
+:::secondary What you'll learn
+
+1.  Why **type extractors** are useful for complex requests.
+2.  How to use various extractors like `ExtractResponseType`, `ExtractPayloadType`, and `ExtractErrorType`.
+3.  How to build a **complete, reusable example** using multiple extractors.
+4.  A quick reference for **all available** type extractors.
+
+:::
+
+### Why is it helpful?
+
+- **Type Reusability**: Extract and reuse parts of a request's type, like `response` or `payload`, without duplicating
+  definitions.
+- **Decoupling**: Decouple components from the full request definition. A component might only need to know about the
+  `ResponseType`, not the entire request object.
+- **Clarity**: Simplifies complex type signatures, making function parameters and variable types easier to read and
+  understand.
+- **Interoperability**: Makes it easier to pass request-related types to other libraries or utility functions.
+
+---
+
+### Practical Example
+
+Instead of a simple list, let's look at a real-world scenario where we define a complex request and then use extractors
+to deconstruct its type for use in other parts of our application.
+
+```ts
+import {
+  createClient,
+  ExtractResponseType,
+  ExtractPayloadType,
+  ExtractErrorType,
+  ExtractParamsType,
+} from "@hyper-fetch/core";
+
+export const client = createClient()({
+  url: "https://api.example.com",
+}).setExtra<{ error: { message: string } | Error }>();
+
+// 1. Define a complex request
+const updateUser = client.createRequest<{
+  response: { id: number; name: string; email: string; updatedAt: string };
+  payload: { name?: string; email?: string };
+  localError: { errors: { email?: string } };
+}>()({
+  method: "PATCH",
+  endpoint: "/users/:userId",
+});
+
+// 2. Now, let's extract types from it
+// highlight-start
+type UserResponse = ExtractResponseType<typeof updateUser>;
+type UserPayload = ExtractPayloadType<typeof updateUser>;
+type UserError = ExtractErrorType<typeof updateUser>;
+type UserParams = ExtractParamsType<typeof updateUser>;
+// highlight-end
+
+// 3. We can now use these types elsewhere in our application
+function displayUser(user: UserResponse) {
+  console.log(`User: ${user.name} (${user.email})`);
+}
+
+async function handleUpdate(params: UserParams, payload: UserPayload) {
+  const { data, error } = await updateUser.setParams(params).send({ data: payload });
+
+  if (data) {
+    displayUser(data);
+  } else {
+    logError(error);
+  }
+}
+
+function logError(error: UserError) {
+  // `error` is a union of the global and local error types
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else if ("errors" in error) {
+    console.error("Validation Error:", error.errors.email);
+  } else {
+    console.error("API Error:", error.message);
+  }
+}
+
+// Example usage
+handleUpdate({ userId: 1 }, { email: "new.email@example.com" });
+```
+
+---
+
+## Full List of Extractors
+
+Here is a quick reference for all the available type extractors.
+
+- **`ExtractResponseType<T>`**: Extracts the `response` type.
+- **`ExtractPayloadType<T>`**: Extracts the `payload` type.
+- **`ExtractQueryParamsType<T>`**: Extracts the `queryParams` type.
+- **`ExtractErrorType<T>`**: Extracts the union of global and `localError` types.
+- **`ExtractGlobalErrorType<T>`**: Extracts only the global `error` type from the client.
+- **`ExtractLocalErrorType<T>`**: Extracts only the `localError` type from the request.
+- **`ExtractParamsType<T>`**: Extracts the URL parameters type from the endpoint string.
+- **`ExtractEndpointType<T>`**: Extracts the endpoint string literal type.
+- **`ExtractAdapterOptionsType<T>`**: Extracts the options type of the adapter.
+- **`ExtractAdapterReturnType<T>`**: Extracts the raw `[data, error, status]` tuple from the adapter.
+- **`ExtractHasDataType<T>`**: Extracts a boolean literal type indicating if `data` has been set.
+- **`ExtractHasParamsType<T>`**: Extracts a boolean literal type indicating if `params` have been set.
+- **`ExtractHasQueryParamsType<T>`**: Extracts a boolean literal type indicating if `queryParams` have been set.
+
+---
+
+:::success Congratulations!
+
+You know how to leverage Hyper-fetch's type extractors!
+
+- You can **deconstruct complex request types** into smaller, reusable pieces.
+- You know how to use the most common extractors like **`ExtractResponseType`** and **`ExtractPayloadType`**.
+- You have a **full reference list** of all available extractors for future use.
+
+:::

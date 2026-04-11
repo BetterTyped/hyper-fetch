@@ -1,0 +1,175 @@
+---
+sidebar_position: 5
+title: Emitter
+sidebar_label: Emitter
+---
+
+[Read the API Reference »](/docs/api/sockets/Classes/Emitter.mdx)
+
+The `Emitter` class is a core component of Hyper Fetch's real-time communication layer, built on top of WebSockets. It
+provides a **structured, type-safe way to define, configure, and send events to a server**. By encapsulating all the
+details for an event—such as its topic and data payload—`Emitter` ensures consistency and predictability in your
+real-time data interactions.
+
+---
+
+:::tip Purpose
+
+- Define **reusable event templates** to create standardized event structures.
+- Enforce a **consistent data schema** for all events.
+- Reliably **send events** to your WebSocket server.
+
+:::
+
+---
+
+## Initialization
+
+Emitter should be initialized from the `Socket` instance with `createEmitter` method. This passes a shared reference to
+the place that manages communication in the application.
+
+```tsx title="Example of Emitter initialization"
+import { socket } from "./socket";
+
+export const sendChatMessage = socket.createEmitter<MessageType>()({
+  topic: "new-message", // topic of the event
+});
+
+export const sendUserStatus = socket.createEmitter<UserStatusType>()({
+  topic: "user-status", // topic of the event
+});
+```
+
+---
+
+## Emitting Events
+
+You can trigger an event with the `emit` method, which sends data to the server.
+
+### Sending Data
+
+Use the `setData` method to instruct any data to be sent to the server.
+
+```tsx
+sendChatMessage.setData({ message: "message" });
+```
+
+### Emitting
+
+Use the `emit` method to start the event emitting.
+
+```tsx
+sendChatMessage.emit({ message: "message" });
+
+// or
+
+sendChatMessage.setData({ message: "message" }).emit();
+```
+
+<LinkCard
+  type="guides"
+  title="Emitting Events"
+  description="Learn the basics of emitting events to your server."
+  to="/docs/guides/sockets/emitting"
+/>
+
+---
+
+## Methods
+
+Using methods on a emitter is different from other classes in Hyper Fetch. This is to ensure isolation between different
+uses, which allows you to avoid overwriting previously-prepared emitters and to dynamically generate keys for queues or
+the cache.
+
+:::danger
+
+Using any method on emitter returns its clone! `We do not return a reference!`
+
+:::
+
+```tsx
+// ❌ WRONG
+
+const emitter = sendMessageEmitter;
+
+emitter.setData({ message: "some message" }); // Returns CLONED emitter with assigned data
+
+emitter.emit(); // Server error - no data
+```
+
+```tsx
+// ✅ Good
+
+const emitter = sendMessageEmitter;
+
+const emitterWithData = emitter.setData({ message: "some message" }); // Returns CLONED emitter with assigned data
+
+emitterWithData.emit(); // Success
+```
+
+<ShowMore>
+
+(@import sockets Emitter type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed Emitter API Methods"
+  description="Explore all available methods, their parameters, and return values for the Emitter class."
+  to="/docs/api/sockets/Classes/Emitter#methods"
+/>
+
+---
+
+## Parameters
+
+Configuration options for the emitter.
+
+```tsx
+const emitter = socket.createEmitter<MessageType>()({
+  topic: "chat-message",
+  options: {
+    withCredentials: true,
+  },
+});
+```
+
+(@import sockets EmitterOptionsType type=returns)
+
+---
+
+## TypeScript
+
+When creating an emitter with `socket.createEmitter`, you can specify up to generic type to ensure type safety.
+**`PayloadType`** is the expected type of the data payload sent with the event.
+
+```tsx
+import { socket } from "./socket";
+
+const sendChatMessage = socket.createEmitter<{ message: string; author: string }>()({
+  topic: "chat-message",
+});
+
+sendChatMessage.emit({
+  data: { message: "Hello!", author: "Me" }, // Typed payload
+});
+```
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Learn more about the Listener class and its configuration options."
+  to="/docs/sockets/listener"
+/>

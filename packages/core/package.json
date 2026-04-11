@@ -5,12 +5,8 @@
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "client": "dist/browser/index.js",
-  "browser": "dist/browser/index.js",
-  "server": "dist/server/index.js",
-  "node": "dist/server/index.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "exports": {
@@ -18,13 +14,9 @@
       "types": {
         "import": "./dist/index.d.ts"
       },
-      "browser": {
-        "require": "./dist/browser/index.js",
-        "import": "./dist/browser/index.js"
-      },
       "default": {
-        "require": "./dist/index.js",
-        "import": "./dist/index.js"
+        "require": "./dist/index.mjs",
+        "import": "./dist/index.mjs"
       }
     },
     "./package.json": "./package.json"

@@ -1,0 +1,350 @@
+---
+sidebar_position: 4
+title: Listener
+sidebar_label: Listener
+---
+
+[Read the API Reference »](/docs/api/sockets/Classes/Listener.mdx)
+
+The `Listener` class is a key component of Hyper Fetch's real-time communication capabilities. It provides a **powerful,
+type-safe way to define, configure, and manage event listeners** for data coming from a server through sockets. By
+encapsulating all the details needed to listen for an event—such as the topic and data structure—`Listener` ensures
+consistency, predictability, and flexibility in how your application handles real-time updates.
+
+With a strict and predictable data structure, `Listener` makes it easy to build features that react to live events with
+confidence. Its design, especially when paired with TypeScript, helps you create robust, maintainable, and interactive
+applications by ensuring that the data you receive from the server matches the types you expect.
+
+---
+
+:::tip Purpose
+
+1.  To create **consistent and reusable event listener templates**.
+2.  To **standardize the data schema** for incoming real-time events.
+3.  To provide a **consistent API** for listening to events, regardless of the underlying adapter.
+4.  To **hold instructions** on how to connect to specific event topics.
+5.  To ensure that incoming event data is **strongly-typed** and structured, making it safe and easy to work with.
+
+:::
+
+---
+
+## Initialization
+
+A `Listener` should be initialized from a `Socket` instance using the `createListener` method. This approach ensures
+that the listener shares a common communication manager with the rest of your application, promoting a unified
+architecture for handling real-time data.
+
+```tsx
+import { socket } from "./socket";
+
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  topic: "chat-message",
+});
+
+export const onUserStatusChange = socket.createListener<UserStatusType>()({
+  topic: "status",
+});
+```
+
+---
+
+## Usage
+
+### Listening for Events
+
+To begin receiving events, use the `listen` method and provide a callback function. This function will be executed each
+time a new event is received on the specified topic. The data passed to the callback will be automatically typed based
+on the generic you provided during initialization.
+
+```tsx
+onChatMessage.listen({
+  callback: (message) => {
+    // `message` is automatically typed as ChatMessageType
+    console.log(message);
+  },
+});
+```
+
+### Stopping a Listener
+
+The `listen` method returns a function that, when called, will remove that specific listener. This is the standard way
+to clean up and stop listening for events, for example, when a component unmounts.
+
+```tsx
+// The listen method returns a function to remove the listener
+const removeListener = onChatMessage.listen({ callback: (message) => console.log(message) });
+
+// ...sometime later...
+
+// Call the returned function to stop listening
+removeListener();
+```
+
+You can also interact with the underlying adapter to remove listeners, which can be useful for more advanced scenarios,
+such as removing all listeners for a given event topic.
+
+```tsx
+const callback = ({ data }) => console.log(data);
+const unmountListener = onChatMessage.listen({ callback });
+
+// ...
+
+// Remove ALL listeners for the 'chat-message' topic
+socket.adapter.listeners.delete(onChatMessage.topic);
+
+// Remove a *single* specific listener from the 'chat-message' topic
+socket.adapter.listeners.get(onChatMessage.topic)?.delete(callback);
+```
+
+### Listen Only Once
+
+If you only need to handle the next event that comes in, you can simply call the `removeListener` function from within
+your callback.
+
+```tsx
+const removeEvent = onChatMessage.listen({
+  callback: (message) => {
+    console.log(message);
+    removeEvent(); // Stop listening after the first event
+  },
+});
+```
+
+---
+
+## Features
+
+Here are some of the features of the `Listener` class.
+
+---
+
+### Dynamic Topics
+
+Listeners support dynamic topics with parameters, similar to requests. This allows you to create reusable listener
+templates for resources that require an identifier, such as a specific chat room or user.
+
+Define the parameter in the `topic` string with a colon prefix (e.g., `:id`).
+
+```ts
+export const onNoteChange = socket.createListener<NoteData>()({
+  topic: "notes/:noteId",
+});
+```
+
+Then, use the `setParams` method to provide a value for the parameter before you start listening. Each listener with a
+different parameter will be treated as a separate event stream.
+
+```ts
+// Listen to events for note with ID 1
+onNoteChange.setParams({ noteId: 1 }).listen(/* ... */);
+
+// Listen to events for note with ID 2
+onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
+```
+
+---
+
+### Global Data Hooks
+
+You can use the `onData` method to create a "global" hook for a listener template. This callback will be triggered for
+_every_ event that matches the listener's topic, even when dynamic parameters are used. It's an excellent way to
+centralize logic that needs to react to any event of a certain type, regardless of its specific parameters.
+
+```ts
+export const onNoteChange = socket
+  .createListener<NoteData>()({
+    topic: "notes/:noteId",
+  })
+  .onData((event) => {
+    // This will be called for any note change, regardless of the 'noteId'
+    console.log("A note changed:", event.data);
+  });
+
+onNoteChange.setParams({ noteId: 1 }).listen(/* ... */);
+onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
+
+// The onData callback will fire for events on both `notes/1` and `notes/2`
+```
+
+---
+
+### Integration with Hyper Fetch
+
+A powerful use case for the `onData` hook is to create a seamless integration with Hyper Fetch's caching layer. When you
+receive a real-time update, you can use it to instantly update the relevant cached data from a `Request`. This keeps
+your application's state synchronized without needing to re-fetch data from the server.
+
+Here's an example of updating a cached note when an update event is received via a socket.
+
+```ts
+// 1. Your core client and request setup
+const client = new Client({ url: "http://localhost:3000" });
+const getNote = client.createRequest()({
+  topic: "/notes/:noteId",
+});
+
+// 2. Your realtime listener with a data hook
+export const onNoteChange = socket
+  .createListener<NoteData>()({
+    topic: "notes/:noteId",
+  })
+  .onData((event) => {
+    const { noteId } = event.data;
+
+    // 3. Create a request instance that matches the cache entry
+    const noteRequest = getNote.setParams({ noteId });
+
+    // 4. Update the cache with the new data from the socket event
+    client.cache.update(noteRequest, (prevData) => {
+      return { ...prevData, data: event.data };
+    });
+  });
+```
+{/* 
+<LinkCard
+  type="guides"
+  title="Real-time Data Sync"
+  description="Learn how to combine Sockets and Requests for powerful real-time state management."
+  to="/docs/guides/sockets/real-time-sync"
+/> */}
+
+---
+
+## Methods
+
+The `Listener` class offers a suite of methods to configure and interact with a listener instance. You can find a
+comprehensive list of these methods and their detailed descriptions in the API reference.
+
+<ShowMore>
+
+(@import sockets Listener type=methods&display=table)
+
+</ShowMore>
+
+<LinkCard
+  type="api"
+  title="Detailed Listener API Methods"
+  description="Explore all available methods, their parameters, and return values for the Listener class."
+  to="/docs/api/sockets/Classes/Listener#methods"
+/>
+
+It is crucial to understand how methods on a `Listener` instance operate to ensure predictable behavior in your
+application.
+
+:::danger Methods Return Clones
+
+Methods on a `Listener` instance (e.g., `setParams`, `setOptions`) do not modify the original listener instance in
+place. Instead, they return a **new, cloned instance** of the listener with the specified modifications applied. The
+original listener instance remains unchanged.
+
+**Always use the returned new instance for subsequent operations.** This immutable approach ensures isolation between
+different listener configurations and prevents unintended side effects.
+
+:::
+
+```tsx
+// ❌ WRONG
+const listener = onChatMessage;
+
+// This returns a *new* listener instance, but it's not being assigned or used.
+// The original `listener` variable remains unchanged.
+listener.setOptions({ ... });
+
+// This will listen without the options you intended to apply.
+listener.listen();
+```
+
+```tsx
+// ✅ CORRECT
+const listener = onChatMessage;
+
+// Assign the new, cloned listener with options to a new variable
+const listenerWithOptions = listener.setOptions({ ... });
+
+// Use the correctly configured listener
+listenerWithOptions.listen();
+
+// ✅ Also correct (method chaining)
+onChatMessage
+  .setOptions({ ... })
+  .listen();
+```
+
+---
+
+## Configuration
+
+You can provide additional configuration options when creating a listener to customize its behavior. These options are
+passed in the object to `createListener`.
+
+```ts
+// 1. Initialize the socket
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+// 2. Create the listener template
+const listener = socket.createListener<{ message: string }>()({
+  topic: "chat-message",
+});
+```
+
+(@import sockets ListenerOptionsType type=returns)
+
+---
+
+## TypeScript
+
+The `Listener` class is designed with TypeScript at its core to provide a superior developer experience and robust type
+safety for real-time events.
+
+### Response Type
+
+When you create a listener, you should provide the type of the data you expect to receive in the event as a generic.
+This ensures that the `data` passed to your `listen` and `onData` callbacks is fully typed, enabling autocompletion and
+preventing common errors.
+
+```ts
+// Define the type for your event data
+type ChatMessageType = {
+  id: string;
+  author: string;
+  message: string;
+  timestamp: number;
+};
+
+// Provide it as a generic to createListener
+const onChatMessage = socket.createListener<ChatMessageType>()({
+  topic: "chat-message",
+});
+
+onChatMessage.listen(({ data }) => {
+  // `data` is now strongly-typed as ChatMessageType
+  console.log(data.message);
+  console.log(data.author);
+  // error-next-line
+  console.log(data.nonExistentProperty); // TypeScript Error
+});
+```
+
+This simple yet powerful feature eliminates guesswork and ensures that your application correctly handles the data
+structures sent by the server.
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Learn more about the Emitter class and its configuration options."
+  to="/docs/sockets/emitter"
+/>

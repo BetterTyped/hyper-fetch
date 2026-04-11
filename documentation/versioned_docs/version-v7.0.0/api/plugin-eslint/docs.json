@@ -1,0 +1,822 @@
+{
+	"id": 4584,
+	"name": "eslint-plugin-hyper-fetch",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 4585,
+			"name": "configs",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 4,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L4"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4586,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4587,
+							"name": "recommended",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 5,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L5"
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4588,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 4589,
+											"name": "plugins",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "index.ts",
+													"line": 6,
+													"character": 4,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L6"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "intrinsic",
+													"name": "string"
+												}
+											},
+											"defaultValue": "..."
+										},
+										{
+											"id": 4590,
+											"name": "rules",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "index.ts",
+													"line": 7,
+													"character": 4,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L7"
+												}
+											],
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 4591,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"children": [
+														{
+															"id": 4593,
+															"name": "hyper-fetch/client-generic-types",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "index.ts",
+																	"line": 9,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L9"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															},
+															"defaultValue": "\"error\""
+														},
+														{
+															"id": 4592,
+															"name": "hyper-fetch/request-generic-types",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "index.ts",
+																	"line": 8,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L8"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															},
+															"defaultValue": "\"error\""
+														}
+													],
+													"groups": [
+														{
+															"title": "Properties",
+															"children": [
+																4593,
+																4592
+															]
+														}
+													],
+													"sources": [
+														{
+															"fileName": "index.ts",
+															"line": 7,
+															"character": 11,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L7"
+														}
+													]
+												}
+											},
+											"defaultValue": "..."
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4589,
+												4590
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "index.ts",
+											"line": 5,
+											"character": 15,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L5"
+										}
+									]
+								}
+							},
+							"defaultValue": "..."
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4587
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 4,
+							"character": 23,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L4"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 4594,
+			"name": "rules",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 14,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L14"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4595,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4601,
+							"name": "client-generic-types",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 16,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L16"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+									"qualifiedName": "RuleModule"
+								},
+								"typeArguments": [
+									{
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": "emptyGeneric"
+											},
+											{
+												"type": "literal",
+												"value": "unexpectedGenerics"
+											},
+											{
+												"type": "literal",
+												"value": "notMatchingGenerics"
+											}
+										]
+									},
+									{
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "never"
+										}
+									},
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 4602,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 4606,
+													"name": "ImportDeclaration",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "utils/is-hf-declaration.types.ts",
+															"line": 33,
+															"character": 6,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L33"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4607,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "utils/is-hf-declaration.types.ts",
+																	"line": 33,
+																	"character": 25,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L33"
+																}
+															],
+															"signatures": [
+																{
+																	"id": 4608,
+																	"name": "__type",
+																	"variant": "signature",
+																	"kind": 4096,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "utils/is-hf-declaration.types.ts",
+																			"line": 33,
+																			"character": 25,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L33"
+																		}
+																	],
+																	"parameters": [
+																		{
+																			"id": 4609,
+																			"name": "node",
+																			"variant": "param",
+																			"kind": 32768,
+																			"flags": {},
+																			"type": {
+																				"type": "reference",
+																				"target": {
+																					"sourceFileName": "../node_modules/@typescript-eslint/types/src/generated/ast-spec.ts",
+																					"qualifiedName": "ImportDeclaration"
+																				},
+																				"name": "ImportDeclaration",
+																				"package": "@typescript-eslint/types"
+																			}
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "void"
+																	}
+																}
+															]
+														}
+													},
+													"defaultValue": "..."
+												},
+												{
+													"id": 4610,
+													"name": "Program:exit",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "utils/is-hf-declaration.types.ts",
+															"line": 52,
+															"character": 6,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L52"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4611,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "utils/is-hf-declaration.types.ts",
+																	"line": 52,
+																	"character": 22,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L52"
+																}
+															],
+															"signatures": [
+																{
+																	"id": 4612,
+																	"name": "__type",
+																	"variant": "signature",
+																	"kind": 4096,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "utils/is-hf-declaration.types.ts",
+																			"line": 52,
+																			"character": 22,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/utils/is-hf-declaration.types.ts#L52"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "void"
+																	}
+																}
+															]
+														}
+													},
+													"defaultValue": "..."
+												},
+												{
+													"id": 4603,
+													"name": "CallExpression",
+													"variant": "declaration",
+													"kind": 2048,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "client-generic-types/client-generic-types.ts",
+															"line": 36,
+															"character": 6,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/client-generic-types/client-generic-types.ts#L36"
+														}
+													],
+													"signatures": [
+														{
+															"id": 4604,
+															"name": "CallExpression",
+															"variant": "signature",
+															"kind": 4096,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "client-generic-types/client-generic-types.ts",
+																	"line": 36,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/client-generic-types/client-generic-types.ts#L36"
+																}
+															],
+															"parameters": [
+																{
+																	"id": 4605,
+																	"name": "node",
+																	"variant": "param",
+																	"kind": 32768,
+																	"flags": {},
+																	"type": {
+																		"type": "reference",
+																		"target": {
+																			"sourceFileName": "../node_modules/@typescript-eslint/types/src/generated/ast-spec.ts",
+																			"qualifiedName": "CallExpression"
+																		},
+																		"name": "CallExpression",
+																		"package": "@typescript-eslint/types"
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "void"
+															}
+														}
+													]
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														4606,
+														4610
+													]
+												},
+												{
+													"title": "Methods",
+													"children": [
+														4603
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "client-generic-types/client-generic-types.ts",
+													"line": 34,
+													"character": 11,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/client-generic-types/client-generic-types.ts#L34"
+												}
+											]
+										}
+									}
+								],
+								"name": "RuleModule",
+								"package": "@typescript-eslint/utils"
+							},
+							"defaultValue": "clientGenericTypes"
+						},
+						{
+							"id": 4596,
+							"name": "request-generic-types",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 15,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L15"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+									"qualifiedName": "RuleModule"
+								},
+								"typeArguments": [
+									{
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": "emptyGeneric"
+											},
+											{
+												"type": "literal",
+												"value": "unexpectedGenerics"
+											},
+											{
+												"type": "literal",
+												"value": "notMatchingGenerics"
+											}
+										]
+									},
+									{
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "never"
+										}
+									},
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 4597,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 4598,
+													"name": "CallExpression",
+													"variant": "declaration",
+													"kind": 2048,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "request-generic-types/request-generic-types.ts",
+															"line": 32,
+															"character": 6,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/request-generic-types/request-generic-types.ts#L32"
+														}
+													],
+													"signatures": [
+														{
+															"id": 4599,
+															"name": "CallExpression",
+															"variant": "signature",
+															"kind": 4096,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "request-generic-types/request-generic-types.ts",
+																	"line": 32,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/request-generic-types/request-generic-types.ts#L32"
+																}
+															],
+															"parameters": [
+																{
+																	"id": 4600,
+																	"name": "node",
+																	"variant": "param",
+																	"kind": 32768,
+																	"flags": {},
+																	"type": {
+																		"type": "reference",
+																		"target": {
+																			"sourceFileName": "../node_modules/@typescript-eslint/types/src/generated/ast-spec.ts",
+																			"qualifiedName": "CallExpression"
+																		},
+																		"name": "CallExpression",
+																		"package": "@typescript-eslint/types"
+																	}
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "void"
+															}
+														}
+													]
+												}
+											],
+											"groups": [
+												{
+													"title": "Methods",
+													"children": [
+														4598
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "request-generic-types/request-generic-types.ts",
+													"line": 31,
+													"character": 11,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/request-generic-types/request-generic-types.ts#L31"
+												}
+											]
+										}
+									}
+								],
+								"name": "RuleModule",
+								"package": "@typescript-eslint/utils"
+							},
+							"defaultValue": "requestGenericTypes"
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4601,
+								4596
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 14,
+							"character": 21,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-eslint/src/index.ts#L14"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				4585,
+				4594
+			]
+		}
+	],
+	"packageName": "eslint-plugin-hyper-fetch",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# Eslint Plugin Hyper Fetch\n\n<p>\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/react\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/react\">\n    <img src=\"https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=64BC4B&logo=package\" />\n  </a>\n</p>\n\n## About\n\n**"
+		},
+		{
+			"kind": "code",
+			"text": "`Eslint Plugin Hyper Fetch`"
+		},
+		{
+			"kind": "text",
+			"text": "** is a plugin for eslint rules to add some additional functionality for your code static\nanalysis. It allows to find generic types issues like typos, missing values or completely incorrect usage of types.\n\n## Installation\n\nAssuming you already have ESLint installed, run:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```sh\n#npm\nnpm i eslint-plugin-hyper-fetch\n\n#yarn\nyarn add -D eslint-plugin-hyper-fetch\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nThen extend the recommended eslint config:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```js\n{\n  \"extends\": [\n    // ...\n    \"plugin:hyper-fetch/recommended\"\n  ]\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Custom Configuration\n\nIf you want more fine-grained configuration, you can instead add a snippet like this to your ESLint configuration file:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```js\n{\n  \"plugins\": [\n    // ...\n    \"hyper-fetch\"\n  ],\n  \"rules\": {\n    // ...\n    \"hyper-fetch/client-generic-types\": \"error\",\n    \"hyper-fetch/request-generic-types\": \"error\"\n  }\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## Help me keep working on this project ❤️\n\n- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)\n\n## Sources\n\n- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)\n- #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)\n- #### [API](https://hyperfetch.bettertyped.com/api/)\n- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/react)\n- #### [Guides](https://hyperfetch.bettertyped.com/guides/basic/setup)\n\n## Other Packages\n\n- - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)"
+		}
+	],
+	"symbolIdMap": {
+		"4584": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": ""
+		},
+		"4585": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "configs"
+		},
+		"4586": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"4587": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.recommended"
+		},
+		"4588": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"4589": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.plugins"
+		},
+		"4590": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.rules"
+		},
+		"4591": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"4592": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.hyper-fetch/request-generic-types"
+		},
+		"4593": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.hyper-fetch/client-generic-types"
+		},
+		"4594": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "rules"
+		},
+		"4595": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"4596": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.request-generic-types"
+		},
+		"4597": {
+			"sourceFileName": "../packages/plugin-eslint/src/request-generic-types/request-generic-types.ts",
+			"qualifiedName": "__object"
+		},
+		"4598": {
+			"sourceFileName": "../packages/plugin-eslint/src/request-generic-types/request-generic-types.ts",
+			"qualifiedName": "__object.CallExpression"
+		},
+		"4599": {
+			"sourceFileName": "../packages/plugin-eslint/src/request-generic-types/request-generic-types.ts",
+			"qualifiedName": "__object.CallExpression"
+		},
+		"4600": {
+			"sourceFileName": "../packages/plugin-eslint/src/request-generic-types/request-generic-types.ts",
+			"qualifiedName": "node"
+		},
+		"4601": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.client-generic-types"
+		},
+		"4602": {
+			"sourceFileName": "../packages/plugin-eslint/src/client-generic-types/client-generic-types.ts",
+			"qualifiedName": "__object"
+		},
+		"4603": {
+			"sourceFileName": "../packages/plugin-eslint/src/client-generic-types/client-generic-types.ts",
+			"qualifiedName": "__object.CallExpression"
+		},
+		"4604": {
+			"sourceFileName": "../packages/plugin-eslint/src/client-generic-types/client-generic-types.ts",
+			"qualifiedName": "__object.CallExpression"
+		},
+		"4605": {
+			"sourceFileName": "../packages/plugin-eslint/src/client-generic-types/client-generic-types.ts",
+			"qualifiedName": "node"
+		},
+		"4606": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__object.ImportDeclaration"
+		},
+		"4607": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__function"
+		},
+		"4608": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__function"
+		},
+		"4609": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "node"
+		},
+		"4610": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__object.Program:exit"
+		},
+		"4611": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__function"
+		},
+		"4612": {
+			"sourceFileName": "../packages/plugin-eslint/src/utils/is-hf-declaration.types.ts",
+			"qualifiedName": "__function"
+		}
+	}
+}

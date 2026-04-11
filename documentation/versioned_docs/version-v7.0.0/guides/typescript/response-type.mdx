@@ -1,0 +1,87 @@
+---
+sidebar_position: 3
+title: Setting Response Type
+sidebar_label: Response Type
+---
+
+# Response Type
+
+Typing the response of an API request is one of the most significant benefits of using TypeScript with a data-fetching
+library. Hyper-fetch makes it easy to define a **response type** for each request. This means you get full type safety
+and autocompletion for the data you receive, preventing runtime errors and making your code easier to reason about.
+
+:::secondary What you'll learn
+
+1.  How to define the **expected response type** for a request.
+2.  How the response type provides **type safety and autocompletion** for the returned data.
+3.  How to handle both **successful data and null** responses.
+
+:::
+
+### Why is it helpful?
+
+- **Runtime Error Prevention**: Eliminates `undefined is not a function` errors by ensuring you only access properties
+  that exist on the response data.
+- **Code Reliability**: Makes your components and functions more robust by guaranteeing the shape of the data they work
+  with.
+- **Faster Development**: IDE autocompletion for response data properties speeds up coding and reduces the need to check
+  API documentation.
+- **Self-Documenting**: The request itself becomes a source of truth for the API's response structure.
+
+---
+
+### Example
+
+By providing a type to the `response` generic, you ensure that the `data` returned from the `.send()` method is strongly
+typed.
+
+```ts
+// import { createClient } from '@hyper-fetch/core';
+
+export const client = createClient()({
+  url: "https://api.example.com",
+});
+
+// 1. Define the shape of a single user object
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+// 2. Define the response type for the request, which is an array of users
+// highlight-start
+type ResponseType = User[];
+// highlight-end
+
+// 3. Create the request, specifying the response type
+const getUsers = client.createRequest<{
+  response: ResponseType;
+}>()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+// 4. When you send the request, the `data` property will be strongly typed
+const { data, error } = await getUsers.send();
+
+// `data` is of type `User[] | null`
+if (data) {
+  // You get autocompletion for user properties here
+  data.forEach((user) => {
+    console.log(user.name);
+  });
+}
+```
+
+---
+
+:::success Congratulations!
+
+You've mastered setting response types!
+
+- You can define a **`response` type** for any request to get strongly-typed data.
+- You benefit from **autocompletion and compile-time checks** on the data you receive.
+- You can write more **robust code** by correctly handling the typed response.
+
+:::

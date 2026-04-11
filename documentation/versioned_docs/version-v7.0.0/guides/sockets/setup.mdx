@@ -1,0 +1,87 @@
+---
+sidebar_position: 1
+title: Socket Setup Guide
+sidebar_label: Setup
+---
+
+# Setup
+
+Welcome to the Hyper-fetch Sockets setup guide! This guide will walk you through the essential first steps to get up and
+running with real-time communication in your application. We'll cover how to initialize the socket, create listeners for
+incoming events, and set up emitters to send data to your server.
+
+:::secondary What you'll learn
+
+1.  How to initialize the **`Socket`** instance.
+2.  How to create a **`Listener`** to receive events.
+3.  How to create an **`Emitter`** to send events.
+
+:::
+
+---
+
+## Initialize Socket
+
+The first step is to initialize the **[Socket](/sockets/socket.mdx)**. It manages the basic configuration for the
+connection to the server and all the sub-systems. We start by determining the `url` of our server.
+
+```tsx title="src/socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+export const socket = new Socket({ url: "ws://localhost:3000" });
+```
+
+---
+
+## Create Listener
+
+Then, having already prepared the connection setup for the server, we use the socket method to create
+**[Listeners](/sockets/listener.mdx)** and assign types to them.
+
+```tsx title="src/listeners.ts"
+import { socket } from "socket";
+
+type ChatMessageType = {
+  message: string;
+};
+
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+```
+
+---
+
+## Create Emitter
+
+Lastly, we need a way to send events to the server. We can create an **[Emitter](/sockets/emitter.mdx)** and assign
+types to it.
+
+```tsx title="src/emitters.ts"
+import { socket } from "./socket";
+
+type ChatMessageType = {
+  message: string;
+};
+
+// Optional
+type AcknowledgementResponseType = {
+  value: string;
+};
+
+export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+```
+
+---
+
+:::success Congratulations!
+
+You've successfully set up the foundation for real-time communication with Hyper-fetch Sockets!
+
+- You can initialize a `Socket` with a server URL.
+- You can create a `Listener` to handle incoming messages.
+- You can create an `Emitter` to send messages to the server.
+
+:::

@@ -1,0 +1,63 @@
+---
+sidebar_position: 3
+title: Installation
+sidebar_label: Installation
+---
+
+An installation of Hyper Fetch can be run `clean` or for a specific environment. However, we only currently support
+React.
+
+:::info
+
+The main `@hyper-fetch/core` package is required for other sub packages to work.
+
+:::
+
+---
+
+## Install Core packages
+
+For minimal installation, you need to install the core package and eslint plugin.
+
+```bash npm2yarn2pnpm
+npm install --save @hyper-fetch/core eslint-plugin-hyper-fetch
+```
+
+:::warning
+
+[Eslint plugin](../integrations/plugin-eslint/) is required for maximum type safety. It enhances the abilities of the
+typescript via checking the object generic types to match exact schema.
+
+:::
+
+---
+
+## Sockets
+
+Sockets is created for handling websockets or server sent events.
+
+```bash npm2yarn2pnpm
+npm install --save @hyper-fetch/sockets
+```
+
+---
+
+## React
+
+React allows the installation of the base library with hooks, offering interfaces that facilitate library usage and
+support the application lifecycle.
+
+```bash npm2yarn2pnpm
+bun add @hyper-fetch/core @hyper-fetch/react
+```
+
+---
+
+## Integrations
+
+<LinkCard
+  type="integrations"
+  title="Integrations"
+  description="Find out how to integrate Hyper Fetch with your favorite libraries"
+  to="/docs/integrations/getting-started"
+/>

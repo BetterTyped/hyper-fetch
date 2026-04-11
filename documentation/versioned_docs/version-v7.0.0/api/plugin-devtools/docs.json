@@ -1,0 +1,2685 @@
+{
+	"id": 4491,
+	"name": "@hyper-fetch/plugin-devtools",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 4498,
+			"name": "CoreEvents",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4499,
+					"name": "ON_CACHE_CHANGE",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 2,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L2"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_CACHE_CHANGE"
+					}
+				},
+				{
+					"id": 4501,
+					"name": "ON_CACHE_DELETE",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 4,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L4"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_CACHE_DELETE"
+					}
+				},
+				{
+					"id": 4500,
+					"name": "ON_CACHE_INVALIDATION",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 3,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L3"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_CACHE_INVALIDATION"
+					}
+				},
+				{
+					"id": 4504,
+					"name": "ON_FETCH_QUEUE_CLEAR",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 7,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L7"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_FETCH_QUEUE_CLEAR"
+					}
+				},
+				{
+					"id": 4503,
+					"name": "ON_FETCH_QUEUE_STATUS_CHANGE",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 6,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L6"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_FETCH_QUEUE_STATUS_CHANGE"
+					}
+				},
+				{
+					"id": 4502,
+					"name": "ON_REQUEST_LOADING",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 5,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L5"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_REQUEST_LOADING"
+					}
+				},
+				{
+					"id": 4506,
+					"name": "ON_SUBMIT_QUEUE_CLEAR",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 9,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L9"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_SUBMIT_QUEUE_CLEAR"
+					}
+				},
+				{
+					"id": 4505,
+					"name": "ON_SUBMIT_QUEUE_STATUS_CHANGE",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 8,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L8"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "ON_SUBMIT_QUEUE_STATUS_CHANGE"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4499,
+						4501,
+						4500,
+						4504,
+						4503,
+						4502,
+						4506,
+						4505
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/events.types.ts",
+					"line": 1,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L1"
+				}
+			]
+		},
+		{
+			"id": 4507,
+			"name": "CustomEvents",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4508,
+					"name": "REQUEST_CREATED",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 13,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L13"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "REQUEST_CREATED"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4508
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/events.types.ts",
+					"line": 12,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L12"
+				}
+			]
+		},
+		{
+			"id": 4509,
+			"name": "EventSourceType",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4511,
+					"name": "APP_MANAGER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 18,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L18"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "appManager"
+					}
+				},
+				{
+					"id": 4512,
+					"name": "CACHE",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 19,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L19"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "cache"
+					}
+				},
+				{
+					"id": 4515,
+					"name": "CUSTOM_EVENT",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 22,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L22"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "customEvent"
+					}
+				},
+				{
+					"id": 4514,
+					"name": "FETCH_DISPATCHER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 21,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L21"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "fetchDispatcher"
+					}
+				},
+				{
+					"id": 4510,
+					"name": "REQUEST_MANAGER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 17,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L17"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "requestManager"
+					}
+				},
+				{
+					"id": 4513,
+					"name": "SUBMIT_DISPATCHER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 20,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L20"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "submitDispatcher"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4511,
+						4512,
+						4515,
+						4514,
+						4510,
+						4513
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/events.types.ts",
+					"line": 16,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L16"
+				}
+			]
+		},
+		{
+			"id": 4516,
+			"name": "InternalEvents",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4519,
+					"name": "APP_INITIALIZED",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 31,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L31"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP_INITIALIZED"
+					}
+				},
+				{
+					"id": 4518,
+					"name": "PLUGIN_HANGUP",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 30,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L30"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "PLUGIN_HANGUP"
+					}
+				},
+				{
+					"id": 4517,
+					"name": "PLUGIN_INITIALIZED",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/events.types.ts",
+							"line": 29,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L29"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "PLUGIN_INITIALIZED"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4519,
+						4518,
+						4517
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/events.types.ts",
+					"line": 28,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/events.types.ts#L28"
+				}
+			]
+		},
+		{
+			"id": 4523,
+			"name": "MessageOrigin",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4525,
+					"name": "APP",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 12,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L12"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP"
+					}
+				},
+				{
+					"id": 4524,
+					"name": "PLUGIN",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 11,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L11"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "PLUGIN"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4525,
+						4524
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 10,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L10"
+				}
+			]
+		},
+		{
+			"id": 4520,
+			"name": "MessageType",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4522,
+					"name": "EVENT",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 7,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L7"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "EVENT"
+					}
+				},
+				{
+					"id": 4521,
+					"name": "INTERNAL",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 6,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L6"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "INTERNAL"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4522,
+						4521
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 5,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L5"
+				}
+			]
+		},
+		{
+			"id": 4577,
+			"name": "SocketTopics",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 4581,
+					"name": "APP_INSTANCE_EMITTER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 5,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L5"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP_INSTANCE_EMITTER"
+					}
+				},
+				{
+					"id": 4580,
+					"name": "APP_INSTANCE_LISTENER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 4,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L4"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP_INSTANCE_LISTENER"
+					}
+				},
+				{
+					"id": 4579,
+					"name": "APP_MAIN_EMITTER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 3,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L3"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP_MAIN_EMITTER"
+					}
+				},
+				{
+					"id": 4578,
+					"name": "APP_MAIN_LISTENER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 2,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L2"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "APP_MAIN_LISTENER"
+					}
+				},
+				{
+					"id": 4583,
+					"name": "PLUGIN_EMITTER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 7,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L7"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "PLUGIN_EMITTER"
+					}
+				},
+				{
+					"id": 4582,
+					"name": "PLUGIN_LISTENER",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/topics.ts",
+							"line": 6,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L6"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "PLUGIN_LISTENER"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4581,
+						4580,
+						4579,
+						4578,
+						4583,
+						4582
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/topics.ts",
+					"line": 1,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/topics.ts#L1"
+				}
+			]
+		},
+		{
+			"id": 4544,
+			"name": "AppInternalMessagePayload",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 4547,
+					"name": "connectionName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 37,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L37"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4529,
+						"name": "BaseMessagePayload.connectionName"
+					}
+				},
+				{
+					"id": 4550,
+					"name": "environment",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 20,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 4531,
+						"name": "BaseMessagePayload.environment"
+					}
+				},
+				{
+					"id": 4548,
+					"name": "eventData",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 38,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L38"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4530,
+						"name": "BaseMessagePayload.eventData"
+					}
+				},
+				{
+					"id": 4546,
+					"name": "eventType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 36,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L36"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4519,
+						"name": "APP_INITIALIZED",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "InternalEvents.APP_INITIALIZED"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4528,
+						"name": "BaseMessagePayload.eventType"
+					}
+				},
+				{
+					"id": 4545,
+					"name": "messageType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 35,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L35"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4521,
+						"name": "INTERNAL",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "MessageType.INTERNAL"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4527,
+						"name": "BaseMessagePayload.messageType"
+					}
+				},
+				{
+					"id": 4549,
+					"name": "origin",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 39,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L39"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4525,
+						"name": "APP",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "MessageOrigin.APP"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4532,
+						"name": "BaseMessagePayload.origin"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						4547,
+						4550,
+						4548,
+						4546,
+						4545,
+						4549
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 34,
+					"character": 17,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L34"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 4526,
+					"name": "BaseMessagePayload",
+					"package": "@hyper-fetch/plugin-devtools"
+				}
+			]
+		},
+		{
+			"id": 4526,
+			"name": "BaseMessagePayload",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 4529,
+					"name": "connectionName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 18,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L18"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 4531,
+					"name": "environment",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 20,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 4530,
+					"name": "eventData",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 19,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L19"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 4528,
+					"name": "eventType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 17,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L17"
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 4516,
+								"name": "InternalEvents",
+								"package": "@hyper-fetch/plugin-devtools"
+							},
+							{
+								"type": "reference",
+								"target": 4498,
+								"name": "CoreEvents",
+								"package": "@hyper-fetch/plugin-devtools"
+							},
+							{
+								"type": "reference",
+								"target": 4508,
+								"name": "REQUEST_CREATED",
+								"package": "@hyper-fetch/plugin-devtools",
+								"qualifiedName": "CustomEvents.REQUEST_CREATED"
+							}
+						]
+					}
+				},
+				{
+					"id": 4527,
+					"name": "messageType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 16,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L16"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4520,
+						"name": "MessageType",
+						"package": "@hyper-fetch/plugin-devtools"
+					}
+				},
+				{
+					"id": 4532,
+					"name": "origin",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 21,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L21"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4523,
+						"name": "MessageOrigin",
+						"package": "@hyper-fetch/plugin-devtools"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						4529,
+						4531,
+						4530,
+						4528,
+						4527,
+						4532
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 15,
+					"character": 17,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L15"
+				}
+			],
+			"indexSignature": {
+				"id": 4533,
+				"name": "__index",
+				"variant": "signature",
+				"kind": 8192,
+				"flags": {},
+				"sources": [
+					{
+						"fileName": "types/messages.types.ts",
+						"line": 22,
+						"character": 2,
+						"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L22"
+					}
+				],
+				"parameters": [
+					{
+						"id": 4534,
+						"name": "x",
+						"variant": "param",
+						"kind": 32768,
+						"flags": {},
+						"type": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				],
+				"type": {
+					"type": "intrinsic",
+					"name": "any"
+				}
+			},
+			"extendedBy": [
+				{
+					"type": "reference",
+					"target": 4535,
+					"name": "PluginInternalMessagePayload"
+				},
+				{
+					"type": "reference",
+					"target": 4544,
+					"name": "AppInternalMessagePayload"
+				},
+				{
+					"type": "reference",
+					"target": 4551,
+					"name": "HFEventMessagePayload"
+				}
+			]
+		},
+		{
+			"id": 4551,
+			"name": "HFEventMessagePayload",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 4554,
+					"name": "connectionName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 45,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L45"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4529,
+						"name": "BaseMessagePayload.connectionName"
+					}
+				},
+				{
+					"id": 4559,
+					"name": "environment",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 20,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 4531,
+						"name": "BaseMessagePayload.environment"
+					}
+				},
+				{
+					"id": 4557,
+					"name": "eventData",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 48,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L48"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4530,
+						"name": "BaseMessagePayload.eventData"
+					}
+				},
+				{
+					"id": 4555,
+					"name": "eventName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 46,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L46"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 4553,
+					"name": "eventSource",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 44,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L44"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4509,
+						"name": "EventSourceType",
+						"package": "@hyper-fetch/plugin-devtools"
+					}
+				},
+				{
+					"id": 4556,
+					"name": "eventType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 47,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L47"
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 4498,
+								"name": "CoreEvents",
+								"package": "@hyper-fetch/plugin-devtools"
+							},
+							{
+								"type": "reference",
+								"target": 4508,
+								"name": "REQUEST_CREATED",
+								"package": "@hyper-fetch/plugin-devtools",
+								"qualifiedName": "CustomEvents.REQUEST_CREATED"
+							}
+						]
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4528,
+						"name": "BaseMessagePayload.eventType"
+					}
+				},
+				{
+					"id": 4558,
+					"name": "isTriggeredExternally",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 49,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L49"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "boolean"
+					}
+				},
+				{
+					"id": 4552,
+					"name": "messageType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 43,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L43"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4522,
+						"name": "EVENT",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "MessageType.EVENT"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4527,
+						"name": "BaseMessagePayload.messageType"
+					}
+				},
+				{
+					"id": 4560,
+					"name": "origin",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 21,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L21"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4523,
+						"name": "MessageOrigin",
+						"package": "@hyper-fetch/plugin-devtools"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 4532,
+						"name": "BaseMessagePayload.origin"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						4554,
+						4559,
+						4557,
+						4555,
+						4553,
+						4556,
+						4558,
+						4552,
+						4560
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 42,
+					"character": 17,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L42"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 4526,
+					"name": "BaseMessagePayload",
+					"package": "@hyper-fetch/plugin-devtools"
+				}
+			]
+		},
+		{
+			"id": 4535,
+			"name": "PluginInternalMessagePayload",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 4541,
+					"name": "adapterOptions",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 31,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L31"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					}
+				},
+				{
+					"id": 4540,
+					"name": "clientOptions",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 30,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L30"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/client/client.types.ts",
+							"qualifiedName": "ClientOptionsType"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/client/client.types.ts",
+									"qualifiedName": "ClientInstance"
+								},
+								"name": "ClientInstance",
+								"package": "@hyper-fetch/core"
+							}
+						],
+						"name": "ClientOptionsType",
+						"package": "@hyper-fetch/core"
+					}
+				},
+				{
+					"id": 4538,
+					"name": "connectionName",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 28,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L28"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4529,
+						"name": "BaseMessagePayload.connectionName"
+					}
+				},
+				{
+					"id": 4543,
+					"name": "environment",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 20,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L20"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 4531,
+						"name": "BaseMessagePayload.environment"
+					}
+				},
+				{
+					"id": 4542,
+					"name": "eventData",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 19,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L19"
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "any"
+					},
+					"inheritedFrom": {
+						"type": "reference",
+						"target": 4530,
+						"name": "BaseMessagePayload.eventData"
+					}
+				},
+				{
+					"id": 4537,
+					"name": "eventType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 27,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L27"
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 4517,
+								"name": "PLUGIN_INITIALIZED",
+								"package": "@hyper-fetch/plugin-devtools",
+								"qualifiedName": "InternalEvents.PLUGIN_INITIALIZED"
+							},
+							{
+								"type": "reference",
+								"target": 4518,
+								"name": "PLUGIN_HANGUP",
+								"package": "@hyper-fetch/plugin-devtools",
+								"qualifiedName": "InternalEvents.PLUGIN_HANGUP"
+							}
+						]
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4528,
+						"name": "BaseMessagePayload.eventType"
+					}
+				},
+				{
+					"id": 4536,
+					"name": "messageType",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 26,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L26"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4521,
+						"name": "INTERNAL",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "MessageType.INTERNAL"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4527,
+						"name": "BaseMessagePayload.messageType"
+					}
+				},
+				{
+					"id": 4539,
+					"name": "origin",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 29,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L29"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 4524,
+						"name": "PLUGIN",
+						"package": "@hyper-fetch/plugin-devtools",
+						"qualifiedName": "MessageOrigin.PLUGIN"
+					},
+					"overwrites": {
+						"type": "reference",
+						"target": 4532,
+						"name": "BaseMessagePayload.origin"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						4541,
+						4540,
+						4538,
+						4543,
+						4542,
+						4537,
+						4536,
+						4539
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 25,
+					"character": 17,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L25"
+				}
+			],
+			"extendedTypes": [
+				{
+					"type": "reference",
+					"target": 4526,
+					"name": "BaseMessagePayload",
+					"package": "@hyper-fetch/plugin-devtools"
+				}
+			]
+		},
+		{
+			"id": 4561,
+			"name": "AppInternalMessage",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 52,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L52"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4562,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4563,
+							"name": "data",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "types/messages.types.ts",
+									"line": 53,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L53"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 4544,
+								"name": "AppInternalMessagePayload",
+								"package": "@hyper-fetch/plugin-devtools"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4563
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 52,
+							"character": 33,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L52"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 4571,
+			"name": "DevtoolsPluginOptions",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "types/plugin.types.ts",
+					"line": 1,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L1"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4572,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4573,
+							"name": "appName",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Name of your application, it will be displayed in the HyperFlow app"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "types/plugin.types.ts",
+									"line": 5,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L5"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4575,
+							"name": "debug",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Enable debug mode logs, so you can see what's happening in plugin"
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@default",
+										"content": [
+											{
+												"kind": "code",
+												"text": "```ts\nfalse\n```"
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "types/plugin.types.ts",
+									"line": 16,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L16"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							}
+						},
+						{
+							"id": 4576,
+							"name": "environment",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "App environment indication"
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "types/plugin.types.ts",
+									"line": 21,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L21"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4574,
+							"name": "url",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "URL of the HyperFlow server\nNeeded only if you change the default port in the HyperFlow app"
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@default",
+										"content": [
+											{
+												"kind": "code",
+												"text": "```ts\n\"ws://localhost:2137\"\n```"
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "types/plugin.types.ts",
+									"line": 11,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L11"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4573,
+								4575,
+								4576,
+								4574
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/plugin.types.ts",
+							"line": 1,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/plugin.types.ts#L1"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 4567,
+			"name": "HFEventMessage",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 61,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L61"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4568,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4569,
+							"name": "data",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "types/messages.types.ts",
+									"line": 62,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L62"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 4551,
+								"name": "HFEventMessagePayload",
+								"package": "@hyper-fetch/plugin-devtools"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4569
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 61,
+							"character": 29,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L61"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 4570,
+			"name": "Message",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 65,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L65"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"target": 4567,
+						"name": "HFEventMessage",
+						"package": "@hyper-fetch/plugin-devtools"
+					},
+					{
+						"type": "reference",
+						"target": 4564,
+						"name": "PluginInternalMessage",
+						"package": "@hyper-fetch/plugin-devtools"
+					},
+					{
+						"type": "reference",
+						"target": 4561,
+						"name": "AppInternalMessage",
+						"package": "@hyper-fetch/plugin-devtools"
+					}
+				]
+			}
+		},
+		{
+			"id": 4564,
+			"name": "PluginInternalMessage",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "types/messages.types.ts",
+					"line": 56,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L56"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 4565,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 4566,
+							"name": "data",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "types/messages.types.ts",
+									"line": 57,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L57"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 4535,
+								"name": "PluginInternalMessagePayload",
+								"package": "@hyper-fetch/plugin-devtools"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								4566
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "types/messages.types.ts",
+							"line": 56,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/types/messages.types.ts#L56"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 4492,
+			"name": "DevtoolsPlugin",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "devtools.plugin.ts",
+					"line": 7,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/devtools.plugin.ts#L7"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4493,
+					"name": "DevtoolsPlugin",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "devtools.plugin.ts",
+							"line": 7,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/devtools.plugin.ts#L7"
+						}
+					],
+					"parameters": [
+						{
+							"id": 4494,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 4571,
+								"name": "DevtoolsPluginOptions",
+								"package": "@hyper-fetch/plugin-devtools"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/plugin/plugin.ts",
+							"qualifiedName": "Plugin"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/client/client.types.ts",
+									"qualifiedName": "ClientInstance"
+								},
+								"name": "ClientInstance",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 4495,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 4496,
+											"name": "eventHandler",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "devtools.plugin.ts",
+													"line": 11,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/devtools.plugin.ts#L11"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../packages/plugin-devtools/src/devtools.event.handler.ts",
+															"qualifiedName": "DevtoolsEventHandler"
+														},
+														"name": "DevtoolsEventHandler",
+														"package": "@hyper-fetch/plugin-devtools"
+													}
+												]
+											},
+											"defaultValue": "..."
+										},
+										{
+											"id": 4497,
+											"name": "requests",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "devtools.plugin.ts",
+													"line": 12,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/devtools.plugin.ts#L12"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../packages/core/src/request/request.types.ts",
+														"qualifiedName": "RequestInstance"
+													},
+													"name": "RequestInstance",
+													"package": "@hyper-fetch/core"
+												}
+											},
+											"defaultValue": "..."
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4496,
+												4497
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "devtools.plugin.ts",
+											"line": 10,
+											"character": 10,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/plugin-devtools/src/devtools.plugin.ts#L10"
+										}
+									]
+								}
+							}
+						],
+						"name": "Plugin",
+						"package": "@hyper-fetch/core"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Enumerations",
+			"children": [
+				4498,
+				4507,
+				4509,
+				4516,
+				4523,
+				4520,
+				4577
+			]
+		},
+		{
+			"title": "Interfaces",
+			"children": [
+				4544,
+				4526,
+				4551,
+				4535
+			]
+		},
+		{
+			"title": "Type Aliases",
+			"children": [
+				4561,
+				4571,
+				4567,
+				4570,
+				4564
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				4492
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/plugin-devtools",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🔧 Hyper Fetch DevTools Plugin\n\n<p>\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/plugin-devtools\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/plugin-devtools.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/plugin-devtools\">\n    <img src=\"https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=64BC4B&logo=package\" />\n  </a>\n</p>\n\n## About\n\n**"
+		},
+		{
+			"kind": "code",
+			"text": "`Hyper Fetch DevTools Plugin`"
+		},
+		{
+			"kind": "text",
+			"text": "** is an essential bridge between your application and HyperFlow. It enables real-time\nstreaming of request data, allowing you to monitor, debug, and optimize your application's network operations. This\nplugin is the foundation that powers HyperFlow's advanced developer tools, providing the data pipeline needed for\ncomprehensive request inspection and management.\n\n## Key Features\n\n🔮 **Real-time Data Streaming** - Seamless streaming of request data to HyperFlow\n\n🎯 **Request Lifecycle Tracking** - Complete visibility into request lifecycle events\n\n✨ **Performance Metrics Collection** - Automatic gathering of timing and performance data\n\n🚀 **Queue State Monitoring** - Real-time tracking of request queue status\n\n💎 **Cache State Synchronization** - Live updates of cache state changes\n\n🪄 **Error Tracking** - Comprehensive error reporting and debugging information\n\n🎊 **Request/Response Interception** - Ability to inspect and modify requests and responses\n\n🔋 **Offline State Detection** - Automatic detection and reporting of offline states\n\n📡 **WebSocket Connection Management** - Specialized handling for WebSocket connections\n\n## Integration\n\nThe DevTools Plugin is designed to work seamlessly with HyperFlow. To get started:\n\n1. Install the plugin:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install @hyper-fetch/plugin-devtools\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n2. Add it to your Hyper Fetch client:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```typescript\nimport { createClient } from \"@hyper-fetch/core\";\nimport { DevtoolsPlugin } from \"@hyper-fetch/plugin-devtools\";\n\nconst client = createClient({\n  url: \"https://api.example.com\",\n}).addPlugin(\n  DevtoolsPlugin({\n    // Name displayed in the HyperFlow\n    appName: \"Adjusted App\",\n  }),\n);\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n3. Connect to HyperFlow to start receiving real-time data.\n\n## Help me keep working on this project ❤️\n\n- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)\n\n## Sources\n\n- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)\n- #### [Docs](https://hyperfetch.bettertyped.com/docs/plugin-devtools/overview)\n- #### [API](https://hyperfetch.bettertyped.com/api/)\n- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools)\n- #### [Guides](https://hyperfetch.bettertyped.com/guides/plugin-devtools/getting-started)\n\n## Other Packages\n\n- - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)\n- #### [HyperFlow](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/flow)\n- #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)"
+		}
+	],
+	"symbolIdMap": {
+		"4491": {
+			"sourceFileName": "../packages/plugin-devtools/src/index.ts",
+			"qualifiedName": ""
+		},
+		"4492": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "DevtoolsPlugin"
+		},
+		"4493": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "DevtoolsPlugin"
+		},
+		"4494": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "options"
+		},
+		"4495": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "__object"
+		},
+		"4496": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "__object.eventHandler"
+		},
+		"4497": {
+			"sourceFileName": "../packages/plugin-devtools/src/devtools.plugin.ts",
+			"qualifiedName": "__object.requests"
+		},
+		"4498": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents"
+		},
+		"4499": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_CACHE_CHANGE"
+		},
+		"4500": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_CACHE_INVALIDATION"
+		},
+		"4501": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_CACHE_DELETE"
+		},
+		"4502": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_REQUEST_LOADING"
+		},
+		"4503": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE"
+		},
+		"4504": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_FETCH_QUEUE_CLEAR"
+		},
+		"4505": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE"
+		},
+		"4506": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CoreEvents.ON_SUBMIT_QUEUE_CLEAR"
+		},
+		"4507": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CustomEvents"
+		},
+		"4508": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "CustomEvents.REQUEST_CREATED"
+		},
+		"4509": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType"
+		},
+		"4510": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.REQUEST_MANAGER"
+		},
+		"4511": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.APP_MANAGER"
+		},
+		"4512": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.CACHE"
+		},
+		"4513": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.SUBMIT_DISPATCHER"
+		},
+		"4514": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.FETCH_DISPATCHER"
+		},
+		"4515": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "EventSourceType.CUSTOM_EVENT"
+		},
+		"4516": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "InternalEvents"
+		},
+		"4517": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "InternalEvents.PLUGIN_INITIALIZED"
+		},
+		"4518": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "InternalEvents.PLUGIN_HANGUP"
+		},
+		"4519": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/events.types.ts",
+			"qualifiedName": "InternalEvents.APP_INITIALIZED"
+		},
+		"4520": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageType"
+		},
+		"4521": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageType.INTERNAL"
+		},
+		"4522": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageType.EVENT"
+		},
+		"4523": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageOrigin"
+		},
+		"4524": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageOrigin.PLUGIN"
+		},
+		"4525": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "MessageOrigin.APP"
+		},
+		"4526": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload"
+		},
+		"4527": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.messageType"
+		},
+		"4528": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.eventType"
+		},
+		"4529": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.connectionName"
+		},
+		"4530": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.eventData"
+		},
+		"4531": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.environment"
+		},
+		"4532": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.origin"
+		},
+		"4533": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.__index"
+		},
+		"4535": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload"
+		},
+		"4536": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.messageType"
+		},
+		"4537": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.eventType"
+		},
+		"4538": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.connectionName"
+		},
+		"4539": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.origin"
+		},
+		"4540": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.clientOptions"
+		},
+		"4541": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessagePayload.adapterOptions"
+		},
+		"4542": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.eventData"
+		},
+		"4543": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.environment"
+		},
+		"4544": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload"
+		},
+		"4545": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload.messageType"
+		},
+		"4546": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload.eventType"
+		},
+		"4547": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload.connectionName"
+		},
+		"4548": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload.eventData"
+		},
+		"4549": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessagePayload.origin"
+		},
+		"4550": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.environment"
+		},
+		"4551": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload"
+		},
+		"4552": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.messageType"
+		},
+		"4553": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.eventSource"
+		},
+		"4554": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.connectionName"
+		},
+		"4555": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.eventName"
+		},
+		"4556": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.eventType"
+		},
+		"4557": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.eventData"
+		},
+		"4558": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessagePayload.isTriggeredExternally"
+		},
+		"4559": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.environment"
+		},
+		"4560": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "BaseMessagePayload.origin"
+		},
+		"4561": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "AppInternalMessage"
+		},
+		"4562": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type"
+		},
+		"4563": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type.data"
+		},
+		"4564": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "PluginInternalMessage"
+		},
+		"4565": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type"
+		},
+		"4566": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type.data"
+		},
+		"4567": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "HFEventMessage"
+		},
+		"4568": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type"
+		},
+		"4569": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "__type.data"
+		},
+		"4570": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/messages.types.ts",
+			"qualifiedName": "Message"
+		},
+		"4571": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "DevtoolsPluginOptions"
+		},
+		"4572": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "__type"
+		},
+		"4573": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "__type.appName"
+		},
+		"4574": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "__type.url"
+		},
+		"4575": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "__type.debug"
+		},
+		"4576": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/plugin.types.ts",
+			"qualifiedName": "__type.environment"
+		},
+		"4577": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics"
+		},
+		"4578": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.APP_MAIN_LISTENER"
+		},
+		"4579": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.APP_MAIN_EMITTER"
+		},
+		"4580": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.APP_INSTANCE_LISTENER"
+		},
+		"4581": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.APP_INSTANCE_EMITTER"
+		},
+		"4582": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.PLUGIN_LISTENER"
+		},
+		"4583": {
+			"sourceFileName": "../packages/plugin-devtools/src/types/topics.ts",
+			"qualifiedName": "SocketTopics.PLUGIN_EMITTER"
+		}
+	}
+}

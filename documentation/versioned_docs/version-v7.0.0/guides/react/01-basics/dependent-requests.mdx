@@ -1,0 +1,91 @@
+---
+title: Dependent Requests in React
+sidebar_label: Dependent Requests
+---
+
+# Dependent Requests
+
+In many applications, you'll encounter scenarios where one request depends on the data returned by another. For example,
+you might need to fetch a user's profile first and then use their ID to fetch their posts. Hyper-fetch provides a simple
+and declarative way to handle these dependent requests using the `disabled` option in the `useFetch` hook.
+
+:::secondary What you'll learn
+
+1.  How to create **dependent requests** where one query relies on data from another.
+2.  How to use the **`disabled` option** to conditionally prevent a request from firing.
+3.  How to build a **chain of requests** for more complex data-fetching scenarios.
+
+:::
+
+## Chaining Requests
+
+The key to handling dependent requests is the `disabled` option in the `useFetch` hook. By setting `disabled` to `true`,
+you can prevent a request from being executed. When the condition changes and `disabled` becomes `false`, the request
+will automatically fire.
+
+Let's look at an example where we first fetch a user and then, once we have the user's ID, we fetch their products.
+
+```tsx
+function DependentRequestsExample() {
+  // highlight-next-line
+  const { data: user } = useFetch(getCurrentUser);
+
+  const {
+    data: products,
+    loading,
+    error,
+    // highlight-start
+  } = useFetch(getUserProducts.setParams({ userId: user?.id }), {
+    disabled: !user,
+  });
+  // highlight-end
+
+  return (
+    <div className="flex flex-col gap-4">
+      {user ? (
+        <div className="p-4 border rounded-md">
+          <p className="font-bold">User Details:</p>
+          <p>ID: {user.id}</p>
+          <p>Name: {user.name}</p>
+        </div>
+      ) : (
+        <p>Loading user...</p>
+      )}
+
+      {loading && <p>Loading products...</p>}
+      {error && <p className="text-red-500">Error loading products!</p>}
+      {products && (
+        <div className="p-4 border rounded-md">
+          <p className="font-bold">Products:</p>
+          <ul className="list-disc list-inside">
+            {products.map((product) => (
+              <li key={product.id}>{product.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+In this example:
+
+1. The first `useFetch` call fetches the current user.
+2. The second `useFetch` call for products is **disabled** as long as `user` is `undefined`.
+3. Once the first request succeeds and `user` data is available, the `disabled: !user` condition becomes `false`.
+4. The second request then automatically executes with the `userId` from the `user` object.
+
+This pattern ensures that you don't try to fetch data with missing parameters, which would likely result in an error.
+
+---
+
+:::success Congratulations!
+
+You've mastered handling dependent requests in Hyper-fetch!
+
+- You can **chain requests** by using data from one request to trigger another.
+- You can use the **`disabled` option** for conditional fetching.
+- You can build **complex data-fetching logic** in a declarative and readable way.
+
+:::

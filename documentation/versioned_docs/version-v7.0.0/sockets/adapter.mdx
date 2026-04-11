@@ -1,0 +1,108 @@
+---
+sidebar_position: 6
+title: Adapter
+sidebar_label: Adapter
+---
+
+[Read the API Reference »](/api/sockets/Classes/SocketAdapter.mdx)
+
+Adapter is a class that specify the way how to communicate with the server. It defines the way how to send and receive
+data, how to handle errors, how to handle reconnects, etc. Currently supporting connection types like `Websocket`,
+`Server Sent Events (SSE)` or integrations like `Firebase Realtime Database`.
+
+---
+
+## Built in Adapters
+
+There are two built in adapters - `WebsocketAdapter` and `ServerSentEventsAdapter` providing basic functionality for the
+`Websocket` and `Server Sent Events (SSE)` connection types.
+
+---
+
+### Websocket Adapter
+
+The default adapter is used to communicate with the `Websocket` server.
+
+(@import sockets WebsocketAdapter type=import)
+
+```tsx
+import { WebsocketAdapter } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "http://localhost:3000",
+  adapter: WebsocketAdapter(),
+});
+```
+
+<LinkCard
+  type="api"
+  title="WebsocketAdapter"
+  description="Read the API Reference for the WebsocketAdapter class."
+  to="/docs/api/sockets/Functions/WebsocketAdapter"
+/>
+
+---
+
+### Server Sent Events (SSE) Adapter
+
+The `ServerSentEventsAdapter` is used to communicate with the `Server Sent Events (SSE)` server.
+
+(@import sockets ServerSentEventsAdapter type=import)
+
+```tsx
+import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
+```
+
+<LinkCard
+  type="api"
+  title="ServerSentEventsAdapter"
+  description="Read the API Reference for the ServerSentEventsAdapter class."
+  to="/docs/api/sockets/Functions/ServerSentEventsAdapter"
+/>
+
+---
+
+## Custom Adapter
+
+There is nothing to prevent you from changing this and creating the adapter you need. Thanks to event communication, you
+can set your own adapter as you wish by only fulfilling the typescript requirements. This way you can create your own
+adapters for existing libraries like `socket.io`.
+
+{/* TODO EXAMPLE */}
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Learn more about the Emitter class and its configuration options."
+  to="/docs/sockets/emitter"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Learn more about the Listener class and its configuration options."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Firebase Realtime Database"
+  description="Learn more about the Firebase Realtime Database integration."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>
