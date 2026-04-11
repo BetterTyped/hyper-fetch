@@ -20,10 +20,7 @@
       "hooks/*": ["hooks/*"],
       "helpers/*": ["helpers/*"],
       "utils/*": ["utils/*"],
-      "provider": ["provider"],
-      "@hyper-fetch/core": ["../../core/src"],
-      "@hyper-fetch/sockets": ["../../sockets/src"],
-      "@hyper-fetch/testing": ["../../testing/src"]
+      "provider": ["provider"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"]

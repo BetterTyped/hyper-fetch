@@ -18,7 +18,7 @@
     "release": "yarn semantic-release --extends ./release.config.js -t 'v${version}'",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false & tsc --noEmit -p __tests__/tsconfig.json & wait",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false && tsc --noEmit -p __tests__/tsconfig.json",
     "tests": "yarn lint-staged",
     "update:version": "node ../../scripts/update-package-version.js --prefix v"
   },

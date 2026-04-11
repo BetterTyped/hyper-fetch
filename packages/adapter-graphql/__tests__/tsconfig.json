@@ -16,9 +16,7 @@
     "types": ["vitest/globals", "jest-extended", "@types/node"],
     "baseUrl": "../src",
     "paths": {
-      "@hyper-fetch/graphql": ["../src"],
-      "@hyper-fetch/core": ["../../core/src"],
-      "@hyper-fetch/testing": ["../../testing/src"]
+      "@hyper-fetch/graphql": ["../src"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"]
