@@ -46,7 +46,7 @@ You can also customize the cache storage:
 ```tsx title="Custom Cache Storage"
 const client = createClient({
   url: "http://localhost:3000",
-  cache: (instance) => new Cache(instance, { storage: localStorage }),
+  cache: () => new Cache({ storage: localStorage }),
 });
 ```
 
@@ -310,7 +310,7 @@ Enable persistent cache by providing a compatible storage interface (e.g., local
 ```tsx
 const client = createClient({
   url: "http://localhost:3000",
-  cache: (instance) => new Cache(instance, { storage: localStorage }),
+  cache: () => new Cache({ storage: localStorage }),
 });
 ```
 
