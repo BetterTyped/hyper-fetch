@@ -348,17 +348,24 @@ describe("E2E GraphQL [ Error Handling ]", () => {
   });
 
   it("should handle abort/cancel of request", async () => {
-    const client = new Client({ url: baseUrl }).setAdapter(GraphqlAdapter());
-    const request = client.createRequest<GqlResponse<any>>()({
-      endpoint: `query { users { id } }`,
-    });
+    const delayed = createE2EGraphQLServer({ typeDefs, resolvers, delay: 50 });
+    const delayedUrl = await delayed.startServer();
 
-    setTimeout(() => request.abort(), 0);
+    try {
+      const client = new Client({ url: delayedUrl }).setAdapter(GraphqlAdapter());
+      const request = client.createRequest<GqlResponse<any>>()({
+        endpoint: `query { users { id } }`,
+      });
 
-    const { data, error } = await request.send();
+      setTimeout(() => request.abort(), 2);
 
-    expect(data).toBeNull();
-    expect(error).toStrictEqual([getErrorMessage("abort")]);
+      const { data, error } = await request.send();
+
+      expect(data).toBeNull();
+      expect(error).toStrictEqual([getErrorMessage("abort")]);
+    } finally {
+      await delayed.stopServer();
+    }
   });
 });
 

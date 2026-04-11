@@ -4,6 +4,7 @@ import { graphql, buildSchema, GraphQLSchema } from "graphql";
 export type GraphQLServerOptions = {
   typeDefs: string;
   resolvers: Record<string, (...args: any[]) => any>;
+  delay?: number;
 };
 
 /**
@@ -72,6 +73,10 @@ export const createE2EGraphQLServer = (options: GraphQLServerOptions) => {
         variableValues: variables,
         operationName,
       });
+
+      if (options.delay) {
+        await new Promise((r) => setTimeout(r, options.delay));
+      }
 
       const responseBody = JSON.stringify(result);
       res.writeHead(200, {
