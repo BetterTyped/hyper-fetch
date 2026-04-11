@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import {
+import type {
   RequestSendOptionsType,
   RequestSendActionsType,
   ParamsType,
@@ -7,15 +7,14 @@ import {
   PayloadType,
   RequestJSON,
   RequestOptionsType,
-  sendRequest,
   RequestConfigurationType,
   PayloadMapperType,
   RequestInstance,
   RequestMapper,
   ResponseMapper,
   ExtractUrlParams,
-  scopeKey,
-} from "request";
+} from "./request.types";
+import { sendRequest, scopeKey } from "./request.utils";
 import { ClientInstance } from "client";
 import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
 import {

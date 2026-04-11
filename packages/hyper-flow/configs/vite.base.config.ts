@@ -40,6 +40,16 @@ export const config: UserConfigFnObject = ({ mode }) => {
         "@app": path.resolve(__dirname, "../src/app"),
         "@server": path.resolve(__dirname, "../src/server"),
         "@shared": path.resolve(__dirname, "../src/shared"),
+        // Monorepo packages publish `dist/`; alias to source so the app builds without pre-building siblings.
+        "@hyper-fetch/core": path.resolve(__dirname, "../../core/src/index.ts"),
+        "@hyper-fetch/axios": path.resolve(__dirname, "../../adapter-axios/src/index.ts"),
+        "@hyper-fetch/firebase": path.resolve(__dirname, "../../adapter-firebase/src/index.ts"),
+        "@hyper-fetch/firebase-admin": path.resolve(__dirname, "../../adapter-firebase-admin/src/index.ts"),
+        "@hyper-fetch/graphql": path.resolve(__dirname, "../../adapter-graphql/src/index.ts"),
+        "@hyper-fetch/plugin-devtools": path.resolve(__dirname, "../../plugin-devtools/src/index.ts"),
+        "@hyper-fetch/react": path.resolve(__dirname, "../../react/src/index.ts"),
+        "@hyper-fetch/sockets": path.resolve(__dirname, "../../sockets/src/index.ts"),
+        "@hyper-fetch/testing": path.resolve(__dirname, "../../testing/src/index.ts"),
       },
     },
   };

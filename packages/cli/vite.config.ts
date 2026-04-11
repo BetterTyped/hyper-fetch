@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
+import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
 
 export default defineConfig({
   build: {
@@ -19,7 +20,13 @@ export default defineConfig({
       external: ["@hyper-fetch/core"],
     },
   },
-  plugins: [dts(), tsconfigPaths()],
+  plugins: [
+    dts({
+      entryRoot: "src",
+      compilerOptions: getDtsCompilerOptionsForPackage(__dirname),
+    }),
+    tsconfigPaths(),
+  ],
   test: {
     globals: true,
     environment: "node",

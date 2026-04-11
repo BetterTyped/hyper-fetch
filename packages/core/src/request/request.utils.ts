@@ -1,5 +1,5 @@
 import { ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
-import { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
+import type { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "./request.types";
 import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType } from "types";

@@ -32,5 +32,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules/**/*", "**/node_modules/**/*", "dist/**/*", "**/dist/**/*", "**/__tests__/**/*", "documentation/**/*", "examples/**/*", "*.js"]
+  "exclude": [
+    "node_modules/**/*",
+    "**/node_modules/**/*",
+    "dist/**/*",
+    "**/dist/**/*",
+    "**/__tests__/**/*",
+    "documentation/**/*",
+    "examples/**/*",
+    "*.js"
+  ]
 }

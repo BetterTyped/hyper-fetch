@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import {
   NullableKeys,
   EmptyTypes,
@@ -16,7 +17,7 @@ import {
   ExtractAdapterMethodType,
   TypeWithDefaults,
 } from "types";
-import { Request } from "request";
+import type { Request } from "./request";
 import { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { ClientInstance } from "client";
