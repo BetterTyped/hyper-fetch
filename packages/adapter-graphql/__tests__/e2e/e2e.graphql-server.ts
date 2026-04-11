@@ -75,7 +75,9 @@ export const createE2EGraphQLServer = (options: GraphQLServerOptions) => {
       });
 
       if (options.delay) {
-        await new Promise((r) => setTimeout(r, options.delay));
+        await new Promise<void>((r) => {
+          setTimeout(r, options.delay);
+        });
       }
 
       const responseBody = JSON.stringify(result);
