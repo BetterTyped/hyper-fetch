@@ -1,4 +1,10 @@
-import { RequestInstance, ExtractAdapterExtraType, ExtractAdapterType, ExtractErrorType, scopeKey } from "@hyper-fetch/core";
+import {
+  RequestInstance,
+  ExtractAdapterExtraType,
+  ExtractAdapterType,
+  ExtractErrorType,
+  scopeKey,
+} from "@hyper-fetch/core";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 import { UseStreamOptionsType, UseStreamReturnType } from "./use-stream.types";

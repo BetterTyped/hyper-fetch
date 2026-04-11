@@ -400,9 +400,9 @@ describe("useTrackingState [ Events ]", () => {
           request.setResponseMapper(async (response) => {
             mapperCallCount += 1;
             if (mapperCallCount === 1) {
-              return firstPromise.then(() => ({ ...response, data: "first-data" } as typeof response));
+              return firstPromise.then(() => ({ ...response, data: "first-data" }) as typeof response);
             }
-            return secondPromise.then(() => ({ ...response, data: "second-data" } as typeof response));
+            return secondPromise.then(() => ({ ...response, data: "second-data" }) as typeof response);
           }),
         );
 

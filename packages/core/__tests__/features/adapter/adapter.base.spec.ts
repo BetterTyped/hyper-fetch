@@ -1,7 +1,6 @@
 import { Client, createClient } from "client";
 import { Adapter, AdapterInstance, RequestProcessingError, getAdapterHeaders, getAdapterPayload } from "adapter";
 import { HttpMethods } from "../../../src/constants/http.constants";
-import { RequestInstance } from "request";
 
 describe("Adapter [ Base ]", () => {
   let adapter: AdapterInstance;

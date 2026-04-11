@@ -1,4 +1,5 @@
 import type { Mock } from "vitest";
+
 import { Client } from "client";
 import { LoggerManager } from "managers";
 

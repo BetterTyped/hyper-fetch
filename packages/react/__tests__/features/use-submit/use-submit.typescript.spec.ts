@@ -58,9 +58,6 @@ const postWithCustomError = client.createRequest<{
 // ---- Type-level tests using return type directly ----
 
 type PostUserReturn = UseSubmitReturnType<typeof postUser>;
-type PatchUserReturn = UseSubmitReturnType<typeof patchUser>;
-type DeleteUserReturn = UseSubmitReturnType<typeof deleteUser>;
-type PostWithQueryReturn = UseSubmitReturnType<typeof postWithQuery>;
 type PostWithCustomErrorReturn = UseSubmitReturnType<typeof postWithCustomError>;
 
 describe("useSubmit [Types]", () => {

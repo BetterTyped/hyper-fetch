@@ -10,5 +10,5 @@
     "react/no-unescaped-entities": 0,
     "import/extensions": 0
   },
-  "ignorePatterns": ["out/", "dist/", "coverage/", "vite.config.mts", "/*.js"]
+  "ignorePatterns": ["out/", "dist/", "coverage/", "vite.config.mts", "/*.js", "__tests__/**/*.js"]
 }

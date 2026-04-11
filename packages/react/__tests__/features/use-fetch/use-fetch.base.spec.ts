@@ -152,8 +152,12 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map the data on deps change", async () => {
       mockRequest(request);
-      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 } as typeof response));
-      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 } as typeof response));
+      const request1 = request
+        .setCacheKey("request1")
+        .setResponseMapper((response) => ({ ...response, data: 1 }) as typeof response);
+      const request2 = request
+        .setCacheKey("request2")
+        .setResponseMapper((response) => ({ ...response, data: 2 }) as typeof response);
 
       const { result, rerender } = renderUseFetch(request1);
 
@@ -197,10 +201,13 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map response data", async () => {
       const mappedData = { test: 1, test2: 2, test3: 3 };
-      const mappedRequest = request.setResponseMapper((response) => ({
-        ...response,
-        data: mappedData,
-      } as typeof response));
+      const mappedRequest = request.setResponseMapper(
+        (response) =>
+          ({
+            ...response,
+            data: mappedData,
+          }) as typeof response,
+      );
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest);
 
@@ -209,10 +216,13 @@ describe("useFetch [ Base ]", () => {
     it("should map async response data", async () => {
       const spy = vi.fn();
       const mappedData = { test: 1, test2: 2, test3: 3 };
-      const mappedRequest = request.setResponseMapper(async (response) => ({
-        ...response,
-        data: mappedData,
-      } as typeof response));
+      const mappedRequest = request.setResponseMapper(
+        async (response) =>
+          ({
+            ...response,
+            data: mappedData,
+          }) as typeof response,
+      );
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest, { disabled: true });
 
