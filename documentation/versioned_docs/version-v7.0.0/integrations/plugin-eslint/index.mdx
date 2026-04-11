@@ -1,0 +1,75 @@
+---
+sidebar_position: 1
+title: ESLint Plugin
+sidebar_label: Overview
+---
+
+# ESLint Plugin
+
+[Read the API Reference »](/docs/api/plugin-eslint/Variables/rules.mdx)
+
+Enhance your development workflow with **`eslint-plugin-hyper-fetch`**, a set of custom ESLint rules designed to catch
+common issues when working with Hyper Fetch. This plugin helps you identify and resolve problems with generic types that
+TypeScript alone might miss, such as typos, missing values, or incorrect type usage.
+
+---
+
+:::tip Purpose
+
+1.  **Catch generic type issues** that TypeScript may overlook, ensuring your data models are accurate and reliable.
+2.  **Prevent runtime errors early** by identifying and flagging incorrect type usage before your code ever runs.
+3.  **Improve developer experience** with clear, actionable feedback directly in your editor, making debugging faster
+    and easier.
+
+:::
+
+---
+
+## Install the Plugin
+
+Install the ESLint plugin using npm or yarn:
+
+```bash npm2yarn2pnpm
+npm install eslint-plugin-hyper-fetch
+```
+
+---
+
+## Quick Start
+
+1. ### Update ESLint Configuration
+
+After installing the plugin, you need to update your ESLint configuration file (`.eslintrc.js`, `.eslintrc.json`, or
+equivalent) to use the plugin.
+
+2. ### Recommended Configuration
+
+The simplest way to use the plugin is to extend the recommended configuration:
+
+```json
+{
+  "extends": [
+    // ... your other extends
+    "plugin:hyper-fetch/recommended"
+  ]
+}
+```
+
+---
+
+## Key Features
+
+- **Type-Safe Generics**: Detects generic type errors that TypeScript may overlook
+- **Immediate Feedback**: Surfaces type-related issues as you code
+- **Fewer Runtime Bugs**: Prevents issues caused by incorrect type usage
+- **Clear Error Messages**: Makes debugging faster and easier
+
+---
+
+:::info Why Use This Plugin?
+
+- Reduce runtime errors by catching mistakes early
+- Improve developer experience with actionable feedback
+- Strengthen your codebase with better type safety
+
+:::

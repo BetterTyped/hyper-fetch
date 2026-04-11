@@ -1,0 +1,245 @@
+---
+sidebar_position: 8
+title: Managers
+sidebar_label: Managers
+---
+
+**Managers** are core subsystems in Hyper Fetch that handle essential app-wide concerns—like network status, request
+lifecycle, and logging. They provide powerful, centralized APIs for managing state, events, and behaviors across your
+application, making advanced features like offline support, cancellation, and debugging easy to implement and maintain
+in other environments like React, Node.js, etc.
+
+The library contains several managers, each supporting a specific subsystem or feature. Understanding these managers
+helps you unlock advanced capabilities and build robust, maintainable applications.
+
+---
+
+## AppManager
+
+[Read the API Reference »](/api/core/Classes/AppManager.mdx)
+
+The **AppManager** detects and manages your application's online/offline state, tracks window focus and blur events, and
+allows integration with custom event sources (such as React Native or Electron). It provides unmount callbacks for easy
+cleanup, making it simple to handle app-wide lifecycle events in any environment.
+
+:::tip Purpose
+
+1. Track **online/offline** status of the app
+2. Detect **window focus** and **blur** events
+3. **Allow custom event** sources for different environments
+
+:::
+
+```tsx title="Listening to App Events"
+// highlight-start
+const unmountFocusListener = client.appManager.events.onFocus(() => {
+  console.log("App is focused!");
+});
+const unmountOfflineListener = client.appManager.events.onOffline(() => {
+  console.log("App is offline!");
+});
+// highlight-end
+
+// ... later, to clean up:
+unmountFocusListener();
+unmountOfflineListener();
+```
+
+:::info
+
+Hyper Fetch event listeners always return unmounting callbacks for easier cleanup handling.
+
+:::
+
+#### Customizing Events
+
+If you're using a non-browser environment (like React Native), you can set custom event handlers:
+
+```ts
+client.appManager.setFocusEvents({
+  onFocus: myCustomFocusHandler,
+  onBlur: myCustomBlurHandler,
+});
+```
+
+### Events
+
+<ShowMore>
+
+(@import core getAppManagerEvents type=returns)
+
+</ShowMore>
+
+---
+
+## RequestManager
+
+[Read the API Reference »](/api/core/Classes/RequestManager.mdx)
+
+The **RequestManager** manages cancellation tokens for requests, emits events throughout the request lifecycle
+(including start, upload, download, response, and abort), and supports aborting requests by requestId or custom
+abortKey. It enables granular progress tracking and advanced cancellation scenarios for robust request handling.
+
+:::tip Purpose
+
+1. Manage cancellation tokens for requests
+2. Emit events for request lifecycle (start, upload, download, response, abort)
+3. Support aborting by requestId or abortKey
+
+:::
+
+```tsx title="Tracking Upload/Download Progress"
+// highlight-start
+const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, (progress) => {
+  console.log("Upload progress:", progress);
+});
+const unmountDownloadListener = client.requestManager.events.onDownloadProgressById(requestId, (progress) => {
+  console.log("Download progress:", progress);
+});
+// highlight-end
+
+// ... later, to clean up:
+unmountUploadListener();
+unmountDownloadListener();
+```
+
+:::info
+
+You can abort requests by their `requestId` or by a custom `abortKey` to cancel groups of requests at once.
+
+:::
+
+### AbortKey
+
+Every request added to the dispatcher creates an abort controller, stored in a Map under its abort key (usually the
+`requestId`). This lets you abort single requests or groups of requests easily.
+
+```tsx
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
+
+// highlight-start
+const abortKey = getUser.abortKey; // "/users/:userId"
+const abortKeyWithParams = getUser.setParams({ userId: 1 }).abortKey; // "/users/1"
+const abortKeyWithQueryParams = getUser.setQueryParams({ page: 1 }).abortKey; // "/users/:userId"
+// highlight-end
+```
+
+#### Custom abortKey
+
+You can also set a custom abort key:
+
+```tsx
+import { client } from "./api";
+
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+  abortKey: "CUSTOM_ABORT_KEY",
+});
+
+// highlight-start
+console.log(getUser.abortKey); // "CUSTOM_ABORT_KEY"
+// highlight-end
+```
+
+#### Generic abortKey
+
+You can also set a generic abort key:
+
+```tsx
+import { client } from "./api";
+
+// highlight-start
+client.setQueryKeyMapper((request) => {
+  if (request.requestOptions.endpoint === "/users/:userId") {
+    return `CUSTOM_ABORT_KEY_${request.params?.userId || "unknown"}`;
+  }
+});
+// highlight-end
+
+const getUser = client.createRequest()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
+
+// highlight-start
+console.log(getUser.setParams({ userId: 1 }).queryKey); // "CUSTOM_QUERY_KEY_1"
+// highlight-end
+```
+
+---
+
+### Events
+
+<ShowMore>
+
+(@import core getRequestManagerEvents type=returns)
+
+</ShowMore>
+
+```ts title=Example
+client.requestManager.events.onResponse((response, details) => {
+  // Handle response
+});
+```
+
+---
+
+## LoggerManager
+
+[Read the API Reference »](/api/core/Classes/LoggerManager.mdx)
+
+The **LoggerManager** centralizes logging for all subsystems, enables creation of custom loggers for different modules
+or features, and ensures consistent logging by inheriting parent configuration. It offers flexible log levels and output
+formatting to keep logs organized and actionable.
+
+:::tip Purpose
+
+1. Centralize logging for all subsystems
+2. Enable creation of custom loggers for modules/features
+3. Inherit parent configuration for consistent logging
+
+:::
+
+```ts title="Custom Logger Example"
+// highlight-start
+const logger = client.loggerManager.init("My Module");
+logger.error("Something went wrong!"); // Output: [My Module] Something went wrong!
+// highlight-end
+```
+
+---
+
+:::info Best Practices
+
+- Always clean up event listeners using the returned unmount callbacks to avoid memory leaks.
+- Use custom abort keys for advanced cancellation scenarios (e.g., aborting all requests for a specific feature).
+- Leverage custom loggers to keep logs organized and actionable.
+
+:::
+
+---
+
+## See Also
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="The central hub for configuration and manager access."
+  to="/docs/core/client"
+/>
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn how requests interact with managers."
+  to="/docs/core/request"
+/>
+<LinkCard
+  type="guides"
+  title="Advanced Cancellation"
+  description="Guide to advanced request cancellation techniques."
+  to="/docs/guides/core/advanced/cancellation"
+/>

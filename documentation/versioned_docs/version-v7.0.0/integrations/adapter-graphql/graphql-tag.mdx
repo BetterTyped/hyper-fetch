@@ -1,0 +1,51 @@
+---
+sidebar_position: 4
+title: Using graphql-tag
+sidebar_label: graphql-tag
+---
+
+The `graphql-tag` library is a peer dependency of the GraphQL adapter and is used to parse GraphQL query strings into
+the standard AST format.
+
+:::tip Why use `graphql-tag`?
+
+- **Standardization**: It ensures that your GraphQL queries are valid and conform to the official specification.
+- **Tooling Support**: It enables better tooling support, such as syntax highlighting and autocompletion in your editor.
+- **Readability**: It makes your queries more readable by allowing you to write them as multi-line strings.
+
+:::
+
+---
+
+## Usage
+
+You should use the `gql` tag from `graphql-tag` to define all your queries and mutations. The GraphQL adapter will then
+automatically handle the conversion to a printable string that can be sent to your server.
+
+```ts
+import { Client } from "@hyper-fetch/core";
+import { graphqlAdapter } from "@hyper-fetch/graphql";
+import gql from "graphql-tag";
+
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+
+interface User {
+  user: {
+    username: string;
+    firstName: string;
+  };
+}
+
+const getUser = client.createRequest<User>()({
+  endpoint: gql`
+    query GetUser {
+      user {
+        username
+        firstName
+      }
+    }
+  `,
+});
+
+const { data, error } = await getUser.send();
+```

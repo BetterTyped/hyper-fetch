@@ -1,0 +1,1696 @@
+{
+	"id": 728,
+	"name": "@hyper-fetch/graphql",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 731,
+			"name": "GraphqlMethod",
+			"variant": "declaration",
+			"kind": 8,
+			"flags": {},
+			"children": [
+				{
+					"id": 733,
+					"name": "GET",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 6,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L6"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "GET"
+					}
+				},
+				{
+					"id": 732,
+					"name": "POST",
+					"variant": "declaration",
+					"kind": 16,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 5,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L5"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "POST"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						733,
+						732
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 4,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L4"
+				}
+			]
+		},
+		{
+			"id": 743,
+			"name": "ExtractGqlRouteParams",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 28,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L28"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 746,
+					"name": "T",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			],
+			"type": {
+				"type": "conditional",
+				"checkType": {
+					"type": "intrinsic",
+					"name": "string"
+				},
+				"extendsType": {
+					"type": "reference",
+					"target": 746,
+					"name": "T",
+					"package": "@hyper-fetch/graphql",
+					"refersToTypeParameter": true
+				},
+				"trueType": {
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+						"qualifiedName": "EmptyTypes"
+					},
+					"name": "EmptyTypes",
+					"package": "@hyper-fetch/core"
+				},
+				"falseType": {
+					"type": "conditional",
+					"checkType": {
+						"type": "reference",
+						"target": 746,
+						"name": "T",
+						"package": "@hyper-fetch/graphql",
+						"refersToTypeParameter": true
+					},
+					"extendsType": {
+						"type": "templateLiteral",
+						"head": "",
+						"tail": [
+							[
+								{
+									"type": "intrinsic",
+									"name": "string"
+								},
+								"query "
+							],
+							[
+								{
+									"type": "inferred",
+									"name": "Parameters"
+								},
+								" {"
+							],
+							[
+								{
+									"type": "inferred",
+									"name": "QueryRest"
+								},
+								""
+							]
+						]
+					},
+					"trueType": {
+						"type": "conditional",
+						"checkType": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+								"qualifiedName": "Parameters"
+							},
+							"name": "Parameters",
+							"package": "@hyper-fetch/graphql",
+							"refersToTypeParameter": true
+						},
+						"extendsType": {
+							"type": "templateLiteral",
+							"head": "",
+							"tail": [
+								[
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									"$"
+								],
+								[
+									{
+										"type": "inferred",
+										"name": "Param"
+									},
+									","
+								],
+								[
+									{
+										"type": "inferred",
+										"name": "Rest"
+									},
+									""
+								]
+							]
+						},
+						"trueType": {
+							"type": "intersection",
+							"types": [
+								{
+									"type": "reference",
+									"target": 747,
+									"typeArguments": [
+										{
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+												"qualifiedName": "Param"
+											},
+											"name": "Param",
+											"package": "@hyper-fetch/graphql",
+											"refersToTypeParameter": true
+										},
+										{
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+												"qualifiedName": "Rest"
+											},
+											"name": "Rest",
+											"package": "@hyper-fetch/graphql",
+											"refersToTypeParameter": true
+										}
+									],
+									"name": "GqlParameter",
+									"package": "@hyper-fetch/graphql"
+								},
+								{
+									"type": "conditional",
+									"checkType": {
+										"type": "reference",
+										"target": 743,
+										"typeArguments": [
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+													"qualifiedName": "QueryRest"
+												},
+												"name": "QueryRest",
+												"package": "@hyper-fetch/graphql",
+												"refersToTypeParameter": true
+											}
+										],
+										"name": "ExtractGqlRouteParams",
+										"package": "@hyper-fetch/graphql"
+									},
+									"extendsType": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+											"qualifiedName": "EmptyTypes"
+										},
+										"name": "EmptyTypes",
+										"package": "@hyper-fetch/core"
+									},
+									"trueType": {
+										"type": "reflection",
+										"declaration": {
+											"id": 744,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.types.ts",
+													"line": 34,
+													"character": 65,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L34"
+												}
+											]
+										}
+									},
+									"falseType": {
+										"type": "reference",
+										"target": 743,
+										"typeArguments": [
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+													"qualifiedName": "QueryRest"
+												},
+												"name": "QueryRest",
+												"package": "@hyper-fetch/graphql",
+												"refersToTypeParameter": true
+											}
+										],
+										"name": "ExtractGqlRouteParams",
+										"package": "@hyper-fetch/graphql"
+									}
+								}
+							]
+						},
+						"falseType": {
+							"type": "conditional",
+							"checkType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+									"qualifiedName": "Parameters"
+								},
+								"name": "Parameters",
+								"package": "@hyper-fetch/graphql",
+								"refersToTypeParameter": true
+							},
+							"extendsType": {
+								"type": "templateLiteral",
+								"head": "",
+								"tail": [
+									[
+										{
+											"type": "intrinsic",
+											"name": "string"
+										},
+										"$"
+									],
+									[
+										{
+											"type": "inferred",
+											"name": "Param"
+										},
+										")"
+									],
+									[
+										{
+											"type": "inferred",
+											"name": "Rest"
+										},
+										""
+									]
+								]
+							},
+							"trueType": {
+								"type": "intersection",
+								"types": [
+									{
+										"type": "reference",
+										"target": 747,
+										"typeArguments": [
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+													"qualifiedName": "Param"
+												},
+												"name": "Param",
+												"package": "@hyper-fetch/graphql",
+												"refersToTypeParameter": true
+											},
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+													"qualifiedName": "Rest"
+												},
+												"name": "Rest",
+												"package": "@hyper-fetch/graphql",
+												"refersToTypeParameter": true
+											}
+										],
+										"name": "GqlParameter",
+										"package": "@hyper-fetch/graphql"
+									},
+									{
+										"type": "conditional",
+										"checkType": {
+											"type": "reference",
+											"target": 743,
+											"typeArguments": [
+												{
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+														"qualifiedName": "QueryRest"
+													},
+													"name": "QueryRest",
+													"package": "@hyper-fetch/graphql",
+													"refersToTypeParameter": true
+												}
+											],
+											"name": "ExtractGqlRouteParams",
+											"package": "@hyper-fetch/graphql"
+										},
+										"extendsType": {
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+												"qualifiedName": "EmptyTypes"
+											},
+											"name": "EmptyTypes",
+											"package": "@hyper-fetch/core"
+										},
+										"trueType": {
+											"type": "reflection",
+											"declaration": {
+												"id": 745,
+												"name": "__type",
+												"variant": "declaration",
+												"kind": 65536,
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/adapter.types.ts",
+														"line": 38,
+														"character": 67,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L38"
+													}
+												]
+											}
+										},
+										"falseType": {
+											"type": "reference",
+											"target": 743,
+											"typeArguments": [
+												{
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+														"qualifiedName": "QueryRest"
+													},
+													"name": "QueryRest",
+													"package": "@hyper-fetch/graphql",
+													"refersToTypeParameter": true
+												}
+											],
+											"name": "ExtractGqlRouteParams",
+											"package": "@hyper-fetch/graphql"
+										}
+									}
+								]
+							},
+							"falseType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+									"qualifiedName": "EmptyTypes"
+								},
+								"name": "EmptyTypes",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					},
+					"falseType": {
+						"type": "conditional",
+						"checkType": {
+							"type": "reference",
+							"target": 746,
+							"name": "T",
+							"package": "@hyper-fetch/graphql",
+							"refersToTypeParameter": true
+						},
+						"extendsType": {
+							"type": "templateLiteral",
+							"head": "",
+							"tail": [
+								[
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									"$"
+								],
+								[
+									{
+										"type": "inferred",
+										"name": "Parameters"
+									},
+									","
+								],
+								[
+									{
+										"type": "inferred",
+										"name": "Rest"
+									},
+									""
+								]
+							]
+						},
+						"trueType": {
+							"type": "reference",
+							"target": 747,
+							"typeArguments": [
+								{
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+										"qualifiedName": "Parameters"
+									},
+									"name": "Parameters",
+									"package": "@hyper-fetch/graphql",
+									"refersToTypeParameter": true
+								},
+								{
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+										"qualifiedName": "Rest"
+									},
+									"name": "Rest",
+									"package": "@hyper-fetch/graphql",
+									"refersToTypeParameter": true
+								}
+							],
+							"name": "GqlParameter",
+							"package": "@hyper-fetch/graphql"
+						},
+						"falseType": {
+							"type": "conditional",
+							"checkType": {
+								"type": "reference",
+								"target": 746,
+								"name": "T",
+								"package": "@hyper-fetch/graphql",
+								"refersToTypeParameter": true
+							},
+							"extendsType": {
+								"type": "templateLiteral",
+								"head": "",
+								"tail": [
+									[
+										{
+											"type": "intrinsic",
+											"name": "string"
+										},
+										"$"
+									],
+									[
+										{
+											"type": "inferred",
+											"name": "Parameters"
+										},
+										")"
+									],
+									[
+										{
+											"type": "inferred",
+											"name": "Rest"
+										},
+										""
+									]
+								]
+							},
+							"trueType": {
+								"type": "reference",
+								"target": 747,
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+											"qualifiedName": "Parameters"
+										},
+										"name": "Parameters",
+										"package": "@hyper-fetch/graphql",
+										"refersToTypeParameter": true
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+											"qualifiedName": "Rest"
+										},
+										"name": "Rest",
+										"package": "@hyper-fetch/graphql",
+										"refersToTypeParameter": true
+									}
+								],
+								"name": "GqlParameter",
+								"package": "@hyper-fetch/graphql"
+							},
+							"falseType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+									"qualifiedName": "EmptyTypes"
+								},
+								"name": "EmptyTypes",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": 747,
+			"name": "GqlParameter",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 46,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L46"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 750,
+					"name": "T",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 751,
+					"name": "Rest",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			],
+			"type": {
+				"type": "conditional",
+				"checkType": {
+					"type": "reference",
+					"target": 750,
+					"name": "T",
+					"package": "@hyper-fetch/graphql",
+					"refersToTypeParameter": true
+				},
+				"extendsType": {
+					"type": "templateLiteral",
+					"head": "",
+					"tail": [
+						[
+							{
+								"type": "inferred",
+								"name": "Param"
+							},
+							":"
+						],
+						[
+							{
+								"type": "intrinsic",
+								"name": "string"
+							},
+							"!"
+						]
+					]
+				},
+				"trueType": {
+					"type": "intersection",
+					"types": [
+						{
+							"type": "mapped",
+							"parameter": "k",
+							"parameterType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+									"qualifiedName": "Param"
+								},
+								"name": "Param",
+								"package": "@hyper-fetch/graphql",
+								"refersToTypeParameter": true
+							},
+							"templateType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+									"qualifiedName": "GqlParamType"
+								},
+								"name": "GqlParamType",
+								"package": "@hyper-fetch/graphql"
+							}
+						},
+						{
+							"type": "conditional",
+							"checkType": {
+								"type": "reference",
+								"target": 743,
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": 751,
+										"name": "Rest",
+										"package": "@hyper-fetch/graphql",
+										"refersToTypeParameter": true
+									}
+								],
+								"name": "ExtractGqlRouteParams",
+								"package": "@hyper-fetch/graphql"
+							},
+							"extendsType": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+									"qualifiedName": "EmptyTypes"
+								},
+								"name": "EmptyTypes",
+								"package": "@hyper-fetch/core"
+							},
+							"trueType": {
+								"type": "reflection",
+								"declaration": {
+									"id": 748,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 49,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L49"
+										}
+									]
+								}
+							},
+							"falseType": {
+								"type": "reference",
+								"target": 743,
+								"typeArguments": [
+									{
+										"type": "reference",
+										"target": 751,
+										"name": "Rest",
+										"package": "@hyper-fetch/graphql",
+										"refersToTypeParameter": true
+									}
+								],
+								"name": "ExtractGqlRouteParams",
+								"package": "@hyper-fetch/graphql"
+							}
+						}
+					]
+				},
+				"falseType": {
+					"type": "conditional",
+					"checkType": {
+						"type": "reference",
+						"target": 750,
+						"name": "T",
+						"package": "@hyper-fetch/graphql",
+						"refersToTypeParameter": true
+					},
+					"extendsType": {
+						"type": "templateLiteral",
+						"head": "",
+						"tail": [
+							[
+								{
+									"type": "inferred",
+									"name": "Param"
+								},
+								":"
+							],
+							[
+								{
+									"type": "intrinsic",
+									"name": "string"
+								},
+								""
+							]
+						]
+					},
+					"trueType": {
+						"type": "intersection",
+						"types": [
+							{
+								"type": "mapped",
+								"parameter": "k",
+								"parameterType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+										"qualifiedName": "Param"
+									},
+									"name": "Param",
+									"package": "@hyper-fetch/graphql",
+									"refersToTypeParameter": true
+								},
+								"templateType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+										"qualifiedName": "GqlParamType"
+									},
+									"name": "GqlParamType",
+									"package": "@hyper-fetch/graphql"
+								},
+								"optionalModifier": "+"
+							},
+							{
+								"type": "conditional",
+								"checkType": {
+									"type": "reference",
+									"target": 743,
+									"typeArguments": [
+										{
+											"type": "reference",
+											"target": 751,
+											"name": "Rest",
+											"package": "@hyper-fetch/graphql",
+											"refersToTypeParameter": true
+										}
+									],
+									"name": "ExtractGqlRouteParams",
+									"package": "@hyper-fetch/graphql"
+								},
+								"extendsType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+										"qualifiedName": "EmptyTypes"
+									},
+									"name": "EmptyTypes",
+									"package": "@hyper-fetch/core"
+								},
+								"trueType": {
+									"type": "reflection",
+									"declaration": {
+										"id": 749,
+										"name": "__type",
+										"variant": "declaration",
+										"kind": 65536,
+										"flags": {},
+										"sources": [
+											{
+												"fileName": "adapter/adapter.types.ts",
+												"line": 54,
+												"character": 10,
+												"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L54"
+											}
+										]
+									}
+								},
+								"falseType": {
+									"type": "reference",
+									"target": 743,
+									"typeArguments": [
+										{
+											"type": "reference",
+											"target": 751,
+											"name": "Rest",
+											"package": "@hyper-fetch/graphql",
+											"refersToTypeParameter": true
+										}
+									],
+									"name": "ExtractGqlRouteParams",
+									"package": "@hyper-fetch/graphql"
+								}
+							}
+						]
+					},
+					"falseType": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/types/helpers.types.ts",
+							"qualifiedName": "EmptyTypes"
+						},
+						"name": "EmptyTypes",
+						"package": "@hyper-fetch/core"
+					}
+				}
+			}
+		},
+		{
+			"id": 738,
+			"name": "GraphQlEndpointType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 11,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L11"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "intrinsic",
+						"name": "string"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/graphql/language/ast.d.ts",
+							"qualifiedName": "DocumentNode"
+						},
+						"name": "DocumentNode",
+						"package": "graphql"
+					}
+				]
+			}
+		},
+		{
+			"id": 734,
+			"name": "GraphQlExtraType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 9,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L9"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 735,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 737,
+							"name": "extensions",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 9,
+									"character": 55,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L9"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Record"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									}
+								],
+								"name": "Record",
+								"package": "typescript"
+							}
+						},
+						{
+							"id": 736,
+							"name": "headers",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 9,
+									"character": 33,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L9"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "node_modules/typescript/lib/lib.dom.d.ts",
+									"qualifiedName": "HeadersInit"
+								},
+								"name": "HeadersInit",
+								"package": "typescript"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								737,
+								736
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 9,
+							"character": 31,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L9"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 739,
+			"name": "GraphqlAdapterType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 13,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L13"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/core/src/adapter/adapter.ts",
+					"qualifiedName": "Adapter"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Partial"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "node_modules/typescript/lib/lib.dom.d.ts",
+									"qualifiedName": "XMLHttpRequest"
+								},
+								"name": "XMLHttpRequest",
+								"package": "typescript"
+							}
+						],
+						"name": "Partial",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": 731,
+						"name": "GraphqlMethod",
+						"package": "@hyper-fetch/graphql"
+					},
+					{
+						"type": "intrinsic",
+						"name": "number"
+					},
+					{
+						"type": "reference",
+						"target": 734,
+						"name": "GraphQlExtraType",
+						"package": "@hyper-fetch/graphql"
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/adapter/adapter.types.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							}
+						]
+					},
+					{
+						"type": "intrinsic",
+						"name": "undefined"
+					},
+					{
+						"type": "reference",
+						"target": 738,
+						"name": "GraphQlEndpointType",
+						"package": "@hyper-fetch/graphql"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 740,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 21,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.types.ts#L21"
+								}
+							],
+							"signatures": [
+								{
+									"id": 741,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 742,
+											"name": "endpoint",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"target": 738,
+												"name": "GraphQlEndpointType",
+												"package": "@hyper-fetch/graphql"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							]
+						}
+					}
+				],
+				"name": "Adapter",
+				"package": "@hyper-fetch/core"
+			}
+		},
+		{
+			"id": 766,
+			"name": "defaultTimeout",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 5,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.constants.ts#L5"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 767,
+			"name": "gqlExtra",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 7,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.constants.ts#L7"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": 734,
+				"name": "GraphQlExtraType",
+				"package": "@hyper-fetch/graphql"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 729,
+			"name": "GraphqlAdapter",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.ts",
+					"line": 6,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.ts#L6"
+				}
+			],
+			"signatures": [
+				{
+					"id": 730,
+					"name": "GraphqlAdapter",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.ts",
+							"line": 6,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.ts#L6"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 739,
+						"name": "GraphqlAdapterType",
+						"package": "@hyper-fetch/graphql"
+					}
+				}
+			]
+		},
+		{
+			"id": 752,
+			"name": "getRequestValues",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 6,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L6"
+				}
+			],
+			"signatures": [
+				{
+					"id": 753,
+					"name": "getRequestValues",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 6,
+							"character": 32,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L6"
+						}
+					],
+					"typeParameter": [
+						{
+							"id": 754,
+							"name": "R",
+							"variant": "typeParam",
+							"kind": 131072,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 755,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 754,
+								"name": "R",
+								"package": "@hyper-fetch/graphql",
+								"refersToTypeParameter": true
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 756,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 757,
+									"name": "fullUrl",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.utils.ts",
+											"line": 21,
+											"character": 11,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L21"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 758,
+									"name": "payload",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.utils.ts",
+											"line": 21,
+											"character": 20,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L21"
+										}
+									],
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": null
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										]
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										757,
+										758
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "adapter/adapter.utils.ts",
+									"line": 21,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L21"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 759,
+			"name": "gqlEndpointMapper",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 24,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L24"
+				}
+			],
+			"signatures": [
+				{
+					"id": 760,
+					"name": "gqlEndpointMapper",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 24,
+							"character": 33,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L24"
+						}
+					],
+					"typeParameter": [
+						{
+							"id": 761,
+							"name": "E",
+							"variant": "typeParam",
+							"kind": 131072,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 738,
+								"name": "GraphQlEndpointType",
+								"package": "@hyper-fetch/graphql"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 762,
+							"name": "endpoint",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 761,
+								"name": "E",
+								"package": "@hyper-fetch/graphql",
+								"refersToTypeParameter": true
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 763,
+			"name": "gqlEndpointNameMapper",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 31,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L31"
+				}
+			],
+			"signatures": [
+				{
+					"id": 764,
+					"name": "gqlEndpointNameMapper",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 31,
+							"character": 37,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f1b21d8c1923f0d0ea99c9a254d6135730665218/packages/adapter-graphql/src/adapter/adapter.utils.ts#L31"
+						}
+					],
+					"parameters": [
+						{
+							"id": 765,
+							"name": "endpoint",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Enumerations",
+			"children": [
+				731
+			]
+		},
+		{
+			"title": "Type Aliases",
+			"children": [
+				743,
+				747,
+				738,
+				734,
+				739
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				766,
+				767
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				729,
+				752,
+				759,
+				763
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/graphql",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🎡 Hyper Fetch GraphQL\n\n<p>\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/graphql\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/graphql.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/graphql\">\n    <img src=\"https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/graphql?color=64BC4B&logo=package\" />\n  </a>\n</p>\n\n## About\n\n**"
+		},
+		{
+			"kind": "code",
+			"text": "`Hyper Fetch GraphQL`"
+		},
+		{
+			"kind": "text",
+			"text": "** is adapter for Hyper Fetch. It enables seamless communication with GraphQL APIs in Node.js and\nbrowser environments, simplifying the retrieval and manipulation of data. Benefit from the convenience and efficiency of\nHyper Fetch for your GraphQL-powered projects.\n\n## Features\n\n🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)\n\n🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)\n\n✨ **Window Focus/Blur Events** -\n[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)\n\n🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)\n\n💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)\n\n🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)\n\n🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)\n\n🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)\n\n📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)\n\n🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)\n\n🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)\n\n💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)\n\n## Help me keep working on this project ❤️\n\n- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)\n\n## Sources\n\n- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)\n- #### [Docs](https://hyperfetch.bettertyped.com/)\n- #### [API](https://hyperfetch.bettertyped.com/api/)\n- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/graphql)\n- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)"
+		}
+	],
+	"symbolIdMap": {
+		"728": {
+			"sourceFileName": "../packages/adapter-graphql/src/index.ts",
+			"qualifiedName": ""
+		},
+		"729": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.ts",
+			"qualifiedName": "GraphqlAdapter"
+		},
+		"730": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.ts",
+			"qualifiedName": "GraphqlAdapter"
+		},
+		"731": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphqlMethod"
+		},
+		"732": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphqlMethod.POST"
+		},
+		"733": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphqlMethod.GET"
+		},
+		"734": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphQlExtraType"
+		},
+		"735": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"736": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.headers"
+		},
+		"737": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.extensions"
+		},
+		"738": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphQlEndpointType"
+		},
+		"739": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GraphqlAdapterType"
+		},
+		"740": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"741": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"742": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "endpoint"
+		},
+		"743": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "ExtractGqlRouteParams"
+		},
+		"744": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"745": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"746": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "T"
+		},
+		"747": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "GqlParameter"
+		},
+		"748": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"749": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"750": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "T"
+		},
+		"751": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.types.ts",
+			"qualifiedName": "Rest"
+		},
+		"752": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getRequestValues"
+		},
+		"753": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getRequestValues"
+		},
+		"754": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "R"
+		},
+		"755": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"756": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__object"
+		},
+		"757": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__object.fullUrl"
+		},
+		"758": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__object.payload"
+		},
+		"759": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "gqlEndpointMapper"
+		},
+		"760": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "gqlEndpointMapper"
+		},
+		"761": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "E"
+		},
+		"762": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "endpoint"
+		},
+		"763": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "gqlEndpointNameMapper"
+		},
+		"764": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "gqlEndpointNameMapper"
+		},
+		"765": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.utils.ts",
+			"qualifiedName": "endpoint"
+		},
+		"766": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.constants.ts",
+			"qualifiedName": "defaultTimeout"
+		},
+		"767": {
+			"sourceFileName": "../packages/adapter-graphql/src/adapter/adapter.constants.ts",
+			"qualifiedName": "gqlExtra"
+		}
+	}
+}

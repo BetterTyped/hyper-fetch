@@ -1,0 +1,121 @@
+---
+sidebar_position: 1
+title: Axios Adapter
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/adapter-axios/Variables/AxiosAdapter.mdx)
+
+Hyper Fetch's `axios` adapter is a simple integration that allows you to use the popular `axios` HTTP client for making
+requests, while still benefiting from all of Hyper Fetch's features like caching, persistence, and request management.
+
+Using the `axios` adapter gives you the best of both worlds.
+
+---
+
+:::tip Purpose
+
+1.  **Leverage `axios`**: Use familiar `axios` options, headers, and error handling.
+2.  **Seamless Integration**: Combines `axios` with Hyper Fetch's caching, queuing, and persistence.
+3.  **Track Progress**: Get detailed upload and download progress events.
+4.  **Full Control**: Access `axios` response details and error objects when needed.
+
+:::
+
+---
+
+## Getting Started
+
+To use the `axios` adapter:
+
+1. Install the package:
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/axios
+```
+
+2. Import it and set it on your `Client` instance:
+
+(@import adapter-axios AxiosAdapter type=import)
+
+```tsx
+import { Client } from "@hyper-fetch/core";
+import { axiosAdapter } from "@hyper-fetch/axios";
+
+const client = new Client({ url: "base-url" }).setAdapter(axiosAdapter);
+```
+
+3. ...and voila! It's done. Now you can set `axios` options on your requests.
+
+---
+
+## Usage
+
+You can pass any valid `axios` request configuration options to your Hyper Fetch requests. These options can be set when
+you create a request or when you send it.
+
+Here's an example of how to use some common `axios` options:
+
+```tsx
+import { client } from "./client";
+
+// Create a request with axios-specific options
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  options: {
+    // highlight-start
+    // Set a 5-second timeout for the request
+    timeout: 5000,
+    // Add authentication credentials
+    auth: {
+      username: "your-username",
+      password: "your-password",
+    },
+    // highlight-end
+  },
+});
+```
+
+Or use the `setOptions` method:
+
+```ts
+import { client } from "./client";
+
+const getUsers = client
+  .createRequest()({
+    endpoint: "/users",
+  })
+  .setOptions({
+    // highlight-start
+    // Set a 5-second timeout for the request
+    timeout: 5000,
+    // Add authentication credentials
+    auth: {
+      username: "your-username",
+      password: "your-password",
+    },
+    // highlight-end
+  });
+```
+
+---
+
+## See More
+
+For a full list of available `axios` request configuration options, please refer to the
+[official axios documentation](https://axios-http.com/docs/req_config).
+
+:::caution Key Differences
+
+While you can use most `axios` options, some are managed by Hyper Fetch to ensure proper integration. You should **not**
+pass the following options, as they will be overwritten by the adapter:
+
+- `url`
+- `baseURL`
+- `method`
+- `data` (use `payload` in `send` method instead)
+- `onUploadProgress` (use `onUploadProgress` in `send` method instead)
+- `onDownloadProgress` (use `onDownloadProgress` in `send` method instead)
+- `signal` (managed by Hyper Fetch for cancellation)
+
+:::

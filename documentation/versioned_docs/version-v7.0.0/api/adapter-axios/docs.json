@@ -1,0 +1,536 @@
+{
+	"id": 0,
+	"name": "@hyper-fetch/axios",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 8,
+			"name": "AxiosAdapterType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter-axios/src/adapter/adapter.ts",
+					"line": 6,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.ts#L6"
+				}
+			],
+			"type": {
+				"type": "query",
+				"queryType": {
+					"type": "reference",
+					"target": 9,
+					"name": "AxiosAdapter",
+					"package": "@hyper-fetch/axios"
+				}
+			}
+		},
+		{
+			"id": 5,
+			"name": "AxiosExtra",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+					"line": 13,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L13"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 6,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 7,
+							"name": "headers",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+									"line": 14,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L14"
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intersection",
+										"types": [
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../node_modules/axios/index.d.ts",
+													"qualifiedName": "RawAxiosRequestHeaders"
+												},
+												"name": "RawAxiosRequestHeaders",
+												"package": "axios"
+											},
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+													"qualifiedName": "MethodsHeaders"
+												},
+												"name": "MethodsHeaders",
+												"package": "@hyper-fetch/axios"
+											}
+										]
+									},
+									{
+										"type": "reference",
+										"target": 1,
+										"name": "RawAxiosHeaders",
+										"package": "@hyper-fetch/axios"
+									}
+								]
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								7
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+							"line": 13,
+							"character": 25,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L13"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 1,
+			"name": "RawAxiosHeaders",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+					"line": 3,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L3"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 2,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+							"line": 3,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L3"
+						}
+					],
+					"indexSignature": {
+						"id": 3,
+						"name": "__index",
+						"variant": "signature",
+						"kind": 8192,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "adapter-axios/src/adapter/adapter.types.ts",
+								"line": 4,
+								"character": 2,
+								"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.types.ts#L4"
+							}
+						],
+						"parameters": [
+							{
+								"id": 4,
+								"name": "key",
+								"variant": "param",
+								"kind": 32768,
+								"flags": {},
+								"type": {
+									"type": "intrinsic",
+									"name": "string"
+								}
+							}
+						],
+						"type": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../node_modules/axios/index.d.ts",
+								"qualifiedName": "AxiosHeaderValue"
+							},
+							"name": "AxiosHeaderValue",
+							"package": "axios"
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": 9,
+			"name": "AxiosAdapter",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter-axios/src/adapter/adapter.ts",
+					"line": 8,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c1b98634219cd481ccfc1f82d38d090bd4677605/packages/adapter-axios/src/adapter/adapter.ts#L8"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/core/dist/index.d.ts",
+					"qualifiedName": "Adapter"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Omit"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/axios/index.d.ts",
+									"qualifiedName": "AxiosRequestConfig"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									}
+								],
+								"name": "AxiosRequestConfig",
+								"package": "axios"
+							},
+							{
+								"type": "union",
+								"types": [
+									{
+										"type": "literal",
+										"value": "url"
+									},
+									{
+										"type": "literal",
+										"value": "baseURL"
+									},
+									{
+										"type": "literal",
+										"value": "method"
+									},
+									{
+										"type": "literal",
+										"value": "onUploadProgress"
+									},
+									{
+										"type": "literal",
+										"value": "onDownloadProgress"
+									},
+									{
+										"type": "literal",
+										"value": "data"
+									}
+								]
+							}
+						],
+						"name": "Omit",
+						"package": "typescript"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/axios/index.d.ts",
+							"qualifiedName": "Method"
+						},
+						"name": "Method",
+						"package": "axios"
+					},
+					{
+						"type": "intrinsic",
+						"name": "number"
+					},
+					{
+						"type": "reference",
+						"target": 5,
+						"name": "AxiosExtra",
+						"package": "@hyper-fetch/axios"
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "intrinsic",
+								"name": "string"
+							},
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/dist/index.d.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/dist/index.d.ts",
+									"qualifiedName": "EmptyTypes"
+								},
+								"name": "EmptyTypes",
+								"package": "@hyper-fetch/core"
+							}
+						]
+					},
+					{
+						"type": "intrinsic",
+						"name": "undefined"
+					},
+					{
+						"type": "intrinsic",
+						"name": "string"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/dist/index.d.ts",
+							"qualifiedName": "DefaultMapperType"
+						},
+						"name": "DefaultMapperType",
+						"package": "@hyper-fetch/core"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 10,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "core/dist/index.d.ts",
+									"line": 1596,
+									"character": 36
+								}
+							],
+							"signatures": [
+								{
+									"id": 11,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "core/dist/index.d.ts",
+											"line": 1596,
+											"character": 36
+										}
+									],
+									"parameters": [
+										{
+											"id": 12,
+											"name": "queryParams",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "string"
+													},
+													{
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../packages/core/dist/index.d.ts",
+															"qualifiedName": "QueryParamsType"
+														},
+														"name": "QueryParamsType",
+														"package": "@hyper-fetch/core"
+													},
+													{
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../packages/core/dist/index.d.ts",
+															"qualifiedName": "EmptyTypes"
+														},
+														"name": "EmptyTypes",
+														"package": "@hyper-fetch/core"
+													}
+												]
+											}
+										},
+										{
+											"id": 13,
+											"name": "options",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {
+												"isOptional": true
+											},
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/core/dist/index.d.ts",
+													"qualifiedName": "QueryStringifyOptionsType"
+												},
+												"name": "QueryStringifyOptionsType",
+												"package": "@hyper-fetch/core"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							]
+						}
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/dist/index.d.ts",
+							"qualifiedName": "DefaultMapperType"
+						},
+						"name": "DefaultMapperType",
+						"package": "@hyper-fetch/core"
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/dist/index.d.ts",
+							"qualifiedName": "DefaultMapperType"
+						},
+						"name": "DefaultMapperType",
+						"package": "@hyper-fetch/core"
+					}
+				],
+				"name": "Adapter",
+				"package": "@hyper-fetch/core"
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Type Aliases",
+			"children": [
+				8,
+				5,
+				1
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				9
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/axios",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🏛️ Hyper Fetch Axios\n\n<p>\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/axios\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/-Axios-E10098?logo=axios&logoColor=white\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/axios\">\n    <img src=\"https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/axios?color=64BC4B&logo=package\" />\n  </a>\n</p>\n\n## About\n\n**"
+		},
+		{
+			"kind": "code",
+			"text": "`Hyper Fetch Axios`"
+		},
+		{
+			"kind": "text",
+			"text": "** is adapter for Hyper Fetch. It enables seamless communication with Axios, simplifying the\nretrieval and manipulation of data. Benefit from the convenience and efficiency of Hyper Fetch.\n\n## Features\n\n🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)\n\n🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)\n\n✨ **Window Focus/Blur Events** -\n[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)\n\n🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)\n\n💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)\n\n🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)\n\n🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)\n\n🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)\n\n📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)\n\n🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)\n\n🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)\n\n💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)\n\n## Help us keep working on this project ❤️\n\n- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)\n\n## Sources\n\n- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)\n- #### [Docs](https://hyperfetch.bettertyped.com/)\n- #### [API](https://hyperfetch.bettertyped.com/api/)\n- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/axios)\n- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "../packages/adapter-axios/src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "RawAxiosHeaders"
+		},
+		"2": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"3": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.__index"
+		},
+		"5": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "AxiosExtra"
+		},
+		"6": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"7": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.headers"
+		},
+		"8": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.ts",
+			"qualifiedName": "AxiosAdapterType"
+		},
+		"9": {
+			"sourceFileName": "../packages/adapter-axios/src/adapter/adapter.ts",
+			"qualifiedName": "AxiosAdapter"
+		},
+		"10": {
+			"sourceFileName": "../packages/core/dist/index.d.ts",
+			"qualifiedName": "__type"
+		},
+		"11": {
+			"sourceFileName": "../packages/core/dist/index.d.ts",
+			"qualifiedName": "__type"
+		},
+		"12": {
+			"sourceFileName": "../packages/core/dist/index.d.ts",
+			"qualifiedName": "queryParams"
+		},
+		"13": {
+			"sourceFileName": "../packages/core/dist/index.d.ts",
+			"qualifiedName": "options"
+		}
+	}
+}

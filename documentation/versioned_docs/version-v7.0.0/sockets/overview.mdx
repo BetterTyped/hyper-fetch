@@ -1,0 +1,157 @@
+---
+sidebar_position: 1
+title: Sockets Overview
+sidebar_label: Overview
+---
+
+import { LinkCard } from "@site/src/components";
+
+# Overview
+
+> The Sockets module brings real-time, event-driven communication to Hyper Fetch, enabling seamless data exchange over
+> persistent connections. Designed for flexibility and type safety, it empowers you to build robust, scalable
+> applications with minimal effort.
+
+---
+
+## Why Sockets?
+
+Modern applications often require real-time updates-think chat apps, live dashboards, or collaborative tools. Our
+sockets package provides a unified, typesafe API for working with connections like WebSockets, Server-Sent Events (SSE),
+while supporting custom adapters for libraries like Firebase Realtime Database.
+
+:::note Our approach
+
+Sockets is built on the same principles as the core Hyper Fetch package: consistency, type safety, and developer
+experience. It extends these ideas to the world of real-time data.
+
+:::
+
+---
+
+## Typesafe realtime
+
+Handling realtime data exchange such as with WebSockets or Server-Sent Events (SSE) presents unique challenges,
+particularly around maintaining type safety as your application grows. The library addresses this by exposing dedicated
+Listener and Emitter classes, each with their own explicit types for responses and payloads.
+
+This means that when you use a listener, such as `chatMessageListener`, you always know the exact type of data being
+handled. Similarly, when emitting data, you have clear expectations for the payload structure.
+
+This approach is especially powerful in projects with multiple listeners and emitters, ensuring type safety and
+maintainability even as your application scales.
+
+```tsx
+import { socketClient } from "./socket-client";
+
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+const chatMessageListener = socketClient.createListener<{ message: string }>({
+  url: "chat-message",
+});
+
+chatMessageListener.listen({
+  callback: ({ data }) => {
+    console.log(data); // { message: string }
+  },
+});
+```
+
+---
+
+## Listener templates
+
+Usual approach to sockets it to use the `.on()` method where you have to define the topic and the callback. Our approach
+is a bit different. Just like in the core-package we prefer to create reusable templates for the listeners. They keep
+the information about expected message data type and other. This way you can use the listener template in multiple
+places with full type-safety.
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+// 1. Initialize the socket
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+// 2. Create the listener template
+const chatMessageListener = socket.createListener<{ message: string }>({
+  topic: "chat-message",
+});
+
+// 3. Listen to the chat message
+chatMessageListener.listen({
+  callback: ({ data }) => {
+    console.log(data); // { message: string }
+  },
+});
+```
+
+---
+
+## Emitter templates
+
+To incorporate full type-safety and readability we also have emitter templates. They are used to send messages to the
+realtime servers. This way we keep very clear data-exchange between the client and the server. It is reusable and very
+easy to use.
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+// 1. Initialize the socket
+const socket = new Socket({
+  url: "ws://localhost:3000",
+});
+
+// 2. Create the emitter template
+const chatMessageEmitter = socket.createEmitter<{ text: string }>({
+  topic: "new-message",
+});
+
+// 3. Send the chat message
+chatMessageEmitter.emit({
+  data: { text: "Hello, world!" },
+});
+```
+
+---
+
+## Event-Driven and Extensible
+
+Sockets exposes all events, making it easy to build custom devtools, analytics, or advanced integrations. The
+event-driven approach ensures your app can react to every stage of the connection lifecycle.
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket Class"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+<LinkCard
+  type="docs"
+  title="Listeners"
+  description="How to receive and handle real-time events."
+  to="/docs/sockets/listener"
+/>
+<LinkCard
+  type="docs"
+  title="Emitters"
+  description="How to send events and handle acknowledgements."
+  to="/docs/sockets/emitter"
+/>
+<LinkCard
+  type="docs"
+  title="Adapters"
+  description="Customize or extend socket communication with adapters."
+  to="/docs/sockets/adapter"
+/>
+
+---
+
+With these building blocks, you're ready to build powerful, real-time features with **Hyper Fetch Sockets**! 🎊

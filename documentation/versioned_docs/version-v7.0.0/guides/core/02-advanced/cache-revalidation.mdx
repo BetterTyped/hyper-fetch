@@ -1,0 +1,139 @@
+---
+title: Guide - Cache Revalidation
+sidebar_label: Cache Revalidation
+---
+
+# Cache Revalidation
+
+When building dynamic applications, keeping the data displayed to the user up-to-date is crucial. Data can become stale
+for many reasons—another user might have updated it, a background process changed it, or the current user performed an
+action that invalidates the existing view. Hyper-fetch provides powerful and flexible cache revalidation mechanisms to
+ensure your app's data is always fresh.
+
+---
+
+:::secondary What you'll learn
+
+1.  What **cache revalidation** is and why it's essential.
+2.  How to revalidate the cache for a specific request using `client.cache.revalidate`.
+3.  How to perform revalidation in plain TypeScript with `client.cache.revalidate`.
+4.  Advanced revalidation techniques using **Regular Expressions (RegExp)** to invalidate multiple cache entries at
+    once.
+
+:::
+
+## The Basics
+
+Cache revalidation is the process of marking cached data as stale and triggering a re-fetch to get the fresh version
+from the server. This is typically done after a data mutation (like creating, updating, or deleting a resource) to
+ensure the UI reflects the latest state.
+
+In Hyper-fetch, every request that is cached gets a unique `cacheKey`. This key is used to identify and manage the
+cached data. Revalidation works by targeting these keys.
+
+---
+
+## Revalidation
+
+In a vanilla TypeScript environment, you can perform cache revalidation directly on the client instance.
+
+```typescript
+import { client, getUsers } from "./api"; // Your API setup
+
+// ... after some operation that invalidates the users
+client.cache.revalidate(getUsers);
+
+// You can also use a cacheKey or RegExp
+client.cache.revalidate(getUsers.cacheKey);
+client.cache.revalidate(new RegExp("/users"));
+```
+
+### Example
+
+Let's see it in action. Below, we fetch a list of users. When we add a new user, we call `revalidate()` to refresh the
+list.
+
+```typescript
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+const addUser = client.createRequest()({
+  endpoint: "/users",
+  method: "POST",
+});
+
+// 1. First, let's fetch the users and cache the response
+await getUsers.send({
+  onSuccess: (response) => {
+    console.log("Initial users list:", response.data);
+  },
+});
+
+// 2. Now, let's add a new user
+await addUser.send({
+  data: { name: "New User" },
+  onSuccess: () => {
+    console.log("New user added successfully.");
+    // 3. After adding, we revalidate the users list
+    // This will trigger a new fetch for the 'getUsers' request
+    client.cache.revalidate(getUsers, {
+      onSuccess: (response) => {
+        // This onSuccess is for the revalidation fetch
+        toast({ title: "Users list revalidated", message: "Fetched latest users.", type: "success" });
+        console.log("Revalidated users list:", response.data);
+      },
+    });
+  },
+});
+```
+
+---
+
+## Advanced Revalidation with RegExp
+
+Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
+for individual items (`/users/1`, `/users/2`) and a list of all items (`/users`). A `RegExp` is perfect for this.
+
+Imagine you have requests for a list of articles and for individual articles:
+
+```ts
+const getArticles = client.createRequest()({
+  method: "GET",
+  endpoint: "/articles",
+});
+
+const getArticle = client.createRequest()({
+  method: "GET",
+  endpoint: "/articles/:id",
+});
+```
+
+When a single article is updated, you might want to revalidate both the list and that specific article's cache, as well
+as any other related paginated lists.
+
+```ts
+// Let's say we updated article with id '1'
+const updatedArticleId = 1;
+
+// This will revalidate every cache entry whose key starts with `GET_/articles`
+// 1. The main list: `GET_/articles`
+// 2. A specific article: `GET_/articles/1`
+// 3. Paginated lists: `GET_/articles?page=1`, `GET_/articles?page=2`, etc.
+client.cache.revalidate(new RegExp("GET_/articles"));
+```
+
+This powerful feature helps you keep your cache consistent with minimal effort.
+
+---
+
+:::success Congratulations!
+
+You've learned how to handle cache revalidation in Hyper-fetch!
+
+1.  You can revalidate cache programmatically using `client.cache.revalidate` in **plain TypeScript**.
+2.  You can target specific requests by passing the **request instance**, its **`cacheKey`**, or using a **RegExp**.
+3.  You can implement **advanced revalidation strategies** to keep complex UIs in sync.
+
+:::

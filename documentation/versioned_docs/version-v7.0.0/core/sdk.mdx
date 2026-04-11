@@ -1,0 +1,225 @@
+---
+sidebar_position: 10
+title: SDK
+sidebar_label: SDK
+---
+
+[Read the API Reference »](/docs/api/core/Functions/createSdk.mdx)
+
+The **`SDK`** feature in Hyper Fetch provides a powerful, type-safe way to structure your API interactions. It allows
+you to define your entire API surface as a typed object, which then **uses recursive proxies to generate request
+instances on-the-fly**. This approach, **inspired by tRPC**, promotes a highly organized and maintainable codebase where
+endpoints are accessed with an intuitive dot-notation.
+
+---
+
+:::tip Purpose
+
+1.  **Type-Safe API**: Full TypeScript coverage for endpoints, responses, and parameters.
+2.  **tRPC-like Syntax**: Access endpoints with dot-notation (e.g., `sdk.users.get()`).
+3.  **Zero Performance Overhead**: Generates requests on-demand using proxies.
+4.  **Dynamic URL Support**: Handle parameterized routes like `/users/:id`.
+5.  **Centralized Schema**: Define your entire API structure in one place.
+
+:::
+
+---
+
+## Initialization
+
+To get started, you first need a `Client` instance. Then, you can use the `createSdk` function to build your SDK.
+
+```typescript
+import { createClient, createSdk } from "@hyper-fetch/core";
+
+// 1. Create a client instance
+const client = createClient({ url: "http://localhost:3000" });
+
+// 2. Define the schema for your SDK (more on this below)
+type MyApiSchema = {
+  // ... schema definition
+};
+
+// 3. Create the SDK
+const sdk = createSdk<typeof client, MyApiSchema>(client);
+```
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="Learn about the central configuration class for Hyper Fetch."
+  to="/docs/core/client"
+/>
+
+---
+
+## Defining the Schema
+
+The core of the SDK is its schema. This is a TypeScript type that maps your API's structure. You define nested objects
+for URL paths and then add properties for HTTP methods (`get`, `post`, `put`, `delete`, etc.).
+
+Dynamic path segments are prefixed with a `$` sign. For example, `$userId` becomes a `/:userId` parameter in the
+endpoint.
+
+```typescript
+import { Client, RequestInstance } from "@hyper-fetch/core";
+
+// Define the client type for our schema
+type AppClient = Client<Error, any>;
+
+// Define the API Schema
+type MyApiSchema = {
+  // GET /users
+  // GET /users?page=1&limit=10
+  users: {
+    get: RequestInstance<{
+      client: AppClient;
+      queryParams: { page: number; limit: number };
+      endpoint: "/users";
+    }>;
+    // GET /users/:userId
+    // DELETE /users/:userId
+    $userId: {
+      get: RequestInstance<{
+        client: AppClient;
+        response: { id: string; name: string };
+        endpoint: "/users/:userId";
+      }>;
+      delete: RequestInstance<{
+        client: AppClient;
+        response: { id: string; name: string };
+        endpoint: "/users/:userId";
+      }>;
+      // DELETE /users/:userId/posts/:postId
+      posts: {
+        $postId: {
+          delete: RequestInstance<{
+            client: AppClient;
+            response: { id: string; title: string };
+            endpoint: "/users/:userId/posts/:postId";
+          }>;
+        };
+      };
+    };
+  };
+};
+```
+
+---
+
+## How It Works: The Magic of Proxies
+
+You might be wondering how the `sdk` object provides all these methods without you having to implement them. The magic
+lies in **Recursive Proxy Generation**.
+
+The `sdk` object is not a simple JavaScript object with predefined properties. Instead, it's a `Proxy` that dynamically
+constructs requests as you access its properties. When you write `sdk.users.get`, you're triggering a chain of proxy
+getters:
+
+1.  `sdk.users`: The proxy intercepts this and internally notes down `users` as the first part of the endpoint path. It
+    then returns a _new_ proxy to handle the next property.
+2.  `.get`: This access is caught by the new proxy. It recognizes `get` as an HTTP method, finalizes the request
+    configuration (`GET /users`), and returns a fully configured `Request` instance, ready to be used.
+
+This approach has two major benefits:
+
+- **Performance**: It's incredibly fast. The SDK doesn't generate all possible request instances upfront. It only
+  creates a request when you explicitly access it. This means the startup time and memory footprint are minimal, even
+  for very large and complex APIs.
+- **Developer Experience**: It provides a fluid, tRPC-like experience where you can explore your API surface with
+  dot-notation, guided by TypeScript's autocompletion, while the underlying complexity is handled for you.
+
+---
+
+## Usage
+
+Once your SDK is created, you can access your endpoints using the structure you defined in the schema. This returns a
+`Request` instance, ready to be configured and sent.
+
+### Making a simple request
+
+Here's how to get a list of users. The `.get` property corresponds to the `get` method for the `/users` endpoint.
+
+```typescript
+// GET /users?page=1&limit=10
+const getUsersRequest = sdk.users.get.setQueryParams({ page: 1, limit: 10 });
+
+// Send the request
+const { data, error } = await getUsersRequest.send();
+```
+
+### Using dynamic segments
+
+To fetch a specific user, you access the `$userId` path and use `setParams` to provide the `userId`.
+
+```typescript
+// GET /users/123
+const getUserRequest = sdk.users.$userId.get.setParams({ userId: "123" });
+
+const { data, error } = await getUserRequest.send();
+
+if (data) {
+  console.log(data.name); // Typed as { id: string, name: string }
+}
+```
+
+### Nested requests
+
+The SDK handles nested routes seamlessly.
+
+```typescript
+// DELETE /users/123/posts/456
+const deletePostRequest = sdk.users.$userId.posts.$postId.delete.setParams({
+  userId: "123",
+  postId: "456",
+});
+
+const { data, error } = await deletePostRequest.send();
+```
+
+### Using with React Hooks
+
+The generated requests work seamlessly with `@hyper-fetch/react` hooks like `useFetch` and `useSubmit`.
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+import { sdk } from "api/sdk"; // Assumes you've exported your sdk instance
+
+function UserProfile({ userId }) {
+  const { data, loading } = useFetch(sdk.users.$userId.get.setParams({ userId }));
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  return <h1>{data.name}</h1>;
+}
+```
+
+---
+
+:::secondary Summary
+
+In this guide, you've learned how to leverage the Hyper Fetch SDK to create a type-safe, organized, and intuitive API
+layer for your application. We've covered how to initialize the SDK, define a schema, and use it to make various types
+of requests. This powerful feature streamlines API interactions and enhances maintainability.
+
+:::
+
+---
+
+## See Also
+
+<LinkCard
+  type="docs"
+  title="Client"
+  description="Learn about the central configuration class for Hyper Fetch."
+  to="/docs/core/client"
+/>
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Dive deeper into creating and managing individual requests."
+  to="/docs/core/request"
+/>
