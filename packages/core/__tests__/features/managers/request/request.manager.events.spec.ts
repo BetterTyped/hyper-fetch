@@ -219,7 +219,7 @@ describe("RequestManager [ Events ]", () => {
       const spy = vi.fn();
       client.requestManager.events.onDeduplicated(spy);
 
-      const eventData = { request, requestId: "test-id" };
+      const eventData = { request, requestId: "test-id", deduplicatedRequest: request };
       client.requestManager.events.emitDeduplicated(eventData);
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -230,7 +230,7 @@ describe("RequestManager [ Events ]", () => {
       const spy = vi.fn();
       client.requestManager.events.onDeduplicatedByQueue(request.queryKey, spy);
 
-      const eventData = { request, requestId: "test-id" };
+      const eventData = { request, requestId: "test-id", deduplicatedRequest: request };
       client.requestManager.events.emitDeduplicated(eventData);
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -241,7 +241,7 @@ describe("RequestManager [ Events ]", () => {
       const spy = vi.fn();
       client.requestManager.events.onDeduplicatedByCache(request.cacheKey, spy);
 
-      const eventData = { request, requestId: "test-id" };
+      const eventData = { request, requestId: "test-id", deduplicatedRequest: request };
       client.requestManager.events.emitDeduplicated(eventData);
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -253,7 +253,7 @@ describe("RequestManager [ Events ]", () => {
       const requestId = "specific-request-id";
       client.requestManager.events.onDeduplicatedById(requestId, spy);
 
-      const eventData = { request, requestId };
+      const eventData = { request, requestId, deduplicatedRequest: request };
       client.requestManager.events.emitDeduplicated(eventData);
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -265,7 +265,7 @@ describe("RequestManager [ Events ]", () => {
       const cleanup = client.requestManager.events.onDeduplicated(spy);
       cleanup();
 
-      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id", deduplicatedRequest: request });
 
       expect(spy).not.toHaveBeenCalled();
     });
@@ -275,7 +275,7 @@ describe("RequestManager [ Events ]", () => {
       const cleanup = client.requestManager.events.onDeduplicatedByQueue(request.queryKey, spy);
       cleanup();
 
-      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id", deduplicatedRequest: request });
 
       expect(spy).not.toHaveBeenCalled();
     });
@@ -285,7 +285,7 @@ describe("RequestManager [ Events ]", () => {
       const cleanup = client.requestManager.events.onDeduplicatedByCache(request.cacheKey, spy);
       cleanup();
 
-      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id" });
+      client.requestManager.events.emitDeduplicated({ request, requestId: "test-id", deduplicatedRequest: request });
 
       expect(spy).not.toHaveBeenCalled();
     });
@@ -296,7 +296,7 @@ describe("RequestManager [ Events ]", () => {
       const cleanup = client.requestManager.events.onDeduplicatedById(requestId, spy);
       cleanup();
 
-      client.requestManager.events.emitDeduplicated({ request, requestId });
+      client.requestManager.events.emitDeduplicated({ request, requestId, deduplicatedRequest: request });
 
       expect(spy).not.toHaveBeenCalled();
     });

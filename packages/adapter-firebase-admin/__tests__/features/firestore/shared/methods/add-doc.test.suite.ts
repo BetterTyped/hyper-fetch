@@ -21,7 +21,7 @@ export const addDocTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
         .setPayload(newData);
       await pushReq.send();
       const { data } = await getReq.send();
-      const arrayedData = Object.values(data);
+      const arrayedData = Object.values(data!);
 
       expect(arrayedData).toHaveLength(11);
     });

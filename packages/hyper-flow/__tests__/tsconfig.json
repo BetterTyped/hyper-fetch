@@ -6,6 +6,7 @@
     "lib": ["dom", "dom.iterable", "ESNext"],
     "jsx": "react-jsx",
     "strict": true,
+    "strictPropertyInitialization": false,
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -24,5 +25,12 @@
       "@testing/*": ["../__tests__/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../vite-env.d.ts",
+    "../electron.d.ts",
+    "../../../global.d.ts",
+    "../../../vitest.d.ts"
+  ]
 }

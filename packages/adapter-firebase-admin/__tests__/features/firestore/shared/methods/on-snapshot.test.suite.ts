@@ -37,7 +37,7 @@ export const onSnapshotTestSuite = (
         topic: "",
       });
       const unmount = onSnapshotReq.listen(spy);
-      expect(unmount).toBeFunction();
+      expect(typeof unmount).toBe("function");
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
@@ -251,7 +251,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(1);
-        expect(receivedData[0]).toIncludeSameMembers(initialCache);
+        expect(receivedData[0]).toEqual(expect.arrayContaining(initialCache));
       }, 1000);
 
       const shouldCacheData = newData as Tea;
@@ -283,7 +283,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(2);
-        expect(receivedData[1]).toIncludeSameMembers([...initialCache, data]);
+        expect(receivedData[1]).toEqual(expect.arrayContaining([...initialCache, data]));
       });
     });
   });

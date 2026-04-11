@@ -41,7 +41,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
         .setParams({ teaId: 1 });
 
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea | null; payload: { data: null } }>()({
           endpoint: ":teaId",
           method: "set",
         })
@@ -55,7 +55,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     });
     it("should emit lifecycle events", async () => {
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea | null; payload: { data: null } }>()({
           endpoint: ":teaId",
           method: "set",
         })

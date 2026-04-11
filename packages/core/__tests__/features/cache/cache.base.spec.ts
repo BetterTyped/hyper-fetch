@@ -26,6 +26,7 @@ describe("Cache [ Base ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
   };
 
   let client = new Client({ url: "shared-base-url" });
@@ -249,6 +250,7 @@ describe("Cache [ Base ]", () => {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
         addedTimestamp: Date.now(),
         triggerTimestamp: Date.now(),
         cached: true,
@@ -342,6 +344,7 @@ describe("Cache [ Base ]", () => {
           retries: 0,
           isCanceled: false,
           isOffline: false,
+          willRetry: false,
           addedTimestamp: Date.now(),
           triggerTimestamp: Date.now(),
           cached: true,

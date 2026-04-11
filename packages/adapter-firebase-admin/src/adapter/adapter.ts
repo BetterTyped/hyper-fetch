@@ -3,25 +3,23 @@ import { Firestore } from "firebase-admin/firestore";
 
 import {
   FirebaseAdminDBTypes,
+  FirebaseAdminAdapterTypes,
   FirestoreMethods,
   RealtimeDBMethods,
   FirestoreRequestType,
   RealtimeDBRequestType,
-  FirestoreAdapterType,
 } from "adapter";
 import { getFirestoreAdminMethods } from "../firestore";
 import { getRealtimeDbAdminMethods } from "../realtime";
 
-export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T) => {
-  return (
-    new Adapter({
-      name: "firebase-admin",
-      defaultMethod: "getDoc",
-      defaultExtra: {},
-      systemErrorStatus: "error",
-      systemErrorExtra: {},
-    }) as unknown as FirestoreAdapterType
-  ).setFetcher(
+export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T): FirebaseAdminAdapterTypes<T> => {
+  const adapter = new Adapter({
+    name: "firebase-admin",
+    defaultMethod: "getDoc",
+    defaultExtra: {},
+    systemErrorStatus: "error",
+    systemErrorExtra: {},
+  }).setFetcher(
     async ({ request, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd }) => {
       const fullUrl = `${request.client.url}${request.endpoint}`;
       if (database instanceof Firestore) {
@@ -67,4 +65,6 @@ export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
       }
     },
   );
+
+  return adapter as unknown as FirebaseAdminAdapterTypes<T>;
 };

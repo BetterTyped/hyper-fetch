@@ -182,6 +182,7 @@ describe("RequestManager [ Base ]", () => {
           retries: 0,
           isCanceled: false,
           isOffline: false,
+          willRetry: false,
           requestTimestamp: +new Date(),
           responseTimestamp: +new Date(),
           triggerTimestamp: +new Date(),

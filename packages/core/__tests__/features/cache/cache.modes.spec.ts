@@ -29,6 +29,7 @@ describe("Cache [ Modes ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
   };
 
   describe("client mode (browser — auto-detected)", () => {

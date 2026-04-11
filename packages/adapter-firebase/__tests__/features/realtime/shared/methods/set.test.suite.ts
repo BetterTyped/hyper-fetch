@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdapter } from "adapter";
+import { FirebaseAdapter, type RealtimeDbGetMethodExtra } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
@@ -30,9 +30,8 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(extra.snapshot.exists()).toBe(true);
+      expect(extra).not.toBeNull();
+      expect((extra as RealtimeDbGetMethodExtra).snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
@@ -53,9 +52,8 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(extra?.snapshot?.exists()).toBe(false);
+      expect(extra).not.toBeNull();
+      expect((extra as RealtimeDbGetMethodExtra).snapshot.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const setReq = client

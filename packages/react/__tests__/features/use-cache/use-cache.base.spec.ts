@@ -28,6 +28,7 @@ describe("useCache [ Base ]", () => {
     cacheKey: request.cacheKey,
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     staleTime: request.staleTime,
     version: request.client.cache.version,
     cacheTime: Infinity,

@@ -18,5 +18,5 @@
     "paths": {}
   },
   "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"],
-  "exclude": ["node_modules", "dist", "__temp__"]
+  "exclude": ["node_modules", "dist", "**/__temp__"]
 }

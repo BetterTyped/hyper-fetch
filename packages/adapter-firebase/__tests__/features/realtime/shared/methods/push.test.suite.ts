@@ -28,7 +28,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const { data } = await getReq.send();
 
       expect(data).toHaveLength(11);
-      expect(data).toContainEqual({ ...newData, __key: pushedData.__key });
+      expect(data).toContainEqual({ ...newData, __key: pushedData!.__key });
       expect(extra).toHaveProperty("key");
     });
     it("should emit lifecycle events", async () => {

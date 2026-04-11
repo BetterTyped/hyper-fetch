@@ -12,7 +12,6 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
         method: "getDocs",
       });
       const { data } = await req.send({
-        // TODO: Fix this
         queryParams: { constraints: [$orderByChild("origin")] },
       });
       expect(data?.map((el) => el.origin)).toStrictEqual([
@@ -37,7 +36,6 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
         method: "getDocs",
       });
       const { data } = await req.send({
-        // TODO: Fix this
         queryParams: { constraints: [$orderByChild("origin"), $limitToFirst(5)] },
       });
       expect(data?.map((tea) => tea.origin)).toStrictEqual(["China", "China", "China", "China", "China"]);
@@ -49,7 +47,6 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
         method: "getDocs",
       });
       const { data } = await req.send({
-        // TODO: Fix this
         queryParams: { constraints: [$orderByChild("year"), $startAt(2021), $endAt(2022)] },
       });
       expect(data).toHaveLength(5);

@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "lib": ["dom", "dom.iterable", "ESNext"],
     "strict": true,
+    "strictPropertyInitialization": false,
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

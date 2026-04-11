@@ -28,6 +28,7 @@ describe("Cache [ Events ]", () => {
     cached: true,
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     cacheKey: request.cacheKey,
     staleTime: request.staleTime,
     version: cache.version,
@@ -155,6 +156,7 @@ describe("Cache [ Events ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       });
       cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(cacheKey);
@@ -175,6 +177,7 @@ describe("Cache [ Events ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       });
       cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));

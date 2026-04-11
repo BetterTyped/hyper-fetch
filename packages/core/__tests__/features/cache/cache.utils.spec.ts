@@ -25,6 +25,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       };
 
       expect(getCacheData(previousResponse, errorResponse)).toStrictEqual({
@@ -40,6 +41,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       } satisfies ReturnType<typeof getCacheData>);
     });
 
@@ -57,6 +59,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       const newResponse = {
         data: { test: "2" },
@@ -71,6 +74,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       expect(getCacheData(previousResponse, newResponse)).toStrictEqual(newResponse);
     });
@@ -89,6 +93,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       } as ResponseSuccessType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       const errorResponse = {
         data: null,
@@ -103,6 +108,7 @@ describe("Cache [ Utils ]", () => {
         triggerTimestamp: expect.toBeNumber(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       } as ResponseErrorType<Record<string, string>, HttpAdapterType> & ResponseDetailsType;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);

@@ -50,6 +50,7 @@ describe("useFetch [ refetch ]", () => {
       responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
     });
 
     const response = renderUseFetch(request, { revalidate: false });
@@ -91,6 +92,7 @@ describe("useFetch [ refetch ]", () => {
       responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
     });
 
     const response = renderUseFetch(request, { revalidate: true });

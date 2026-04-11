@@ -15,10 +15,10 @@ export const testLifecycleEvents = async <R extends RequestInstance>(request: R)
   request.client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
   const response = request.send({
-    onBeforeSent: (requestId) => {
+    onBeforeSent: ({ requestId }) => {
       request.client.requestManager.events.onResponseById(requestId, spy6);
     },
-  } as any);
+  });
 
   // eslint-disable-next-line no-promise-executor-return
   await new Promise((resolve) => setTimeout(resolve, 50));

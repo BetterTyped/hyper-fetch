@@ -39,6 +39,7 @@ export const createCacheData = <T extends RequestInstance>(
     responseTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     ...response?.details,
   };
 

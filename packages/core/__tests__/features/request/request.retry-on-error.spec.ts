@@ -258,7 +258,7 @@ describe("Request [ retryOnError ]", () => {
 
   describe("When retryOnError interacts with successful responses", () => {
     it("should not call retryOnError on successful response", async () => {
-      const request = client.createRequest()({
+      const request = client.createRequest<{ response: { name: string } }>()({
         endpoint: "/users",
         retry: 3,
         retryTime: 0,
