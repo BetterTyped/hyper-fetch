@@ -2,7 +2,6 @@ import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Client } from "client";
-import { xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -130,7 +129,9 @@ describe("Request [ retryOnError ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
 
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => {
+        setTimeout(r, 50);
+      });
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
@@ -349,7 +350,9 @@ describe("Request [ retryOnError ]", () => {
         expect(spy).toHaveBeenCalledTimes(3);
       });
 
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => {
+        setTimeout(r, 50);
+      });
       expect(spy).toHaveBeenCalledTimes(3);
     });
   });

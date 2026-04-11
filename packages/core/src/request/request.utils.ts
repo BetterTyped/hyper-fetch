@@ -160,7 +160,7 @@ export const sendRequest = <Request extends RequestInstance>(
       );
 
       const isOfflineStatus = request.offline && details.isOffline;
-      const willRetry = details.willRetry;
+      const { willRetry } = details;
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve

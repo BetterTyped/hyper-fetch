@@ -132,7 +132,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
     const resolvedRequests: ResolvedQueueItemType<R>[] = storedEntity.requests.map((item) => {
       if (this.isRequestJSON(item.request)) {
-        return { ...item, request: this.client.fromJSON(item.request as RequestJSON<R>) as R };
+        return { ...item, request: this.client.fromJSON(item.request as RequestJSON<RequestInstance>) as unknown as R };
       }
       return item as ResolvedQueueItemType<R>;
     });

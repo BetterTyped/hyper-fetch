@@ -1,7 +1,14 @@
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { RequestInstance } from "./request.types";
 
-type HookName = "onBeforeSent" | "onRequestStart" | "onResponseStart" | "onUploadProgress" | "onDownloadProgress" | "onResponse" | "onRemove";
+type HookName =
+  | "onBeforeSent"
+  | "onRequestStart"
+  | "onResponseStart"
+  | "onUploadProgress"
+  | "onDownloadProgress"
+  | "onResponse"
+  | "onRemove";
 
 export interface RequestHooks<R extends RequestInstance> {
   onBeforeSent: (cb: (eventData: RequestEventType<R>) => void) => () => void;
@@ -41,9 +48,9 @@ export function createRequestHooks<R extends RequestInstance>(
   };
 
   if (initial) {
-    for (const name of HOOK_NAMES) {
+    HOOK_NAMES.forEach((name) => {
       listeners[name] = [...initial[name]];
-    }
+    });
   }
 
   const subscribe = (name: HookName) => {
@@ -65,15 +72,15 @@ export function createRequestHooks<R extends RequestInstance>(
     onResponse: subscribe("onResponse"),
     onRemove: subscribe("onRemove"),
     __emit(name: HookName, data: any) {
-      for (const cb of listeners[name]) {
+      listeners[name].forEach((cb) => {
         cb(data);
-      }
+      });
     },
     __snapshot() {
       const snap = {} as Record<HookName, Array<(...args: any[]) => void>>;
-      for (const name of HOOK_NAMES) {
+      HOOK_NAMES.forEach((name) => {
         snap[name] = [...listeners[name]];
-      }
+      });
       return snap;
     },
   };

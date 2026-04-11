@@ -341,8 +341,25 @@ export class Client<
    * Useful when dispatcher storage serializes queue data (e.g. MMKV, AsyncStorage)
    * and the deserialized request loses its class identity.
    */
-  fromJSON = <R extends RequestInstance = RequestInstance>(json: RequestJSON<R>): R => {
-    return Request.fromJSON(this as unknown as ClientInstance, json as RequestJSON<RequestInstance>) as unknown as R;
+  fromJSON = <RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {}>(
+    json: RequestJSON<RequestInstance>,
+  ) => {
+    type DefaultQueryParams = ExtractAdapterDefaultQueryParamsType<Adapter>;
+
+    type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
+    type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
+    type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
+    type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", DefaultQueryParams, never>;
+    type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", string>;
+
+    return Request.fromJSON(this as unknown as ClientInstance, json) as unknown as Request<
+      Response,
+      Payload,
+      QueryParams,
+      LocalError,
+      Endpoint extends string ? Endpoint : string,
+      Client<GlobalErrorType, Adapter>
+    >;
   };
 
   /**

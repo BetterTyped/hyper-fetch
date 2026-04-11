@@ -1,4 +1,10 @@
-import { ProgressType, RequestInstance, ResolvedQueueItemType, Dispatcher, ExtractAdapterType } from "@hyper-fetch/core";
+import {
+  ProgressType,
+  RequestInstance,
+  ResolvedQueueItemType,
+  Dispatcher,
+  ExtractAdapterType,
+} from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
   dispatcherType?: "auto" | "fetch" | "submit";

@@ -26,10 +26,11 @@ const createSerializingStorage = () => {
       return value ? JSON.parse(value) : undefined;
     },
     keys: () => Array.from(store.keys()),
-    entries: function* () {
-      for (const [key, value] of store.entries()) {
-        yield [key, JSON.parse(value)] as [string, QueueDataType<any>];
-      }
+    entries: () => {
+      return Array.from(
+        store.entries(),
+        ([key, value]) => [key, JSON.parse(value)] as [string, QueueDataType<any>],
+      ).values();
     },
     delete: (key: string) => store.delete(key),
     clear: () => store.clear(),
@@ -86,9 +87,7 @@ describe("Dispatcher [ Custom Serializing Storage - Issue #125 ]", () => {
 
       await waitFor(() => {
         expect(loadingSpy).toHaveBeenCalledTimes(2);
-        expect(loadingSpy).toHaveBeenLastCalledWith(
-          expect.objectContaining({ loading: false }),
-        );
+        expect(loadingSpy).toHaveBeenLastCalledWith(expect.objectContaining({ loading: false }));
       });
     });
 

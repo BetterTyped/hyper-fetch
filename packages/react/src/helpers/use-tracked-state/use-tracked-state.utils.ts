@@ -56,6 +56,7 @@ export const getDetailsState = (
     retries: state?.retries || 0,
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
     requestTimestamp: +new Date(),
