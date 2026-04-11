@@ -99,6 +99,10 @@ Queue persistence ensures that requests are not lost if the application closes o
 application restarts, the dispatcher will attempt to resend any queued requests. To enable it, you need to provide a
 synchronous storage implementation to the `Dispatcher`.
 
+When requests are stored in a JSON-serializing storage (e.g. MMKV, AsyncStorage), they are automatically reconstructed
+back into proper `Request` class instances when read from the queue. This means you can use any JSON-based storage
+without worrying about losing request functionality.
+
 :::caution
 
 Persistent queues are not recommended for browser environments due to concurrency issues between multiple tabs or
@@ -126,6 +130,12 @@ const persistenceStorage: DispatcherStorageType = {
     return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
+  entries: function* () {
+    const keys = storage.getAllKeys();
+    for (const key of keys) {
+      yield [key, JSON.parse(storage.getString(key) || "null")];
+    }
+  },
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
@@ -159,6 +169,12 @@ const persistenceStorage: DispatcherStorageType = {
     return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
+  entries: function* () {
+    const keys = storage.getAllKeys();
+    for (const key of keys) {
+      yield [key, JSON.parse(storage.getString(key) || "null")];
+    }
+  },
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };

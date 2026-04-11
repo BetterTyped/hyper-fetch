@@ -10,7 +10,7 @@ import {
 } from "types";
 import { ClientInstance } from "client";
 import { Cache, CacheValueType } from "cache";
-import { Dispatcher, QueueDataType, QueueItemType } from "dispatcher";
+import { Dispatcher, QueueDataType, ResolvedQueueItemType } from "dispatcher";
 
 export type PluginLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 export type PluginInstance = Plugin<any, any>;
@@ -106,7 +106,7 @@ export type PluginMethods<Client extends ClientInstance> = {
         }
       >
     >;
-    queueItem: QueueItemType<
+    queueItem: ResolvedQueueItemType<
       ExtendRequest<
         RequestInstance,
         {
@@ -125,7 +125,7 @@ export type PluginMethods<Client extends ClientInstance> = {
         }
       >
     >;
-    queueItem: QueueItemType<
+    queueItem: ResolvedQueueItemType<
       ExtendRequest<
         RequestInstance,
         {

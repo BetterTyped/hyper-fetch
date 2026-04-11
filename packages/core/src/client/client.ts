@@ -11,7 +11,7 @@ import {
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
-import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
+import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestJSON, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import {
@@ -335,6 +335,15 @@ export class Client<
    */
   unstable_modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
     interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onResponseCallbacks, response, request);
+
+  /**
+   * Reconstruct a Request class instance from its serialized JSON form.
+   * Useful when dispatcher storage serializes queue data (e.g. MMKV, AsyncStorage)
+   * and the deserialized request loses its class identity.
+   */
+  fromJSON = <R extends RequestInstance = RequestInstance>(json: RequestJSON<R>): R => {
+    return Request.fromJSON(this as unknown as ClientInstance, json as RequestJSON<RequestInstance>) as unknown as R;
+  };
 
   /**
    * Clears the Client instance and remove all listeners on it's dependencies

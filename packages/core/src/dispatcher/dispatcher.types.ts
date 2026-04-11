@@ -1,4 +1,4 @@
-import { RequestInstance } from "request";
+import { RequestInstance, RequestJSON } from "request";
 
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;
@@ -7,7 +7,7 @@ export type DispatcherOptionsType = {
 // Values
 export type QueueItemType<Request extends RequestInstance = RequestInstance> = {
   requestId: string;
-  request: Request;
+  request: Request | RequestJSON<Request>;
   retries: number;
   timestamp: number;
   stopped: boolean;
@@ -17,6 +17,23 @@ export type QueueItemType<Request extends RequestInstance = RequestInstance> = {
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
   queryKey: string;
   requests: QueueItemType<Request>[];
+  stopped: boolean;
+};
+
+/**
+ * Queue item after JSON requests have been reconstructed back to class instances.
+ * This is the type returned by `getQueue` and consumed by `performRequest`.
+ */
+export type ResolvedQueueItemType<Request extends RequestInstance = RequestInstance> = Omit<
+  QueueItemType<Request>,
+  "request"
+> & {
+  request: Request;
+};
+
+export type ResolvedQueueDataType<Request extends RequestInstance = RequestInstance> = {
+  queryKey: string;
+  requests: ResolvedQueueItemType<Request>[];
   stopped: boolean;
 };
 

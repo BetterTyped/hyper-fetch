@@ -2,7 +2,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import {
   canRetryRequest,
-  QueueItemType,
+  ResolvedQueueItemType,
   DispatcherMode,
   getDispatcherChangeByKey,
   getDispatcherDrainedByKey,
@@ -111,13 +111,13 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.DEDUPLICATED);
     });
     it("should return cancelable type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.PREVIOUS_CANCELED);
     });
@@ -125,7 +125,7 @@ describe("Dispatcher [ Utils ]", () => {
       const request = client
         .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
         .setDeduplicateTime(0);
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.DEDUPLICATED);
     });
@@ -133,7 +133,7 @@ describe("Dispatcher [ Utils ]", () => {
       const request = client
         .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
         .setDeduplicateTime(1);
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       duplicated.timestamp = +new Date() - 1000;
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.ALL_AT_ONCE);

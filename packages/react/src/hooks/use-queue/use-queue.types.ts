@@ -1,11 +1,11 @@
-import { ProgressType, RequestInstance, QueueItemType, Dispatcher, ExtractAdapterType } from "@hyper-fetch/core";
+import { ProgressType, RequestInstance, ResolvedQueueItemType, Dispatcher, ExtractAdapterType } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
   dispatcherType?: "auto" | "fetch" | "submit";
   keepFinishedRequests?: boolean;
 };
 
-export type QueueRequest<Request extends RequestInstance> = QueueItemType<Request> & {
+export type QueueRequest<Request extends RequestInstance> = ResolvedQueueItemType<Request> & {
   failed?: boolean;
   canceled?: boolean;
   removed?: boolean;

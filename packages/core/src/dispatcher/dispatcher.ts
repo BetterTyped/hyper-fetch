@@ -6,13 +6,14 @@ import {
   DispatcherMode,
   DispatcherOptionsType,
   DispatcherStorageType,
-  QueueItemType,
+  ResolvedQueueDataType,
+  ResolvedQueueItemType,
   RunningRequestValueType,
 } from "dispatcher";
 import { ClientInstance } from "client";
 import { EventEmitter } from "utils";
 import { ResponseDetailsType, LoggerMethods } from "managers";
-import { RequestInstance, scopeKey } from "request";
+import { Request, RequestInstance, RequestJSON, scopeKey } from "request";
 import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
 
 /**
@@ -38,6 +39,13 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       this.storage = this.options.storage;
     }
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  private isRequestJSON = (
+    request: RequestInstance | RequestJSON<RequestInstance>,
+  ): request is RequestJSON<RequestInstance> => {
+    return !(request instanceof Request);
+  };
 
   initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
@@ -109,13 +117,27 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Return queue state object
+   * Return queue state object.
+   * Automatically reconstructs any serialized (JSON) requests back into
+   * proper Request class instances so the rest of the pipeline can rely on
+   * having a real `RequestInstance`.
    */
-  getQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string) => {
-    const initialQueueState: QueueDataType<Request> = { queryKey, requests: [], stopped: false };
-    const storedEntity = this.storage.get<Request>(queryKey);
+  getQueue = <R extends RequestInstance = RequestInstance>(queryKey: string): ResolvedQueueDataType<R> => {
+    const initialQueueState: ResolvedQueueDataType<R> = { queryKey, requests: [], stopped: false };
+    const storedEntity = this.storage.get<R>(queryKey);
 
-    return storedEntity || initialQueueState;
+    if (!storedEntity) {
+      return initialQueueState;
+    }
+
+    const resolvedRequests: ResolvedQueueItemType<R>[] = storedEntity.requests.map((item) => {
+      if (this.isRequestJSON(item.request)) {
+        return { ...item, request: this.client.fromJSON(item.request as RequestJSON<R>) as R };
+      }
+      return item as ResolvedQueueItemType<R>;
+    });
+
+    return { ...storedEntity, requests: resolvedRequests };
   };
 
   /**
@@ -143,7 +165,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    */
   addQueueItem = <Request extends RequestInstance = RequestInstance>(
     queryKey: string,
-    element: QueueItemType<Request>,
+    element: ResolvedQueueItemType<Request>,
   ) => {
     const queue = this.getQueue<Request>(queryKey);
     queue.requests.push(element);
@@ -156,8 +178,11 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   /**
    * Set new queue storage value
    */
-  setQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string, queue: QueueDataType<Request>) => {
-    this.storage.set<Request>(queryKey, queue);
+  setQueue = <Request extends RequestInstance = RequestInstance>(
+    queryKey: string,
+    queue: ResolvedQueueDataType<Request>,
+  ) => {
+    this.storage.set<Request>(queryKey, queue as QueueDataType<Request>);
 
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherQueueCreated", { dispatcher: this, queue });
@@ -392,9 +417,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Create storage element from request
    */
   // eslint-disable-next-line class-methods-use-this
-  createStorageItem = <Request extends RequestInstance>(request: Request) => {
+  createStorageItem = <R extends RequestInstance>(request: R): ResolvedQueueItemType<R> => {
     const requestId = this.client.unstable_requestIdMapper(request);
-    const storageItem: QueueItemType<Request> = {
+    return {
       requestId,
       timestamp: +new Date(),
       request,
@@ -402,7 +427,6 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       stopped: false,
       resolved: false,
     };
-    return storageItem;
   };
 
   // *********************************************************************
@@ -501,7 +525,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Request can run for some time, once it's done, we have to check if it's successful or if it was aborted
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
-  performRequest = async (storageItem: QueueItemType) => {
+  performRequest = async (storageItem: ResolvedQueueItemType) => {
     const { request, requestId } = storageItem;
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 

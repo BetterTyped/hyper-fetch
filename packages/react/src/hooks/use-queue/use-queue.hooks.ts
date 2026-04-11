@@ -1,4 +1,4 @@
-import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType, scopeKey } from "@hyper-fetch/core";
+import { RequestInstance, getRequestDispatcher, ResolvedQueueItemType, QueueDataType, scopeKey } from "@hyper-fetch/core";
 import { useState, useEffect, useCallback } from "react";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
@@ -46,7 +46,7 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const createRequestsArray = useCallback(
-    (queueElements: QueueItemType<Request>[], prevRequests?: QueueRequest<Request>[]): QueueRequest<Request>[] => {
+    (queueElements: ResolvedQueueItemType<Request>[], prevRequests?: QueueRequest<Request>[]): QueueRequest<Request>[] => {
       const newRequests = queueElements
         // Keep only unique requests
         .filter((el) => !prevRequests?.some((prevEl) => prevEl.requestId === el.requestId))
