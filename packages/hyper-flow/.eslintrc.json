@@ -1,7 +1,7 @@
 {
   "extends": ["plugin:@nx/react", "../../.eslintrc.js"],
   "parserOptions": {
-    "project": ["./tsconfig.json"]
+    "project": ["./tsconfig.json", "./__tests__/tsconfig.json"]
   },
   "rules": {
     "react/jsx-props-no-spreading": 0,

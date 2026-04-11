@@ -10,9 +10,7 @@ module.exports = {
       "./tsconfig.json",
       "./packages/*/tsconfig.json",
       "./packages/*/__tests__/tsconfig.json",
-      "./documentation/tsconfig.json",
     ],
-    tsconfigRootDir: __dirname,
   },
   settings: {
     "import/resolver": {
