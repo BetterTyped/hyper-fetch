@@ -31,17 +31,6 @@ export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "
   streaming?: boolean;
 };
 
-/**
- * @deprecated Use FetchAdapterOptionsType instead. This type is kept for backward compatibility with custom adapters based on XMLHttpRequest.
- */
-export interface HttpAdapterRequest extends Omit<XMLHttpRequest, "responseType"> {
-  responseType: XMLHttpRequestResponseType | "stream";
-}
-/**
- * @deprecated Use FetchAdapterOptionsType instead.
- */
-export type HttpAdapterOptionsType = Partial<HttpAdapterRequest>;
-
 export type HttpAdapterExtraType = {
   headers: Record<string, string>;
 };

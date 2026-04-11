@@ -1,7 +1,7 @@
 import { getErrorMessage, QueryParamsType, QueryParamType, QueryParamValuesType } from "adapter";
 import { RequestInstance } from "request";
 import { ExtractErrorType, EmptyTypes } from "types";
-import { HttpAdapterRequest, BufferEncoding, QueryStringifyOptionsType } from "./http-adapter.types";
+import { BufferEncoding, QueryStringifyOptionsType } from "./http-adapter.types";
 import { stringifyDefaultOptions } from "client";
 
 // Utils
@@ -32,11 +32,7 @@ export const parseResponse = (response: string | unknown) => {
   }
 };
 
-export const handleResponse = (
-  responseChunks: any[],
-  responseType: HttpAdapterRequest["responseType"],
-  responseEncoding: BufferEncoding,
-) => {
+export const handleResponse = (responseChunks: any[], responseType: string, responseEncoding: BufferEncoding) => {
   const bufferedResponse = Buffer.concat(responseChunks);
   switch (responseType) {
     case "arraybuffer":

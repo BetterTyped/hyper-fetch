@@ -5,7 +5,7 @@ import { getAdapterBindings, ResponseType, getErrorMessage, ResponseErrorType } 
 import { testProgressSpy } from "../../shared";
 import { Client } from "client";
 import { RequestInstance } from "request";
-import { HttpAdapterOptionsType, HttpAdapterType, xhrExtra } from "http-adapter";
+import { FetchAdapterOptionsType, HttpAdapterType, xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -35,7 +35,7 @@ describe("Adapter [ Bindings ]", () => {
     status: 400,
     extra: xhrExtra,
   };
-  const requestConfig: HttpAdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
+  const requestConfig: FetchAdapterOptionsType = { timeout: 1000 };
 
   const onTriggerSpy = vi.fn();
   const onErrorSpy = vi.fn();
