@@ -113,15 +113,6 @@ export const useTrackedState = <T extends RequestInstance>({
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
-      // Handle initial loading state
-      state.current.loading = getIsInitiallyLoading({
-        queryKey: scopeKey(request.queryKey, request.scope),
-        dispatcher,
-        disabled,
-        revalidate,
-        hasState: !!cacheState,
-      });
-
       // Determine whether to clear state based on keepPreviousData mode
       const shouldClear = getShouldClearState(keepPreviousData, oldKey, cacheKey);
 
@@ -131,9 +122,18 @@ export const useTrackedState = <T extends RequestInstance>({
         state.current = resetState;
         renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T>)[]);
       } else if (cacheState) {
+        state.current.loading = getIsInitiallyLoading({
+          queryKey: scopeKey(request.queryKey, request.scope),
+          dispatcher,
+          disabled,
+          revalidate,
+          hasState: true,
+        });
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         setCacheData(cacheState);
       }
+      // When state is preserved and no cache exists (e.g. query param change in "auto" mode),
+      // don't update loading on the ref — let the dispatcher's loading event handle it (#126)
     },
     [cacheKey, queryKey],
     true,

@@ -291,4 +291,81 @@ describe("useFetch [ Base ]", () => {
       // Todo
     });
   });
+
+  // GitHub Issue #126
+  describe("when query parameters change", () => {
+    it("should reset loading to true when query params change and no cache exists for new key", async () => {
+      await testClientIsolation(client);
+
+      const paginatedRequest = createRequest({ endpoint: "/items" });
+
+      const page1Request = paginatedRequest.setQueryParams({ page: "1" } as any);
+      mockRequest(page1Request, { data: { items: [1, 2, 3] } });
+
+      const view = renderUseFetch(page1Request);
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ items: [1, 2, 3] });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page2Request = paginatedRequest.setQueryParams({ page: "2" } as any);
+      mockRequest(page2Request, { data: { items: [4, 5, 6] }, delay: 100 });
+
+      view.rerender({ request: page2Request });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ items: [4, 5, 6] });
+        expect(view.result.current.loading).toBe(false);
+      });
+    });
+
+    it("should reset loading to true on each subsequent query param change", async () => {
+      await testClientIsolation(client);
+
+      const paginatedRequest = createRequest({ endpoint: "/posts" });
+
+      const page1 = paginatedRequest.setQueryParams({ page: "1" } as any);
+      mockRequest(page1, { data: { page: 1 } });
+
+      const view = renderUseFetch(page1);
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 1 });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page2 = paginatedRequest.setQueryParams({ page: "2" } as any);
+      mockRequest(page2, { data: { page: 2 }, delay: 100 });
+
+      view.rerender({ request: page2 });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 2 });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page3 = paginatedRequest.setQueryParams({ page: "3" } as any);
+      mockRequest(page3, { data: { page: 3 }, delay: 100 });
+
+      view.rerender({ request: page3 });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 3 });
+        expect(view.result.current.loading).toBe(false);
+      });
+    });
+  });
 });
