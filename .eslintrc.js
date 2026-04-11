@@ -24,6 +24,7 @@ module.exports = {
     },
   },
 
+  ignorePatterns: [".eslintrc.js"],
   overrides: [
     {
       files: ["*.ts", "*.tsx", "*.js", "*.jsx"],
