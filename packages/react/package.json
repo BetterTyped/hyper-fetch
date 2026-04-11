@@ -28,7 +28,7 @@
     "build": "vite build",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false & tsc --noEmit -p __tests__/tsconfig.json & wait",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'react-hyper-fetch-v${version}'"
   },
