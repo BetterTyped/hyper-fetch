@@ -11,7 +11,7 @@ describe("Websocket Mocking [ Base ]", () => {
   beforeEach(async () => {
     startServer();
     socket = new Socket<WebsocketAdapterType>({ url });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     await waitForConnection(socket);
   });
 
@@ -20,7 +20,7 @@ describe("Websocket Mocking [ Base ]", () => {
   });
 
   it("should receive event", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const data = { name: "Maciej" };
 
     const listener = socket.createListener<{ name: string }>()({

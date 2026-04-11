@@ -6,7 +6,7 @@ import { interceptEmitter, interceptListener, Socket } from "socket";
 describe("Socket [ Utils ]", () => {
   const { url, startServer, stopServer } = createWebsocketMockingServer();
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     startServer();
   });
 

@@ -1,8 +1,24 @@
 {
   "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["dom", "dom.iterable", "ESNext"],
     "strict": true,
     "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/node"],
     "baseUrl": "../src",
-    "jsx": "react-jsx"
-  }
+    "paths": {
+      "@hyper-fetch/core": ["../../core/src"],
+      "@hyper-fetch/testing": ["../../testing/src"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"]
 }

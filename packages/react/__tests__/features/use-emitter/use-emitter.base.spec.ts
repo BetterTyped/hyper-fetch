@@ -15,8 +15,8 @@ describe("useEmitter [ Base ]", () => {
     emitter = socket.createEmitter<{ name: string; age: number }>()({ topic: "test/:testId" });
     await waitForConnection(socket);
 
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {

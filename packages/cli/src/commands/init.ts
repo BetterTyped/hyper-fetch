@@ -4,8 +4,8 @@ import { z } from "zod";
 import * as path from "node:path";
 import * as fs from "fs-extra";
 
-import { handleError } from "../utils/handle-error";
-import { spinner } from "../utils/spinner";
+import { handleError } from "utils/handle-error";
+import { spinner } from "utils/spinner";
 import { configSchema, Config } from "config/schema";
 import { logger } from "utils/logger";
 import { getTsConfigAliasPrefix } from "config/get-ts-alias";

@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 

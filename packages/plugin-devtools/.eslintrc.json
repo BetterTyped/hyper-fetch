@@ -4,5 +4,5 @@
     "project": ["./tsconfig.json"]
   },
   "rules": {},
-  "ignorePatterns": ["dist/", "coverage/", "jest.config.ts", "/*.js"]
+  "ignorePatterns": ["dist/", "coverage/", "vite.config.ts", "/*.js"]
 }

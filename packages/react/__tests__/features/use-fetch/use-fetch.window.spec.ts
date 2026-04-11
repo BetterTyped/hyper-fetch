@@ -21,13 +21,13 @@ describe("useFetch [ Basic ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest({ cancelable: true });
     client.clear();
   });
 
   it("should refresh on tab focus", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request, { delay: 0 });
     const response = renderUseFetch(request, { refetchOnFocus: true });
 
@@ -43,7 +43,7 @@ describe("useFetch [ Basic ]", () => {
     });
   });
   it("should refresh on tab blur", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request, { delay: 0 });
     const response = renderUseFetch(request, { refetchOnBlur: true });
 

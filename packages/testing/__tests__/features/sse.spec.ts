@@ -17,7 +17,7 @@ describe("SSE Mocking [ Base ]", () => {
   beforeEach(async () => {
     socket = new Socket<ServerSentEventsAdapterType>(socketOptions);
     startServer();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {
@@ -25,7 +25,7 @@ describe("SSE Mocking [ Base ]", () => {
   });
 
   it("should emit and receive error event", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onError(spy);
     emitError({ code: 1004, reason: "Some reason", wasClean: true });
 
@@ -38,7 +38,7 @@ describe("SSE Mocking [ Base ]", () => {
   });
 
   it("should receive message from server", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const data = { name: "Maciej" };
 
     const listener = socket

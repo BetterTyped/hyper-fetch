@@ -4,4 +4,4 @@
 yarn commitlint --edit "$1"
 # yarn build
 # yarn lint
-# yarn typescheck
+# yarn typecheck

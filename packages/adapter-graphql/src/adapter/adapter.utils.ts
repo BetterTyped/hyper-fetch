@@ -44,6 +44,9 @@ export const gqlEndpointNameMapper = (endpoint: string): string => {
       if (selection?.kind === "Field") {
         return selection.name.value;
       }
+      if (selection?.kind === "InlineFragment" && selection.typeCondition) {
+        return selection.typeCondition.name.value;
+      }
     }
   } catch (error) {
     // We can ignore this error and just return some fallback

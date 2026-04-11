@@ -181,7 +181,7 @@ describe("useTrackedState [ Utils ]", () => {
     it("should return initialState when responseMapper returns a Promise", () => {
       const mockRequest = {
         client: {
-          cache: { get: jest.fn().mockReturnValue(null) },
+          cache: { get: vi.fn().mockReturnValue(null) },
           defaultExtra: null,
         },
         queryKey: "test",
@@ -190,8 +190,8 @@ describe("useTrackedState [ Utils ]", () => {
       } as any;
 
       const mockDispatcher = {
-        getQueue: jest.fn().mockReturnValue({ stopped: false }),
-        hasRunningRequests: jest.fn().mockReturnValue(false),
+        getQueue: vi.fn().mockReturnValue({ stopped: false }),
+        hasRunningRequests: vi.fn().mockReturnValue(false),
       } as any;
 
       const result = getInitialState({
@@ -229,13 +229,13 @@ describe("useTrackedState [ Utils ]", () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       client.cache = {
-        get: jest.fn().mockReturnValue(cacheData),
+        get: vi.fn().mockReturnValue(cacheData),
         version: "1",
       };
 
       const mockDispatcher = {
-        getQueue: jest.fn().mockReturnValue({ stopped: false }),
-        hasRunningRequests: jest.fn().mockReturnValue(false),
+        getQueue: vi.fn().mockReturnValue({ stopped: false }),
+        hasRunningRequests: vi.fn().mockReturnValue(false),
       } as any;
 
       const result = getInitialState({

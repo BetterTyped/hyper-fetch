@@ -11,11 +11,11 @@ export const onSnapshotTestSuite = (
   coreAdapter: () => FirebaseAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-  let spy = jest.fn();
+  let spy = vi.fn();
   beforeEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    spy = jest.fn();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    spy = vi.fn();
   });
   const initialize = async () => {
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter());

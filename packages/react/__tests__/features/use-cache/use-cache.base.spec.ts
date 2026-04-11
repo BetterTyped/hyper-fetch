@@ -47,7 +47,7 @@ describe("useCache [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest();
   });
@@ -82,7 +82,7 @@ describe("useCache [ Base ]", () => {
         expect(response.result.current.retries).toBe(0);
       });
       it("should allow to invalidate by Request", async () => {
-        const spy = jest.spyOn(client.cache, "invalidate");
+        const spy = vi.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
@@ -94,7 +94,7 @@ describe("useCache [ Base ]", () => {
         expect(spy).toHaveBeenCalledWith(request);
       });
       it("should allow to invalidate by RegExp", async () => {
-        const spy = jest.spyOn(client.cache, "invalidate");
+        const spy = vi.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
@@ -106,7 +106,7 @@ describe("useCache [ Base ]", () => {
         expect(spy).toHaveBeenCalledWith(new RegExp(request.cacheKey));
       });
       it("should allow to invalidate by cacheKey", async () => {
-        const spy = jest.spyOn(client.cache, "invalidate");
+        const spy = vi.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
@@ -118,7 +118,7 @@ describe("useCache [ Base ]", () => {
         expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by default key", async () => {
-        const spy = jest.spyOn(client.cache, "invalidate");
+        const spy = vi.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 

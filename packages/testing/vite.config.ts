@@ -1,0 +1,62 @@
+/// <reference types="vitest/config" />
+import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
+import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
+
+export default defineConfig({
+  build: {
+    lib: {
+      entry: "src/index.ts",
+      formats: ["es"],
+      fileName: "index",
+    },
+    sourcemap: true,
+    minify: false,
+    rollupOptions: {
+      external: [
+        "@hyper-fetch/core",
+        "@hyper-fetch/graphql",
+        "@hyper-fetch/sockets",
+        "msw",
+        "msw/node",
+        "jest-websocket-mock",
+        "eventsourcemock",
+        /^node:/,
+        "http",
+        "https",
+        "path",
+        "fs",
+        "url",
+        "stream",
+        "net",
+        "tls",
+        "zlib",
+        "events",
+        "buffer",
+        "crypto",
+        "os",
+        "util",
+        "assert",
+        "querystring",
+      ],
+    },
+  },
+  plugins: [dts(), tsconfigPaths()],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./__tests__/vitest.setup.ts"],
+    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
+    },
+    alias: {
+      "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
+      "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
+      "@hyper-fetch/graphql": path.resolve(__dirname, "../adapter-graphql/src/index.ts"),
+    },
+  },
+});

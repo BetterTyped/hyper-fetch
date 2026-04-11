@@ -42,7 +42,7 @@ describe("useStream [ Base ]", () => {
   let request = createStreamRequest();
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createStreamRequest();
   });
@@ -69,7 +69,7 @@ describe("useStream [ Base ]", () => {
       const chunks = ["Hello ", "World", "!"];
       const stream = createReadableStream(chunks);
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: stream,
         error: null,
         status: 200,
@@ -78,7 +78,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({
+        setOptions: vi.fn().mockReturnValue({
           send: sendMock,
         }),
         client: request.client,
@@ -119,7 +119,7 @@ describe("useStream [ Base ]", () => {
         },
       });
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: stream,
         error: null,
         status: 200,
@@ -128,7 +128,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -159,7 +159,7 @@ describe("useStream [ Base ]", () => {
     it("should set error state", async () => {
       const errorData = { message: "Server error" };
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: null,
         error: errorData,
         status: 500,
@@ -168,7 +168,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -192,7 +192,7 @@ describe("useStream [ Base ]", () => {
 
   describe("when response data is a plain string (non-stream fallback)", () => {
     it("should set text directly from the string data", async () => {
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: "plain text response",
         error: null,
         status: 200,
@@ -201,7 +201,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -226,7 +226,7 @@ describe("useStream [ Base ]", () => {
     it("should JSON.stringify the data", async () => {
       const objectData = { key: "value", num: 42 };
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: objectData,
         error: null,
         status: 200,
@@ -235,7 +235,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -260,7 +260,7 @@ describe("useStream [ Base ]", () => {
     it("should set error state from the reader exception", async () => {
       const stream = createFailingReadableStream("Stream read error");
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: stream,
         error: null,
         status: 200,
@@ -269,7 +269,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -305,9 +305,9 @@ describe("useStream [ Base ]", () => {
         },
       });
 
-      const abortSpy = jest.fn();
+      const abortSpy = vi.fn();
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: stream,
         error: null,
         status: 200,
@@ -316,7 +316,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: {
           ...request.client,
           requestManager: {
@@ -353,7 +353,7 @@ describe("useStream [ Base ]", () => {
 
   describe("when reset is called", () => {
     it("should reset all state to initial values", async () => {
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: "some data",
         error: null,
         status: 200,
@@ -362,7 +362,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -396,7 +396,7 @@ describe("useStream [ Base ]", () => {
 
   describe("when autoStart is true", () => {
     it("should start streaming automatically on mount", async () => {
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: "auto-started",
         error: null,
         status: 200,
@@ -405,7 +405,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,
@@ -438,7 +438,7 @@ describe("useStream [ Base ]", () => {
         },
       });
 
-      const sendMock = jest.fn().mockResolvedValue({
+      const sendMock = vi.fn().mockResolvedValue({
         data: stream,
         error: null,
         status: 200,
@@ -447,7 +447,7 @@ describe("useStream [ Base ]", () => {
 
       const mockRequest = {
         ...request,
-        setOptions: jest.fn().mockReturnValue({ send: sendMock }),
+        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
         client: request.client,
         abortKey: request.abortKey,
         scope: request.scope,

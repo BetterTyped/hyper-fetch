@@ -2,10 +2,13 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./src",
-    "module": "commonjs",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "moduleResolution": "node"
+    "paths": {
+      "@hyper-fetch/core": ["../../core/src"],
+      "@hyper-fetch/sockets": ["../../sockets/src"]
+    }
   },
-  "include": ["./src", "./jest.config.ts", "./__tests__", "typings.d.ts"]
+  "include": ["./src", "./__tests__", "typings.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

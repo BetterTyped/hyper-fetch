@@ -1,6 +1,7 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
+import type { Mock } from "vitest";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { getErrorMessage } from "adapter";
@@ -29,9 +30,9 @@ describe("Http Adapter [ Fetch ]", () => {
     client.requestManager.addAbortController(abortKey, requestId);
 
     resetMocks();
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   afterAll(() => {
@@ -180,22 +181,23 @@ describe("Http Adapter [ Fetch ]", () => {
   describe("When response.body has no getReader", () => {
     it("should fall back to response.text()", async () => {
       const originalFetch = globalThis.fetch;
-      const mockBody = JSON.stringify({ fallback: true });
-      globalThis.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
         headers: new Headers({ "content-type": "application/json" }),
         body: null,
-        text: jest.fn().mockResolvedValue(mockBody),
+        text: vi.fn().mockResolvedValue(JSON.stringify({ fallback: true })),
       });
 
-      const adapter = HttpAdapter().initialize(client);
-      const result = await adapter.fetch(request, requestId);
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
 
-      expect(result.status).toBe(200);
-      expect(result.data).toStrictEqual({ fallback: true });
-
-      globalThis.fetch = originalFetch;
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ fallback: true });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 
@@ -203,48 +205,51 @@ describe("Http Adapter [ Fetch ]", () => {
     it("should call onError with the error", async () => {
       const originalFetch = globalThis.fetch;
       const testError = new Error("Network failure");
-      globalThis.fetch = jest.fn().mockRejectedValue(testError);
+      globalThis.fetch = vi.fn().mockRejectedValue(testError);
 
-      const adapter = HttpAdapter().initialize(client);
-      const result = await adapter.fetch(request, requestId);
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
 
-      expect(result.data).toBe(null);
-      expect(result.error).toBe(testError);
-      expect(result.status).toBe(0);
-
-      globalThis.fetch = originalFetch;
+        expect(result.data).toBe(null);
+        expect(result.error).toBe(testError);
+        expect(result.status).toBe(0);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 
   describe("When sending non-string payload with POST method", () => {
     it("should handle non-string body without triggering string upload progress", async () => {
       const originalFetch = globalThis.fetch;
-      globalThis.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
         headers: new Headers({ "content-type": "application/octet-stream" }),
         body: null,
-        text: jest.fn().mockResolvedValue("ok"),
+        text: vi.fn().mockResolvedValue("ok"),
       });
 
-      const adapter = HttpAdapter().initialize(client);
-      const mutation = client.createRequest<{ response: any; payload: any }>()({
-        endpoint: "/shared-endpoint",
-        method: "POST",
-      });
+      try {
+        const mutation = client.createRequest<{ response: any; payload: any }>()({
+          endpoint: "/shared-endpoint",
+          method: "POST",
+          abortKey,
+        });
 
-      // Use a payload mapper that returns a non-string body (Buffer)
-      const bufPayload = Buffer.from("binary data");
-      adapter.setPayloadMapper(() => bufPayload as any);
-      const req = mutation.setPayload("ignored");
+        const bufPayload = Buffer.from("binary data");
+        client.adapter.setPayloadMapper(() => bufPayload as any);
+        const req = mutation.setPayload("ignored");
 
-      const result = await adapter.fetch(req, requestId);
+        const result = await client.adapter.fetch(req, requestId);
 
-      const fetchCall = (globalThis.fetch as jest.Mock).mock.calls[0][1];
-      expect(fetchCall.body).toBe(bufPayload);
-      expect(result.status).toBe(200);
-
-      globalThis.fetch = originalFetch;
+        const fetchCall = (globalThis.fetch as unknown as Mock).mock.calls[0][1];
+        expect(fetchCall.body).toBe(bufPayload);
+        expect(result.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 
@@ -256,13 +261,13 @@ describe("Http Adapter [ Fetch ]", () => {
       const encoded = encoder.encode(bodyContent);
 
       const mockReader = {
-        read: jest
+        read: vi
           .fn()
           .mockResolvedValueOnce({ done: false, value: encoded })
           .mockResolvedValueOnce({ done: true, value: undefined }),
       };
 
-      globalThis.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
         headers: new Headers({
@@ -272,13 +277,15 @@ describe("Http Adapter [ Fetch ]", () => {
         body: { getReader: () => mockReader },
       });
 
-      const adapter = HttpAdapter().initialize(client);
-      const result = await adapter.fetch(request, requestId);
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
 
-      expect(result.status).toBe(200);
-      expect(result.data).toStrictEqual({ data: "test" });
-
-      globalThis.fetch = originalFetch;
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ data: "test" });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
 
     it("should use receivedLength as total when content-length is missing", async () => {
@@ -288,26 +295,28 @@ describe("Http Adapter [ Fetch ]", () => {
       const encoded = encoder.encode(bodyContent);
 
       const mockReader = {
-        read: jest
+        read: vi
           .fn()
           .mockResolvedValueOnce({ done: false, value: encoded })
           .mockResolvedValueOnce({ done: true, value: undefined }),
       };
 
-      globalThis.fetch = jest.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
         headers: new Headers({ "content-type": "application/json" }),
         body: { getReader: () => mockReader },
       });
 
-      const adapter = HttpAdapter().initialize(client);
-      const result = await adapter.fetch(request, requestId);
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
 
-      expect(result.status).toBe(200);
-      expect(result.data).toStrictEqual({ noLength: true });
-
-      globalThis.fetch = originalFetch;
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ noLength: true });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 
@@ -315,18 +324,20 @@ describe("Http Adapter [ Fetch ]", () => {
     it("should handle catch block when timeoutId is not set", async () => {
       const originalFetch = globalThis.fetch;
       const testError = new Error("Connection refused");
-      globalThis.fetch = jest.fn().mockRejectedValue(testError);
+      globalThis.fetch = vi.fn().mockRejectedValue(testError);
 
-      const noTimeoutRequest = request.setOptions({ timeout: 0 });
+      try {
+        const noTimeoutRequest = request.setOptions({ timeout: 0 });
 
-      const adapter = HttpAdapter().initialize(client);
-      const result = await adapter.fetch(noTimeoutRequest, requestId);
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(noTimeoutRequest, requestId);
 
-      expect(result.data).toBe(null);
-      expect(result.error).toBe(testError);
-      expect(result.status).toBe(0);
-
-      globalThis.fetch = originalFetch;
+        expect(result.data).toBe(null);
+        expect(result.error).toBe(testError);
+        expect(result.status).toBe(0);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
   });
 

@@ -25,7 +25,7 @@ describe("useSubmit [ Bounce ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST" });
   });
@@ -53,7 +53,7 @@ describe("useSubmit [ Bounce ]", () => {
         expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
       });
       it("should debounce multiple request triggers by bounceTime", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         let submitTime: number | null = null;
         let startTime: number | null = null;
         mockRequest(request);
@@ -107,7 +107,7 @@ describe("useSubmit [ Bounce ]", () => {
       });
       it("should change debounce time", async () => {
         const newBounceTime = 200;
-        const spy = jest.fn();
+        const spy = vi.fn();
         let submitTime: number | null = null;
         let startTime: number | null = null;
         mockRequest(request);
@@ -147,7 +147,7 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given debounce is off", () => {
     describe("when request is about to change", () => {
       it("should not debounce multiple request triggers", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
@@ -198,7 +198,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
       });
       it("should throttle multiple request triggers by bounceTime", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         let submitTime: number | null = null;
         let startTime: number | null = null;
         mockRequest(request);
@@ -251,7 +251,7 @@ describe("useSubmit [ Bounce ]", () => {
       });
       it("should change throttle time", async () => {
         const newBounceTime = 200;
-        const spy = jest.fn();
+        const spy = vi.fn();
         let submitTime: number | null = null;
         let startTime: number | null = null;
         mockRequest(request);
@@ -290,7 +290,7 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given throttle is off", () => {
     describe("when request is about to change", () => {
       it("should not throttle multiple request triggers", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);

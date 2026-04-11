@@ -9,7 +9,7 @@ describe("EventEmitter [ Utils ]", () => {
 
   describe("When using emit with isTriggeredExternally", () => {
     it("should emit with isTriggeredExternally=true and pass the flag to listeners", () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       emitter.on("test-event", spy);
 
       emitter.emit("test-event", { foo: "bar" }, true);
@@ -18,7 +18,7 @@ describe("EventEmitter [ Utils ]", () => {
     });
 
     it("should emit without isTriggeredExternally flag when false", () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       emitter.on("test-event", spy);
 
       emitter.emit("test-event", { foo: "bar" }, false);
@@ -29,7 +29,7 @@ describe("EventEmitter [ Utils ]", () => {
 
   describe("When using onEmit", () => {
     it("should register a callback that fires on every emit", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       emitter.onEmit(callback);
 
       emitter.emit("some-event", "some-data", false);
@@ -39,7 +39,7 @@ describe("EventEmitter [ Utils ]", () => {
     });
 
     it("should pass isTriggeredExternally to onEmit callback when true", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       emitter.onEmit(callback);
 
       emitter.emit("some-event", "some-data", true);
@@ -48,8 +48,8 @@ describe("EventEmitter [ Utils ]", () => {
     });
 
     it("should support multiple onEmit callbacks", () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
       emitter.onEmit(callback1);
       emitter.onEmit(callback2);
 
@@ -60,7 +60,7 @@ describe("EventEmitter [ Utils ]", () => {
     });
 
     it("should return a cleanup function that removes the callback", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const cleanup = emitter.onEmit(callback);
 
       emitter.emit("event", "data", false);
@@ -73,8 +73,8 @@ describe("EventEmitter [ Utils ]", () => {
     });
 
     it("should only remove the specific callback when cleanup is called", () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
       const cleanup1 = emitter.onEmit(callback1);
       emitter.onEmit(callback2);
 

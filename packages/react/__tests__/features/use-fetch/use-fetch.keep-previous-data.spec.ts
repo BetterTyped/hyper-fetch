@@ -19,7 +19,7 @@ describe("useFetch [ keepPreviousData ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
   });
 

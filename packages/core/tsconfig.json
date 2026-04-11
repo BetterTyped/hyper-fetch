@@ -6,5 +6,5 @@
       "@hyper-fetch/core": ["../src"]
     }
   },
-  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
+  "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

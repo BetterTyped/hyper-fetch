@@ -115,7 +115,7 @@ describe("Client [ Hydration ]", () => {
       const dehydratedResponse = mockedRequest.dehydrate();
 
       const newClient = new Client({ url: "shared-base-url" });
-      const optionsFn = jest.fn().mockReturnValue({ cache: false });
+      const optionsFn = vi.fn().mockReturnValue({ cache: false });
 
       newClient.hydrate([dehydratedResponse], optionsFn);
 
@@ -163,7 +163,7 @@ describe("Client [ Hydration ]", () => {
 
       client.cache.clear();
 
-      const spy = jest.spyOn(client.cache, "set");
+      const spy = vi.spyOn(client.cache, "set");
       client.hydrate([dehydratedResponse], { override: false });
 
       expect(spy).toHaveBeenCalled();

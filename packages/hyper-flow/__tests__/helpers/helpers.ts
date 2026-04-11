@@ -4,10 +4,8 @@ import { Socket } from "@hyper-fetch/sockets";
 
 import { ConnectionName } from "@/constants/connection.name";
 
-const defaultClient = createClient({ url: "http://localhost:2137" });
-
 export const connectDevtoolsClient = ({
-  client = defaultClient,
+  client,
   appName = "test-client",
   socketAddress = "localhost",
   socketPort = 2137,
@@ -17,14 +15,16 @@ export const connectDevtoolsClient = ({
   socketAddress?: string;
   socketPort?: number;
 } = {}) => {
+  const resolvedClient = client ?? createClient({ url: `http://${socketAddress}:${socketPort}` });
+
   const plugin = DevtoolsPlugin({
     appName,
     url: `ws://${socketAddress}:${socketPort}`,
   });
 
-  client.addPlugin(plugin);
+  resolvedClient.addPlugin(plugin);
 
-  return { client, plugin };
+  return { client: resolvedClient, plugin };
 };
 
 export const connectDevtoolsFrontend = async ({

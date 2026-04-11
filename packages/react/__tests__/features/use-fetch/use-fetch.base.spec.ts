@@ -23,7 +23,7 @@ describe("useFetch [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -130,7 +130,7 @@ describe("useFetch [ Base ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       await testClientIsolation(client);
       const mock = mockRequest(request);
       const view = renderUseFetch(request);
@@ -207,7 +207,7 @@ describe("useFetch [ Base ]", () => {
       await testSuccessState(mappedData, view);
     });
     it("should map async response data", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const mappedData = { test: 1, test2: 2, test3: 3 };
       const mappedRequest = request.setResponseMapper(async (response) => ({
         ...response,
@@ -260,7 +260,7 @@ describe("useFetch [ Base ]", () => {
   describe("when dependencies change", () => {
     // Solves Issue #22
     it("should fetch data when disabled prop changes", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       await testClientIsolation(client);
       const mock = mockRequest(request);
       const view = renderUseFetch(request, { disabled: true });

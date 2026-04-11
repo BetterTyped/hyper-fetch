@@ -21,7 +21,7 @@ describe("useFetch [ clearState ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });

@@ -23,7 +23,7 @@ describe("useFetch [ Prefetch ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     mock = mockRequest(request);
     request = createRequest();

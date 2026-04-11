@@ -19,7 +19,7 @@ describe("Emitter [ Emit ]", () => {
     startServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     await waitForConnection(socket);
   });
 

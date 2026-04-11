@@ -4,6 +4,7 @@ import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
 import { ServerSentEventsAdapter, ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
+import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
@@ -18,7 +19,7 @@ describe("Socket Adapter [ SSE ]", () => {
   beforeEach(async () => {
     socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
     originalEventSource = window.EventSource;
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {
@@ -28,7 +29,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should emit event on disconnect", async () => {
     startServer();
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.onDisconnected(spy);
     expect(socket.adapter.connected).toBe(true);
     socket.adapter.disconnect();
@@ -44,7 +45,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should reconnect when going online", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onConnected(spy);
 
     startServer();
@@ -75,7 +76,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should not reconnect when connection is open", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     socket.events.onConnected(spy);
 
@@ -94,7 +95,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should not connect again when connection is open", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     socket.events.onConnected(spy);
     startServer();
@@ -112,7 +113,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should emit and receive error event", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onError(spy);
     emitError({
       code: 1000,
@@ -136,7 +137,7 @@ describe("Socket Adapter [ SSE ]", () => {
     // @ts-ignore-error
     window.EventSource = undefined;
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newSocket = createSocket<ServerSentEventsAdapterType>(socketOptions);
     newSocket.events.onConnected(spy);
 
@@ -153,7 +154,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should handle disconnect before connection is established gracefully", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newSocket = createSocket<ServerSentEventsAdapterType>({
       adapter: ServerSentEventsAdapter(),
       adapterOptions: {
@@ -214,7 +215,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should respect autoConnect setting when going online", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const socketWithoutAutoConnect = createSocket<ServerSentEventsAdapterType>({
       adapter: ServerSentEventsAdapter,
       adapterOptions: {
@@ -249,9 +250,7 @@ describe("Socket Adapter [ SSE ]", () => {
       configurable: true,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { getServerSentEventsAdapter } = require("../../../src/adapter-sse/sse-adapter.utils");
-    const result = getServerSentEventsAdapter("http://localhost:1234", {});
+    const result = getServerSentEventsAdapter("http://localhost:1234", {} as any);
     expect(result).toBeNull();
 
     Object.defineProperty(global, "window", {
@@ -262,7 +261,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should properly clean up error event listeners on disconnect", async () => {
-    const errorSpy = jest.fn();
+    const errorSpy = vi.fn();
     socket.events.onError(errorSpy);
 
     // Disconnect and verify cleanup

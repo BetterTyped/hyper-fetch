@@ -16,7 +16,7 @@ describe("useFetch [ Retry ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
   });
 
   describe("when request retry attribute is set to false", () => {

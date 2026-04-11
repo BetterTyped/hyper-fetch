@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { Client } from "@hyper-fetch/core";
 import { createE2EServer, jsonHandler } from "@hyper-fetch/testing";
@@ -25,7 +25,7 @@ describe("Request [ $hooks ]", () => {
       method: "GET",
     });
 
-    const onBeforeSent = jest.fn();
+    const onBeforeSent = vi.fn();
     request.$hooks.onBeforeSent = onBeforeSent;
 
     await request.send();
@@ -46,7 +46,7 @@ describe("Request [ $hooks ]", () => {
       method: "GET",
     });
 
-    const onRequestStart = jest.fn();
+    const onRequestStart = vi.fn();
     request.$hooks.onRequestStart = onRequestStart;
 
     await request.send();
@@ -61,7 +61,7 @@ describe("Request [ $hooks ]", () => {
       method: "GET",
     });
 
-    const onResponse = jest.fn();
+    const onResponse = vi.fn();
     request.$hooks.onResponse = onResponse;
 
     const { data, error, status, success } = await request.send();
@@ -80,8 +80,8 @@ describe("Request [ $hooks ]", () => {
       method: "GET",
     });
 
-    const hookOnResponse = jest.fn();
-    const sendOnResponse = jest.fn();
+    const hookOnResponse = vi.fn();
+    const sendOnResponse = vi.fn();
 
     request.$hooks.onResponse = hookOnResponse;
 
@@ -100,7 +100,7 @@ describe("Request [ $hooks ]", () => {
       method: "GET",
     });
 
-    const onBeforeSent = jest.fn();
+    const onBeforeSent = vi.fn();
     request.$hooks.onBeforeSent = onBeforeSent;
 
     const cloned = request.setHeaders({ "x-custom": "test" });
@@ -113,11 +113,11 @@ describe("Request [ $hooks ]", () => {
     const client = new Client({ url: baseUrl });
     const request = client.createRequest()({ endpoint: "/users", method: "GET" });
 
-    const originalHook = jest.fn();
+    const originalHook = vi.fn();
     request.$hooks.onBeforeSent = originalHook;
 
     const cloned = request.setHeaders({ "x-custom": "test" });
-    cloned.$hooks.onBeforeSent = jest.fn();
+    cloned.$hooks.onBeforeSent = vi.fn();
 
     expect(request.$hooks.onBeforeSent).toBe(originalHook);
   });

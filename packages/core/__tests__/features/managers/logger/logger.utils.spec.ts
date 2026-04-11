@@ -2,12 +2,18 @@ import { createClient } from "client";
 import { getTime, logger } from "managers";
 
 describe("Logger [ Utils ]", () => {
-  const logSpy = jest.spyOn(console, "log");
-  const groupCollapsedSpy = jest.spyOn(console, "groupCollapsed");
-  const groupEndSpy = jest.spyOn(console, "groupEnd");
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let groupCollapsedSpy: ReturnType<typeof vi.spyOn>;
+  let groupEndSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    groupCollapsedSpy = vi.spyOn(console, "groupCollapsed").mockImplementation(() => {});
+    groupEndSpy = vi.spyOn(console, "groupEnd").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe("Given using logger utils", () => {

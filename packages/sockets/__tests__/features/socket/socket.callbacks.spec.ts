@@ -8,11 +8,11 @@ describe("Socket Client  [ Callbacks ]", () => {
   const { getServer, startServer } = createWebsocketMockingServer();
   beforeEach(async () => {
     startServer();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should trigger onConnected callbacks", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     createSocket().onConnected(spy);
 
     await waitFor(() => {
@@ -21,7 +21,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onDisconnected callbacks", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const socket = createSocket().onDisconnected(spy);
     socket.adapter.disconnect();
 
@@ -31,7 +31,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onError callbacks", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     createSocket().onError(spy);
     getServer().error({
       code: 1000,
@@ -45,7 +45,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onMessage callbacks", async () => {
-    const spy = jest.fn().mockImplementation((res) => res);
+    const spy = vi.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
     getServer().send({ data: { topic: "test", data: "test" } });
 
@@ -55,7 +55,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onSend callbacks", async () => {
-    const spy = jest.fn().mockImplementation((em) => em);
+    const spy = vi.fn().mockImplementation((em) => em);
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
 
@@ -69,7 +69,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onReconnect callbacks", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const socket = createSocket().onReconnect(spy);
     socket.adapter.reconnect();
 
@@ -79,7 +79,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   });
 
   it("should trigger onReconnectFailed callbacks", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const socket = createSocket({ reconnect: 0 }).onReconnectFailed(spy);
     socket.adapter.reconnect();
 

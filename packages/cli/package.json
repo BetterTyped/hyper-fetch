@@ -13,17 +13,15 @@
   "climain": "dist/index.js",
   "bin": "dist/index.js",
   "scripts": {
-    "clean": "npx rimraf dist",
-    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest --watchAll --maxWorkers=3 --forceExit",
-    "test:pipeline": "node --experimental-vm-modules ../../node_modules/jest/bin/jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test": "vitest run",
+    "test:pipeline": "vitest run",
     "dev": "npx tsx ./src/cli/index.ts",
     "prebuild": "yarn update:version",
-    "build": "yarn clean && node ../../scripts/build.js",
-    "postbuild": "yarn rollup -c ../../rollup.config.js",
+    "build": "vite build",
     "update:version": "node ../../scripts/update-package-version.js --prefix hyper-fetch-cli-v",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-cli-v${version}'"
   },
@@ -63,7 +61,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "vitest related --run --passWithNoTests"
     ]
   },
   "keywords": [

@@ -22,7 +22,7 @@ describe("useSubmit [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST" });
   });

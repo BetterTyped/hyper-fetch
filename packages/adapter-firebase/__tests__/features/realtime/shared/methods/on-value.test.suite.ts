@@ -16,7 +16,7 @@ export const onValueTestSuite = (
     let initializedSocketsAdapter: FirebaseSocketAdapterTypes<any>;
     let initializedCoreAdapter: FirebaseAdapterTypes<any>;
     let initializedDb: FirebaseDBTypes;
-    let spy = jest.fn();
+    let spy = vi.fn();
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
     beforeAll(async () => {
@@ -44,9 +44,9 @@ export const onValueTestSuite = (
     };
 
     beforeEach(() => {
-      jest.resetAllMocks();
-      jest.clearAllMocks();
-      spy = jest.fn();
+      vi.resetAllMocks();
+      vi.clearAllMocks();
+      spy = vi.fn();
     });
 
     it("should return unmount function", async () => {

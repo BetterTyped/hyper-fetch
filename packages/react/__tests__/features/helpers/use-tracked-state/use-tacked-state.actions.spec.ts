@@ -20,8 +20,8 @@ describe("useTrackedState [ Actions ]", () => {
 
   afterAll(() => {
     stopServer();
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
     client.clear();
   });
 
@@ -200,7 +200,7 @@ describe("useTrackedState [ Actions ]", () => {
   describe("when using setLoading action", () => {
     it("should not emit loading event when emitToHooks is false", async () => {
       const { result } = renderUseTrackedState(request);
-      const spy = jest.spyOn(request.client.requestManager.events, "emitLoading");
+      const spy = vi.spyOn(request.client.requestManager.events, "emitLoading");
 
       act(() => {
         result.current[1].setLoading(true);
@@ -239,7 +239,7 @@ describe("useTrackedState [ Actions ]", () => {
 
     it("should not update cache", async () => {
       const { result } = renderUseTrackedState(request);
-      const spy = jest.spyOn(request.client.cache, "update");
+      const spy = vi.spyOn(request.client.cache, "update");
 
       // Then update state without emitting to cache
       act(() => {

@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "vite",
     "clean": "npx rimraf dist",
-    "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test": "vitest run",
+    "test:pipeline": "vitest run",
     "start": "rimraf node_modules/.vite && yarn electron-forge start",
     "package:app": "yarn electron-forge package",
     "make:app": "yarn electron-forge make",
@@ -18,7 +18,7 @@
     "release": "yarn semantic-release --extends ./release.config.js -t 'v${version}'",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
     "update:version": "node ../../scripts/update-package-version.js --prefix v"
   },
@@ -120,13 +120,12 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "vitest related --run --passWithNoTests"
     ]
   },
   "eslintConfig": {
     "extends": [
-      "react",
-      "react/jest"
+      "react"
     ]
   },
   "publishConfig": {

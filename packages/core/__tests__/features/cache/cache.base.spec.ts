@@ -41,7 +41,7 @@ describe("Cache [ Base ]", () => {
     request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -74,7 +74,7 @@ describe("Cache [ Base ]", () => {
   });
   describe("When managing cache data", () => {
     it("should add element to cache and emit set event", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
@@ -93,7 +93,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should invalidate and remove cache", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
@@ -108,7 +108,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should not add to cache when useCache is set to false", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
@@ -186,7 +186,7 @@ describe("Cache [ Base ]", () => {
 
   describe("When CacheStore gets cleared before triggering cache actions", () => {
     it("should return undefined when removed cache entity", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
 
       cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
@@ -272,7 +272,7 @@ describe("Cache [ Base ]", () => {
 
       cache.invalidate([new RegExp(mockRequest.cacheKey)]);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
     it("should not invalidate cache when app is offline", async () => {
@@ -292,7 +292,7 @@ describe("Cache [ Base ]", () => {
       cache.garbageCollectors.clear();
       cache.invalidate([new RegExp(mockRequest.cacheKey)]);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
 
@@ -310,7 +310,7 @@ describe("Cache [ Base ]", () => {
       client.appManager.setOnline(false);
       await sleep(150);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
 

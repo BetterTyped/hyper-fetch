@@ -16,7 +16,7 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Utils ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -31,7 +31,7 @@ describe("Dispatcher [ Utils ]", () => {
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

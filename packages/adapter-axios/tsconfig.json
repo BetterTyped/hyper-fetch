@@ -8,5 +8,5 @@
       "@server-adapter": ["./adapter/adapter.server.ts"]
     }
   },
-  "exclude": ["dist", "jest.config.ts"]
+  "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

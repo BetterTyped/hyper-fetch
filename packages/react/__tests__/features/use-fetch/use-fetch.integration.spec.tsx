@@ -27,7 +27,7 @@ describe("useFetch [ Integration ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest({ endpoint: `/users/${Date.now()}` });
     request.client.clear();
   });
@@ -75,7 +75,7 @@ describe("useFetch [ Integration ]", () => {
         });
       });
       it("should fetch once in StrictMode", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
 
         const Page = () => {
           const { data, onFinished } = useFetch(request, {
@@ -106,7 +106,7 @@ describe("useFetch [ Integration ]", () => {
         });
       });
       it("should fetch sequence in StrictMode", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
 
         const Page = () => {
           const [params, setParams] = useState({});

@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { URL } from "url";
 import { Client } from "@hyper-fetch/core";

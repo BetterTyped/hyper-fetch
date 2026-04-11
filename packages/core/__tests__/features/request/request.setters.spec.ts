@@ -15,7 +15,7 @@ describe("Request [ Setters ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/users/:userId" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

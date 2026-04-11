@@ -1,10 +1,10 @@
-import React, { Suspense, StrictMode, Component, useState, ReactNode } from "react";
+/// <reference types="vitest/globals" />
+import { Suspense, StrictMode, Component, useState, ReactNode } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { useFetch } from "../../../src/hooks/use-fetch";
-import { createRequest, client } from "../../utils";
+import { useFetch } from "hooks/use-fetch";
+import { client, createRequest } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -74,7 +74,7 @@ describe("useFetch [ Suspense ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -429,7 +429,7 @@ describe("useFetch [ Suspense ]", () => {
   describe("when refetching after initial suspense", () => {
     it("should not re-suspend on refetch (data is already present)", async () => {
       const mock = mockRequest(request);
-      const spy = jest.fn();
+      const spy = vi.fn();
 
       function RefetchView() {
         const { data, refetch } = useFetch(request, {

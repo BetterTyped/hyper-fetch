@@ -26,7 +26,7 @@ describe("useTrackingState [ Events ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client = createClient({ url: "http://localhost:3000" });
     request = client.createRequest<{ response: any }>()({
       endpoint: "/test",
@@ -312,7 +312,7 @@ describe("useTrackingState [ Events ]", () => {
     });
     describe("when deepCompare is function", () => {
       it("should trigger with two values", async () => {
-        const customDeepCompare = jest.fn().mockImplementation(() => true);
+        const customDeepCompare = vi.fn().mockImplementation(() => true);
         const { result } = renderUseTrackedState(request, { deepCompare: customDeepCompare });
 
         act(() => {
@@ -476,7 +476,7 @@ describe("useTrackingState [ Events ]", () => {
   describe("given custom deepCompare option is passed", () => {
     describe("when deepCompare is function", () => {
       it("should allow to use custom deepCompare", async () => {
-        const deepCompare = jest.fn().mockImplementation(() => false);
+        const deepCompare = vi.fn().mockImplementation(() => false);
         const { result } = renderUseTrackedState(request, { deepCompare, dependencyTracking: true });
 
         act(() => {

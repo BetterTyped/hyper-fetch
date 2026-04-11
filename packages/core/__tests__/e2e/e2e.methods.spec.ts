@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { Client } from "@hyper-fetch/core";
 import { createE2EServer, echoHandler, jsonHandler, statusHandler, headHandler } from "@hyper-fetch/testing";

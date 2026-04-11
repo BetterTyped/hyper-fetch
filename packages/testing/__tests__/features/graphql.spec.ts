@@ -41,7 +41,7 @@ describe("Graphql Mocking [ Base ]", () => {
     });
 
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

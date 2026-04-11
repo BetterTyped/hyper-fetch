@@ -16,11 +16,11 @@ describe("Socket SSE [ Connection ]", () => {
   beforeEach(async () => {
     socket?.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should auto connect", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onConnected(spy);
 
     startServer();
@@ -30,7 +30,7 @@ describe("Socket SSE [ Connection ]", () => {
   });
 
   it("should prevent initial connection", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket = createSocket({ adapterOptions: { autoConnect: false } });
     socket.events.onConnected(spy);
     startServer();
@@ -40,9 +40,9 @@ describe("Socket SSE [ Connection ]", () => {
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
-    const spy = jest.fn();
-    const spy2 = jest.fn();
-    const spy3 = jest.fn();
+    const spy = vi.fn();
+    const spy2 = vi.fn();
+    const spy3 = vi.fn();
     const url = "ws://localhost:2345";
     const { startServer: startNewServer } = createSseMockingServer(url);
     const newSocket = createSocket({

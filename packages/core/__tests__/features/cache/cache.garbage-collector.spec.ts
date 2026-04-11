@@ -41,8 +41,8 @@ describe("Cache [ Garbage Collector ]", () => {
     cache = createCache(client, {
       version,
     });
-    jest.resetAllMocks();
-    jest.clearAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
 
     cacheData.requestTimestamp = +new Date();
     cacheData.responseTimestamp = +new Date();
@@ -91,7 +91,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should schedule garbage collection when resource is added", async () => {
-      const spy = jest.spyOn(cache, "scheduleGarbageCollector");
+      const spy = vi.spyOn(cache, "scheduleGarbageCollector");
       cache.set(request, cacheData);
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -103,7 +103,7 @@ describe("Cache [ Garbage Collector ]", () => {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
         version: "new-clear-key",
       });
-      const spy = jest.spyOn(lazyStorage, "delete");
+      const spy = vi.spyOn(lazyStorage, "delete");
 
       // get to trigger garbage collector
       newCache.get(request.cacheKey);
@@ -121,7 +121,7 @@ describe("Cache [ Garbage Collector ]", () => {
         storage: syncStorage,
         version: "new-clear-key",
       });
-      const spy = jest.spyOn(syncStorage, "delete");
+      const spy = vi.spyOn(syncStorage, "delete");
 
       // get to trigger garbage collector
       newCache.get(request.cacheKey);

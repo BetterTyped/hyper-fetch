@@ -6,15 +6,15 @@ import { renderUseListener } from "../../utils/use-listener.utils";
 
 describe("useListener [ Base ]", () => {
   const { startServer, stopServer, emitListenerEvent } = createWebsocketMockingServer();
-  const spy = jest.fn();
+  const spy = vi.fn();
   let listener = createListener();
 
   beforeEach(async () => {
     startServer();
     listener = createListener();
     await waitForConnection(listener.socket);
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {

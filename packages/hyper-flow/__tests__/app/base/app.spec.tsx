@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 import { render, act, waitFor } from "@testing-library/react";
 import { sleep } from "@hyper-fetch/testing";
 import { TestDashboardPage } from "@testing/pages/dashboard.page";
@@ -30,7 +30,7 @@ describe("App", () => {
   afterEach(async () => {
     await serverObject?.server?.close();
     await serverObject?.wss?.close();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render", async () => {

@@ -3,8 +3,8 @@ import { checkbox, confirm } from "@inquirer/prompts";
 import { z } from "zod";
 
 // import { Registry } from "registry/schema";
-import { logger } from "../utils/logger";
-import { handleError } from "../utils/handle-error";
+import { logger } from "utils/logger";
+import { handleError } from "utils/handle-error";
 import { preFlightAdd } from "preflights/preflight-add";
 import { showHelp } from "utils/show-help";
 

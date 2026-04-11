@@ -15,7 +15,7 @@ describe("Fetch Adapter [ Base ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -24,8 +24,8 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting custom header", async () => {
     // The queue should receive request with the appropriate header
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const header = { it: "works" };
     const c = request.setHeaders(header);
     mockRequest(request);
@@ -39,8 +39,8 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting auth", async () => {
     // The queue should receive request with the appropriate header
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     mockRequest(request);
 
     expect(request.auth).toBe(true);
@@ -59,8 +59,8 @@ describe("Fetch Adapter [ Base ]", () => {
     const comm = client.createRequest<{ queryParams: QueryParamsType }>()({
       endpoint: "/some-endpoint/:shopId/:productId",
     });
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const params = { shopId: 11, productId: 1 };
 
     const c = comm.setParams(params);
@@ -76,8 +76,8 @@ describe("Fetch Adapter [ Base ]", () => {
   });
 
   it("should allow for setting data to the request", async () => {
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const data = {
       userId: 11,
       role: "ADMIN",
@@ -102,8 +102,8 @@ describe("Fetch Adapter [ Base ]", () => {
       endpoint: "/some-endpoint/",
     });
     mockRequest(comm);
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
 
     const requestQueryParams = comm.setQueryParams(queryParams);
     requestQueryParams.send({});

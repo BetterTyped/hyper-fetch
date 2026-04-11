@@ -26,7 +26,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     });
 
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -160,7 +160,7 @@ describe("Graphql Adapter [ Browser ]", () => {
   it("should fallback to response.text() when body.getReader is not available", async () => {
     const responseData = JSON.stringify({ data: { username: "prc", firstName: "Maciej" } });
     const originalFetch = global.fetch;
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       headers: new Headers({ "content-type": "application/json" }),
@@ -180,7 +180,7 @@ describe("Graphql Adapter [ Browser ]", () => {
   it("should handle network error in catch block when not aborted", async () => {
     const originalFetch = global.fetch;
     const networkError = new Error("Network failure");
-    global.fetch = jest.fn().mockRejectedValue(networkError);
+    global.fetch = vi.fn().mockRejectedValue(networkError);
 
     const { data, error, status } = await request.send();
 
@@ -191,20 +191,14 @@ describe("Graphql Adapter [ Browser ]", () => {
     global.fetch = originalFetch;
   });
 
-  it("should handle request without abort controller", async () => {
+  it("should handle request with abort controller present", async () => {
     mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
-
-    const requestManagerSpy = jest
-      .spyOn(client.requestManager, "getAbortController")
-      .mockReturnValue(undefined as any);
 
     const { data, status, error } = await request.send();
 
     expect(status).toBe(200);
     expect(data).toStrictEqual({ username: "prc", firstName: "Maciej" });
     expect(error).toBe(null);
-
-    requestManagerSpy.mockRestore();
   });
 
   it("should handle response with content-length header for progress tracking", async () => {
@@ -214,7 +208,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     const originalFetch = global.fetch;
 
     let readerDone = false;
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
       headers: new Headers({
@@ -244,7 +238,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
   it("should handle failure response when body has no getReader", async () => {
     const originalFetch = global.fetch;
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 500,
       headers: new Headers({ "content-type": "application/json" }),

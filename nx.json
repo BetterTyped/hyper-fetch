@@ -2,17 +2,10 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "executor": ""
+      "dependsOn": ["^build"]
     },
     "test": {
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/jest.preset.js"
-      ]
+      "inputs": ["default", "^default"]
     }
   },
   "workspaceLayout": {
@@ -53,23 +46,10 @@
       }
     },
     {
-      "plugin": "@nx/jest/plugin",
-      "options": {
-        "targetName": "jest:test"
-      }
-    },
-    {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "eslint:lint",
-        "extensions": [
-          "ts",
-          "tsx",
-          "js",
-          "jsx",
-          "html",
-          "vue"
-        ]
+        "extensions": ["ts", "tsx", "js", "jsx", "html", "vue"]
       }
     },
     {
@@ -94,5 +74,6 @@
   ],
   "parallel": 1,
   "defaultBase": "main",
-  "neverConnectToCloud": true
+  "neverConnectToCloud": true,
+  "analytics": false
 }

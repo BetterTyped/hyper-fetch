@@ -7,7 +7,7 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Requests ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -22,7 +22,7 @@ describe("Dispatcher [ Requests ]", () => {
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -87,9 +87,9 @@ describe("Dispatcher [ Requests ]", () => {
       expect(request?.requestId).toBe(firstRequestId);
     });
     it("should allow to cancel all running requests", async () => {
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
-      const thirdSpy = jest.fn();
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
+      const thirdSpy = vi.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(firstRequest, { delay: 5 });
@@ -112,8 +112,8 @@ describe("Dispatcher [ Requests ]", () => {
       expect(thirdSpy).toHaveBeenCalledTimes(2);
     });
     it("should allow to cancel single running requests", async () => {
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(firstRequest, { delay: 5 });
@@ -133,9 +133,9 @@ describe("Dispatcher [ Requests ]", () => {
       expect(secondSpy).toHaveBeenCalledTimes(1);
     });
     it("should allow to delete running requests", async () => {
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
-      const thirdSpy = jest.fn();
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
+      const thirdSpy = vi.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(firstRequest, { delay: 5 });
@@ -158,9 +158,9 @@ describe("Dispatcher [ Requests ]", () => {
       expect(thirdSpy).toHaveBeenCalledTimes(0);
     });
     it("should allow to delete running request", async () => {
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
-      const thirdSpy = jest.fn();
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
+      const thirdSpy = vi.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(firstRequest, { delay: 5 });
@@ -211,7 +211,7 @@ describe("Dispatcher [ Requests ]", () => {
         const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
         mockRequest(request, { delay: 1 });
 
-        const spy = jest.spyOn(client.cache, "set");
+        const spy = vi.spyOn(client.cache, "set");
 
         const requestId = dispatcher.add(request);
         dispatcher.stopRequest(request.queryKey, requestId);
@@ -230,7 +230,7 @@ describe("Dispatcher [ Requests ]", () => {
       });
 
       it("should not emit changes when started requests is not found in storage", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         dispatcher.events.onQueueChangeByKey("fake-key", spy);
         dispatcher.startRequest("fake-key", "fake-request-id");
 

@@ -17,7 +17,7 @@ describe("Emitter [ Base ]", () => {
     startServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     await waitForConnection(socket);
   });
 
@@ -41,7 +41,7 @@ describe("Emitter [ Base ]", () => {
 
   it("should allow to set data mapper", async () => {
     const data = { test: "test-data" };
-    const spy = jest.fn();
+    const spy = vi.fn();
     const dataMapper = (d: DataType) => {
       spy();
       return Object.keys(d);

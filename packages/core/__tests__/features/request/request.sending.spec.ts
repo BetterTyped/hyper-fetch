@@ -20,7 +20,7 @@ describe("Request [ Sending ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     mockRequest(request, { data: fixture, delay: 40 });
   });
 
@@ -95,7 +95,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should wait to resolve request in online mode", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send({});
       await sleep(5);
@@ -119,7 +119,7 @@ describe("Request [ Sending ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should wait to resolve request retries", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.setRetry(1).setRetryTime(30).send({});
       await sleep(5);
@@ -158,7 +158,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should call remove error", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send({ onRemove: spy });
       await sleep(2);
@@ -245,12 +245,12 @@ describe("Request [ Sending ]", () => {
     });
 
     it("should allow to call the request callbacks", async () => {
-      const spy1 = jest.fn();
-      const spy2 = jest.fn();
-      const spy3 = jest.fn();
-      const spy4 = jest.fn();
-      const spy5 = jest.fn();
-      const spy6 = jest.fn();
+      const spy1 = vi.fn();
+      const spy2 = vi.fn();
+      const spy3 = vi.fn();
+      const spy4 = vi.fn();
+      const spy5 = vi.fn();
+      const spy6 = vi.fn();
 
       await request.send({
         onBeforeSent: spy1,

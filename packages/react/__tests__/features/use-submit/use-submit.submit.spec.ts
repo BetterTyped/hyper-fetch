@@ -24,7 +24,7 @@ describe("useSubmit [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST" });
   });
@@ -50,7 +50,7 @@ describe("useSubmit [ Base ]", () => {
       });
     });
     it("should call onBeforeSent", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request);
       const response = renderUseSubmit(request);
 

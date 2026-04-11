@@ -6,7 +6,7 @@ describe("Socket Adapter [ Bindings ]", () => {
 
   beforeEach(() => {
     socket = createSocket({ adapterOptions: { autoConnect: false } });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should allow remove listener without unmount callback", async () => {
@@ -26,7 +26,7 @@ describe("Socket Adapter [ Bindings ]", () => {
     const mockError = new Error("Test error");
     const mockEmitter = socket.createEmitter()({ topic: "test" });
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onEmitterError(spy);
 
     onEmitError({

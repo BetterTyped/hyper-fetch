@@ -30,7 +30,7 @@ describe("Cache [ Lazy Storage ]", () => {
   };
 
   const lazyStorage = new Map();
-  const spy = jest.fn();
+  const spy = vi.fn();
 
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
@@ -47,7 +47,7 @@ describe("Cache [ Lazy Storage ]", () => {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       version,
     });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("when using lazy storage", () => {
@@ -90,7 +90,7 @@ describe("Cache [ Lazy Storage ]", () => {
         version: "old-key",
       });
 
-      const deleteSpy = jest.spyOn(cache.options?.lazyStorage as CacheAsyncStorageType, "delete");
+      const deleteSpy = vi.spyOn(cache.options?.lazyStorage as CacheAsyncStorageType, "delete");
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -115,10 +115,10 @@ describe("Cache [ Lazy Storage ]", () => {
     it("should allow to get lazy cache keys", async () => {
       const mockLazyKeys = ["lazy1", "lazy2", "lazy3"];
       cache.lazyStorage = {
-        keys: jest.fn().mockResolvedValue(mockLazyKeys),
-        get: jest.fn(),
-        set: jest.fn(),
-        delete: jest.fn(),
+        keys: vi.fn().mockResolvedValue(mockLazyKeys),
+        get: vi.fn(),
+        set: vi.fn(),
+        delete: vi.fn(),
       };
 
       const lazyKeys = await cache.getLazyKeys();

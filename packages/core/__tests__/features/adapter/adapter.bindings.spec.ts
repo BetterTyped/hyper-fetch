@@ -37,11 +37,11 @@ describe("Adapter [ Bindings ]", () => {
   };
   const requestConfig: HttpAdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
-  const onTriggerSpy = jest.fn();
-  const onErrorSpy = jest.fn();
-  const onFinishedSpy = jest.fn();
-  const onStartSpy = jest.fn();
-  const onSuccessSpy = jest.fn();
+  const onTriggerSpy = vi.fn();
+  const onErrorSpy = vi.fn();
+  const onFinishedSpy = vi.fn();
+  const onStartSpy = vi.fn();
+  const onSuccessSpy = vi.fn();
 
   const initializeSetup = () => {
     const effect = new Plugin({
@@ -77,7 +77,7 @@ describe("Adapter [ Bindings ]", () => {
   beforeEach(() => {
     setup = initializeSetup();
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -140,7 +140,7 @@ describe("Adapter [ Bindings ]", () => {
   describe("given bindings abort methods being used", () => {
     describe("when using AbortController methods", () => {
       it("should create listener using createAbortListener", async () => {
-        const resolveSpy = jest.fn();
+        const resolveSpy = vi.fn();
         const { createAbortListener, getAbortController } = await getAdapterBindings({
           request,
           requestId,
@@ -148,7 +148,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
         const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
@@ -170,8 +170,8 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
-        const resolveSpy = jest.fn();
+        const spy = vi.fn();
+        const resolveSpy = vi.fn();
         const controller = getAbortController();
         const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
         expect(spy).toHaveBeenCalledTimes(0);
@@ -199,7 +199,7 @@ describe("Adapter [ Bindings ]", () => {
         const abortController = request.client.requestManager.getAbortController(request.abortKey, requestId);
 
         abortController?.abort();
-        const spy = jest.fn();
+        const spy = vi.fn();
 
         const { createAbortListener } = await getAdapterBindings({
           request,
@@ -224,7 +224,7 @@ describe("Adapter [ Bindings ]", () => {
           internalErrorMapping: (error) => error,
         });
 
-        const resolveSpy = jest.fn();
+        const resolveSpy = vi.fn();
         const controller = getAbortController();
         const unmount = createAbortListener({ status: 0, extra: xhrExtra }); // No onAbort provided
 
@@ -265,7 +265,7 @@ describe("Adapter [ Bindings ]", () => {
       }>()({
         endpoint: "shared-endpoint/",
       });
-      const spy = jest.fn();
+      const spy = vi.fn();
       const newData = {
         userId: 11,
         role: "ADMIN",
@@ -298,7 +298,7 @@ describe("Adapter [ Bindings ]", () => {
       }>()({
         endpoint: "shared-endpoint/",
       });
-      const spy = jest.fn();
+      const spy = vi.fn();
       const newData = {
         userId: 11,
         role: "ADMIN",
@@ -342,7 +342,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onRequestStartByQueue(request.queryKey, spy);
         onRequestStart();
         unmount();
@@ -356,7 +356,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onRequestStart();
         unmount();
@@ -375,7 +375,7 @@ describe("Adapter [ Bindings ]", () => {
           loaded: 0,
         };
 
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onRequestStart(progress);
         unmount();
@@ -396,7 +396,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const startTimestamp = onRequestStart();
         await sleep(30);
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
@@ -466,7 +466,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const startTimestamp = onRequestStart({ total: progress.total, loaded: 0 });
         await sleep(30);
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
@@ -491,7 +491,7 @@ describe("Adapter [ Bindings ]", () => {
     describe("when handling payload mapping", () => {
       it("should use adapter's unstable_payloadMapper if no request mapper exists", async () => {
         const mappedPayload = "mapped_by_adapter";
-        const spy = jest.fn().mockReturnValue(mappedPayload);
+        const spy = vi.fn().mockReturnValue(mappedPayload);
 
         client.adapter.unstable_payloadMapper = spy;
 
@@ -511,8 +511,8 @@ describe("Adapter [ Bindings ]", () => {
         const adapterMappedPayload = "mapped_by_adapter";
         const requestMappedPayload = "mapped_by_request";
 
-        const adapterSpy = jest.fn().mockReturnValue(adapterMappedPayload);
-        const requestSpy = jest.fn().mockReturnValue(requestMappedPayload);
+        const adapterSpy = vi.fn().mockReturnValue(adapterMappedPayload);
+        const requestSpy = vi.fn().mockReturnValue(requestMappedPayload);
 
         client.adapter.unstable_payloadMapper = adapterSpy;
         request.unstable_payloadMapper = requestSpy;
@@ -575,7 +575,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onResponseStartByQueue(request.queryKey, spy);
         onResponseStart();
         unmount();
@@ -589,7 +589,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onResponseStart();
         unmount();
@@ -608,7 +608,7 @@ describe("Adapter [ Bindings ]", () => {
           loaded: 0,
         };
 
-        const spy = jest.fn();
+        const spy = vi.fn();
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onResponseStart(progress);
         unmount();
@@ -652,7 +652,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const startTimestamp = onResponseStart();
         await sleep(30);
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
@@ -689,7 +689,7 @@ describe("Adapter [ Bindings ]", () => {
           onStartTime: () => null,
           internalErrorMapping: (error) => error,
         });
-        const spy = jest.fn();
+        const spy = vi.fn();
         const startTimestamp = onResponseStart({ total: progress.total, loaded: 0 });
         await sleep(30);
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
@@ -981,7 +981,7 @@ describe("Adapter [ Bindings ]", () => {
         internalErrorMapping: (error) => error,
       });
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
 
       // First call to set previousRequestTotal to 100
@@ -1005,7 +1005,7 @@ describe("Adapter [ Bindings ]", () => {
         internalErrorMapping: (error) => error,
       });
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
 
       // First call to set previousResponseTotal to 100

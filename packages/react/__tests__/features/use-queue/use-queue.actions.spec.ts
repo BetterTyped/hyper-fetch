@@ -29,7 +29,7 @@ describe("useQueue [ Actions ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest({ method: "POST" });
     client.clear();
   });

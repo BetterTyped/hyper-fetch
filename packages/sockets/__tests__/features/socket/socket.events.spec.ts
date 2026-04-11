@@ -3,7 +3,7 @@ import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 describe("Socket [ Events ]", () => {
-  const spy = jest.fn();
+  const spy = vi.fn();
   let socket = createSocket();
   let emitter = createEmitter(socket);
   let listener = createListener(socket);
@@ -12,7 +12,7 @@ describe("Socket [ Events ]", () => {
     socket = createSocket();
     emitter = createEmitter(socket);
     listener = createListener(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should emit and receive error event", async () => {

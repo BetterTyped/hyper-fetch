@@ -27,8 +27,8 @@ describe("Backend Devtools - Socket Test", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
-    jest.resetAllMocks();
-    jest.clearAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
     resetMocks();
   });
   afterAll(() => {

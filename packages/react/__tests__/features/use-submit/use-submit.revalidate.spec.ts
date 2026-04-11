@@ -24,7 +24,7 @@ describe("useFetch [ refetch ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     requestSubmit = createRequest({ method: "POST" });
     requestFetch = createRequest({ endpoint: "fetch-test" });
@@ -50,7 +50,7 @@ describe("useFetch [ refetch ]", () => {
     await testSuccessState(fetchMock, responseFetch);
   });
   it("should allow to refetch by Request", async () => {
-    const spy = jest.spyOn(client.cache, "invalidate");
+    const spy = vi.spyOn(client.cache, "invalidate");
 
     renderUseSubmit(requestSubmit);
 
@@ -62,7 +62,7 @@ describe("useFetch [ refetch ]", () => {
     expect(spy).toHaveBeenCalledWith(requestSubmit);
   });
   it("should allow to refetch by RegExp", async () => {
-    const spy = jest.spyOn(client.cache, "invalidate");
+    const spy = vi.spyOn(client.cache, "invalidate");
 
     renderUseSubmit(requestSubmit);
 
@@ -74,7 +74,7 @@ describe("useFetch [ refetch ]", () => {
     expect(spy).toHaveBeenCalledWith(new RegExp(requestSubmit.cacheKey));
   });
   it("should allow to refetch by cacheKey", async () => {
-    const spy = jest.spyOn(client.cache, "invalidate");
+    const spy = vi.spyOn(client.cache, "invalidate");
 
     renderUseSubmit(requestSubmit);
 
@@ -86,7 +86,7 @@ describe("useFetch [ refetch ]", () => {
     expect(spy).toHaveBeenCalledWith(requestSubmit.cacheKey);
   });
   it("should allow to refetch without key", async () => {
-    const spy = jest.spyOn(client.cache, "invalidate");
+    const spy = vi.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 

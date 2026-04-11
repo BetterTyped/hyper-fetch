@@ -1,28 +1,34 @@
-import { waitFor } from "@testing-library/react";
+import { waitFor, configure } from "@testing-library/react";
 import { InternalEvents, MessageType } from "@hyper-fetch/plugin-devtools";
 import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
 
 import { StartServer, startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 
+configure({ asyncUtilTimeout: 10000 });
+
+const getRandomPort = () => 10000 + Math.floor(Math.random() * 50000);
+
 describe("Devtools Socket Server", () => {
   let serverObject: StartServer | null = null;
+  let port: number;
   beforeEach(async () => {
-    serverObject = await startServer({ port: 2137 });
+    port = getRandomPort();
+    serverObject = await startServer({ port });
   });
   afterEach(async () => {
     await serverObject?.server?.close();
     await serverObject?.wss?.close();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   describe("If connection to the frontend is established and client is connected", () => {
     it("Should created the appropriate connections", async () => {
       const { connections, DEVTOOLS_FRONTEND_WS_CONNECTION } = serverObject || {};
       await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 2137,
+        socketPort: port,
       });
-      connectDevtoolsClient();
+      connectDevtoolsClient({ socketPort: port });
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
       expect(connections!["test-client"].appStatus).toEqual(AppConnectionStatus.IN_PROGRESS);
@@ -36,13 +42,13 @@ describe("Devtools Socket Server", () => {
 
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 2137,
+        socketPort: port,
       });
       socket.onMessage((message) => {
         receivedMessage = message;
         return message;
       });
-      const { plugin } = await connectDevtoolsClient();
+      const { plugin } = await connectDevtoolsClient({ socketPort: port });
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
 
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeDefined();
@@ -74,13 +80,13 @@ describe("Devtools Socket Server", () => {
       const { connections } = serverObject || {};
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 2137,
+        socketPort: port,
       });
       socket.onMessage((message) => {
         clientReceivedMessages.push(message);
         return message;
       });
-      const { client } = connectDevtoolsClient();
+      const { client } = connectDevtoolsClient({ socketPort: port });
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
       await waitFor(() => expect(clientReceivedMessages.length).toBeGreaterThan(0));
       const receivedMetaData = clientReceivedMessages[0].event;
@@ -94,10 +100,10 @@ describe("Devtools Socket Server", () => {
       const { connections } = serverObject || {};
       const socket = await connectDevtoolsFrontend({
         socketAddress: "localhost",
-        socketPort: 2137,
+        socketPort: port,
       });
 
-      connectDevtoolsClient();
+      connectDevtoolsClient({ socketPort: port });
       await waitFor(() => expect(Object.keys(connections || {}).length).toBeGreaterThan(0));
 
       socket.onMessage((message) => {
@@ -112,8 +118,8 @@ describe("Devtools Socket Server", () => {
   });
   describe("If something already blocks the port", () => {
     it("should not crash but return message", async () => {
-      const secondServer = await startServer({ port: 2137 });
-      expect(secondServer.errorMessage).toBe("Port 2137 is already in use");
+      const secondServer = await startServer({ port });
+      expect(secondServer.errorMessage).toBe(`Port ${port} is already in use`);
     });
   });
 });

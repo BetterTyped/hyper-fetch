@@ -44,7 +44,7 @@ describe("useFetch [ Rerender ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     rerenders = 0;
     request = createRequest();
     client.clear();

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 
 import { promises as fsPromises } from "fs";

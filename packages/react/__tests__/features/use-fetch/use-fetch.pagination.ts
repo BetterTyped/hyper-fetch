@@ -18,7 +18,7 @@ describe("useFetch [ Pagination ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
   });
 

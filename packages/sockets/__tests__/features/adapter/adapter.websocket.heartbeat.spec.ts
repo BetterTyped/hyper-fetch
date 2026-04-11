@@ -21,7 +21,7 @@ describe("Socket Adapter [ Heartbeat ]", () => {
     startServer();
     server = getServer();
     socket = createSocket(socketOptions);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should send heartbeat to server", async () => {

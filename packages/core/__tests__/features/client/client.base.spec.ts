@@ -79,7 +79,7 @@ describe("Client [ Base ]", () => {
 
   describe("When client is getting cleared", () => {
     it("should assign new appManager", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const appManager = new AppManager();
       const client = new Client({
         url: "shared-base-url",
@@ -93,7 +93,7 @@ describe("Client [ Base ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new cache", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const cache = new Cache();
       const client = new Client({
         url: "shared-base-url",
@@ -108,7 +108,7 @@ describe("Client [ Base ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new fetchDispatcher", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const fetchDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",
@@ -123,7 +123,7 @@ describe("Client [ Base ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new submitDispatcher", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const submitDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",

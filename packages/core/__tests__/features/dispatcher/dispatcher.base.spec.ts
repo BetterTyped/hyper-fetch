@@ -19,7 +19,7 @@ describe("Dispatcher [ Basic ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-endpoint" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -37,7 +37,7 @@ describe("Dispatcher [ Basic ]", () => {
       expect(storage.get(request.queryKey)?.requests[0]).toBe(dispatcherDump);
     });
     it("should trigger on queue change callback", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const plugin = new Plugin({ name: "change" }).onDispatcherQueueRunning(spy);
       const newDispatcher = createDispatcher(client.addPlugin(plugin));
 
@@ -51,9 +51,9 @@ describe("Dispatcher [ Basic ]", () => {
       });
     });
     it("should trigger on add and delete callback", async () => {
-      const spy1 = jest.fn();
-      const spy2 = jest.fn();
-      const spy3 = jest.fn();
+      const spy1 = vi.fn();
+      const spy2 = vi.fn();
+      const spy3 = vi.fn();
       const plugin1 = new Plugin({ name: "add" }).onDispatcherItemAdded(spy1);
       const plugin2 = new Plugin({ name: "delete" }).onDispatcherItemDeleted(spy2);
       const plugin3 = new Plugin({ name: "clear" }).onDispatcherQueueCleared(spy3);
@@ -94,7 +94,7 @@ describe("Dispatcher [ Basic ]", () => {
       });
     });
     it("should trigger onClearStorage callback", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const plugin = new Plugin({ name: "clear" }).onDispatcherCleared(spy);
       const newDispatcher = createDispatcher(client.addPlugin(plugin));
 
@@ -104,7 +104,7 @@ describe("Dispatcher [ Basic ]", () => {
       expect(spy).toHaveBeenCalledWith({ dispatcher: newDispatcher });
     });
     it("should cancel running requests when clearing queues", async () => {
-      const spy = jest.spyOn(client.fetchDispatcher, "cancelRunningRequests");
+      const spy = vi.spyOn(client.fetchDispatcher, "cancelRunningRequests");
 
       // Create and add two requests to simulate multiple running requests
       const dispatcherDump1 = client.fetchDispatcher.createStorageItem(request);

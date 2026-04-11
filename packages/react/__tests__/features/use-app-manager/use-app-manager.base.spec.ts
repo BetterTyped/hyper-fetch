@@ -19,7 +19,7 @@ describe("useAppManager [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
   });
 

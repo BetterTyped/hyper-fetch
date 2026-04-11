@@ -26,9 +26,9 @@ describe("Graphql Adapter [ Utils ]", () => {
       method: GraphqlMethod.GET,
     });
 
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("When using getRequestValues", () => {

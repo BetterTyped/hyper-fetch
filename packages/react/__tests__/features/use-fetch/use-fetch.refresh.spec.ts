@@ -30,13 +30,13 @@ describe("useFetch [ Refreshing ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
 
   it("should refetch data after refresh time of 200ms", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result } = renderUseFetch(request, hookOptions);
 
@@ -51,7 +51,7 @@ describe("useFetch [ Refreshing ]", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should refresh blurred tab", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false });
 
@@ -65,7 +65,7 @@ describe("useFetch [ Refreshing ]", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should not refresh blurred tab", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false, refetchBlurred: false });
 
@@ -85,7 +85,7 @@ describe("useFetch [ Refreshing ]", () => {
     // TODO
   });
   it("should stop refreshing when value is changing from true to false", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result, rerender } = renderUseFetch(request, hookOptions);
 
@@ -108,7 +108,7 @@ describe("useFetch [ Refreshing ]", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should refetch when tab is focused and refetchOnFocus is true", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result } = renderUseFetch(request, { ...hookOptions });
 
@@ -128,7 +128,7 @@ describe("useFetch [ Refreshing ]", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should not refetch when tab is focused and refetchOnFocus is false", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     mockRequest(request);
     const { result } = renderUseFetch(request, {
       ...hookOptions,

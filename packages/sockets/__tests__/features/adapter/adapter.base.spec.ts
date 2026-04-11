@@ -6,7 +6,7 @@ describe("Socket Adapter [ Base ]", () => {
 
   beforeEach(() => {
     socket = createSocket({ adapterOptions: { autoConnect: false } });
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should initialize with default values", () => {

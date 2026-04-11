@@ -10,15 +10,13 @@
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "clean": "npx rimraf dist",
-    "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test": "vitest run",
+    "test:pipeline": "vitest run",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
-    "build": "yarn clean && node ../../scripts/build.js",
-    "postbuild": "yarn rollup -c ../../rollup.config.js",
+    "build": "vite build",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-sockets-v${version}'"
   },
@@ -45,7 +43,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "vitest related --run --passWithNoTests"
     ]
   },
   "keywords": [

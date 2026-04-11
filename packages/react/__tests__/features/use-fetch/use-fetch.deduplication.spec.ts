@@ -22,7 +22,7 @@ describe("useFetch [ Deduplication ]", () => {
 
   beforeEach(() => {
     dedupeRequest = createRequest({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
   });
 

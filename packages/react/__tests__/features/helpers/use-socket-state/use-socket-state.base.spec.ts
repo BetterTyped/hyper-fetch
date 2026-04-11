@@ -5,15 +5,15 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { renderUseSocketState } from "../../../utils/use-socket-state.utils";
 
 describe("useSocketState [ Base ]", () => {
-  const spy = jest.fn();
+  const spy = vi.fn();
   const { url, startServer, stopServer } = createWebsocketMockingServer();
   const socket = new Socket({ url });
   let view = renderUseSocketState(socket);
 
   beforeEach(async () => {
     view = renderUseSocketState(socket);
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
     startServer();
   });
 
@@ -122,7 +122,7 @@ describe("useSocketState [ Base ]", () => {
 
   describe("when using dependency tracking", () => {
     it("should not trigger re-render when key is not tracked", async () => {
-      const renderSpy = jest.fn();
+      const renderSpy = vi.fn();
       view = renderUseSocketState(socket, { onRender: renderSpy });
       const [, actions] = view.result.current;
 
@@ -136,7 +136,7 @@ describe("useSocketState [ Base ]", () => {
     });
 
     it("should trigger re-render when key is tracked", async () => {
-      const renderSpy = jest.fn();
+      const renderSpy = vi.fn();
       view = renderUseSocketState(socket, { onRender: renderSpy });
       const [, actions, , { setRenderKey }] = view.result.current;
 
@@ -154,7 +154,7 @@ describe("useSocketState [ Base ]", () => {
     });
 
     it("should not add duplicate render keys", async () => {
-      const renderSpy = jest.fn();
+      const renderSpy = vi.fn();
       view = renderUseSocketState(socket, { onRender: renderSpy });
       const [, , , { setRenderKey }] = view.result.current;
 

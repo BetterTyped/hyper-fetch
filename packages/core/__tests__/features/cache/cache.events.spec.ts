@@ -12,7 +12,7 @@ describe("Cache [ Events ]", () => {
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
   let cache = createCache(client);
-  const spy = jest.fn();
+  const spy = vi.fn();
 
   const cacheData: CacheValueType = {
     data: null,
@@ -38,7 +38,7 @@ describe("Cache [ Events ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
     cache = createCache(client);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("when options events are triggered", () => {

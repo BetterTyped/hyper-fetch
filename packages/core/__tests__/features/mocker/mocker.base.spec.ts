@@ -16,7 +16,7 @@ import {
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Mocker [ Base ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
   const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -34,7 +34,7 @@ describe("Mocker [ Base ]", () => {
     dispatcher = createDispatcher(client);
     request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -91,8 +91,8 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("should allow to cancel single running request", async () => {
-    const firstSpy = jest.fn();
-    const secondSpy = jest.fn();
+    const firstSpy = vi.fn();
+    const secondSpy = vi.fn();
     const firstRequest = client
       .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock(
@@ -386,8 +386,8 @@ describe("Mocker [ Base ]", () => {
       { totalUploaded: 1000, requestTime: 40, totalDownloaded: 1000, responseTime: 60 },
     );
 
-    const requestSpy = jest.fn();
-    const responseSpy = jest.fn();
+    const requestSpy = vi.fn();
+    const responseSpy = vi.fn();
     client.requestManager.events.onUploadProgressByQueue(request.queryKey, requestSpy);
     client.requestManager.events.onDownloadProgressByQueue(request.queryKey, responseSpy);
     const response = await mockedRequest.send();

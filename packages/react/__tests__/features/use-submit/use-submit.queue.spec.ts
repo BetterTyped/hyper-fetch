@@ -22,7 +22,7 @@ describe("useSubmit [ Queue ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST", queued: true });
   });
@@ -31,7 +31,7 @@ describe("useSubmit [ Queue ]", () => {
     describe("when submitting request", () => {
       it("should send requests one by one", async () => {
         let count = 1;
-        const spy = jest.fn();
+        const spy = vi.fn();
         mockRequest(request, { data: count });
         const response = renderUseSubmit(request);
 

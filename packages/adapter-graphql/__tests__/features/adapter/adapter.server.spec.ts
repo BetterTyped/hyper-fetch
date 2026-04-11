@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
@@ -37,9 +37,9 @@ describe("Graphql Adapter [ Server ]", () => {
 
   afterEach(() => {
     client.clear();
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
     resetMocks();
   });
 
@@ -183,7 +183,7 @@ describe("Graphql Adapter [ Server ]", () => {
   // it("should allow to calculate payload size", async () => {
   //   let receivedOptions: any;
 
-  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //   vi.spyOn(https, "request").mockImplementation((url, options, callback) => {
   //     receivedOptions = options;
   //     return requestCopy(options, callback);
   //   });
@@ -202,7 +202,7 @@ describe("Graphql Adapter [ Server ]", () => {
   // it("should allow to calculate Buffer size", async () => {
   //   let receivedOptions: any;
 
-  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //   vi.spyOn(https, "request").mockImplementation((url, options, callback) => {
   //     receivedOptions = options;
   //     return requestCopy(options, callback);
   //   });

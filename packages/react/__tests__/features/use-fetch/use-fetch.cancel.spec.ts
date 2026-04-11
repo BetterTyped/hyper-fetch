@@ -23,7 +23,7 @@ describe("useFetch [ Cancel ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest({ cacheKey: "test", queryKey: "testQueue", cancelable: true });
     client.clear();
   });
@@ -58,7 +58,7 @@ describe("useFetch [ Cancel ]", () => {
         await testErrorState(getErrorMessage("abort"), dedupeResponse);
       });
       it("should cancel previous requests when dependencies change", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
 
         mockRequest(request, { delay: 50 });
         const response = renderUseFetch(request, { dependencies: [{}] });

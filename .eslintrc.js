@@ -109,9 +109,7 @@ module.exports = {
     },
     {
       files: ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
-      env: {
-        jest: true,
-      },
+      env: {},
       rules: {
         "max-lines": "off",
       },

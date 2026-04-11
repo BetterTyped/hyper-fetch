@@ -22,7 +22,7 @@ describe("useFetch [ Methods ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -30,7 +30,7 @@ describe("useFetch [ Methods ]", () => {
   describe("given hook is mounted", () => {
     describe("when processing request", () => {
       it("should trigger onRequestStart helper", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -42,7 +42,7 @@ describe("useFetch [ Methods ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onResponseStart helper", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -54,7 +54,7 @@ describe("useFetch [ Methods ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onDownloadProgress helper", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -66,7 +66,7 @@ describe("useFetch [ Methods ]", () => {
         expect(spy.mock.calls.length).toBeGreaterThanOrEqual(1);
       });
       it("should trigger onUploadProgress helper", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -80,8 +80,8 @@ describe("useFetch [ Methods ]", () => {
     });
     describe("when getting the response", () => {
       it("should trigger onSuccess helper", async () => {
-        const spy = jest.fn();
-        const unusedSpy = jest.fn();
+        const spy = vi.fn();
+        const unusedSpy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -95,8 +95,8 @@ describe("useFetch [ Methods ]", () => {
         expect(unusedSpy).toHaveBeenCalledTimes(0);
       });
       it("should trigger onError helper", async () => {
-        const spy = jest.fn();
-        const unusedSpy = jest.fn();
+        const spy = vi.fn();
+        const unusedSpy = vi.fn();
         const mock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);
 
@@ -110,7 +110,7 @@ describe("useFetch [ Methods ]", () => {
         expect(unusedSpy).toHaveBeenCalledTimes(0);
       });
       it("should trigger onFinished helper on success", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
@@ -122,7 +122,7 @@ describe("useFetch [ Methods ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onFinished helper on error", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         const mock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);
 
@@ -136,7 +136,7 @@ describe("useFetch [ Methods ]", () => {
     });
     describe("when getting internal error", () => {
       it("should trigger onOfflineError helper", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         mockRequest(request, { status: 400 });
         const response = renderUseFetch(request.setOffline(true));
 
@@ -150,14 +150,14 @@ describe("useFetch [ Methods ]", () => {
         });
       });
       it("should trigger methods on retry", async () => {
-        const spy1 = jest.fn();
-        const spy2 = jest.fn();
-        const spy3 = jest.fn();
-        const spy4 = jest.fn();
-        const spy5 = jest.fn();
-        const spy6 = jest.fn();
-        const spy7 = jest.fn();
-        const spy8 = jest.fn();
+        const spy1 = vi.fn();
+        const spy2 = vi.fn();
+        const spy3 = vi.fn();
+        const spy4 = vi.fn();
+        const spy5 = vi.fn();
+        const spy6 = vi.fn();
+        const spy7 = vi.fn();
+        const spy8 = vi.fn();
 
         const errorMock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request.setRetry(1).setRetryTime(100));
@@ -187,14 +187,14 @@ describe("useFetch [ Methods ]", () => {
         expect(spy8).toHaveBeenCalledTimes(0);
       });
       it("should trigger methods on coming back online", async () => {
-        const spy1 = jest.fn();
-        const spy2 = jest.fn();
-        const spy3 = jest.fn();
-        const spy4 = jest.fn();
-        const spy5 = jest.fn();
-        const spy6 = jest.fn();
-        const spy7 = jest.fn();
-        const spy8 = jest.fn();
+        const spy1 = vi.fn();
+        const spy2 = vi.fn();
+        const spy3 = vi.fn();
+        const spy4 = vi.fn();
+        const spy5 = vi.fn();
+        const spy6 = vi.fn();
+        const spy7 = vi.fn();
+        const spy8 = vi.fn();
 
         const errorMock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);

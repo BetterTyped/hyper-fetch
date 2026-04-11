@@ -5,7 +5,7 @@ import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
 
 describe("Socket [ Methods ]", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should allow to set new query params config", async () => {

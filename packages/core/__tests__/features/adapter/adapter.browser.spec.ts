@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -25,7 +25,7 @@ describe("Http Adapter [ Browser ]", () => {
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
