@@ -41,6 +41,8 @@ export type ResponseDetailsType = {
   isCanceled: boolean;
   /** If error from offline status */
   isOffline: boolean;
+  /** Whether the dispatcher will schedule another retry for this request */
+  willRetry: boolean;
   /** When added to dispatcher's queue (pre-middleware which could take time) */
   addedTimestamp: number;
   /** When request is picked from queue and started to be sent */

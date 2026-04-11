@@ -26,7 +26,7 @@ describe("Request [ $hooks ]", () => {
     });
 
     const onBeforeSent = vi.fn();
-    request.$hooks.onBeforeSent = onBeforeSent;
+    request.$hooks.onBeforeSent(onBeforeSent);
 
     await request.send();
 
@@ -47,7 +47,7 @@ describe("Request [ $hooks ]", () => {
     });
 
     const onRequestStart = vi.fn();
-    request.$hooks.onRequestStart = onRequestStart;
+    request.$hooks.onRequestStart(onRequestStart);
 
     await request.send();
 
@@ -62,7 +62,7 @@ describe("Request [ $hooks ]", () => {
     });
 
     const onResponse = vi.fn();
-    request.$hooks.onResponse = onResponse;
+    request.$hooks.onResponse(onResponse);
 
     const { data, error, status, success } = await request.send();
 
@@ -83,7 +83,7 @@ describe("Request [ $hooks ]", () => {
     const hookOnResponse = vi.fn();
     const sendOnResponse = vi.fn();
 
-    request.$hooks.onResponse = hookOnResponse;
+    request.$hooks.onResponse(hookOnResponse);
 
     await request.send({
       onResponse: sendOnResponse,
@@ -101,7 +101,7 @@ describe("Request [ $hooks ]", () => {
     });
 
     const onBeforeSent = vi.fn();
-    request.$hooks.onBeforeSent = onBeforeSent;
+    request.$hooks.onBeforeSent(onBeforeSent);
 
     const cloned = request.setHeaders({ "x-custom": "test" });
     await cloned.send();
@@ -114,11 +114,60 @@ describe("Request [ $hooks ]", () => {
     const request = client.createRequest()({ endpoint: "/users", method: "GET" });
 
     const originalHook = vi.fn();
-    request.$hooks.onBeforeSent = originalHook;
+    request.$hooks.onBeforeSent(originalHook);
 
     const cloned = request.setHeaders({ "x-custom": "test" });
-    cloned.$hooks.onBeforeSent = vi.fn();
+    const cloneHook = vi.fn();
+    cloned.$hooks.onBeforeSent(cloneHook);
 
-    expect(request.$hooks.onBeforeSent).toBe(originalHook);
+    const originalSnapshot = request.$hooks.__snapshot();
+    const clonedSnapshot = cloned.$hooks.__snapshot();
+
+    expect(originalSnapshot.onBeforeSent).toHaveLength(1);
+    expect(originalSnapshot.onBeforeSent[0]).toBe(originalHook);
+    expect(clonedSnapshot.onBeforeSent).toHaveLength(2);
+  });
+
+  it("should support multiple listeners per hook", async () => {
+    const client = new Client({ url: baseUrl });
+    const request = client.createRequest<{ response: { name: string } }>()({
+      endpoint: "/users",
+      method: "GET",
+    });
+
+    const listener1 = vi.fn();
+    const listener2 = vi.fn();
+    const listener3 = vi.fn();
+
+    request.$hooks.onResponse(listener1);
+    request.$hooks.onResponse(listener2);
+    request.$hooks.onResponse(listener3);
+
+    await request.send();
+
+    expect(listener1).toHaveBeenCalledTimes(1);
+    expect(listener2).toHaveBeenCalledTimes(1);
+    expect(listener3).toHaveBeenCalledTimes(1);
+  });
+
+  it("should unsubscribe a listener when calling the returned function", async () => {
+    const client = new Client({ url: baseUrl });
+    const request = client.createRequest<{ response: { name: string } }>()({
+      endpoint: "/users",
+      method: "GET",
+    });
+
+    const listener1 = vi.fn();
+    const listener2 = vi.fn();
+
+    const unsub1 = request.$hooks.onResponse(listener1);
+    request.$hooks.onResponse(listener2);
+
+    unsub1();
+
+    await request.send();
+
+    expect(listener1).not.toHaveBeenCalled();
+    expect(listener2).toHaveBeenCalledTimes(1);
   });
 });

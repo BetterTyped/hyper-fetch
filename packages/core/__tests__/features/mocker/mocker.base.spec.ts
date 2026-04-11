@@ -174,6 +174,7 @@ describe("Mocker [ Base ]", () => {
       retries: 1,
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
       addedTimestamp: expect.toBeNumber(),

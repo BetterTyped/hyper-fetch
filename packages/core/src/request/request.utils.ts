@@ -1,7 +1,7 @@
 import { ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
 import type { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "./request.types";
 import { HttpMethods } from "constants/http.constants";
-import { canRetryRequest, Dispatcher } from "dispatcher";
+import { Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType } from "types";
 
 export const scopeKey = (key: string, scope: string | null): string => {
@@ -126,28 +126,28 @@ export const sendRequest = <Request extends RequestInstance>(
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    const hooks = request.$hooks;
+    const { $hooks } = request;
     options?.onBeforeSent?.({ requestId, request });
-    hooks?.onBeforeSent?.({ requestId, request });
+    $hooks.__emit("onBeforeSent", { requestId, request });
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
       options?.onRequestStart?.(data);
-      hooks?.onRequestStart?.(data);
+      $hooks.__emit("onRequestStart", data);
     });
 
     const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
       options?.onResponseStart?.(data);
-      hooks?.onResponseStart?.(data);
+      $hooks.__emit("onResponseStart", data);
     });
 
     const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
       options?.onUploadProgress?.(data);
-      hooks?.onUploadProgress?.(data);
+      $hooks.__emit("onUploadProgress", data);
     });
 
     const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
       options?.onDownloadProgress?.(data);
-      hooks?.onDownloadProgress?.(data);
+      $hooks.__emit("onDownloadProgress", data);
     });
 
     // When resolved
@@ -160,7 +160,7 @@ export const sendRequest = <Request extends RequestInstance>(
       );
 
       const isOfflineStatus = request.offline && details.isOffline;
-      const willRetry = canRetryRequest(details.retries, request.retry);
+      const willRetry = details.willRetry;
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
@@ -170,7 +170,7 @@ export const sendRequest = <Request extends RequestInstance>(
         if (!success && willRetry) return;
 
         options?.onResponse?.(values);
-        hooks?.onResponse?.(values);
+        $hooks.__emit("onResponse", values);
         resolve(data);
 
         // Unmount Listeners
@@ -196,10 +196,10 @@ export const sendRequest = <Request extends RequestInstance>(
     });
 
     // When removed from queue storage we need to clean event listeners and return proper error
-    const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
+    const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (data) => {
       if (!isResolved) {
-        options?.onRemove?.(...props);
-        hooks?.onRemove?.(...props);
+        options?.onRemove?.(data);
+        $hooks.__emit("onRemove", data);
         resolve({
           data: null,
           status: null,

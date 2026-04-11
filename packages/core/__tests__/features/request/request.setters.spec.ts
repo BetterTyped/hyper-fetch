@@ -128,6 +128,12 @@ describe("Request [ Setters ]", () => {
     const updatedRequest = request.setCacheTime(Time.MIN);
     expect(updatedRequest.cacheTime).toBe(Time.MIN);
   });
+  it("should allow for setting retryOnError", async () => {
+    expect(request.retryOnError).toBeUndefined();
+    const callback = (response: any) => response.status !== 404;
+    const updatedRequest = request.setRetryOnError(callback);
+    expect(updatedRequest.retryOnError).toBeDefined();
+  });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {
       const formData = new FormData();

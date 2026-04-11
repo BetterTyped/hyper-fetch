@@ -559,10 +559,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);
 
+    const shouldRetryOnError = response.success || !canRetry || !request.retryOnError || request.retryOnError(response);
+    const willRetry = !response.success && canRetry && shouldRetryOnError && !isCanceled && !isOfflineResponseStatus;
+
     const requestDetails: ResponseDetailsType = {
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageItem.retries,
+      willRetry,
       addedTimestamp: storageItem.timestamp,
       triggerTimestamp: runningRequest.timestamp,
       requestTimestamp: response.requestTimestamp,
@@ -638,7 +642,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       });
     }
     // On retry
-    if (!response.success && canRetry) {
+    if (willRetry) {
       this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
       // Perform retry once request is failed
       setTimeout(() => {

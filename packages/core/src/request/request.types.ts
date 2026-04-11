@@ -305,6 +305,12 @@ export type RequestSendType<Request extends RequestInstance> =
     ? (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
     : (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>;
 
+// Retry
+
+export type RetryOnErrorCallbackType<Request extends RequestInstance> = (
+  response: RequestResponseType<Request>,
+) => boolean;
+
 // Mappers
 
 export type RequestMapper<Request extends RequestInstance, NewRequest extends RequestInstance> = (

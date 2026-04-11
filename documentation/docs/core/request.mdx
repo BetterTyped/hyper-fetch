@@ -858,24 +858,28 @@ The `$hooks` API provides **persistent, instance-level lifecycle hooks** on a `R
 (which are one-shot), `$hooks` callbacks run on every send of that request instance. They survive `.clone()` and are
 ideal for cross-cutting concerns like logging, analytics, or auth token injection.
 
+Each hook method registers a callback and returns an **unsubscribe function**. Multiple listeners per hook are supported.
+
 ```tsx title="Adding persistent hooks"
 const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",
   method: "GET",
 });
 
-getUser.$hooks = {
-  onBeforeSent: ({ requestId }) => {
-    console.log(`Request ${requestId} about to be sent`);
-  },
-  onResponse: ({ response }) => {
-    analytics.track("api_call", { endpoint: "/users/:userId", status: response.status });
-  },
-};
+getUser.$hooks.onBeforeSent(({ requestId }) => {
+  console.log(`Request ${requestId} about to be sent`);
+});
+
+const unsubscribe = getUser.$hooks.onResponse(({ response }) => {
+  analytics.track("api_call", { endpoint: "/users/:userId", status: response.status });
+});
 
 // Hooks fire on every send
 await getUser.setParams({ userId: 1 }).send();
 await getUser.setParams({ userId: 2 }).send();
+
+// Unsubscribe when no longer needed
+unsubscribe();
 ```
 
 :::info Serialization

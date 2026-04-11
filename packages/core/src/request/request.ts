@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import type {
   RequestSendOptionsType,
-  RequestSendActionsType,
   ParamsType,
   RequestSendType,
   PayloadType,
@@ -13,7 +12,9 @@ import type {
   RequestMapper,
   ResponseMapper,
   ExtractUrlParams,
+  RetryOnErrorCallbackType,
 } from "./request.types";
+import { createRequestHooks, RequestHooks } from "./request.hooks";
 import { sendRequest, scopeKey } from "./request.utils";
 import { ClientInstance } from "client";
 import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
@@ -99,8 +100,11 @@ export class Request<
    * Instance-level lifecycle hooks. These callbacks fire for every `send()` / `exec()` call
    * made on this request instance (and its clones), without needing to pass them to `send()` each time.
    * Useful for cross-cutting concerns like logging, analytics, or toast notifications.
+   *
+   * Each method registers a callback and returns an unsubscribe function.
+   * Multiple listeners per hook are supported.
    */
-  $hooks: RequestSendActionsType<RequestInstance> = {};
+  $hooks: RequestHooks<RequestInstance> = createRequestHooks();
 
   isMockerEnabled = false;
 
@@ -117,6 +121,8 @@ export class Request<
   unstable_requestMapper?: RequestMapper<any, any>;
   /** @internal */
   unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
+  /** @internal */
+  retryOnError?: RetryOnErrorCallbackType<RequestInstance>;
 
   unstable_hasParams: HasParams = false as HasParams;
   unstable_hasPayload: HasPayload = false as HasPayload;
@@ -240,6 +246,21 @@ export class Request<
 
   public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
+  };
+
+  /**
+   * Set a callback that controls whether a failed request should be retried.
+   * Called on each failed attempt before scheduling the next retry.
+   * Return `true` to allow the retry, `false` to stop retrying immediately.
+   */
+  public setRetryOnError = (
+    callback: RetryOnErrorCallbackType<
+      Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>
+    >,
+  ) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.retryOnError = callback as RetryOnErrorCallbackType<RequestInstance>;
+    return cloned;
   };
 
   public setCacheTime = (cacheTime: ClientRequestOptions<Endpoint, Client>["cacheTime"]) => {
@@ -474,10 +495,11 @@ export class Request<
     cloned.unstable_payloadMapper = this.unstable_payloadMapper;
     cloned.unstable_responseMapper = this.unstable_responseMapper as typeof cloned.unstable_responseMapper;
     cloned.unstable_requestMapper = this.unstable_requestMapper;
+    cloned.retryOnError = this.retryOnError;
 
     cloned.unstable_mock = this.unstable_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
-    cloned.$hooks = { ...this.$hooks };
+    cloned.$hooks = createRequestHooks(this.$hooks.__snapshot());
 
     return cloned;
   }
