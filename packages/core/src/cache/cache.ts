@@ -68,7 +68,7 @@ export class Cache<Adapter extends AdapterInstance> {
     request: Request,
     response: CacheSetState<
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
-      ResponseDetailsType
+        ResponseDetailsType
     > & { hydrated?: boolean },
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
@@ -134,7 +134,7 @@ export class Cache<Adapter extends AdapterInstance> {
     partialResponse: CacheSetState<
       Partial<
         ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
-        ResponseDetailsType
+          ResponseDetailsType
       >
     >,
   ): void => {
