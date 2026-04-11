@@ -14,7 +14,7 @@ export const testLifecycleEvents = async <R extends RequestInstance>(request: R)
   // request.client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy4);
   request.client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
-  const response = request.send({
+  const response = (request as unknown as RequestInstance).send({
     onBeforeSent: ({ requestId }) => {
       request.client.requestManager.events.onResponseById(requestId, spy6);
     },

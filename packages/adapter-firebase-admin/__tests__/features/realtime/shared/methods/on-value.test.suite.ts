@@ -55,7 +55,7 @@ export const onValueTestSuite = (
         topic: "",
       });
       const unmount = onValueReq.listen(spy);
-      expect(unmount).toBeFunction();
+      expect(typeof unmount).toBe("function");
     });
 
     it("should unmount listeners", async () => {
@@ -132,7 +132,7 @@ export const onValueTestSuite = (
         options: { onlyOnce: false },
       });
 
-      let receivedData: any;
+      let receivedData: Tea[] | null;
       let receivedExtra: any;
 
       const unmount = onValueReq.listen(({ data, extra }) => {
@@ -144,7 +144,7 @@ export const onValueTestSuite = (
       const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data?.__key }]);
+        expect(receivedData).toEqual(expect.arrayContaining([{ ...newData, __key: data?.__key }]));
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");
