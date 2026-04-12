@@ -1,18 +1,18 @@
-import {
-  defaultMapper,
+import type {
   DefaultMapperType,
   EmptyTypes,
   QueryParamsMapper,
   QueryParamsType,
   QueryStringifyOptionsType,
 } from "@hyper-fetch/core";
+import { defaultMapper } from "@hyper-fetch/core";
 
-import { Socket, SocketInstance } from "socket";
-import { Connector, RemoveListenerCallbackType } from "./adapter.types";
+import type { Socket, SocketInstance } from "socket";
+import type { Connector, RemoveListenerCallbackType } from "./adapter.types";
 import { getAdapterBindings } from "./adapter.bindings";
-import { ListenerOfAdapter, ListenerCallbackType } from "listener";
-import { EmitterInstance } from "emitter";
-import { ExtractAdapterExtraType } from "types";
+import type { ListenerOfAdapter, ListenerCallbackType } from "listener";
+import type { EmitterInstance } from "emitter";
+import type { ExtractAdapterExtraType } from "types";
 
 export class SocketAdapter<
   Extra = undefined,

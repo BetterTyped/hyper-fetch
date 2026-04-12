@@ -1,7 +1,7 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
 import { HttpMethod } from "./http-methods.enum";
-import { Operation } from "./openapi.types";
+import type { Operation } from "./openapi.types";
 
 export function getAvailableOperations(openApiJson: OpenAPIV3.Document | OpenAPIV3_1.Document) {
   const paths = openApiJson.paths || {};

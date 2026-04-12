@@ -3,8 +3,8 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
-import { Tea } from "../../../../utils";
+import type { FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
+import type { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (
   db: FirebaseDBTypes,

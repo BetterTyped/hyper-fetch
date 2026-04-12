@@ -1,4 +1,5 @@
-import { createClient, ClientInstance } from "@hyper-fetch/core";
+import type { ClientInstance } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { Socket } from "@hyper-fetch/sockets";
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { matchSorter, MatchSorterOptions } from "match-sorter";
+import type { MatchSorterOptions } from "match-sorter";
+import { matchSorter } from "match-sorter";
 import { useDebounce } from "@better-hooks/performance";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 

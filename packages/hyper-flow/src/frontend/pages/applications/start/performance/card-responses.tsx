@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
+import type { ChartConfig } from "@/components/ui/chart";
 import {
-  ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,

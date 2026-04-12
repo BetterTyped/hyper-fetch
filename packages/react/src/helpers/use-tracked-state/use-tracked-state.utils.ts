@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {
+import type {
   CacheValueType,
   NullableType,
   RequestInstance,
@@ -12,10 +12,11 @@ import {
   ResponseDetailsType,
   ExtractAdapterStatusType,
   ResponseType,
-  scopeKey,
 } from "@hyper-fetch/core";
+import { scopeKey } from "@hyper-fetch/core";
 
-import { initialState, UseTrackedStateType } from "helpers";
+import type { UseTrackedStateType } from "helpers";
+import { initialState } from "helpers";
 
 /**
  * Extracts the "identity" portion of a cache key (method + endpoint with resolved params),

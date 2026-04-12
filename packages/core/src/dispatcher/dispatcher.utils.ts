@@ -1,5 +1,6 @@
-import { RequestInstance } from "request";
-import { DispatcherMode, ResolvedQueueItemType } from "dispatcher";
+import type { RequestInstance } from "request";
+import type { ResolvedQueueItemType } from "dispatcher";
+import { DispatcherMode } from "dispatcher";
 
 // Events
 

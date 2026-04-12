@@ -1,8 +1,8 @@
-import { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
+import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
-import { UseSocketStateType, UseSocketStateProps } from "helpers";
+import type { UseSocketStateType, UseSocketStateProps } from "helpers";
 
 export const useSocketState = <DataType, Socket extends SocketInstance>(
   socket: Socket,

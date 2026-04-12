@@ -1,8 +1,8 @@
 import { Adapter } from "../adapter/adapter";
 import { HttpMethods } from "constants/http.constants";
-import { HttpMethodsType, HttpStatusType } from "types";
-import { QueryParamsType } from "adapter";
-import { HttpAdapterExtraType, FetchAdapterOptionsType } from "./http-adapter.types";
+import type { HttpMethodsType, HttpStatusType } from "types";
+import type { QueryParamsType } from "adapter";
+import type { HttpAdapterExtraType, FetchAdapterOptionsType } from "./http-adapter.types";
 import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
 import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
 

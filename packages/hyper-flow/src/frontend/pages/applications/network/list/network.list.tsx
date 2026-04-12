@@ -7,8 +7,9 @@ import { RequestRow } from "./request-row/request-row";
 
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { Status } from "@/utils/request.status.utils";
-import { PathsOf, useSearch } from "@/hooks/use-search";
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { PathsOf } from "@/hooks/use-search";
+import { useSearch } from "@/hooks/use-search";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSortable } from "@/components/ui/table-sortable";
 import { useNetworkStore } from "@/store/applications/network.store";

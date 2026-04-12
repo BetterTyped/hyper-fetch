@@ -3,7 +3,8 @@ import { waitFor } from "@testing-library/dom";
 import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { ServerSentEventsAdapter, ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
+import type { ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
+import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
 import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {

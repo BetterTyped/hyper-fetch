@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
-import { ExtractResponseType, RequestInstance, RequestResponseType } from "@hyper-fetch/core";
+import type { ExtractResponseType, RequestInstance, RequestResponseType } from "@hyper-fetch/core";
 
-import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
+import type { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
 import { createMock, getMockSetup } from "./http.mock";
 
 export type MockRequestOptions<Request extends RequestInstance, Status extends number> = Partial<

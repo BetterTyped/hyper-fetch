@@ -2,9 +2,9 @@ import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
+import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
 import { $where } from "constraints";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
   adapter: FirebaseAdminSocketAdapterTypes<any>,

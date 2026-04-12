@@ -1,7 +1,7 @@
-import { ClientInstance } from "@hyper-fetch/core";
-import { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
+import type { ClientInstance } from "@hyper-fetch/core";
+import type { EmitterInstance, ExtendEmitter, ListenerInstance, ExtendListener } from "@hyper-fetch/sockets";
 import { create } from "zustand";
-import { AppInternalMessage, HFEventMessage } from "@hyper-fetch/plugin-devtools";
+import type { AppInternalMessage, HFEventMessage } from "@hyper-fetch/plugin-devtools";
 
 export type Connection = {
   name: string;

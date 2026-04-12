@@ -1,8 +1,8 @@
-import { Database } from "firebase-admin/database";
-import { Firestore } from "firebase-admin/firestore";
-import { Adapter, Request, Client } from "@hyper-fetch/core";
+import type { Database } from "firebase-admin/database";
+import type { Firestore } from "firebase-admin/firestore";
+import type { Adapter, Request, Client } from "@hyper-fetch/core";
 
-import {
+import type {
   RealtimeDbAdapterType,
   FirestoreAdapterType,
   FirestoreAdminSocketAdapterType,

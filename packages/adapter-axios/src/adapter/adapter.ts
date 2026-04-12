@@ -1,7 +1,8 @@
 import { Adapter, stringifyQueryParams } from "@hyper-fetch/core";
-import axios, { AxiosHeaders, Method as AxiosMethods, AxiosRequestConfig } from "axios";
+import type { Method as AxiosMethods, AxiosRequestConfig } from "axios";
+import axios, { AxiosHeaders } from "axios";
 
-import { AxiosExtra, RawAxiosHeaders } from "./adapter.types";
+import type { AxiosExtra, RawAxiosHeaders } from "./adapter.types";
 
 export type AxiosAdapterType = typeof AxiosAdapter;
 

@@ -1,8 +1,8 @@
 import * as path from "node:path";
 import * as fs from "fs-extra";
-import { z } from "zod";
+import type { z } from "zod";
 
-import { addOptionsSchema } from "commands/add";
+import type { addOptionsSchema } from "commands/add";
 import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
 import { highlighter } from "utils/highlighter";

@@ -1,4 +1,5 @@
-import { ListenerOptionsType, Socket, WebsocketAdapterType } from "@hyper-fetch/sockets";
+import type { ListenerOptionsType, WebsocketAdapterType } from "@hyper-fetch/sockets";
+import { Socket } from "@hyper-fetch/sockets";
 
 export const createListener = <ResponseType = { name: string; age: number }>(
   options?: Partial<ListenerOptionsType<any, WebsocketAdapterType>>,

@@ -1,9 +1,11 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-params */
-import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
-import { HttpResponse, http, HttpResponseResolver, delay } from "msw";
+import type { RequestInstance } from "@hyper-fetch/core";
+import { getErrorMessage } from "@hyper-fetch/core";
+import type { HttpResponseResolver } from "msw";
+import { HttpResponse, http, delay } from "msw";
 
-import { MockRequestOptions } from "./http";
+import type { MockRequestOptions } from "./http";
 import { errorResponses } from "./http.constants";
 
 export const getEndpointMockingRegex = (endpoint: string): RegExp => {

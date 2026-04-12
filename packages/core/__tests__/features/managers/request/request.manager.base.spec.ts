@@ -1,9 +1,10 @@
 import EventEmitter from "events";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { getRequestManagerEvents, RequestProgressEventType } from "managers";
+import type { RequestProgressEventType } from "managers";
+import { getRequestManagerEvents } from "managers";
 import { Client } from "client";
-import { RequestInstance } from "request";
+import type { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

@@ -1,4 +1,4 @@
-import {
+import type {
   $endAt,
   $endBefore,
   $equalTo,

@@ -1,18 +1,18 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { ResponseDetailsType, LoggerMethods } from "managers";
-import { ClientInstance } from "client";
-import {
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { ResponseDetailsType, LoggerMethods } from "managers";
+import type { ClientInstance } from "client";
+import type {
   CacheOptionsType,
   CacheAsyncStorageType,
   CacheStorageType,
-  getCacheData,
-  getCacheEvents,
   CacheValueType,
   CacheSetState,
   RequestCacheType,
 } from "cache";
-import { Request, RequestInstance, scopeKey } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import { getCacheData, getCacheEvents } from "cache";
+import type { RequestInstance } from "request";
+import { Request, scopeKey } from "request";
+import type { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 import { EventEmitter } from "utils";
 
 /**

@@ -1,7 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { $endAt, $limitToFirst, $orderByChild, $startAt, FirebaseAdminAdapter } from "../../../../src";
-import { Tea } from "../../../utils";
+import type { FirebaseAdminAdapter } from "../../../../src";
+import { $endAt, $limitToFirst, $orderByChild, $startAt } from "../../../../src";
+import type { Tea } from "../../../utils";
 
 export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("Ordering", () => {

@@ -1,4 +1,4 @@
-import {
+import type {
   Dispatcher,
   ExtractErrorType,
   CacheValueType,
@@ -13,7 +13,7 @@ import {
   LoggerMethods,
 } from "@hyper-fetch/core";
 
-import { isEqual } from "utils";
+import type { isEqual } from "utils";
 
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;

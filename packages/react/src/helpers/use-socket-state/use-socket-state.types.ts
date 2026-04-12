@@ -1,4 +1,4 @@
-import { ExtractSocketExtraType, SocketInstance } from "@hyper-fetch/sockets";
+import type { ExtractSocketExtraType, SocketInstance } from "@hyper-fetch/sockets";
 
 export type UseSocketStateType<Socket extends SocketInstance, DataType = any> = {
   data: DataType | null;

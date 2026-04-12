@@ -15,15 +15,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AxisDomain } from "recharts/types/util/types";
+import type { AxisDomain } from "recharts/types/util/types";
 
-import {
-  AvailableChartColors,
-  AvailableChartColorsKeys,
-  constructCategoryColors,
-  getColorClassName,
-  getYAxisDomain,
-} from "@/lib/chart-utils";
+import type { AvailableChartColorsKeys } from "@/lib/chart-utils";
+import { AvailableChartColors, constructCategoryColors, getColorClassName, getYAxisDomain } from "@/lib/chart-utils";
 import { cn } from "@/lib/utils";
 
 // #region SparkAreaChart

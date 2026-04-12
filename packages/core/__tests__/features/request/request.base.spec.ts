@@ -1,6 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, QueryParamsType, Request } from "../../../src";
+import type { QueryParamsType } from "../../../src";
+import { Client, Request } from "../../../src";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

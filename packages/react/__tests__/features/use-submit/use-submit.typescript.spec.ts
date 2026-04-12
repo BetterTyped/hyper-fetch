@@ -4,9 +4,10 @@ import {
   expectFunctionParametersType,
   expectNotFunctionParametersType,
 } from "@hyper-fetch/testing";
-import { Client, RequestSendType } from "@hyper-fetch/core";
+import type { RequestSendType, ExtractMutationContextType } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 
-import { UseSubmitReturnType } from "hooks/use-submit";
+import type { UseSubmitReturnType } from "hooks/use-submit";
 
 const client = new Client({
   url: "http://localhost:3000",
@@ -248,6 +249,77 @@ describe("useSubmit [Types]", () => {
     it("should have refetch function", () => {
       const refetch = (() => null) as unknown as PostUserReturn["refetch"];
       expectType<() => void>().assert(refetch);
+    });
+  });
+
+  // ============================
+  // Optimistic mutations type inference
+  // ============================
+
+  describe("return type: optimistic mutations (mutationContext)", () => {
+    const patchUserOptimistic = patchUser.setOptimistic(() => {
+      const snapshot = { prevName: "old" };
+      return {
+        context: { snapshot },
+        rollback: () => {},
+        invalidate: [],
+      };
+    });
+
+    type OptimisticReturn = UseSubmitReturnType<typeof patchUserOptimistic>;
+
+    it("should auto-infer mutationContext type in onSubmitSuccess", () => {
+      type SuccessParam = Parameters<OptimisticReturn["onSubmitSuccess"]>[0];
+      type SuccessParamArg = Parameters<SuccessParam>[0];
+      expectType<{ snapshot: { prevName: string } } | undefined>().assert({} as SuccessParamArg["mutationContext"]);
+    });
+
+    it("should auto-infer mutationContext type in onSubmitError", () => {
+      type ErrorParam = Parameters<OptimisticReturn["onSubmitError"]>[0];
+      type ErrorParamArg = Parameters<ErrorParam>[0];
+      expectType<{ snapshot: { prevName: string } } | undefined>().assert({} as ErrorParamArg["mutationContext"]);
+    });
+
+    it("should auto-infer mutationContext type in onSubmitFinished", () => {
+      type FinishedParam = Parameters<OptimisticReturn["onSubmitFinished"]>[0];
+      type FinishedParamArg = Parameters<FinishedParam>[0];
+      expectType<{ snapshot: { prevName: string } } | undefined>().assert({} as FinishedParamArg["mutationContext"]);
+    });
+
+    it("should auto-infer mutationContext type in onSubmitAbort", () => {
+      type AbortParam = Parameters<OptimisticReturn["onSubmitAbort"]>[0];
+      type AbortParamArg = Parameters<AbortParam>[0];
+      expectType<{ snapshot: { prevName: string } } | undefined>().assert({} as AbortParamArg["mutationContext"]);
+    });
+
+    it("should have undefined mutationContext when no setOptimistic is used", () => {
+      type NonOptReturn = UseSubmitReturnType<typeof postUser>;
+      type SuccessParam = Parameters<NonOptReturn["onSubmitSuccess"]>[0];
+      type SuccessParamArg = Parameters<SuccessParam>[0];
+      expectType<undefined>().assert({} as unknown as SuccessParamArg["mutationContext"]);
+    });
+
+    it("should correctly extract mutation context with ExtractMutationContextType", () => {
+      type WithOptimistic = ExtractMutationContextType<typeof patchUserOptimistic>;
+      expectType<{ snapshot: { prevName: string } }>().assert({} as WithOptimistic);
+
+      type WithoutOptimistic = ExtractMutationContextType<typeof postUser>;
+      expectType<undefined>().assert({} as unknown as WithoutOptimistic);
+    });
+
+    it("should preserve mutationContext type through chaining", () => {
+      const chained = patchUserOptimistic.setParams({ userId: "1" }).setRetry(3);
+      type ChainedCtx = ExtractMutationContextType<typeof chained>;
+      expectType<{ snapshot: { prevName: string } }>().assert({} as ChainedCtx);
+    });
+
+    it("should correctly type payload in optimistic callback args", () => {
+      const withTypedPayload = patchUser.setOptimistic(({ payload }) => {
+        expectType<{ name?: string }>().assert(payload);
+        return { context: { saved: payload } };
+      });
+      type Ctx = ExtractMutationContextType<typeof withTypedPayload>;
+      expectType<{ saved: { name?: string | undefined } }>().assert({} as Ctx);
     });
   });
 });

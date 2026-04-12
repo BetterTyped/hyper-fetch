@@ -1,7 +1,6 @@
-import {
+import type {
   ExtractAdapterResolvedType,
   RequestInstance,
-  sendRequest,
   ResponseType,
   ExtractResponseType,
   ExtractErrorType,
@@ -9,11 +8,14 @@ import {
   RequestSendType,
   ExtractAdapterType,
 } from "@hyper-fetch/core";
+import { sendRequest } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import { useMemo, useRef } from "react";
 
-import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
+import type { UseSubmitOptionsType, UseSubmitReturnType } from "hooks/use-submit";
+import { useSubmitDefaultOptions } from "hooks/use-submit";
+import type { UseTrackedStateType } from "helpers";
 import { useTrackedState, useRequestEvents } from "helpers";
 import { useProvider } from "provider";
 import { createTrackedProxy, getBounceData } from "utils";
@@ -119,7 +121,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
         dispatcherType: "submit",
         ...(submitOptions as RequestSendOptionsType<RequestType>),
         onBeforeSent: (data) => {
-          addLifecycleListeners(requestClone, data.requestId);
+          addLifecycleListeners(requestClone, data.requestId, data.mutationContext);
           submitOptions?.onBeforeSent?.(data);
         },
       };
@@ -200,7 +202,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   });
 
   const setSubmitRenderKey = (key: string) => {
-    setRenderKey((key === "submitting" ? "loading" : key) as keyof import("helpers").UseTrackedStateType);
+    setRenderKey((key === "submitting" ? "loading" : key) as keyof UseTrackedStateType);
   };
 
   const trackedKeys = [

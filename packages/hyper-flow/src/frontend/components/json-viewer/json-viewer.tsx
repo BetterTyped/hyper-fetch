@@ -1,6 +1,7 @@
 /* eslint-disable max-params */
 /* eslint-disable react/no-unstable-nested-components */
-import { CommonExternalProps, JSONTree } from "react-json-tree";
+import type { CommonExternalProps } from "react-json-tree";
+import { JSONTree } from "react-json-tree";
 import { produce } from "immer";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";

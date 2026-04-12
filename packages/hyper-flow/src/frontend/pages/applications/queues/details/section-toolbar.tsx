@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
 import { TrashIcon, XIcon, Sparkles, Cpu, LoaderCircle, Pause } from "lucide-react";
 import { useQueue } from "@hyper-fetch/react";
 import { useShallow } from "zustand/react/shallow";

@@ -1,6 +1,6 @@
-import { SocketInstance } from "@hyper-fetch/sockets";
+import type { SocketInstance } from "@hyper-fetch/sockets";
 
-import { UseSocketStateType } from "./use-socket-state.types";
+import type { UseSocketStateType } from "./use-socket-state.types";
 
 export const initialSocketState: UseSocketStateType<SocketInstance> = {
   data: null,

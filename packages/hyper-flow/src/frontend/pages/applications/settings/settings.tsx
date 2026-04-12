@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { SimulatedError, useApplications } from "@/store/applications/apps.store";
+import type { SimulatedError } from "@/store/applications/apps.store";
+import { useApplications } from "@/store/applications/apps.store";
 
 export const ApplicationSettings = () => {
   const { application, client } = useDevtools();

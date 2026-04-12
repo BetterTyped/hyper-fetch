@@ -13,12 +13,14 @@ import type {
   ResponseMapper,
   ExtractUrlParams,
   RetryOnErrorCallbackType,
+  OptimisticCallback,
 } from "./request.types";
-import { createRequestHooks, RequestHooks } from "./request.hooks";
+import type { RequestHooks } from "./request.hooks";
+import { createRequestHooks } from "./request.hooks";
 import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
-import { ClientInstance } from "client";
-import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
-import {
+import type { ClientInstance } from "client";
+import type { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
+import type {
   ExtractAdapterType,
   ExtractClientAdapterType,
   ExtractClientGlobalError,
@@ -33,7 +35,7 @@ import {
   SyncOrAsync,
 } from "types";
 import { Time } from "constants/time.constants";
-import { MockerConfigType, MockResponseType } from "mocker";
+import type { MockerConfigType, MockResponseType } from "mocker";
 
 type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
 type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
@@ -71,6 +73,7 @@ export class Request<
   HasPayload extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
+  MutationContext = undefined,
 > {
   endpoint: Endpoint;
   headers?: HeadersInit;
@@ -123,10 +126,13 @@ export class Request<
   unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
   /** @internal */
   retryOnError?: RetryOnErrorCallbackType<RequestInstance>;
+  /** @internal */
+  optimistic?: OptimisticCallback<RequestInstance, any>;
 
   unstable_hasParams: HasParams = false as HasParams;
   unstable_hasPayload: HasPayload = false as HasPayload;
   unstable_hasQuery: HasQuery = false as HasQuery;
+  unstable_hasMutationContext: MutationContext = undefined as MutationContext;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -137,13 +143,13 @@ export class Request<
     readonly requestOptions: ClientRequestOptions<Endpoint, Client>,
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
-        Payload,
-        Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
-        QueryParams,
-        Endpoint,
-        ClientAdapterOptions<Client>,
-        ClientAdapterMethod<Client>
-      >
+          Payload,
+          Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
+          QueryParams,
+          Endpoint,
+          ClientAdapterOptions<Client>,
+          ClientAdapterMethod<Client>
+        >
       | undefined,
   ) {
     const configuration: ClientRequestOptions<Endpoint, Client> = {
@@ -263,6 +269,30 @@ export class Request<
     return cloned;
   };
 
+  /**
+   * Configure optimistic update behavior for this request.
+   * The callback runs before the request is sent (in React's `useSubmit`) and receives
+   * the request, client, and payload. Return `context` (available in submit callbacks),
+   * `rollback` (called automatically on failure/abort), and `invalidate` (cache keys
+   * invalidated on success).
+   */
+  public setOptimistic = <Ctx>(callback: OptimisticCallback<this, Ctx>) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.optimistic = callback as OptimisticCallback<RequestInstance, any>;
+    return cloned as unknown as Request<
+      Response,
+      Payload,
+      QueryParams,
+      LocalError,
+      Endpoint,
+      Client,
+      HasPayload,
+      HasParams,
+      HasQuery,
+      Ctx
+    >;
+  };
+
   public setCacheTime = (cacheTime: ClientRequestOptions<Endpoint, Client>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
@@ -373,7 +403,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
-    cloned.unstable_responseMapper = responseMapper;
+    cloned.unstable_responseMapper = responseMapper as typeof cloned.unstable_responseMapper;
 
     return cloned as unknown as Request<
       MappedResponse extends ResponseType<infer R, any, any> ? R : Response,
@@ -384,7 +414,8 @@ export class Request<
       Client,
       HasPayload,
       HasParams,
-      HasQuery
+      HasQuery,
+      MutationContext
     >;
   };
 
@@ -488,7 +519,8 @@ export class Request<
       Client,
       NewData,
       NewParams,
-      NewQueryParams
+      NewQueryParams,
+      MutationContext
     >(this.client, this.requestOptions, initialRequestConfiguration);
 
     // Inherit methods
@@ -499,6 +531,7 @@ export class Request<
 
     cloned.unstable_mock = this.unstable_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
+    cloned.optimistic = this.optimistic;
     cloned.$hooks = createRequestHooks(this.$hooks.__snapshot());
 
     return cloned;

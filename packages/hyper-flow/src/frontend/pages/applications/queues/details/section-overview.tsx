@@ -1,4 +1,4 @@
-import { QueueDataType } from "@hyper-fetch/core";
+import type { QueueDataType } from "@hyper-fetch/core";
 import { Ban, CircleCheck, FileWarning, Loader, ScanEye } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 

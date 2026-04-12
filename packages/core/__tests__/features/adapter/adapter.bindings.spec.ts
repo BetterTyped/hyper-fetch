@@ -1,11 +1,13 @@
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
-import { getAdapterBindings, ResponseType, getErrorMessage, ResponseErrorType } from "adapter";
+import type { ResponseType, ResponseErrorType } from "adapter";
+import { getAdapterBindings, getErrorMessage } from "adapter";
 import { testProgressSpy } from "../../shared";
 import { Client } from "client";
-import { RequestInstance } from "request";
-import { FetchAdapterOptionsType, HttpAdapterType, xhrExtra } from "http-adapter";
+import type { RequestInstance } from "request";
+import type { FetchAdapterOptionsType, HttpAdapterType } from "http-adapter";
+import { xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 

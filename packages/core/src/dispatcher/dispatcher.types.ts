@@ -1,4 +1,4 @@
-import { RequestInstance, RequestJSON } from "request";
+import type { RequestInstance, RequestJSON } from "request";
 
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;

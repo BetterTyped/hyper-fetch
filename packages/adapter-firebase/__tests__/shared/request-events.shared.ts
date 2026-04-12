@@ -1,4 +1,4 @@
-import { RequestInstance } from "@hyper-fetch/core";
+import type { RequestInstance } from "@hyper-fetch/core";
 
 export const testLifecycleEvents = async <R extends RequestInstance>(request: R) => {
   const spy1 = vi.fn();

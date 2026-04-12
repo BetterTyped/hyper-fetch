@@ -1,5 +1,6 @@
 import { act, waitFor } from "@testing-library/react";
-import { AdapterInstance, ResponseType, xhrExtra } from "@hyper-fetch/core";
+import type { AdapterInstance, ResponseType } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";

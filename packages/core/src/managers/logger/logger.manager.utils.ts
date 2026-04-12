@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { loggerColors, loggerStyles, LoggerType } from "managers";
+import type { LoggerType } from "managers";
+import { loggerColors, loggerStyles } from "managers";
 
 export const getTime = () => {
   const d = new Date();

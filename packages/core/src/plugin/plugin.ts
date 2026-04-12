@@ -1,5 +1,5 @@
-import { PluginMethodParameters, PluginMethods, PluginOptionsType } from "plugin";
-import { ClientInstance } from "client";
+import type { PluginMethodParameters, PluginMethods, PluginOptionsType } from "plugin";
+import type { ClientInstance } from "client";
 
 export class Plugin<Client extends ClientInstance = ClientInstance, PluginData = void> {
   public name: string;

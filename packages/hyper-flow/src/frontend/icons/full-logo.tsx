@@ -1,4 +1,4 @@
-import { SVGProps } from "react";
+import type { SVGProps } from "react";
 
 export const FullLogoIcon = (props: SVGProps<SVGSVGElement>) => {
   return (

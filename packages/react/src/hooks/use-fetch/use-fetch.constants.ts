@@ -1,6 +1,7 @@
-import { Time, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import { Time } from "@hyper-fetch/core";
 
-import { UseFetchOptionsType } from "hooks/use-fetch";
+import type { UseFetchOptionsType } from "hooks/use-fetch";
 
 type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse">> & {
   initialResponse: null;

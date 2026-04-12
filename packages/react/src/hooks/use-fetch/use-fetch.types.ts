@@ -1,7 +1,7 @@
-import { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
+import type { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
 
-import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
-import { isEqual } from "utils";
+import type { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import type { isEqual } from "utils";
 
 // export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
 //   R,

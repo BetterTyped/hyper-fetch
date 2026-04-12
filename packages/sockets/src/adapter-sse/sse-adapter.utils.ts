@@ -1,6 +1,6 @@
-import { EmptyTypes } from "@hyper-fetch/core";
+import type { EmptyTypes } from "@hyper-fetch/core";
 
-import { SSEAdapterOptionsType } from "./sse-adapter.types";
+import type { SSEAdapterOptionsType } from "./sse-adapter.types";
 
 export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
   /** istanbul ignore next */

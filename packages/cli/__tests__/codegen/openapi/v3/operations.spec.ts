@@ -5,7 +5,7 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { Document } from "codegen/openapi";
+import type { Document } from "codegen/openapi";
 import { getAvailableOperations } from "codegen/openapi/operations";
 
 describe("Operations", () => {

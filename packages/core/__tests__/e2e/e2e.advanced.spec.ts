@@ -3,6 +3,7 @@
  */
 import { URL } from "url";
 import { Client } from "@hyper-fetch/core";
+import type { RouteHandler } from "@hyper-fetch/testing";
 import {
   createE2EServer,
   jsonHandler,
@@ -10,7 +11,6 @@ import {
   streamHandler,
   fileDownloadHandler,
   echoHandler,
-  RouteHandler,
 } from "@hyper-fetch/testing";
 
 const { route, startServer, stopServer } = createE2EServer();

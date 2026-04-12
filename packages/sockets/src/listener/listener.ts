@@ -1,8 +1,8 @@
-import { ExtractUrlParams, ParamsType } from "@hyper-fetch/core";
+import type { ExtractUrlParams, ParamsType } from "@hyper-fetch/core";
 
-import { SocketInstance } from "socket";
-import { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
-import { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
+import type { SocketInstance } from "socket";
+import type { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
+import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Listener<
   Response,

@@ -1,6 +1,7 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { HttpAdapterType, parseResponse, HttpAdapter } from "http-adapter";
-import {
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { parseResponse, HttpAdapter } from "http-adapter";
+import type {
   ClientErrorType,
   ClientInstance,
   ClientMode,
@@ -11,19 +12,13 @@ import {
 } from "client";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
-import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
-import {
-  getRequestKey,
-  getSimpleKey,
-  Request,
-  RequestInstance,
-  RequestJSON,
-  RequestOptionsType,
-  scopeKey,
-} from "request";
-import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
+import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
+import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
+import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";
+import type { LogLevel } from "managers";
+import { AppManager, LoggerManager, RequestManager } from "managers";
 import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
-import {
+import type {
   EmptyTypes,
   TypeWithDefaults,
   ExtractAdapterMethodType,

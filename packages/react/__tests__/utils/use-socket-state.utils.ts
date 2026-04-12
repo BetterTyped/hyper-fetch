@@ -1,5 +1,5 @@
 import type { Mock } from "vitest";
-import { Socket } from "@hyper-fetch/sockets";
+import type { Socket } from "@hyper-fetch/sockets";
 import { renderHook } from "@testing-library/react";
 
 import { useSocketState } from "helpers";

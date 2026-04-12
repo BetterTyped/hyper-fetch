@@ -2,10 +2,11 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
 import { Client } from "client";
-import { RequestOptionsType, Request } from "request";
+import type { RequestOptionsType } from "request";
+import { Request } from "request";
 import { LoggerManager } from "managers";
 import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
-import { FetchAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
+import type { FetchAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 

@@ -20,7 +20,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { SimulatedError } from "@/store/applications/apps.store";
+import type { SimulatedError } from "@/store/applications/apps.store";
 
 const errorFormSchema = z.object({
   name: z.string().min(1, "Error name is required"),

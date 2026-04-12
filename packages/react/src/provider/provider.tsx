@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from "react";
 
-import { ProviderProps, ProviderValueType } from "./provider.types";
+import type { ProviderProps, ProviderValueType } from "./provider.types";
 
 const ConfigContext = React.createContext<ProviderValueType>({
   config: {},

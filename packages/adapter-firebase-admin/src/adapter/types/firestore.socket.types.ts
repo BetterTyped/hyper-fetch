@@ -1,7 +1,7 @@
-import { DocumentReference, DocumentSnapshot, DocumentData, Query, QuerySnapshot } from "firebase-admin/firestore";
-import { SocketAdapter } from "@hyper-fetch/sockets";
+import type { DocumentReference, DocumentSnapshot, DocumentData, Query, QuerySnapshot } from "firebase-admin/firestore";
+import type { SocketAdapter } from "@hyper-fetch/sockets";
 
-import { FirestoreQueryParams } from "adapter";
+import type { FirestoreQueryParams } from "adapter";
 
 export type FirestoreAdminSocketAdapterType = SocketAdapter<
   FirestoreAdminOnSnapshotExtra,

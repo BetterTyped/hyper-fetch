@@ -1,4 +1,5 @@
-import { RequestInstance, getProgressValue, getRequestEta } from "request";
+import type { RequestInstance } from "request";
+import { getProgressValue, getRequestEta } from "request";
 
 export const testProgressSpy = (props: {
   spy: () => void;

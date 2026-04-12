@@ -1,8 +1,9 @@
 import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { AdapterInstance, ResponseType, getErrorMessage } from "adapter";
-import { ResponseDetailsType } from "managers";
+import type { AdapterInstance, ResponseType } from "adapter";
+import { getErrorMessage } from "adapter";
+import type { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";

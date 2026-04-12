@@ -1,11 +1,11 @@
 /* eslint-disable max-params */
-import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
-import { getAdapterBindings } from "@hyper-fetch/core";
+import type { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
+import type { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter";
+import type { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
 import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
-import {
+import type {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,

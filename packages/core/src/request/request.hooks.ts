@@ -1,5 +1,5 @@
-import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
-import { RequestInstance } from "./request.types";
+import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type { RequestInstance } from "./request.types";
 
 type HookName =
   | "onBeforeSent"

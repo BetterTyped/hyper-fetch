@@ -7,7 +7,8 @@ import { promises as fsPromises } from "fs";
 import * as path from "path";
 import * as fs from "fs-extra";
 
-import { OpenapiRequestGenerator, Document, getAvailableOperations, Operation } from "codegen/openapi";
+import type { Document, Operation } from "codegen/openapi";
+import { OpenapiRequestGenerator, getAvailableOperations } from "codegen/openapi";
 import { HttpMethod } from "codegen/openapi/http-methods.enum";
 
 const expectedMetadata = {

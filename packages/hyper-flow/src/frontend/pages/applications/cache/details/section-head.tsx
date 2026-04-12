@@ -1,6 +1,6 @@
 import { Chip } from "@/components/ui/chip";
 import { Key } from "@/components/ui/key";
-import { DevtoolsCacheEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 
 export const SectionHead = ({ item, stale }: { item: DevtoolsCacheEvent; stale: boolean }) => {
   return (

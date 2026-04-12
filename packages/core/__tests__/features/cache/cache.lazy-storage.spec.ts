@@ -1,6 +1,6 @@
 import { sleep } from "@hyper-fetch/testing";
 
-import { CacheAsyncStorageType, CacheValueType } from "cache";
+import type { CacheAsyncStorageType, CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";

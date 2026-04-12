@@ -1,20 +1,19 @@
-import {
+import type {
   QueueDataType,
-  getRequestType,
-  canRetryRequest,
-  getDispatcherEvents,
-  DispatcherMode,
   DispatcherOptionsType,
   DispatcherStorageType,
   ResolvedQueueDataType,
   ResolvedQueueItemType,
   RunningRequestValueType,
 } from "dispatcher";
-import { ClientInstance } from "client";
+import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } from "dispatcher";
+import type { ClientInstance } from "client";
 import { EventEmitter } from "utils";
-import { ResponseDetailsType, LoggerMethods } from "managers";
-import { Request, RequestInstance, RequestJSON, scopeKey } from "request";
-import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
+import type { ResponseDetailsType, LoggerMethods } from "managers";
+import type { RequestInstance, RequestJSON } from "request";
+import { Request, scopeKey } from "request";
+import type { AdapterInstance, RequestResponseType } from "adapter";
+import { getErrorMessage } from "adapter";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.

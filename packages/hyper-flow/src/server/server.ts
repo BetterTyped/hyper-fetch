@@ -1,7 +1,9 @@
-import { createServer, Server } from "http";
-import { WebSocket, WebSocketServer } from "ws";
+import type { Server } from "http";
+import { createServer } from "http";
+import type { WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 import url from "url";
-import { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
+import type { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
 
 import { ConnectionHandler } from "./handlers/connection-handler";

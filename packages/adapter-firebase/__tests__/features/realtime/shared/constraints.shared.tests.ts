@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
 import { $endAt, $limitToFirst, $orderByChild, $startAt } from "constraints";
-import { FirebaseAdapter } from "adapter";
-import { Tea } from "../../../utils";
+import type { FirebaseAdapter } from "adapter";
+import type { Tea } from "../../../utils";
 
 export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("Ordering", () => {

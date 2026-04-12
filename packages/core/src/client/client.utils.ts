@@ -1,7 +1,7 @@
-import { ResponseType } from "adapter";
-import { RequestInstance } from "request";
-import { ExtendRequest, ExtractClientAdapterType } from "types";
-import {
+import type { ResponseType } from "adapter";
+import type { RequestInstance } from "request";
+import type { ExtendRequest, ExtractClientAdapterType } from "types";
+import type {
   ClientInstance,
   ClientMode,
   ClientModeOption,

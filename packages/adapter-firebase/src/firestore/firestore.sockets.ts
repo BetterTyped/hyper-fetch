@@ -1,21 +1,14 @@
 import { SocketAdapter } from "@hyper-fetch/sockets";
-import {
-  collection,
-  disableNetwork,
-  doc,
-  enableNetwork,
-  Firestore,
-  onSnapshot,
-  query,
-  QuerySnapshot,
-} from "firebase/firestore";
-import { DocumentSnapshot } from "@firebase/firestore";
+import type { Firestore, QuerySnapshot } from "firebase/firestore";
+import { collection, disableNetwork, doc, enableNetwork, onSnapshot, query } from "firebase/firestore";
+import type { DocumentSnapshot } from "@firebase/firestore";
 
 import { getStatus, isDocOrQuery } from "utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore, mapConstraint } from "./utils";
-import { FirestoreOnSnapshotExtra, FirestoreQueryParams, FirestoreSocketAdapterType } from "adapter";
-import { FirestoreDocOrQuery, FirestoreSnapshotType } from "./firestore.types";
-import { FirestorePermittedMethods } from "../constraints";
+import type { FirestoreOnSnapshotExtra, FirestoreQueryParams, FirestoreSocketAdapterType } from "adapter";
+import type { FirestoreSnapshotType } from "./firestore.types";
+import { FirestoreDocOrQuery } from "./firestore.types";
+import type { FirestorePermittedMethods } from "../constraints";
 
 export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
   return new SocketAdapter<FirestoreOnSnapshotExtra, undefined, { groupByChangeType?: boolean } & FirestoreQueryParams>(

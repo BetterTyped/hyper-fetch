@@ -1,15 +1,9 @@
-import {
-  Request,
-  RequestInstance,
-  getRequestDispatcher,
-  ResolvedQueueItemType,
-  QueueDataType,
-  QueueItemType,
-  scopeKey,
-} from "@hyper-fetch/core";
+import type { RequestInstance, ResolvedQueueItemType, QueueDataType, QueueItemType } from "@hyper-fetch/core";
+import { Request, getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
 import { useState, useEffect, useCallback } from "react";
 
-import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
+import type { UseQueueOptionsType, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
+import { useQueueDefaultOptions } from "hooks/use-queue";
 import { useProvider } from "provider";
 
 const canUpdate = (

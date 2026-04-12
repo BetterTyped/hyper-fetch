@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import {
+import type {
   NullableKeys,
   EmptyTypes,
   ExtractParamsType,
@@ -18,9 +18,9 @@ import {
   TypeWithDefaults,
 } from "types";
 import type { Request } from "./request";
-import { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
-import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
-import { ClientInstance } from "client";
+import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
+import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type { ClientInstance } from "client";
 
 // Instance
 
@@ -51,9 +51,10 @@ export type RequestInstance<
   TypeWithDefaults<RequestProperties, "error", any>,
   TypeWithDefaults<RequestProperties, "endpoint", any>,
   TypeWithDefaults<RequestProperties, "client", ClientInstance>,
+  TypeWithDefaults<RequestProperties, "hasPayload", any>,
   TypeWithDefaults<RequestProperties, "hasParams", any>,
   TypeWithDefaults<RequestProperties, "hasQueryParams", any>,
-  TypeWithDefaults<RequestProperties, "hasPayload", any>
+  any
 >;
 
 // Progress
@@ -313,6 +314,24 @@ export type RequestSendType<Request extends RequestInstance> =
 export type RetryOnErrorCallbackType<Request extends RequestInstance> = (
   response: RequestResponseType<Request>,
 ) => boolean;
+
+// Optimistic
+
+export type OptimisticCallbackArgs<Req extends RequestInstance> = {
+  request: Req;
+  client: Req["client"];
+  payload: ExtractPayloadType<Req>;
+};
+
+export type OptimisticCallbackResult<Ctx> = {
+  context?: Ctx;
+  rollback?: () => void;
+  invalidate?: RequestInstance[];
+};
+
+export type OptimisticCallback<Req extends RequestInstance, Ctx = undefined> = (
+  args: OptimisticCallbackArgs<Req>,
+) => OptimisticCallbackResult<Ctx> | Promise<OptimisticCallbackResult<Ctx>>;
 
 // Mappers
 

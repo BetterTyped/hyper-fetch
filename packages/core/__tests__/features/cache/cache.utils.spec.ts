@@ -1,7 +1,8 @@
 import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
-import { ResponseErrorType, ResponseSuccessType } from "adapter";
-import { ResponseDetailsType } from "managers";
-import { HttpAdapterType, xhrExtra } from "http-adapter";
+import type { ResponseErrorType, ResponseSuccessType } from "adapter";
+import type { ResponseDetailsType } from "managers";
+import type { HttpAdapterType } from "http-adapter";
+import { xhrExtra } from "http-adapter";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {

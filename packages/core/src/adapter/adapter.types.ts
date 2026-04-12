@@ -1,5 +1,6 @@
-import { RequestInstance } from "request";
-import {
+/* eslint-disable @typescript-eslint/no-shadow */
+import type { RequestInstance } from "request";
+import type {
   EmptyTypes,
   ExtractAdapterEndpointMapperType,
   ExtractAdapterExtraType,
@@ -12,8 +13,8 @@ import {
   ExtractResponseType,
   TypeWithDefaults,
 } from "../types";
-import { Adapter, DefaultMapperType } from "./adapter";
-import { getAdapterBindings } from "./adapter.bindings";
+import type { Adapter, DefaultMapperType } from "./adapter";
+import type { getAdapterBindings } from "./adapter.bindings";
 
 /**
  * Base Adapter

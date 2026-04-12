@@ -1,7 +1,8 @@
-import { RequestInstance } from "@hyper-fetch/core";
+import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
 
-import { useFetch, UseFetchOptionsType } from "hooks/use-fetch";
+import type { UseFetchOptionsType } from "hooks/use-fetch";
+import { useFetch } from "hooks/use-fetch";
 
 export const renderUseFetch = <T extends RequestInstance>(request: T, options?: UseFetchOptionsType<T>) => {
   return renderHook((rerenderOptions: UseFetchOptionsType<RequestInstance> & { request?: RequestInstance }) => {

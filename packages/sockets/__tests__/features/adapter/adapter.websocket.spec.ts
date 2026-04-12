@@ -2,10 +2,11 @@
 import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
-import { WebsocketAdapter, WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
+import type { WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
+import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
 import { getWebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { Socket } from "socket";
+import type { Socket } from "socket";
 
 describe("Websocket Adapter [ Base ]", () => {
   const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();

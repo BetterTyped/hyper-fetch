@@ -1,4 +1,4 @@
-import {
+import type {
   ResponseType,
   ResponseDetailsType,
   RequestInstance,
@@ -6,10 +6,10 @@ import {
   ExtractErrorType,
   ExtractAdapterType,
   HttpAdapterType,
-  xhrExtra,
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
   request: T,

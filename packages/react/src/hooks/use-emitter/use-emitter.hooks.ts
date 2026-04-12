@@ -1,8 +1,8 @@
-import { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
+import type { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useRef } from "react";
 
-import { UseEmitterOptionsType } from "hooks/use-emitter";
+import type { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
 import { useProvider } from "provider";
 import { createTrackedProxy } from "utils";

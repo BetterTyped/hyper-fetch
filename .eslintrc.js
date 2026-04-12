@@ -47,6 +47,7 @@ module.exports = {
         "react/jsx-uses-react": "error",
         "react/jsx-uses-vars": "error",
         "no-console": ["error", { allow: ["warn", "error"] }],
+        "@typescript-eslint/consistent-type-imports": ["error", { disallowTypeAnnotations: true }],
         "react/react-in-jsx-scope": "off",
         "no-continue": "off",
         "react/display-name": 0,

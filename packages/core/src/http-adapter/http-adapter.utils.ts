@@ -1,7 +1,8 @@
-import { getErrorMessage, QueryParamsType, QueryParamType, QueryParamValuesType } from "adapter";
-import { RequestInstance } from "request";
-import { ExtractErrorType, EmptyTypes } from "types";
-import { BufferEncoding, QueryStringifyOptionsType } from "./http-adapter.types";
+import type { QueryParamsType, QueryParamType, QueryParamValuesType } from "adapter";
+import { getErrorMessage } from "adapter";
+import type { RequestInstance } from "request";
+import type { ExtractErrorType, EmptyTypes } from "types";
+import type { BufferEncoding, QueryStringifyOptionsType } from "./http-adapter.types";
 import { stringifyDefaultOptions } from "client";
 
 // Utils

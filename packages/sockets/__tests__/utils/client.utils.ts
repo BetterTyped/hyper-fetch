@@ -1,4 +1,4 @@
-import { SocketInstance } from "socket";
+import type { SocketInstance } from "socket";
 import { WebsocketAdapter } from "adapter-websockets";
 
 export const createAdapter = <T extends SocketInstance>(socket: T, options?: T["options"]["adapterOptions"]) => {

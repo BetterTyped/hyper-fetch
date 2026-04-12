@@ -5,127 +5,211 @@ sidebar_label: Optimistic Updates
 
 # Optimistic Updates
 
-Optimistic updates are a powerful UI pattern that can make your application feel significantly faster and more
-responsive. The idea is to update the UI _immediately_ after a user action, assuming the server request will succeed. If
-the request later fails, you simply roll back the UI to its previous state. This avoids making the user wait for the
-network round-trip for actions like deleting an item or adding a comment.
+Optimistic updates are a powerful UI pattern that makes your application feel significantly faster. The idea is to update
+the UI _immediately_ after a user action, assuming the server request will succeed. If the request later fails, the
+changes are automatically rolled back. This avoids making the user wait for the network round-trip.
+
+HyperFetch provides first-class support for optimistic updates through the `request.setOptimistic()` API. You define
+cache manipulation, rollback logic, and invalidation targets directly on the request — the framework orchestrates
+everything automatically, whether you use `send()`, `$hooks`, or React hooks.
 
 :::secondary What you'll learn
 
-1.  What **optimistic updates** are and why they improve user experience.
-2.  How to implement optimistic updates using the **`useSubmit`** hook.
-3.  How to use lifecycle callbacks like **`onSubmitRequestStart`** and **`onSubmitError`** to manage UI state.
-4.  How to **roll back** UI changes if the server request fails.
+1. How to configure optimistic updates with **`request.setOptimistic()`**.
+2. How **`rollback`** restores the cache on failure automatically.
+3. How **`invalidate`** keeps your data in sync on success.
+4. How **`mutationContext`** lets you access snapshot data in lifecycle callbacks.
 
 :::
 
-## Deleting an Item Optimistically
+---
 
-A common use case for optimistic updates is deleting an item from a list. The user clicks "Delete," the item disappears
-instantly from the UI, and the delete request is sent in the background.
+## Basic Example: Updating a User
 
-{/* Here's a live example of a user list where users can be deleted optimistically. */}
+The most common optimistic pattern is updating a list item. The user clicks "Save," the list updates instantly, and the
+request is sent in the background.
 
-```tsx
-function UserRow({ user, onListRevalidate }) {
-  const [isDeleted, setIsDeleted] = React.useState(false);
+### 1. Define the request with `setOptimistic`
 
-  // highlight-start
-  const { submit, submitting, onSubmitRequestStart, onSubmitError, onSubmitSuccess } = useSubmit(
-    deleteUser.setParams({ userId: user.id }),
-  );
+```typescript
+import { client } from "./client";
 
-  onSubmitRequestStart(() => {
-    // Optimistically update the UI by hiding the row
-    setIsDeleted(true);
-  });
-
-  onSubmitError(() => {
-    // If the request fails, roll back the UI change
-    setIsDeleted(false);
-    alert(`Failed to delete ${user.name}.`);
-  });
-
-  onSubmitSuccess(() => {
-    // On success, we can revalidate the user list to ensure consistency
-    onListRevalidate();
-  });
-  // highlight-end
-
-  if (isDeleted) {
-    return null;
-  }
-
-  return (
-    <tr>
-      <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
-      <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <button
-          className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-          onClick={() => submit()}
-          disabled={submitting}
-        >
-          {submitting ? "Deleting..." : "Delete"}
-        </button>
-      </td>
-    </tr>
-  );
+interface User {
+  id: number;
+  name: string;
+  email: string;
 }
 
-function OptimisticUserList() {
-  const { data: users, loading, error, revalidate } = useFetch(getUsers);
+const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  method: "GET",
+});
 
-  if (loading) return <p className="p-4">Loading users...</p>;
-  if (error) return <p className="p-4 text-red-500">Error loading users.</p>;
+const patchUser = client
+  .createRequest<{
+    response: User;
+    payload: Partial<User>;
+  }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ client, payload, request }) => {
+    // 1. Snapshot the current cache
+    const snapshot = client.cache.get(getUsers.cacheKey);
+
+    // 2. Optimistically update the cache
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: prev.data.map((u) => (u.id === Number(request.params?.userId) ? { ...u, ...payload } : u)),
+    }));
+
+    return {
+      // Available as `mutationContext` in callbacks
+      context: { snapshot },
+      // Called automatically on failure or abort
+      rollback: () => {
+        if (snapshot) client.cache.set(getUsers, snapshot);
+      },
+      // Cache keys to invalidate on success
+      invalidate: [getUsers],
+    };
+  });
+```
+
+### 2. Use in a React component
+
+```tsx
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+
+function UserList() {
+  const { data: users } = useFetch(getUsers);
+  const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
+
+  // mutationContext is auto-inferred — no extra generics needed
+  onSubmitSuccess(({ mutationContext }) => {
+    console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
+  });
+
+  onSubmitError(({ mutationContext }) => {
+    // rollback already happened automatically
+    alert("Update failed — changes have been reverted.");
+  });
+
+  const handleRename = (userId: number, newName: string) => {
+    submit({
+      params: { userId },
+      payload: { name: newName },
+    });
+  };
 
   return (
-    <div className="border rounded-md">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Email
-            </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {users?.map((user) => <UserRow key={user.id} user={user} onListRevalidate={revalidate} />)}
-        </tbody>
-      </table>
-    </div>
+    <ul>
+      {users?.map((user) => (
+        <li key={user.id}>
+          {user.name}
+          <button onClick={() => handleRename(user.id, "New Name")}>Rename</button>
+        </li>
+      ))}
+    </ul>
   );
 }
 ```
 
 ### How It Works
 
-1.  The `UserRow` component manages its own optimistic state (`isDeleted`).
-2.  We use `useSubmit` to get a `submit` function and lifecycle callbacks (`onSubmitRequestStart`, `onSubmitError`,
-    `onSubmitSuccess`).
-3.  **`onSubmitRequestStart`**: Before the request is sent, we set `isDeleted` to `true`. This immediately removes the
-    row from the UI, creating the optimistic effect.
-4.  **`onSubmitError`**: If the server returns an error, we revert the UI by setting `isDeleted` back to `false`. It's
-    also good practice to inform the user that the action failed.
-5.  **`onSubmitSuccess`**: If the request succeeds, the UI is already correct. We call `revalidate` (passed from the
-    parent) on the original user list query to ensure our local data is perfectly in sync with the server.
-
-This pattern makes for a great user experience, as the UI feels instantaneous.
+1. **Before the request is sent**, `setOptimistic` runs: it snapshots the cache, patches it optimistically, and returns
+   `context`, `rollback`, and `invalidate`.
+2. **The UI updates immediately** because `useFetch(getUsers)` reacts to cache changes.
+3. **On success**: the `invalidate` list triggers a cache refresh for `getUsers`, and `onSubmitSuccess` receives the
+   typed `mutationContext`.
+4. **On failure**: `rollback()` is called automatically to restore the cache, then `onSubmitError` fires with
+   `mutationContext`.
+5. **On abort**: treated like failure — `rollback()` runs, then `onSubmitAbort` fires.
 
 ---
 
-:::success Congratulations!
+## The `setOptimistic` Callback
 
-You've learned how to implement optimistic updates in Hyper-fetch!
+The callback receives an object with:
 
-- You can use **lifecycle callbacks** from `useSubmit` to control UI state during a request.
-- You can **optimistically update** your UI for a faster user experience.
-- You know how to **roll back** changes on failure and **revalidate** data on success.
+| Argument  | Description                                             |
+| --------- | ------------------------------------------------------- |
+| `request` | The request instance (with params, endpoint, etc.)      |
+| `client`  | The client instance (access to `client.cache`)          |
+| `payload` | The payload being sent (typed from the request generic)  |
+
+It returns an object with three optional fields:
+
+| Return field | Type                | Description                                        |
+| ------------ | ------------------- | -------------------------------------------------- |
+| `context`    | `Ctx` (generic)     | Passed as `mutationContext` in all lifecycle callbacks |
+| `rollback`   | `() => void`        | Called automatically on failure or abort            |
+| `invalidate` | `RequestInstance[]`  | Cache keys invalidated on success                  |
+
+---
+
+## Advanced: Custom Rollback for Creates
+
+When creating a new item (not updating an existing one), the rollback might need to remove the optimistically added
+entry:
+
+```typescript
+const createUser = client
+  .createRequest<{
+    response: User;
+    payload: { name: string; email: string };
+  }>()({
+    endpoint: "/users",
+    method: "POST",
+  })
+  .setOptimistic(({ client, payload }) => {
+    const tempId = -Date.now();
+    const optimisticUser: User = { id: tempId, ...payload };
+
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: [...prev.data, optimisticUser],
+    }));
+
+    return {
+      context: { tempId },
+      rollback: () => {
+        client.cache.update(getUsers, (prev) => ({
+          ...prev,
+          data: prev.data.filter((u) => u.id !== tempId),
+        }));
+      },
+      invalidate: [getUsers],
+    };
+  });
+```
+
+---
+
+## Cautions
+
+- **`cache.update` vs `cache.set`**: For creates (adding new items), use `cache.update` to merge into the existing
+  list. `cache.set` replaces the entire cache entry.
+- **Concurrent same-key mutations**: If two optimistic updates target the same cache key concurrently, each has its own
+  `rollback`. A failure on one will only revert to its snapshot, which may not include the other's changes. See the
+  [Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide for per-item rollback strategies
+  that avoid this problem.
+
+---
+
+:::success Summary
+
+- Use **`request.setOptimistic()`** to define optimistic behavior on the request itself — no hook configuration needed.
+- Return **`context`** for typed data available in all lifecycle callbacks as `mutationContext`.
+- Return **`rollback`** to automatically revert cache changes on failure or abort.
+- Return **`invalidate`** to refresh stale cache entries on success.
+- **`mutationContext` is auto-inferred** from the `setOptimistic` return type — no extra generics on `useSubmit`.
 
 :::
+
+---
+
+## Next Steps
+
+For concurrent mutations, per-item rollback, toggle patterns, and cross-cache coordination, see the
+[Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide.

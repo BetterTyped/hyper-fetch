@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { QueueDataType } from "dispatcher";
+import type { QueueDataType } from "dispatcher";
 import { createDispatcher } from "../../utils";
 import { Client } from "client";
 import { Plugin } from "plugin";

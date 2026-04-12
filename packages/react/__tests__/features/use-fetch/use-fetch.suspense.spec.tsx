@@ -1,5 +1,6 @@
 /// <reference types="vitest/globals" />
-import { Suspense, StrictMode, Component, useState, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Suspense, StrictMode, Component, useState } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 

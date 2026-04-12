@@ -1,4 +1,4 @@
-import { UseTrackedStateType } from "./use-tracked-state.types";
+import type { UseTrackedStateType } from "./use-tracked-state.types";
 
 export const initialState: UseTrackedStateType = {
   data: null,

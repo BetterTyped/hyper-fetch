@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
-import { CacheValueType } from "cache";
+import type { CacheValueType } from "cache";
 import { Client, Time, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 

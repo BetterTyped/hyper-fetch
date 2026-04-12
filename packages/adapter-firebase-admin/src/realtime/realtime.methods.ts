@@ -1,11 +1,11 @@
 /* eslint-disable max-params */
-import { Database } from "firebase-admin/database";
-import { getAdapterBindings } from "@hyper-fetch/core";
+import type { Database } from "firebase-admin/database";
+import type { getAdapterBindings } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/types";
+import type { RealtimeDBMethodsUnion } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
 import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index";
-import {
+import type {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,

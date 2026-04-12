@@ -2,7 +2,7 @@ import { CheckCircle2, CircleFadingArrowUp, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
 import { Badge } from "@/components/ui/badge";
 

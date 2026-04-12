@@ -1,4 +1,5 @@
-import DtsGenerator, { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
+import type { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
+import DtsGenerator from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
 import RefParser from "@apidevtools/json-schema-ref-parser";
 import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
 import * as lodash from "lodash";
@@ -7,11 +8,11 @@ import * as fs from "fs-extra";
 import * as path from "node:path";
 import { createClient } from "@hyper-fetch/core";
 
-import { Document, Operation, GeneratedTypes } from "./openapi.types";
+import type { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
 import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, isUrl } from "./utils";
 import { HttpMethod } from "./http-methods.enum";
-import { Config } from "config/schema";
+import type { Config } from "config/schema";
 
 interface RefError {
   path: string;

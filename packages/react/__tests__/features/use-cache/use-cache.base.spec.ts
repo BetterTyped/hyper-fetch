@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react";
-import { CacheValueType } from "@hyper-fetch/core";
+import type { CacheValueType } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { client, createRequest } from "../../utils";

@@ -1,16 +1,17 @@
 import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
-import {
+import type {
   RequestInstance,
   ExtractAdapterStatusType,
   ExtractAdapterType,
   ExtractAdapterExtraType,
-  scopeKey,
 } from "@hyper-fetch/core";
+import { scopeKey } from "@hyper-fetch/core";
 import { useRef } from "react";
 
 import { useRequestEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
+import type { UseFetchOptionsType, UseFetchReturnType } from "hooks/use-fetch";
+import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
 import { createTrackedProxy, getBounceData } from "utils";
 

@@ -1,4 +1,4 @@
-import { ErrorInfo } from "react";
+import type { ErrorInfo } from "react";
 import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Link } from "@tanstack/react-router";

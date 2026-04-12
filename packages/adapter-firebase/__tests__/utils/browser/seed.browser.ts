@@ -1,5 +1,7 @@
-import { Database, set, ref } from "firebase/database";
-import { Firestore, doc, setDoc } from "firebase/firestore";
+import type { Database } from "firebase/database";
+import { set, ref } from "firebase/database";
+import type { Firestore } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 import { teas } from "../seed/seed.data";
 

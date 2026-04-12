@@ -3,7 +3,7 @@ import { Boxes, Hexagon } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { TableCell, TableRow } from "@/components/ui/table";
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useNetworkStore } from "@/store/applications/network.store";

@@ -1,8 +1,8 @@
-import { Socket } from "socket";
-import { ListenerCallbackType, ListenerOfAdapter } from "listener";
-import { EmitterInstance } from "emitter";
-import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterExtraType } from "types";
+import type { Socket } from "socket";
+import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
+import type { EmitterInstance } from "emitter";
+import type { SocketAdapterInstance } from "adapter";
+import type { ExtractAdapterExtraType } from "types";
 
 export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Socket<T>) => {
   const { adapter } = socket;

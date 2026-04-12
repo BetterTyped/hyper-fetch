@@ -1,12 +1,14 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { NonNullableKeys } from "@hyper-fetch/core";
+import type { NonNullableKeys } from "@hyper-fetch/core";
 
-import { getNetworkStats, initialNetworkStats, NetworkStats } from "./network-stats.store";
-import { ErrorStats, getErrorStats } from "./error-stats.store";
+import type { NetworkStats } from "./network-stats.store";
+import { getNetworkStats, initialNetworkStats } from "./network-stats.store";
+import type { ErrorStats } from "./error-stats.store";
+import { getErrorStats } from "./error-stats.store";
 import { getDataSize } from "./utils";
 
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
 type QueueStatsStore = {
   applications: {

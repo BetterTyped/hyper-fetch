@@ -1,5 +1,5 @@
 /* eslint-disable max-params */
-import { FirebaseAdapter, FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
+import type { FirebaseAdapter, FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
 import { pushTestSuite } from "./methods/push.test.suite";
 import { onValueTestSuite } from "./methods/on-value.test.suite";
 import { getTestSuite } from "./methods/get.test.suite";

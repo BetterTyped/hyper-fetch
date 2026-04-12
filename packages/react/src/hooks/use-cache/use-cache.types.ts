@@ -1,7 +1,7 @@
-import { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
+import type { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
 
-import { isEqual } from "utils";
-import { UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import type { isEqual } from "utils";
+import type { UseTrackedStateActions, UseTrackedStateType } from "helpers";
 
 export type UseCacheOptionsType<T extends RequestInstance> = {
   /**

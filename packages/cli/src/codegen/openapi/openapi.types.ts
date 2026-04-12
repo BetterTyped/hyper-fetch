@@ -1,6 +1,6 @@
-import { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
+import type { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
-import { HttpMethod } from "./http-methods.enum";
+import type { HttpMethod } from "./http-methods.enum";
 
 export interface Operation extends OpenAPIV3.OperationObject {
   path: string;

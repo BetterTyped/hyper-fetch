@@ -1,4 +1,5 @@
-import { FC, useState } from "react";
+import type { FC } from "react";
+import { useState } from "react";
 import { FolderOpen, MoreVertical, Trash2, ChevronRight } from "lucide-react";
 
 import { Card, CardContent, CardFooter, CardHeader } from "./card";

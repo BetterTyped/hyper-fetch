@@ -1,6 +1,6 @@
-import { RequiredKeys } from "@hyper-fetch/core";
+import type { RequiredKeys } from "@hyper-fetch/core";
 
-import { UseQueueOptionsType } from "hooks/use-queue";
+import type { UseQueueOptionsType } from "hooks/use-queue";
 
 export const useQueueDefaultOptions: RequiredKeys<UseQueueOptionsType> = {
   dispatcherType: "auto",

@@ -1,6 +1,8 @@
 import * as React from "react";
-import { Atom, Boxes, Earth, Home, AppWindow, LucideIcon, Settings2 } from "lucide-react";
-import { Link, LinkProps, useParams } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
+import { Atom, Boxes, Earth, Home, AppWindow, Settings2 } from "lucide-react";
+import type { LinkProps } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 
 import logo from "../../../../assets/images/icon.png";
 

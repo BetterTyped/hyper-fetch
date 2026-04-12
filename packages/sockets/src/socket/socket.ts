@@ -1,7 +1,8 @@
 import EventEmitter from "events";
-import { LoggerManager, LogLevel, AppManager, Time } from "@hyper-fetch/core";
+import type { LogLevel } from "@hyper-fetch/core";
+import { LoggerManager, AppManager, Time } from "@hyper-fetch/core";
 
-import {
+import type {
   SocketOptionsType,
   ReconnectCallbackType,
   ReconnectFailedCallbackType,
@@ -10,15 +11,16 @@ import {
   MessageCallbackType,
   SendCallbackType,
   ErrorCallbackType,
-  getSocketEvents,
-  interceptListener,
-  interceptEmitter,
 } from "socket";
-import { Listener, ListenerOptionsType } from "listener";
-import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
-import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
-import { WebsocketAdapter, WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
+import { getSocketEvents, interceptListener, interceptEmitter } from "socket";
+import type { ListenerOptionsType } from "listener";
+import { Listener } from "listener";
+import type { EmitterInstance, EmitterOptionsType } from "emitter";
+import { Emitter } from "emitter";
+import type { SocketAdapterInstance } from "adapter";
+import type { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
+import type { WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
+import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
 
 export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();

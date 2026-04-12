@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdminAdapter, type RealtimeDbGetMethodExtra } from "adapter";
+import type { FirebaseAdminAdapter, RealtimeDbGetMethodExtra } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("set", () => {

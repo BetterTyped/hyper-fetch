@@ -1,5 +1,6 @@
 import http from "http";
-import { graphql, buildSchema, GraphQLSchema } from "graphql";
+import type { GraphQLSchema } from "graphql";
+import { graphql, buildSchema } from "graphql";
 
 export type GraphQLServerOptions = {
   typeDefs: string;

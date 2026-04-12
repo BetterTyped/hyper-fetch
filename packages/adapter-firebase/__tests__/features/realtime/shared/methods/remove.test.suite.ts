@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdapter, type RealtimeDbGetMethodExtra } from "adapter";
+import type { FirebaseAdapter, RealtimeDbGetMethodExtra } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const removeTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

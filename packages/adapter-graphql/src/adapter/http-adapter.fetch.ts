@@ -1,16 +1,19 @@
-import { parseResponse, getErrorMessage, Adapter, QueryParamsType, stringifyKey } from "@hyper-fetch/core";
+import type { QueryParamsType } from "@hyper-fetch/core";
+import { parseResponse, getErrorMessage, Adapter, stringifyKey } from "@hyper-fetch/core";
 
+import type {
+  GraphqlAdapterType,
+  GraphQlExtraType,
+  GraphQlEndpointType,
+  FetchGraphqlAdapterOptionsType,
+} from "adapter";
 import {
   gqlExtra,
-  GraphqlAdapterType,
   defaultTimeout,
   getRequestValues,
   GraphqlMethod,
-  GraphQlExtraType,
-  GraphQlEndpointType,
   gqlEndpointMapper,
   gqlEndpointNameMapper,
-  FetchGraphqlAdapterOptionsType,
 } from "adapter";
 
 export const getGqlAdapter = (): GraphqlAdapterType =>

@@ -1,10 +1,11 @@
 import { waitFor } from "@testing-library/dom";
 
-import { ResponseSuccessType } from "adapter";
-import { ResponseDetailsType } from "managers";
+import type { ResponseSuccessType } from "adapter";
+import type { ResponseDetailsType } from "managers";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
-import { HttpAdapterType, xhrExtra } from "http-adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { xhrExtra } from "http-adapter";
 import { scopeKey } from "request";
 
 describe("Cache [ Scoping ]", () => {

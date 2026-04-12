@@ -1,10 +1,12 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-params */
-import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
-import { HttpResponse, delay, graphql, GraphQLResponseResolver } from "msw";
+import type { RequestInstance } from "@hyper-fetch/core";
+import { getErrorMessage } from "@hyper-fetch/core";
+import type { GraphQLResponseResolver } from "msw";
+import { HttpResponse, delay, graphql } from "msw";
 
 import { getMockSetup } from "../http/http.mock";
-import { MockRequestOptions } from "../http";
+import type { MockRequestOptions } from "../http";
 
 const getName = (endpoint: string) => {
   if (endpoint.includes("mutation")) {

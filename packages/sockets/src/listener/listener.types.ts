@@ -1,9 +1,10 @@
-import { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
+/* eslint-disable @typescript-eslint/no-shadow */
+import type { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
-import { SocketAdapterInstance } from "adapter";
-import { Listener } from "listener";
-import { Socket, SocketInstance } from "socket";
-import {
+import type { SocketAdapterInstance } from "adapter";
+import type { Listener } from "listener";
+import type { Socket, SocketInstance } from "socket";
+import type {
   ExtractListenerHasParamsType,
   ExtractListenerTopicType,
   ExtractListenerResponseType,

@@ -1,7 +1,7 @@
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
-import { FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter/index";
+import type { FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter/index";
 import { realtimeSockets } from "realtime";
 import { firestoreSockets } from "firestore";
 

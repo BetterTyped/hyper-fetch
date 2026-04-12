@@ -850,6 +850,76 @@ console.log(error); // Error: Must be 18+
   to="/docs/guides/core/advanced/validation"
 />
 
+11. ### Optimistic Updates
+
+Optimistic updates let you update the UI immediately before the server responds, then automatically rollback on failure.
+Configure optimistic behavior directly on the request with `setOptimistic`:
+
+```typescript
+const patchUser = client
+  .createRequest<{
+    response: User;
+    payload: Partial<User>;
+  }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ client, payload, request }) => {
+    const snapshot = client.cache.get(getUsers.cacheKey);
+
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: prev.data.map((u) =>
+        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
+      ),
+    }));
+
+    return {
+      context: { snapshot },
+      rollback: () => {
+        if (snapshot) client.cache.set(getUsers, snapshot);
+      },
+      invalidate: [getUsers],
+    };
+  });
+```
+
+The callback receives `request`, `client`, and `payload`. It returns:
+
+- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks (`onResponse`, `$hooks`, React
+  hooks). The type is auto-inferred.
+- **`rollback`** — called automatically on failure or abort to revert cache changes.
+- **`invalidate`** — list of requests whose cache is refreshed on success.
+
+All fields are optional. The callback runs before the request is dispatched — if it throws, the request is not sent
+and an error response is returned.
+
+`setOptimistic` is type-safe: `mutationContext` is available in `send()` callbacks, `$hooks` listeners, and React hooks
+(`onSubmitSuccess`, `onSubmitError`, etc.) with its type automatically inferred from the `context` return value.
+
+```typescript
+// send() callback — mutationContext is typed
+patchUser.send({
+  params: { userId: 1 },
+  payload: { name: "New Name" },
+  onResponse: ({ mutationContext }) => {
+    console.log(mutationContext?.snapshot);
+  },
+});
+
+// $hooks — mutationContext flows through
+patchUser.$hooks.onResponse(({ mutationContext }) => {
+  console.log("Snapshot:", mutationContext?.snapshot);
+});
+```
+
+<LinkCard
+  type="guides"
+  title="Optimistic Updates"
+  description="Learn how to implement optimistic updates with rollback, invalidation, and concurrent mutations."
+  to="/docs/guides/react/basics/optimistic-approach"
+/>
+
 ---
 
 ## Instance Hooks ($hooks)

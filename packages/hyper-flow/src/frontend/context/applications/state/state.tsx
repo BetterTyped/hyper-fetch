@@ -1,11 +1,11 @@
 import { useDidMount } from "@better-hooks/lifecycle";
 import { memo, useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
+import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { initialApplicationState, useApplicationStates } from "./state.context";
 
-import { DevtoolsCacheEvent, DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent, DevtoolsRequestEvent } from "@/context/applications/types";
 import { useNetworkStore } from "@/store/applications/network.store";
 import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useCacheStatsStore } from "@/store/applications/cache-stats.store";

@@ -26,6 +26,8 @@ date: 2026-04-11
 6. **SDK Configuration**: Type-safe per-endpoint defaults with `createConfiguration()` and `sdk.$configure()`.
 7. **CLI Auto-Init**: Any CLI command auto-initializes when `api.json` is missing — just run and go.
 8. **TypeScript Optimizations**: Reduced type instantiation count and faster IDE responsiveness.
+9. **Optimistic Mutations**: First-class `request.setOptimistic()` with auto-rollback, cache invalidation, and typed
+   `mutationContext` flowing through all callbacks and hooks.
 
 :::
 
@@ -223,8 +225,8 @@ cache by feature, workspace, or tenant.
 ### 5. Request Lifecycle Hooks
 
 Request instances now support persistent lifecycle hooks via the `$hooks` property. Unlike per-`send()` callbacks that
-you repeat on every call, `$hooks` travel with the request instance and survive `.clone()`. Each hook method registers
-a callback and returns an unsubscribe function. Multiple listeners per hook are supported.
+you repeat on every call, `$hooks` travel with the request instance and survive `.clone()`. Each hook method registers a
+callback and returns an unsubscribe function. Multiple listeners per hook are supported.
 
 ```typescript
 const getUser = client.createRequest<{ response: User }>()({
@@ -309,6 +311,61 @@ We profiled and optimized the heaviest type constructs in the codebase:
   aliases instead of re-instantiated at every usage site
 
 The result is noticeably faster IDE autocomplete and type-checking, especially in files with many request definitions.
+
+### 9. Optimistic Mutations
+
+v8 adds first-class support for optimistic updates via `request.setOptimistic()`. Define cache manipulation, rollback
+logic, and invalidation targets directly on the request — the framework orchestrates everything automatically.
+
+```typescript
+const patchUser = client
+  .createRequest<{ response: User; payload: Partial<User> }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ client, payload, request }) => {
+    const snapshot = client.cache.get(getUsers.cacheKey);
+
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: prev.data.map((u) =>
+        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
+      ),
+    }));
+
+    return {
+      context: { snapshot },
+      rollback: () => {
+        if (snapshot) client.cache.set(getUsers, snapshot);
+      },
+      invalidate: [getUsers],
+    };
+  });
+```
+
+**Key behaviors:**
+
+- **`context`** is available as typed `mutationContext` in all lifecycle callbacks — `send()`, `$hooks`, and React hooks
+  (`onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitAbort`)
+- **`rollback`** is called automatically on failure or abort — no manual error handling needed
+- **`invalidate`** refreshes listed cache entries on success
+- **Type inference** — `mutationContext` type is auto-inferred from the `context` return value, no extra generics
+- **Retry-aware** — rollback only fires on final failure, not on intermediate retry attempts
+- **Concurrent-safe** — each `submit()` call has its own isolated optimistic result
+
+```tsx
+const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
+
+onSubmitSuccess(({ mutationContext }) => {
+  // mutationContext is typed as { snapshot: ... } | undefined
+  console.log("Updated! Previous:", mutationContext?.snapshot);
+});
+
+onSubmitError(() => {
+  // rollback already happened automatically
+  alert("Update failed — changes reverted.");
+});
+```
 
 ---
 

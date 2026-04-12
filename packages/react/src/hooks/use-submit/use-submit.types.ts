@@ -1,12 +1,12 @@
-import { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
+import type { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
 
-import { isEqual } from "utils";
-import {
-  OnErrorCallbackType,
-  OnFinishedCallbackType,
+import type { isEqual } from "utils";
+import type {
   OnProgressCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
+  OnErrorCallbackType,
+  OnFinishedCallbackType,
   UseTrackedStateType,
   UseTrackedStateActions,
 } from "helpers";
@@ -69,15 +69,15 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
      */
     abort: () => void;
     /**
-     * Helper hook listening on success response.
+     * Helper hook listening on success response. Includes `mutationContext` when `setOptimistic` is configured.
      */
     onSubmitSuccess: (callback: OnSuccessCallbackType<RequestType>) => void;
     /**
-     * Helper hook listening on error response.
+     * Helper hook listening on error response. Includes `mutationContext` when `setOptimistic` is configured.
      */
     onSubmitError: (callback: OnErrorCallbackType<RequestType>) => void;
     /**
-     * Helper hook listening on any response.
+     * Helper hook listening on any response. Includes `mutationContext` when `setOptimistic` is configured.
      */
     onSubmitFinished: (callback: OnFinishedCallbackType<RequestType>) => void;
     /**
@@ -97,7 +97,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
      */
     onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
     /**
-     * Helper hook listening on aborting of requests. Abort events are not triggering onError callbacks.
+     * Helper hook listening on aborting of requests. Includes `mutationContext` when `setOptimistic` is configured. Abort events are not triggering onError callbacks.
      */
     onSubmitAbort: (callback: OnErrorCallbackType<RequestType>) => void;
     /**

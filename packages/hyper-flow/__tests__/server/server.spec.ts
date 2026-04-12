@@ -2,7 +2,8 @@ import { waitFor, configure } from "@testing-library/react";
 import { InternalEvents, MessageType } from "@hyper-fetch/plugin-devtools";
 import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
 
-import { StartServer, startServer } from "../../src/server";
+import type { StartServer } from "../../src/server";
+import { startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 
 configure({ asyncUtilTimeout: 10000 });

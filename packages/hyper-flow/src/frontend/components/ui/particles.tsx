@@ -3,7 +3,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-redeclare */
-import React, { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 

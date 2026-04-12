@@ -1,5 +1,5 @@
 import { Client } from "client";
-import { CacheValueType } from "cache";
+import type { CacheValueType } from "cache";
 import { xhrExtra } from "http-adapter";
 import { scopeKey } from "request";
 

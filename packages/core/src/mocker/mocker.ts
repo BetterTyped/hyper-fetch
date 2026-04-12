@@ -1,5 +1,6 @@
-import { getAdapterBindings, AdapterInstance, RequestProcessingError } from "adapter";
-import { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
+import type { getAdapterBindings, AdapterInstance } from "adapter";
+import { RequestProcessingError } from "adapter";
+import type { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
 export const mocker = async <T extends AdapterInstance>({
   request,

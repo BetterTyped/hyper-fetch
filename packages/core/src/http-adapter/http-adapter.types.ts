@@ -1,6 +1,6 @@
-import { HttpMethodsType, HttpStatusType } from "../types";
-import { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
-import { stringifyQueryParams } from "./http-adapter.utils";
+import type { HttpMethodsType, HttpStatusType } from "../types";
+import type { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
+import type { stringifyQueryParams } from "./http-adapter.utils";
 /**
  * Base Adapter
  */

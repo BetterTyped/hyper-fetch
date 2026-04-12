@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/react";
-import { ClientInstance } from "@hyper-fetch/core";
+import type { ClientInstance } from "@hyper-fetch/core";
 
 export const testClientIsolation = async (client: ClientInstance) => {
   await waitFor(() => {

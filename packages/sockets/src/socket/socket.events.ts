@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import type EventEmitter from "events";
 
 import {
   getErrorKey,
@@ -16,10 +16,10 @@ import {
   getEmitterErrorKey,
   getEmitterErrorByTopicKey,
 } from "socket";
-import { EmitterInstance } from "emitter";
-import { ListenerInstance } from "listener";
-import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterExtraType } from "types";
+import type { EmitterInstance } from "emitter";
+import type { ListenerInstance } from "listener";
+import type { SocketAdapterInstance } from "adapter";
+import type { ExtractAdapterExtraType } from "types";
 
 export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmitter: EventEmitter) =>
   ({

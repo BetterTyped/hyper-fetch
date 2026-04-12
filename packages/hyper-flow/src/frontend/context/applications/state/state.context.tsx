@@ -1,8 +1,9 @@
 /* eslint-disable no-nested-ternary */
-import { Updater } from "use-immer";
-import { NonNullableKeys, QueueDataType, RequestInstance, stringifyValue } from "@hyper-fetch/core";
+import type { Updater } from "use-immer";
+import type { NonNullableKeys, QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import { stringifyValue } from "@hyper-fetch/core";
 
-import {
+import type {
   DevtoolsRequestResponse,
   DevtoolsRequestEvent,
   DevtoolsElement,
@@ -10,7 +11,7 @@ import {
   DevtoolsCacheEvent,
   Sort,
 } from "@/context/applications/types";
-import { Status } from "@/utils/request.status.utils";
+import type { Status } from "@/utils/request.status.utils";
 import { createContext } from "@/utils/context";
 import { toNumber } from "@/store/applications/utils";
 

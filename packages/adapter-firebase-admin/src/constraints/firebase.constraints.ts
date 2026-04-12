@@ -1,4 +1,4 @@
-import { OrderByDirection, WhereFilterOp } from "firebase-admin/firestore";
+import type { OrderByDirection, WhereFilterOp } from "firebase-admin/firestore";
 
 export enum SharedQueryConstraints {
   START_AT = "startAt",

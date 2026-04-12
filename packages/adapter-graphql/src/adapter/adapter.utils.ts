@@ -1,7 +1,9 @@
-import { RequestInstance, HttpMethods, stringifyQueryParams } from "@hyper-fetch/core";
-import { print, parse, OperationDefinitionNode } from "graphql";
+import type { RequestInstance } from "@hyper-fetch/core";
+import { HttpMethods, stringifyQueryParams } from "@hyper-fetch/core";
+import type { OperationDefinitionNode } from "graphql";
+import { print, parse } from "graphql";
 
-import { GraphQlEndpointType } from "adapter";
+import type { GraphQlEndpointType } from "adapter";
 
 export const getRequestValues = <R extends RequestInstance>(request: R) => {
   const isPostRequest = request.method === HttpMethods.POST;

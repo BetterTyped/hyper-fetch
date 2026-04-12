@@ -1,10 +1,10 @@
 /* eslint-disable no-nested-ternary */
 import { setupServer } from "msw/node";
-import { ExtractErrorType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
+import type { ExtractErrorType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
 
-import { StatusCodesType } from "../http/http.constants";
+import type { StatusCodesType } from "../http/http.constants";
 import { createMock } from "./graphql.mock";
-import { MockRequestOptions } from "../http";
+import type { MockRequestOptions } from "../http";
 import { getMockSetup } from "http/http.mock";
 
 export const createGraphqlMockingServer = () => {

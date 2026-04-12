@@ -1,6 +1,6 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { ResponseDetailsType } from "managers";
-import { RequestInstance } from "request";
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { ResponseDetailsType } from "managers";
+import type { RequestInstance } from "request";
 
 export type CacheOptionsType = {
   /**

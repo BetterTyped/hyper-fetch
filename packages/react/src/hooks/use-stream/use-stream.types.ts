@@ -1,4 +1,4 @@
-import { RequestInstance, ExtractErrorType, ExtractAdapterExtraType, ExtractAdapterType } from "@hyper-fetch/core";
+import type { RequestInstance, ExtractErrorType, ExtractAdapterExtraType, ExtractAdapterType } from "@hyper-fetch/core";
 
 export type UseStreamOptionsType = {
   /**

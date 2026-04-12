@@ -1,4 +1,4 @@
-import { CollectionReference, DocumentReference, Firestore } from "firebase-admin/firestore";
+import type { CollectionReference, DocumentReference, Firestore } from "firebase-admin/firestore";
 
 export const getRef = (db: Firestore, fullUrl: string) => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");

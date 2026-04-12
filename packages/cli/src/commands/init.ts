@@ -6,7 +6,8 @@ import * as fs from "fs-extra";
 
 import { handleError } from "utils/handle-error";
 import { spinner } from "utils/spinner";
-import { configSchema, Config } from "config/schema";
+import type { Config } from "config/schema";
+import { configSchema } from "config/schema";
 import { logger } from "utils/logger";
 import { getTsConfigAliasPrefix } from "config/get-ts-alias";
 import { showHelp } from "utils/show-help";

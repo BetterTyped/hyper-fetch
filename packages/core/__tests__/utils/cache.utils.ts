@@ -1,5 +1,6 @@
-import { Cache, CacheAsyncStorageType, CacheOptionsType } from "cache";
-import { ClientInstance } from "client";
+import type { CacheAsyncStorageType, CacheOptionsType } from "cache";
+import { Cache } from "cache";
+import type { ClientInstance } from "client";
 
 export const createCache = (client: ClientInstance, options?: CacheOptionsType) => {
   return new Cache(options).initialize(client);

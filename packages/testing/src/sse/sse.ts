@@ -1,6 +1,6 @@
 import { sources } from "eventsourcemock";
 import { WS } from "jest-websocket-mock";
-import {
+import type {
   ListenerInstance,
   ExtractListenerResponseType,
   ExtendListener,

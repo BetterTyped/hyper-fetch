@@ -1,9 +1,9 @@
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import type { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
 import { useRef } from "react";
 
 import { useSocketState } from "helpers";
-import { UseListenerOptionsType } from "hooks/use-listener";
+import type { UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
 import { createTrackedProxy } from "utils";
 

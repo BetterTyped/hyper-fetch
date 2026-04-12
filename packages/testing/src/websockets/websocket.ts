@@ -1,5 +1,5 @@
 import WS from "jest-websocket-mock";
-import {
+import type {
   ListenerInstance,
   ExtractListenerResponseType,
   EmitterInstance,
@@ -10,7 +10,7 @@ import {
   ExtractEmitterPayloadType,
   ExtractEmitterHasPayloadType,
 } from "@hyper-fetch/sockets";
-import { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
+import type { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {

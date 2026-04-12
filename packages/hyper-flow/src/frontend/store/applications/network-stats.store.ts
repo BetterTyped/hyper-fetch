@@ -1,10 +1,10 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { NonNullableKeys } from "@hyper-fetch/core";
+import type { NonNullableKeys } from "@hyper-fetch/core";
 
 import { getDataSize, getEndpointAndMethod } from "./utils";
 
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
 export type NetworkStats = {
   // General

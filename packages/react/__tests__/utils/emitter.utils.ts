@@ -1,4 +1,5 @@
-import { EmitterOptionsType, Socket, WebsocketAdapterType } from "@hyper-fetch/sockets";
+import type { EmitterOptionsType, WebsocketAdapterType } from "@hyper-fetch/sockets";
+import { Socket } from "@hyper-fetch/sockets";
 
 export const createEmitter = <ResponseType = { name: string; age: number }>(
   options?: Partial<EmitterOptionsType<any, WebsocketAdapterType>>,

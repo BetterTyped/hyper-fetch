@@ -2,7 +2,7 @@ import { Calendar, Trash2, ScanEye, Package } from "lucide-react";
 import { format } from "date-fns";
 
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { DevtoolsCacheEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 import { Badge } from "@/components/ui/badge";
 import { Countdown } from "@/components/countdown/countdown";
 

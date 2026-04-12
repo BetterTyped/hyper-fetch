@@ -4,7 +4,7 @@
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 
 import { GraphqlAdapter, GraphqlMethod } from "../../src/adapter";
-import { GraphQlExtraType } from "../../src/adapter/adapter.types";
+import type { GraphQlExtraType } from "../../src/adapter/adapter.types";
 import { createE2EGraphQLServer } from "./e2e.graphql-server";
 
 // ─── Schema & Resolvers ──────────────────────────────────────────────

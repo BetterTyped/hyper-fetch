@@ -1,14 +1,9 @@
-import {
-  getErrorMessage,
-  ResponseSuccessType,
-  ResponseErrorType,
-  ProgressDataType,
-  AdapterInstance,
-  RequestProcessingError,
-} from "adapter";
-import { LoggerMethods } from "managers";
-import { RequestInstance, getProgressData, ProgressEventType, scopeKey } from "request";
-import {
+import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
+import { getErrorMessage, RequestProcessingError } from "adapter";
+import type { LoggerMethods } from "managers";
+import type { RequestInstance, ProgressEventType } from "request";
+import { getProgressData, scopeKey } from "request";
+import type {
   ExtractResponseType,
   ExtractErrorType,
   ExtractPayloadType,

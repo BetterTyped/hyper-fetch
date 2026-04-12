@@ -1,5 +1,5 @@
-import { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
-import { DocumentNode } from "graphql/language/ast";
+import type { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
+import type { DocumentNode } from "graphql/language/ast";
 
 export enum GraphqlMethod {
   POST = "POST",

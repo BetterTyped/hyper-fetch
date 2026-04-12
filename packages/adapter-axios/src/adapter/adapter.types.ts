@@ -1,4 +1,4 @@
-import { AxiosHeaderValue, Method, RawAxiosRequestHeaders } from "axios";
+import type { AxiosHeaderValue, Method, RawAxiosRequestHeaders } from "axios";
 
 export type RawAxiosHeaders = {
   [key: string]: AxiosHeaderValue;

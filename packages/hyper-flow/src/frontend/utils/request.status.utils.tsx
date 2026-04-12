@@ -1,4 +1,4 @@
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
 
 export enum Status {

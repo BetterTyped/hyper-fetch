@@ -60,8 +60,9 @@ maintainability, and optimal usage of HyperFetch's features.
   `useMutation` call.
 
 - **Optimistic Updates:** Implement optimistic updates to improve perceived performance. This involves updating the UI
-  before the API request completes, and then reverting the changes if the request fails. hyper-fetch provides utilities
-  like `onMutate` to handle this.
+  before the API request completes, and then reverting the changes if the request fails. Use `request.setOptimistic()`
+  which returns `context`, `rollback`, and `invalidate` — the framework orchestrates rollback on failure/abort and
+  invalidation on success automatically.
 
 - **Pessimistic Updates:** Update the UI only after a successful response from the API. Simpler to implement but
   provides a less snappy user experience.

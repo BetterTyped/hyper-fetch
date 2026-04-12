@@ -1,4 +1,4 @@
-import { QueueDataType } from "@hyper-fetch/core";
+import type { QueueDataType } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
 import { getQueueStatus, getQueueStatusColor } from "@/utils/queue.status.utils";

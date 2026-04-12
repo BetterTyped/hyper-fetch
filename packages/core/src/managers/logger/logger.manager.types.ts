@@ -1,5 +1,5 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { RequestInstance } from "request";
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { RequestInstance } from "request";
 
 // Extra
 export type LogLevel = "debug" | "info" | "warning" | "error";

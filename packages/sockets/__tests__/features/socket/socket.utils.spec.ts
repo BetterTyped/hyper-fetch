@@ -1,6 +1,6 @@
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
-import { EmitterInstance } from "emitter";
+import type { EmitterInstance } from "emitter";
 import { interceptEmitter, interceptListener, Socket } from "socket";
 
 describe("Socket [ Utils ]", () => {

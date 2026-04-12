@@ -1,6 +1,6 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { RequestCacheType } from "cache";
-import { RequestInstance } from "request";
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { RequestCacheType } from "cache";
+import type { RequestInstance } from "request";
 
 export type HydrationOptions = RequestCacheType<RequestInstance> & {
   override: boolean;

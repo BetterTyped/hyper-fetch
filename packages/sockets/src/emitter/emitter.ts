@@ -1,8 +1,8 @@
-import { ExtractUrlParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
+import type { ExtractUrlParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
 
-import { SocketInstance } from "socket";
-import { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
-import { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
+import type { SocketInstance } from "socket";
+import type { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
+import type { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Emitter<
   Payload,

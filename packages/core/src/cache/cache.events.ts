@@ -1,15 +1,8 @@
-import EventEmitter from "events";
+import type EventEmitter from "events";
 
-import {
-  CacheValueType,
-  getInvalidateByKey,
-  getInvalidateKey,
-  getCacheByKey,
-  getCacheKey,
-  getDeleteKey,
-  getDeleteByKey,
-} from "cache";
-import { AdapterInstance } from "adapter";
+import type { CacheValueType } from "cache";
+import { getInvalidateByKey, getInvalidateKey, getCacheByKey, getCacheKey, getDeleteKey, getDeleteByKey } from "cache";
+import type { AdapterInstance } from "adapter";
 
 export const getCacheEvents = (emitter: EventEmitter) => ({
   /**

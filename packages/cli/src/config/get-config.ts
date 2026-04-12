@@ -5,7 +5,8 @@ import { loadConfig } from "tsconfig-paths";
 import { highlighter } from "utils/highlighter";
 import { resolveImport } from "utils/resolve-import";
 import { handleError } from "utils/handle-error";
-import { configSchema, Config } from "config/schema";
+import type { Config } from "config/schema";
+import { configSchema } from "config/schema";
 import { autoInit } from "config/auto-init";
 
 export async function resolveConfigPaths(cwd: string, config: Omit<Config, "resolvedPaths">): Promise<Config> {

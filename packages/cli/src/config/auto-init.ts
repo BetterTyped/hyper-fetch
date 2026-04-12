@@ -1,7 +1,8 @@
 import * as path from "node:path";
 import * as fs from "fs-extra";
 
-import { configSchema, Config } from "config/schema";
+import type { Config } from "config/schema";
+import { configSchema } from "config/schema";
 import { getTsConfigAliasPrefix } from "config/get-ts-alias";
 import { logger } from "utils/logger";
 import { spinner } from "utils/spinner";

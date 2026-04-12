@@ -1,4 +1,4 @@
-import { RequestInstance, ExtractAdapterResolvedType } from "@hyper-fetch/core";
+import type { RequestInstance, ExtractAdapterResolvedType } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 

@@ -1,4 +1,4 @@
-import { RequestOptionsType, FetchAdapterOptionsType } from "@hyper-fetch/core";
+import type { RequestOptionsType, FetchAdapterOptionsType } from "@hyper-fetch/core";
 
 import { client } from "./client.utils";
 

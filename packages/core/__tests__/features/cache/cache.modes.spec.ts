@@ -1,8 +1,9 @@
-import { ResponseSuccessType } from "adapter";
-import { ResponseDetailsType } from "managers";
+import type { ResponseSuccessType } from "adapter";
+import type { ResponseDetailsType } from "managers";
 import { createCache } from "../../utils";
 import { Client } from "client";
-import { HttpAdapterType, xhrExtra } from "http-adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { xhrExtra } from "http-adapter";
 
 const createServerClient = (url: string) => new Client({ url, mode: "server" });
 

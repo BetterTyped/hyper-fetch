@@ -1,5 +1,5 @@
-import { EmitterInstance } from "emitter";
-import { MessageCallbackType, SendCallbackType } from "./socket.types";
+import type { EmitterInstance } from "emitter";
+import type { MessageCallbackType, SendCallbackType } from "./socket.types";
 
 export const getErrorKey = () => "socket_error";
 export const getOpenKey = () => "socket_open";

@@ -1,6 +1,6 @@
-import { ProgressType, ResponseType } from "adapter";
-import { RequestInstance } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import type { ProgressType, ResponseType } from "adapter";
+import type { RequestInstance } from "request";
+import type { ExtractAdapterType, ExtractErrorType, ExtractMutationContextType, ExtractResponseType } from "types";
 
 // Events
 export type RequestLoadingEventType<T extends RequestInstance> = {
@@ -14,6 +14,7 @@ export type RequestProgressEventType<T extends RequestInstance> = ProgressType &
 export type RequestEventType<T extends RequestInstance> = {
   request: T;
   requestId: string;
+  mutationContext?: ExtractMutationContextType<T>;
 };
 
 export type RequestRemovedEventType<T extends RequestInstance> = {

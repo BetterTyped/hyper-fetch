@@ -1,8 +1,8 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
+import type { ResolvedQueueItemType } from "dispatcher";
 import {
   canRetryRequest,
-  ResolvedQueueItemType,
   DispatcherMode,
   getDispatcherChangeByKey,
   getDispatcherDrainedByKey,

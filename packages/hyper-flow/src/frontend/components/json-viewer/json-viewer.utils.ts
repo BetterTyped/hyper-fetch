@@ -1,5 +1,5 @@
 import type { Theme } from "react-base16-styling";
-import { KeyPath } from "react-json-tree";
+import type { KeyPath } from "react-json-tree";
 
 export const theme: Theme = {
   scheme: "modern-vscode",

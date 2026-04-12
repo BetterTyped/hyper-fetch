@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { useDidUpdate } from "@better-hooks/lifecycle";
-import {
+import type {
   ExtractErrorType,
   CacheValueType,
   ExtractResponseType,
@@ -8,12 +8,12 @@ import {
   ExtractAdapterType,
   ExtractAdapterExtraType,
   ResponseType,
-  scopeKey,
 } from "@hyper-fetch/core";
+import { scopeKey } from "@hyper-fetch/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
 import { isEqual } from "utils";
-import {
+import type {
   UseTrackedStateActions,
   UseTrackedStateType,
   UseTrackedStateProps,

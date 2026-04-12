@@ -1,4 +1,4 @@
-import { FC } from "react";
+import type { FC } from "react";
 import { CloudIcon, FolderOpen } from "lucide-react";
 
 import { Card, CardContent, CardFooter, CardHeader } from "./card";

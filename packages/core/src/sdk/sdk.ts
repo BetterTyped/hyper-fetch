@@ -1,6 +1,6 @@
-import { ClientInstance } from "client";
-import { RequestInstance } from "request";
-import { ExtractEndpointType } from "types";
+import type { ClientInstance } from "client";
+import type { RequestInstance } from "request";
+import type { ExtractEndpointType } from "types";
 
 export type RecursiveSchemaType = Record<
   string, // for example users / $userId / posts / $postId

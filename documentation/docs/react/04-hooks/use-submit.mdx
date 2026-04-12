@@ -312,6 +312,87 @@ Below is a full list of returned values.
 
 ---
 
+## Optimistic Updates
+
+`useSubmit` has first-class support for optimistic mutations. Configure optimistic behavior on the request with
+`setOptimistic`, and the hook handles the entire lifecycle — running the callback before the request is sent, rolling
+back on failure, and invalidating cache on success.
+
+```tsx title="Optimistic update with rollback"
+const patchUser = client
+  .createRequest<{ response: User; payload: Partial<User> }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ client, payload, request }) => {
+    const snapshot = client.cache.get(getUsers.cacheKey);
+
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: prev.data.map((u) =>
+        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
+      ),
+    }));
+
+    return {
+      context: { snapshot },
+      rollback: () => {
+        if (snapshot) client.cache.set(getUsers, snapshot);
+      },
+      invalidate: [getUsers],
+    };
+  });
+```
+
+The `mutationContext` returned from the optimistic callback is available in all submit lifecycle callbacks, fully typed:
+
+```tsx
+const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished, onSubmitAbort } = useSubmit(patchUser);
+
+onSubmitSuccess(({ mutationContext }) => {
+  // mutationContext is typed as { snapshot: ... } | undefined
+  console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
+});
+
+onSubmitError(({ mutationContext }) => {
+  // rollback() was already called automatically before this fires
+  alert("Update failed — changes have been reverted.");
+});
+
+onSubmitAbort(({ mutationContext }) => {
+  // abort is treated like an error — rollback runs automatically
+  console.log("Aborted, rolled back.");
+});
+
+onSubmitFinished(({ mutationContext }) => {
+  // Fires after success or error, with the same mutationContext
+});
+```
+
+**How it works:**
+
+1. When `submit()` is called, the `setOptimistic` callback runs _before_ the network request.
+2. The callback can update the cache optimistically and return `context`, `rollback`, and `invalidate`.
+3. On **success**: cache keys from `invalidate` are refreshed, then `onSubmitSuccess` fires.
+4. On **error** or **abort**: `rollback()` is called automatically, then the error/abort callback fires.
+5. With **retries**: `rollback` only runs after the final failure — intermediate retries keep the optimistic state.
+
+:::info Bounce compatibility
+
+When `bounce` is enabled, the optimistic callback runs when the bounced request actually fires — not on every
+intermediate `submit()` call. This means optimistic updates work correctly with debounce and throttle.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="Optimistic Updates Guide"
+  description="In-depth guide covering patterns for creates, updates, and advanced scenarios."
+  to="/docs/guides/react/basics/optimistic-approach"
+/>
+
+---
+
 ## See More
 
 <LinkCard

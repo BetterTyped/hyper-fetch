@@ -1,4 +1,4 @@
-import { AdapterInstance, ResponseType } from "adapter";
+import type { AdapterInstance, ResponseType } from "adapter";
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
