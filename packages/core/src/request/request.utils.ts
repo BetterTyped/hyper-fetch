@@ -167,13 +167,13 @@ export const sendRequest = async <Request extends RequestInstance>(
     }
   }
 
-  const mutationContext = optimisticResult?.context;
+  const mutationContext = optimisticResult;
 
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
     const { $hooks } = request;
-    const beforeSentData = { requestId, request, mutationContext, optimisticResult };
+    const beforeSentData = { requestId, request, mutationContext };
     options?.onBeforeSent?.(beforeSentData);
     $hooks.__emit("onBeforeSent", beforeSentData);
 

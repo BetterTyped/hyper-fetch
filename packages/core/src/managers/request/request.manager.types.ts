@@ -1,6 +1,6 @@
 import type { ProgressType, ResponseType } from "adapter";
 import type { OptimisticCallbackResult, RequestInstance } from "request";
-import type { ExtractAdapterType, ExtractErrorType, ExtractMutationContextType, ExtractResponseType } from "types";
+import type { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 // Events
 export type RequestLoadingEventType<T extends RequestInstance> = {
@@ -14,11 +14,7 @@ export type RequestProgressEventType<T extends RequestInstance> = ProgressType &
 export type RequestEventType<T extends RequestInstance> = {
   request: T;
   requestId: string;
-  mutationContext?: ExtractMutationContextType<T>;
-};
-
-export type RequestBeforeSentEventType<T extends RequestInstance> = RequestEventType<T> & {
-  optimisticResult?: OptimisticCallbackResult<any>;
+  mutationContext?: OptimisticCallbackResult<any>;
 };
 
 export type RequestRemovedEventType<T extends RequestInstance> = {
