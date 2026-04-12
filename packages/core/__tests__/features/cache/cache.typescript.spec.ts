@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { expectFunctionParametersType, expectNotFunctionParametersType } from "@hyper-fetch/testing";
 
 import type { ResponseSuccessType } from "adapter";
@@ -53,10 +54,15 @@ describe("Cache [Types]", () => {
       expectFunctionParametersType(cache.set).assert([userRequest, successResponse]);
     });
 
-    it("should allow setting response using a callback", () => {
+    it("should allow setting response with null data", () => {
       expectFunctionParametersType(cache.set).assert([
         userRequest,
-        (_prev) => successResponse,
+        {
+          ...successResponse,
+          data: null,
+          error: { code: "ERR", message: "fail" },
+          success: false as const,
+        },
       ]);
     });
 
@@ -115,45 +121,27 @@ describe("Cache [Types]", () => {
 
   describe("when using cache.update", () => {
     it("should allow partial response update for a typed request", () => {
-      expectFunctionParametersType(cache.update).assert([
-        userRequest,
-        { data: { id: 2, name: "Jane" } },
-      ]);
+      expectFunctionParametersType(cache.update).assert([userRequest, { data: { id: 2, name: "Jane" } }]);
     });
 
-    it("should allow partial update using a callback", () => {
-      expectFunctionParametersType(cache.update).assert([
-        userRequest,
-        (_prev) => ({ data: { id: 2, name: "Jane" } }),
-      ]);
+    it("should allow partial update with only error field", () => {
+      expectFunctionParametersType(cache.update).assert([userRequest, { error: { code: "ERR", message: "fail" } }]);
     });
 
     it("should not allow partial update with wrong data type", () => {
-      expectNotFunctionParametersType(cache.update).assert([
-        userRequest,
-        { data: "wrong-type" },
-      ]);
+      expectNotFunctionParametersType(cache.update).assert([userRequest, { data: "wrong-type" }]);
     });
 
     it("should not allow partial update with wrong error type", () => {
-      expectNotFunctionParametersType(cache.update).assert([
-        userRequest,
-        { error: "string-error" },
-      ]);
+      expectNotFunctionParametersType(cache.update).assert([userRequest, { error: "string-error" }]);
     });
 
     it("should allow partial update with correct error type", () => {
-      expectFunctionParametersType(cache.update).assert([
-        userRequest,
-        { error: { code: "ERR", message: "fail" } },
-      ]);
+      expectFunctionParametersType(cache.update).assert([userRequest, { error: { code: "ERR", message: "fail" } }]);
     });
 
     it("should allow updating only metadata fields", () => {
-      expectFunctionParametersType(cache.update).assert([
-        userRequest,
-        { success: true as const },
-      ]);
+      expectFunctionParametersType(cache.update).assert([userRequest, { success: true as const }]);
     });
   });
 });

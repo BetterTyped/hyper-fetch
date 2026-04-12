@@ -1,4 +1,9 @@
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestBeforeSentEventType,
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+} from "managers";
 import type { RequestInstance } from "./request.types";
 
 type HookName =
@@ -11,7 +16,7 @@ type HookName =
   | "onRemove";
 
 export interface RequestHooks<R extends RequestInstance> {
-  onBeforeSent: (cb: (eventData: RequestEventType<R>) => void) => () => void;
+  onBeforeSent: (cb: (eventData: RequestBeforeSentEventType<R>) => void) => () => void;
   onRequestStart: (cb: (eventData: RequestEventType<R>) => void) => () => void;
   onResponseStart: (cb: (eventData: RequestEventType<R>) => void) => () => void;
   onUploadProgress: (cb: (eventData: RequestProgressEventType<R>) => void) => () => void;

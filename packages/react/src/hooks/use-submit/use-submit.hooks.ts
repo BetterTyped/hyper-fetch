@@ -121,7 +121,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
         dispatcherType: "submit",
         ...(submitOptions as RequestSendOptionsType<RequestType>),
         onBeforeSent: (data) => {
-          addLifecycleListeners(requestClone, data.requestId, data.mutationContext);
+          addLifecycleListeners(requestClone, data.requestId, data.optimisticResult);
           submitOptions?.onBeforeSent?.(data);
         },
       };

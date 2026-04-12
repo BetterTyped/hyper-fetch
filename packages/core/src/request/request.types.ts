@@ -19,7 +19,12 @@ import type {
 } from "types";
 import type { Request } from "./request";
 import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestBeforeSentEventType,
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+} from "managers";
 import type { ClientInstance } from "client";
 
 // Instance
@@ -278,7 +283,7 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
   RequestDynamicSendOptionsType<Request>;
 
 export type RequestSendActionsType<Request extends RequestInstance> = {
-  onBeforeSent?: (eventData: RequestEventType<Request>) => void;
+  onBeforeSent?: (eventData: RequestBeforeSentEventType<Request>) => void;
   onRequestStart?: (eventData: RequestEventType<Request>) => void;
   onResponseStart?: (eventData: RequestEventType<Request>) => void;
   onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
