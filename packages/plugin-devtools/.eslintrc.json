@@ -1,8 +1,0 @@
-{
-  "extends": ["../../.eslintrc.js"],
-  "parserOptions": {
-    "project": ["./tsconfig.json", "./__tests__/tsconfig.json"]
-  },
-  "rules": {},
-  "ignorePatterns": ["dist/", "coverage/", "vite.config.ts", "/*.js"]
-}
