@@ -15,7 +15,7 @@ import type {
   RetryOnErrorCallbackType,
 } from "./request.types";
 import { createRequestHooks, RequestHooks } from "./request.hooks";
-import { sendRequest, scopeKey } from "./request.utils";
+import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
 import { ClientInstance } from "client";
 import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
 import {
@@ -137,13 +137,13 @@ export class Request<
     readonly requestOptions: ClientRequestOptions<Endpoint, Client>,
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
-          Payload,
-          Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
-          QueryParams,
-          Endpoint,
-          ClientAdapterOptions<Client>,
-          ClientAdapterMethod<Client>
-        >
+        Payload,
+        Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
+        QueryParams,
+        Endpoint,
+        ClientAdapterOptions<Client>,
+        ClientAdapterMethod<Client>
+      >
       | undefined,
   ) {
     const configuration: ClientRequestOptions<Endpoint, Client> = {
@@ -634,10 +634,35 @@ export class Request<
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
-    const { dispatcherType, ...configuration } = options || {};
+    const { dispatcherType, cachePolicy = "network-only", ...configuration } = options || {};
 
-    const request = this.clone(configuration);
-    return sendRequest(request as unknown as this, options);
+    const request = this.clone(configuration) as unknown as this;
+
+    const sendRequestOptions = options === undefined ? undefined : { ...options, cachePolicy: undefined };
+
+    if (cachePolicy === "network-only") {
+      return sendRequest(request, sendRequestOptions);
+    }
+
+    const cached = request.read();
+
+    if (cachePolicy === "cache-first") {
+      if (cached) {
+        return mapResponseForSend(request, cached);
+      }
+      return sendRequest(request, sendRequestOptions);
+    }
+
+    // revalidate
+    if (cached) {
+      const resolved = await mapResponseForSend(request, cached);
+      // Background revalidation; promise from send() already resolved with cache snapshot
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendRequest(request, sendRequestOptions);
+      return resolved;
+    }
+
+    return sendRequest(request, sendRequestOptions);
   };
 
   static fromJSON = <

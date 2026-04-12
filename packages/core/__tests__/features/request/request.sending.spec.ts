@@ -1,3 +1,4 @@
+import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { getErrorMessage } from "adapter";
@@ -269,6 +270,95 @@ describe("Request [ Sending ]", () => {
       expect(spy4.mock.calls.length).toBeGreaterThanOrEqual(1);
       expect(spy5.mock.calls.length).toBeGreaterThanOrEqual(1);
       expect(spy6).toHaveBeenCalledTimes(1);
+    });
+
+    describe("cachePolicy", () => {
+      it("cache-first uses read() and does not call adapter when cache is primed", async () => {
+        const fetchSpy = vi.fn(() => ({ data: fixture, status: 200 }));
+        const r = request.setMock(fetchSpy);
+        await r.send({});
+        fetchSpy.mockClear();
+
+        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "cache-first" });
+
+        expect(response).toStrictEqual({
+          data: fixture,
+          error: null,
+          status: 200,
+          success: true,
+          extra: xhrExtra,
+        });
+        expect(fetchSpy).not.toHaveBeenCalled();
+      });
+
+      it("cache-first fetches when cache is empty", async () => {
+        const fetchSpy = vi.fn(() => ({ data: fixture, status: 200 }));
+        const r = request.setMock(fetchSpy);
+        client.cache.clear();
+
+        await r.send({ cachePolicy: "cache-first" });
+
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it("revalidate resolves with cache immediately and refreshes in the background", async () => {
+        const fetchSpy = vi.fn(() => ({ data: fixture, status: 200 }));
+        const r = request.setMock(fetchSpy);
+        await r.send({});
+        fetchSpy.mockClear();
+        fetchSpy.mockImplementation(() => ({ data: { refreshed: true } as any, status: 200 }));
+
+        const { responseTimestamp, requestTimestamp, ...immediate } = await r.send({ cachePolicy: "revalidate" });
+
+        expect(immediate.data).toStrictEqual(fixture);
+
+        await waitFor(() => {
+          expect(fetchSpy).toHaveBeenCalledTimes(1);
+        });
+
+        await waitFor(() => {
+          expect(r.read()?.data).toStrictEqual({ refreshed: true });
+        });
+      });
+
+      it("revalidate awaits network when cache is empty", async () => {
+        const fetchSpy = vi.fn(() => ({ data: fixture, status: 200 }));
+        const r = request.setMock(fetchSpy);
+        client.cache.clear();
+
+        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "revalidate" });
+
+        expect(response.data).toStrictEqual(fixture);
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it("network-only matches default send", async () => {
+        const { responseTimestamp, requestTimestamp, ...response } = await request.send({
+          cachePolicy: "network-only",
+        });
+
+        expect(response).toStrictEqual({
+          data: fixture,
+          error: null,
+          status: 200,
+          success: true,
+          extra: { headers: { "content-type": "application/json", "content-length": "25" } },
+        });
+      });
+
+      it("cache-first applies response mapper without calling adapter", async () => {
+        const fetchSpy = vi.fn(() => ({ data: fixture, status: 200 }));
+        const r = request
+          .setResponseMapper((res) => ({ ...res, data: { nested: res.data } }) as typeof res)
+          .setMock(fetchSpy);
+        await r.send({});
+        fetchSpy.mockClear();
+
+        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "cache-first" });
+
+        expect(response.data).toStrictEqual({ nested: fixture });
+        expect(fetchSpy).not.toHaveBeenCalled();
+      });
     });
   });
 });

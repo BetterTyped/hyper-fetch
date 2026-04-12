@@ -1,4 +1,4 @@
-import { ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
+import { AdapterInstance, ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
 import type { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "./request.types";
 import { HttpMethods } from "constants/http.constants";
 import { Dispatcher } from "dispatcher";
@@ -113,6 +113,19 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   const dispatcher = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 
   return [dispatcher, isFetchDispatcher];
+};
+
+export const mapResponseForSend = async <Request extends RequestInstance>(
+  request: Request,
+  response: ResponseType<any, any, AdapterInstance>,
+): Promise<RequestResponseType<Request>> => {
+  const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+
+  if (mapping instanceof Promise) {
+    return (await mapping) as RequestResponseType<Request>;
+  }
+
+  return (mapping || response) as RequestResponseType<Request>;
 };
 
 export const sendRequest = <Request extends RequestInstance>(

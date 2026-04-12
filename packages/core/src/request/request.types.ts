@@ -255,11 +255,14 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
         queryParams: QueryParams;
       };
 
+export type RequestCachePolicyType = "network-only" | "cache-first" | "revalidate";
+
 export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omit<
   Partial<RequestOptionsType<string, ExtractAdapterOptionsType<ExtractAdapterType<Request>>>>,
   "params" | "data" | "endpoint" | "method"
 > & {
   dispatcherType?: "auto" | "fetch" | "submit";
+  cachePolicy?: RequestCachePolicyType;
 };
 
 // Request making
