@@ -86,7 +86,20 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
 
   future: {
-    faster: true,
+    // Same as `faster: true` but Webpack for client/server bundles. Rspack has
+    // been observed to finish without writing `build/__server/server.bundle.js`,
+    // which breaks SSG with ENOENT when loading the server bundle.
+    faster: {
+      swcJsLoader: true,
+      swcJsMinimizer: true,
+      swcHtmlMinimizer: true,
+      lightningCssMinimizer: true,
+      mdxCrossCompilerCache: true,
+      rspackBundler: false,
+      rspackPersistentCache: false,
+      ssgWorkerThreads: true,
+      gitEagerVcs: true,
+    },
     v4: {
       removeLegacyPostBuildHeadAttribute: true, // required
       useCssCascadeLayers: false,

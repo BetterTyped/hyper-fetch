@@ -48,7 +48,7 @@ const features: FeatureItem[] = [
     ),
     graphic: () => <CliSdkDemo />,
     link: () => (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/cli/generate">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/cli/commands/generate">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),

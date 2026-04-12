@@ -25,6 +25,7 @@
     "@docusaurus/theme-mermaid": "^3.10.0",
     "@hyper-fetch/core": "file:../packages/core",
     "@hyper-fetch/react": "file:../packages/react",
+    "@mermaid-js/layout-elk": "^0.2.1",
     "@mdx-js/react": "^3.0.0",
     "@radix-ui/react-tabs": "^1.1.11",
     "@radix-ui/react-toast": "^1.2.13",

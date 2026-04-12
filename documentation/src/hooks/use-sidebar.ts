@@ -1,12 +1,48 @@
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 import { useLocation } from "@docusaurus/router";
 import useGlobalData from "@docusaurus/useGlobalData";
 
 import { useVersion } from "./use-version";
-import { modules, Section } from "../modules";
+import type { Section } from "../modules";
+import { modules } from "../modules";
 import { integrations } from "../integrations";
 import { guides } from "../guides";
 import { apiOverviewSection } from "../apis";
+
+const VERSION_SEGMENT = /^v\d+\.\d+\.\d+$/;
+
+/** e.g. /docs/integrations/foo/... or /docs/v7.0.0/integrations/foo/... → foo */
+function segmentAfterPathMarker(path: string, marker: string): string {
+  const parts = path.split("/").filter(Boolean);
+  const i = parts.indexOf(marker);
+  return parts[i + 1] ?? "";
+}
+
+/**
+ * First docs slug: /docs/getting-started or /docs/v7.0.0/getting-started → getting-started
+ * (skips optional version segment after docs)
+ */
+function docsRootSlugFromPath(path: string): string {
+  const parts = path.split("/").filter(Boolean);
+  if (parts[0] !== "docs") {
+    return "";
+  }
+  let i = 1;
+  if (VERSION_SEGMENT.test(parts[i] ?? "")) {
+    i += 1;
+  }
+  return parts[i] ?? "";
+}
+
+function docRouteActive(pathname: string, prefix: string, component: string): boolean {
+  const c = component.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  if (prefix === "docs") {
+    return new RegExp(`/docs/(?:v\\d+\\.\\d+\\.\\d+/)?${c}(?:/|$)`).test(pathname);
+  }
+  const p = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`/docs/(?:v\\d+\\.\\d+\\.\\d+/)?${p}/${c}(?:/|$)`).test(pathname);
+}
 
 type SidebarElement = {
   link: {
@@ -64,9 +100,10 @@ export const useSidebar = (options?: {
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
 
-    const isApiPage = location.pathname.includes("/docs/api");
-    const isIntegrationsPage = location.pathname.includes("/docs/integrations");
-    const isGuidesPage = location.pathname.includes("/docs/guides");
+    // Versioned URLs use /docs/vX.Y.Z/integrations/... — do not use "/docs/integrations" (no version in between).
+    const isApiPage = location.pathname.includes("/api/");
+    const isIntegrationsPage = location.pathname.includes("/integrations/");
+    const isGuidesPage = location.pathname.includes("/guides/");
 
     return Object.values(currentVersion.sidebars)
       .filter((value) => {
@@ -78,34 +115,31 @@ export const useSidebar = (options?: {
 
         const linkPath = value.link.path;
         if (showAllPackages) {
-          return !linkPath.includes("/docs/api") && !linkPath.includes("/docs/guides");
+          return !linkPath.includes("/api/") && !linkPath.includes("/guides/");
         }
         if (isApiPage) {
-          return linkPath.includes("/api");
+          return linkPath.includes("/api/");
         }
         if (isIntegrationsPage) {
-          return linkPath.includes("/integrations");
+          return linkPath.includes("/integrations/");
         }
         if (isGuidesPage) {
-          return linkPath.includes("/guides");
+          return linkPath.includes("/guides/");
         }
-        return (
-          !linkPath.includes("/docs/api") &&
-          !linkPath.includes("/docs/integrations") &&
-          !linkPath.includes("/docs/guides")
-        );
+        return !linkPath.includes("/api/") && !linkPath.includes("/integrations/") && !linkPath.includes("/guides/");
       })
       .map((value) => {
-        /**
-         * DO NOT CHANGE!
-         * @caution If it fails - you made mistake in the sidebar config :)
-         */
-        const pathParts = value.link.path.split("/");
-        const isNonDocs =
-          value.link.path.includes("/integrations") ||
-          value.link.path.includes("/guides") ||
-          value.link.path.includes("/api");
-        const componentName = isNonDocs ? pathParts[3] : pathParts[2];
+        const { path } = value.link;
+        let componentName: string;
+        if (path.includes("/integrations/")) {
+          componentName = segmentAfterPathMarker(path, "integrations");
+        } else if (path.includes("/guides/")) {
+          componentName = segmentAfterPathMarker(path, "guides");
+        } else if (path.includes("/api/")) {
+          componentName = segmentAfterPathMarker(path, "api");
+        } else {
+          componentName = docsRootSlugFromPath(path);
+        }
         const component = componentName.toLocaleLowerCase();
 
         const allPackages = [
@@ -150,8 +184,7 @@ export const useSidebar = (options?: {
           prefix = "docs";
         }
 
-        const active =
-          location.pathname.includes(`${prefix}/${component}/`) || location.pathname.endsWith(`${prefix}/${component}`);
+        const active = docRouteActive(location.pathname, prefix, component);
 
         return {
           name: section?.label || componentName,
