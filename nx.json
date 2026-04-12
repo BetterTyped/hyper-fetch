@@ -2,11 +2,13 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
-      "executor": ""
+      "dependsOn": ["^build"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
     },
     "test": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+      "inputs": ["default", "^default"]
     }
   },
   "workspaceLayout": {
@@ -47,12 +49,6 @@
       }
     },
     {
-      "plugin": "@nx/jest/plugin",
-      "options": {
-        "targetName": "jest:test"
-      }
-    },
-    {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "eslint:lint",
@@ -80,5 +76,7 @@
     }
   ],
   "parallel": 1,
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "neverConnectToCloud": true,
+  "analytics": false
 }

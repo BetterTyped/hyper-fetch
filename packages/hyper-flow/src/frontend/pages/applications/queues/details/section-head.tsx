@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 import { Badge } from "@/components/ui/badge";
 import { Key } from "@/components/ui/key";

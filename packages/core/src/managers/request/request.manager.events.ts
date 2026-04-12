@@ -1,6 +1,14 @@
 /* eslint-disable max-params */
-import EventEmitter from "events";
+import type EventEmitter from "events";
 
+import type {
+  RequestEventType,
+  RequestLoadingEventType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+  RequestRemovedEventType,
+  RequestDeduplicatedEventType,
+} from "managers";
 import {
   getRequestStarByQueryKey,
   getResponseStartByQueryKey,
@@ -16,8 +24,6 @@ import {
   getRequestStartByIdKey,
   getLoadingByQueryKey,
   getLoadingByIdKey,
-  RequestEventType,
-  RequestLoadingEventType,
   getRemoveByQueryKey,
   getRemoveByIdKey,
   getLoadingKey,
@@ -28,20 +34,16 @@ import {
   getAbortKey,
   getRemoveKey,
   getResponseStartKey,
-  RequestProgressEventType,
-  RequestResponseEventType,
-  RequestRemovedEventType,
   getLoadingByCacheKey,
-  RequestDeduplicatedEventType,
   getRequestDeduplicatedKey,
   getRequestDeduplicatedByIdKey,
   getRequestDeduplicatedByCacheKey,
   getRequestDeduplicatedByQueryKey,
 } from "managers";
-import { AdapterInstance } from "adapter";
-import { RequestInstance } from "request";
-import { Client } from "client";
-import { ExtendRequest } from "types";
+import type { AdapterInstance } from "adapter";
+import type { RequestInstance } from "request";
+import type { Client } from "client";
+import type { ExtendRequest } from "types";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**

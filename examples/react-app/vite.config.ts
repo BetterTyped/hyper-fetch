@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin";
@@ -27,15 +28,12 @@ export default defineConfig(({ mode }) => {
       nxViteTsPaths({
         debug: true,
       }),
-      // viteTsConfigPaths({
-      //   root: "../../",
-      //   ignoreConfigErrors: true,
-      // }),
     ],
 
-    // Uncomment this if you are using workers.
-    // worker: {
-    //  plugins: [ nxViteTsPaths() ],
-    // },
+    test: {
+      globals: true,
+      environment: "jsdom",
+      include: ["specs/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    },
   };
 });

@@ -13,7 +13,7 @@ describe("Socket Adapter [ Connection ]", () => {
   let socket: ReturnType<typeof createSocket>;
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     startServer();
     socket = createSocket(socketOptions);
   });
@@ -23,7 +23,7 @@ describe("Socket Adapter [ Connection ]", () => {
   });
 
   it("should auto connect", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onConnected(spy);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -32,7 +32,7 @@ describe("Socket Adapter [ Connection ]", () => {
   });
 
   it("should prevent initial connection", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newSocket = new Socket({ url, adapterOptions: { autoConnect: false } });
     newSocket.events.onConnected(spy);
     await sleep(20);
@@ -40,7 +40,7 @@ describe("Socket Adapter [ Connection ]", () => {
   });
 
   it("should reconnect when going online", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     await waitForConnection(socket);
     socket.appManager.setOnline(false);
     socket.onDisconnected(() => {
@@ -55,7 +55,7 @@ describe("Socket Adapter [ Connection ]", () => {
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newUrl = "ws://test";
     socket = createSocket({ url: newUrl, reconnectTime: 1 });
     socket.events.onReconnecting(spy);

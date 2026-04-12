@@ -1,4 +1,7 @@
 import { Client } from "client";
+import type { CacheValueType } from "cache";
+import { xhrExtra } from "http-adapter";
+import { scopeKey } from "request";
 
 describe("Client [ Hydration ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -60,7 +63,7 @@ describe("Client [ Hydration ]", () => {
       expect(dehydratedResponse).toStrictEqual(expect.objectContaining({ cacheKey: request.cacheKey, response }));
 
       const newClient = new Client({ url: "shared-base-url" });
-      const cacheData: CacheValueType = {
+      const cacheData = {
         data: "123456789",
         status: 200,
         error: null,
@@ -75,7 +78,7 @@ describe("Client [ Hydration ]", () => {
         isOffline: false,
         hydrated: false,
         cached: true,
-      };
+      } as CacheValueType;
 
       newClient.cache.set(mockedRequest, cacheData);
 
@@ -85,6 +88,7 @@ describe("Client [ Hydration ]", () => {
         cacheTime: mockedRequest.cacheTime,
         staleTime: mockedRequest.staleTime,
         version: newClient.cache.version,
+        scope: null,
       });
 
       newClient.hydrate([dehydratedResponse]);
@@ -95,6 +99,7 @@ describe("Client [ Hydration ]", () => {
         cacheTime: mockedRequest.cacheTime,
         staleTime: mockedRequest.staleTime,
         version: newClient.cache.version,
+        scope: null,
       });
     });
     it("should handle null/undefined items in hydration data", async () => {
@@ -114,7 +119,7 @@ describe("Client [ Hydration ]", () => {
       const dehydratedResponse = mockedRequest.dehydrate();
 
       const newClient = new Client({ url: "shared-base-url" });
-      const optionsFn = jest.fn().mockReturnValue({ cache: false });
+      const optionsFn = vi.fn().mockReturnValue({ cache: false });
 
       newClient.hydrate([dehydratedResponse], optionsFn);
 
@@ -162,10 +167,70 @@ describe("Client [ Hydration ]", () => {
 
       client.cache.clear();
 
-      const spy = jest.spyOn(client.cache, "set");
+      const spy = vi.spyOn(client.cache, "set");
       client.hydrate([dehydratedResponse], { override: false });
 
       expect(spy).toHaveBeenCalled();
+    });
+
+    it("should hydrate and read scoped cache via scopeKey", async () => {
+      const scoped = request.setScope("hydr-scope").setMock(() => ({ data: "scoped-val", status: 200 }));
+      const response = await scoped.send();
+      const dehydratedResponse = scoped.dehydrate();
+      expect(dehydratedResponse).toEqual(expect.objectContaining({ scope: "hydr-scope", cacheKey: scoped.cacheKey }));
+
+      const newClient = new Client({ url: "shared-base-url" });
+      const sk = scopeKey(scoped.cacheKey, "hydr-scope");
+      expect(newClient.cache.get(scoped.cacheKey)).not.toBeDefined();
+
+      newClient.hydrate([dehydratedResponse]);
+
+      expect(newClient.cache.get(sk)).toStrictEqual(
+        expect.objectContaining({ ...response, cacheKey: scoped.cacheKey, staleTime: scoped.staleTime }),
+      );
+    });
+
+    it("should skip hydrate when override is false and scoped slot already has data", async () => {
+      const scoped = request.setScope("no-over").setMock(() => ({ data: "a", status: 200 }));
+      await scoped.send();
+      const ts = Date.now();
+      const dehydratedResponse = scoped.dehydrate({
+        response: {
+          data: "b",
+          status: 200,
+          success: true,
+          error: null,
+          extra: xhrExtra,
+          requestTimestamp: ts,
+          responseTimestamp: ts,
+        },
+      });
+
+      const newClient = new Client({ url: "shared-base-url" });
+      const existingReq = newClient
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setScope("no-over");
+      const sk = scopeKey(existingReq.cacheKey, "no-over");
+
+      newClient.cache.set(existingReq.setCache(true), {
+        data: "existing",
+        error: null,
+        status: 200,
+        success: true,
+        extra: xhrExtra,
+        retries: 0,
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
+        isCanceled: false,
+        isOffline: false,
+        willRetry: false,
+      });
+
+      newClient.hydrate([dehydratedResponse], { override: false });
+
+      expect(newClient.cache.get(sk)?.data).toBe("existing");
     });
   });
 });

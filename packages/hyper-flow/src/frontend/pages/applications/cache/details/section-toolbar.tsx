@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CacheValueType } from "@hyper-fetch/core";
+import type { CacheValueType } from "@hyper-fetch/core";
 import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { DevtoolsCacheEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useCacheStore } from "@/store/applications/cache.store";
 import {
@@ -37,7 +37,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { SimulatedError } from "@/store/applications/apps.store";
+import type { SimulatedError } from "@/store/applications/apps.store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 

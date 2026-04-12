@@ -246,7 +246,7 @@ describe("Client [ Utils ]", () => {
 
   describe("when interceptors are disabled", () => {
     it("should skip request interceptors when disabled", async () => {
-      const mockInterceptor = jest.fn((req) => req);
+      const mockInterceptor = vi.fn((req) => req);
       const req = client.createRequest<{ response: any }>()({
         endpoint: "shared-base-endpoint",
         disableRequestInterceptors: true,
@@ -259,7 +259,7 @@ describe("Client [ Utils ]", () => {
     });
 
     it("should skip response interceptors when disabled", async () => {
-      const mockInterceptor = jest.fn((res) => res);
+      const mockInterceptor = vi.fn((res) => res);
       const response = {
         data: { test: "data" },
         status: 200,
@@ -277,7 +277,7 @@ describe("Client [ Utils ]", () => {
     });
 
     it("should run interceptors when not disabled", async () => {
-      const mockInterceptor = jest.fn((req) => req);
+      const mockInterceptor = vi.fn((req) => req);
 
       const req = client.createRequest<{ response: any }>()({
         endpoint: "shared-base-endpoint",

@@ -1,5 +1,5 @@
-import { DocumentSnapshot } from "@firebase/firestore";
-import { QuerySnapshot } from "firebase/firestore";
+import type { DocumentSnapshot } from "@firebase/firestore";
+import type { QuerySnapshot } from "firebase/firestore";
 
 export enum FirestoreDocOrQuery {
   DOC = "doc",

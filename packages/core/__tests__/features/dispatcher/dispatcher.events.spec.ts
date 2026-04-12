@@ -1,8 +1,9 @@
 import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { AdapterInstance, ResponseType, getErrorMessage } from "adapter";
-import { ResponseDetailsType } from "managers";
+import type { AdapterInstance, ResponseType } from "adapter";
+import { getErrorMessage } from "adapter";
+import type { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
@@ -10,7 +11,7 @@ import { xhrExtra } from "http-adapter";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Events ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -23,7 +24,7 @@ describe("Dispatcher [ Events ]", () => {
 
   beforeEach(() => {
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -37,7 +38,7 @@ describe("Dispatcher [ Events ]", () => {
 
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = client.requestManager.events.onLoadingByQueue(request.queryKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -46,7 +47,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit drained event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onDrainedByKey(request.queryKey, spy);
       const requestId = dispatcher.add(request.setQueued(true));
       dispatcher.delete(request.queryKey, requestId, request.abortKey);
@@ -61,7 +62,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit queue status change event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onQueueStatusChangeByKey(request.queryKey, spy);
       dispatcher.stop(request.queryKey);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -70,7 +71,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit queue change event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onQueueChangeByKey(request.queryKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -79,7 +80,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should handle listen change events correctly", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.emitter.onListener(request.queryKey, spy);
 
       const listener = () => {};
@@ -122,6 +123,7 @@ describe("Dispatcher [ Events ]", () => {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
         triggerTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
@@ -154,6 +156,7 @@ describe("Dispatcher [ Events ]", () => {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
         triggerTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
@@ -193,6 +196,7 @@ describe("Dispatcher [ Events ]", () => {
         retries: 1,
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
         triggerTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
@@ -227,6 +231,7 @@ describe("Dispatcher [ Events ]", () => {
         retries: 0,
         isCanceled: true,
         isOffline: false,
+        willRetry: false,
         addedTimestamp: expect.toBeNumber(),
         requestTimestamp: expect.toBeNumber(),
         responseTimestamp: expect.toBeNumber(),
@@ -238,7 +243,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit and unsubscribe from global drained event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onDrained(spy);
 
       // Add and complete multiple requests to trigger drain
@@ -262,7 +267,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1); // Should not be called again
     });
     it("should emit and unsubscribe from global queue status change event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onQueueStatusChange(spy);
 
       // Trigger queue status change
@@ -280,7 +285,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit and unsubscribe from global queue change event", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const unmount = dispatcher.events.onQueueChange(spy);
 
       // Add request to trigger queue change

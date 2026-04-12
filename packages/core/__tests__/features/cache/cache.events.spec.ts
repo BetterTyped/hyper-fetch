@@ -1,6 +1,6 @@
 import { sleep } from "@hyper-fetch/testing";
 
-import { CacheValueType } from "cache";
+import type { CacheValueType } from "cache";
 import { createCache } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
@@ -10,9 +10,9 @@ describe("Cache [ Events ]", () => {
   const cacheKey = "test";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
   let cache = createCache(client);
-  const spy = jest.fn();
+  const spy = vi.fn();
 
   const cacheData: CacheValueType = {
     data: null,
@@ -28,7 +28,9 @@ describe("Cache [ Events ]", () => {
     cached: true,
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     cacheKey: request.cacheKey,
+    scope: null,
     staleTime: request.staleTime,
     version: cache.version,
     cacheTime: 300000,
@@ -36,9 +38,9 @@ describe("Cache [ Events ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-endpoint", cacheKey, cache: true });
     cache = createCache(client);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("when options events are triggered", () => {
@@ -155,6 +157,7 @@ describe("Cache [ Events ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       });
       cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(cacheKey);
@@ -175,6 +178,7 @@ describe("Cache [ Events ]", () => {
         triggerTimestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
       });
       cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));

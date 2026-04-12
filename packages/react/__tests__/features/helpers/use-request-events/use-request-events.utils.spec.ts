@@ -21,7 +21,7 @@ describe("useRequestEvents [ Utils ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
   });
 
@@ -32,7 +32,7 @@ describe("useRequestEvents [ Utils ]", () => {
       expect(response.result.current[1].removeLifecycleListener).not.toThrow();
     });
     it("should unmount lifecycle events when handling requests by queue/cache keys", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request);
       const response = renderUseRequestEvents(request);
 
@@ -48,7 +48,7 @@ describe("useRequestEvents [ Utils ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should listen to every request id events", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request);
       const response = renderUseRequestEvents(request);
 

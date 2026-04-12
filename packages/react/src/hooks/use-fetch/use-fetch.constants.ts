@@ -1,17 +1,20 @@
-import { Time, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import { Time } from "@hyper-fetch/core";
 
-import { UseFetchOptionsType } from "hooks/use-fetch";
+import type { UseFetchOptionsType } from "hooks/use-fetch";
 
 type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse">> & {
   initialResponse: null;
 };
 
 export const useFetchDefaultOptions: DefaultOptionsType = {
+  suspense: false,
   dependencies: [],
   disabled: false,
   dependencyTracking: true,
   revalidate: true,
   initialResponse: null,
+  keepPreviousData: "auto",
   refresh: false,
   refreshTime: Time.HOUR,
   refetchBlurred: true,

@@ -1,6 +1,6 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { ResponseDetailsType } from "managers";
-import { RequestInstance } from "request";
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { ResponseDetailsType } from "managers";
+import type { RequestInstance } from "request";
 
 export type CacheOptionsType = {
   /**
@@ -26,6 +26,7 @@ export type CacheValueType<
 > = ResponseType<Response, Error, Adapter> &
   ResponseDetailsType & {
     cacheKey: string;
+    scope: string | null;
     staleTime: number;
     version: string;
     cacheTime: number;
@@ -63,4 +64,7 @@ export type CacheInitialData = Record<string, CacheValueType>;
 
 export type CacheSetState<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);
 
-export type RequestCacheType<R extends RequestInstance> = Pick<R, "cacheKey" | "cache" | "staleTime" | "cacheTime">;
+export type RequestCacheType<R extends RequestInstance> = Pick<
+  R,
+  "cacheKey" | "cache" | "staleTime" | "cacheTime" | "scope"
+>;

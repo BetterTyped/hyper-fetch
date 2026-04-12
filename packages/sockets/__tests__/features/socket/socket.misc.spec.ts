@@ -1,3 +1,4 @@
+import type { MockInstance } from "vitest";
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
@@ -9,19 +10,19 @@ const windowInstance = global.window;
 describe("Socket Client [ Utils ]", () => {
   const { startServer } = createWebsocketMockingServer();
   let socket = createSocket();
-  let windowSpy: jest.SpyInstance<Window & typeof globalThis, []>;
+  let windowSpy: MockInstance;
   const url = "ws://localhost:1234";
 
   beforeEach(async () => {
     startServer();
-    windowSpy = jest.spyOn(global, "window", "get");
+    windowSpy = vi.spyOn(global, "window", "get");
     socket = createSocket();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should allow to remove listener", async () => {
-    const spy = jest.fn();
-    const spy2 = jest.fn();
+    const spy = vi.fn();
+    const spy2 = vi.fn();
     socket.adapter.listeners.set("test", new Map<any, any>().set(spy, spy2));
     const removed = socket.adapter.removeListener({ topic: "test", callback: spy });
     expect(removed).toBeTrue();
@@ -29,7 +30,7 @@ describe("Socket Client [ Utils ]", () => {
   });
 
   it("should not throw when removing not existing listener", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const removed = socket.adapter.removeListener({ topic: "test", callback: spy });
     expect(removed).toBeFalse();
   });
@@ -65,7 +66,7 @@ describe("Socket Client [ Utils ]", () => {
   describe("getWebsocketAdapter utils", () => {
     beforeEach(() => {
       windowSpy.mockImplementation(() => windowInstance);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
     it("should create correct url", () => {
       socket = createSocket({ queryParams: { bar: 2 } });

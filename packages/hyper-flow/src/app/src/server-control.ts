@@ -2,7 +2,8 @@ import { ipcMain, BrowserWindow, app } from "electron";
 import { parseResponse } from "@hyper-fetch/core";
 import * as net from "net";
 
-import { startServer, StartServer } from "../../server";
+import type { StartServer } from "../../server";
+import { startServer } from "../../server";
 import { store } from "./persistent-store";
 import { appLogger } from "../../shared/utils/logger";
 

@@ -6,7 +6,7 @@ import {
 } from "@hyper-fetch/testing";
 
 import { Client } from "client";
-import { ExtractLocalErrorType } from "types";
+import type { ExtractLocalErrorType } from "types";
 
 const client = new Client({
   url: "http://localhost:3000",

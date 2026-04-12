@@ -1,6 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 
 import { GraphqlMethod, getRequestValues, GraphqlAdapter } from "adapter";
+import { gqlEndpointNameMapper } from "../../../src/adapter/adapter.utils";
 import { getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 
 describe("Graphql Adapter [ Utils ]", () => {
@@ -25,9 +26,9 @@ describe("Graphql Adapter [ Utils ]", () => {
       method: GraphqlMethod.GET,
     });
 
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("When using getRequestValues", () => {
@@ -48,6 +49,38 @@ describe("Graphql Adapter [ Utils ]", () => {
       expect(payload).toBeNull();
       expect(requestGet.method).toBe("GET");
       expect(requestGet.endpoint).toBeString();
+    });
+  });
+
+  describe("When using gqlEndpointNameMapper", () => {
+    it("should return operation name for a named query", () => {
+      const result = gqlEndpointNameMapper("query GetUser { username { username firstName } }");
+      expect(result).toBe("GetUser");
+    });
+
+    it("should return field name when operation has no name", () => {
+      const result = gqlEndpointNameMapper("query { username { username firstName } }");
+      expect(result).toBe("username");
+    });
+
+    it("should fallback when operation has no name and selection is not a Field", () => {
+      const result = gqlEndpointNameMapper("query { ... on User { username } }");
+      expect(result).toBe("User");
+    });
+
+    it("should return 'graphql-request' when endpoint is empty after cleanup", () => {
+      const result = gqlEndpointNameMapper("{}");
+      expect(result).toBe("graphql-request");
+    });
+
+    it("should use fallback when parse throws (invalid graphql)", () => {
+      const result = gqlEndpointNameMapper("not a valid graphql string at all");
+      expect(result).toBe("not");
+    });
+
+    it("should return 'graphql-request' when entire fallback string is empty", () => {
+      const result = gqlEndpointNameMapper("query");
+      expect(result).toBe("graphql-request");
     });
   });
 });

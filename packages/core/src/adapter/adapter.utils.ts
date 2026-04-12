@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 // Utils
 import { hasWindow } from "managers";
-import { RequestInstance } from "request";
+import type { RequestInstance } from "request";
 
 export class TimeoutError extends Error {
   constructor() {

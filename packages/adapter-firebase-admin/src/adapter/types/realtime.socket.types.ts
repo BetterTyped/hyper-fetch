@@ -1,7 +1,7 @@
-import { SocketAdapter } from "@hyper-fetch/sockets";
-import { Reference, DataSnapshot } from "firebase-admin/database";
+import type { SocketAdapter } from "@hyper-fetch/sockets";
+import type { Reference, DataSnapshot } from "firebase-admin/database";
 
-import { RealtimeDBQueryParams, RealtimeDBStatuses } from "adapter/index";
+import type { RealtimeDBQueryParams, RealtimeDBStatuses } from "adapter/index";
 
 export type RealtimeAdminSocketAdapterType = SocketAdapter<
   any,

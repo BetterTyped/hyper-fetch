@@ -1,8 +1,11 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
-import { SidebarItem, useSidebar } from "@site/src/hooks/use-sidebar";
+import type { SidebarItem } from "@site/src/hooks/use-sidebar";
+import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { cn } from "@site/src/lib/utils";
 import Search from "@theme/NavbarItem/SearchNavbarItem";
+
+import { DocsVersionPicker } from "./docs-version-picker";
 
 const getColor = (item: SidebarItem) => {
   return item.active
@@ -26,6 +29,7 @@ export const SidebarMenu = () => {
         <div className="flex items-center justify-between gap-2 w-full [&>div]:w-full bg-gradient-to-b from-[#1c1c1d] to-transparent from-50% rounded-tr-md">
           <Search className="!px-0 !pt-0" />
         </div>
+        <DocsVersionPicker />
         {activeItem && (
           <div className="mt-4">
             <ul>

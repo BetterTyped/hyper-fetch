@@ -55,8 +55,9 @@ const persistenceStorage: CacheStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  cache: (instance) =>
-    new Cache(instance, {
+  // highlight-next-line
+  cache: () =>
+    new Cache({
       storage: persistenceStorage,
     }),
 });
@@ -82,8 +83,9 @@ const asyncStorage: CacheAsyncStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  cache: (instance) =>
-    new Cache(instance, {
+  // highlight-next-line
+  cache: () =>
+    new Cache({
       lazyStorage: asyncStorage,
     }),
 });
@@ -96,6 +98,10 @@ export const client = new Client({
 Queue persistence ensures that requests are not lost if the application closes or loses internet connection. When the
 application restarts, the dispatcher will attempt to resend any queued requests. To enable it, you need to provide a
 synchronous storage implementation to the `Dispatcher`.
+
+When requests are stored in a JSON-serializing storage (e.g. MMKV, AsyncStorage), they are automatically reconstructed
+back into proper `Request` class instances when read from the queue. This means you can use any JSON-based storage
+without worrying about losing request functionality.
 
 :::caution
 
@@ -124,14 +130,21 @@ const persistenceStorage: DispatcherStorageType = {
     return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
+  entries: function* () {
+    const keys = storage.getAllKeys();
+    for (const key of keys) {
+      yield [key, JSON.parse(storage.getString(key) || "null")];
+    }
+  },
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  fetchDispatcher: (instance) =>
-    new Dispatcher(instance, {
+  // highlight-next-line
+  fetchDispatcher: () =>
+    new Dispatcher({
       storage: persistenceStorage,
     }),
 });
@@ -156,14 +169,21 @@ const persistenceStorage: DispatcherStorageType = {
     return value ? JSON.parse(value) : undefined;
   },
   keys: () => storage.getAllKeys(),
+  entries: function* () {
+    const keys = storage.getAllKeys();
+    for (const key of keys) {
+      yield [key, JSON.parse(storage.getString(key) || "null")];
+    }
+  },
   delete: (key) => storage.delete(key),
   clear: () => storage.clearAll(),
 };
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  submitDispatcher: (instance) =>
-    new Dispatcher(instance, {
+  // highlight-next-line
+  submitDispatcher: () =>
+    new Dispatcher({
       storage: persistenceStorage,
     }),
 });

@@ -1,0 +1,69 @@
+/// <reference types="vitest/config" />
+import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
+import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
+import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
+import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-externals-from-package";
+
+const testingBuildExternals = [
+  "msw",
+  "msw/node",
+  "jest-websocket-mock",
+  "eventsourcemock",
+  /^node:/,
+  "http",
+  "https",
+  "path",
+  "fs",
+  "url",
+  "stream",
+  "net",
+  "tls",
+  "zlib",
+  "events",
+  "buffer",
+  "crypto",
+  "os",
+  "util",
+  "assert",
+  "querystring",
+] as const;
+
+export default defineConfig({
+  build: {
+    lib: {
+      entry: "src/index.ts",
+      formats: ["es"],
+      fileName: "index",
+    },
+    sourcemap: true,
+    minify: false,
+    rollupOptions: {
+      external: [...getRollupExternalsFromPackageJson(__dirname), ...testingBuildExternals],
+    },
+  },
+  plugins: [
+    dts({
+      entryRoot: "src",
+      compilerOptions: getDtsCompilerOptionsForPackage(__dirname),
+    }),
+    tsconfigPaths(),
+  ],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./__tests__/vitest.setup.ts"],
+    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
+    },
+    alias: {
+      "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
+      "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
+      "@hyper-fetch/graphql": path.resolve(__dirname, "../adapter-graphql/src/index.ts"),
+    },
+  },
+});

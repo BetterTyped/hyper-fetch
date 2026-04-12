@@ -1,6 +1,6 @@
-import { ResponseDetailsType } from "managers";
-import { RequestInstance } from "request";
-import { ExtractAdapterResolvedType } from "types";
+import type { ResponseDetailsType } from "managers";
+import type { RequestInstance } from "request";
+import type { ExtractAdapterResolvedType } from "types";
 
 export const getCacheData = <T extends RequestInstance>(
   previousResponse: ExtractAdapterResolvedType<T> | undefined,

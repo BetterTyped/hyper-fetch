@@ -1,4 +1,4 @@
-import { DataSnapshot } from "firebase-admin/database";
+import type { DataSnapshot } from "firebase-admin/database";
 
 export const getOrderedResultRealtime = (snapshot: DataSnapshot) => {
   const res: any = [];

@@ -1,4 +1,4 @@
-import { QueueDataType } from "@hyper-fetch/core";
+import type { QueueDataType } from "@hyper-fetch/core";
 
 export enum QueueStatus {
   PENDING = "Pending",

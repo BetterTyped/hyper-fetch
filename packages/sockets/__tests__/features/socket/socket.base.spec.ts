@@ -21,7 +21,7 @@ describe("Socket [ Base ]", () => {
     server = getServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     await waitForConnection(socket);
   });
 
@@ -49,15 +49,15 @@ describe("Socket [ Base ]", () => {
     );
   });
   it("should not throw on message without name", async () => {
-    const spy = jest.fn().mockImplementation((res) => res);
+    const spy = vi.fn().mockImplementation((res) => res);
     socket.onMessage(spy);
-    socket.adapter.listeners.get = jest.fn();
+    socket.adapter.listeners.get = vi.fn();
     server.send(undefined as any);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(socket.adapter.listeners.get).toHaveBeenCalledWith(undefined);
   });
   it("should allow to connect", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onConnected(spy);
     socket.adapter.connect();
     await waitFor(() => {
@@ -65,7 +65,7 @@ describe("Socket [ Base ]", () => {
     });
   });
   it("should allow to disconnect", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onDisconnected(spy);
     socket.adapter.disconnect();
     await waitFor(() => {
@@ -73,7 +73,7 @@ describe("Socket [ Base ]", () => {
     });
   });
   it("should handle errors and trigger error callbacks", async () => {
-    const errorSpy = jest.fn();
+    const errorSpy = vi.fn();
 
     socket.onError(errorSpy);
 
@@ -88,7 +88,7 @@ describe("Socket [ Base ]", () => {
     });
   });
   it("should handle message callbacks with data and extra info", async () => {
-    const messageSpy = jest.fn();
+    const messageSpy = vi.fn();
     const testData = { topic: "message", data: "test" };
 
     const messageListener = socket.createListener<{ data: any; extra: any }>()({ topic: "message" });
@@ -105,7 +105,7 @@ describe("Socket [ Base ]", () => {
     });
   });
   it("should handle send callbacks", async () => {
-    const sendSpy = jest.fn();
+    const sendSpy = vi.fn();
     const message: DataType = { test: "test" };
 
     socket.onSend(({ emitter: e }) => {
@@ -127,7 +127,7 @@ describe("Socket [ Base ]", () => {
   });
   it("should set query params and allow chaining", () => {
     const queryParams = { token: "test-token" };
-    const setQueryParamsSpy = jest.spyOn(socket.adapter, "setQueryParams");
+    const setQueryParamsSpy = vi.spyOn(socket.adapter, "setQueryParams");
 
     const result = socket.setQueryParams(queryParams);
 
@@ -135,7 +135,7 @@ describe("Socket [ Base ]", () => {
     expect(result).toBe(socket);
   });
   it("should allow to reconnect", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     socket.events.onConnected(spy);
 
     await socket.reconnect();
@@ -145,7 +145,7 @@ describe("Socket [ Base ]", () => {
     });
   });
   it("should call adapter connect method", async () => {
-    const connectSpy = jest.spyOn(socket.adapter, "connect");
+    const connectSpy = vi.spyOn(socket.adapter, "connect");
 
     await socket.connect();
 

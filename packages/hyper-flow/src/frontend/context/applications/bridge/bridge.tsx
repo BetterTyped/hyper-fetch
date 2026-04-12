@@ -2,14 +2,8 @@ import { memo } from "react";
 import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Socket } from "@hyper-fetch/sockets";
-import {
-  AppInternalMessage,
-  HFEventMessage,
-  InternalEvents,
-  MessageOrigin,
-  PluginInternalMessage,
-  SocketTopics,
-} from "@hyper-fetch/plugin-devtools";
+import type { AppInternalMessage, HFEventMessage, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
+import { InternalEvents, MessageOrigin, SocketTopics } from "@hyper-fetch/plugin-devtools";
 
 import { useConnectionStore } from "@/store/applications/connection.store";
 import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";

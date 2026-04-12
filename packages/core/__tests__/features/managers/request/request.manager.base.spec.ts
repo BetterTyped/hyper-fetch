@@ -1,9 +1,10 @@
 import EventEmitter from "events";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { getRequestManagerEvents, RequestProgressEventType } from "managers";
+import type { RequestProgressEventType } from "managers";
+import { getRequestManagerEvents } from "managers";
 import { Client } from "client";
-import { RequestInstance } from "request";
+import type { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -21,7 +22,7 @@ describe("RequestManager [ Base ]", () => {
 
   beforeEach(() => {
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
     events = getRequestManagerEvents(new EventEmitter());
   });
@@ -48,7 +49,7 @@ describe("RequestManager [ Base ]", () => {
 
   describe("When request is being aborted", () => {
     it("should remove it from dispatcher's queue storage", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
       client.onResponse((response) => {
@@ -67,9 +68,9 @@ describe("RequestManager [ Base ]", () => {
 
   describe("When events get emitted", () => {
     it("should propagate the loading events", async () => {
-      const spy = jest.fn();
-      const spyQueue = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyQueue = vi.fn();
+      const spyById = vi.fn();
       events.onLoadingByCache(cacheKey, spy);
       events.onLoadingByQueue(queryKey, spyQueue);
       events.onLoadingById(requestId, spyById);
@@ -89,8 +90,8 @@ describe("RequestManager [ Base ]", () => {
       expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the request start events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onRequestStartByQueue(queryKey, spy);
       events.onRequestStartById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cacheKey, queryKey });
@@ -101,8 +102,8 @@ describe("RequestManager [ Base ]", () => {
       expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the response start events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onResponseStartByQueue(queryKey, spy);
       events.onResponseStartById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cacheKey, queryKey });
@@ -113,8 +114,8 @@ describe("RequestManager [ Base ]", () => {
       expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the upload events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onUploadProgressByQueue(queryKey, spy);
       events.onUploadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cacheKey, queryKey });
@@ -136,8 +137,8 @@ describe("RequestManager [ Base ]", () => {
       expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the download events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onDownloadProgressByQueue(queryKey, spy);
       events.onDownloadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cacheKey, queryKey });
@@ -161,8 +162,8 @@ describe("RequestManager [ Base ]", () => {
   });
   describe("When events get emitted", () => {
     it("should propagate the response events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onResponseByCache(cacheKey, spy);
       events.onResponseById(requestId, spyById);
 
@@ -182,6 +183,7 @@ describe("RequestManager [ Base ]", () => {
           retries: 0,
           isCanceled: false,
           isOffline: false,
+          willRetry: false,
           requestTimestamp: +new Date(),
           responseTimestamp: +new Date(),
           triggerTimestamp: +new Date(),
@@ -193,8 +195,8 @@ describe("RequestManager [ Base ]", () => {
       expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the remove events", async () => {
-      const spy = jest.fn();
-      const spyById = jest.fn();
+      const spy = vi.fn();
+      const spyById = vi.fn();
       events.onRemoveByQueue(queryKey, spy);
       events.onRemoveById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey, cacheKey });

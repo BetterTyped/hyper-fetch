@@ -1,15 +1,17 @@
+import type { Mock } from "vitest";
+
 import { Client } from "client";
 import { LoggerManager } from "managers";
 
 describe("Logger [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" }).setDebug(true);
   let loggerManager = new LoggerManager();
-  let mockLogger: jest.Mock;
+  let mockLogger: Mock;
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" }).setDebug(true);
     loggerManager = new LoggerManager();
-    mockLogger = jest.fn();
+    mockLogger = vi.fn();
     loggerManager.logger = mockLogger;
   });
 

@@ -1,8 +1,9 @@
 import { sleep } from "@hyper-fetch/testing";
 
-import { RequestInstance } from "request";
+import type { RequestInstance } from "request";
 import { Adapter } from "adapter";
-import { HttpAdapter, HttpAdapterType } from "http-adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { HttpAdapter } from "http-adapter";
 import { LoggerManager } from "managers";
 
 export const createAdapter = (props?: {

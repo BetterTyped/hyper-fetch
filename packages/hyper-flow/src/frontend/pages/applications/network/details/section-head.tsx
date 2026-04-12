@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Method } from "@/components/ui/method";
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
 export const SectionHead = ({ item }: { item: DevtoolsRequestEvent }) => {
   return (

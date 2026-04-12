@@ -2,12 +2,14 @@
 import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 
-import { WebsocketAdapter, WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
+import type { WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
+import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
+import { getWebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { Socket } from "socket";
+import type { Socket } from "socket";
 
 describe("Websocket Adapter [ Base ]", () => {
-  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
   const socketOptions = {
     url,
     adapter: WebsocketAdapter(),
@@ -18,7 +20,7 @@ describe("Websocket Adapter [ Base ]", () => {
   let socket: Socket<WebsocketAdapterType>;
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     startServer();
     socket = createSocket(socketOptions);
   });
@@ -39,7 +41,7 @@ describe("Websocket Adapter [ Base ]", () => {
     // @ts-ignore-error
     window.WebSocket = undefined;
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newSocket = createSocket(socketOptions);
     newSocket.events.onConnected(spy);
 
@@ -56,7 +58,7 @@ describe("Websocket Adapter [ Base ]", () => {
   });
 
   it("should handle disconnect before connection is established gracefully", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const newSocket = createSocket({
       adapter: WebsocketAdapter(),
       adapterOptions: {
@@ -123,7 +125,7 @@ describe("Websocket Adapter [ Base ]", () => {
   });
 
   it("should respect autoConnect setting when going online", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const socketWithoutAutoConnect = createSocket({
       adapter: WebsocketAdapter,
       adapterOptions: {
@@ -147,7 +149,7 @@ describe("Websocket Adapter [ Base ]", () => {
   });
 
   it("should properly clean up error event listeners on disconnect", async () => {
-    const errorSpy = jest.fn();
+    const errorSpy = vi.fn();
     socket.events.onDisconnected(errorSpy);
 
     // Disconnect and verify cleanup
@@ -176,5 +178,77 @@ describe("Websocket Adapter [ Base ]", () => {
 
     // Verify the result and error logging
     expect(result).toBe(undefined);
+  });
+
+  it("should return null from getWebsocketAdapter when window access throws", () => {
+    const originalWindow = global.window;
+    Object.defineProperty(global, "window", {
+      get() {
+        throw new ReferenceError("window is not defined");
+      },
+      configurable: true,
+    });
+
+    const result = getWebsocketAdapter("ws://localhost:1234", {} as any);
+    expect(result).toBeNull();
+
+    Object.defineProperty(global, "window", {
+      value: originalWindow,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it("should trigger reconnect timeout when websocket closes with a non-1000 code", async () => {
+    const reconnectingSpy = vi.fn();
+    const disconnectedSpy = vi.fn();
+
+    const newSocket = createSocket({
+      url,
+      adapter: WebsocketAdapter(),
+      reconnectTime: 10,
+      adapterOptions: { autoConnect: false },
+    });
+    newSocket.events.onReconnecting(reconnectingSpy);
+    newSocket.events.onDisconnected(disconnectedSpy);
+
+    await newSocket.adapter.connect();
+    await waitForConnection(newSocket);
+
+    getServer().close({
+      code: 1006,
+      reason: "Abnormal closure",
+      wasClean: false,
+    });
+
+    await waitFor(
+      () => {
+        expect(disconnectedSpy).toHaveBeenCalled();
+      },
+      { timeout: 2000 },
+    );
+
+    startServer();
+
+    await waitFor(
+      () => {
+        expect(reconnectingSpy).toHaveBeenCalled();
+      },
+      { timeout: 2000 },
+    );
+  });
+
+  it("should return false from sendEventMessage when websocket is not set", async () => {
+    const newSocket = createSocket({
+      ...socketOptions,
+      adapterOptions: {
+        autoConnect: false,
+      },
+    });
+
+    const emitter = newSocket.createEmitter()({ topic: "test" });
+    const result = await newSocket.adapter.emit(emitter);
+
+    expect(result).toBeUndefined();
   });
 });

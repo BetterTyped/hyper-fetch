@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdminAdapter } from "adapter";
+import type { FirebaseAdminAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("get", () => {
@@ -20,7 +20,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       });
       const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
-      expect(data[0]).toHaveProperty("__key");
+      expect(data![0]).toHaveProperty("__key");
       expect(extra).toHaveProperty("snapshot");
       expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");

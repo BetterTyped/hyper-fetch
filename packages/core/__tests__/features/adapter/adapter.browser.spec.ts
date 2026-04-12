@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment jsdom
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -25,7 +25,7 @@ describe("Http Adapter [ Browser ]", () => {
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -77,27 +77,12 @@ describe("Http Adapter [ Browser ]", () => {
     expect(error.message).toEqual(getErrorMessage("timeout").message);
   });
 
-  it("should use GET as default method when no method is specified", async () => {
-    const mockSpy = jest.spyOn(XMLHttpRequest.prototype, "open");
+  it("should use GET as default method and return data", async () => {
     const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response } = await HttpAdapter().initialize(client).fetch(request, requestId);
+    const { data: response, status } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
-    expect(mockSpy).toHaveBeenCalledWith("GET", "https://shared-base-url/shared-endpoint", true);
     expect(response).toStrictEqual(data);
+    expect(status).toBe(200);
   });
-
-  // it("should not throw when XMLHttpRequest is not available on window", async () => {
-  //   const data = mockRequest(request, { delay: 20 });
-  //   const xml = window.XMLHttpRequest;
-  //   window.XMLHttpRequest = undefined as any;
-
-  //   const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
-
-  //   expect(response).toStrictEqual(data);
-  //   expect(status).toBe(200);
-  //   expect(error).toBe(null);
-  //   expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
-  //   window.XMLHttpRequest = xml;
-  // });
 });

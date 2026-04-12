@@ -1,14 +1,17 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { hasDocument, hasWindow } from "managers";
 
 describe("AppManager [ SSR ]", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("Given window is not available from beginning", () => {
     describe("When app manager is initialized", () => {
       it("should not throw without document", async () => {
-        jest.spyOn(window, "document", "get").mockImplementation(() => {
+        vi.spyOn(window, "document", "get").mockImplementation(() => {
           throw new Error();
         });
 
@@ -16,7 +19,7 @@ describe("AppManager [ SSR ]", () => {
         expect(hasDocument()).toBeFalse();
       });
       it("should not throw without window", async () => {
-        jest.spyOn(global, "window", "get").mockImplementation(() => {
+        vi.spyOn(global, "window", "get").mockImplementation(() => {
           throw new Error();
         });
 

@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 
-import { Provider, ProviderValueType, useProvider } from "provider";
+import type { ProviderValueType } from "provider";
+import { Provider, useProvider } from "provider";
 
 describe("useProvider [ Base ]", () => {
   const text = "test";

@@ -22,7 +22,7 @@ describe("useFetch [ Offline ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest({ offline: true });
     client.clear();
   });
@@ -34,7 +34,7 @@ describe("useFetch [ Offline ]", () => {
 
       await testSuccessState(mock, response);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
 
       act(() => {
         client.appManager.setOnline(false);
@@ -55,7 +55,7 @@ describe("useFetch [ Offline ]", () => {
       await testSuccessState(mock, response);
     });
     it("should refetch when coming back online", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const mock = mockRequest(request);
       const response = renderUseFetch(request, { refetchOnReconnect: true });
       await testSuccessState(mock, response);

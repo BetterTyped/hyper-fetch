@@ -1,20 +1,10 @@
 /* eslint-disable max-params */
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  Firestore,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { getAdapterBindings } from "@hyper-fetch/core";
+import type { Firestore } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
+import type { getAdapterBindings } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter/types";
-import {
+import type { FirestoreMethodsUnion } from "adapter/types";
+import type {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,

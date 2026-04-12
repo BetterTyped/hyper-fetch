@@ -18,7 +18,7 @@ describe("useFetch [ Infinite ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
   });
 

@@ -1,8 +1,10 @@
-import { AdapterInstance, ResponseType } from "adapter";
-import { HttpAdapterType, parseResponse, HttpAdapter } from "http-adapter";
-import {
+import type { AdapterInstance, ResponseType } from "adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { parseResponse, HttpAdapter } from "http-adapter";
+import type {
   ClientErrorType,
   ClientInstance,
+  ClientMode,
   ClientOptionsType,
   RequestGenericType,
   RequestInterceptorType,
@@ -10,11 +12,13 @@ import {
 } from "client";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
-import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
-import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
-import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
-import { interceptRequest, interceptResponse } from "./client.utils";
-import {
+import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
+import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
+import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";
+import type { LogLevel } from "managers";
+import { AppManager, LoggerManager, RequestManager } from "managers";
+import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
+import type {
   EmptyTypes,
   TypeWithDefaults,
   ExtractAdapterMethodType,
@@ -39,6 +43,7 @@ export class Client<
   Adapter extends AdapterInstance = HttpAdapterType,
 > {
   readonly url: string;
+  readonly mode: ClientMode;
   public debug: boolean;
 
   // Private
@@ -79,8 +84,9 @@ export class Client<
   logger = this.loggerManager.initialize(this, "Client");
 
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
-    const { url, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+    const { url, appManager, cache, fetchDispatcher, submitDispatcher, mode: modeOption } = this.options;
     this.url = url;
+    this.mode = resolveClientMode(modeOption);
     this.adapter = HttpAdapter() as Adapter;
 
     this.appManager = appManager?.() || new AppManager();
@@ -335,6 +341,32 @@ export class Client<
     interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onResponseCallbacks, response, request);
 
   /**
+   * Reconstruct a Request class instance from its serialized JSON form.
+   * Useful when dispatcher storage serializes queue data (e.g. MMKV, AsyncStorage)
+   * and the deserialized request loses its class identity.
+   */
+  fromJSON = <RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {}>(
+    json: RequestJSON<RequestInstance>,
+  ) => {
+    type DefaultQueryParams = ExtractAdapterDefaultQueryParamsType<Adapter>;
+
+    type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
+    type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
+    type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
+    type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", DefaultQueryParams, never>;
+    type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", string>;
+
+    return Request.fromJSON(this as unknown as ClientInstance, json) as unknown as Request<
+      Response,
+      Payload,
+      QueryParams,
+      LocalError,
+      Endpoint extends string ? Endpoint : string,
+      Client<GlobalErrorType, Adapter>
+    >;
+  };
+
+  /**
    * Clears the Client instance and remove all listeners on it's dependencies
    */
   clear = () => {
@@ -374,7 +406,7 @@ export class Client<
     hydrationData?.forEach((item) => {
       if (!item) return;
 
-      const { cacheKey, response, ...fallbackOptions } = item;
+      const { cacheKey, scope, response, ...fallbackOptions } = item;
       const defaults = {
         cache: true,
         override: true,
@@ -385,14 +417,14 @@ export class Client<
           : { ...defaults, ...fallbackOptions, ...options };
 
       if (!config.override) {
-        const cachedData = this.cache.get(cacheKey);
+        const cachedData = this.cache.get(scopeKey(cacheKey, scope));
         if (cachedData) {
           return;
         }
       }
 
       const parsedData = parseResponse(response);
-      this.cache.set({ ...config, cacheKey }, parsedData);
+      this.cache.set({ ...config, cacheKey, scope }, parsedData);
     });
   };
 

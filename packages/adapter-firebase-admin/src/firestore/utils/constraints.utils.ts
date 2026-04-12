@@ -1,7 +1,8 @@
-import { Query } from "firebase-admin/firestore";
-import { OrderByDirection } from "firebase/firestore";
+import type { Query } from "firebase-admin/firestore";
+import type { OrderByDirection } from "firebase/firestore";
 
-import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import type { FirestorePermittedMethods } from "../../constraints";
+import { FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
 export const applyFireStoreAdminConstraint = (collectionRef: Query, { type, values }: FirestorePermittedMethods) => {
   switch (type) {

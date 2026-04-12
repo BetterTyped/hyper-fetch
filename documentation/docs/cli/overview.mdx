@@ -55,6 +55,33 @@ npx @hyper-fetch/cli@latest generate
 
 ---
 
+## Auto-Initialization
+
+The CLI automatically initializes your project when needed. If you run any command (like `generate`) on a project that
+hasn't been set up yet (no `api.json` config file), the CLI will automatically run the `init` flow first, then proceed
+to your original command.
+
+This means you can jump straight to generating code without running `init` manually:
+
+```bash
+# This "just works" — auto-inits if api.json is missing, then generates
+npx @hyper-fetch/cli@latest generate --url https://api.example.com/openapi.json
+```
+
+The auto-init creates:
+- An `api.json` configuration file in your project root
+- A `src/api` directory for generated code
+- Default path aliases for api, hooks, components, and lib directories
+
+:::info
+
+If you prefer to configure things manually first, you can still run `init` separately. The auto-init only triggers
+when `api.json` is not found.
+
+:::
+
+---
+
 ## More
 
 We will be covering individual commands in the next sections.
@@ -63,14 +90,14 @@ We will be covering individual commands in the next sections.
   type="docs"
   title="Initialize a cli project"
   description="Learn how to initialize new cli project"
-  to="/docs/cli/init"
+  to="./commands/init"
 />
 
 <LinkCard
   type="docs"
   title="Generate sdk"
   description="Learn how to generate sdk from your api"
-  to="/docs/cli/generate"
+  to="./commands/generate"
 />
 
 ---

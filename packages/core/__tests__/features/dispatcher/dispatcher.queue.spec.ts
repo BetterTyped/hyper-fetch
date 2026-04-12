@@ -9,7 +9,7 @@ import { Plugin } from "plugin";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Queue ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -20,7 +20,7 @@ describe("Dispatcher [ Queue ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     resetMocks();
     client.clear();
     adapter = createAdapter({ callback: adapterSpy });
@@ -37,7 +37,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const loadingSpy = jest.fn();
+      const loadingSpy = vi.fn();
       client.requestManager.events.onLoadingByQueue(request.queryKey, loadingSpy);
       const requestId = dispatcher.add(request);
 
@@ -65,7 +65,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
       mockRequest(request);
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
 
       const requestId = dispatcher.add(request);
       const deduplicatedId = dispatcher.add(request);
@@ -78,7 +78,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
       mockRequest(request);
 
-      const spy = jest.spyOn(dispatcher, "flushQueue");
+      const spy = vi.spyOn(dispatcher, "flushQueue");
 
       dispatcher.add(request);
       dispatcher.add(request);
@@ -90,7 +90,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
       mockRequest(request);
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
 
       dispatcher.add(request);
       dispatcher.add(request);
@@ -102,8 +102,8 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
       mockRequest(request, { delay: 40 });
 
-      const spy1 = jest.spyOn(dispatcher, "performRequest");
-      const spy2 = jest.spyOn(client.requestManager.events, "emitResponse");
+      const spy1 = vi.spyOn(dispatcher, "performRequest");
+      const spy2 = vi.spyOn(client.requestManager.events, "emitResponse");
 
       setTimeout(() => {
         dispatcher.add(request);
@@ -126,7 +126,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
 
@@ -137,7 +137,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       client.appManager.setOnline(false);
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       await dispatcher.performRequest(storageElement);
 
@@ -147,7 +147,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       client.appManager.setOnline(false);
       dispatcher.add(request.setQueryKey("test1"));
       dispatcher.add(request.setQueryKey("test2"));
@@ -166,7 +166,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
       dispatcher.performRequest(storageElement);
@@ -176,8 +176,8 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When retrying requests", () => {
     it("should retry failed request", async () => {
-      const spy = jest.fn();
-      const spyDelete = jest.fn();
+      const spy = vi.fn();
+      const spyDelete = vi.fn();
       const plugin = new Plugin({ name: "delete" }).onDispatcherItemDeleted(spyDelete);
       const customClient = new Client({
         url: "shared-base-url",
@@ -202,7 +202,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 2, retryTime: 0 });
       mockRequest(request, { status: 400, delay: 0 });
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
 
       await waitFor(() => {
@@ -213,7 +213,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
       mockRequest(request, { status: 400, delay: 0 });
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
 
       await waitFor(() => {
@@ -224,7 +224,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
       mockRequest(request, { status: 400, delay: 5 });
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
       await sleep(5);
       client.appManager.setOnline(false);
@@ -240,7 +240,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(firstRequest);
       mockRequest(secondRequest);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       client.appManager.setOnline(false);
 
       dispatcher.add(firstRequest);
@@ -257,7 +257,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should not trigger flush methods when queue is empty", async () => {
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
       dispatcher.flushQueue("fake-queue");
       expect(spy).not.toHaveBeenCalled();
     });
@@ -265,7 +265,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
       mockRequest(request, { delay: 1 });
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
       dispatcher.add(request);
       dispatcher.add(request);
 
@@ -283,7 +283,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
       mockRequest(request, { delay: 1 });
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
       const jsonRequest = dispatcher.createStorageItem(request);
       dispatcher.addQueueItem(request.queryKey, jsonRequest);
       dispatcher.addRunningRequest(request.queryKey, jsonRequest.requestId, request);
@@ -297,7 +297,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
       mockRequest(request, { delay: 1 });
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       const jsonRequest = dispatcher.createStorageItem(request);
       dispatcher.addQueueItem(request.queryKey, jsonRequest);
       dispatcher.stopRequest(request.queryKey, jsonRequest.requestId);
@@ -310,7 +310,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request, { delay: 30 });
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const spy = vi.spyOn(dispatcher, "performRequest");
       dispatcher.add(request);
       dispatcher.add(request);
 
@@ -337,7 +337,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
@@ -351,9 +351,9 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
+      const spy = vi.spyOn(client.adapter, "fetch");
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
 
       const firstRequestId = dispatcher.add(request);
       const secondRequestId = dispatcher.add(request);
@@ -375,7 +375,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
@@ -390,9 +390,9 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client.adapter, "fetch");
-      const firstSpy = jest.fn();
-      const secondSpy = jest.fn();
+      const spy = vi.spyOn(client.adapter, "fetch");
+      const firstSpy = vi.fn();
+      const secondSpy = vi.fn();
 
       const firstRequestId = dispatcher.add(request);
       const secondRequestId = dispatcher.add(request);

@@ -35,7 +35,7 @@ describe("useRequestEvents [ Base ]", () => {
       endpoint: "/shared-endpoint",
     });
 
-    jest.resetModules();
+    vi.resetModules();
   });
 
   describe("When using the useRequestEvents", () => {
@@ -49,7 +49,7 @@ describe("useRequestEvents [ Base ]", () => {
         getIsDataProcessing: () => false,
       });
 
-      const spy = jest.spyOn(request.client.fetchDispatcher, "hasRunningRequests");
+      const spy = vi.spyOn(request.client.fetchDispatcher, "hasRunningRequests");
 
       act(() => {
         result.current[1].addCacheDataListener(request);
@@ -87,7 +87,7 @@ describe("useRequestEvents [ Base ]", () => {
       const { result } = renderUseRequestEvents(request);
 
       // Create a spy on the dispatcher's delete method
-      const deleteSpy = jest.spyOn(request.client.fetchDispatcher, "delete");
+      const deleteSpy = vi.spyOn(request.client.fetchDispatcher, "delete");
 
       act(() => {
         request.client.fetchDispatcher.addRunningRequest(request.queryKey, "1", request);
@@ -101,7 +101,7 @@ describe("useRequestEvents [ Base ]", () => {
       const { result } = renderUseRequestEvents(request);
 
       // Create a spy on the dispatcher's delete method
-      const deleteSpy = jest.spyOn(request.client.fetchDispatcher, "delete");
+      const deleteSpy = vi.spyOn(request.client.fetchDispatcher, "delete");
       const clone = request.clone().setAbortKey("completely-different-key");
 
       act(() => {

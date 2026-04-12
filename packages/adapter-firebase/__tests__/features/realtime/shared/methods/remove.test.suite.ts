@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdapter } from "adapter";
+import type { FirebaseAdapter, RealtimeDbGetMethodExtra } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const removeTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
@@ -28,9 +28,8 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       await removeReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(extra?.snapshot?.exists()).toBe(false);
+      expect(extra).not.toBeNull();
+      expect((extra as RealtimeDbGetMethodExtra).snapshot.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const removeReq = client

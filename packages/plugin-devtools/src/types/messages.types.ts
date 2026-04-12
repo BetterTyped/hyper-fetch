@@ -1,6 +1,6 @@
-import { AdapterInstance, ClientInstance, ClientOptionsType, ExtractAdapterOptionsType } from "@hyper-fetch/core";
+import type { AdapterInstance, ClientInstance, ClientOptionsType, ExtractAdapterOptionsType } from "@hyper-fetch/core";
 
-import { CoreEvents, CustomEvents, EventSourceType, InternalEvents } from "./events.types";
+import type { CoreEvents, CustomEvents, EventSourceType, InternalEvents } from "./events.types";
 
 export enum MessageType {
   INTERNAL = "INTERNAL",

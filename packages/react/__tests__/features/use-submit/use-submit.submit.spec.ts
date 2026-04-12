@@ -1,4 +1,5 @@
-import { ExtendRequest, RequestSendType, xhrExtra } from "@hyper-fetch/core";
+import type { ExtendRequest, RequestSendType } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -24,7 +25,7 @@ describe("useSubmit [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST" });
   });
@@ -50,7 +51,7 @@ describe("useSubmit [ Base ]", () => {
       });
     });
     it("should call onBeforeSent", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request);
       const response = renderUseSubmit(request);
 

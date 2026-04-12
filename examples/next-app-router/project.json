@@ -44,14 +44,6 @@
         "buildTarget": "next:app-build:production"
       }
     },
-    "app-test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
-      "options": {
-        "jestConfig": "examples/next/jest.config.ts",
-        "passWithNoTests": true
-      }
-    },
     "app-lint": {
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],

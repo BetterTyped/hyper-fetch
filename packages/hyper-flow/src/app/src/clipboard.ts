@@ -1,4 +1,5 @@
-import { Data, clipboard, ipcMain, nativeImage } from "electron";
+import type { Data } from "electron";
+import { clipboard, ipcMain, nativeImage } from "electron";
 
 export const copyToClipboard = () => {
   ipcMain.on("clipboard", async (_, val: Data & { img?: string }) => {

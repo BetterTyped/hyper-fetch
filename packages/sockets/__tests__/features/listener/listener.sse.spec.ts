@@ -21,11 +21,11 @@ describe("Listener [ SSE ]", () => {
     startServer();
     listener = createListener<DataType>(socket);
     await waitForConnection(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should listen to given event topic", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const message = { topic: "Maciej", age: 99 };
     let receivedExtra: any;
 
@@ -46,7 +46,7 @@ describe("Listener [ SSE ]", () => {
   });
 
   it("should allow to remove given listener", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const removeListener = listener.listen((data) => spy(data));
     const message = { topic: "Maciej", age: 99 };
     emitListenerEvent(listener, message);
@@ -63,7 +63,7 @@ describe("Listener [ SSE ]", () => {
   });
 
   it("should allow to set params", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const listenerWithParams = socket
       .createListener<{ response: ResponseType }>()({ topic: "test/:testId" })
       .setParams({ testId: 1 });

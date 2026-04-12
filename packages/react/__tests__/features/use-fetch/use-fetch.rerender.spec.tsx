@@ -44,7 +44,7 @@ describe("useFetch [ Rerender ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     rerenders = 0;
     request = createRequest();
     client.clear();
@@ -99,7 +99,7 @@ describe("useFetch [ Rerender ]", () => {
       useDidMount(() => {
         setResponseTimestamp(new Date());
         setTimeout(() => {
-          setError(new Error("test"), true);
+          setError(new Error("test"));
         }, fetchTime / 2);
       });
 

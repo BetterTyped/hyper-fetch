@@ -2,8 +2,10 @@ import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 
 import { GraphqlAdapter } from "adapter";
-import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
-import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
+import type { GetUserQueryResponse } from "../../constants/queries.constants";
+import { getUserQuery, getUserQueryString } from "../../constants/queries.constants";
+import type { LoginMutationVariables } from "../../constants/mutations.constants";
+import { loginMutation } from "../../constants/mutations.constants";
 
 const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
 
@@ -26,7 +28,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     });
 
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -130,25 +132,15 @@ describe("Graphql Adapter [ Browser ]", () => {
   //   window.XMLHttpRequest = xml;
   // });
 
-  it("should allow to set options", async () => {
-    const xml = window.XMLHttpRequest;
-    let instance: null | XMLHttpRequest = null;
-    class ExtendedXml extends XMLHttpRequest {
-      constructor() {
-        super();
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        instance = this;
-      }
-    }
+  it("should allow to set options and timeout the request", async () => {
+    const timeoutRequest = request.setOptions({ timeout: 5 });
+    mockRequest(timeoutRequest, { delay: 500 });
 
-    window.XMLHttpRequest = ExtendedXml;
+    const { data, error, status } = await timeoutRequest.send();
 
-    const timeoutRequest = request.setOptions({ timeout: 50 });
-    mockRequest(timeoutRequest, { delay: 20 });
-    await timeoutRequest.send();
-    expect(instance!.timeout).toBe(50);
-
-    window.XMLHttpRequest = xml;
+    expect(data).toBeNull();
+    expect(status).toBe(0);
+    expect(error).toStrictEqual(getErrorMessage("timeout"));
   });
 
   it("should handle undefined response data as null", async () => {
@@ -165,5 +157,103 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     const { error } = await request.send();
     expect(error).toStrictEqual([getErrorMessage()]);
+  });
+
+  it("should fallback to response.text() when body.getReader is not available", async () => {
+    const responseData = JSON.stringify({ data: { username: "prc", firstName: "Maciej" } });
+    const originalFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ "content-type": "application/json" }),
+      body: null,
+      text: () => Promise.resolve(responseData),
+    });
+
+    const { data, status, error } = await request.send();
+
+    expect(status).toBe(200);
+    expect(data).toStrictEqual({ username: "prc", firstName: "Maciej" });
+    expect(error).toBe(null);
+
+    global.fetch = originalFetch;
+  });
+
+  it("should handle network error in catch block when not aborted", async () => {
+    const originalFetch = global.fetch;
+    const networkError = new Error("Network failure");
+    global.fetch = vi.fn().mockRejectedValue(networkError);
+
+    const { data, error, status } = await request.send();
+
+    expect(data).toBeNull();
+    expect(status).toBe(0);
+    expect(error).toBe(networkError);
+
+    global.fetch = originalFetch;
+  });
+
+  it("should handle request with abort controller present", async () => {
+    mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
+
+    const { data, status, error } = await request.send();
+
+    expect(status).toBe(200);
+    expect(data).toStrictEqual({ username: "prc", firstName: "Maciej" });
+    expect(error).toBe(null);
+  });
+
+  it("should handle response with content-length header for progress tracking", async () => {
+    const responseData = JSON.stringify({ data: { username: "prc", firstName: "Maciej" } });
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(responseData);
+    const originalFetch = global.fetch;
+
+    let readerDone = false;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({
+        "content-type": "application/json",
+        "content-length": String(encoded.length),
+      }),
+      body: {
+        getReader: () => ({
+          read: () => {
+            if (!readerDone) {
+              readerDone = true;
+              return Promise.resolve({ done: false, value: encoded });
+            }
+            return Promise.resolve({ done: true, value: undefined });
+          },
+        }),
+      },
+    });
+
+    const { data, status } = await request.send();
+
+    expect(status).toBe(200);
+    expect(data).toStrictEqual({ username: "prc", firstName: "Maciej" });
+
+    global.fetch = originalFetch;
+  });
+
+  it("should handle failure response when body has no getReader", async () => {
+    const originalFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      headers: new Headers({ "content-type": "application/json" }),
+      body: null,
+      text: () => Promise.resolve(JSON.stringify({ errors: ["Internal Server Error"] })),
+    });
+
+    const { data, error, status } = await request.send();
+
+    expect(data).toBeNull();
+    expect(status).toBe(500);
+    expect(error).toStrictEqual(["Internal Server Error"]);
+
+    global.fetch = originalFetch;
   });
 });

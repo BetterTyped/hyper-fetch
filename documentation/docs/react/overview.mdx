@@ -5,16 +5,23 @@ sidebar_label: Overview
 ---
 
 > **`React Hyper Fetch`** is a data fetching library that implements the main features of the core library and adapts it
-> to the React environment. It handles fetching, submitting, and queueing requests as well as their management in the
-> system.
+> to the React environment. It handles fetching, submitting, streaming, and queueing requests as well as their
+> management in the system.
 
 Together with the provided hooks, React Hyper Fetch makes maintaining and writing new functionalities faster and easier.
 
 Note: A previously prepared [**request**](/core/request.mdx) is the minimum requirement for using hooks.
 
+:::warning React 18+ Required
+
+This package requires **React 18 or later**. The hooks use `useSyncExternalStore` internally for correct concurrent
+mode semantics, selective re-rendering, and tearing prevention.
+
+:::
+
 :::info
 
-This package provide hooks for both: `core` and `sockets` subpackages.
+This package provides hooks for both: `core` and `sockets` subpackages.
 
 :::
 
@@ -33,7 +40,31 @@ const { data, error, loading } = useFetch(getUsers);
 const { submit, data, error, submitting } = useSubmit(postLogin);
 ```
 
+```tsx
+const { text, chunks, streaming, start, abort } = useStream(getStreamResponse);
+```
+
 Check our **[react code examples](/guides/react/01-basics/fetching.mdx)**
+
+---
+
+## Performance & Debugging
+
+### Selective Re-rendering
+
+All hooks use **field-level dependency tracking**. If your component only reads `data`, it will not re-render when
+`error` or `loading` changes. This optimization happens automatically — just destructure the fields you need.
+
+```tsx
+// This component only re-renders when `data` changes
+const { data } = useFetch(getUsers);
+```
+
+### Console-Friendly Output
+
+Hook return values produce **readable output** in the browser console and Node.js `console.log`. You will see actual
+values like `{ data: {...}, error: null, loading: false }` instead of opaque getter references. This works through
+`toJSON()` and `[Symbol.for("nodejs.util.inspect.custom")]` implementations that snapshot the current state.
 
 ---
 

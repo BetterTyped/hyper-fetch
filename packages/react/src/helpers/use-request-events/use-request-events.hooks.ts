@@ -1,4 +1,4 @@
-import {
+import type {
   ExtractErrorType,
   ExtractResponseType,
   RequestInstance,
@@ -8,11 +8,13 @@ import {
   RequestProgressEventType,
   RequestResponseEventType,
   ResponseType,
+  OptimisticCallbackResult,
 } from "@hyper-fetch/core";
+import { scopeKey } from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-hooks/lifecycle";
 import { useRef } from "react";
 
-import {
+import type {
   OnErrorCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
@@ -79,26 +81,53 @@ export const useRequestEvents = <R extends RequestInstance>({
   };
 
   // ******************
+  // Optimistic state
+  // ******************
+
+  const optimisticResultsRef = useRef<Map<string, OptimisticCallbackResult<any>>>(new Map());
+
+  // ******************
   // Response handlers
   // ******************
 
   const handleResponseCallbacks = (values: RequestResponseEventType<R>) => {
     const { success } = values.response;
-    const { isOffline, isCanceled } = values.details;
+    const { isOffline, isCanceled, willRetry } = values.details;
+    const opt = optimisticResultsRef.current.get(values.requestId);
+    const paramsWithContext = { ...values, mutationContext: opt?.context } as any;
+
     if (request.offline && isOffline && !success) {
       logger.debug({ title: "Performing offline error callback", type: "system", extra: values });
-      onOfflineErrorCallback.current?.(values as any);
+      onOfflineErrorCallback.current?.(paramsWithContext);
     } else if (isCanceled) {
       logger.debug({ title: "Performing abort callback", type: "system", extra: values });
-      onAbortCallback.current?.(values as any);
+      try {
+        opt?.rollback?.();
+      } catch {
+        // rollback threw — onAbort still fires
+      }
+      onAbortCallback.current?.(paramsWithContext);
     } else if (success) {
       logger.debug({ title: "Performing success callback", type: "system", extra: values });
-      onSuccessCallback.current?.(values as any);
+      if (opt?.invalidate) {
+        opt.invalidate.forEach((req) => cache.invalidate(req));
+      }
+      onSuccessCallback.current?.(paramsWithContext);
     } else {
       logger.debug({ title: "Performing error callback", type: "system", extra: values });
-      onErrorCallback.current?.(values as any);
+      if (!willRetry) {
+        try {
+          opt?.rollback?.();
+        } catch {
+          // rollback threw — onError still fires
+        }
+      }
+      onErrorCallback.current?.(paramsWithContext);
     }
-    onFinishedCallback.current?.(values);
+    onFinishedCallback.current?.(paramsWithContext);
+    if (!willRetry) {
+      optimisticResultsRef.current.delete(values.requestId);
+    }
   };
 
   // ******************
@@ -113,7 +142,7 @@ export const useRequestEvents = <R extends RequestInstance>({
       // This prevents the UI from flickering with { data: null, loading: false }
       if (isProcessing) return;
 
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(req.queryKey);
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
       if (loading || canDisableLoading) {
         actions.setLoading(loading);
       }
@@ -158,6 +187,15 @@ export const useRequestEvents = <R extends RequestInstance>({
   };
 
   const handleRemove = ({ requestId }: RequestEventType<R>) => {
+    const opt = optimisticResultsRef.current.get(requestId);
+    if (opt) {
+      try {
+        opt.rollback?.();
+      } catch {
+        // swallow — queue removal rollback failure
+      }
+      optimisticResultsRef.current.delete(requestId);
+    }
     removeLifecycleListener(requestId);
   };
 
@@ -172,7 +210,10 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
+    const loadingUnmount = requestManager.events.onLoadingByQueue(
+      scopeKey(req.queryKey, req.scope),
+      handleGetLoadingEvent(req),
+    );
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
@@ -194,7 +235,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   // Lifecycle Listeners
   // ******************
 
-  const addLifecycleListeners = (req: R, requestId?: string) => {
+  const addLifecycleListeners = (req: R, requestId?: string, optimisticResult?: OptimisticCallbackResult<any>) => {
     /**
      * useFetch handles requesting by general keys
      * This makes it possible to deduplicate requests from different places and share data
@@ -225,6 +266,9 @@ export const useRequestEvents = <R extends RequestInstance>({
     /**
      * useSubmit handles requesting by requestIds, this makes it possible to track single requests
      */
+    if (optimisticResult) {
+      optimisticResultsRef.current.set(requestId, optimisticResult);
+    }
     const requestRemove = requestManager.events.onRemoveById(requestId, handleRemove);
     const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart());
     const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart());
@@ -251,11 +295,13 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const abort = () => {
-    const { abortKey } = request;
+    const ak = scopeKey(request.abortKey, request.scope);
     const requests = dispatcher.getAllRunningRequests();
     requests.forEach((requestData) => {
-      if (requestData.request.abortKey === abortKey) {
-        dispatcher.delete(requestData.request.queryKey, requestData.requestId, abortKey);
+      const reqAk = scopeKey(requestData.request.abortKey, requestData.request.scope);
+      if (reqAk === ak) {
+        const qk = scopeKey(requestData.request.queryKey, requestData.request.scope);
+        dispatcher.delete(qk, requestData.requestId, reqAk);
       }
     });
   };

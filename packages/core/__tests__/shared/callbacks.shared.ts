@@ -1,4 +1,6 @@
-export const testCallbacksExecution = (callbacks: Array<jest.Mock<any, any>>) => {
+import type { Mock } from "vitest";
+
+export const testCallbacksExecution = (callbacks: Array<Mock>) => {
   callbacks.forEach((spyFn, index) => {
     const nextSpy = callbacks[index + 1];
     if (nextSpy) {

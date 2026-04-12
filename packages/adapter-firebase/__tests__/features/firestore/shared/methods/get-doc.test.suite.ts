@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdapter } from "adapter";
-import { Tea } from "../../../../utils";
+import type { FirebaseAdapter } from "adapter";
+import type { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
 export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {

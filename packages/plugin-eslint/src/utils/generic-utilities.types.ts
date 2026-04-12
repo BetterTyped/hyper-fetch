@@ -1,4 +1,4 @@
-import { NewExpression } from "@typescript-eslint/types/dist/generated/ast-spec";
+import type { NewExpression } from "@typescript-eslint/types/dist/generated/ast-spec";
 
 export function getUnexpectedGenerics({
   typeParameters,

@@ -15,7 +15,7 @@ describe("Request [ Cloning ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/users/:userId" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

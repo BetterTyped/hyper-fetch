@@ -5,40 +5,25 @@
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "client": "dist/browser/index.js",
-  "browser": "dist/browser/index.js",
-  "server": "dist/server/index.js",
-  "node": "dist/server/index.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "exports": {
     ".": {
-      "types": {
-        "import": "./dist/index.d.ts"
-      },
-      "browser": {
-        "require": "./dist/browser/index.js",
-        "import": "./dist/browser/index.js"
-      },
-      "default": {
-        "require": "./dist/index.js",
-        "import": "./dist/index.js"
-      }
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.mjs",
+      "import": "./dist/index.mjs"
     },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "clean": "npx rimraf dist",
-    "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test": "vitest run",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
-    "build": "yarn clean && node ../../scripts/build.js",
-    "postbuild": "yarn rollup -c ../../rollup.config.js",
+    "build": "vite build",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false && tsc --noEmit -p __tests__/tsconfig.json",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js -t 'hyper-fetch-graphql-v${version}'"
   },
@@ -67,7 +52,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "vitest related --run --passWithNoTests"
     ]
   },
   "keywords": [

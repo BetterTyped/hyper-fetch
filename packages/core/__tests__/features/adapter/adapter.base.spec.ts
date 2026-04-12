@@ -1,7 +1,7 @@
 import { Client, createClient } from "client";
-import { Adapter, AdapterInstance, RequestProcessingError, getAdapterHeaders, getAdapterPayload } from "adapter";
+import type { AdapterInstance } from "adapter";
+import { Adapter, RequestProcessingError, getAdapterHeaders, getAdapterPayload } from "adapter";
 import { HttpMethods } from "../../../src/constants/http.constants";
-import { RequestInstance } from "request";
 
 describe("Adapter [ Base ]", () => {
   let adapter: AdapterInstance;
@@ -41,7 +41,7 @@ describe("Adapter [ Base ]", () => {
       expect(adapter.unstable_payloadMapperConfig).toBe(config);
     });
     it("should set devtools endpoint getter", () => {
-      const mapper = (req: RequestInstance) => req.endpoint;
+      const mapper = (endpoint: string) => endpoint;
       adapter.setDevtoolsEndpointGetter(mapper);
       expect(adapter.unstable_devtoolsEndpointGetter).toBe(mapper);
     });
@@ -49,7 +49,7 @@ describe("Adapter [ Base ]", () => {
 
   describe("when using onInitialize", () => {
     it("should store and execute initialization callback", () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const client = new Client({ url: "test" });
 
       adapter.onInitialize(spy);
@@ -97,7 +97,7 @@ describe("Adapter [ Base ]", () => {
 
   describe("when using mapper setters", () => {
     it("should set header mapper with config", () => {
-      const headerMapper = jest.fn();
+      const headerMapper = vi.fn();
       const config = { test: true };
 
       adapter.setHeaderMapperConfig(config);
@@ -108,7 +108,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should set payload mapper with config", () => {
-      const payloadMapper = jest.fn();
+      const payloadMapper = vi.fn();
       const config = { test: true };
 
       adapter.setPayloadMapperConfig(config);
@@ -119,7 +119,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should set endpoint mapper with config", () => {
-      const endpointMapper = jest.fn();
+      const endpointMapper = vi.fn();
       const config = { test: true };
 
       adapter.setEndpointMapperConfig(config);
@@ -130,7 +130,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should set query params mapper with config", () => {
-      const queryParamsMapper = jest.fn();
+      const queryParamsMapper = vi.fn();
       const config = { test: true };
 
       adapter.setQueryParamsMapperConfig(config);
@@ -144,7 +144,7 @@ describe("Adapter [ Base ]", () => {
   describe("when using defaults setters", () => {
     it("should set request defaults", () => {
       const defaults = { method: HttpMethods.POST };
-      const callback = jest.fn().mockReturnValue(defaults);
+      const callback = vi.fn().mockReturnValue(defaults);
 
       adapter.setRequestDefaults(callback);
       const result = adapter.unstable_getRequestDefaults?.({} as any);
@@ -155,7 +155,7 @@ describe("Adapter [ Base ]", () => {
 
     it("should set adapter defaults", () => {
       const defaults = { timeout: 5000 };
-      const callback = jest.fn().mockReturnValue(defaults);
+      const callback = vi.fn().mockReturnValue(defaults);
 
       adapter.setAdapterDefaults(callback);
       const result = adapter.unstable_getAdapterDefaults?.({} as any);
@@ -166,11 +166,38 @@ describe("Adapter [ Base ]", () => {
 
     it("should set internal error mapping callback", () => {
       const errorMapping = (error: any) => ({ customError: error });
-      const callback = jest.fn().mockImplementation(errorMapping);
+      const callback = vi.fn().mockImplementation(errorMapping);
 
       adapter.setInternalErrorMapping(callback);
 
       expect(adapter.unstable_internalErrorMapping).toBe(callback);
+    });
+  });
+
+  describe("when using default unstable_devtoolsEndpointGetter", () => {
+    it("should return the endpoint unchanged by default", () => {
+      const result = adapter.unstable_devtoolsEndpointGetter("/test/endpoint");
+      expect(result).toBe("/test/endpoint");
+    });
+  });
+
+  describe("when using unstable_getRequestDefaults", () => {
+    it("should allow setting and calling unstable_getRequestDefaults", () => {
+      const defaults = { method: HttpMethods.POST };
+      const callback = vi.fn().mockReturnValue(defaults);
+
+      adapter.setRequestDefaults(callback);
+      expect(adapter.unstable_getRequestDefaults).toBeDefined();
+
+      const result = adapter.unstable_getRequestDefaults!({
+        endpoint: "/test",
+      } as any);
+      expect(callback).toHaveBeenCalledWith({ endpoint: "/test" });
+      expect(result).toBe(defaults);
+    });
+
+    it("should be undefined by default", () => {
+      expect(adapter.unstable_getRequestDefaults).toBeUndefined();
     });
   });
 
@@ -202,7 +229,7 @@ describe("Adapter [ Base ]", () => {
       // hack to prevent logger from being missed (not initialized)
       newAdapter.logger = client.loggerManager.initialize(client, "Adapter");
 
-      const data = await newAdapter.fetch(request, "test");
+      const data = await newAdapter.fetch(request as any, "test");
 
       expect(data.error.message).toStrictEqual(
         new RequestProcessingError("Adapter test-adapter is not initialized").message,
@@ -237,7 +264,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should execute fetcher with adapter bindings", async () => {
-      const fetcherSpy = jest.fn().mockImplementation(({ onSuccess }) => {
+      const fetcherSpy = vi.fn().mockImplementation(({ onSuccess }) => {
         onSuccess({
           data: {},
           status: 200,
@@ -271,7 +298,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should trigger plugins on adapter fetch", async () => {
-      const fetcherSpy = jest.fn().mockImplementation(({ onSuccess }) => {
+      const fetcherSpy = vi.fn().mockImplementation(({ onSuccess }) => {
         onSuccess({
           data: {},
           status: 200,
@@ -281,7 +308,7 @@ describe("Adapter [ Base ]", () => {
       });
 
       const client = new Client({ url: "test" });
-      const pluginSpy = jest.fn();
+      const pluginSpy = vi.fn();
       client.triggerPlugins = pluginSpy;
 
       const newAdapter = new Adapter({
@@ -330,7 +357,7 @@ describe("Adapter [ Base ]", () => {
 
     it("should handle errors during fetch execution", async () => {
       const testError = new Error("Test error");
-      const fetcherSpy = jest.fn().mockImplementation(() => {
+      const fetcherSpy = vi.fn().mockImplementation(() => {
         throw testError;
       });
 
@@ -361,7 +388,7 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should use current timestamp if startTime is not set during error", async () => {
-      const fetcherSpy = jest.fn().mockImplementation(() => {
+      const fetcherSpy = vi.fn().mockImplementation(() => {
         throw new Error("Test error");
       });
 

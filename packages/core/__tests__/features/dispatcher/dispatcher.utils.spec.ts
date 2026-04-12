@@ -1,8 +1,8 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
+import type { ResolvedQueueItemType } from "dispatcher";
 import {
   canRetryRequest,
-  QueueItemType,
   DispatcherMode,
   getDispatcherChangeByKey,
   getDispatcherDrainedByKey,
@@ -16,7 +16,7 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Utils ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -31,7 +31,7 @@ describe("Dispatcher [ Utils ]", () => {
     client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -111,15 +111,32 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.DEDUPLICATED);
     });
     it("should return cancelable type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
-      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.PREVIOUS_CANCELED);
+    });
+    it("should return deduplicated when deduplicateTime is 0 (falsy)", async () => {
+      const request = client
+        .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
+        .setDeduplicateTime(0);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.DEDUPLICATED);
+    });
+    it("should return all-at-once when deduplicateTime expired", async () => {
+      const request = client
+        .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
+        .setDeduplicateTime(1);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      duplicated.timestamp = +new Date() - 1000;
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
     });
   });
 });

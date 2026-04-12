@@ -1,11 +1,11 @@
 import * as path from "node:path";
 import * as fs from "fs-extra";
-import { z } from "zod";
+import type { z } from "zod";
 
-import { generateOptionsSchema } from "commands/generate";
+import type { generateOptionsSchema } from "commands/generate";
 import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
-import { Config } from "config/schema";
+import type { Config } from "config/schema";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
 import { handleError } from "utils/handle-error";

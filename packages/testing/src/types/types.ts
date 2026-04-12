@@ -11,7 +11,7 @@ export const expectType = <In>(_value?: In) => {
 };
 
 export const expectNotType = <In>(_value?: In) => {
-  return { assert: <Out>(assertedType: Out extends In ? NOT_MATCHING : Out) => assertedType };
+  return { assert: <Out>(assertedType: [Out] extends [In] ? NOT_MATCHING : Out) => assertedType };
 };
 
 export const expectFunctionParametersType = <In extends (...args: any) => any>(_fn?: In) => {

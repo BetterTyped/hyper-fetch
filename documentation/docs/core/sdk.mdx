@@ -198,11 +198,92 @@ function UserProfile({ userId }) {
 
 ---
 
+---
+
+## SDK Configuration ($configure)
+
+The `$configure` method lets you set **per-endpoint request defaults** (headers, cache settings, retry config, etc.)
+that are automatically applied every time a request is created through the SDK. This keeps endpoint-specific
+configuration centralized and type-safe.
+
+```typescript title="Configuring SDK defaults"
+const configuredSdk = sdk.$configure({
+  "*": { retry: 3 },
+  "/users": { cacheTime: 60000 },
+  "/users/:userId": { auth: true },
+});
+
+// This request automatically has retry: 3 (from "*") and auth: true
+const getUserRequest = configuredSdk.users.$userId.get.setParams({ userId: "123" });
+```
+
+### Multi-file Configuration with createConfiguration
+
+For large APIs, split configuration across files by domain using the `createConfiguration` factory.
+Keys are validated against the SDK schema at compile time — typos are caught immediately.
+
+```typescript title="sdk/auth.configure.ts"
+import { createConfiguration } from "@hyper-fetch/core";
+import type { MyApiSchema } from "./schema";
+
+export const authConfig = createConfiguration<MyApiSchema>()({
+  "/auth/login": { retry: 0 },
+  "/auth/register": { retry: 0 },
+});
+```
+
+```typescript title="sdk/users.configure.ts"
+import { createConfiguration } from "@hyper-fetch/core";
+import type { MyApiSchema } from "./schema";
+
+export const usersConfig = createConfiguration<MyApiSchema>()({
+  "/users": { cacheTime: 30000 },
+  "/users/:userId": { auth: true, staleTime: 5000 },
+});
+```
+
+```typescript title="sdk/index.ts"
+import { authConfig } from "./auth.configure";
+import { usersConfig } from "./users.configure";
+
+export const configuredSdk = sdk.$configure(authConfig).$configure(usersConfig);
+```
+
+### Available Defaults
+
+Configuration maps support these per-endpoint defaults:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `headers` | `HeadersInit` | Default headers |
+| `auth` | `boolean` | Enable authentication |
+| `cache` | `boolean` | Enable/disable caching |
+| `cacheTime` | `number` | Cache TTL in milliseconds |
+| `staleTime` | `number` | Stale time in milliseconds |
+| `retry` | `number` | Number of retries |
+| `retryTime` | `number` | Delay between retries |
+| `cancelable` | `boolean` | Enable auto-cancellation |
+| `queued` | `boolean` | Enable queueing |
+| `offline` | `boolean` | Enable offline support |
+| `deduplicate` | `boolean` | Enable deduplication |
+| `deduplicateTime` | `number` | Deduplication window |
+
+### Pattern Matching
+
+Configuration keys support three patterns:
+
+- **`"*"`** — Matches all endpoints (global defaults).
+- **Exact path** — e.g. `"/users/:userId"` matches only that endpoint.
+- **Wildcard** — e.g. `"/users/*"` matches `/users/:userId`, `/users/:userId/posts`, etc.
+
+---
+
 :::secondary Summary
 
 In this guide, you've learned how to leverage the Hyper Fetch SDK to create a type-safe, organized, and intuitive API
-layer for your application. We've covered how to initialize the SDK, define a schema, and use it to make various types
-of requests. This powerful feature streamlines API interactions and enhances maintainability.
+layer for your application. We've covered how to initialize the SDK, define a schema, use it to make requests, and
+configure per-endpoint defaults with `$configure` and `createConfiguration`. This powerful feature streamlines API
+interactions and enhances maintainability.
 
 :::
 

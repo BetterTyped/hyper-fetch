@@ -1,9 +1,10 @@
-import { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
+/* eslint-disable @typescript-eslint/no-shadow */
+import type { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
-import { SocketAdapterInstance } from "adapter";
-import { Listener } from "listener";
-import { SocketInstance } from "socket";
-import {
+import type { SocketAdapterInstance } from "adapter";
+import type { Listener } from "listener";
+import type { Socket, SocketInstance } from "socket";
+import type {
   ExtractListenerHasParamsType,
   ExtractListenerTopicType,
   ExtractListenerResponseType,
@@ -26,6 +27,8 @@ export type ListenerInstance<ListenerProperties extends ListenerInstanceProperti
   TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
   TypeWithDefaults<ListenerProperties, "hasParams", any>
 >;
+
+export type ListenerOfAdapter<A extends SocketAdapterInstance> = Listener<any, any, Socket<A>, any>;
 
 export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;

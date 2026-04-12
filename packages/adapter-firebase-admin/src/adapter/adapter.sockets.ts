@@ -1,6 +1,6 @@
 import { Firestore } from "firebase-admin/firestore";
 
-import { FirebaseAdminDBTypes, FirebaseAdminSocketAdapterTypes } from "./types";
+import type { FirebaseAdminDBTypes, FirebaseAdminSocketAdapterTypes } from "./types";
 import { firestoreAdminSockets } from "../firestore";
 import { realtimeSocketsAdmin } from "../realtime";
 

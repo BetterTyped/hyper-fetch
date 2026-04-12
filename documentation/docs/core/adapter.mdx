@@ -27,8 +27,8 @@ request lifecycle—including progress tracking, cancellation, and error handlin
 
 ## Initialization
 
-By default, Hyper Fetch provides an HTTP adapter for both browser and Node environments. You can also create your own
-adapters to support other protocols or advanced use cases.
+By default, Hyper Fetch provides a unified HTTP adapter built on the native `fetch` API, which works in both browser and
+Node.js environments (Node 18+). You can also create your own adapters to support other protocols or advanced use cases.
 
 ```ts title="GraphQL Adapter"
 import { createClient } from "@hyper-fetch/core";
@@ -156,10 +156,10 @@ client.adapter.setEndpointMapper((endpoint, config) => {
 Set **adapter default options** for all requests sent through this adapter:
 
 ```ts
-// HTTP adapter options
+// HTTP adapter options (based on native fetch RequestInit)
 client.adapter.setAdapterDefaults((request) => ({
   timeout: 5000,
-  withCredentials: true,
+  credentials: "include",
 }));
 ```
 
@@ -199,6 +199,41 @@ Customize how endpoints of your adapter are displayed in devtools. It allows for
 ```ts
 client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
 ```
+
+:::
+
+---
+
+6. ### Streaming
+
+The default HTTP adapter supports **response streaming** via the native `ReadableStream` API. When a request is
+configured with `streaming: true`, the adapter returns the raw `response.body` stream instead of buffering the entire
+response. This is used internally by the [`useStream`](/docs/react/hooks/use-stream) hook.
+
+```ts title="Streaming a response"
+const streamRequest = client.createRequest()({
+  endpoint: "/api/chat/completions",
+  method: "POST",
+  options: { streaming: true },
+});
+
+const { data } = await streamRequest.send();
+
+// data is a ReadableStream<Uint8Array>
+const reader = data.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  console.log(decoder.decode(value, { stream: true }));
+}
+```
+
+:::tip React Integration
+
+For React apps, use the [`useStream`](/docs/react/hooks/use-stream) hook instead of manually consuming the stream.
+It handles chunk accumulation, lifecycle management, and reactive re-renders automatically.
 
 :::
 

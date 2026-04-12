@@ -1,4 +1,5 @@
-import { Link, LinkProps } from "@tanstack/react-router";
+import type { LinkProps } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon, AlertTriangle, AppWindow, Settings } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";

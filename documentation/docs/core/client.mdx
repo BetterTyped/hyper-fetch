@@ -247,7 +247,62 @@ export const getUser = client.createRequest()({
 
 ---
 
-5. ### Plugins
+5. ### Cache modes (`auto` / `client` / `server`)
+
+`createClient` accepts an optional `mode`:
+
+- **`"auto"`** (default when omitted) — resolves to **`"client"`** in the browser and **`"server"`** in Node.js.
+- **`"client"`** or **`"server"`** — forces that **effective** mode regardless of environment.
+
+`client.mode` is always the resolved value: **`"client"`** or **`"server"`**. Cache behavior follows that resolved mode
+(on the server, caching is **disabled by default** unless you use `setScope`).
+
+```tsx
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "http://localhost:3000" });
+// Same as { mode: "auto" } — client.mode is "client" in browser, "server" in Node.js
+
+// Override when needed (e.g. tests or forcing server rules in the browser)
+createClient({ url: "http://localhost:3000", mode: "server" });
+createClient({ url: "http://localhost:3000", mode: "client" });
+```
+
+On the server, use `setScope` to explicitly opt in to caching with per-user/session isolation:
+
+```tsx
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Server-side: NOT cached (safe by default)
+getUser.setParams({ userId: 1 }).send();
+
+// Server-side: CACHED — scoped to this user's session
+getUser
+  .setParams({ userId: 1 })
+  .setScope(req.session.id)
+  .send();
+```
+
+:::warning Server-Side Safety
+
+Without `setScope`, responses are never cached on the server. This prevents user A from seeing user B's data.
+Always scope to the current user/session context in server environments.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="Cache"
+  description="Learn more about cache modes, scoping, and persistence."
+  to="/docs/core/cache"
+/>
+
+---
+
+6. ### Plugins
 
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
 the events happening inside of the Hyper Fetch.

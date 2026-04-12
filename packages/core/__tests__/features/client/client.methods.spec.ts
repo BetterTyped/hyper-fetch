@@ -2,10 +2,11 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
 import { Client } from "client";
-import { RequestOptionsType, Request } from "request";
+import type { RequestOptionsType } from "request";
+import { Request } from "request";
 import { LoggerManager } from "managers";
 import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
-import { HttpAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
+import type { FetchAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -27,7 +28,7 @@ describe("Client [ Methods ]", () => {
 
   describe("When using config methods", () => {
     it("should assign default request config [setRequestDefaults]", async () => {
-      const options: Partial<RequestOptionsType<string, HttpAdapterOptionsType>> = { method: "POST" };
+      const options: Partial<RequestOptionsType<string, FetchAdapterOptionsType>> = { method: "POST" };
       client.adapter.setRequestDefaults(() => options);
       const req = client.createRequest()({ endpoint: "test" });
 
@@ -35,7 +36,7 @@ describe("Client [ Methods ]", () => {
       expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
-      const options: HttpAdapterOptionsType = { timeout: 12312312 };
+      const options: FetchAdapterOptionsType = { timeout: 12312312 };
       client.adapter.setAdapterDefaults(() => options);
 
       expect(client.adapter.unstable_getAdapterDefaults?.(request)).toEqual(options);

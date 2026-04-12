@@ -21,7 +21,5 @@
     "@next/next/no-html-link-for-pages": "off",
     "@typescript-eslint/no-unused-vars": "off"
   },
-  "env": {
-    "jest": true
-  }
+  "env": {}
 }

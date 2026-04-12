@@ -1,7 +1,7 @@
-import EventEmitter from "events";
+import type EventEmitter from "events";
 
+import type { QueueDataType } from "dispatcher";
 import {
-  QueueDataType,
   getDispatcherChangeKey,
   getDispatcherChangeByKey,
   getDispatcherStatusKey,
@@ -9,7 +9,7 @@ import {
   getDispatcherDrainedKey,
   getDispatcherDrainedByKey,
 } from "dispatcher";
-import { RequestInstance } from "request";
+import type { RequestInstance } from "request";
 
 export const getDispatcherEvents = (emitter: EventEmitter) => ({
   emitDrained: <Request extends RequestInstance>(

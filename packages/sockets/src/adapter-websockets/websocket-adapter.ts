@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { QueryParamsType, stringifyQueryParams, Time } from "@hyper-fetch/core";
+import type { QueryParamsType } from "@hyper-fetch/core";
+import { stringifyQueryParams, Time } from "@hyper-fetch/core";
 
-import { EmitterInstance } from "emitter";
-import { ExtendListener, ListenerCallbackType, ListenerInstance } from "listener";
-import { SocketData } from "adapter";
+import type { EmitterInstance } from "emitter";
+import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
+import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
-import { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
+import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 import { getWebsocketAdapter } from "./websocket-adapter.utils";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
-import { Socket } from "socket";
 
 /**
  * -------------------------------------------
@@ -224,7 +224,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         const listen = (
-          listener: ExtendListener<ListenerInstance, { socket: Socket<WebsocketAdapterType> }>,
+          listener: ListenerOfAdapter<WebsocketAdapterType>,
           callback: ListenerCallbackType<WebsocketAdapterType, any>,
         ) => {
           return onListen({ listener, callback });

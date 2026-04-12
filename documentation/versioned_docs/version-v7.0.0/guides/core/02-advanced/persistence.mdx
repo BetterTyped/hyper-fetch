@@ -55,8 +55,8 @@ const persistenceStorage: CacheStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  cache: (instance) =>
-    new Cache(instance, {
+  cache: () =>
+    new Cache({
       storage: persistenceStorage,
     }),
 });
@@ -82,8 +82,8 @@ const asyncStorage: CacheAsyncStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  cache: (instance) =>
-    new Cache(instance, {
+  cache: () =>
+    new Cache({
       lazyStorage: asyncStorage,
     }),
 });
@@ -130,8 +130,8 @@ const persistenceStorage: DispatcherStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  fetchDispatcher: (instance) =>
-    new Dispatcher(instance, {
+  fetchDispatcher: () =>
+    new Dispatcher({
       storage: persistenceStorage,
     }),
 });
@@ -162,8 +162,8 @@ const persistenceStorage: DispatcherStorageType = {
 
 export const client = new Client({
   url: "https://api.my-app.com",
-  submitDispatcher: (instance) =>
-    new Dispatcher(instance, {
+  submitDispatcher: () =>
+    new Dispatcher({
       storage: persistenceStorage,
     }),
 });

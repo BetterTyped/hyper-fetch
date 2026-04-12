@@ -12,7 +12,7 @@ describe("Listener [ Base ]", () => {
     startServer();
     socket = createSocket();
     listener = createListener(socket);
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("should initialize Listener with correct topic", async () => {

@@ -1,7 +1,8 @@
 import EventEmitter from "events";
 
 import type { ClientInstance } from "client";
-import { logger, LogLevel, LoggerOptionsType, logLevelOrder, LoggerType, LoggerMethods } from "managers";
+import type { LogLevel, LoggerOptionsType, LoggerType, LoggerMethods } from "managers";
+import { logger, logLevelOrder } from "managers";
 
 /**
  * This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each client.

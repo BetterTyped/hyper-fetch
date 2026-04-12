@@ -29,7 +29,7 @@ describe("Client [ Auth ]", () => {
     authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
     refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -40,7 +40,7 @@ describe("Client [ Auth ]", () => {
     it("should trigger auth middleware callback", async () => {
       mockRequest(authRequest, { data: requestFixture });
 
-      const trigger = jest.fn();
+      const trigger = vi.fn();
 
       client.onAuth((cmd) => {
         trigger();
@@ -57,7 +57,7 @@ describe("Client [ Auth ]", () => {
     it("should trigger auth middleware callback", async () => {
       mockRequest(request, { data: requestFixture });
 
-      const trigger = jest.fn();
+      const trigger = vi.fn();
 
       client.onAuth((cmd) => {
         trigger();
@@ -71,7 +71,7 @@ describe("Client [ Auth ]", () => {
   });
 
   describe("When token is out of date", () => {
-    const interceptor = jest.fn();
+    const interceptor = vi.fn();
 
     const handleErrorIntercept = (callback?: () => void) => {
       client.onError(async (res, req) => {
@@ -113,7 +113,7 @@ describe("Client [ Auth ]", () => {
     it("should try to repeat request only once", async () => {
       mockRequest(request, { status: 401 });
 
-      const retry = jest.fn();
+      const retry = vi.fn();
 
       handleErrorIntercept(retry);
 

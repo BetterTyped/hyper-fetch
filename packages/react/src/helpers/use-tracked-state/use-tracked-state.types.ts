@@ -1,4 +1,4 @@
-import {
+import type {
   Dispatcher,
   ExtractErrorType,
   CacheValueType,
@@ -13,7 +13,7 @@ import {
   LoggerMethods,
 } from "@hyper-fetch/core";
 
-import { isEqual } from "utils";
+import type { isEqual } from "utils";
 
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
@@ -22,6 +22,7 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   dispatcher: Dispatcher<ExtractAdapterType<T>>;
   dependencyTracking: boolean;
   deepCompare: boolean | typeof isEqual;
+  keepPreviousData?: "auto" | "preserve" | "clean";
   disabled?: boolean;
   revalidate?: boolean;
 };
@@ -122,4 +123,8 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
    * If you need to update cache data use client.cache.update() method.
    */
   setRequestTimestamp: (timestamp: CacheSetState<Date>) => void;
+  /**
+   * Reset all state fields to their initial values (data, error, status, extra → null, loading → false, etc.).
+   */
+  clearState: () => void;
 };

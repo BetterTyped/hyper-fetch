@@ -2,20 +2,20 @@ import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
+import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
 import { $where } from "constraints";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
   adapter: FirebaseAdminSocketAdapterTypes<any>,
   coreAdapter: FirebaseAdminAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-  let spy = jest.fn();
+  let spy = vi.fn();
   beforeEach(() => {
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    spy = jest.fn();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    spy = vi.fn();
   });
   const initialize = async () => {
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
@@ -37,7 +37,7 @@ export const onSnapshotTestSuite = (
         topic: "",
       });
       const unmount = onSnapshotReq.listen(spy);
-      expect(unmount).toBeFunction();
+      expect(typeof unmount).toBe("function");
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
@@ -251,7 +251,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(1);
-        expect(receivedData[0]).toIncludeSameMembers(initialCache);
+        expect(receivedData[0]).toEqual(expect.arrayContaining(initialCache));
       }, 1000);
 
       const shouldCacheData = newData as Tea;
@@ -283,7 +283,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(2);
-        expect(receivedData[1]).toIncludeSameMembers([...initialCache, data]);
+        expect(receivedData[1]).toEqual(expect.arrayContaining([...initialCache, data]));
       });
     });
   });

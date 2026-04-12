@@ -1,15 +1,13 @@
-import { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
-import { useDidMount, useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
-import { useRef } from "react";
+import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
+import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
-import { UseSocketStateType, initialSocketState, UseSocketStateProps } from "helpers";
+import type { UseSocketStateType, UseSocketStateProps } from "helpers";
 
 export const useSocketState = <DataType, Socket extends SocketInstance>(
   socket: Socket,
   { dependencyTracking }: UseSocketStateProps,
 ) => {
-  const forceUpdate = useForceUpdate();
-
   const onDisconnectCallback = useRef<null | VoidFunction>(null);
   const onErrorCallback = useRef<null | ((event: any) => void)>(null);
   const onConnectedCallback = useRef<null | VoidFunction>(null);
@@ -17,8 +15,37 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   const onReconnectingCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
   const onReconnectingFailedCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
 
-  const state = useRef<UseSocketStateType<Socket, DataType>>(initialSocketState);
+  const state = useRef<UseSocketStateType<Socket, DataType>>({
+    data: null,
+    extra: null,
+    connected: socket.adapter.connected,
+    connecting: socket.adapter.connecting,
+    timestamp: null,
+  });
   const renderKeys = useRef<Array<keyof UseSocketStateType<Socket, DataType>>>([]);
+
+  // ******************
+  // useSyncExternalStore
+  // ******************
+
+  const versionRef = useRef(0);
+  const listenerRef = useRef<(() => void) | null>(null);
+
+  const subscribe = useCallback((listener: () => void) => {
+    listenerRef.current = listener;
+    return () => {
+      listenerRef.current = null;
+    };
+  }, []);
+
+  const getSnapshot = useCallback(() => versionRef.current, []);
+
+  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  const emitChange = () => {
+    versionRef.current += 1;
+    listenerRef.current?.();
+  };
 
   // ******************
   // Dependency Tracking
@@ -26,7 +53,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 
   const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<Socket, DataType>>) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) forceUpdate();
+    if (shouldRerender) emitChange();
   };
 
   const setRenderKey = (renderKey: keyof UseSocketStateType<Socket, DataType>) => {
@@ -41,9 +68,6 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 
   useDidUpdate(
     () => {
-      state.current.connected = socket.adapter.connected;
-      state.current.connecting = socket.adapter.connecting;
-
       const handleDependencyTracking = () => {
         if (!dependencyTracking) {
           Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
@@ -71,15 +95,25 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     },
     setConnected: (connected: boolean) => {
       state.current.connected = connected;
-      renderKeyTrigger(["data"]);
+      renderKeyTrigger(["connected"]);
     },
     setConnecting: (connecting: boolean) => {
       state.current.connecting = connecting;
-      renderKeyTrigger(["data"]);
+      renderKeyTrigger(["connecting"]);
     },
     setTimestamp: (timestamp: number | null) => {
       state.current.timestamp = timestamp;
       renderKeyTrigger(["timestamp"]);
+    },
+    clearState: () => {
+      state.current = {
+        data: null,
+        extra: null,
+        connected: false,
+        connecting: false,
+        timestamp: null,
+      };
+      renderKeyTrigger(Object.keys(state.current) as (keyof UseSocketStateType<Socket, DataType>)[]);
     },
   };
 

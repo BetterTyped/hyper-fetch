@@ -1,5 +1,5 @@
 import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
-import { ErrorComponentProps } from "@tanstack/router-core";
+import type { ErrorComponentProps } from "@tanstack/router-core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Link } from "@tanstack/react-router";
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { QueueDataType } from "@hyper-fetch/core";
+import type { QueueDataType } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 import { motion } from "framer-motion";
 import { Activity, Clock, Database, GaugeCircle, Timer, AlertCircle } from "lucide-react";

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Adapter } from "@hyper-fetch/core";
-import { DatabaseReference, DataSnapshot } from "firebase/database";
-import { SocketAdapter } from "@hyper-fetch/sockets";
+import type { Adapter } from "@hyper-fetch/core";
+import type { DatabaseReference, DataSnapshot } from "firebase/database";
+import type { SocketAdapter } from "@hyper-fetch/sockets";
 
-import {
+import type {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,

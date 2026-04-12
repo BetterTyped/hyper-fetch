@@ -1,5 +1,5 @@
-import { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
-import { DocumentNode } from "graphql/language/ast";
+import type { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
+import type { DocumentNode } from "graphql/language/ast";
 
 export enum GraphqlMethod {
   POST = "POST",
@@ -10,8 +10,12 @@ export type GraphQlExtraType = { headers: HeadersInit; extensions: Record<string
 
 export type GraphQlEndpointType = string | DocumentNode;
 
+export type FetchGraphqlAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "body" | "signal"> & {
+  timeout?: number;
+};
+
 export type GraphqlAdapterType = Adapter<
-  Partial<XMLHttpRequest>,
+  FetchGraphqlAdapterOptionsType,
   GraphqlMethod,
   number,
   GraphQlExtraType,

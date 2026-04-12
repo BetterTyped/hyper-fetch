@@ -3,8 +3,8 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
-import { Tea } from "../../../../utils";
+import type { FirebaseAdapterTypes, FirebaseDBTypes, FirebaseSocketAdapterTypes } from "adapter";
+import type { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (
   db: FirebaseDBTypes,
@@ -16,7 +16,7 @@ export const onValueTestSuite = (
     let initializedSocketsAdapter: FirebaseSocketAdapterTypes<any>;
     let initializedCoreAdapter: FirebaseAdapterTypes<any>;
     let initializedDb: FirebaseDBTypes;
-    let spy = jest.fn();
+    let spy = vi.fn();
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
     beforeAll(async () => {
@@ -44,9 +44,9 @@ export const onValueTestSuite = (
     };
 
     beforeEach(() => {
-      jest.resetAllMocks();
-      jest.clearAllMocks();
-      spy = jest.fn();
+      vi.resetAllMocks();
+      vi.clearAllMocks();
+      spy = vi.fn();
     });
 
     it("should return unmount function", async () => {
@@ -55,7 +55,7 @@ export const onValueTestSuite = (
         topic: "",
       });
       const unmount = onValueReq.listen(spy);
-      expect(unmount).toBeFunction();
+      expect(typeof unmount).toBe("function");
     });
 
     it("should unmount listeners", async () => {
@@ -144,7 +144,7 @@ export const onValueTestSuite = (
       const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data?.__key }]);
+        expect(receivedData).toEqual(expect.arrayContaining([{ ...newData, __key: data?.__key }]));
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");

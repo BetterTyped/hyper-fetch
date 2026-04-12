@@ -1,14 +1,9 @@
-import {
-  getErrorMessage,
-  ResponseSuccessType,
-  ResponseErrorType,
-  ProgressDataType,
-  AdapterInstance,
-  RequestProcessingError,
-} from "adapter";
-import { LoggerMethods } from "managers";
-import { RequestInstance, getProgressData, ProgressEventType } from "request";
-import {
+import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
+import { getErrorMessage, RequestProcessingError } from "adapter";
+import type { LoggerMethods } from "managers";
+import type { RequestInstance, ProgressEventType } from "request";
+import { getProgressData, scopeKey } from "request";
+import type {
   ExtractResponseType,
   ExtractErrorType,
   ExtractPayloadType,
@@ -68,6 +63,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   // Request Setup
   const { client, abortKey } = request;
+  const scopedAbortKey = scopeKey(abortKey, request.scope);
 
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
@@ -352,7 +348,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Abort
 
   const getAbortController = () => {
-    return requestManager.getAbortController(abortKey, requestId);
+    return requestManager.getAbortController(scopedAbortKey, requestId);
   };
 
   const createAbortListener = ({

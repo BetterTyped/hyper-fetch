@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, Boxes, FileSliders } from "lucide-react";
-import { AdapterInstance, CacheValueType } from "@hyper-fetch/core";
+import type { AdapterInstance, CacheValueType } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JSONViewer } from "@/components/json-viewer/json-viewer";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/no-content/empty-state";
-import { DevtoolsCacheEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";

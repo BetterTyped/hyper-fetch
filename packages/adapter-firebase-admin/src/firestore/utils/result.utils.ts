@@ -1,4 +1,4 @@
-import { QuerySnapshot, DocumentData } from "firebase-admin/firestore";
+import type { QuerySnapshot, DocumentData } from "firebase-admin/firestore";
 
 export const getOrderedResultFirestore = (snapshot: QuerySnapshot) => {
   const result: (DocumentData & { __key: string })[] = [];

@@ -2,21 +2,19 @@ import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createAdapter, createDispatcher } from "../../utils";
-import {
+import type {
   HttpAdapterType,
-  Client,
-  getErrorMessage,
   RequestInstance,
   RequestResponseEventType,
   ResponseDetailsType,
   ResponseType,
-  mocker,
 } from "../../../src";
+import { Client, getErrorMessage, mocker } from "../../../src";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Mocker [ Base ]", () => {
-  const adapterSpy = jest.fn();
+  const adapterSpy = vi.fn();
   const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
@@ -34,7 +32,7 @@ describe("Mocker [ Base ]", () => {
     dispatcher = createDispatcher(client);
     request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setMockingEnabled(true);
 
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -91,8 +89,8 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("should allow to cancel single running request", async () => {
-    const firstSpy = jest.fn();
-    const secondSpy = jest.fn();
+    const firstSpy = vi.fn();
+    const secondSpy = vi.fn();
     const firstRequest = client
       .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock(
@@ -174,6 +172,7 @@ describe("Mocker [ Base ]", () => {
       retries: 1,
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
       addedTimestamp: expect.toBeNumber(),
@@ -386,8 +385,8 @@ describe("Mocker [ Base ]", () => {
       { totalUploaded: 1000, requestTime: 40, totalDownloaded: 1000, responseTime: 60 },
     );
 
-    const requestSpy = jest.fn();
-    const responseSpy = jest.fn();
+    const requestSpy = vi.fn();
+    const responseSpy = vi.fn();
     client.requestManager.events.onUploadProgressByQueue(request.queryKey, requestSpy);
     client.requestManager.events.onDownloadProgressByQueue(request.queryKey, responseSpy);
     const response = await mockedRequest.send();
@@ -498,6 +497,79 @@ describe("Mocker [ Base ]", () => {
         request: client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }),
       } as any),
     ).rejects.toThrow("Request processing error");
+  });
+
+  describe("When mock returns error without success and without data", () => {
+    it("should call onError path when success is false and no data", async () => {
+      const errorObj = new Error("mock error");
+      const mockedRequest = request.setMock(() => ({
+        data: null,
+        error: errorObj,
+        status: 500,
+        success: false,
+      }));
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toEqual(errorObj);
+      expect(response.status).toBe(500);
+      expect(response.success).toBe(false);
+    });
+  });
+
+  describe("When mock config has no timeout", () => {
+    it("should skip timeout setup when timeout is not a number", async () => {
+      const mockedRequest = request.setMock(
+        () => ({
+          data: fixture,
+          status: 200,
+        }),
+        { requestTime: 20, responseTime: 20 },
+      );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toStrictEqual(fixture);
+      expect(response.status).toBe(200);
+      expect(response.success).toBe(true);
+    });
+  });
+
+  describe("When request is aborted before progress completes", () => {
+    it("should handle abort via timeout=0 before response progress starts", async () => {
+      const mockedRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setMock(
+          () => ({
+            data: fixture,
+            status: 200,
+          }),
+          { requestTime: 100, responseTime: 100, timeout: 0 },
+        );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toBeDefined();
+    });
+
+    it("should resolve progress immediately when abort already triggered", async () => {
+      const mockedRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setMock(
+          () => ({
+            data: fixture,
+            status: 200,
+          }),
+          { requestTime: 200, responseTime: 200, timeout: 1 },
+        );
+
+      const response = await mockedRequest.send();
+
+      expect(response.data).toBe(null);
+      expect(response.error).toBeDefined();
+    });
   });
 
   describe("When handling different response scenarios", () => {

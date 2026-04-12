@@ -1,19 +1,19 @@
-import {
+import type {
   QueueDataType,
-  getRequestType,
-  canRetryRequest,
-  getDispatcherEvents,
-  DispatcherMode,
   DispatcherOptionsType,
   DispatcherStorageType,
-  QueueItemType,
+  ResolvedQueueDataType,
+  ResolvedQueueItemType,
   RunningRequestValueType,
 } from "dispatcher";
-import { ClientInstance } from "client";
+import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } from "dispatcher";
+import type { ClientInstance } from "client";
 import { EventEmitter } from "utils";
-import { ResponseDetailsType, LoggerMethods } from "managers";
-import { RequestInstance } from "request";
-import { AdapterInstance, getErrorMessage, RequestResponseType } from "adapter";
+import type { ResponseDetailsType, LoggerMethods } from "managers";
+import type { RequestInstance, RequestJSON } from "request";
+import { Request, scopeKey } from "request";
+import type { AdapterInstance, RequestResponseType } from "adapter";
+import { getErrorMessage } from "adapter";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
@@ -38,6 +38,13 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       this.storage = this.options.storage;
     }
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  private isRequestJSON = (
+    request: RequestInstance | RequestJSON<RequestInstance>,
+  ): request is RequestJSON<RequestInstance> => {
+    return !(request instanceof Request);
+  };
 
   initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
@@ -109,13 +116,27 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Return queue state object
+   * Return queue state object.
+   * Automatically reconstructs any serialized (JSON) requests back into
+   * proper Request class instances so the rest of the pipeline can rely on
+   * having a real `RequestInstance`.
    */
-  getQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string) => {
-    const initialQueueState: QueueDataType<Request> = { queryKey, requests: [], stopped: false };
-    const storedEntity = this.storage.get<Request>(queryKey);
+  getQueue = <R extends RequestInstance = RequestInstance>(queryKey: string): ResolvedQueueDataType<R> => {
+    const initialQueueState: ResolvedQueueDataType<R> = { queryKey, requests: [], stopped: false };
+    const storedEntity = this.storage.get<R>(queryKey);
 
-    return storedEntity || initialQueueState;
+    if (!storedEntity) {
+      return initialQueueState;
+    }
+
+    const resolvedRequests: ResolvedQueueItemType<R>[] = storedEntity.requests.map((item) => {
+      if (this.isRequestJSON(item.request)) {
+        return { ...item, request: this.client.fromJSON(item.request as RequestJSON<RequestInstance>) as unknown as R };
+      }
+      return item as ResolvedQueueItemType<R>;
+    });
+
+    return { ...storedEntity, requests: resolvedRequests };
   };
 
   /**
@@ -143,7 +164,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    */
   addQueueItem = <Request extends RequestInstance = RequestInstance>(
     queryKey: string,
-    element: QueueItemType<Request>,
+    element: ResolvedQueueItemType<Request>,
   ) => {
     const queue = this.getQueue<Request>(queryKey);
     queue.requests.push(element);
@@ -156,8 +177,11 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   /**
    * Set new queue storage value
    */
-  setQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string, queue: QueueDataType<Request>) => {
-    this.storage.set<Request>(queryKey, queue);
+  setQueue = <Request extends RequestInstance = RequestInstance>(
+    queryKey: string,
+    queue: ResolvedQueueDataType<Request>,
+  ) => {
+    this.storage.set<Request>(queryKey, queue as QueueDataType<Request>);
 
     // Emit Queue Changes
     this.client.triggerPlugins("onDispatcherQueueCreated", { dispatcher: this, queue });
@@ -333,8 +357,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Cancel all started requests, but do NOT remove it from main storage
    */
   cancelRunningRequests = (queryKey: string) => {
-    this.runningRequests.get(queryKey)?.forEach((request) => {
-      this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
+    this.runningRequests.get(queryKey)?.forEach((req) => {
+      const ak = scopeKey(req.request.abortKey, req.request.scope);
+      this.client.requestManager.abortByRequestId(ak, req.requestId);
     });
     this.deleteRunningRequests(queryKey);
   };
@@ -344,7 +369,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   cancelRunningRequest = (queryKey: string, requestId: string) => {
     const requests = this.getRunningRequests(queryKey).filter((request) => {
       if (request.requestId === requestId) {
-        this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
+        const ak = scopeKey(request.request.abortKey, request.request.scope);
+        this.client.requestManager.abortByRequestId(ak, request.requestId);
         return false;
       }
       return true;
@@ -390,9 +416,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Create storage element from request
    */
   // eslint-disable-next-line class-methods-use-this
-  createStorageItem = <Request extends RequestInstance>(request: Request) => {
+  createStorageItem = <R extends RequestInstance>(request: R): ResolvedQueueItemType<R> => {
     const requestId = this.client.unstable_requestIdMapper(request);
-    const storageItem: QueueItemType<Request> = {
+    return {
       requestId,
       timestamp: +new Date(),
       request,
@@ -400,7 +426,6 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       stopped: false,
       resolved: false,
     };
-    return storageItem;
   };
 
   // *********************************************************************
@@ -413,7 +438,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Add request to the dispatcher handler
    */
   add = (request: RequestInstance) => {
-    const { queryKey } = request;
+    const queryKey = scopeKey(request.queryKey, request.scope);
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
@@ -499,11 +524,13 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Request can run for some time, once it's done, we have to check if it's successful or if it was aborted
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
-  performRequest = async (storageItem: QueueItemType) => {
+  performRequest = async (storageItem: ResolvedQueueItemType) => {
     const { request, requestId } = storageItem;
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
-    const { retry, retryTime, queryKey, abortKey, offline } = request;
+    const { retry, retryTime, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
+    const queryKey = scopeKey(rawQueryKey, scope);
+    const abortKey = scopeKey(rawAbortKey, scope);
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageItem.retries, retry);
@@ -555,10 +582,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);
 
+    const shouldRetryOnError = response.success || !canRetry || !request.retryOnError || request.retryOnError(response);
+    const willRetry = !response.success && canRetry && shouldRetryOnError && !isCanceled && !isOfflineResponseStatus;
+
     const requestDetails: ResponseDetailsType = {
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageItem.retries,
+      willRetry,
       addedTimestamp: storageItem.timestamp,
       triggerTimestamp: runningRequest.timestamp,
       requestTimestamp: response.requestTimestamp,
@@ -634,7 +665,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       });
     }
     // On retry
-    if (!response.success && canRetry) {
+    if (willRetry) {
       this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
       // Perform retry once request is failed
       setTimeout(() => {

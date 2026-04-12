@@ -1,4 +1,4 @@
-import { ClientInstance } from "@hyper-fetch/core";
+import type { ClientInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
 
 import { useAppManager } from "hooks/use-app-manager";

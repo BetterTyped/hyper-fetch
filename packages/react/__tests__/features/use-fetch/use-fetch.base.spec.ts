@@ -1,5 +1,6 @@
 import { act, waitFor } from "@testing-library/react";
-import { AdapterInstance, ResponseType, xhrExtra } from "@hyper-fetch/core";
+import type { AdapterInstance, ResponseType } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";
@@ -23,7 +24,7 @@ describe("useFetch [ Base ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -130,7 +131,7 @@ describe("useFetch [ Base ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(client.adapter, "fetch");
+      const spy = vi.spyOn(client.adapter, "fetch");
       await testClientIsolation(client);
       const mock = mockRequest(request);
       const view = renderUseFetch(request);
@@ -152,8 +153,12 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map the data on deps change", async () => {
       mockRequest(request);
-      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
-      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
+      const request1 = request
+        .setCacheKey("request1")
+        .setResponseMapper((response) => ({ ...response, data: 1 }) as typeof response);
+      const request2 = request
+        .setCacheKey("request2")
+        .setResponseMapper((response) => ({ ...response, data: 2 }) as typeof response);
 
       const { result, rerender } = renderUseFetch(request1);
 
@@ -197,22 +202,28 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map response data", async () => {
       const mappedData = { test: 1, test2: 2, test3: 3 };
-      const mappedRequest = request.setResponseMapper((response) => ({
-        ...response,
-        data: mappedData,
-      }));
+      const mappedRequest = request.setResponseMapper(
+        (response) =>
+          ({
+            ...response,
+            data: mappedData,
+          }) as typeof response,
+      );
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest);
 
       await testSuccessState(mappedData, view);
     });
     it("should map async response data", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       const mappedData = { test: 1, test2: 2, test3: 3 };
-      const mappedRequest = request.setResponseMapper(async (response) => ({
-        ...response,
-        data: mappedData,
-      }));
+      const mappedRequest = request.setResponseMapper(
+        async (response) =>
+          ({
+            ...response,
+            data: mappedData,
+          }) as typeof response,
+      );
       mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest, { disabled: true });
 
@@ -260,7 +271,7 @@ describe("useFetch [ Base ]", () => {
   describe("when dependencies change", () => {
     // Solves Issue #22
     it("should fetch data when disabled prop changes", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       await testClientIsolation(client);
       const mock = mockRequest(request);
       const view = renderUseFetch(request, { disabled: true });
@@ -279,6 +290,83 @@ describe("useFetch [ Base ]", () => {
     });
     it("should fetch when dependencies change", async () => {
       // Todo
+    });
+  });
+
+  // GitHub Issue #126
+  describe("when query parameters change", () => {
+    it("should reset loading to true when query params change and no cache exists for new key", async () => {
+      await testClientIsolation(client);
+
+      const paginatedRequest = createRequest({ endpoint: "/items" });
+
+      const page1Request = paginatedRequest.setQueryParams({ page: "1" } as any);
+      mockRequest(page1Request, { data: { items: [1, 2, 3] } });
+
+      const view = renderUseFetch(page1Request);
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ items: [1, 2, 3] });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page2Request = paginatedRequest.setQueryParams({ page: "2" } as any);
+      mockRequest(page2Request, { data: { items: [4, 5, 6] }, delay: 100 });
+
+      view.rerender({ request: page2Request });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ items: [4, 5, 6] });
+        expect(view.result.current.loading).toBe(false);
+      });
+    });
+
+    it("should reset loading to true on each subsequent query param change", async () => {
+      await testClientIsolation(client);
+
+      const paginatedRequest = createRequest({ endpoint: "/posts" });
+
+      const page1 = paginatedRequest.setQueryParams({ page: "1" } as any);
+      mockRequest(page1, { data: { page: 1 } });
+
+      const view = renderUseFetch(page1);
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 1 });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page2 = paginatedRequest.setQueryParams({ page: "2" } as any);
+      mockRequest(page2, { data: { page: 2 }, delay: 100 });
+
+      view.rerender({ request: page2 });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 2 });
+        expect(view.result.current.loading).toBe(false);
+      });
+
+      const page3 = paginatedRequest.setQueryParams({ page: "3" } as any);
+      mockRequest(page3, { data: { page: 3 }, delay: 100 });
+
+      view.rerender({ request: page3 });
+
+      await waitFor(() => {
+        expect(view.result.current.loading).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toStrictEqual({ page: 3 });
+        expect(view.result.current.loading).toBe(false);
+      });
     });
   });
 });

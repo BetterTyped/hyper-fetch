@@ -2,16 +2,24 @@ import { createClient, getErrorMessage } from "@hyper-fetch/core";
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
 import { createGraphqlMockingServer } from "../../src/graphql";
-import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../constants/queries.constants";
-import { LoginMutationVariables, loginMutation } from "../constants/mutations.constants";
+import type { GetUserQueryResponse } from "../constants/queries.constants";
+import { getUserQuery, getUserQueryString } from "../constants/queries.constants";
+import type { LoginMutationVariables } from "../constants/mutations.constants";
+import { loginMutation } from "../constants/mutations.constants";
 
 describe("Graphql Mocking [ Base ]", () => {
   const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
   let client = createClient({
     url: "https://shared-base-url/graphql",
   }).setAdapter(GraphqlAdapter());
-  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse; error: { message: string }[] }>()({
+    endpoint: getUserQuery,
+  });
+  let mutation = client.createRequest<{
+    response: GetUserQueryResponse;
+    payload: LoginMutationVariables;
+    error: { message: string }[];
+  }>()({
     endpoint: loginMutation,
   });
 
@@ -23,13 +31,19 @@ describe("Graphql Mocking [ Base ]", () => {
     client = createClient({
       url: "https://shared-base-url/graphql",
     }).setAdapter(GraphqlAdapter());
-    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+    request = client.createRequest<{ response: GetUserQueryResponse; error: { message: string }[] }>()({
+      endpoint: getUserQuery,
+    });
+    mutation = client.createRequest<{
+      response: GetUserQueryResponse;
+      payload: LoginMutationVariables;
+      error: { message: string }[];
+    }>()({
       endpoint: loginMutation,
     });
 
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

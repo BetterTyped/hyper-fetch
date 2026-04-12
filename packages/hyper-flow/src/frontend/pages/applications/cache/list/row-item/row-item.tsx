@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
-import { DevtoolsCacheEvent } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useCountdown } from "@/hooks/use-countdown";
 import { Key } from "@/components/ui/key";

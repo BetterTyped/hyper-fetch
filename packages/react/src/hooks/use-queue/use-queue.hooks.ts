@@ -1,7 +1,9 @@
-import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType } from "@hyper-fetch/core";
+import type { RequestInstance, ResolvedQueueItemType, QueueDataType, QueueItemType } from "@hyper-fetch/core";
+import { Request, getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
 import { useState, useEffect, useCallback } from "react";
 
-import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
+import type { UseQueueOptionsType, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
+import { useQueueDefaultOptions } from "hooks/use-queue";
 import { useProvider } from "provider";
 
 const canUpdate = (
@@ -31,7 +33,9 @@ export const useQueue = <Request extends RequestInstance>(
     ...options,
   };
 
-  const { abortKey, queryKey, client } = request;
+  const { abortKey: rawAbortKey, queryKey: rawQueryKey, scope, client } = request;
+  const abortKey = scopeKey(rawAbortKey, scope);
+  const queryKey = scopeKey(rawQueryKey, scope);
   const { requestManager } = client;
 
   const [dispatcher] = getRequestDispatcher(request, dispatcherType);
@@ -44,7 +48,10 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const createRequestsArray = useCallback(
-    (queueElements: QueueItemType<Request>[], prevRequests?: QueueRequest<Request>[]): QueueRequest<Request>[] => {
+    (
+      queueElements: ResolvedQueueItemType<Request>[],
+      prevRequests?: QueueRequest<Request>[],
+    ): QueueRequest<Request>[] => {
       const newRequests = queueElements
         // Keep only unique requests
         .filter((el) => !prevRequests?.some((prevEl) => prevEl.requestId === el.requestId))
@@ -106,12 +113,24 @@ export const useQueue = <Request extends RequestInstance>(
     setRequests(createRequestsArray(requestQueue.requests));
   };
 
+  const resolveQueueItems = useCallback(
+    (items: QueueItemType<Request>[]): ResolvedQueueItemType<Request>[] => {
+      return items.map((item) => {
+        if (item.request instanceof Request) {
+          return item as ResolvedQueueItemType<Request>;
+        }
+        return { ...item, request: client.fromJSON(item.request) as Request };
+      });
+    },
+    [client],
+  );
+
   const updateQueueState = useCallback(
     (values: QueueDataType<Request>) => {
       setStopped(values.stopped);
-      setRequests((prev) => createRequestsArray(values.requests, prev));
+      setRequests((prev) => createRequestsArray(resolveQueueItems(values.requests), prev));
     },
-    [createRequestsArray],
+    [createRequestsArray, resolveQueueItems],
   );
 
   // ******************

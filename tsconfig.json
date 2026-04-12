@@ -32,10 +32,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules/**/*", "**/node_modules/**/*", "dist/**/*", "**/dist/**/*", "*.js"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  }
+  "exclude": [
+    "node_modules/**/*",
+    "**/node_modules/**/*",
+    "dist/**/*",
+    "**/dist/**/*",
+    "**/__tests__/**/*",
+    "documentation/**/*",
+    "examples/**/*",
+    "*.js"
+  ]
 }

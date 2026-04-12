@@ -1,6 +1,6 @@
-import { ProgressType, ResponseType } from "adapter";
-import { RequestInstance } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import type { ProgressType, ResponseType } from "adapter";
+import type { OptimisticCallbackResult, RequestInstance } from "request";
+import type { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 // Events
 export type RequestLoadingEventType<T extends RequestInstance> = {
@@ -14,6 +14,7 @@ export type RequestProgressEventType<T extends RequestInstance> = ProgressType &
 export type RequestEventType<T extends RequestInstance> = {
   request: T;
   requestId: string;
+  mutationContext?: OptimisticCallbackResult<any>;
 };
 
 export type RequestRemovedEventType<T extends RequestInstance> = {
@@ -41,6 +42,8 @@ export type ResponseDetailsType = {
   isCanceled: boolean;
   /** If error from offline status */
   isOffline: boolean;
+  /** Whether the dispatcher will schedule another retry for this request */
+  willRetry: boolean;
   /** When added to dispatcher's queue (pre-middleware which could take time) */
   addedTimestamp: number;
   /** When request is picked from queue and started to be sent */

@@ -1,12 +1,12 @@
-import { HttpMethodsType, HttpStatusType } from "../types";
-import { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
-import { stringifyQueryParams } from "./http-adapter.utils";
+import type { HttpMethodsType, HttpStatusType } from "../types";
+import type { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
+import type { stringifyQueryParams } from "./http-adapter.utils";
 /**
  * Base Adapter
  */
 
 export type HttpAdapterType = DeclareAdapterType<{
-  adapterOptions: HttpAdapterOptionsType;
+  adapterOptions: FetchAdapterOptionsType;
   methodType: HttpMethodsType;
   statusType: HttpStatusType;
   extra: HttpAdapterExtraType;
@@ -16,12 +16,20 @@ export type HttpAdapterType = DeclareAdapterType<{
 }>;
 
 /**
- * Options
+ * Options passed to the native fetch adapter. Extends RequestInit with a `timeout` option.
  */
-export interface HttpAdapterRequest extends Omit<XMLHttpRequest, "responseType"> {
-  responseType: XMLHttpRequestResponseType | "stream";
-}
-export type HttpAdapterOptionsType = Partial<HttpAdapterRequest>;
+export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "body" | "signal"> & {
+  /**
+   * Request timeout in milliseconds. Defaults to 5000ms.
+   */
+  timeout?: number;
+  /**
+   * When true, the response `data` will be a `ReadableStream<Uint8Array>` instead of parsed JSON/text.
+   * This enables streaming consumption of the response body (e.g., for SSE, large file downloads,
+   * or real-time text generation from LLMs).
+   */
+  streaming?: boolean;
+};
 
 export type HttpAdapterExtraType = {
   headers: Record<string, string>;

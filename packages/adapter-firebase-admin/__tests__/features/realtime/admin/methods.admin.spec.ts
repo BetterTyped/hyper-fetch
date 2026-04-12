@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { realtimeDbAdmin, seedRealtimeDatabaseAdmin } from "../../../utils";
 import { FirebaseAdminAdapter } from "adapter";

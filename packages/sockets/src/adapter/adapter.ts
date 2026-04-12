@@ -1,18 +1,18 @@
-import {
-  defaultMapper,
+import type {
   DefaultMapperType,
   EmptyTypes,
   QueryParamsMapper,
   QueryParamsType,
   QueryStringifyOptionsType,
 } from "@hyper-fetch/core";
+import { defaultMapper } from "@hyper-fetch/core";
 
-import { Socket, SocketInstance } from "socket";
-import { Connector, RemoveListenerCallbackType } from "./adapter.types";
+import type { Socket, SocketInstance } from "socket";
+import type { Connector, RemoveListenerCallbackType } from "./adapter.types";
 import { getAdapterBindings } from "./adapter.bindings";
-import { ListenerInstance, ListenerCallbackType } from "listener";
-import { EmitterInstance } from "emitter";
-import { ExtractAdapterExtraType } from "types";
+import type { ListenerOfAdapter, ListenerCallbackType } from "listener";
+import type { EmitterInstance } from "emitter";
+import type { ExtractAdapterExtraType } from "types";
 
 export class SocketAdapter<
   Extra = undefined,
@@ -38,7 +38,7 @@ export class SocketAdapter<
   public listenerOptions: ListenerOptions | EmptyTypes;
   public emitterOptions: EmitterOptions | EmptyTypes;
 
-  private getConnector: () => Connector;
+  private getConnector: () => Connector<this>;
 
   // State
   public connected = false;
@@ -48,7 +48,10 @@ export class SocketAdapter<
 
   // Listeners
   public listeners = new Map<string, Map<ListenerCallbackType<this, any>, VoidFunction>>();
-  public listen: (listener: ListenerInstance, callback: ListenerCallbackType<this, any>) => RemoveListenerCallbackType;
+  public listen: (
+    listener: ListenerOfAdapter<this>,
+    callback: ListenerCallbackType<this, any>,
+  ) => RemoveListenerCallbackType;
   public emit: (emitter: EmitterInstance) => void;
   public connect: () => void;
   public reconnect: () => void;
@@ -219,7 +222,7 @@ export class SocketAdapter<
 
   // Connector
 
-  public setConnector = (connector: (bindings: ReturnType<typeof getAdapterBindings<this>>) => Connector) => {
+  public setConnector = (connector: (bindings: ReturnType<typeof getAdapterBindings<this>>) => Connector<this>) => {
     this.getConnector = () => {
       const bindings = getAdapterBindings<this>(this.socket as Socket<this>);
 

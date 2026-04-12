@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Adapter } from "@hyper-fetch/core";
-import {
+import type { Adapter } from "@hyper-fetch/core";
+import type {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
   DocumentReference,
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
-import { SocketAdapter } from "@hyper-fetch/sockets";
+import type { SocketAdapter } from "@hyper-fetch/sockets";
 
-import {
+import type {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,

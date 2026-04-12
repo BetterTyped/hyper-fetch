@@ -21,14 +21,14 @@ describe("useSubmit [ Retry ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST" });
   });
 
   describe("when request retry attribute is set to false", () => {
     it("should not retry request on failure", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(0).setRetryTime(0));
 
@@ -44,7 +44,7 @@ describe("useSubmit [ Retry ]", () => {
   });
   describe("when request retry attribute is set to true", () => {
     it("should retry request once", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
@@ -58,7 +58,7 @@ describe("useSubmit [ Retry ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should retry request twice", async () => {
-      const spy = jest.fn();
+      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(2).setRetryTime(10));
 

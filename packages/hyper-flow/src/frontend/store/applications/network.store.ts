@@ -3,8 +3,8 @@ import { create } from "zustand/react";
 
 import { useApplications } from "./apps.store";
 
-import { Status } from "@/utils/request.status.utils";
-import { DevtoolsRequestEvent, Sort } from "@/context/applications/types";
+import type { Status } from "@/utils/request.status.utils";
+import type { DevtoolsRequestEvent, Sort } from "@/context/applications/types";
 
 export type NetworkStore = {
   networkSearchTerm: string;

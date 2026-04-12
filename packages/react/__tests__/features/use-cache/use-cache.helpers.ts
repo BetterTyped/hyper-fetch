@@ -16,7 +16,7 @@ describe("useCache [ Helpers ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
   });
 
   describe("given hook is mounted", () => {

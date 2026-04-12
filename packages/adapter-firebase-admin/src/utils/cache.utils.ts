@@ -1,6 +1,6 @@
-import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
+import type { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreAdapterType } from "adapter";
+import type { FirestoreAdapterType } from "adapter";
 
 export const setCacheManually = (
   request: RequestInstance<{
@@ -20,6 +20,7 @@ export const setCacheManually = (
       extra,
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
       retries: 0,
       requestTimestamp: +new Date(),
       responseTimestamp: +new Date(),
@@ -35,6 +36,7 @@ export const setCacheManually = (
       extra,
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
       retries: 0,
       requestTimestamp: +new Date(),
       responseTimestamp: +new Date(),

@@ -16,7 +16,7 @@ describe("Plugin [ Base ]", () => {
 
   beforeEach(() => {
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
   });
@@ -49,7 +49,7 @@ describe("Plugin [ Base ]", () => {
 
   describe("When using plugin trigger", () => {
     it("should trigger registered method", () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const plugin = new Plugin({ name: "test-plugin" });
 
       plugin.onDispatcherCleared(callback);
@@ -72,7 +72,7 @@ describe("Plugin [ Base ]", () => {
   describe("When using dispatcher effects", () => {
     it("should register dispatcher lifecycle methods", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const methods = [
         "onDispatcherCleared",
@@ -97,7 +97,7 @@ describe("Plugin [ Base ]", () => {
   describe("When using cache effects", () => {
     it("should register cache lifecycle methods", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const methods = ["onCacheItemChange", "onCacheItemDelete"];
 
@@ -114,7 +114,7 @@ describe("Plugin [ Base ]", () => {
   describe("When using adapter effects", () => {
     it("should register adapter fetch method", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const result = plugin.onAdapterFetch(callback);
       expect(result).toBe(plugin);
@@ -130,11 +130,11 @@ describe("Plugin [ Base ]", () => {
   describe("When using fetch effects", () => {
     it("should trigger success effects", async () => {
       mockRequest(request);
-      const spy1 = jest.fn();
-      const spy2 = jest.fn();
-      const spy3 = jest.fn();
-      const spy4 = jest.fn();
-      const spy5 = jest.fn();
+      const spy1 = vi.fn();
+      const spy2 = vi.fn();
+      const spy3 = vi.fn();
+      const spy4 = vi.fn();
+      const spy5 = vi.fn();
 
       const effect = new Plugin({
         name: "123",
@@ -159,11 +159,11 @@ describe("Plugin [ Base ]", () => {
     });
     it("should trigger error effects", async () => {
       mockRequest(request, { status: 400 });
-      const spy1 = jest.fn();
-      const spy2 = jest.fn();
-      const spy3 = jest.fn();
-      const spy4 = jest.fn();
-      const spy5 = jest.fn();
+      const spy1 = vi.fn();
+      const spy2 = vi.fn();
+      const spy3 = vi.fn();
+      const spy4 = vi.fn();
+      const spy5 = vi.fn();
 
       const effect = new Plugin({
         name: "123",
@@ -202,8 +202,8 @@ describe("Plugin [ Base ]", () => {
   describe("When using mount/unmount lifecycle", () => {
     it("should register mount and unmount callbacks", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const mountCallback = jest.fn();
-      const unmountCallback = jest.fn();
+      const mountCallback = vi.fn();
+      const unmountCallback = vi.fn();
 
       const mountResult = plugin.onMount(mountCallback);
       const unmountResult = plugin.onUnmount(unmountCallback);
@@ -222,7 +222,7 @@ describe("Plugin [ Base ]", () => {
   describe("When using request lifecycle", () => {
     it("should register request create callback", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const result = plugin.onRequestCreate(callback);
       expect(result).toBe(plugin);
@@ -238,7 +238,7 @@ describe("Plugin [ Base ]", () => {
 
     it("should register request trigger callback", () => {
       const plugin = new Plugin({ name: "test-plugin" });
-      const callback = jest.fn();
+      const callback = vi.fn();
 
       const result = plugin.onRequestTrigger(callback);
       expect(result).toBe(plugin);

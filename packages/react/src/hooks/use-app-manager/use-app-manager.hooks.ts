@@ -1,8 +1,8 @@
 import { useDidMount } from "@better-hooks/lifecycle";
-import { ClientInstance } from "@hyper-fetch/core";
+import type { ClientInstance } from "@hyper-fetch/core";
 import { useState } from "react";
 
-import { UseAppManagerReturnType } from "hooks/use-app-manager";
+import type { UseAppManagerReturnType } from "hooks/use-app-manager";
 
 export const useAppManager = <Client extends ClientInstance>(client: Client): UseAppManagerReturnType => {
   const [online, setIsOnline] = useState(client.appManager.isOnline);

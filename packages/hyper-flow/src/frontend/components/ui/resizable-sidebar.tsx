@@ -1,5 +1,6 @@
 import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Resizable, ResizableProps } from "re-resizable";
+import type { ResizableProps } from "re-resizable";
+import { Resizable } from "re-resizable";
 
 import { Button } from "./button";
 

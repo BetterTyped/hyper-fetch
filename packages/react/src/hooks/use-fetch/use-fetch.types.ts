@@ -1,7 +1,7 @@
-import { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
+import type { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
 
-import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
-import { isEqual } from "utils";
+import type { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import type { isEqual } from "utils";
 
 // export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
 //   R,
@@ -15,6 +15,12 @@ import { isEqual } from "utils";
 // export type UseFetchRequest<R extends RequestInstance> = R extends UseFetchCastRequest<R> ? R : UseFetchCastRequest<R>;
 
 export type UseFetchOptionsType<R extends RequestInstance> = {
+  /**
+   * Enable React Suspense mode. When true, the hook throws a Promise while loading,
+   * which is caught by the nearest Suspense boundary. The component re-renders
+   * with data available once the request resolves.
+   */
+  suspense?: boolean;
   /**
    * Refetch dependencies
    */
@@ -35,6 +41,15 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
    * If cache is empty we can use placeholder data.
    */
   initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<R>>>;
+  /**
+   * Controls what happens to the current state when the cache key changes (e.g. params or query params change).
+   *
+   * - "auto" (default) — Smart mode: clears state when URL params change (different resource),
+   *   preserves state when only query params change (pagination/filtering).
+   * - "preserve" — Always keeps previous data visible until new data arrives.
+   * - "clean" — Always resets state to initial values when cache key changes.
+   */
+  keepPreviousData?: "auto" | "preserve" | "clean";
   /**
    * Enable/disable refresh data
    */

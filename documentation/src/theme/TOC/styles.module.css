@@ -7,7 +7,6 @@
 .tocContent {
   position: sticky;
   top: 100px;
-  height: calc(100vh - 180px);
 }
 
 .tocWrapper h6 {
@@ -21,24 +20,173 @@
 .tocWrapper ul {
   border-left: 0px !important;
 }
-.tocWrapper a {
-  @apply text-base hover:dark:brightness-[120%] hover:brightness-[80%];
-}
 
 .tableOfContents {
   overflow-y: auto;
-  height: calc(100vh - 180px);
-
-  /* position: sticky;
-  top: calc(var(--ifm-navbar-height) + 1rem); */
+  max-height: calc(100vh - 420px);
 }
 
-.tocWrapper :global(.table-of-contents__link--active) {
+.tableOfContents a {
+  @apply text-base hover:dark:brightness-[120%] hover:brightness-[80%];
+}
+
+.tableOfContents :global(.table-of-contents__link--active) {
   color: inherit !important;
 }
 
-.tocWrapper :global(a:not(.table-of-contents__link--active)) {
+.tableOfContents :global(a:not(.table-of-contents__link--active)) {
   @apply !text-zinc-400;
+}
+
+/* Star button — override `main a`, `main a > span`, `main a > div`, `main a > p` from custom.css */
+:global(html body main) .starButton,
+:global(html body main) .starButton:hover,
+:global(html body main) .starButton:active,
+:global(html body main) .starButton:focus,
+:global(html body main) .starButton:visited,
+:global(html body main) .starButton > span,
+:global(html body main) .starButton > div,
+:global(html body main) .starButton > p,
+:global(html body main) .starButton > svg {
+  color: #1a1a1a !important;
+  text-decoration: none !important;
+  -webkit-text-fill-color: #1a1a1a !important;
+}
+
+.starButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 16px;
+  width: 100%;
+  margin: 0 4px 6px;
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  filter: none !important;
+}
+
+.starButton:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+  filter: none !important;
+}
+
+.starButton:active {
+  transform: translateY(0);
+}
+
+.starButton svg {
+  flex-shrink: 0;
+}
+
+/* Sponsors section */
+.sponsorsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid hsl(240 3.7% 20%);
+}
+
+/* Sponsor button — override `main a`, `main a > span`, `main a > div`, `main a > p` from custom.css */
+:global(html body main) .sponsorButton,
+:global(html body main) .sponsorButton:hover,
+:global(html body main) .sponsorButton:active,
+:global(html body main) .sponsorButton:focus,
+:global(html body main) .sponsorButton:visited,
+:global(html body main) .sponsorButton > span,
+:global(html body main) .sponsorButton > div,
+:global(html body main) .sponsorButton > p,
+:global(html body main) .sponsorButton > svg {
+  color: #fff !important;
+  text-decoration: none !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.sponsorButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0 4px 14px;
+  padding: 7px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #bf4b8e 0%, #ea4aaa 40%, #f472b6 70%, #c9508e 100%);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.25s ease,
+    filter 0.2s ease;
+  box-shadow:
+    0 2px 8px rgba(219, 97, 162, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 1px 0 rgba(255, 255, 255, 0.18) inset;
+}
+
+.sponsorButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.sponsorButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow:
+    0 6px 24px rgba(234, 74, 170, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+    0 1px 0 rgba(255, 255, 255, 0.22) inset;
+}
+
+.sponsorButton:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+
+.sponsorButton svg {
+  flex-shrink: 0;
+  color: #fff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.sponsorButton span {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
+}
+
+/* Sponsors image link — prevent yellow color leak */
+:global(main) .sponsorsImage,
+:global(main) .sponsorsImage:hover {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.sponsorsImage {
+  display: block;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.sponsorsImage img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
 }
 
 /* Enable if you want to hide empty sidebar */

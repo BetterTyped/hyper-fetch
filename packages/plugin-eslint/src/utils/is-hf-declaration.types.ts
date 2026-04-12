@@ -1,4 +1,4 @@
-import { CallExpression, ImportDeclaration } from "@typescript-eslint/types/dist/generated/ast-spec";
+import type { CallExpression, ImportDeclaration } from "@typescript-eslint/types/dist/generated/ast-spec";
 
 const importsToLookFor: string[] = ["@hyper-fetch/core"];
 

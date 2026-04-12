@@ -1,8 +1,19 @@
-import { ProgressType, RequestResponseType, ResponseType, getErrorMessage } from "adapter";
-import { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
+import { getErrorMessage } from "adapter";
 import { HttpMethods } from "constants/http.constants";
-import { canRetryRequest, Dispatcher } from "dispatcher";
-import { ExtractAdapterType, ExtractErrorType } from "types";
+import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType } from "adapter";
+import type { Dispatcher } from "dispatcher";
+import type { ExtractAdapterType, ExtractErrorType } from "types";
+import type {
+  OptimisticCallbackResult,
+  ProgressEventType,
+  RequestInstance,
+  RequestJSON,
+  RequestSendOptionsType,
+} from "./request.types";
+
+export const scopeKey = (key: string, scope: string | null): string => {
+  return scope ? `${scope}__${key}` : key;
+};
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -111,7 +122,20 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const sendRequest = <Request extends RequestInstance>(
+export const mapResponseForSend = async <Request extends RequestInstance>(
+  request: Request,
+  response: ResponseType<any, any, AdapterInstance>,
+): Promise<RequestResponseType<Request>> => {
+  const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+
+  if (mapping instanceof Promise) {
+    return (await mapping) as RequestResponseType<Request>;
+  }
+
+  return (mapping || response) as RequestResponseType<Request>;
+};
+
+export const sendRequest = async <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
 ): Promise<RequestResponseType<Request>> => {
@@ -119,38 +143,74 @@ export const sendRequest = <Request extends RequestInstance>(
   const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
+  let mutationContext: OptimisticCallbackResult<any> | undefined;
+
+  if (request.optimistic) {
+    try {
+      mutationContext = await request.optimistic({
+        request,
+        client: request.client,
+        payload: request.payload,
+      });
+    } catch (err) {
+      return {
+        data: null,
+        error: new Error(
+          `Optimistic callback failed: ${err instanceof Error ? err.message : err}`,
+        ) as unknown as ExtractErrorType<Request>,
+        status: null,
+        success: false,
+        extra: client.adapter.defaultExtra,
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+      };
+    }
+  }
+
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    options?.onBeforeSent?.({ requestId, request });
+    const { $hooks } = request;
+    const beforeSentData = { requestId, request, mutationContext };
+    options?.onBeforeSent?.(beforeSentData);
+    $hooks.__emit("onBeforeSent", beforeSentData);
 
-    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
-      options?.onRequestStart?.(data),
-    );
+    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      options?.onRequestStart?.(enriched);
+      $hooks.__emit("onRequestStart", enriched);
+    });
 
-    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) =>
-      options?.onResponseStart?.(data),
-    );
+    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      options?.onResponseStart?.(enriched);
+      $hooks.__emit("onResponseStart", enriched);
+    });
 
-    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) =>
-      options?.onUploadProgress?.(data),
-    );
+    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      options?.onUploadProgress?.(enriched);
+      $hooks.__emit("onUploadProgress", enriched);
+    });
 
-    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) =>
-      options?.onDownloadProgress?.(data),
-    );
+    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      options?.onDownloadProgress?.(enriched);
+      $hooks.__emit("onDownloadProgress", enriched);
+    });
 
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
       const { details, response } = values;
       isResolved = true;
+      const enrichedValues = { ...values, mutationContext };
 
       const mapping = request.unstable_responseMapper?.(
         response as ResponseType<any, any, ExtractAdapterType<Request>>,
       );
 
       const isOfflineStatus = request.offline && details.isOffline;
-      const willRetry = canRetryRequest(details.retries, request.retry);
+      const { willRetry } = details;
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
@@ -159,11 +219,12 @@ export const sendRequest = <Request extends RequestInstance>(
         // When request is in retry mode we need to listen for retries end
         if (!success && willRetry) return;
 
-        options?.onResponse?.(values);
+        options?.onResponse?.(enrichedValues);
+        $hooks.__emit("onResponse", enrichedValues);
         resolve(data);
 
         // Unmount Listeners
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define, @typescript-eslint/no-use-before-define
         umountAll();
       };
 
@@ -185,9 +246,11 @@ export const sendRequest = <Request extends RequestInstance>(
     });
 
     // When removed from queue storage we need to clean event listeners and return proper error
-    const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
+    const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (data) => {
       if (!isResolved) {
-        options?.onRemove?.(...props);
+        const enriched = { ...data, mutationContext };
+        options?.onRemove?.(enriched);
+        $hooks.__emit("onRemove", enriched);
         resolve({
           data: null,
           status: null,

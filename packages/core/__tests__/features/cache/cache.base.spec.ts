@@ -1,10 +1,11 @@
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { ResponseSuccessType } from "adapter";
-import { ResponseDetailsType } from "managers";
+import type { ResponseSuccessType } from "adapter";
+import type { ResponseDetailsType } from "managers";
 import { createCache } from "../../utils";
 import { Client } from "client";
-import { HttpAdapterType, xhrExtra } from "http-adapter";
+import type { HttpAdapterType } from "http-adapter";
+import { xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -26,10 +27,11 @@ describe("Cache [ Base ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
   };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
   let cache = createCache(client);
 
   beforeAll(() => {
@@ -38,10 +40,10 @@ describe("Cache [ Base ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -74,7 +76,7 @@ describe("Cache [ Base ]", () => {
   });
   describe("When managing cache data", () => {
     it("should add element to cache and emit set event", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
@@ -93,7 +95,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should invalidate and remove cache", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
@@ -108,7 +110,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should not add to cache when useCache is set to false", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
       const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
@@ -167,7 +169,7 @@ describe("Cache [ Base ]", () => {
       cache.delete(request.cacheKey);
 
       // Cannot update if cache is not set
-      cache.update(request.setCache(true), (prev) => {
+      cache.update(request.setCache(true), ((prev: any) => {
         expect(prev).toBeNull();
         return {
           ...prev,
@@ -177,7 +179,7 @@ describe("Cache [ Base ]", () => {
             field4: "value4",
           },
         };
-      });
+      }) as any);
 
       result = cache.get(request.cacheKey);
       expect(result).toBeUndefined();
@@ -186,7 +188,7 @@ describe("Cache [ Base ]", () => {
 
   describe("When CacheStore gets cleared before triggering cache actions", () => {
     it("should return undefined when removed cache entity", async () => {
-      const trigger = jest.fn();
+      const trigger = vi.fn();
 
       cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
@@ -240,6 +242,7 @@ describe("Cache [ Base ]", () => {
         staleTime: 1000,
         version: "0.0.1",
         cacheKey: mockRequest.cacheKey,
+        scope: null,
         cacheTime: 2000,
         responseTimestamp: Date.now(),
         error: null,
@@ -249,8 +252,10 @@ describe("Cache [ Base ]", () => {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        willRetry: false,
         addedTimestamp: Date.now(),
         triggerTimestamp: Date.now(),
+        cached: true,
       };
       cache.storage.set(mockRequest.cacheKey, data);
 
@@ -271,7 +276,7 @@ describe("Cache [ Base ]", () => {
 
       cache.invalidate([new RegExp(mockRequest.cacheKey)]);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
     it("should not invalidate cache when app is offline", async () => {
@@ -291,7 +296,7 @@ describe("Cache [ Base ]", () => {
       cache.garbageCollectors.clear();
       cache.invalidate([new RegExp(mockRequest.cacheKey)]);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
 
@@ -309,7 +314,7 @@ describe("Cache [ Base ]", () => {
       client.appManager.setOnline(false);
       await sleep(150);
 
-      const spy = jest.spyOn(cache.events, "emitInvalidation");
+      const spy = vi.spyOn(cache.events, "emitInvalidation");
       expect(spy).not.toHaveBeenCalled();
     });
 
@@ -332,6 +337,7 @@ describe("Cache [ Base ]", () => {
           staleTime: 1000,
           version: "0.0.1",
           cacheKey: key,
+          scope: null,
           cacheTime: 2000,
           responseTimestamp: Date.now(),
           error: null,
@@ -341,8 +347,10 @@ describe("Cache [ Base ]", () => {
           retries: 0,
           isCanceled: false,
           isOffline: false,
+          willRetry: false,
           addedTimestamp: Date.now(),
           triggerTimestamp: Date.now(),
+          cached: true,
         });
       });
 

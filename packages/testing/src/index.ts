@@ -1,11 +1,12 @@
 import { Time } from "@hyper-fetch/core";
-import { SocketInstance } from "@hyper-fetch/sockets";
+import type { SocketInstance } from "@hyper-fetch/sockets";
 
 export * from "./http";
 export * from "./graphql";
 export * from "./sse";
 export * from "./websockets";
 export * from "./types";
+export * from "./e2e";
 
 export const sleep = (ms: number) => {
   return new Promise((resolve) => {

@@ -22,7 +22,7 @@ describe("useFetch [ Bounce ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -30,7 +30,7 @@ describe("useFetch [ Bounce ]", () => {
   describe("given debounce is active", () => {
     describe("when request is about to change", () => {
       it("should not debounce initial request", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         mockRequest(request);
         const response = renderUseFetch(request, hookDebounceOptions);
 
@@ -42,7 +42,7 @@ describe("useFetch [ Bounce ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should debounce multiple request triggers by 100ms", async () => {
-        const spy = jest.fn();
+        const spy = vi.fn();
         mockRequest(request, { delay: 0 });
         const response = renderUseFetch(request, { ...hookDebounceOptions, dependencies: [{ test: 10 }] });
 
@@ -91,7 +91,7 @@ describe("useFetch [ Bounce ]", () => {
     describe("given throttle is active", () => {
       describe("when request is about to change", () => {
         it("should not throttle initial request", async () => {
-          const spy = jest.fn();
+          const spy = vi.fn();
           mockRequest(request);
           const response = renderUseFetch(request, hookThrottleOptions);
 
@@ -103,7 +103,7 @@ describe("useFetch [ Bounce ]", () => {
           expect(spy).toHaveBeenCalledTimes(1);
         });
         it("should throttle multiple request triggers by 100ms", async () => {
-          const spy = jest.fn();
+          const spy = vi.fn();
           mockRequest(request, { delay: 0 });
           const response = renderUseFetch(request, { ...hookThrottleOptions, dependencies: [{ test: 10 }] });
 

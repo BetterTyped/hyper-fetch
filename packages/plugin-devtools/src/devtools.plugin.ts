@@ -1,8 +1,9 @@
-import { Plugin, RequestInstance } from "@hyper-fetch/core";
+import type { RequestInstance } from "@hyper-fetch/core";
+import { Plugin } from "@hyper-fetch/core";
 
 import { DevtoolsEventHandler } from "./devtools.event.handler";
 import { CustomEvents, EventSourceType } from "./types/events.types";
-import { DevtoolsPluginOptions } from "./types/plugin.types";
+import type { DevtoolsPluginOptions } from "./types/plugin.types";
 
 export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
   const plugin = new Plugin({

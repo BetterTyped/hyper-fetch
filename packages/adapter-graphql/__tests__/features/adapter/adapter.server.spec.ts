@@ -1,19 +1,19 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
-import https from "https";
 
 import { GraphqlAdapter, GraphqlMethod } from "../../../src/adapter";
-import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
-import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
+import type { GetUserQueryResponse } from "../../constants/queries.constants";
+import { getUserQuery, getUserQueryString } from "../../constants/queries.constants";
+import type { LoginMutationVariables } from "../../constants/mutations.constants";
+import { loginMutation } from "../../constants/mutations.constants";
 
 const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
 
 describe("Graphql Adapter [ Server ]", () => {
   const requestId = "test";
-  const requestCopy = https.request;
   let clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let requestHttp = clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
@@ -39,10 +39,9 @@ describe("Graphql Adapter [ Server ]", () => {
 
   afterEach(() => {
     client.clear();
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
-    https.globalAgent.destroy();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
     resetMocks();
   });
 
@@ -71,11 +70,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(res.data).toBeDefined();
   });
 
-  it("should pick https module", async () => {
-    mockRequest(request);
-    client.requestManager.addAbortController(request.abortKey, requestId);
+  it("should handle http and https urls", async () => {
+    mockRequest(requestHttp);
 
-    const res = await clientHttp.adapter.fetch(request, requestId);
+    const res = await requestHttp.send();
 
     expect(res.data).toBeDefined();
   });
@@ -173,26 +171,21 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(error).toStrictEqual([getErrorMessage()]);
   });
 
-  it("should allow to set options", async () => {
-    let receivedOptions: any;
+  it("should allow to set options and timeout the request", async () => {
+    const timeoutRequest = request.setOptions({ timeout: 5 });
+    mockRequest(timeoutRequest, { delay: 500 });
 
-    jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    const { data, error, status } = await timeoutRequest.send();
 
-    const timeoutRequest = request.setOptions({ timeout: 10 });
-    mockRequest(timeoutRequest, { delay: 20 });
-
-    await timeoutRequest.send();
-
-    expect(receivedOptions.timeout).toBe(10);
+    expect(data).toBeNull();
+    expect(status).toBe(0);
+    expect(error).toStrictEqual(getErrorMessage("timeout"));
   });
 
   // it("should allow to calculate payload size", async () => {
   //   let receivedOptions: any;
 
-  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //   vi.spyOn(https, "request").mockImplementation((url, options, callback) => {
   //     receivedOptions = options;
   //     return requestCopy(options, callback);
   //   });
@@ -211,7 +204,7 @@ describe("Graphql Adapter [ Server ]", () => {
   // it("should allow to calculate Buffer size", async () => {
   //   let receivedOptions: any;
 
-  //   jest.spyOn(https, "request").mockImplementation((url, options, callback) => {
+  //   vi.spyOn(https, "request").mockImplementation((url, options, callback) => {
   //     receivedOptions = options;
   //     return requestCopy(options, callback);
   //   });

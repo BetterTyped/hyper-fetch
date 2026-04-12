@@ -30,7 +30,7 @@ export const Hero = () => {
       <div className="relative max-w-6xl mx-auto flex flex-col justify-center items-center px-6 mt-12 mb-12">
         <div className="mb-5">
           <Link
-            to="/docs/cli/generate"
+            to="/docs/cli/commands/generate"
             className="shiny-label flex items-center !no-underline py-0.5 hover:brightness-125 transition-all duration-150 ease-in-out"
           >
             <Sparkles className="w-[14px] h-[14px] text-yellow-600/80 dark:text-yellow-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out" />

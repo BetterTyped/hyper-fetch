@@ -1,4 +1,4 @@
-import { RenderHookResult } from "@testing-library/react";
+import type { RenderHookResult } from "@testing-library/react";
 
 export const getCurrentState = <T extends RenderHookResult<any, any>>(
   render: T,

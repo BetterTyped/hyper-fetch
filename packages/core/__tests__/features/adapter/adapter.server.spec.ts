@@ -1,7 +1,7 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import http from "http";
+import type { Mock } from "vitest";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { getErrorMessage } from "adapter";
@@ -10,15 +10,12 @@ import { HttpAdapter } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
-describe("Http Adapter [ Server ]", () => {
+describe("Http Adapter [ Fetch ]", () => {
   const requestId = "test";
   const abortKey = "abort-key";
-  const requestCopy = http.request;
 
   let client = new Client({ url: "http://shared-base-url" });
-  let clientHttps = new Client({ url: "https://shared-base-url" });
   let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
-  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
   beforeAll(() => {
     startServer();
@@ -26,20 +23,16 @@ describe("Http Adapter [ Server ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "http://shared-base-url" });
-    clientHttps = new Client({ url: "https://shared-base-url" });
     client.appManager.isBrowser = false;
-    clientHttps.appManager.isBrowser = false;
 
     request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
-    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
     client.requestManager.addAbortController(abortKey, requestId);
-    clientHttps.requestManager.addAbortController(abortKey, requestId);
 
     resetMocks();
-    jest.resetAllMocks();
-    jest.clearAllMocks();
-    jest.restoreAllMocks();
+    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   afterAll(() => {
@@ -50,11 +43,6 @@ describe("Http Adapter [ Server ]", () => {
     mockRequest(request);
     client.appManager.isBrowser = true;
     await expect(() => HttpAdapter().initialize(client).fetch(request, requestId)).not.toThrow();
-  });
-
-  it("should pick https module", async () => {
-    mockRequest(requestHttps);
-    await expect(() => HttpAdapter().initialize(client).fetch(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
@@ -130,48 +118,252 @@ describe("Http Adapter [ Server ]", () => {
     expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
   });
 
-  it("should allow to calculate payload size", async () => {
-    let receivedOptions: any;
+  it("should send payload with object data", async () => {
     const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
-
-    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    client.requestManager.addAbortController(mutation.abortKey, requestId);
     mockRequest(mutation);
 
-    await mutation.send({
+    const { error, status } = await mutation.send({
       payload: {
         username: "Kacper",
         password: "Kacper1234",
       },
     });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+    expect(error).toBeNull();
+    expect(status).toBe(200);
   });
 
-  it("should allow to calculate Buffer size", async () => {
-    let receivedOptions: any;
+  it("should send payload with string data", async () => {
     const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
-
-    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
-      receivedOptions = options;
-      return requestCopy(options, callback);
-    });
+    client.requestManager.addAbortController(mutation.abortKey, requestId);
     mockRequest(mutation);
 
-    const buffer = Buffer.from("test");
-
-    await mutation.send({
-      payload: buffer as any,
+    const { error, status } = await mutation.send({
+      payload: "raw-string-payload",
     });
 
-    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+    expect(error).toBeNull();
+    expect(status).toBe(200);
+  });
+
+  describe("When streaming mode is enabled", () => {
+    it("should return response.body for successful streaming response", async () => {
+      mockRequest(request, { data: { response: "stream" } });
+
+      const streamRequest = request.setOptions({ streaming: true });
+
+      const result = await HttpAdapter().initialize(client).fetch(streamRequest, requestId);
+
+      expect(result.status).toBe(200);
+      expect(result.data).toBeDefined();
+    });
+
+    it("should return error for failed streaming response", async () => {
+      mockRequest(request, { status: 400, data: { error: "stream-fail" } });
+
+      const streamRequest = request.setOptions({ streaming: true });
+
+      const result = await HttpAdapter().initialize(client).fetch(streamRequest, requestId);
+
+      expect(result.status).toBe(400);
+      expect(result.data).toBe(null);
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe("When response.body has no getReader", () => {
+    it("should fall back to response.text()", async () => {
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        body: null,
+        text: vi.fn().mockResolvedValue(JSON.stringify({ fallback: true })),
+      });
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
+
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ fallback: true });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  describe("When non-timeout, non-abort error occurs", () => {
+    it("should call onError with the error", async () => {
+      const originalFetch = globalThis.fetch;
+      const testError = new Error("Network failure");
+      globalThis.fetch = vi.fn().mockRejectedValue(testError);
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
+
+        expect(result.data).toBe(null);
+        expect(result.error).toBe(testError);
+        expect(result.status).toBe(0);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  describe("When sending non-string payload with POST method", () => {
+    it("should handle non-string body without triggering string upload progress", async () => {
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/octet-stream" }),
+        body: null,
+        text: vi.fn().mockResolvedValue("ok"),
+      });
+
+      try {
+        const mutation = client.createRequest<{ response: any; payload: any }>()({
+          endpoint: "/shared-endpoint",
+          method: "POST",
+          abortKey,
+        });
+
+        const bufPayload = Buffer.from("binary data");
+        client.adapter.setPayloadMapper(() => bufPayload as any);
+        const req = mutation.setPayload("ignored");
+
+        const result = await client.adapter.fetch(req, requestId);
+
+        const fetchCall = (globalThis.fetch as unknown as Mock).mock.calls[0][1];
+        expect(fetchCall.body).toBe(bufPayload);
+        expect(result.status).toBe(200);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  describe("When response has content-length header in streaming reader path", () => {
+    it("should use content-length for progress total when available", async () => {
+      const originalFetch = globalThis.fetch;
+      const bodyContent = JSON.stringify({ data: "test" });
+      const encoder = new TextEncoder();
+      const encoded = encoder.encode(bodyContent);
+
+      const mockReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({ done: false, value: encoded })
+          .mockResolvedValueOnce({ done: true, value: undefined }),
+      };
+
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          "content-type": "application/json",
+          "content-length": String(encoded.length),
+        }),
+        body: { getReader: () => mockReader },
+      });
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
+
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ data: "test" });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it("should use receivedLength as total when content-length is missing", async () => {
+      const originalFetch = globalThis.fetch;
+      const bodyContent = JSON.stringify({ noLength: true });
+      const encoder = new TextEncoder();
+      const encoded = encoder.encode(bodyContent);
+
+      const mockReader = {
+        read: vi
+          .fn()
+          .mockResolvedValueOnce({ done: false, value: encoded })
+          .mockResolvedValueOnce({ done: true, value: undefined }),
+      };
+
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        body: { getReader: () => mockReader },
+      });
+
+      try {
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(request, requestId);
+
+        expect(result.status).toBe(200);
+        expect(result.data).toStrictEqual({ noLength: true });
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  describe("When error occurs without timeout set", () => {
+    it("should handle catch block when timeoutId is not set", async () => {
+      const originalFetch = globalThis.fetch;
+      const testError = new Error("Connection refused");
+      globalThis.fetch = vi.fn().mockRejectedValue(testError);
+
+      try {
+        const noTimeoutRequest = request.setOptions({ timeout: 0 });
+
+        const adapter = HttpAdapter().initialize(client);
+        const result = await adapter.fetch(noTimeoutRequest, requestId);
+
+        expect(result.data).toBe(null);
+        expect(result.error).toBe(testError);
+        expect(result.status).toBe(0);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+  });
+
+  describe("When timeoutMs is 0 or negative", () => {
+    it("should skip timeout setup when timeout is 0 and still succeed", async () => {
+      const data = mockRequest(request, { data: { response: [] } });
+
+      const zeroTimeoutRequest = request.setOptions({ timeout: 0 });
+
+      const result = await zeroTimeoutRequest.send();
+
+      expect(result.status).toBe(200);
+      expect(result.error).toBe(null);
+      expect(result.data).toStrictEqual(data);
+    });
+
+    it("should skip timeout setup when timeout is negative and still succeed", async () => {
+      const data = mockRequest(request, { data: { response: [] } });
+
+      const negativeTimeoutRequest = request.setOptions({ timeout: -1 });
+
+      const result = await negativeTimeoutRequest.send();
+
+      expect(result.status).toBe(200);
+      expect(result.error).toBe(null);
+      expect(result.data).toStrictEqual(data);
+    });
   });
 });

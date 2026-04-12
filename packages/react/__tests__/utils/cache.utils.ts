@@ -1,15 +1,15 @@
-import {
+import type {
   ResponseType,
   ResponseDetailsType,
   RequestInstance,
   ExtractResponseType,
   ExtractErrorType,
   ExtractAdapterType,
-  AdapterType,
-  xhrExtra,
+  HttpAdapterType,
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
   request: T,
@@ -39,15 +39,17 @@ export const createCacheData = <T extends RequestInstance>(
     responseTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     ...response?.details,
   };
 
-  request.client.cache.storage.set<any, any, AdapterType>(request.cacheKey, {
+  request.client.cache.storage.set<any, any, HttpAdapterType>(request.cacheKey, {
     ...(dataValue as any),
     ...detailsValue,
     staleTime: 1000,
     version: request.client.cache.version,
     cacheTime: Infinity,
+    cached: true,
   });
   return [dataValue, detailsValue] as const;
 };

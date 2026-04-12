@@ -1,9 +1,22 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "noEmit": true,
-    "baseUrl": "../src",
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["dom", "dom.iterable", "ESNext"],
     "jsx": "react-jsx",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/node"],
+    "baseUrl": "../src",
     "paths": {
       "@/*": ["./frontend/*"],
       "@app/*": ["./app/*"],
@@ -11,5 +24,13 @@
       "@shared/*": ["./shared/*"],
       "@testing/*": ["../__tests__/*"]
     }
-  }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../vite-env.d.ts",
+    "../electron.d.ts",
+    "../../../global.d.ts",
+    "../../../vitest.d.ts"
+  ]
 }

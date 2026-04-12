@@ -1,4 +1,4 @@
-import { Adapter, AdapterInstance } from "adapter";
+import type { Adapter, AdapterInstance } from "adapter";
 
 export type ExtractAdapterOptionsType<T> =
   T extends Adapter<infer O, any, any, any, any, any, any, any, any, any, any> ? O : never;

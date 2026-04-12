@@ -9,9 +9,9 @@ architecture allows for easy replacement of core components to seamlessly integr
 
 :::secondary What you'll learn
 
-- How to handle online/offline status using `NetInfo`.
-- How to manage application focus/blur states with `AppState`.
-- How to re-fetch data when a screen comes into focus.
+- How to handle **online/offline status** using `NetInfo`.
+- How to manage application **focus/blur states** with `AppState`.
+- How to **persist dispatcher queues** with MMKV for offline-first support.
 
 :::
 
@@ -85,8 +85,78 @@ export const client = new Client<ServerErrorType>({
 });
 ```
 
+## Persistent Dispatcher Storage
+
+By default, the dispatcher stores its request queues in memory. In React Native, you can provide a persistent storage
+like [MMKV](https://github.com/mrousavy/react-native-mmkv) so that queued requests survive app restarts. This is
+especially useful for offline-first applications where requests should be retried when connectivity returns.
+
+Hyper Fetch automatically handles the serialization and deserialization of request data. When requests are read back from
+a JSON-based storage, they are transparently reconstructed into proper `Request` class instances — no extra work needed
+on your side.
+
+```bash
+npm install --save react-native-mmkv
+```
+
+```tsx title="services/client.ts"
+import { MMKV } from "react-native-mmkv";
+import { Client, Dispatcher, DispatcherStorageType } from "@hyper-fetch/core";
+
+const dispatcherMMKV = new MMKV({ id: "dispatcher-storage" });
+
+// highlight-start
+const dispatcherStorage: DispatcherStorageType = {
+  set: (key, data) => {
+    dispatcherMMKV.set(key, JSON.stringify(data));
+  },
+  get: (key) => {
+    const value = dispatcherMMKV.getString(key);
+    return value ? JSON.parse(value) : undefined;
+  },
+  keys: () => dispatcherMMKV.getAllKeys(),
+  entries: function* () {
+    const keys = dispatcherMMKV.getAllKeys();
+    for (const key of keys) {
+      yield [key, JSON.parse(dispatcherMMKV.getString(key) || "null")];
+    }
+  },
+  delete: (key) => dispatcherMMKV.delete(key),
+  clear: () => dispatcherMMKV.clearAll(),
+};
+// highlight-end
+
+export const client = new Client({
+  url: "https://api.my-app.com",
+  // highlight-start
+  fetchDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
+  submitDispatcher: () => new Dispatcher({ storage: dispatcherStorage }),
+  // highlight-end
+});
+```
+
+:::caution
+
+Persistent dispatcher queues are designed for single-instance environments like React Native. Avoid using them in
+browsers where multiple tabs can cause duplicated requests.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="Persistence Guide"
+  description="Learn how to set up persistence for both cache and dispatcher queues."
+  to="/docs/guides/core/advanced/persistence"
+/>
+
+---
+
 :::success That's it!
 
 Your app is now ready to fully use all of the features of Hyper Fetch.
+
+- You can track **online/offline status** using `NetInfo`.
+- You can manage **focus/blur states** with `AppState`.
+- You can **persist dispatcher queues** with MMKV for offline-first support.
 
 :::

@@ -7,7 +7,7 @@ import { client, createRequest, renderUseSubmit, waitForRender } from "../../uti
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Queue ]", () => {
-  let request = createRequest<{ response: any; payload: null }>({ method: "POST", queued: true });
+  let request = createRequest({ method: "POST", queued: true });
 
   beforeAll(() => {
     startServer();
@@ -22,7 +22,7 @@ describe("useSubmit [ Queue ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     request = createRequest({ method: "POST", queued: true });
   });
@@ -31,7 +31,7 @@ describe("useSubmit [ Queue ]", () => {
     describe("when submitting request", () => {
       it("should send requests one by one", async () => {
         let count = 1;
-        const spy = jest.fn();
+        const spy = vi.fn();
         mockRequest(request, { data: count });
         const response = renderUseSubmit(request);
 

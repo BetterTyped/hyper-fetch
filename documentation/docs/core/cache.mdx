@@ -46,7 +46,7 @@ You can also customize the cache storage:
 ```tsx title="Custom Cache Storage"
 const client = createClient({
   url: "http://localhost:3000",
-  cache: (instance) => new Cache(instance, { storage: localStorage }),
+  cache: () => new Cache({ storage: localStorage }),
 });
 ```
 
@@ -303,6 +303,62 @@ client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
 
 ---
 
+## Cache Modes
+
+The client `mode` option (default **`"auto"`**) decides how Hyper Fetch resolves **`client.mode`** to **`"client"`** or
+**`"server"`**:
+
+- **`mode: "auto"`** (or omit) — browser → **`client.mode === "client"`**, Node.js → **`"server"`**.
+- **`mode: "client"`** / **`mode: "server"`** — force that effective mode everywhere (overrides detection).
+
+Caching then follows the resolved mode:
+
+- **`client`**: Cache works for cacheable requests by default. `setScope` is optional and acts as a key prefix for
+  organizing data (e.g. per feature, per workspace).
+- **`server`**: Cache is **disabled by default**. A request is only cached if `.setScope()` is explicitly set. This
+  prevents cross-user data leaks in server environments.
+
+```tsx title="Server-side safe caching"
+import { createClient } from "@hyper-fetch/core";
+
+const client = createClient({ url: "https://api.example.com" });
+// Equivalent: createClient({ url: "https://api.example.com", mode: "auto" })
+
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// NOT cached on server (no scope = safe default)
+getUser.setParams({ userId: 1 }).send();
+
+// CACHED — scoped to this user's session, isolated from other users
+getUser
+  .setParams({ userId: 1 })
+  .setScope(currentSessionId)
+  .send();
+```
+
+### Key Scoping
+
+When `setScope` is set, all keys (cache, queue, abort) are automatically prefixed with the scope:
+
+```
+${scope}__${originalCacheKey}
+```
+
+This ensures complete isolation between scopes — different users, sessions, or tenants will never share cache entries.
+
+### Shared Cache Pattern
+
+For data that is safe to share across all users (e.g. public configuration), use a well-known scope:
+
+```tsx
+getPublicConfig.setScope("public").send();
+```
+
+---
+
 ## Persistence
 
 Enable persistent cache by providing a compatible storage interface (e.g., localStorage, IndexedDB):
@@ -310,7 +366,7 @@ Enable persistent cache by providing a compatible storage interface (e.g., local
 ```tsx
 const client = createClient({
   url: "http://localhost:3000",
-  cache: (instance) => new Cache(instance, { storage: localStorage }),
+  cache: () => new Cache({ storage: localStorage }),
 });
 ```
 

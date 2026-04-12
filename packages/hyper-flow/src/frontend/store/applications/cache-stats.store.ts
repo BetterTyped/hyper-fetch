@@ -1,10 +1,10 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
+import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { getDataSize, getEndpointAndMethod } from "./utils";
 
-import { DevtoolsRequestEvent, DevtoolsRequestResponse } from "@/context/applications/types";
+import type { DevtoolsRequestEvent, DevtoolsRequestResponse } from "@/context/applications/types";
 
 type CacheKey = string;
 export type CacheStatsStore = {

@@ -1,8 +1,8 @@
-import { SocketAdapterInstance } from "adapter";
-import { SocketAdapter } from "adapter/adapter";
-import { Emitter } from "emitter";
-import { Listener } from "listener";
-import { Socket, SocketInstance } from "socket";
+import type { SocketAdapterInstance } from "adapter";
+import type { SocketAdapter } from "adapter/adapter";
+import type { Emitter } from "emitter";
+import type { Listener } from "listener";
+import type { Socket, SocketInstance } from "socket";
 
 export type EventReturnType<GenericDataType, Adapter extends SocketAdapterInstance> = {
   data: GenericDataType;

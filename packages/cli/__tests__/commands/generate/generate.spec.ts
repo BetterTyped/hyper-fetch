@@ -1,4 +1,4 @@
-import { jest } from "@jest/globals";
+import { vi } from "vitest";
 import { input, select, confirm } from "@inquirer/prompts";
 
 import { generate } from "commands/generate";
@@ -7,44 +7,44 @@ import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegen/openapi/generator";
 
 // Mocks
-jest.mock("utils/handle-error", () => ({ handleError: jest.fn() }));
-jest.mock("preflights/preflight-generate", () => {
+vi.mock("utils/handle-error", () => ({ handleError: vi.fn() }));
+vi.mock("preflights/preflight-generate", () => {
   const fakeConfig = {
     tsx: true,
     aliases: { api: "/tmp", hooks: "/tmp", ui: "/tmp", components: "/tmp", lib: "/tmp" },
     resolvedPaths: { cwd: "/tmp", api: "/tmp", hooks: "/tmp", ui: "/tmp", components: "/tmp", lib: "/tmp" },
   };
   return {
-    preFlightGenerate: jest.fn(async () => ({ errors: {}, config: fakeConfig })),
+    preFlightGenerate: vi.fn(async () => ({ errors: {}, config: fakeConfig })),
   };
 });
-jest.mock("codegen/openapi/generator", () => {
+vi.mock("codegen/openapi/generator", () => {
   class FakeGenerator {
-    static getSchemaFromUrl = jest.fn(async () => ({ openapi: "3.0.0", paths: {} }));
-    generateFile = jest.fn(async () => undefined);
+    static getSchemaFromUrl = vi.fn(async () => ({ openapi: "3.0.0", paths: {} }));
+    generateFile = vi.fn(async () => undefined);
   }
   return { OpenapiRequestGenerator: FakeGenerator };
 });
-jest.mock("utils/spinner", () => ({
-  spinner: jest.fn(() => ({
-    start: jest.fn(() => ({ succeed: jest.fn(), fail: jest.fn() })),
+vi.mock("utils/spinner", () => ({
+  spinner: vi.fn(() => ({
+    start: vi.fn(() => ({ succeed: vi.fn(), fail: vi.fn() })),
   })),
 }));
-jest.mock("utils/logger", () => ({ logger: { info: jest.fn(), error: jest.fn(), log: jest.fn() } }));
-jest.mock("@inquirer/prompts", () => ({
-  input: jest.fn(),
-  select: jest.fn(),
-  confirm: jest.fn(),
+vi.mock("utils/logger", () => ({ logger: { info: vi.fn(), error: vi.fn(), log: vi.fn() } }));
+vi.mock("@inquirer/prompts", () => ({
+  input: vi.fn(),
+  select: vi.fn(),
+  confirm: vi.fn(),
 }));
 
 describe("cli generate command", () => {
   const originalArgv = process.argv;
-  const exitSpy = jest
+  const exitSpy = vi
     .spyOn(process, "exit")
     .mockImplementation((() => undefined) as (code?: string | number | null | undefined) => never);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {

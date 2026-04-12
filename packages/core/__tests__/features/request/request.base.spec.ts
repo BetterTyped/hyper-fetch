@@ -1,6 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, QueryParamsType } from "../../../src";
+import type { QueryParamsType } from "../../../src";
+import { Client, Request } from "../../../src";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -15,7 +16,7 @@ describe("Fetch Adapter [ Base ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -24,8 +25,8 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting custom header", async () => {
     // The queue should receive request with the appropriate header
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const header = { it: "works" };
     const c = request.setHeaders(header);
     mockRequest(request);
@@ -39,8 +40,8 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting auth", async () => {
     // The queue should receive request with the appropriate header
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     mockRequest(request);
 
     expect(request.auth).toBe(true);
@@ -59,8 +60,8 @@ describe("Fetch Adapter [ Base ]", () => {
     const comm = client.createRequest<{ queryParams: QueryParamsType }>()({
       endpoint: "/some-endpoint/:shopId/:productId",
     });
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const params = { shopId: 11, productId: 1 };
 
     const c = comm.setParams(params);
@@ -76,8 +77,8 @@ describe("Fetch Adapter [ Base ]", () => {
   });
 
   it("should allow for setting data to the request", async () => {
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const data = {
       userId: 11,
       role: "ADMIN",
@@ -102,8 +103,8 @@ describe("Fetch Adapter [ Base ]", () => {
       endpoint: "/some-endpoint/",
     });
     mockRequest(comm);
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
+    const spy = vi.fn(client.fetchDispatcher.add);
+    vi.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
 
     const requestQueryParams = comm.setQueryParams(queryParams);
     requestQueryParams.send({});
@@ -135,7 +136,7 @@ describe("Fetch Adapter [ Base ]", () => {
     const mapperRequest = client
       .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
       .setResponseMapper((res) => {
-        return { ...res, data: null, error: new Error(message) };
+        return { ...res, data: null, error: new Error(message) } as typeof res;
       });
     mockRequest(mapperRequest);
 
@@ -194,6 +195,31 @@ describe("Fetch Adapter [ Base ]", () => {
       const result = request.read();
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe("fromJSON()", () => {
+    it("should reconstruct a request from its JSON representation", () => {
+      const original = client
+        .createRequest<{ response: { id: number }; payload: { name: string } }>()({
+          endpoint: "/users/:userId",
+          method: "POST",
+        })
+        .setHeaders({ "X-Custom": "value" })
+        .setAuth(false)
+        .setRetry(3)
+        .setRetryTime(500);
+
+      const json = original.toJSON();
+      const restored = Request.fromJSON(client, json);
+
+      expect(restored).toBeInstanceOf(Request);
+      expect(restored.endpoint).toBe(original.endpoint);
+      expect(restored.method).toBe(original.method);
+      expect(restored.headers).toStrictEqual(original.headers);
+      expect(restored.auth).toBe(original.auth);
+      expect(restored.retry).toBe(original.retry);
+      expect(restored.retryTime).toBe(original.retryTime);
     });
   });
 });

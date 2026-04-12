@@ -1,6 +1,7 @@
-import { TypeWithDefaults } from "types";
-import { Client, ClientErrorType, ClientOptionsType } from "client";
-import { HttpAdapterType } from "http-adapter";
+import type { TypeWithDefaults } from "types";
+import type { ClientErrorType, ClientOptionsType } from "client";
+import { Client } from "client";
+import type { HttpAdapterType } from "http-adapter";
 
 export type ClientGenericType = {
   error?: ClientErrorType;

@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirebaseAdminAdapter } from "adapter";
+import type { FirebaseAdminAdapter, RealtimeDbGetMethodExtra } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils";
+import type { Tea } from "../../../../utils";
 
 export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("set", () => {
@@ -30,18 +30,19 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
-      expect(extra.snapshot.exists()).toBe(true);
+      expect(extra).not.toBeNull();
+      expect((extra as RealtimeDbGetMethodExtra).snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
       const getReq = client
-        .createRequest<{ response: Tea }>()({
+        .createRequest<{ response: Tea | null }>()({
           endpoint: ":teaId",
           method: "get",
         })
         .setParams({ teaId: 1 });
 
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea | null; payload: { data: null } }>()({
           endpoint: ":teaId",
           method: "set",
         })
@@ -51,11 +52,12 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      expect(extra.snapshot.exists()).toBe(false);
+      expect(extra).not.toBeNull();
+      expect((extra as RealtimeDbGetMethodExtra).snapshot.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
       const setReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<{ response: Tea | null; payload: { data: null } }>()({
           endpoint: ":teaId",
           method: "set",
         })

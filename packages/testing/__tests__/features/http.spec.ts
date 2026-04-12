@@ -17,7 +17,7 @@ describe("Http Mocking [ Base ]", () => {
     request = client.createRequest<{ response: any; payload: any }>()({ endpoint: "/shared-endpoint" });
 
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {

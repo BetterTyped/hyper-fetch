@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {
+import type {
   CacheValueType,
   NullableType,
   RequestInstance,
@@ -13,8 +13,41 @@ import {
   ExtractAdapterStatusType,
   ResponseType,
 } from "@hyper-fetch/core";
+import { scopeKey } from "@hyper-fetch/core";
 
-import { initialState, UseTrackedStateType } from "helpers";
+import type { UseTrackedStateType } from "helpers";
+import { initialState } from "helpers";
+
+/**
+ * Extracts the "identity" portion of a cache key (method + endpoint with resolved params),
+ * stripping the query params part. Cache keys follow the format: `method_endpoint_queryParams`.
+ */
+const getCacheKeyIdentity = (cacheKey: string): string => {
+  const lastUnderscoreIndex = cacheKey.lastIndexOf("_");
+  if (lastUnderscoreIndex === -1) return cacheKey;
+  return cacheKey.substring(0, lastUnderscoreIndex);
+};
+
+/**
+ * Determines whether state should be cleared when the cache key changes.
+ *
+ * - `"clean"` — always clear
+ * - `"preserve"` — never clear
+ * - `"auto"` — clear when the resource identity changed (URL params), preserve when only query params changed
+ */
+export const getShouldClearState = (
+  mode: "auto" | "preserve" | "clean",
+  oldCacheKey: string,
+  newCacheKey: string,
+): boolean => {
+  if (oldCacheKey === newCacheKey) return false;
+
+  if (mode === "clean") return true;
+  if (mode === "preserve") return false;
+
+  // "auto" — compare the identity part (method + endpoint with params)
+  return getCacheKeyIdentity(oldCacheKey) !== getCacheKeyIdentity(newCacheKey);
+};
 
 export const getDetailsState = (
   state?: UseTrackedStateType<RequestInstance>,
@@ -24,6 +57,7 @@ export const getDetailsState = (
     retries: state?.retries || 0,
     isCanceled: false,
     isOffline: false,
+    willRetry: false,
     addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
     requestTimestamp: +new Date(),
@@ -61,6 +95,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       staleTime: 1000,
       version: request.client.cache.version,
       cacheKey: request.cacheKey,
+      scope: request.scope,
       cacheTime: request.cacheTime,
       requestTimestamp: initialResponse?.requestTimestamp ?? +new Date(),
       responseTimestamp: initialResponse?.responseTimestamp ?? +new Date(),
@@ -113,11 +148,11 @@ export const getInitialState = <T extends RequestInstance>({
   const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({
-    queryKey: request.queryKey,
+    queryKey: scopeKey(request.queryKey, request.scope),
     dispatcher,
     disabled,
     revalidate,

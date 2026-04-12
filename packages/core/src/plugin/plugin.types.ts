@@ -1,16 +1,16 @@
-import { RequestInstance } from "request";
-import { ResponseErrorType, ResponseType, ResponseSuccessType, AdapterInstance } from "adapter";
-import { Plugin } from "plugin";
-import {
+import type { RequestInstance } from "request";
+import type { ResponseErrorType, ResponseType, ResponseSuccessType, AdapterInstance } from "adapter";
+import type { Plugin } from "plugin";
+import type {
   ExtractAdapterType,
   ExtractErrorType,
   ExtractResponseType,
   ExtendRequest,
   ExtractClientAdapterType,
 } from "types";
-import { ClientInstance } from "client";
-import { Cache, CacheValueType } from "cache";
-import { Dispatcher, QueueDataType, QueueItemType } from "dispatcher";
+import type { ClientInstance } from "client";
+import type { Cache, CacheValueType } from "cache";
+import type { Dispatcher, QueueDataType, ResolvedQueueItemType } from "dispatcher";
 
 export type PluginLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 export type PluginInstance = Plugin<any, any>;
@@ -106,7 +106,7 @@ export type PluginMethods<Client extends ClientInstance> = {
         }
       >
     >;
-    queueItem: QueueItemType<
+    queueItem: ResolvedQueueItemType<
       ExtendRequest<
         RequestInstance,
         {
@@ -125,7 +125,7 @@ export type PluginMethods<Client extends ClientInstance> = {
         }
       >
     >;
-    queueItem: QueueItemType<
+    queueItem: ResolvedQueueItemType<
       ExtendRequest<
         RequestInstance,
         {

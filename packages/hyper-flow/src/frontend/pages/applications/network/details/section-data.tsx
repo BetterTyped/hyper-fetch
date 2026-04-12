@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JSONViewer } from "@/components/json-viewer/json-viewer";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/no-content/empty-state";
-import { DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 

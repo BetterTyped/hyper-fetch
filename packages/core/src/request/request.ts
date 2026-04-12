@@ -1,22 +1,26 @@
 /* eslint-disable max-lines */
-import {
+import type {
   RequestSendOptionsType,
   ParamsType,
   RequestSendType,
   PayloadType,
   RequestJSON,
   RequestOptionsType,
-  sendRequest,
   RequestConfigurationType,
   PayloadMapperType,
   RequestInstance,
   RequestMapper,
   ResponseMapper,
   ExtractUrlParams,
-} from "request";
-import { ClientInstance } from "client";
-import { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
-import {
+  RetryOnErrorCallbackType,
+  OptimisticCallback,
+} from "./request.types";
+import type { RequestHooks } from "./request.hooks";
+import { createRequestHooks } from "./request.hooks";
+import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
+import type { ClientInstance } from "client";
+import type { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
+import type {
   ExtractAdapterType,
   ExtractClientAdapterType,
   ExtractClientGlobalError,
@@ -31,7 +35,15 @@ import {
   SyncOrAsync,
 } from "types";
 import { Time } from "constants/time.constants";
-import { MockerConfigType, MockResponseType } from "mocker";
+import type { MockerConfigType, MockResponseType } from "mocker";
+
+type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
+type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
+type ClientRequestOptions<E, C extends ClientInstance> = RequestOptionsType<
+  E,
+  ClientAdapterOptions<C>,
+  ClientAdapterMethod<C>
+>;
 
 /**
  * Request is a class that represents a request sent to the server. It contains all the necessary information to make a request, like endpoint, method, headers, data, and much more.
@@ -61,15 +73,16 @@ export class Request<
   HasPayload extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
+  MutationContext = undefined,
 > {
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
+  method: ClientAdapterMethod<Client>;
   params: ExtractUrlParams<Endpoint> | EmptyTypes;
   payload: PayloadType<Payload>;
   queryParams: QueryParams | EmptyTypes;
-  options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
+  options?: ClientAdapterOptions<Client> | undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -84,6 +97,17 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
+  scope: string | null;
+
+  /**
+   * Instance-level lifecycle hooks. These callbacks fire for every `send()` / `exec()` call
+   * made on this request instance (and its clones), without needing to pass them to `send()` each time.
+   * Useful for cross-cutting concerns like logging, analytics, or toast notifications.
+   *
+   * Each method registers a callback and returns an unsubscribe function.
+   * Multiple listeners per hook are supported.
+   */
+  $hooks: RequestHooks<RequestInstance> = createRequestHooks();
 
   isMockerEnabled = false;
 
@@ -100,10 +124,15 @@ export class Request<
   unstable_requestMapper?: RequestMapper<any, any>;
   /** @internal */
   unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
+  /** @internal */
+  retryOnError?: RetryOnErrorCallbackType<RequestInstance>;
+  /** @internal */
+  optimistic?: OptimisticCallback<RequestInstance, any>;
 
   unstable_hasParams: HasParams = false as HasParams;
   unstable_hasPayload: HasPayload = false as HasPayload;
   unstable_hasQuery: HasQuery = false as HasQuery;
+  unstable_hasMutationContext: MutationContext = undefined as MutationContext;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -111,32 +140,20 @@ export class Request<
 
   constructor(
     readonly client: Client,
-    readonly requestOptions: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >,
+    readonly requestOptions: ClientRequestOptions<Endpoint, Client>,
     readonly initialRequestConfiguration?:
       | RequestConfigurationType<
           Payload,
           Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
           QueryParams,
           Endpoint,
-          ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-          ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+          ClientAdapterOptions<Client>,
+          ClientAdapterMethod<Client>
         >
       | undefined,
   ) {
-    const configuration: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    > = {
-      ...(this.client.adapter.unstable_getRequestDefaults?.(requestOptions) as RequestOptionsType<
-        Endpoint,
-        ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-        ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-      >),
+    const configuration: ClientRequestOptions<Endpoint, Client> = {
+      ...(this.client.adapter.unstable_getRequestDefaults?.(requestOptions) as ClientRequestOptions<Endpoint, Client>),
       ...requestOptions,
     };
     const {
@@ -181,6 +198,7 @@ export class Request<
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
+    this.scope = initialRequestConfiguration?.scope ?? null;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
     this.updatedQueryKey = initialRequestConfiguration?.updatedQueryKey ?? false;
@@ -208,61 +226,82 @@ export class Request<
     return this.clone<HasPayload, HasParams, true>({ queryParams });
   };
 
-  public setOptions = (options: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>) => {
+  public setOptions = (options: ClientAdapterOptions<Client>) => {
     return this.clone<HasPayload, HasParams, true>({ options });
+  };
+
+  /**
+   * Set a scope identifier for this request.
+   * All keys (cache, queue, abort) are prefixed with this scope, isolating
+   * the request from other scopes. In "server" client mode, setting a scope
+   * also enables caching (which is otherwise disabled to prevent cross-request leaks).
+   */
+  public setScope = (scopeId: string) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.scope = scopeId;
+    return cloned;
   };
 
   public setCancelable = (cancelable: boolean) => {
     return this.clone({ cancelable });
   };
 
-  public setRetry = (
-    retry: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["retry"],
-  ) => {
+  public setRetry = (retry: ClientRequestOptions<Endpoint, Client>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (
-    retryTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["retryTime"],
-  ) => {
+  public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
-  public setCacheTime = (
-    cacheTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["cacheTime"],
+  /**
+   * Set a callback that controls whether a failed request should be retried.
+   * Called on each failed attempt before scheduling the next retry.
+   * Return `true` to allow the retry, `false` to stop retrying immediately.
+   */
+  public setRetryOnError = (
+    callback: RetryOnErrorCallbackType<
+      Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>
+    >,
   ) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.retryOnError = callback as RetryOnErrorCallbackType<RequestInstance>;
+    return cloned;
+  };
+
+  /**
+   * Configure optimistic update behavior for this request.
+   * The callback runs before the request is sent (in React's `useSubmit`) and receives
+   * the request, client, and payload. Return `context` (available in submit callbacks),
+   * `rollback` (called automatically on failure/abort), and `invalidate` (cache keys
+   * invalidated on success).
+   */
+  public setOptimistic = <Ctx>(callback: OptimisticCallback<this, Ctx>) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
+    cloned.optimistic = callback as OptimisticCallback<RequestInstance, any>;
+    return cloned as unknown as Request<
+      Response,
+      Payload,
+      QueryParams,
+      LocalError,
+      Endpoint,
+      Client,
+      HasPayload,
+      HasParams,
+      HasQuery,
+      Ctx
+    >;
+  };
+
+  public setCacheTime = (cacheTime: ClientRequestOptions<Endpoint, Client>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
-  public setCache = (
-    cache: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["cache"],
-  ) => {
+  public setCache = (cache: ClientRequestOptions<Endpoint, Client>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setStaleTime = (
-    staleTime: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["staleTime"],
-  ) => {
+  public setStaleTime = (staleTime: ClientRequestOptions<Endpoint, Client>["staleTime"]) => {
     return this.clone({ staleTime });
   };
 
@@ -364,7 +403,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
-    cloned.unstable_responseMapper = responseMapper;
+    cloned.unstable_responseMapper = responseMapper as typeof cloned.unstable_responseMapper;
 
     return cloned as unknown as Request<
       MappedResponse extends ResponseType<infer R, any, any> ? R : Response,
@@ -375,7 +414,8 @@ export class Request<
       Client,
       HasPayload,
       HasParams,
-      HasQuery
+      HasQuery,
+      MutationContext
     >;
   };
 
@@ -427,6 +467,7 @@ export class Request<
       updatedQueryKey: this.updatedQueryKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
+      scope: this.scope,
       isMockerEnabled: this.isMockerEnabled,
       hasMock: !!this.unstable_mock,
     };
@@ -442,8 +483,8 @@ export class Request<
       (typeof this)["params"],
       QueryParams,
       Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+      ClientAdapterOptions<Client>,
+      ClientAdapterMethod<Client>
     >,
   ) {
     const json = this.toJSON();
@@ -452,8 +493,8 @@ export class Request<
       Endpoint extends string ? ExtractUrlParams<Endpoint> : never,
       QueryParams,
       Endpoint,
-      ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-      ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+      ClientAdapterOptions<Client>,
+      ClientAdapterMethod<Client>
     > = {
       ...json,
       ...configuration,
@@ -478,23 +519,27 @@ export class Request<
       Client,
       NewData,
       NewParams,
-      NewQueryParams
+      NewQueryParams,
+      MutationContext
     >(this.client, this.requestOptions, initialRequestConfiguration);
 
     // Inherit methods
     cloned.unstable_payloadMapper = this.unstable_payloadMapper;
     cloned.unstable_responseMapper = this.unstable_responseMapper as typeof cloned.unstable_responseMapper;
     cloned.unstable_requestMapper = this.unstable_requestMapper;
+    cloned.retryOnError = this.retryOnError;
 
     cloned.unstable_mock = this.unstable_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
+    cloned.optimistic = this.optimistic;
+    cloned.$hooks = createRequestHooks(this.$hooks.__snapshot());
 
     return cloned;
   }
 
   public abort = () => {
     const { requestManager } = this.client;
-    requestManager.abortByKey(this.abortKey);
+    requestManager.abortByKey(scopeKey(this.abortKey, this.scope));
 
     return this.clone();
   };
@@ -515,6 +560,7 @@ export class Request<
         cacheTime: this.cacheTime,
         staleTime: this.staleTime,
         cacheKey: this.cacheKey,
+        scope: this.scope,
         timestamp: +new Date(),
         hydrated: true,
         cache: true,
@@ -522,7 +568,9 @@ export class Request<
       };
     }
 
-    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(
+      scopeKey(this.cacheKey, this.scope),
+    );
 
     if (!cacheData) {
       return undefined;
@@ -533,6 +581,7 @@ export class Request<
       cacheTime: this.cacheTime,
       staleTime: this.staleTime,
       cacheKey: this.cacheKey,
+      scope: this.scope,
       timestamp: +new Date(),
       hydrated: true,
       cache: true,
@@ -557,7 +606,9 @@ export class Request<
   public read():
     | ResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>
     | undefined {
-    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(
+      scopeKey(this.cacheKey, this.scope),
+    );
 
     if (cacheData) {
       return {
@@ -588,13 +639,15 @@ export class Request<
 
     const requestId = this.client.unstable_requestIdMapper(this);
 
+    const scopedAbortKey = scopeKey(this.abortKey, this.scope);
+
     // Listen for aborting
-    requestManager.addAbortController(this.abortKey, requestId);
+    requestManager.addAbortController(scopedAbortKey, requestId);
 
     const response = await adapter.fetch(request, requestId);
 
     // Stop listening for aborting
-    requestManager.removeAbortController(this.abortKey, requestId);
+    requestManager.removeAbortController(scopedAbortKey, requestId);
 
     if (request.unstable_responseMapper) {
       return request.unstable_responseMapper(response);
@@ -610,14 +663,39 @@ export class Request<
    * @disableReturns
    * @returns
    * ```tsx
-   * Promise<[Data | null, Error | null, HttpStatus]>
+   * Promise<{ data: Data | null, error: Error | null, status: HttpStatus, ... }>
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
-    const { dispatcherType, ...configuration } = options || {};
+    const { dispatcherType, cachePolicy = "network-only", ...configuration } = options || {};
 
-    const request = this.clone(configuration);
-    return sendRequest(request as unknown as this, options);
+    const request = this.clone(configuration) as unknown as this;
+
+    const sendRequestOptions = options === undefined ? undefined : { ...options, cachePolicy: undefined };
+
+    if (cachePolicy === "network-only") {
+      return sendRequest(request, sendRequestOptions);
+    }
+
+    const cached = request.read();
+
+    if (cachePolicy === "cache-first") {
+      if (cached) {
+        return mapResponseForSend(request, cached);
+      }
+      return sendRequest(request, sendRequestOptions);
+    }
+
+    // revalidate
+    if (cached) {
+      const resolved = await mapResponseForSend(request, cached);
+      // Background revalidation; promise from send() already resolved with cache snapshot
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendRequest(request, sendRequestOptions);
+      return resolved;
+    }
+
+    return sendRequest(request, sendRequestOptions);
   };
 
   static fromJSON = <

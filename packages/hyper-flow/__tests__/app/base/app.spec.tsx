@@ -1,11 +1,13 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 import { render, act, waitFor } from "@testing-library/react";
 import { sleep } from "@hyper-fetch/testing";
 import { TestDashboardPage } from "@testing/pages/dashboard.page";
 import { TestApplicationPage } from "@testing/pages/application.page";
-import { StartServer, startServer } from "@server/server";
+import type { StartServer } from "@server/server";
+import { startServer } from "@server/server";
 import { connectDevtoolsClient, connectDevtoolsFrontend } from "@testing/helpers/helpers";
-import { ClientInstance, createClient } from "@hyper-fetch/core";
+import type { ClientInstance } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
 import { App } from "@/app";
 
@@ -30,7 +32,7 @@ describe("App", () => {
   afterEach(async () => {
     await serverObject?.server?.close();
     await serverObject?.wss?.close();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should render", async () => {

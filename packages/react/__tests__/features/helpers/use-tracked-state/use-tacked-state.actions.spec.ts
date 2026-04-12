@@ -20,8 +20,8 @@ describe("useTrackedState [ Actions ]", () => {
 
   afterAll(() => {
     stopServer();
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
     client.clear();
   });
 
@@ -200,7 +200,7 @@ describe("useTrackedState [ Actions ]", () => {
   describe("when using setLoading action", () => {
     it("should not emit loading event when emitToHooks is false", async () => {
       const { result } = renderUseTrackedState(request);
-      const spy = jest.spyOn(request.client.requestManager.events, "emitLoading");
+      const spy = vi.spyOn(request.client.requestManager.events, "emitLoading");
 
       act(() => {
         result.current[1].setLoading(true);
@@ -208,6 +208,19 @@ describe("useTrackedState [ Actions ]", () => {
 
       expect(result.current[0].loading).toBe(true);
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should accept a function updater", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setLoading((prev: boolean | null) => {
+          expect(prev).toBe(false);
+          return true;
+        });
+      });
+
+      expect(result.current[0].loading).toBe(true);
     });
   });
   describe("when using setStatus action", () => {
@@ -226,7 +239,7 @@ describe("useTrackedState [ Actions ]", () => {
 
     it("should not update cache", async () => {
       const { result } = renderUseTrackedState(request);
-      const spy = jest.spyOn(request.client.cache, "update");
+      const spy = vi.spyOn(request.client.cache, "update");
 
       // Then update state without emitting to cache
       act(() => {
@@ -257,13 +270,13 @@ describe("useTrackedState [ Actions ]", () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setExtra((prev: null | Record<string, any>) => {
-          expect(prev).not.toStrictEqual({ count: 1 });
-          return { count: 1 };
+        result.current[1].setExtra((prev: any) => {
+          expect(prev).not.toStrictEqual({ count: 1, headers: {} });
+          return { count: 1, headers: {} };
         });
       });
 
-      expect(result.current[0].extra).toEqual({ count: 1 });
+      expect(result.current[0].extra).toEqual({ count: 1, headers: {} });
     });
   });
   describe("when using setRetries action", () => {
@@ -370,13 +383,168 @@ describe("useTrackedState [ Actions ]", () => {
       const newDate = new Date();
 
       act(() => {
-        // Call setRequestTimestamp without the emitToCache parameter
         result.current[1].setRequestTimestamp(newDate);
       });
 
       await waitFor(() => {
         expect(result.current[0].requestTimestamp).toBeDefined();
       });
+    });
+
+    it("should not update when function returns the same timestamp", async () => {
+      const { result } = renderUseTrackedState(request);
+      const date = new Date();
+
+      act(() => {
+        result.current[1].setRequestTimestamp(date);
+      });
+
+      expect(result.current[0].requestTimestamp).toBe(date);
+
+      act(() => {
+        result.current[1].setRequestTimestamp(date);
+      });
+
+      expect(result.current[0].requestTimestamp).toBe(date);
+    });
+
+    it("should convert existing prev timestamp in function updates", async () => {
+      const { result } = renderUseTrackedState(request);
+      const initialDate = new Date("2024-06-01T00:00:00.000Z");
+      const laterDate = new Date("2024-06-02T00:00:00.000Z");
+
+      act(() => {
+        result.current[1].setRequestTimestamp(initialDate);
+      });
+
+      expect(result.current[0].requestTimestamp).toBe(initialDate);
+
+      act(() => {
+        result.current[1].setRequestTimestamp((prev: Date | null) => {
+          expect(prev).toBeInstanceOf(Date);
+          return laterDate;
+        });
+      });
+
+      expect(result.current[0].requestTimestamp).toBe(laterDate);
+    });
+  });
+  describe("when using setStatus with same value", () => {
+    it("should not re-render when value unchanged", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setStatus(200);
+      });
+
+      expect(result.current[0].status).toBe(200);
+
+      act(() => {
+        result.current[1].setStatus(200);
+      });
+
+      expect(result.current[0].status).toBe(200);
+    });
+  });
+  describe("when using setSuccess with same value", () => {
+    it("should not re-render when value unchanged", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setSuccess(true);
+      });
+
+      expect(result.current[0].success).toBe(true);
+
+      act(() => {
+        result.current[1].setSuccess(true);
+      });
+
+      expect(result.current[0].success).toBe(true);
+    });
+  });
+  describe("when using setExtra with same value", () => {
+    it("should not re-render when value unchanged", async () => {
+      const { result } = renderUseTrackedState(request);
+      const extra = { headers: { "x-test": "1" } };
+
+      act(() => {
+        result.current[1].setExtra(extra);
+      });
+
+      expect(result.current[0].extra).toBe(extra);
+
+      act(() => {
+        result.current[1].setExtra(extra);
+      });
+
+      expect(result.current[0].extra).toBe(extra);
+    });
+  });
+  describe("when using setRetries with same value", () => {
+    it("should not re-render when value unchanged", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setRetries(3);
+      });
+
+      expect(result.current[0].retries).toBe(3);
+
+      act(() => {
+        result.current[1].setRetries(3);
+      });
+
+      expect(result.current[0].retries).toBe(3);
+    });
+  });
+  describe("when using setResponseTimestamp with same value", () => {
+    it("should not re-render when value unchanged", async () => {
+      const { result } = renderUseTrackedState(request);
+      const date = new Date();
+
+      act(() => {
+        result.current[1].setResponseTimestamp(date);
+      });
+
+      expect(result.current[0].responseTimestamp).toBe(date);
+
+      act(() => {
+        result.current[1].setResponseTimestamp(date);
+      });
+
+      expect(result.current[0].responseTimestamp).toBe(date);
+    });
+  });
+  describe("when using clearState action", () => {
+    it("should reset all state to initial values", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setData({ test: 1 });
+        result.current[1].setError(new Error("test"));
+        result.current[1].setLoading(true);
+        result.current[1].setStatus(200);
+        result.current[1].setSuccess(true);
+        result.current[1].setRetries(5);
+      });
+
+      expect(result.current[0].data).toEqual({ test: 1 });
+      expect(result.current[0].loading).toBe(true);
+
+      act(() => {
+        result.current[1].clearState();
+      });
+
+      expect(result.current[0].data).toBe(null);
+      expect(result.current[0].error).toBe(null);
+      expect(result.current[0].loading).toBe(false);
+      expect(result.current[0].status).toBe(null);
+      expect(result.current[0].success).toBe(false);
+      expect(result.current[0].extra).toBe(null);
+      expect(result.current[0].retries).toBe(0);
+      expect(result.current[0].responseTimestamp).toBe(null);
+      expect(result.current[0].requestTimestamp).toBe(null);
     });
   });
 });

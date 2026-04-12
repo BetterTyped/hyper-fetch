@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 import Table from "cli-table3";
 
 import { zodToTable } from "./zod-to-table";

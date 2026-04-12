@@ -4,9 +4,10 @@ import { loadConfig } from "tsconfig-paths";
 
 import { highlighter } from "utils/highlighter";
 import { resolveImport } from "utils/resolve-import";
-import { logger } from "../utils/logger";
-import { handleError } from "../utils/handle-error";
-import { configSchema, Config } from "config/schema";
+import { handleError } from "utils/handle-error";
+import type { Config } from "config/schema";
+import { configSchema } from "config/schema";
+import { autoInit } from "config/auto-init";
 
 export async function resolveConfigPaths(cwd: string, config: Omit<Config, "resolvedPaths">): Promise<Config> {
   // Read tsconfig.json.
@@ -30,18 +31,8 @@ export async function resolveConfigPaths(cwd: string, config: Omit<Config, "reso
 }
 
 export async function getConfig(cwd: string): Promise<Config | null> {
-  // Check for existing api.json file.
   if (!fs.existsSync(path.resolve(cwd, "api.json"))) {
-    logger.break();
-    logger.error(
-      `An invalid ${highlighter.info("api.json")} file was found at ${highlighter.info(
-        cwd,
-      )}.\nBefore you can add or generate SDKs, you must create a valid ${highlighter.info(
-        "api.json",
-      )} file by running the ${highlighter.info("init")} command.`,
-    );
-    logger.break();
-    process.exit(1);
+    await autoInit(cwd);
   }
   const { data, error } = await configSchema
     .omit({ resolvedPaths: true }) // We enrich it later

@@ -1,8 +1,8 @@
 import { produce } from "immer";
 import { create } from "zustand/react";
-import { AdapterInstance, Cache } from "@hyper-fetch/core";
+import type { AdapterInstance, Cache } from "@hyper-fetch/core";
 
-import { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
+import type { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
 
 type CacheKey = string;
 

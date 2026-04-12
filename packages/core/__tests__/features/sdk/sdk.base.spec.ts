@@ -1,8 +1,10 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, createClient } from "client";
-import { HttpAdapterType } from "http-adapter";
-import { Request, RequestInstance } from "request";
+import type { Client } from "client";
+import { createClient } from "client";
+import type { HttpAdapterType } from "http-adapter";
+import type { RequestInstance } from "request";
+import { Request } from "request";
 import { createSdk } from "sdk";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();

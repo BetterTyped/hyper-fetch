@@ -2,6 +2,7 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import path from "path";
 import fs from "fs";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import plugin from "@docsgen/docusaurus";
 import { importer } from "@docsgen/core";
 import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yarn2pnpm";
@@ -85,19 +86,23 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
 
   future: {
-    v4: {
-      removeLegacyPostBuildHeadAttribute: true, // required
-      useCssCascadeLayers: false,
-    },
-    experimental_faster: {
-      rspackBundler: true,
-      rspackPersistentCache: true,
-      ssgWorkerThreads: true,
+    // Same as `faster: true` but Webpack for client/server bundles. Rspack has
+    // been observed to finish without writing `build/__server/server.bundle.js`,
+    // which breaks SSG with ENOENT when loading the server bundle.
+    faster: {
       swcJsLoader: true,
       swcJsMinimizer: true,
       swcHtmlMinimizer: true,
       lightningCssMinimizer: true,
       mdxCrossCompilerCache: true,
+      rspackBundler: false,
+      rspackPersistentCache: false,
+      ssgWorkerThreads: true,
+      gitEagerVcs: true,
+    },
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true, // required
+      useCssCascadeLayers: false,
     },
   },
 

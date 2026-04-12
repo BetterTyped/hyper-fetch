@@ -1,4 +1,5 @@
-import { render, fireEvent } from "@testing-library/react";
+import type { render } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
 
 export class TestDashboardPage {
   constructor(public component: ReturnType<typeof render>) {}

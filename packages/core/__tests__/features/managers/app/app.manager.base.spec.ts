@@ -15,7 +15,7 @@ describe("AppManager [ Base ]", () => {
 
   beforeEach(() => {
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
   });
 
@@ -55,8 +55,8 @@ describe("AppManager [ Base ]", () => {
   });
   describe("When using app manager methods", () => {
     it("should allow to change app focus state", async () => {
-      const focusSpy = jest.fn();
-      const blurSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const blurSpy = vi.fn();
       client.appManager.events.onFocus(focusSpy);
       client.appManager.events.onBlur(blurSpy);
       client.appManager.setFocused(false);
@@ -68,8 +68,8 @@ describe("AppManager [ Base ]", () => {
       expect(blurSpy).toHaveBeenCalledTimes(1);
     });
     it("should allow to change app online state", async () => {
-      const onlineSpy = jest.fn();
-      const offlineSpy = jest.fn();
+      const onlineSpy = vi.fn();
+      const offlineSpy = vi.fn();
       client.appManager.events.onOnline(onlineSpy);
       client.appManager.events.onOffline(offlineSpy);
       client.appManager.setOnline(false);
@@ -81,10 +81,10 @@ describe("AppManager [ Base ]", () => {
       expect(offlineSpy).toHaveBeenCalledTimes(1);
     });
     it("should properly cleanup event listeners when unmount functions are called", async () => {
-      const focusSpy = jest.fn();
-      const blurSpy = jest.fn();
-      const onlineSpy = jest.fn();
-      const offlineSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const blurSpy = vi.fn();
+      const onlineSpy = vi.fn();
+      const offlineSpy = vi.fn();
 
       // Setup listeners and store cleanup functions
       const cleanupFocus = client.appManager.events.onFocus(focusSpy);
@@ -132,7 +132,7 @@ describe("AppManager [ Base ]", () => {
   });
   describe("When app manager is initialized with custom events", () => {
     it("should use custom focus event handler", async () => {
-      const focusSpy = jest.fn();
+      const focusSpy = vi.fn();
       const customFocusHandler = (setFocused: (isFocused: boolean) => void) => {
         // Custom focus handler implementation
         setFocused(true);
@@ -147,7 +147,7 @@ describe("AppManager [ Base ]", () => {
     });
 
     it("should use custom online event handler", async () => {
-      const onlineSpy = jest.fn();
+      const onlineSpy = vi.fn();
       const customOnlineHandler = (setOnline: (isOnline: boolean) => void) => {
         // Custom online handler implementation
         setOnline(true);
@@ -162,8 +162,8 @@ describe("AppManager [ Base ]", () => {
     });
 
     it("should handle state changes with custom handlers", async () => {
-      const focusSpy = jest.fn();
-      const blurSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const blurSpy = vi.fn();
 
       const customFocusHandler = (setFocused: (isFocused: boolean) => void) => {
         // Test both focus and blur
@@ -186,11 +186,11 @@ describe("AppManager [ Base ]", () => {
 
   describe("When using app manager initial options", () => {
     it("should use default event handlers when not specified", async () => {
-      const focusSpy = jest.fn();
-      const onlineSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const onlineSpy = vi.fn();
 
-      jest.spyOn(appManagerInitialOptions, "focusEvent").mockImplementation(focusSpy);
-      jest.spyOn(appManagerInitialOptions, "onlineEvent").mockImplementation(onlineSpy);
+      vi.spyOn(appManagerInitialOptions, "focusEvent").mockImplementation(focusSpy);
+      vi.spyOn(appManagerInitialOptions, "onlineEvent").mockImplementation(onlineSpy);
 
       // eslint-disable-next-line no-new
       new AppManager().initialize();
@@ -202,10 +202,10 @@ describe("AppManager [ Base ]", () => {
       expect(onlineSpy).toHaveBeenCalledTimes(1);
     });
     it("should use one default event handlers when not specified", async () => {
-      const focusSpy = jest.fn();
-      const onlineSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const onlineSpy = vi.fn();
 
-      jest.spyOn(appManagerInitialOptions, "onlineEvent").mockImplementation(onlineSpy);
+      vi.spyOn(appManagerInitialOptions, "onlineEvent").mockImplementation(onlineSpy);
 
       // eslint-disable-next-line no-new
       new AppManager({ focusEvent: focusSpy }).initialize();
@@ -217,10 +217,10 @@ describe("AppManager [ Base ]", () => {
       expect(onlineSpy).toHaveBeenCalledTimes(1);
     });
     it("should use other default event handlers when not specified", async () => {
-      const focusSpy = jest.fn();
-      const onlineSpy = jest.fn();
+      const focusSpy = vi.fn();
+      const onlineSpy = vi.fn();
 
-      jest.spyOn(appManagerInitialOptions, "focusEvent").mockImplementation(focusSpy);
+      vi.spyOn(appManagerInitialOptions, "focusEvent").mockImplementation(focusSpy);
 
       // eslint-disable-next-line no-new
       new AppManager({ onlineEvent: onlineSpy }).initialize();

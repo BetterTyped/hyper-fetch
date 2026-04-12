@@ -1,10 +1,11 @@
-import { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
+import type { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useRef } from "react";
 
-import { UseEmitterOptionsType } from "hooks/use-emitter";
+import type { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
 import { useProvider } from "provider";
+import { createTrackedProxy } from "utils";
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
@@ -63,19 +64,19 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     onEventErrorCallback.current = callback;
   };
 
-  return {
-    get connected() {
-      setRenderKey("connected");
-      return state.connected;
+  const trackedKeys = ["connected", "connecting"] as const;
+
+  return createTrackedProxy(
+    {
+      connected: state.connected,
+      connecting: state.connecting,
+      ...actions,
+      ...callbacks,
+      onEmit,
+      onEmitError,
+      emit,
     },
-    get connecting() {
-      setRenderKey("connecting");
-      return state.connecting;
-    },
-    ...actions,
-    ...callbacks,
-    onEmit,
-    onEmitError,
-    emit,
-  };
+    trackedKeys,
+    setRenderKey,
+  );
 };

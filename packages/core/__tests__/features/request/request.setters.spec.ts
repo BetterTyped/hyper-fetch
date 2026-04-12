@@ -1,21 +1,22 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, RequestInstance, Time } from "../../../src";
+import type { RequestInstance } from "../../../src";
+import { Client, Time } from "../../../src";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Setters ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/users/:userId" });
+  let request = client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/users/:userId" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/users/:userId" });
+    request = client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/users/:userId" });
     resetMocks();
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   afterAll(() => {
@@ -127,6 +128,12 @@ describe("Request [ Setters ]", () => {
     expect(request.cacheTime).toBe(Time.MIN * 5);
     const updatedRequest = request.setCacheTime(Time.MIN);
     expect(updatedRequest.cacheTime).toBe(Time.MIN);
+  });
+  it("should allow for setting retryOnError", async () => {
+    expect(request.retryOnError).toBeUndefined();
+    const callback = (response: any) => response.status !== 404;
+    const updatedRequest = request.setRetryOnError(callback);
+    expect(updatedRequest.retryOnError).toBeDefined();
   });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {

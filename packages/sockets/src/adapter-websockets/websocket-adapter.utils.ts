@@ -1,6 +1,6 @@
-import { EmptyTypes } from "@hyper-fetch/core";
+import type { EmptyTypes } from "@hyper-fetch/core";
 
-import { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
+import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
   /** istanbul ignore next */

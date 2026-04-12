@@ -1,7 +1,8 @@
-import { RequestInstance } from "@hyper-fetch/core";
+import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
 
-import { useTrackedState, useRequestEvents, UseRequestEventsPropsType, UseTrackedStateProps } from "helpers";
+import type { UseRequestEventsPropsType, UseTrackedStateProps } from "helpers";
+import { useTrackedState, useRequestEvents } from "helpers";
 import { isEqual } from "utils";
 
 export const renderUseRequestEvents = <Request extends RequestInstance>(

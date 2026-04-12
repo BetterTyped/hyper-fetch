@@ -1,9 +1,11 @@
-import {
+import type {
   Dispatcher,
   ExtractErrorType,
   CacheValueType,
   ExtractResponseType,
+  ExtractMutationContextType,
   LoggerMethods,
+  OptimisticCallbackResult,
   RequestEventType,
   RequestInstance,
   RequestProgressEventType,
@@ -14,7 +16,7 @@ import {
   ResponseSuccessType,
 } from "@hyper-fetch/core";
 
-import { UseTrackedStateActions } from "helpers";
+import type { UseTrackedStateActions } from "helpers";
 
 // Misc
 export type UseRequestEventsDataMap = { unmount: VoidFunction };
@@ -36,23 +38,23 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
    */
   abort: () => void;
   /**
-   * Helper hook listening on success response.
+   * Helper hook listening on success response. Includes `mutationContext` when `setOptimistic` is configured.
    */
   onSuccess: (callback: OnSuccessCallbackType<T>) => void;
   /**
-   * Helper hook listening on error response.
+   * Helper hook listening on error response. Includes `mutationContext` when `setOptimistic` is configured.
    */
   onError: (callback: OnErrorCallbackType<T>) => void;
   /**
-   * Helper hook listening on aborting of requests. Abort events are not triggering onError callbacks.
+   * Helper hook listening on aborting of requests. Includes `mutationContext` when `setOptimistic` is configured.
    */
   onAbort: (callback: OnErrorCallbackType<T>) => void;
   /**
-   * Helper hook listening on request going into offline awaiting for network connection to be restored. It will not trigger onError when 'offline' mode is set on request.
+   * Helper hook listening on request going into offline awaiting for network connection to be restored.
    */
   onOfflineError: (callback: OnErrorCallbackType<T>) => void;
   /**
-   * Helper hook listening on any response.
+   * Helper hook listening on any response. Includes `mutationContext` when `setOptimistic` is configured.
    */
   onFinished: (callback: OnFinishedCallbackType<T>) => void;
   /**
@@ -64,11 +66,11 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
    */
   onResponseStart: (callback: OnStartCallbackType<T>) => void;
   /**
-   * Helper hook listening on download progress ETA. We can later match given requests by their id's or request instance which holds all data which is being transferred.
+   * Helper hook listening on download progress ETA.
    */
   onDownloadProgress: (callback: OnProgressCallbackType) => void;
   /**
-   * Helper hook listening on upload progress ETA. We can later match given requests by their id's or request instance which holds all data which is being transferred.
+   * Helper hook listening on upload progress ETA.
    */
   onUploadProgress: (callback: OnProgressCallbackType) => void;
 };
@@ -79,7 +81,11 @@ export type UseRequestEventsReturnType<T extends RequestInstance> = [
   {
     addCacheDataListener: (request: T) => VoidFunction;
     clearCacheDataListener: VoidFunction;
-    addLifecycleListeners: (request: T, requestId?: string) => VoidFunction;
+    addLifecycleListeners: (
+      request: T,
+      requestId?: string,
+      optimisticResult?: OptimisticCallbackResult<any>,
+    ) => VoidFunction;
     removeLifecycleListener: (requestId: string) => void;
     clearLifecycleListeners: () => void;
   },
@@ -87,8 +93,9 @@ export type UseRequestEventsReturnType<T extends RequestInstance> = [
 
 // Lifecycle
 
-export type CallbackParameters<Request extends RequestInstance, ResponseType> = {
-  response: ResponseType;
+export type CallbackParameters<Request extends RequestInstance, Resp> = {
+  response: Resp;
+  mutationContext: ExtractMutationContextType<Request> | undefined;
 } & Omit<RequestResponseEventType<Request>, "response">;
 
 export type OnSuccessCallbackType<Request extends RequestInstance> = (

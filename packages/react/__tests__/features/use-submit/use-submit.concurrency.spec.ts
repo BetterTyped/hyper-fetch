@@ -24,7 +24,7 @@ describe("useSubmit [ Concurrency ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     client.clear();
     client = createClient({ url: "http://localhost:3000" });
     request = client.createRequest<{ response: null; payload: null }>()({ method: "POST", endpoint: "" });

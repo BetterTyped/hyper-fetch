@@ -10,9 +10,9 @@ describe("Client [ Middleware ]", () => {
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-  const spy1 = jest.fn();
-  const spy2 = jest.fn();
-  const spy3 = jest.fn();
+  const spy1 = vi.fn();
+  const spy2 = vi.fn();
+  const spy3 = vi.fn();
 
   beforeAll(() => {
     startServer();
@@ -22,7 +22,7 @@ describe("Client [ Middleware ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     resetMocks();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {

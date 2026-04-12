@@ -1,4 +1,4 @@
-import { LogLevel } from "./logger.manager.types";
+import type { LogLevel } from "./logger.manager.types";
 
 export const logLevelOrder: LogLevel[] = ["error", "warning", "info", "debug"];
 

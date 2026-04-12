@@ -1,8 +1,8 @@
-import { Database } from "firebase/database";
-import { Firestore } from "firebase/firestore";
-import { Adapter, Request, Client } from "@hyper-fetch/core";
+import type { Database } from "firebase/database";
+import type { Firestore } from "firebase/firestore";
+import type { Adapter, Request, Client } from "@hyper-fetch/core";
 
-import {
+import type {
   RealtimeDbAdapterType,
   FirestoreAdapterType,
   RealtimeSocketAdapterType,

@@ -6,8 +6,12 @@ module.exports = {
     ecmaFeatures: {
       jsx: true,
     },
-    project: ["./tsconfig.json", "./packages/*/tsconfig.json", "./documentation/tsconfig.json"],
-    tsconfigRootDir: __dirname,
+    project: [
+      "./tsconfig.json",
+      "./documentation/tsconfig.json",
+      "./packages/*/tsconfig.json",
+      "./packages/*/__tests__/tsconfig.json",
+    ],
   },
   settings: {
     "import/resolver": {
@@ -21,6 +25,7 @@ module.exports = {
     },
   },
 
+  ignorePatterns: [".eslintrc.js"],
   overrides: [
     {
       files: ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -43,6 +48,7 @@ module.exports = {
         "react/jsx-uses-react": "error",
         "react/jsx-uses-vars": "error",
         "no-console": ["error", { allow: ["warn", "error"] }],
+        "@typescript-eslint/consistent-type-imports": ["error", { disallowTypeAnnotations: true }],
         "react/react-in-jsx-scope": "off",
         "no-continue": "off",
         "react/display-name": 0,
@@ -104,9 +110,7 @@ module.exports = {
     },
     {
       files: ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
-      env: {
-        jest: true,
-      },
+      env: {},
       rules: {
         "max-lines": "off",
       },

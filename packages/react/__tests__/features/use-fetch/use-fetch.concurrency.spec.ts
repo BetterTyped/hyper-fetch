@@ -22,7 +22,7 @@ describe("useFetch [ Concurrency ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
   });
@@ -30,8 +30,8 @@ describe("useFetch [ Concurrency ]", () => {
   describe("given multiple rendered hooks", () => {
     describe("when used the same non-dedupe requests", () => {
       it("should allow to trigger request for each hook", async () => {
-        const spyOne = jest.fn();
-        const spyTwo = jest.fn();
+        const spyOne = vi.fn();
+        const spyTwo = vi.fn();
 
         const mock = mockRequest(request);
         const responseOne = renderUseFetch(request.setQueryKey("1"));

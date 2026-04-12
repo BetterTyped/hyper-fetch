@@ -5,20 +5,17 @@
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "clean": "npx rimraf dist",
-    "test": "jest --watchAll --maxWorkers=3 --forceExit",
-    "test:pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
+    "test": "vitest run",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.{ts,tsx}' --exec 'yarn build'",
-    "build": "yarn clean && node ../../scripts/build.js",
-    "postbuild": "yarn rollup -c ../../rollup.config.js",
+    "build": "vite build",
     "lint": "eslint . --fix",
     "format": "prettier --write .",
-    "typescheck": "tsc --noEmit --emitDeclarationOnly false",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false && tsc --noEmit -p __tests__/tsconfig.json",
     "tests": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'plugin-devtools-hyper-fetch-v${version}'"
   },
@@ -41,7 +38,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "vitest related --run --passWithNoTests"
     ]
   },
   "publishConfig": {

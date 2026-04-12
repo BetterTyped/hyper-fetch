@@ -1,16 +1,10 @@
-import { WebSocket } from "ws";
-import {
-  AppInternalMessage,
-  BaseMessagePayload,
-  InternalEvents,
-  MessageOrigin,
-  MessageType,
-  PluginInternalMessage,
-  SocketTopics,
-} from "@hyper-fetch/plugin-devtools";
+import type { WebSocket } from "ws";
+import type { AppInternalMessage, BaseMessagePayload, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
+import { InternalEvents, MessageOrigin, MessageType, SocketTopics } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
 
-import { AppConnectionStatus, ConnectionMap, PluginConnectionStatus } from "../types/connection.type";
+import type { ConnectionMap } from "../types/connection.type";
+import { AppConnectionStatus, PluginConnectionStatus } from "../types/connection.type";
 import { InternalConnectionHandler } from "./internal-connection-handler";
 
 import { ConnectionName } from "@/constants/connection.name";

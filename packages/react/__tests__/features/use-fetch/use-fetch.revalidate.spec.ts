@@ -26,7 +26,7 @@ describe("useFetch [ refetch ]", () => {
   });
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     request = createRequest();
     client.clear();
     mock = mockRequest(request, {
@@ -35,7 +35,7 @@ describe("useFetch [ refetch ]", () => {
   });
 
   it("should allow to prevent invalidation on mount with cache data", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const customMock = { something: "123" };
     client.cache.set(request, {
       data: customMock,
@@ -50,6 +50,7 @@ describe("useFetch [ refetch ]", () => {
       responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
     });
 
     const response = renderUseFetch(request, { revalidate: false });
@@ -62,7 +63,7 @@ describe("useFetch [ refetch ]", () => {
     expect(spy).toHaveBeenCalledTimes(0);
   });
   it("should allow invalidation on mount", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
     const response = renderUseFetch(request, { revalidate: false });
 
     act(() => {
@@ -91,6 +92,7 @@ describe("useFetch [ refetch ]", () => {
       responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
+      willRetry: false,
     });
 
     const response = renderUseFetch(request, { revalidate: true });
@@ -193,7 +195,7 @@ describe("useFetch [ refetch ]", () => {
     });
   });
   it("should not refetch while toggling query", async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const revalidateRequest = createRequest({ endpoint: "123-revalidate" });
     const revalidateMock = mockRequest(revalidateRequest, { data: { something: 123 } });

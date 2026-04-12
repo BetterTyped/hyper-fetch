@@ -1,20 +1,17 @@
-import {
+import type {
   ClientInstance,
   getCacheEvents,
   getDispatcherEvents,
   getRequestManagerEvents,
   LoggerMethods,
 } from "@hyper-fetch/core";
-import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
+import type { Emitter, Listener } from "@hyper-fetch/sockets";
+import { Socket } from "@hyper-fetch/sockets";
 
 import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
-import {
-  HFEventMessagePayload,
-  MessageOrigin,
-  MessageType,
-  PluginInternalMessagePayload,
-} from "./types/messages.types";
-import { DevtoolsPluginOptions } from "./types/plugin.types";
+import type { HFEventMessagePayload, PluginInternalMessagePayload } from "./types/messages.types";
+import { MessageOrigin, MessageType } from "./types/messages.types";
+import type { DevtoolsPluginOptions } from "./types/plugin.types";
 import { SocketTopics } from "./types/topics";
 
 type EventData<

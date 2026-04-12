@@ -1,4 +1,5 @@
-import { Flame, GitGraph, LucideProps, Server } from "lucide-react";
+import type { LucideProps } from "lucide-react";
+import { Flame, GitGraph, Server } from "lucide-react";
 
 const adapterIcons = {
   firebase: Flame,

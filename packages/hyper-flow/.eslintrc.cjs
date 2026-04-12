@@ -1,0 +1,23 @@
+module.exports = {
+  extends: ["plugin:@nx/react", "../../.eslintrc.js"],
+  parserOptions: {
+    tsconfigRootDir: __dirname,
+    project: ["./tsconfig.json", "./__tests__/tsconfig.json"],
+  },
+  rules: {
+    "react/jsx-props-no-spreading": 0,
+    "react/require-default-props": 0,
+    "@typescript-eslint/no-use-before-define": 0,
+    "react/no-unescaped-entities": 0,
+    "import/extensions": 0,
+  },
+  ignorePatterns: [
+    "out/",
+    "dist/",
+    "coverage/",
+    "vite.config.mts",
+    "/*.js",
+    "__tests__/**/*.js",
+    "configs/",
+  ],
+};

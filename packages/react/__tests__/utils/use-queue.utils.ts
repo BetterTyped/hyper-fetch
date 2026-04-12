@@ -1,7 +1,9 @@
 import { renderHook } from "@testing-library/react";
-import { RequestInstance, getRequestDispatcher, getProgressData } from "@hyper-fetch/core";
+import type { RequestInstance } from "@hyper-fetch/core";
+import { getRequestDispatcher, getProgressData } from "@hyper-fetch/core";
 
-import { useQueue, UseQueueOptionsType } from "hooks/use-queue";
+import type { UseQueueOptionsType } from "hooks/use-queue";
+import { useQueue } from "hooks/use-queue";
 
 export const renderUseQueue = <T extends RequestInstance>(request: T, options?: UseQueueOptionsType) => {
   return renderHook((rerenderOptions: UseQueueOptionsType & { request?: RequestInstance }) => {

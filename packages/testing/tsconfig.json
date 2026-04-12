@@ -2,10 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./src",
-    "module": "commonjs",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "moduleResolution": "node"
+    "skipDefaultLibCheck": true
   },
-  "include": ["./src", "./jest.config.ts", "./__tests__", "typings.d.ts"]
+  "include": ["./src", "./__tests__", "typings.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }
