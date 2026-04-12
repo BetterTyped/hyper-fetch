@@ -1,7 +1,27 @@
 import { ResponseType } from "adapter";
 import { RequestInstance } from "request";
 import { ExtendRequest, ExtractClientAdapterType } from "types";
-import { ClientInstance, RequestInterceptorType, ResponseInterceptorType } from "./client.types";
+import {
+  ClientInstance,
+  ClientMode,
+  ClientModeOption,
+  RequestInterceptorType,
+  ResponseInterceptorType,
+} from "./client.types";
+
+/** Picks effective {@link ClientMode}: explicit override, else environment detection. */
+export function resolveClientMode(modeOption: ClientModeOption | undefined): ClientMode {
+  if (modeOption === "client" || modeOption === "server") {
+    return modeOption;
+  }
+
+  const inBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+  if (inBrowser) {
+    return "client";
+  }
+
+  return "server";
+}
 
 export const interceptRequest = async (interceptors: RequestInterceptorType[], request: RequestInstance) => {
   let newRequest = request;

@@ -3,6 +3,7 @@ import { HttpAdapterType, parseResponse, HttpAdapter } from "http-adapter";
 import {
   ClientErrorType,
   ClientInstance,
+  ClientMode,
   ClientOptionsType,
   RequestGenericType,
   RequestInterceptorType,
@@ -13,7 +14,7 @@ import { Dispatcher } from "dispatcher";
 import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestJSON, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
-import { interceptRequest, interceptResponse } from "./client.utils";
+import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
 import {
   EmptyTypes,
   TypeWithDefaults,
@@ -39,7 +40,7 @@ export class Client<
   Adapter extends AdapterInstance = HttpAdapterType,
 > {
   readonly url: string;
-  readonly mode: "client" | "server" | "isomorphic";
+  readonly mode: ClientMode;
   public debug: boolean;
 
   // Private
@@ -80,9 +81,9 @@ export class Client<
   logger = this.loggerManager.initialize(this, "Client");
 
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
-    const { url, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+    const { url, appManager, cache, fetchDispatcher, submitDispatcher, mode: modeOption } = this.options;
     this.url = url;
-    this.mode = typeof window !== "undefined" && typeof document !== "undefined" ? "client" : "server";
+    this.mode = resolveClientMode(modeOption);
     this.adapter = HttpAdapter() as Adapter;
 
     this.appManager = appManager?.() || new AppManager();

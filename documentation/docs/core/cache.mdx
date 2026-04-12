@@ -305,17 +305,24 @@ client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
 
 ## Cache Modes
 
-Hyper Fetch automatically detects the runtime environment and configures cache behavior accordingly:
+The client `mode` option (default **`"auto"`**) decides how Hyper Fetch resolves **`client.mode`** to **`"client"`** or
+**`"server"`**:
 
-- **Client mode** (browser): Cache works for all requests by default. `setScope` is optional and acts as a key prefix
-  for organizing data (e.g. per feature, per workspace).
-- **Server mode** (Node.js): Cache is **disabled by default**. A request is only cached if `.setScope()` is explicitly
-  set. This prevents cross-user data leaks in server environments.
+- **`mode: "auto"`** (or omit) — browser → **`client.mode === "client"`**, Node.js → **`"server"`**.
+- **`mode: "client"`** / **`mode: "server"`** — force that effective mode everywhere (overrides detection).
+
+Caching then follows the resolved mode:
+
+- **`client`**: Cache works for cacheable requests by default. `setScope` is optional and acts as a key prefix for
+  organizing data (e.g. per feature, per workspace).
+- **`server`**: Cache is **disabled by default**. A request is only cached if `.setScope()` is explicitly set. This
+  prevents cross-user data leaks in server environments.
 
 ```tsx title="Server-side safe caching"
 import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "https://api.example.com" });
+// Equivalent: createClient({ url: "https://api.example.com", mode: "auto" })
 
 const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",

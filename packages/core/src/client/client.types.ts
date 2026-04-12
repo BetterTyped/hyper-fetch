@@ -29,13 +29,18 @@ export type RequestGenericType<QueryParams> = {
 };
 
 /**
- * Auto-detected runtime environment that affects cache behavior:
+ * Effective cache mode on the client after resolving {@link ClientModeOption} from options.
  *
- * - `"client"` — Browser environment. Cache is enabled globally by default.
- * - `"server"` — Node.js / non-browser environment. Cache is disabled by default to prevent
- *   cross-request data leaks. Enable per-request caching via `request.setScope(scopeId)`.
+ * - `"client"` — Cache is enabled globally by default for cacheable requests.
+ * - `"server"` — Cache is disabled by default unless `request.setScope(scopeId)` is set, to prevent
+ *   cross-request data leaks.
  */
 export type ClientMode = "client" | "server";
+
+/**
+ * How `Client` chooses {@link ClientMode}. Use `"auto"` (default) or omit the option to detect the environment.
+ */
+export type ClientModeOption = "auto" | ClientMode;
 
 /**
  * Configuration setup for the client
@@ -45,6 +50,13 @@ export type ClientOptionsType<C extends ClientInstance> = {
    * Url to your server
    */
   url: string;
+  /**
+   * How the effective {@link ClientMode} is chosen for cache behavior.
+   *
+   * - `"auto"` (default when omitted): browser → `"client"`, otherwise `"server"`.
+   * - `"client"` / `"server"`: force that mode regardless of environment (tests, SSR overrides, etc.).
+   */
+  mode?: ClientModeOption;
   /**
    * Custom cache initialization prop
    */

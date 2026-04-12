@@ -177,19 +177,32 @@ component to all fields.
 ### 4. Client/Server Cache Modes
 
 Running HyperFetch on the server introduces a cache safety problem: the in-process cache is shared across all incoming
-requests, which means user A could see user B's cached data. v8 solves this with explicit cache modes.
+requests, which means user A could see user B's cached data. v8 solves this with a **mode** option on the client plus
+safe defaults when the effective mode is server.
 
-The client now auto-detects its environment — `"client"` in the browser, `"server"` in Node.js:
+**Configuration (default `auto`):** Pass `mode` in `createClient` — `"auto"` (default when omitted), `"client"`, or
+`"server"`. With `"auto"`, Hyper Fetch detects the environment and resolves to **`"client"`** in the browser or
+**`"server"`** in Node.js. The instance property `client.mode` is always that **resolved** value (`"client"` or
+`"server"`); it is never `"auto"`. Use `mode: "client"` or `mode: "server"` to override detection (tests, custom
+runtimes, or stricter safety in the browser).
 
-- **`"client"` mode**: Cache works as before. All requests are cacheable by default.
-- **`"server"` mode**: Cache is **disabled by default**. A request is only cached when you explicitly call
+**Effective behavior:**
+
+- **Resolved `"client"`**: Cache works as before. Cacheable requests are stored by default.
+- **Resolved `"server"`**: Cache is **disabled by default**. A request is only cached when you explicitly call
   `.setScope(scopeId)` — typically with the user's session ID or a request context identifier.
 
 ```typescript
-// Server mode — auto-detected in Node.js
+// Default: mode "auto" → server in Node.js, client in the browser
 const client = createClient({
   url: "https://api.example.com",
 });
+
+// Optional: same as omitting mode
+createClient({ url: "https://api.example.com", mode: "auto" });
+
+// Optional: force server cache rules anywhere (e.g. isomorphic app in the browser)
+// createClient({ url: "https://api.example.com", mode: "server" });
 
 const getUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/:userId",
@@ -203,7 +216,7 @@ await getUser.setParams({ userId: 1 }).send();
 await getUser.setParams({ userId: 1 }).setScope(req.session.id).send();
 ```
 
-Cache keys are automatically namespaced with the scope: `${scope}::${originalCacheKey}`. No scope means no caching on
+Cache keys are automatically namespaced with the scope: `${scope}__${originalCacheKey}`. No scope means no caching on
 the server — the safe default. On the client side, `setScope` is optional and acts as a cache key prefix for organizing
 cache by feature, workspace, or tenant.
 

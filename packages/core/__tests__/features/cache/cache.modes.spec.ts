@@ -4,12 +4,7 @@ import { createCache } from "../../utils";
 import { Client } from "client";
 import { HttpAdapterType, xhrExtra } from "http-adapter";
 
-const createServerClient = (url: string) => {
-  const client = new Client({ url });
-  // Force server mode for testing (auto-detection picks "client" in jsdom)
-  (client as any).mode = "server";
-  return client;
-};
+const createServerClient = (url: string) => new Client({ url, mode: "server" });
 
 describe("Cache [ Modes ]", () => {
   const response: ResponseSuccessType<unknown, HttpAdapterType> = {
@@ -36,6 +31,20 @@ describe("Cache [ Modes ]", () => {
     it("should auto-detect client mode in browser environment", () => {
       const client = new Client({ url: "http://test.com" });
       expect(client.mode).toBe("client");
+    });
+
+    it("should treat explicit mode auto like omitted (client in jsdom)", () => {
+      const client = new Client({ url: "http://test.com", mode: "auto" });
+      expect(client.mode).toBe("client");
+    });
+
+    it("should force client mode when option is client", () => {
+      const client = new Client({ url: "http://test.com", mode: "client" });
+      expect(client.mode).toBe("client");
+      const request = client.createRequest<{ response: any }>()({ endpoint: "/users" });
+      const cache = createCache(client);
+      cache.set(request, { ...response, ...details });
+      expect(cache.get(request.cacheKey)).toBeDefined();
     });
 
     it("should cache responses by default", () => {
@@ -68,6 +77,11 @@ describe("Cache [ Modes ]", () => {
   });
 
   describe("server mode", () => {
+    it("should force server mode in browser-like environment when option is server", () => {
+      const client = new Client({ url: "http://test.com", mode: "server" });
+      expect(client.mode).toBe("server");
+    });
+
     it("should NOT cache responses by default", () => {
       const client = createServerClient("http://test.com");
       const request = client.createRequest<{ response: any }>()({ endpoint: "/users" });

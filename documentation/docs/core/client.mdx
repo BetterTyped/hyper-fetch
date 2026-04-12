@@ -247,16 +247,25 @@ export const getUser = client.createRequest()({
 
 ---
 
-5. ### Cache Modes (Client / Server / Isomorphic)
+5. ### Cache modes (`auto` / `client` / `server`)
 
-The `Client` automatically detects whether it's running in the browser or on the server and sets its mode accordingly.
-This affects how caching behaves — on the server, caching is **disabled by default** to prevent cross-user data leaks.
+`createClient` accepts an optional `mode`:
+
+- **`"auto"`** (default when omitted) — resolves to **`"client"`** in the browser and **`"server"`** in Node.js.
+- **`"client"`** or **`"server"`** — forces that **effective** mode regardless of environment.
+
+`client.mode` is always the resolved value: **`"client"`** or **`"server"`**. Cache behavior follows that resolved mode
+(on the server, caching is **disabled by default** unless you use `setScope`).
 
 ```tsx
 import { createClient } from "@hyper-fetch/core";
 
 const client = createClient({ url: "http://localhost:3000" });
-// Mode is auto-detected: "client" in browser, "server" in Node.js
+// Same as { mode: "auto" } — client.mode is "client" in browser, "server" in Node.js
+
+// Override when needed (e.g. tests or forcing server rules in the browser)
+createClient({ url: "http://localhost:3000", mode: "server" });
+createClient({ url: "http://localhost:3000", mode: "client" });
 ```
 
 On the server, use `setScope` to explicitly opt in to caching with per-user/session isolation:
