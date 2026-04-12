@@ -2,6 +2,7 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import path from "path";
 import fs from "fs";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import plugin from "@docsgen/docusaurus";
 import { importer } from "@docsgen/core";
 import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yarn2pnpm";
@@ -85,6 +86,7 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
 
   future: {
+    faster: true,
     v4: {
       removeLegacyPostBuildHeadAttribute: true, // required
       useCssCascadeLayers: false,

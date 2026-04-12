@@ -2993,13 +2993,16 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@hyper-fetch/core@link:../node_modules/@hyper-fetch/core":
+"@hyper-fetch/core@file:../packages/core":
   version "0.0.0"
-  uid ""
+  dependencies:
+    events "^3.3.0"
 
-"@hyper-fetch/react@link:../node_modules/@hyper-fetch/react":
+"@hyper-fetch/react@file:../packages/react":
   version "0.0.0"
-  uid ""
+  dependencies:
+    "@better-hooks/lifecycle" "^2.0.0"
+    "@better-hooks/performance" "^2.1.0"
 
 "@iconify/types@^2.0.0":
   version "2.0.0"
