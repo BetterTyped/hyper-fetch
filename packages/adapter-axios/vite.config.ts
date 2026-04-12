@@ -4,6 +4,7 @@ import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
+import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-externals-from-package";
 
 export default defineConfig({
   build: {
@@ -15,7 +16,7 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     rollupOptions: {
-      external: ["@hyper-fetch/core", "axios"],
+      external: getRollupExternalsFromPackageJson(__dirname),
     },
   },
   plugins: [

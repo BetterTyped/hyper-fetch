@@ -4,6 +4,31 @@ import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
 import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
+import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-externals-from-package";
+
+const testingBuildExternals = [
+  "msw",
+  "msw/node",
+  "jest-websocket-mock",
+  "eventsourcemock",
+  /^node:/,
+  "http",
+  "https",
+  "path",
+  "fs",
+  "url",
+  "stream",
+  "net",
+  "tls",
+  "zlib",
+  "events",
+  "buffer",
+  "crypto",
+  "os",
+  "util",
+  "assert",
+  "querystring",
+] as const;
 
 export default defineConfig({
   build: {
@@ -15,32 +40,7 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     rollupOptions: {
-      external: [
-        "@hyper-fetch/core",
-        "@hyper-fetch/graphql",
-        "@hyper-fetch/sockets",
-        "msw",
-        "msw/node",
-        "jest-websocket-mock",
-        "eventsourcemock",
-        /^node:/,
-        "http",
-        "https",
-        "path",
-        "fs",
-        "url",
-        "stream",
-        "net",
-        "tls",
-        "zlib",
-        "events",
-        "buffer",
-        "crypto",
-        "os",
-        "util",
-        "assert",
-        "querystring",
-      ],
+      external: [...getRollupExternalsFromPackageJson(__dirname), ...testingBuildExternals],
     },
   },
   plugins: [

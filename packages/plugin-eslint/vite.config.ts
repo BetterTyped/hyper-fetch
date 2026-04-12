@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
+import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-externals-from-package";
 
 export default defineConfig({
   build: {
@@ -13,6 +14,9 @@ export default defineConfig({
     },
     sourcemap: true,
     minify: false,
+    rollupOptions: {
+      external: getRollupExternalsFromPackageJson(__dirname),
+    },
   },
   plugins: [
     dts({
