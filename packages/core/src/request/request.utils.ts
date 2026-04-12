@@ -143,11 +143,11 @@ export const sendRequest = async <Request extends RequestInstance>(
   const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
-  let optimisticResult: OptimisticCallbackResult<any> | undefined;
+  let mutationContext: OptimisticCallbackResult<any> | undefined;
 
   if (request.optimistic) {
     try {
-      optimisticResult = await request.optimistic({
+      mutationContext = await request.optimistic({
         request,
         client: request.client,
         payload: request.payload,
@@ -166,8 +166,6 @@ export const sendRequest = async <Request extends RequestInstance>(
       };
     }
   }
-
-  const mutationContext = optimisticResult;
 
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
