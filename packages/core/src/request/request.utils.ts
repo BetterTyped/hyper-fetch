@@ -174,7 +174,7 @@ export const sendRequest = <Request extends RequestInstance>(
         resolve(data);
 
         // Unmount Listeners
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define, @typescript-eslint/no-use-before-define
         umountAll();
       };
 

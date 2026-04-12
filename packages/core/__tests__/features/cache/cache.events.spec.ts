@@ -30,6 +30,7 @@ describe("Cache [ Events ]", () => {
     isOffline: false,
     willRetry: false,
     cacheKey: request.cacheKey,
+    scope: null,
     staleTime: request.staleTime,
     version: cache.version,
     cacheTime: 300000,

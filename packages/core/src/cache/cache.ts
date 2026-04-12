@@ -72,13 +72,13 @@ export class Cache<Adapter extends AdapterInstance> {
     > & { hydrated?: boolean },
   ): void => {
     this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
-    const { cacheKey: rawCacheKey, cache, staleTime, cacheTime, scope } = request;
-    const cacheKey = scopeKey(rawCacheKey, scope);
+    const { cacheKey, cache, staleTime, cacheTime, scope } = request;
+    const storageKey = scopeKey(cacheKey, scope);
     const previousCacheData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
-    >(cacheKey);
+    >(storageKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
@@ -87,6 +87,7 @@ export class Cache<Adapter extends AdapterInstance> {
 
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
       ...data,
+      scope,
       staleTime,
       version: this.version,
       cacheKey,
@@ -100,8 +101,8 @@ export class Cache<Adapter extends AdapterInstance> {
     // Only success data is valid for the cache store
     if (processedResponse.success && isCachingAllowed) {
       this.logger.debug({ title: "Saving response to cache storage", type: "system", extra: { request, data } });
-      this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
+      this.storage.set<Response, Error, ExtractAdapterType<Request>>(storageKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(storageKey, newCacheData);
       this.client.triggerPlugins("onCacheItemChange", {
         cache: this,
         cacheKey,
@@ -109,7 +110,7 @@ export class Cache<Adapter extends AdapterInstance> {
         newData: newCacheData as CacheValueType<any, any, AdapterInstance>,
       });
 
-      this.scheduleGarbageCollector(cacheKey);
+      this.scheduleGarbageCollector(storageKey);
     } else {
       // If request should not use cache - just emit response data
       this.logger.debug({ title: "Prevented saving response to cache", type: "system", extra: { request, data } });
@@ -139,12 +140,13 @@ export class Cache<Adapter extends AdapterInstance> {
     >,
   ): void => {
     this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
-    const { cacheKey } = request;
+    const { cacheKey, scope } = request;
+    const storageKey = scopeKey(cacheKey, scope);
     const cachedData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
-    >(cacheKey);
+    >(storageKey);
 
     const processedResponse =
       typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
@@ -201,22 +203,22 @@ export class Cache<Adapter extends AdapterInstance> {
 
     const onInvalidate = (key: string | RegExp | RequestInstance) => {
       const keys = Array.from(this.storage.keys());
-      const handleInvalidation = (cacheKey: string) => {
-        const value = this.storage.get(cacheKey);
+      const handleInvalidation = (invalidateStorageKey: string, notifyCacheKey: string = invalidateStorageKey) => {
+        const value = this.storage.get(invalidateStorageKey);
         if (value) {
-          this.storage.set(cacheKey, { ...value, staleTime: 0 });
+          this.storage.set(invalidateStorageKey, { ...value, staleTime: 0 });
         }
 
         this.client.triggerPlugins("onCacheItemInvalidate", {
           cache: this,
-          cacheKey,
+          cacheKey: notifyCacheKey,
         });
 
-        this.events.emitInvalidation(cacheKey);
+        this.events.emitInvalidation(notifyCacheKey);
       };
 
       if (key instanceof Request) {
-        handleInvalidation(key.cacheKey);
+        handleInvalidation(scopeKey(key.cacheKey, key.scope), key.cacheKey);
       } else if (typeof key === "string") {
         handleInvalidation(key);
       } else if (keys.length) {

@@ -26,6 +26,7 @@ export type CacheValueType<
 > = ResponseType<Response, Error, Adapter> &
   ResponseDetailsType & {
     cacheKey: string;
+    scope: string | null;
     staleTime: number;
     version: string;
     cacheTime: number;

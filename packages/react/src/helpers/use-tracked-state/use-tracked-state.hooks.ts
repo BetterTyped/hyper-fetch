@@ -81,7 +81,7 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const getStaleStatus = (): boolean => {
-    const cacheData = cache.get(cacheKey);
+    const cacheData = cache.get(scopeKey(cacheKey, request.scope));
     return !cacheData || isStaleCacheData(staleTime, cacheData?.responseTimestamp);
   };
 

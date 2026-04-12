@@ -94,6 +94,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       staleTime: 1000,
       version: request.client.cache.version,
       cacheKey: request.cacheKey,
+      scope: request.scope,
       cacheTime: request.cacheTime,
       requestTimestamp: initialResponse?.requestTimestamp ?? +new Date(),
       responseTimestamp: initialResponse?.responseTimestamp ?? +new Date(),
@@ -146,7 +147,7 @@ export const getInitialState = <T extends RequestInstance>({
   const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({

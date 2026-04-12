@@ -28,6 +28,7 @@ describe("Cache [ Garbage Collector ]", () => {
     version,
     cacheTime,
     cacheKey,
+    scope: null,
   };
 
   let client = new Client({ url: "shared-base-url" });

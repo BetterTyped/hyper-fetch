@@ -26,6 +26,7 @@ describe("useCache [ Base ]", () => {
     addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
     cacheKey: request.cacheKey,
+    scope: request.scope,
     isCanceled: false,
     isOffline: false,
     willRetry: false,

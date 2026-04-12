@@ -535,7 +535,9 @@ export class Request<
       };
     }
 
-    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(
+      scopeKey(this.cacheKey, this.scope),
+    );
 
     if (!cacheData) {
       return undefined;
@@ -571,7 +573,9 @@ export class Request<
   public read():
     | ResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>
     | undefined {
-    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(this.cacheKey);
+    const cacheData = this.client.cache.get<Response, LocalError | ExtractClientGlobalError<Client>>(
+      scopeKey(this.cacheKey, this.scope),
+    );
 
     if (cacheData) {
       return {
@@ -626,7 +630,7 @@ export class Request<
    * @disableReturns
    * @returns
    * ```tsx
-   * Promise<[Data | null, Error | null, HttpStatus]>
+   * Promise<{ data: Data | null, error: Error | null, status: HttpStatus, ... }>
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {

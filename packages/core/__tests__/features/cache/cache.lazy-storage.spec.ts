@@ -28,6 +28,7 @@ describe("Cache [ Lazy Storage ]", () => {
     version,
     cacheTime: Infinity,
     cacheKey,
+    scope: null,
   };
 
   const lazyStorage = new Map();

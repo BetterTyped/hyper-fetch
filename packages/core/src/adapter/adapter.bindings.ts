@@ -7,7 +7,7 @@ import {
   RequestProcessingError,
 } from "adapter";
 import { LoggerMethods } from "managers";
-import { RequestInstance, getProgressData, ProgressEventType } from "request";
+import { RequestInstance, getProgressData, ProgressEventType, scopeKey } from "request";
 import {
   ExtractResponseType,
   ExtractErrorType,
@@ -68,6 +68,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   // Request Setup
   const { client, abortKey } = request;
+  const scopedAbortKey = scopeKey(abortKey, request.scope);
 
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
@@ -352,7 +353,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Abort
 
   const getAbortController = () => {
-    return requestManager.getAbortController(abortKey, requestId);
+    return requestManager.getAbortController(scopedAbortKey, requestId);
   };
 
   const createAbortListener = ({

@@ -12,7 +12,15 @@ import {
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
-import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestJSON, RequestOptionsType } from "request";
+import {
+  getRequestKey,
+  getSimpleKey,
+  Request,
+  RequestInstance,
+  RequestJSON,
+  RequestOptionsType,
+  scopeKey,
+} from "request";
 import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
 import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
 import {
@@ -403,7 +411,7 @@ export class Client<
     hydrationData?.forEach((item) => {
       if (!item) return;
 
-      const { cacheKey, response, ...fallbackOptions } = item;
+      const { cacheKey, scope, response, ...fallbackOptions } = item;
       const defaults = {
         cache: true,
         override: true,
@@ -414,14 +422,14 @@ export class Client<
           : { ...defaults, ...fallbackOptions, ...options };
 
       if (!config.override) {
-        const cachedData = this.cache.get(cacheKey);
+        const cachedData = this.cache.get(scopeKey(cacheKey, scope));
         if (cachedData) {
           return;
         }
       }
 
       const parsedData = parseResponse(response);
-      this.cache.set({ ...config, cacheKey }, parsedData);
+      this.cache.set({ ...config, cacheKey, scope }, parsedData);
     });
   };
 
