@@ -195,7 +195,6 @@ export const createSdk = <Client extends ClientInstance, RecursiveSchema extends
     ...rest,
   } as CreateSdkOptions<RecursiveSchema>;
 
-  // @ts-expect-error TS2589 — generic SDK options vs recursive proxy exceeds instantiation depth
   const proxy = createRecursiveProxy(client, [], mergedOptions);
 
   return new Proxy(proxy, {
