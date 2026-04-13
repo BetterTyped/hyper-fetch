@@ -11,9 +11,13 @@
   "source": "src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.mjs",
-      "import": "./dist/index.mjs"
+      "types": {
+        "import": "./dist/index.d.ts"
+      },
+      "default": {
+        "require": "./dist/index.mjs",
+        "import": "./dist/index.mjs"
+      }
     },
     "./package.json": "./package.json"
   },
