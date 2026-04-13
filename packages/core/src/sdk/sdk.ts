@@ -189,13 +189,9 @@ export const createSdk = <Client extends ClientInstance, RecursiveSchema extends
     ...rest
   } = options ?? {};
 
-  const mergedOptions = {
-    camelCaseToKebabCase,
-    methodTransform,
-    ...rest,
-  } as CreateSdkOptions<RecursiveSchema>;
-
-  const proxy = createRecursiveProxy(client, [], mergedOptions);
+  const mergedOptions: CreateSdkOptions<RecursiveSchema> = { camelCaseToKebabCase, methodTransform, ...rest };
+  // Break inference for TypeDoc / tsserver (TS2589) — runtime value is unchanged.
+  const proxy = createRecursiveProxy(client, [], mergedOptions as never);
 
   return new Proxy(proxy, {
     get: (target, key: string) => {
