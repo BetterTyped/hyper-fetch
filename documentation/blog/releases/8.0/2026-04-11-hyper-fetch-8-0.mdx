@@ -55,43 +55,37 @@ type safety, and adapters that let you swap transports without changing your app
 
 ### 1. Unified Fetch Adapter
 
-The most significant infrastructure change in v8: we replaced the browser `XMLHttpRequest` adapter and the Node.js
-`http`/`https` adapter with a **single implementation built on the native `fetch` API**. Since `fetch` is now available
-natively in both environments (Node 18+, all modern browsers), we no longer need separate browser and server builds.
+We replaced both the browser `XMLHttpRequest` adapter and the Node.js `http`/`https` adapter with a **single
+implementation built on the native `fetch` API**.
 
-**What this means:**
+One codebase. One build. No more dual isomorphic builds or conditional entry points.
 
-- **One codebase, one build** — the dual isomorphic build system (`http-adapter.browser.ts` / `http-adapter.server.ts`)
-  has been removed entirely
-- **Simpler `package.json` exports** — no more conditional `browser` vs `node` entry points for the HTTP adapter
-- **Abort via `AbortController`** — replaces XHR `.abort()` with the standard `AbortController` / `AbortSignal` pattern
-- **Download progress** via `response.body.getReader()` — streams the response body and reports progress natively
-- **Full `RequestInit` passthrough** — adapter options extend `RequestInit`, so you can pass any standard fetch option
-  (credentials, referrer policy, keepalive, etc.) directly
+- **Abort via `AbortController`**: the standard `AbortController` / `AbortSignal` pattern replaces XHR `.abort()`
+- **Download progress** via `response.body.getReader()`: native streaming progress reporting
+- **Full `RequestInit` passthrough**: credentials, referrer policy, keepalive, and any other standard fetch option
 
 ```typescript
 import { createClient } from "@hyper-fetch/core";
 
-const client = createClient({
-  url: "https://api.example.com",
-});
+const client = createClient({ url: "https://api.example.com" });
 
 const getUsers = client.createRequest<{ response: User[] }>()({
   endpoint: "/users",
   method: "GET",
 });
 
-// Standard fetch options are passed through
+// highlight-next-line
 getUsers.setOptions({ credentials: "include", timeout: 5000 }).send();
 ```
 
+---
+
 ### 2. First-Class Streaming
 
-v8 adds native streaming support at both the core and React levels. When you set `streaming: true`, the adapter returns
-the raw `ReadableStream` from `response.body` instead of buffering the entire response — enabling real-time AI chat
-responses, large file downloads with progress, and server-sent data processing.
+When you set `streaming: true`, the adapter returns the raw `ReadableStream` instead of buffering the entire response.
+Think real-time AI chat, large file downloads with progress, or server-sent data processing.
 
-#### Core: streaming option
+**Core usage**, get the stream directly:
 
 ```typescript
 const streamRequest = client.createRequest<{ response: ReadableStream }>()({
@@ -99,20 +93,18 @@ const streamRequest = client.createRequest<{ response: ReadableStream }>()({
   method: "POST",
 });
 
-// The response `data` is a ReadableStream<Uint8Array>
+// highlight-next-line
 const { data } = await streamRequest.setOptions({ streaming: true }).send();
 ```
 
-#### React: `useStream` hook
-
-The new `useStream` hook handles the entire streaming lifecycle — start, chunk accumulation, abort, and cleanup on
-unmount.
+**React**: the new `useStream` hook manages the full lifecycle for you:
 
 ```tsx
 import { useStream } from "@hyper-fetch/react";
 
 function AiChat({ prompt }) {
-  const { text, chunks, streaming, start, abort } = useStream(chatRequest.setPayload({ prompt }));
+  // highlight-next-line
+  const { text, streaming, start, abort } = useStream(chatRequest.setPayload({ prompt }));
 
   return (
     <div>
@@ -123,110 +115,90 @@ function AiChat({ prompt }) {
 }
 ```
 
-`useStream` automatically clones the request with `streaming: true`, accumulates text chunks via `TextDecoder`, and
-exposes `start`, `abort`, and `reset` controls. It works for any `ReadableStream` — text streaming, file downloads, or
-binary data.
+It automatically clones the request with `streaming: true`, accumulates chunks via `TextDecoder`, and exposes `start`,
+`abort`, and `reset` controls. Works for text, files, or binary data.
+
+---
 
 ### 3. React Hooks Modernization
 
-We've made four interconnected improvements to the React hooks layer.
+Four interconnected improvements to the React hooks layer.
 
-#### `useSyncExternalStore` migration
+#### `useSyncExternalStore`
 
-All React hooks now use `useSyncExternalStore` from React 18+ instead of the previous `useRef` + `useForceUpdate`
-pattern. This fixes potential tearing issues in concurrent mode while preserving the field-level dependency tracking
-optimization — a component that only reads `data` still won't re-render when `error` changes.
+All hooks now use `useSyncExternalStore` (React 18+) for proper concurrent mode support. This fixes potential tearing
+issues while preserving field-level dependency tracking. A component that only reads `data` still won't re-render when
+`error` changes.
 
-#### `keepPreviousData` — smart state clearing
+#### Smart `keepPreviousData`
 
-When you switch between different resources (e.g., from product #1 to product #2), v8 clears stale data by default
-instead of briefly flashing the old resource's data. The `keepPreviousData` option controls this behavior:
+Switching between resources (product #1 → product #2) now **clears stale data by default** instead of flashing the
+previous resource. Three modes give you full control:
 
-- **`"auto"`** (default): Compares the resource identity (method + endpoint + path params) and clears state when it
-  changes, but preserves data when only query params change — perfect for pagination without configuration
-- **`"preserve"`**: Always keeps previous data visible during loading (old v7 behavior)
-- **`"clean"`**: Always clears state on any key change
+| Mode               | Behavior                                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `"auto"` (default) | Clears on identity change (method + endpoint + path params), preserves on query-only change. Pagination just works |
+| `"preserve"`       | Always keeps previous data visible during loading (old v7 behavior)                                                |
+| `"clean"`          | Always clears state on any key change                                                                              |
+
+<p>&nbsp;</p>
 
 ```tsx
-// Pagination — data stays visible while loading the next page
+// Pagination: data stays visible while loading the next page
 const { data } = useFetch(getUsers.setQueryParams({ page }), {
+  // highlight-next-line
   keepPreviousData: "preserve",
 });
 
-// Detail view — old product data is cleared immediately when switching
+// Detail view: clears immediately when switching products
 const { data } = useFetch(getProduct.setParams({ productId }));
-// keepPreviousData defaults to "auto", which clears on identity change
 ```
 
-#### `clearState()` API
+#### `clearState()` and readable console output
 
-A new `clearState()` function on `useFetch`, `useSubmit`, and `useCache` resets all tracked fields (`data`, `error`,
-`loading`, timestamps) back to their initial values. `setData(null)` is also now supported.
+- New `clearState()` on `useFetch`, `useSubmit`, and `useCache` resets all tracked fields back to their initial values
+- Hook return values now implement `toJSON()` so `console.log` shows actual values instead of `(...)` getter
+  placeholders
 
-```tsx
-const { data, error, clearState } = useFetch(getUser.setParams({ userId }));
-
-// Reset everything to initial state
-clearState();
-```
-
-#### Readable console output
-
-Hook return values now implement `toJSON()` and Node.js inspect symbols so that `console.log` shows actual values
-instead of `(...)` getter placeholders. The dependency tracking optimization still works — logging doesn't subscribe the
-component to all fields.
+---
 
 ### 4. Client/Server Cache Modes
 
-Running HyperFetch on the server introduces a cache safety problem: the in-process cache is shared across all incoming
-requests, which means user A could see user B's cached data. v8 solves this with a **mode** option on the client plus
-safe defaults when the effective mode is server.
+Server-side HyperFetch has a cache safety problem: the in-process cache is shared across all incoming requests, meaning
+user A could see user B's data.
 
-**Configuration (default `auto`):** Pass `mode` in `createClient` — `"auto"` (default when omitted), `"client"`, or
-`"server"`. With `"auto"`, Hyper Fetch detects the environment and resolves to **`"client"`** in the browser or
-**`"server"`** in Node.js. The instance property `client.mode` is always that **resolved** value (`"client"` or
-`"server"`); it is never `"auto"`. Use `mode: "client"` or `mode: "server"` to override detection (tests, custom
-runtimes, or stricter safety in the browser).
-
-**Effective behavior:**
-
-- **Resolved `"client"`**: Cache works as before. Cacheable requests are stored by default.
-- **Resolved `"server"`**: Cache is **disabled by default**. A request is only cached when you explicitly call
-  `.setScope(scopeId)` — typically with the user's session ID or a request context identifier.
+v8 solves this with a `mode` option on the client:
 
 ```typescript
-// Default: mode "auto" → server in Node.js, client in the browser
 const client = createClient({
   url: "https://api.example.com",
+  // mode: "auto" (default) → detects environment automatically
+  // mode: "client" → cache works as before
+  // mode: "server" → cache disabled by default, opt-in with setScope()
 });
+```
 
-// Optional: same as omitting mode
-createClient({ url: "https://api.example.com", mode: "auto" });
+**On the server, caching only activates when you explicitly scope it**, typically with a session ID, or when you set
+mode to "client".
 
-// Optional: force server cache rules anywhere (e.g. isomorphic app in the browser)
-// createClient({ url: "https://api.example.com", mode: "server" });
-
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
-  method: "GET",
-});
-
-// NOT cached — safe by default on server (no scope set)
+```typescript
+// NOT cached, safe by default (no scope)
 await getUser.setParams({ userId: 1 }).send();
 
-// CACHED — scoped to this user's session, isolated from other users
+// CACHED, scoped to this user's session
+// highlight-next-line
 await getUser.setParams({ userId: 1 }).setScope(req.session.id).send();
 ```
 
-Cache keys are automatically namespaced with the scope: `${scope}__${originalCacheKey}`. No scope means no caching on
-the server — the safe default. On the client side, `setScope` is optional and acts as a cache key prefix for organizing
-cache by feature, workspace, or tenant.
+Cache keys are automatically namespaced: `${scope}__${originalCacheKey}`. No scope = no caching on the server. On the
+client side, `setScope` is optional and acts as a key prefix for organizing cache by tenant, workspace, or feature.
+
+---
 
 ### 5. Request Lifecycle Hooks
 
-Request instances now support persistent lifecycle hooks via the `$hooks` property. Unlike per-`send()` callbacks that
-you repeat on every call, `$hooks` travel with the request instance and survive `.clone()`. Each hook method registers a
-callback and returns an unsubscribe function. Multiple listeners per hook are supported.
+Define persistent lifecycle hooks directly on a request via `$hooks`. Unlike per-`send()` callbacks you have to repeat
+every time, these travel with the request instance and survive `.clone()`.
 
 ```typescript
 const getUser = client.createRequest<{ response: User }>()({
@@ -234,6 +206,7 @@ const getUser = client.createRequest<{ response: User }>()({
   method: "GET",
 });
 
+// highlight-start
 getUser.$hooks.onResponse(({ response }) => {
   console.log("User loaded:", response.data);
 });
@@ -241,81 +214,75 @@ getUser.$hooks.onResponse(({ response }) => {
 getUser.$hooks.onRequestStart(({ requestId }) => {
   console.log("Loading user...", requestId);
 });
+// highlight-end
 
-// Hooks fire automatically on every send — no need to repeat them
+// Hooks fire on every send, no need to repeat them
 await getUser.setParams({ userId: 1 }).send();
 await getUser.setParams({ userId: 2 }).send();
-
-// Unsubscribe when no longer needed
-const unsubscribe = getUser.$hooks.onResponse(({ response }) => {
-  analytics.track("user_loaded", response.data);
-});
-unsubscribe();
 ```
 
-The `$` prefix follows a convention: runtime-only, excluded from `toJSON()` serialization. This means hooks work with
-request instances in memory but don't interfere with persistence, queue storage, or DevTools serialization.
+Each hook method returns an unsubscribe function. Multiple listeners per hook are supported. The `$` prefix means
+runtime-only, so hooks don't interfere with serialization, persistence, or DevTools.
+
+---
 
 ### 6. SDK Configuration
 
-For projects using the SDK proxy (`createSdk`), v8 adds a scalable configuration system. Instead of repeating
-`.setHeaders()`, `.setResponseMapper()`, etc. on every request call, you define typed defaults per endpoint that are
-applied automatically.
+For projects using `createSdk`, v8 adds a typed configuration system. Define defaults per endpoint once, and they apply
+automatically. No more repeating `.setHeaders()` or `.setResponseMapper()` on every call.
 
 ```typescript
 import { createSdk, createConfiguration } from "@hyper-fetch/core";
 import type { OurSdk } from "./sdk";
 
-// Create typed configuration — keys are validated against actual SDK paths
+// highlight-start
 const authConfig = createConfiguration<OurSdk>({
   "auth.login.$POST": (req) => req.setResponseMapper(loginMapper).setHeaders({ "X-Custom": "value" }),
   "auth.register.$POST": (req) => req.setResponseMapper(registerMapper),
 });
+// highlight-end
 
-// Apply configuration to the SDK
 const sdk = createSdk(client);
+// highlight-next-line
 sdk.$configure(authConfig);
 
-// Requests automatically include configured defaults
-const response = await sdk.auth.login.$POST.send({ payload: credentials });
+// Configured defaults are applied automatically
+await sdk.auth.login.$POST.send({ payload: credentials });
 ```
 
-Configuration can be split across files by domain (`auth.configure.ts`, `users.configure.ts`) and merged with multiple
-`$configure()` calls. `createConfiguration` is an identity function at runtime — its value is purely at the type level,
-validating that path+method keys actually exist in your SDK.
+Split configs across files by domain (`auth.configure.ts`, `users.configure.ts`) and merge with multiple `$configure()`
+calls. Path+method keys are validated at the type level against your actual SDK.
+
+---
 
 ### 7. CLI Auto-Init
 
-Every CLI command now auto-initializes the project when `api.json` is missing. No more "run `init` first" errors — just
-execute your command and the CLI handles setup automatically, similar to how `shadcn` works.
+No more "run `init` first" errors. Every CLI command auto-initializes when `api.json` is missing. Just run your command
+and go, similar to how `shadcn` works.
 
 ```bash
-# On a fresh project — auto-creates api.json and src/api directory
-npx hyper-fetch generate --url https://api.example.com/openapi.json
-
-# On an initialized project — skips straight to generation
+# Fresh project: auto-creates api.json and src/api directory
 npx hyper-fetch generate --url https://api.example.com/openapi.json
 ```
 
-The shared pre-flight runs before `generate`, `add`, and any future commands, so new CLI commands automatically get this
-behavior without per-command wiring.
+---
 
 ### 8. TypeScript Optimizations
 
-We profiled and optimized the heaviest type constructs in the codebase:
+We profiled and optimized the heaviest type constructs:
 
-- **Reduced conditional type depth** in `Request` and `Adapter` generics — flattened nested conditional chains into
-  lookup types
-- **Split `ExtractUnionAdapter`** narrowing to avoid "excessively deep" instantiation errors
-- **Cached intermediate types** — repeated sub-expressions like adapter type extraction are computed once via type
-  aliases instead of re-instantiated at every usage site
+- Flattened nested conditional chains into lookup types in `Request` and `Adapter` generics
+- Split `ExtractUnionAdapter` narrowing to avoid "excessively deep" instantiation errors
+- Cached intermediate type expressions via aliases instead of re-instantiating at every usage
 
-The result is noticeably faster IDE autocomplete and type-checking, especially in files with many request definitions.
+The result: **noticeably faster IDE autocomplete** and type-checking, especially in files with many request definitions.
+
+---
 
 ### 9. Optimistic Mutations
 
-v8 adds first-class support for optimistic updates via `request.setOptimistic()`. Define cache manipulation, rollback
-logic, and invalidation targets directly on the request — the framework orchestrates everything automatically.
+Define cache manipulation, rollback logic, and invalidation targets directly on the request with `setOptimistic()`. The
+framework orchestrates everything, including auto-rollback on failure and retry awareness.
 
 ```typescript
 const patchUser = client
@@ -323,14 +290,13 @@ const patchUser = client
     endpoint: "/users/:userId",
     method: "PATCH",
   })
+  // highlight-next-line
   .setOptimistic(({ client, payload, request }) => {
     const snapshot = client.cache.get(getUsers.cacheKey);
 
     client.cache.update(getUsers, (prev) => ({
       ...prev,
-      data: prev.data.map((u) =>
-        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
-      ),
+      data: prev.data.map((u) => (u.id === Number(request.params?.userId) ? { ...u, ...payload } : u)),
     }));
 
     return {
@@ -338,139 +304,119 @@ const patchUser = client
       rollback: () => {
         if (snapshot) client.cache.set(getUsers, snapshot);
       },
-      invalidate: [getUsers],
+      invalidate: [], // use the requests here to invalidate t hem without writing rollback!
     };
   });
 ```
 
-**Key behaviors:**
-
-- **`context`** is available as typed `mutationContext` in all lifecycle callbacks — `send()`, `$hooks`, and React hooks
-  (`onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitAbort`)
-- **`rollback`** is called automatically on failure or abort — no manual error handling needed
-- **`invalidate`** refreshes listed cache entries on success
-- **Type inference** — `mutationContext` type is auto-inferred from the `context` return value, no extra generics
-- **Retry-aware** — rollback only fires on final failure, not on intermediate retry attempts
-- **Concurrent-safe** — each `submit()` call has its own isolated optimistic result
+Use it with React hooks. Rollback happens automatically, and `mutationContext` is fully typed:
 
 ```tsx
 const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
 
+// highlight-start
 onSubmitSuccess(({ mutationContext }) => {
-  // mutationContext is typed as { snapshot: ... } | undefined
   console.log("Updated! Previous:", mutationContext?.snapshot);
 });
+// highlight-end
 
 onSubmitError(() => {
-  // rollback already happened automatically
-  alert("Update failed — changes reverted.");
+  alert("Update failed, changes reverted.");
 });
 ```
+
+:::note What makes it robust
+
+- **Auto-rollback** on failure or abort, no manual error handling
+- **Retry-aware**: rollback only fires on final failure, not intermediate retries
+- **Concurrent-safe**: each `submit()` call gets its own isolated optimistic result
+- **Type inference**: `mutationContext` type is inferred from your `context` return value
+
+:::
 
 ---
 
 ## Infrastructure Changes
 
-### Vitest Migration
+**Vitest migration.** The entire test suite moved from Jest to **Vitest**, bringing faster execution, native ESM
+support, and better TypeScript integration. All packages now share a single `vitest.workspace.ts` configuration.
 
-The entire test suite has been migrated from Jest to **Vitest**, bringing faster test execution, native ESM support, and
-better TypeScript integration. All packages now use a shared `vitest.workspace.ts` configuration.
+**Vite build pipeline.** All packages are now built with **Vite**, replacing the previous Rollup and esbuild setup.
 
-### E2E Test Infrastructure
-
-A new reusable test server (`packages/testing/src/e2e/e2e.server.ts`) spins up a real HTTP server for end-to-end
-testing. It covers every HTTP method, with/without payloads, query params, file upload/download, redirects, streaming
-responses, error codes, and timeouts — for both Node.js and browser contexts.
+**E2E test infrastructure.** A new reusable test server covers every HTTP method, file upload/download, redirects,
+streaming responses, error codes, and timeouts for both Node.js and browser contexts.
 
 ---
 
 ## Breaking Changes
 
+:::caution Heads up
+
+Review these changes before upgrading. Most migrations are straightforward.
+
+:::
+
 ### 1. Native Fetch Replaces XHR
 
-The `XMLHttpRequest`-based browser adapter and the Node `http`/`https` server adapter have been removed. The new unified
-fetch adapter requires Node.js 18+ (which includes native `fetch`). If you were relying on XHR-specific features or
-custom XHR interceptors, you'll need to migrate to `fetch`/`RequestInit` equivalents.
-
-**Before (v7):**
+The XHR browser adapter and Node `http`/`https` adapter have been removed. The unified fetch adapter requires **Node.js
+18+**. If you relied on XHR-specific features, migrate to `fetch`/`RequestInit` equivalents.
 
 ```typescript
-// Two separate adapters, chosen by build target
+// diff-remove-start
+// v7: Two separate adapters, chosen by build target
 // http-adapter.browser.ts (XHR)
 // http-adapter.server.ts (Node http)
-```
-
-**Now (v8):**
-
-```typescript
-// Single fetch-based adapter for all environments
-// Adapter options extend RequestInit
+// diff-remove-end
+// diff-add-start
+// v8: Single fetch-based adapter for all environments
 request.setOptions({ credentials: "include", redirect: "follow" });
+// diff-add-end
 ```
 
-### 2. `keepPreviousData` Default Behavior
+### 2. `keepPreviousData` Default
 
-State is now cleared by default when the resource identity changes (e.g., switching `:productId` from 1 to 2). The old
-behavior where stale data persisted during loading is now opt-in via `keepPreviousData: "preserve"`.
-
-**Before (v7):**
+State is now **cleared by default** when the resource identity changes. The old behavior is opt-in:
 
 ```typescript
-// Old data stayed visible when switching resources — no option to change
+// diff-remove-next-line
 const { data } = useFetch(getProduct.setParams({ productId }));
-```
-
-**Now (v8):**
-
-```typescript
-// State clears by default (auto mode)
-const { data } = useFetch(getProduct.setParams({ productId }));
-
-// Opt-in to old behavior
+// diff-add-start
 const { data } = useFetch(getProduct.setParams({ productId }), {
   keepPreviousData: "preserve",
 });
+// diff-add-end
 ```
 
 ### 3. React 18+ Required
 
-The migration to `useSyncExternalStore` means React 18 or later is now required. If you're on React 17 or earlier,
-you'll need to upgrade before moving to HyperFetch v8.
+The `useSyncExternalStore` migration means React 18 or later is now required.
 
-### 4. `setCacheScope` Renamed to `setScope`
+### 4. Jest → Vitest
 
-The `setCacheScope` method on `Request` has been renamed to `setScope`. The scope now applies to all cache and queue
-keys, not just cache.
-
-### 5. Jest to Vitest
-
-If you were using HyperFetch's testing utilities with Jest, note that the test infrastructure now uses Vitest. The
-public testing API (`@hyper-fetch/testing`) remains compatible, but internal test helpers have changed.
+The test infrastructure now uses Vitest. The public testing API (`@hyper-fetch/testing`) remains compatible.
 
 ---
 
 ## Other Changes
 
-- **ESM-only**: HyperFetch continues to be ESM-only, aligning with the broader ecosystem direction.
-- **Simplified build**: Removal of the dual isomorphic build system (`scripts/build.js`) and Rollup in favor of Vite.
-- **GraphQL E2E tests**: Comprehensive end-to-end tests for the GraphQL adapter with a real server.
-- **Improved error handling in CLI**: Better error messages and edge case handling across all CLI commands.
+- **ESM-only**: continues to be ESM-only, aligning with the broader ecosystem direction
+- **Simplified build**: dual isomorphic build system and Rollup removed in favor of Vite
+- **GraphQL E2E tests**: comprehensive end-to-end tests for the GraphQL adapter with a real server
+- **Improved CLI error handling**: better error messages and edge case handling across all commands
 
 ---
 
 ## What's Next?
 
 v8 completes the modernization of HyperFetch's foundation. With native `fetch`, streaming, and safe server-side caching
-in place, we're now focused on expanding the ecosystem:
+in place, here's what we're building next:
 
 :::success Roadmap
 
-1. **Expanded E2E coverage**: Completing test suites for streaming, cache modes, React hooks, and SDK configuration.
-2. **Framework integrations**: First-class support for Next.js App Router, Remix, and other server-first frameworks
-   leveraging the new cache modes.
-3. **AI/LLM patterns**: Guides and utilities for common AI streaming patterns (chat completions, structured output
-   parsing) built on `useStream`.
-4. **Plugin ecosystem**: Growing the plugin system with community-contributed adapters and utilities.
+1. **Expanded E2E coverage**: completing test suites for streaming, cache modes, React hooks, and SDK configuration.
+2. **Framework integrations**: first-class support for Next.js App Router, Remix, and other server-first frameworks.
+3. **AI/LLM patterns**: guides and utilities for common AI streaming patterns built on `useStream`.
+4. **Plugin ecosystem**: growing the plugin system with community-contributed adapters and utilities.
 
 :::
 
