@@ -19,7 +19,7 @@ Framework for typesafe fetching and realtime data exchange.
     <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=brightgreen" />
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&style=flat" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=blue" />
@@ -149,7 +149,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/core">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/core?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/core?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -165,7 +165,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/sockets.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/sockets?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/sockets?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -181,7 +181,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/react?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -197,7 +197,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/firebase?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -213,7 +213,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase-admin.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase-admin?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/firebase-admin?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -229,7 +229,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/graphql.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/graphql?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/graphql?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -245,7 +245,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/axios?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/axios?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -261,7 +261,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/cli.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/cli">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/cli?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/cli?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -277,7 +277,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/plugin-devtools.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=E10098&logo=package" />
+          <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
