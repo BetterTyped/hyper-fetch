@@ -33,6 +33,12 @@ issues are auto-closed when the PR merges.
 | `*` (anything else)           | patch    | Catch-all                    |
 | Any with `(no-release)` scope | **none** | Explicitly skip release      |
 
+### Documentation changes — use `docs`, not `fix`
+
+Changes inside the `documentation/` directory (docs site code, MDX files, doc components, etc.) must use the `docs`
+type, even when fixing a bug in documentation code. Using `fix` would trigger a patch release and bump package versions,
+which is wrong for doc-only changes. Reserve `fix` for bugs in published library packages.
+
 ### BREAKING CHANGE
 
 Append `!` after type or add `BREAKING CHANGE:` in the footer → **major** release.
