@@ -14,6 +14,8 @@ export function IntegrationCard({ section, className }: CardProps) {
 
   const item = sidebar.find((element) => element.section.label === section.label);
 
+  if (!item) return null;
+
   return (
     <Link to={item.link.path} className={clsx(className)}>
       <DocsCard className="flex flex-col p-5 h-full">
