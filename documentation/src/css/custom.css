@@ -1138,6 +1138,20 @@ pre code:has(.code-block-diff-remove-line) {
   @apply absolute inset-0 -z-10 opacity-[0.02] pointer-events-none;
 }
 
+/* Version banner */
+
+.theme-doc-version-banner.alert > div:first-child {
+  @apply !text-base !font-semibold !mb-0;
+  text-transform: none;
+  line-height: 1.6;
+}
+.theme-doc-version-banner.alert > div:last-child {
+  @apply !text-sm;
+}
+.theme-doc-version-banner.alert {
+  @apply !py-4 !px-6;
+}
+
 /* Alerts */
 
 .alert *:not(pre) > code {
