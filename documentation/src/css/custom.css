@@ -1716,7 +1716,7 @@ button.DocSearch-Button {
   @apply !pl-3 shiny-btn !rounded-md w-full;
   height: 36px;
   border: 1px solid transparent !important;
-  max-width: calc(100% - 30px) !important;
+  max-width: calc(100% - 22px) !important;
 }
 
 .pagination-nav__link {
