@@ -47,7 +47,7 @@ export default function TOC({ className, ...props }: Props): JSX.Element {
           style={{ color: "#1a1a1a", textDecoration: "none" }}
         >
           <GitHubIcon />
-          <span>Give us a Star!</span>
+          <span style={{ color: "#1a1a1a", textDecoration: "none" }}>Give us a Star!</span>
         </a>
         <a
           href="https://github.com/sponsors/prc5"
