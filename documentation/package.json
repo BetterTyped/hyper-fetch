@@ -15,6 +15,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@docsearch/react": "^4.6.2",
     "@docsgen/core": "^1.2.6",
     "@docsgen/docusaurus": "^1.2.6",
     "@docusaurus/core": "^3.10.0",
@@ -25,8 +26,8 @@
     "@docusaurus/theme-mermaid": "^3.10.0",
     "@hyper-fetch/core": "file:../packages/core",
     "@hyper-fetch/react": "file:../packages/react",
-    "@mermaid-js/layout-elk": "^0.2.1",
     "@mdx-js/react": "^3.0.0",
+    "@mermaid-js/layout-elk": "^0.2.1",
     "@radix-ui/react-tabs": "^1.1.11",
     "@radix-ui/react-toast": "^1.2.13",
     "@react-three/drei": "^9.115.0",

@@ -210,6 +210,7 @@ const config: Config = {
       appId: "E1R95VA83S",
       apiKey: "aa20780883ad65342c73e9527130a725",
       indexName: "hyperfetch",
+      askAi: "3cc9a739-7d35-4295-a228-2834d5716d45",
     },
     colorMode: {
       defaultMode: "dark",

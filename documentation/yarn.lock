@@ -2364,7 +2364,7 @@
   resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-4.6.2.tgz#986776619dccbf798176c75e858cc22f5e710bb4"
   integrity sha512-fH/cn8BjEEdM2nJdjNMHIvOVYupG6AIDtFVDgIZrNzdCSj4KXr9kd+hsehqsNGYjpUjObeKYKvgy/IwCb1jZYQ==
 
-"@docsearch/react@^3.9.0 || ^4.3.2":
+"@docsearch/react@^3.9.0 || ^4.3.2", "@docsearch/react@^4.6.2":
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/@docsearch/react/-/react-4.6.2.tgz#e6c65fb87fb943eefaa936debe6d31bb51b25056"
   integrity sha512-/BbtGFtqVOGwZx0dw/UfhN/0/DmMQYnulY4iv0tPRhC2JCXv0ka/+izwt3Jzo1ZxXS/2eMvv9zHsBJOK1I9f/w==
