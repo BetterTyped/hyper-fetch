@@ -213,6 +213,7 @@ const config: Config = {
       indexName: process.env.DOC_INDEX_NAME || "dummy_value",
       askAi: {
         assistantId: process.env.DOC_ASK_AI || "dummy_value",
+        agentStudio: true,
       },
       contextualSearch: true,
     },
