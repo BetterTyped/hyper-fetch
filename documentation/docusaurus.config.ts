@@ -207,10 +207,12 @@ const config: Config = {
     // Replace with your project's social card
     image: "img/logo.svg",
     algolia: {
-      appId: "E1R95VA83S",
-      apiKey: "aa20780883ad65342c73e9527130a725",
-      indexName: "hyperfetch",
-      askAi: "3cc9a739-7d35-4295-a228-2834d5716d45",
+      appId: process.env.DOC_APP_ID,
+      apiKey: process.env.DOC_API_KEY,
+      indexName: process.env.DOC_INDEX_NAME,
+      askAi: {
+        assistantId: process.env.DOC_ASSISTANT_ID,
+      },
     },
     colorMode: {
       defaultMode: "dark",
