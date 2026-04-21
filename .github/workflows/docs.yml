@@ -39,6 +39,10 @@ jobs:
         run: yarn build:docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOC_APP_ID: ${{ secrets.DOC_APP_ID }}
+          DOC_API_KEY: ${{ secrets.DOC_API_KEY }}
+          DOC_INDEX_NAME: ${{ secrets.DOC_INDEX_NAME }}
+          DOC_ASSISTANT_ID: ${{ secrets.DOC_ASSISTANT_ID }}
 
       - name: Deploy to S3 bucket
         run: aws s3 sync ./documentation/build/ s3://${{ secrets.PROD_AWS_S3 }} --delete
