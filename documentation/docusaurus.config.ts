@@ -157,6 +157,7 @@ const config: Config = {
   ],
 
   plugins: [
+    "@docsearch/docusaurus-adapter",
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {
@@ -206,13 +207,14 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/logo.svg",
-    algolia: {
+    docsearch: {
       appId: process.env.DOC_APP_ID || "dummy_value",
       apiKey: process.env.DOC_API_KEY || "dummy_value",
       indexName: process.env.DOC_INDEX_NAME || "dummy_value",
       askAi: {
-        assistantId: process.env.DOC_ASSISTANT_ID || "dummy_value",
+        assistantId: process.env.DOC_ASK_AI || "dummy_value",
       },
+      contextualSearch: true,
     },
     colorMode: {
       defaultMode: "dark",

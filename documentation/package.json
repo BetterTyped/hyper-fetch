@@ -15,7 +15,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docsearch/react": "^4.6.2",
+    "@docsearch/docusaurus-adapter": "^4.6.2",
     "@docsgen/core": "^1.2.6",
     "@docsgen/docusaurus": "^1.2.6",
     "@docusaurus/core": "^3.10.0",
