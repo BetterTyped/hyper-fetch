@@ -207,11 +207,11 @@ const config: Config = {
     // Replace with your project's social card
     image: "img/logo.svg",
     algolia: {
-      appId: process.env.DOC_APP_ID,
-      apiKey: process.env.DOC_API_KEY,
-      indexName: process.env.DOC_INDEX_NAME,
+      appId: process.env.DOC_APP_ID || "dummy_value",
+      apiKey: process.env.DOC_API_KEY || "dummy_value",
+      indexName: process.env.DOC_INDEX_NAME || "dummy_value",
       askAi: {
-        assistantId: process.env.DOC_ASSISTANT_ID,
+        assistantId: process.env.DOC_ASSISTANT_ID || "dummy_value",
       },
     },
     colorMode: {
