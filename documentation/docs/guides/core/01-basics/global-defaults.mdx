@@ -170,3 +170,22 @@ You've learned how to centralize and streamline your request configurations in H
 - You can assign **custom, predictable IDs** to your requests for better tracking and debugging.
 
 :::
+
+---
+
+## SDK Configuration Alternative
+
+If you're using the [SDK pattern](/docs/core/sdk), the `$configure` method provides an even more powerful way to set
+defaults. It supports **method-specific keys** (like `"users.$get"`), **endpoint groups** (like `"/users/*"`), and
+**function-based values** that give you access to every Request setter — including mappers, mocking, and hooks.
+
+```typescript
+const configured = sdk.$configure({
+  "*": { retry: 3, deduplicate: true },
+  "/users/*": { cache: true, cacheTime: 60000 },
+  "users.$get": (request) => request.setResponseMapper(userListMapper),
+  "users.$post": { retry: 0, cache: false },
+});
+```
+
+See the [SDK documentation](/docs/core/sdk#sdk-configuration-configure) for full details.

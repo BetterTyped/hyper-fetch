@@ -1,0 +1,26 @@
+---
+description: Rules for writing tutorial blog posts
+globs: documentation/blog/tutorials/**
+---
+
+# Tutorial blog posts
+
+Every tutorial blog post **must** include a version badge immediately after the frontmatter, before any other content.
+Use the Docusaurus `:::info` admonition:
+
+```mdx
+---
+slug: my-tutorial
+title: "My Tutorial Title"
+authors: [maciej]
+tags: [Feature, TypeScript]
+date: 2026-05-01
+---
+
+:::info Version
+This tutorial was written for **Hyper Fetch X.Y**.
+:::
+```
+
+The version should refer to the latest major (or major.minor) Hyper Fetch release that the tutorial content applies to.
+This helps readers know whether the tutorial matches their installed version.

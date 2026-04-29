@@ -42,20 +42,18 @@ This approach is especially powerful in projects with multiple listeners and emi
 maintainability even as your application scales.
 
 ```tsx
-import { socketClient } from "./socket-client";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-const socket = new Socket({
+const socket = createSocketClient({
   url: "ws://localhost:3000",
 });
 
-const chatMessageListener = socketClient.createListener<{ message: string }>({
-  url: "chat-message",
+const chatMessageListener = socket.createListener<{ message: string }>()({
+  topic: "chat-message",
 });
 
-chatMessageListener.listen({
-  callback: ({ data }) => {
-    console.log(data); // { message: string }
-  },
+chatMessageListener.listen(({ data }) => {
+  console.log(data); // { message: string }
 });
 ```
 
@@ -69,23 +67,21 @@ the information about expected message data type and other. This way you can use
 places with full type-safety.
 
 ```tsx
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
 // 1. Initialize the socket
-const socket = new Socket({
+const socket = createSocketClient({
   url: "ws://localhost:3000",
 });
 
 // 2. Create the listener template
-const chatMessageListener = socket.createListener<{ message: string }>({
+const chatMessageListener = socket.createListener<{ message: string }>()({
   topic: "chat-message",
 });
 
 // 3. Listen to the chat message
-chatMessageListener.listen({
-  callback: ({ data }) => {
-    console.log(data); // { message: string }
-  },
+chatMessageListener.listen(({ data }) => {
+  console.log(data); // { message: string }
 });
 ```
 
@@ -98,22 +94,20 @@ realtime servers. This way we keep very clear data-exchange between the client a
 easy to use.
 
 ```tsx
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
 // 1. Initialize the socket
-const socket = new Socket({
+const socket = createSocketClient({
   url: "ws://localhost:3000",
 });
 
 // 2. Create the emitter template
-const chatMessageEmitter = socket.createEmitter<{ text: string }>({
+const chatMessageEmitter = socket.createEmitter<{ text: string }>()({
   topic: "new-message",
 });
 
 // 3. Send the chat message
-chatMessageEmitter.emit({
-  data: { text: "Hello, world!" },
-});
+chatMessageEmitter.emit({ payload: { text: "Hello, world!" } });
 ```
 
 ---
@@ -142,7 +136,7 @@ event-driven approach ensures your app can react to every stage of the connectio
 <LinkCard
   type="docs"
   title="Emitters"
-  description="How to send events and handle acknowledgements."
+  description="How to send events to the server."
   to="/docs/sockets/emitter"
 />
 <LinkCard
@@ -150,6 +144,12 @@ event-driven approach ensures your app can react to every stage of the connectio
   title="Adapters"
   description="Customize or extend socket communication with adapters."
   to="/docs/sockets/adapter"
+/>
+<LinkCard
+  type="docs"
+  title="Socket SDK"
+  description="Type-safe proxy-based SDK for organizing listeners and emitters."
+  to="/docs/sockets/sdk"
 />
 
 ---

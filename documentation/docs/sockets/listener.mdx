@@ -58,11 +58,9 @@ time a new event is received on the specified topic. The data passed to the call
 on the generic you provided during initialization.
 
 ```tsx
-onChatMessage.listen({
-  callback: (message) => {
-    // `message` is automatically typed as ChatMessageType
-    console.log(message);
-  },
+onChatMessage.listen((message) => {
+  // `message` is automatically typed as { data: ChatMessageType, extra: ... }
+  console.log(message);
 });
 ```
 
@@ -73,7 +71,7 @@ to clean up and stop listening for events, for example, when a component unmount
 
 ```tsx
 // The listen method returns a function to remove the listener
-const removeListener = onChatMessage.listen({ callback: (message) => console.log(message) });
+const removeListener = onChatMessage.listen((message) => console.log(message));
 
 // ...sometime later...
 
@@ -86,15 +84,12 @@ such as removing all listeners for a given event topic.
 
 ```tsx
 const callback = ({ data }) => console.log(data);
-const unmountListener = onChatMessage.listen({ callback });
+const unmountListener = onChatMessage.listen(callback);
 
 // ...
 
-// Remove ALL listeners for the 'chat-message' topic
-socket.adapter.listeners.delete(onChatMessage.topic);
-
-// Remove a *single* specific listener from the 'chat-message' topic
-socket.adapter.listeners.get(onChatMessage.topic)?.delete(callback);
+// Remove a specific listener
+socket.adapter.removeListener({ topic: onChatMessage.topic, callback });
 ```
 
 ### Listen Only Once
@@ -103,11 +98,9 @@ If you only need to handle the next event that comes in, you can simply call the
 your callback.
 
 ```tsx
-const removeEvent = onChatMessage.listen({
-  callback: (message) => {
-    console.log(message);
-    removeEvent(); // Stop listening after the first event
-  },
+const removeEvent = onChatMessage.listen((message) => {
+  console.log(message);
+  removeEvent(); // Stop listening after the first event
 });
 ```
 
@@ -145,35 +138,31 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ---
 
-### Global Data Hooks
+### Global Event Subscriptions
 
-You can use the `onData` method to create a "global" hook for a listener template. This callback will be triggered for
-_every_ event that matches the listener's topic, even when dynamic parameters are used. It's an excellent way to
-centralize logic that needs to react to any event of a certain type, regardless of its specific parameters.
+You can use `socket.events.onListenerEventByTopic` to subscribe to all events for a given listener, regardless of
+dynamic parameters. This is useful for centralizing logic that needs to react to any event of a certain type.
 
 ```ts
-export const onNoteChange = socket
-  .createListener<NoteData>()({
-    topic: "notes/:noteId",
-  })
-  .onData((event) => {
-    // This will be called for any note change, regardless of the 'noteId'
-    console.log("A note changed:", event.data);
-  });
+export const onNoteChange = socket.createListener<NoteData>()({
+  topic: "notes/:noteId",
+});
 
-onNoteChange.setParams({ noteId: 1 }).listen(/* ... */);
-onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
+socket.events.onListenerEventByTopic(onNoteChange, ({ data }) => {
+  console.log("A note changed:", data);
+});
 
-// The onData callback will fire for events on both `notes/1` and `notes/2`
+onNoteChange.setParams({ noteId: 1 }).listen(({ data }) => { /* ... */ });
+onNoteChange.setParams({ noteId: 2 }).listen(({ data }) => { /* ... */ });
 ```
 
 ---
 
 ### Integration with Hyper Fetch
 
-A powerful use case for the `onData` hook is to create a seamless integration with Hyper Fetch's caching layer. When you
-receive a real-time update, you can use it to instantly update the relevant cached data from a `Request`. This keeps
-your application's state synchronized without needing to re-fetch data from the server.
+A powerful use case for global event subscriptions is to create a seamless integration with Hyper Fetch's caching layer.
+When you receive a real-time update, you can use it to instantly update the relevant cached data from a `Request`. This
+keeps your application's state synchronized without needing to re-fetch data from the server.
 
 Here's an example of updating a cached note when an update event is received via a socket.
 
@@ -181,33 +170,27 @@ Here's an example of updating a cached note when an update event is received via
 // 1. Your core client and request setup
 const client = new Client({ url: "http://localhost:3000" });
 const getNote = client.createRequest()({
-  topic: "/notes/:noteId",
+  endpoint: "/notes/:noteId",
 });
 
-// 2. Your realtime listener with a data hook
-export const onNoteChange = socket
-  .createListener<NoteData>()({
-    topic: "notes/:noteId",
-  })
-  .onData((event) => {
-    const { noteId } = event.data;
+// 2. Your realtime listener
+export const onNoteChange = socket.createListener<NoteData>()({
+  topic: "notes/:noteId",
+});
 
-    // 3. Create a request instance that matches the cache entry
-    const noteRequest = getNote.setParams({ noteId });
+// 3. Subscribe to all note change events globally
+socket.events.onListenerEventByTopic(onNoteChange, ({ data }) => {
+  const { noteId } = data;
 
-    // 4. Update the cache with the new data from the socket event
-    client.cache.update(noteRequest, (prevData) => {
-      return { ...prevData, data: event.data };
-    });
+  // 4. Create a request instance that matches the cache entry
+  const noteRequest = getNote.setParams({ noteId });
+
+  // 5. Update the cache with the new data from the socket event
+  client.cache.update(noteRequest, (prevData) => {
+    return { ...prevData, data };
   });
+});
 ```
-{/* 
-<LinkCard
-  type="guides"
-  title="Real-time Data Sync"
-  description="Learn how to combine Sockets and Requests for powerful real-time state management."
-  to="/docs/guides/sockets/real-time-sync"
-/> */}
 
 ---
 
@@ -280,7 +263,7 @@ passed in the object to `createListener`.
 
 ```ts
 // 1. Initialize the socket
-const socket = new Socket({
+const socket = createSocketClient({
   url: "ws://localhost:3000",
 });
 
@@ -302,7 +285,7 @@ safety for real-time events.
 ### Response Type
 
 When you create a listener, you should provide the type of the data you expect to receive in the event as a generic.
-This ensures that the `data` passed to your `listen` and `onData` callbacks is fully typed, enabling autocompletion and
+This ensures that the `data` passed to your `listen` callbacks is fully typed, enabling autocompletion and
 preventing common errors.
 
 ```ts
@@ -347,4 +330,11 @@ structures sent by the server.
   title="Emitter"
   description="Learn more about the Emitter class and its configuration options."
   to="/docs/sockets/emitter"
+/>
+
+<LinkCard
+  type="docs"
+  title="Socket SDK"
+  description="Use listeners via a type-safe, proxy-based SDK with centralized configuration."
+  to="/docs/sockets/sdk"
 />

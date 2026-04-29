@@ -6,7 +6,9 @@ import { expect } from "vitest";
 
 expect.extend(matchers);
 
-Object.defineProperty(window, "EventSource", {
-  value: EventSource,
-  writable: true,
-});
+if (typeof window !== "undefined") {
+  Object.defineProperty(window, "EventSource", {
+    value: EventSource,
+    writable: true,
+  });
+}

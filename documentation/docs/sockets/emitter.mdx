@@ -48,10 +48,10 @@ You can trigger an event with the `emit` method, which sends data to the server.
 
 ### Sending Data
 
-Use the `setData` method to instruct any data to be sent to the server.
+Use the `setPayload` method to assign data to be sent to the server.
 
 ```tsx
-sendChatMessage.setData({ message: "message" });
+sendChatMessage.setPayload({ message: "message" });
 ```
 
 ### Emitting
@@ -59,11 +59,11 @@ sendChatMessage.setData({ message: "message" });
 Use the `emit` method to start the event emitting.
 
 ```tsx
-sendChatMessage.emit({ message: "message" });
+sendChatMessage.emit({ payload: { message: "message" } });
 
 // or
 
-sendChatMessage.setData({ message: "message" }).emit();
+sendChatMessage.setPayload({ message: "message" }).emit();
 ```
 
 <LinkCard
@@ -92,7 +92,7 @@ Using any method on emitter returns its clone! `We do not return a reference!`
 
 const emitter = sendMessageEmitter;
 
-emitter.setData({ message: "some message" }); // Returns CLONED emitter with assigned data
+emitter.setPayload({ message: "some message" }); // Returns CLONED emitter with assigned data
 
 emitter.emit(); // Server error - no data
 ```
@@ -102,7 +102,7 @@ emitter.emit(); // Server error - no data
 
 const emitter = sendMessageEmitter;
 
-const emitterWithData = emitter.setData({ message: "some message" }); // Returns CLONED emitter with assigned data
+const emitterWithData = emitter.setPayload({ message: "some message" }); // Returns CLONED emitter with assigned data
 
 emitterWithData.emit(); // Success
 ```
@@ -124,14 +124,12 @@ emitterWithData.emit(); // Success
 
 ## Parameters
 
-Configuration options for the emitter.
+Configuration options for the emitter. The `options` field accepts adapter-specific options that depend on the adapter
+being used.
 
 ```tsx
 const emitter = socket.createEmitter<MessageType>()({
   topic: "chat-message",
-  options: {
-    withCredentials: true,
-  },
 });
 ```
 
@@ -141,7 +139,7 @@ const emitter = socket.createEmitter<MessageType>()({
 
 ## TypeScript
 
-When creating an emitter with `socket.createEmitter`, you can specify up to generic type to ensure type safety.
+When creating an emitter with `socket.createEmitter`, you can specify a generic type to ensure type safety.
 **`PayloadType`** is the expected type of the data payload sent with the event.
 
 ```tsx
@@ -152,8 +150,25 @@ const sendChatMessage = socket.createEmitter<{ message: string; author: string }
 });
 
 sendChatMessage.emit({
-  data: { message: "Hello!", author: "Me" }, // Typed payload
+  payload: { message: "Hello!", author: "Me" },
 });
+```
+
+---
+
+## Payload Mapper
+
+You can use `setPayloadMapper` to transform the payload before it is sent. This is useful when you need to serialize or
+reshape data before transmission.
+
+```tsx
+const emitter = socket
+  .createEmitter<{ message: string }>()({
+    topic: "chat-message",
+  })
+  .setPayloadMapper((payload) => {
+    return { ...payload, timestamp: Date.now() };
+  });
 ```
 
 ---
@@ -172,4 +187,11 @@ sendChatMessage.emit({
   title="Listener"
   description="Learn more about the Listener class and its configuration options."
   to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="docs"
+  title="Socket SDK"
+  description="Use emitters via a type-safe, proxy-based SDK with centralized configuration."
+  to="/docs/sockets/sdk"
 />

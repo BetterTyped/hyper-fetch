@@ -202,56 +202,68 @@ function UserProfile({ userId }) {
 
 ## SDK Configuration ($configure)
 
-The `$configure` method lets you set **per-endpoint request defaults** (headers, cache settings, retry config, etc.)
-that are automatically applied every time a request is created through the SDK. This keeps endpoint-specific
-configuration centralized and type-safe.
+The `$configure` method lets you set **per-request defaults** that are automatically applied every time a request is
+created through the SDK. Configuration supports two value formats: **plain objects** for common settings like retry and
+cache, and **functions** for full access to every Request setter including mappers, mocking, and hooks.
 
-```typescript title="Configuring SDK defaults"
+### Method-Specific Keys
+
+Use **dot-path keys** that mirror the SDK accessor chain to target a specific request (endpoint + method):
+
+```typescript title="Targeting specific methods"
+const configuredSdk = sdk.$configure({
+  // highlight-start
+  "users.$get": (request) => request.setResponseMapper(userListMapper).setCache(true),
+  "users.$userId.$get": (request) => request.setAuth(true).setCacheTime(60000),
+  "users.$userId.$delete": { auth: true, cancelable: true },
+  // highlight-end
+});
+
+const getUsersRequest = configuredSdk.users.$get; // has mapper + cache
+const deleteUserRequest = configuredSdk.users.$userId.$delete; // has auth + cancelable
+```
+
+### Group Keys (Endpoint-Level)
+
+Use **endpoint-based keys** to configure all methods on an endpoint at once:
+
+```typescript title="Configuring endpoint groups"
 const configuredSdk = sdk.$configure({
   "*": { retry: 3 },
   "/users": { cacheTime: 60000 },
-  "/users/:userId": { auth: true },
-});
-
-// This request automatically has retry: 3 (from "*") and auth: true
-const getUserRequest = configuredSdk.users.$userId.get.setParams({ userId: "123" });
-```
-
-### Multi-file Configuration with createConfiguration
-
-For large APIs, split configuration across files by domain using the `createConfiguration` factory.
-Keys are validated against the SDK schema at compile time — typos are caught immediately.
-
-```typescript title="sdk/auth.configure.ts"
-import { createConfiguration } from "@hyper-fetch/core";
-import type { MyApiSchema } from "./schema";
-
-export const authConfig = createConfiguration<MyApiSchema>()({
-  "/auth/login": { retry: 0 },
-  "/auth/register": { retry: 0 },
+  "/users/*": { auth: true },
 });
 ```
 
-```typescript title="sdk/users.configure.ts"
-import { createConfiguration } from "@hyper-fetch/core";
-import type { MyApiSchema } from "./schema";
+### Function-Based Values
 
-export const usersConfig = createConfiguration<MyApiSchema>()({
-  "/users": { cacheTime: 30000 },
-  "/users/:userId": { auth: true, staleTime: 5000 },
+Functions receive the request instance and return a modified one. This gives access to **every** Request setter —
+`setResponseMapper`, `setMock`, `setPayloadMapper`, `setOptimistic`, `$hooks`, and more:
+
+```typescript title="Full Request API access"
+const configuredSdk = sdk.$configure({
+  "auth.login.$post": (request) =>
+    request
+      .setResponseMapper(loginMapper)
+      .setHeaders({ "X-Custom": "value" }),
+  "users.$get": (request) =>
+    request
+      .setResponseMapper(userListMapper)
+      .setCache(true)
+      .setCacheTime(30000),
 });
 ```
 
-```typescript title="sdk/index.ts"
-import { authConfig } from "./auth.configure";
-import { usersConfig } from "./users.configure";
+### Plain Object Values
 
-export const configuredSdk = sdk.$configure(authConfig).$configure(usersConfig);
+For common settings, use a plain object shorthand:
+
+```typescript
+const configuredSdk = sdk.$configure({
+  "*": { retry: 3, retryTime: 1000 },
+  "/users": { cache: false },
+});
 ```
-
-### Available Defaults
-
-Configuration maps support these per-endpoint defaults:
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -268,13 +280,54 @@ Configuration maps support these per-endpoint defaults:
 | `deduplicate` | `boolean` | Enable deduplication |
 | `deduplicateTime` | `number` | Deduplication window |
 
+### Application Order
+
+When multiple keys match, they apply in this order (later overrides earlier):
+
+1. **`"*"`** — Global defaults
+2. **Endpoint groups** — `"/users"`, `"/users/*"`
+3. **Method-specific** — `"users.$get"`, `"users.$userId.$post"`
+
+### Multi-file Configuration with createConfiguration
+
+For large APIs, split configuration across files by domain using the `createConfiguration` factory.
+Keys are validated against the SDK schema at compile time — typos are caught immediately.
+
+```typescript title="sdk/auth.configure.ts"
+import { createConfiguration } from "@hyper-fetch/core";
+import type { MyApiSchema } from "./schema";
+
+export const authConfig = createConfiguration<MyApiSchema>()({
+  "auth.login.$post": (request) => request.setResponseMapper(loginMapper),
+  "auth.register.$post": { retry: 0 },
+});
+```
+
+```typescript title="sdk/users.configure.ts"
+import { createConfiguration } from "@hyper-fetch/core";
+import type { MyApiSchema } from "./schema";
+
+export const usersConfig = createConfiguration<MyApiSchema>()({
+  "/users": { cacheTime: 30000 },
+  "users.$userId.$get": (request) => request.setAuth(true).setStaleTime(5000),
+});
+```
+
+```typescript title="sdk/index.ts"
+import { authConfig } from "./auth.configure";
+import { usersConfig } from "./users.configure";
+
+export const configuredSdk = sdk.$configure(authConfig).$configure(usersConfig);
+```
+
 ### Pattern Matching
 
-Configuration keys support three patterns:
+Configuration keys support four patterns:
 
 - **`"*"`** — Matches all endpoints (global defaults).
-- **Exact path** — e.g. `"/users/:userId"` matches only that endpoint.
+- **Exact endpoint** — e.g. `"/users/:userId"` matches all methods on that endpoint.
 - **Wildcard** — e.g. `"/users/*"` matches `/users/:userId`, `/users/:userId/posts`, etc.
+- **Dot-path** — e.g. `"users.$get"` matches only `sdk.users.$get` (specific method + endpoint).
 
 ---
 
@@ -282,8 +335,9 @@ Configuration keys support three patterns:
 
 In this guide, you've learned how to leverage the Hyper Fetch SDK to create a type-safe, organized, and intuitive API
 layer for your application. We've covered how to initialize the SDK, define a schema, use it to make requests, and
-configure per-endpoint defaults with `$configure` and `createConfiguration`. This powerful feature streamlines API
-interactions and enhances maintainability.
+configure per-request defaults with `$configure` and `createConfiguration`. Configuration supports both plain-object
+shorthand for common settings and function-based values for full access to mappers, mocking, hooks, and every Request
+setter.
 
 :::
 
@@ -303,4 +357,18 @@ interactions and enhances maintainability.
   title="Request"
   description="Dive deeper into creating and managing individual requests."
   to="/docs/core/request"
+/>
+
+<LinkCard
+  type="docs"
+  title="Socket SDK"
+  description="The same SDK pattern adapted for real-time listeners and emitters."
+  to="/docs/sockets/sdk"
+/>
+
+<LinkCard
+  type="docs"
+  title="Mocking"
+  description="Use SDK configuration to centralize mocks for testing."
+  to="/docs/core/mocking"
 />

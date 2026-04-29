@@ -26,11 +26,36 @@ The default adapter is used to communicate with the `Websocket` server.
 (@import sockets WebsocketAdapter type=import)
 
 ```tsx
-import { WebsocketAdapter } from "@hyper-fetch/sockets";
+import { createSocketClient, WebsocketAdapter } from "@hyper-fetch/sockets";
 
-const socket = new Socket({
-  url: "http://localhost:3000",
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
   adapter: WebsocketAdapter(),
+});
+```
+
+#### Options
+
+You can pass adapter-specific options via the `adapterOptions` constructor option on `Socket`.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `protocols` | `string[]` | — | Subprotocols passed to the `WebSocket` constructor. |
+| `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
+| `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
+| `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
+| `pongTimeout` | `number` | — | Timeout (ms) to wait for a pong response. |
+
+```tsx
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  adapterOptions: {
+    autoConnect: false,
+    protocols: ["v1"],
+    heartbeat: true,
+    heartbeatMessage: "ping",
+  },
 });
 ```
 
@@ -47,14 +72,39 @@ const socket = new Socket({
 
 The `ServerSentEventsAdapter` is used to communicate with the `Server Sent Events (SSE)` server.
 
+:::caution SSE is receive-only
+
+The SSE adapter does **not** support emitting events. Calling `emit` on an emitter with this adapter will throw an
+error. Use the `WebsocketAdapter` if you need bidirectional communication.
+
+:::
+
 (@import sockets ServerSentEventsAdapter type=import)
 
 ```tsx
-import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
-const socket = new Socket({
+const socket = createSocketClient({
   url: "http://localhost:3000",
   adapter: ServerSentEventsAdapter(),
+});
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
+
+```tsx
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+  adapterOptions: {
+    autoConnect: false,
+    eventSourceInit: { withCredentials: true },
+  },
 });
 ```
 
@@ -71,9 +121,8 @@ const socket = new Socket({
 
 There is nothing to prevent you from changing this and creating the adapter you need. Thanks to event communication, you
 can set your own adapter as you wish by only fulfilling the typescript requirements. This way you can create your own
-adapters for existing libraries like `socket.io`.
-
-{/* TODO EXAMPLE */}
+adapters for existing libraries like `socket.io`. Refer to the `SocketAdapter` API reference for the full contract your
+custom adapter must satisfy.
 
 ---
 

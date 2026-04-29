@@ -1,0 +1,31 @@
+---
+description: Testing conventions -- no as any, proper typing
+globs: "**/__tests__/**/*.ts"
+alwaysApply: false
+---
+
+# Testing Conventions
+
+## No `as any` in tests
+
+Tests must be fully type-safe. Using `as any` hides type errors that the tests should be catching.
+
+- Type function parameters explicitly instead of relying on inference through `as any`
+- If a type doesn't fit, fix the source types -- don't silence the error in tests
+- Use typed helper variables when callback parameter types can't be inferred from context
+
+```typescript
+// BAD
+const configured = sdk.$configure({
+  "users.$get": (request) => request.setRetry(5),
+} as any);
+
+// GOOD
+const configured = sdk.$configure({
+  "users.$get": (request: RequestInstance) => request.setRetry(5),
+});
+
+// GOOD -- typed helper when inference is limited
+const configureFn: SocketSdkConfigurationValue = (instance) => instance.setOptions({ custom: true });
+const configured = sdk.$configure({ "*": configureFn });
+```

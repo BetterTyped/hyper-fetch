@@ -132,26 +132,18 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             return Promise.resolve(true);
           }
           const currentSse = sse;
-          const promise = new Promise<boolean>((resolve) => {
-            if (currentSse.readyState === EventSource.CLOSED) {
-              resolve(true);
-              adapter.setConnected(false);
-              adapter.setConnecting(false);
-              return;
-            }
 
-            const resolveDisconnected = () => {
-              resolve(true);
-              currentSse.removeEventListener("error", resolveDisconnected);
-            };
-            currentSse.addEventListener("error", resolveDisconnected, { disableCleanup: true });
-          });
+          if (currentSse.readyState === EventSource.CLOSED) {
+            adapter.setConnected(false);
+            adapter.setConnecting(false);
+            return Promise.resolve(true);
+          }
 
           onDisconnect();
           currentSse.close();
           onDisconnected();
 
-          return promise;
+          return Promise.resolve(true);
         };
 
         const reconnect = () => {

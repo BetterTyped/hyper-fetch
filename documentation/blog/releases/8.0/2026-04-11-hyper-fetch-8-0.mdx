@@ -228,7 +228,7 @@ runtime-only, so hooks don't interfere with serialization, persistence, or DevTo
 
 ### 6. SDK Configuration
 
-For projects using `createSdk`, v8 adds a typed configuration system. Define defaults per endpoint once, and they apply
+For projects using `createSdk`, v8 adds a typed configuration system. Define defaults per request once, and they apply
 automatically. No more repeating `.setHeaders()` or `.setResponseMapper()` on every call.
 
 ```typescript
@@ -236,22 +236,22 @@ import { createSdk, createConfiguration } from "@hyper-fetch/core";
 import type { OurSdk } from "./sdk";
 
 // highlight-start
-const authConfig = createConfiguration<OurSdk>({
-  "auth.login.$POST": (req) => req.setResponseMapper(loginMapper).setHeaders({ "X-Custom": "value" }),
-  "auth.register.$POST": (req) => req.setResponseMapper(registerMapper),
+const authConfig = createConfiguration<OurSdk>()({
+  "auth.login.$post": (req) => req.setResponseMapper(loginMapper).setHeaders({ "X-Custom": "value" }),
+  "auth.register.$post": (req) => req.setResponseMapper(registerMapper),
 });
 // highlight-end
 
 const sdk = createSdk(client);
 // highlight-next-line
-sdk.$configure(authConfig);
+const configuredSdk = sdk.$configure(authConfig);
 
 // Configured defaults are applied automatically
-await sdk.auth.login.$POST.send({ payload: credentials });
+await configuredSdk.auth.login.$post.send({ payload: credentials });
 ```
 
-Split configs across files by domain (`auth.configure.ts`, `users.configure.ts`) and merge with multiple `$configure()`
-calls. Path+method keys are validated at the type level against your actual SDK.
+Use **dot-path keys** (like `"users.$get"`) to target a specific method, or **endpoint groups** (like `"/users"`) to
+configure all methods at once. Split configs across files by domain and merge with chained `$configure()` calls.
 
 ---
 

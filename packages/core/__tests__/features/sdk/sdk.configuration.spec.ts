@@ -259,4 +259,207 @@ describe("SDK [ Configuration ]", () => {
       expect(request.method).toBe("GET");
     });
   });
+
+  describe("method-specific dot-path keys", () => {
+    it("should apply config to a specific method via dot-path key", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": { retry: 7 },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(7);
+
+      const postsGet = configured.posts.$get;
+      expect(postsGet.retry).toBe(0);
+    });
+
+    it("should apply config to a nested dot-path key", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$userId.$get": { cancelable: true },
+      });
+
+      const userByIdGet = configured.users.$userId.$get;
+      expect(userByIdGet.cancelable).toBe(true);
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.cancelable).toBe(false);
+    });
+
+    it("should not affect other methods on the same endpoint group", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": { retry: 10 },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(10);
+
+      // The nested $userId.$get shares the /users endpoint group but has a different dot-path
+      const userByIdGet = configured.users.$userId.$get;
+      expect(userByIdGet.retry).toBe(0);
+    });
+  });
+
+  describe("function-based configuration values", () => {
+    it("should apply a function value to configure a request", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": (request: RequestInstance) => request.setRetry(5).setCancelable(true),
+      });
+
+      const request = configured.users.$get;
+      expect(request.retry).toBe(5);
+      expect(request.cancelable).toBe(true);
+    });
+
+    it("should apply a function value on a dot-path key", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": (request: RequestInstance) => request.setRetry(3).setHeaders({ "X-Custom": "test" }),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(3);
+      expect(usersGet.headers).toStrictEqual({ "X-Custom": "test" });
+
+      const postsGet = configured.posts.$get;
+      expect(postsGet.retry).toBe(0);
+    });
+
+    it("should allow setMock through function-based configuration", () => {
+      const mockFn = () => ({ data: [{ id: 1, name: "Test" }], error: null, status: 200 });
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": (request: RequestInstance) => request.setMock(mockFn),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.isMockerEnabled).toBe(true);
+    });
+
+    it("should allow setResponseMapper through function-based configuration", () => {
+      const mapper = (response: any) => ({ ...response, mapped: true });
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": (request: RequestInstance) => request.setResponseMapper(mapper),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.unstable_responseMapper).toBe(mapper);
+    });
+  });
+
+  describe("configuration stacking", () => {
+    it("should stack properties from global and method-specific configs", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": { cache: true },
+        "users.$get": { deduplicate: true },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.cache).toBe(true);
+      expect(usersGet.deduplicate).toBe(true);
+    });
+
+    it("should stack properties across global, endpoint group, and dot-path", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": { retry: 3 },
+        "/users": { cache: false },
+        "users.$get": { deduplicate: true },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(3);
+      expect(usersGet.cache).toBe(false);
+      expect(usersGet.deduplicate).toBe(true);
+    });
+
+    it("should stack function-based values across levels", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": (request: RequestInstance) => request.setRetry(5),
+        "users.$get": (request: RequestInstance) => request.setCancelable(true),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(5);
+      expect(usersGet.cancelable).toBe(true);
+    });
+
+    it("should let a later level override a specific property while keeping others", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": { retry: 1, cache: true, cancelable: false },
+        "users.$get": { retry: 10 },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(10);
+      expect(usersGet.cache).toBe(true);
+      expect(usersGet.cancelable).toBe(false);
+    });
+  });
+
+  describe("mixed plain-object and function values", () => {
+    it("should apply both plain objects and functions in the same configuration", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": { retry: 2 },
+        "users.$get": (request: RequestInstance) => request.setCancelable(true),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(2);
+      expect(usersGet.cancelable).toBe(true);
+
+      const postsGet = configured.posts.$get;
+      expect(postsGet.retry).toBe(2);
+      expect(postsGet.cancelable).toBe(false);
+    });
+  });
+
+  describe("application order", () => {
+    it("should apply in order: global -> endpoint group -> method-specific", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "users.$get": { retry: 99 },
+        "*": { retry: 1 },
+        "/users": { retry: 10 },
+      });
+
+      // Method-specific (dot-path) should win since it's applied last
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(99);
+    });
+
+    it("should apply endpoint group after global", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "/users": { retry: 10 },
+        "*": { retry: 1 },
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(10);
+
+      const postsGet = configured.posts.$get;
+      expect(postsGet.retry).toBe(1);
+    });
+
+    it("should apply function after plain-object in same category", () => {
+      const sdk = createSdk<TestClient, TestSchema>(client);
+      const configured = sdk.$configure({
+        "*": { retry: 1, cancelable: false },
+        "users.$get": (request: RequestInstance) => request.setRetry(50),
+      });
+
+      const usersGet = configured.users.$get;
+      expect(usersGet.retry).toBe(50);
+      expect(usersGet.cancelable).toBe(false);
+    });
+  });
 });

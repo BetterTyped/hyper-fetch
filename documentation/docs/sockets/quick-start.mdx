@@ -23,9 +23,9 @@ The first step is to initialize the **Socket client**. This manages the WebSocke
 communication. Specify the `url` of your WebSocket server.
 
 ```tsx title="socket.ts"
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-export const socket = new Socket({ url: "ws://localhost:3000" });
+export const socket = createSocketClient({ url: "ws://localhost:3000" });
 ```
 
 ---
@@ -43,19 +43,19 @@ Listeners subscribe to server events and provide type-safe callbacks.
 import { socket } from "./socket";
 
 export const onChatMessage = socket.createListener<ChatMessageType>()({
-  endpoint: "chat-message", // event name or endpoint
+  topic: "chat-message",
 });
 ```
 
 #### Creating Emitters
 
-Emitters send events to the server, optionally handling acknowledgements.
+Emitters send typed events to the server.
 
 ```tsx
 import { socket } from "./socket";
 
-export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  endpoint: "chat-message", // event name or endpoint
+export const sendChatMessage = socket.createEmitter<ChatMessageType>()({
+  topic: "chat-message",
 });
 ```
 
@@ -78,7 +78,7 @@ Just use the `listen` method and pass the callback function.
 ```ts
 import { onChatMessage } from "./listeners";
 
-onChatMessage.listen({ callback: (data) => console.log(data) });
+onChatMessage.listen((data) => console.log(data));
 ```
 
 #### Emit events
@@ -88,7 +88,7 @@ Just use the `emit` method and pass the data you want to send.
 ```ts
 import { sendChatMessage } from "./emitters";
 
-sendChatMessage.emit({ data: { message: "Hello world" } });
+sendChatMessage.emit({ payload: { message: "Hello world" } });
 ```
 
 ---
@@ -96,12 +96,15 @@ sendChatMessage.emit({ data: { message: "Hello world" } });
 ## Additional: Changing the adapter
 
 By default, Sockets uses **WebSocket** adapter, but you can switch to SSE or provide your own adapter for maximum
-flexibility.
+flexibility. Pass the adapter via the `adapter` constructor option.
 
 ```tsx
-import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
-socket.setAdapter(ServerSentEventsAdapter());
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
 ```
 
 ---

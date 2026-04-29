@@ -12,7 +12,8 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
   }
 
   class HyperFetchEventSource extends EventSource {
-    public listeners: Map<
+    // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
+    public registeredHandlers: Map<
       (...args: any[]) => any,
       { type: keyof EventSourceEventMap; listener: (...args: any[]) => void; options: any }
     > = new Map();
@@ -23,7 +24,7 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
     }
 
     onopen: EventSource["onopen"] = (...args) => {
-      this.listeners.forEach(({ type, listener }) => {
+      this.registeredHandlers.forEach(({ type, listener }) => {
         if (type === "open") {
           listener(...args);
         }
@@ -31,7 +32,7 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
     };
 
     onerror: EventSource["onerror"] = (...args) => {
-      this.listeners.forEach(({ type, listener }) => {
+      this.registeredHandlers.forEach(({ type, listener }) => {
         if (type === "error") {
           listener(...args);
         }
@@ -39,7 +40,7 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
     };
 
     onmessage: EventSource["onmessage"] = (...args) => {
-      this.listeners.forEach(({ type, listener }) => {
+      this.registeredHandlers.forEach(({ type, listener }) => {
         if (type === "message") {
           listener(...args);
         }
@@ -52,7 +53,7 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
       options?: boolean | (AddEventListenerOptions & { disableCleanup?: boolean }),
     ): void => {
       super.addEventListener(type, listener, options);
-      this.listeners.set(listener, { type, listener, options });
+      this.registeredHandlers.set(listener, { type, listener, options });
     };
 
     removeEventListener = <K extends keyof EventSourceEventMap>(
@@ -61,11 +62,11 @@ export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapt
       options?: boolean | EventListenerOptions,
     ): void => {
       super.removeEventListener(type, listener, options);
-      this.listeners.delete(listener);
+      this.registeredHandlers.delete(listener);
     };
 
     clearListeners = () => {
-      this.listeners.forEach(({ type, listener, options }) => {
+      this.registeredHandlers.forEach(({ type, listener, options }) => {
         if (!options?.disableCleanup) {
           this.removeEventListener(type, listener, options);
         }

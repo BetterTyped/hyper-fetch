@@ -85,3 +85,24 @@ You've successfully set up the foundation for real-time communication with Hyper
 - You can create an `Emitter` to send messages to the server.
 
 :::
+
+---
+
+## Next: Socket SDK
+
+For larger applications, consider using the [Socket SDK](/docs/sockets/sdk) instead of creating listeners and emitters
+individually. It provides a tRPC-like, proxy-based interface where you define your schema once and access listeners and
+emitters via dot-notation:
+
+```typescript
+import { createSocketSdk } from "@hyper-fetch/sockets";
+
+const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
+
+// Access listeners and emitters directly
+sdk.chat.messages.$listener.listen(({ data }) => console.log(data));
+sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
+```
+
+The Socket SDK also supports centralized configuration with `$configure`, topic group matching, and plain-object
+shorthand — see the [Socket SDK docs](/docs/sockets/sdk) for details.

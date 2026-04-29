@@ -7,7 +7,7 @@ sidebar_label: Socket
 [Read the API Reference »](/api/sockets/Classes/Socket.mdx)
 
 **`Socket`** is the central class for configuring your server connection in the Hyper Fetch sockets module. It
-initializes all core subsystems—such as `offline`, `events`, and `interceptors`—and provides a unified way to create and
+initializes all core subsystems—such as `events` and `interceptors`—and provides a unified way to create and
 manage listeners and emitters based on its configuration. By keeping all data and logic encapsulated within a single
 socket instance, you ensure that each socket remains isolated and independent from others.
 
@@ -26,9 +26,9 @@ socket instance, you ensure that each socket remains isolated and independent fr
 ## Initialization
 
 ```tsx
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-export const socket = new Socket({ url: "ws://localhost:3000" });
+export const socket = createSocketClient({ url: "ws://localhost:3000" });
 ```
 
 ---
@@ -44,69 +44,64 @@ You can pick between two built-in modes for the data exchange:
 1. **WebSocket mode** (default)
 2. **Server Sent Events (SSE) mode**
 
-You can change it with the `SSE` adapter:
+You can change it with the `SSE` adapter by passing it via the `adapter` constructor option:
 
 ```tsx
-import { sseAdapter } from "@hyper-fetch/sockets";
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
-new Socket({ url: "ws://localhost:3000" }).setAdapter(sseAdapter);
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
 ```
 
 ---
 
 ### Interceptors
 
-There are a few methods for intercepting a response from a request:
+There are a few methods for intercepting events on the socket:
 
-- `onSend` — triggered before sending an event.
+- `onSend` — triggered before sending an event. Receives the emitter instance and must return it (optionally modified).
 
 ```tsx
-new Socket({ url: "ws://localhost:3000" }).onSend((event) => {
-  // Modify the event before it is sent
-  event.payload = { ...event.payload, token: "1234567890" };
-  return event;
+new Socket({ url: "ws://localhost:3000" }).onSend(({ emitter }) => {
+  return emitter.setPayload({ ...emitter.payload, token: "1234567890" });
 });
 ```
 
 - `onError` — triggered on error from socket.
 
 ```tsx
-new Socket({ url: "ws://localhost:3000" }).onError((error) => {
-  // Modify the error before it is emitted to other sub-systems
-  error.message = "An error occurred";
-  return error;
+new Socket({ url: "ws://localhost:3000" }).onError(({ error }) => {
+  console.error("Socket error:", error);
 });
 ```
 
-- `onMessage` — triggered on any received message.
+- `onMessage` — triggered on any received message. Receives the event data and must return the transformed data.
 
 ```tsx
-new Socket({ url: "ws://localhost:3000" }).onMessage((message) => {
-  // Modify the message before it is emitted to other sub-systems
-  message.data = { ...message.data, token: "1234567890" };
-  return message;
+new Socket({ url: "ws://localhost:3000" }).onMessage(({ event }) => {
+  return { ...event, receivedAt: Date.now() };
 });
 ```
 
-You can modify received data or payload with these interceptors before it is emitted to other sub-systems.
+You can modify received data or outgoing payloads with these interceptors before they are emitted to other sub-systems.
 
 ---
 
 ### Query Params
 
-Sockets has a built-in query params encoding function; you can modify its options or provide your own function. Use the
-`queryParamsConfig` method and the options listed below.
-
-(@import core QueryStringifyOptionsType type=returns)
-
-To change the encoding function, use the `queryParamsStringify` method:
+You can pass query parameters to the socket connection via the `queryParams` constructor option. They will be appended
+to the connection URL. You can also update them later using `setQueryParams`.
 
 ```tsx
-export const socket = new Socket({
+export const socket = createSocketClient({
   url: "ws://localhost:3000",
   queryParams: { param1: [1, 2, 3], param2: "test" },
-  queryParamsStringify: (value: string) => encode(value),
 });
+
+// Update query params dynamically
+socket.setQueryParams({ param1: [4, 5], param2: "updated" });
 ```
 
 ---
@@ -116,7 +111,7 @@ export const socket = new Socket({
 To exchange authenticated events, set up the `queryParams` parameter with authentication parameter.
 
 ```tsx
-export const socket = new Socket({
+export const socket = createSocketClient({
   url: "ws://localhost:3000",
   queryParams: { authToken: "1234567890" },
 });
@@ -128,6 +123,60 @@ export const socket = new Socket({
   description="Learn how to set up authentication for your sockets."
   to="/docs/guides/sockets/authentication"
 />
+
+---
+
+## Constructor Options
+
+The `Socket` constructor (and `createSocketClient` helper) accepts the following options:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `url` | `string` | — | **Required.** URL of the server to connect to. |
+| `adapter` | `(() => Adapter) \| Adapter` | `WebsocketAdapter()` | Adapter instance or factory for the transport layer. |
+| `adapterOptions` | `object` | — | Adapter-specific options passed to the adapter on initialization. |
+| `queryParams` | `object \| string` | — | Query parameters appended to the connection URL. |
+| `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts. |
+| `reconnectTime` | `number` | `5000` | Delay in milliseconds between reconnection attempts. |
+
+---
+
+## Connection Management
+
+The `Socket` class provides methods for controlling the connection lifecycle.
+
+```tsx
+const socket = createSocketClient({ url: "ws://localhost:3000" });
+
+await socket.connect();
+await socket.disconnect();
+await socket.reconnect();
+```
+
+---
+
+## Lifecycle Callbacks
+
+You can register callbacks for connection lifecycle events. These are called in order whenever the corresponding event
+occurs.
+
+```tsx
+const socket = createSocketClient({ url: "ws://localhost:3000" });
+
+socket
+  .onConnected(() => {
+    console.log("Connected");
+  })
+  .onDisconnected(() => {
+    console.log("Disconnected");
+  })
+  .onReconnect(() => {
+    console.log("Reconnecting...");
+  })
+  .onReconnectFailed(() => {
+    console.log("Reconnection failed");
+  });
+```
 
 ---
 

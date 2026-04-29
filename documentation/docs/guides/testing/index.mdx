@@ -9,11 +9,15 @@ can be largely based on the application’s configuration. This means tests are 
 changing endpoints or types). Everything reacts and adapts to tests or shows the appropriate error – making tests easier
 to maintain and faster to write.
 
+If you're using the SDK pattern, testing becomes even simpler — create a mock SDK with `$configure`, inject it into your
+components, and every endpoint automatically returns controlled data with no network layer involved.
+
 :::secondary What you'll learn
 
 1.  The **benefits** of testing with Hyper Fetch.
 2.  How to **isolate tests** to ensure they are deterministic.
 3.  How to **mock API requests** for reliable and fast tests.
+4.  How to **inject a test SDK** with centralized mocks into your components.
 
 :::
 

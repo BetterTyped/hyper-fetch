@@ -12,7 +12,8 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
   }
 
   class HyperFetchWebsocket extends WebSocket {
-    public listeners: Map<
+    // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
+    public registeredHandlers: Map<
       (...args: any[]) => any,
       { type: keyof WebSocketEventMap; listener: (...args: any[]) => void; options: any }
     > = new Map();
@@ -28,7 +29,7 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
       options?: boolean | (AddEventListenerOptions & { disableCleanup?: boolean }),
     ) => {
       super.addEventListener(type, listener, options);
-      this.listeners.set(listener, { type, listener, options });
+      this.registeredHandlers.set(listener, { type, listener, options });
     };
 
     removeEventListener = <K extends keyof WebSocketEventMap>(
@@ -37,11 +38,11 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
       options?: boolean | EventListenerOptions,
     ) => {
       super.removeEventListener(type, listener, options);
-      this.listeners.delete(listener);
+      this.registeredHandlers.delete(listener);
     };
 
     clearListeners = () => {
-      this.listeners.forEach(({ type, listener, options }) => {
+      this.registeredHandlers.forEach(({ type, listener, options }) => {
         if (!options?.disableCleanup) {
           this.removeEventListener(type, listener, options);
         }

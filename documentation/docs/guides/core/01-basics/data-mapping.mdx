@@ -218,6 +218,35 @@ const getUserTitle = getBaseUser.setResponseMapper((user) => `User: ${user.name}
 
 ---
 
+## Centralized Mapping with SDK Configuration
+
+When using the [SDK pattern](/docs/core/sdk), you can centralize all your response and request mappers in a single
+`$configure` call instead of chaining `.setResponseMapper()` on each request individually. This keeps your mapper
+configuration in one place and ensures it's always applied.
+
+```typescript
+import { createConfiguration } from "@hyper-fetch/core";
+import type { ApiSchema } from "./schema";
+
+const config = createConfiguration<ApiSchema>()({
+  "users.$get": (request) =>
+    request.setResponseMapper((response) => response.data.users),
+  "users.$userId.$get": (request) =>
+    request.setResponseMapper((response) => ({
+      id: response.data.user.id,
+      name: response.data.user.user_name,
+      isActive: response.data.user.is_active,
+    })),
+});
+
+const sdk = createSdk(client).$configure(config);
+```
+
+Every request accessed through the SDK will automatically have its mapper applied. See the
+[SDK Configuration docs](/docs/core/sdk#sdk-configuration-configure) for more details.
+
+---
+
 :::success Congratulations!
 
 You are now an expert in Hyper-Fetch data mapping!

@@ -209,6 +209,42 @@ console.log(response);
 
 ---
 
+## Mocking with SDK Configuration
+
+When using the [SDK pattern](/docs/core/sdk), you can centralize all your mocks in a single `$configure` call using
+**function-based values**. This is particularly powerful for test setups — create a pre-configured test SDK where every
+endpoint returns mock data, and swap it in during tests.
+
+```typescript
+import { sdk } from "src/api/sdk";
+
+// highlight-start
+const testSdk = sdk.$configure({
+  "users.$get": (request) =>
+    request.setMock(() => ({
+      data: [
+        { id: 1, name: "John" },
+        { id: 2, name: "Jane" },
+      ],
+    })),
+  "users.$userId.$get": (request) =>
+    request.setMock(({ request: req }) => ({
+      data: { id: req.params?.userId, name: "Mock User" },
+    })),
+  "posts.$get": (request) =>
+    request.setMock(() => ({ data: [] })),
+});
+// highlight-end
+```
+
+Use **dot-path keys** (like `"users.$get"`) to mock individual endpoints, or `"*"` to apply a mock to everything.
+Since `$configure` is immutable, your production SDK is never affected.
+
+See the [SDK Configuration docs](/docs/core/sdk#sdk-configuration-configure) and the
+[Testing guide](/docs/guides/testing/mocking#mocking-with-sdk-configuration) for more examples.
+
+---
+
 ## Mocking state
 
 Apart from adding a mock to a request, you can also remove it or disable it.
@@ -274,4 +310,18 @@ client.setMockingEnabled(true) // All mocks are enabled once again
   title="Client"
   description="Understand how to configure and use the Client."
   to="/docs/core/client"
+/>
+
+<LinkCard
+  type="docs"
+  title="SDK Configuration"
+  description="Centralize mocks and defaults with $configure."
+  to="/docs/core/sdk#sdk-configuration-configure"
+/>
+
+<LinkCard
+  type="guides"
+  title="Testing with Mocks"
+  description="Learn how to use SDK mocking in your test suite."
+  to="/docs/guides/testing/mocking"
 />

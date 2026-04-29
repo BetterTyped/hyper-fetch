@@ -27,6 +27,12 @@ export type SdkRequestDefaults = {
 };
 
 /**
+ * Configuration value: either a static property bag or a function that receives
+ * the request and returns a modified request (full access to every Request setter).
+ */
+export type SdkConfigurationValue = SdkRequestDefaults | ((request: RequestInstance) => RequestInstance);
+
+/**
  * Recursively extracts all endpoint strings from an SDK schema type.
  * Leaf nodes (keys starting with $) are RequestInstance — extract endpoint from those.
  * Other keys are nested schema segments to recurse into.
@@ -34,33 +40,52 @@ export type SdkRequestDefaults = {
 type ExtractSdkEndpoints<T, Depth extends unknown[] = []> = Depth["length"] extends 10
   ? never
   : {
-      [K in keyof T]: K extends `$${string}`
-        ? T[K] extends RequestInstance
-          ? ExtractEndpointType<T[K]>
-          : never
-        : T[K] extends Record<string, any>
-          ? ExtractSdkEndpoints<T[K], [...Depth, unknown]>
-          : never;
-    }[keyof T];
+    [K in keyof T]: K extends `$${string}`
+    ? T[K] extends RequestInstance
+    ? ExtractEndpointType<T[K]>
+    : never
+    : T[K] extends Record<string, any>
+    ? ExtractSdkEndpoints<T[K], [...Depth, unknown]>
+    : never;
+  }[keyof T];
+
+/**
+ * Recursively extracts dot-path accessor keys from an SDK schema.
+ * These mirror the SDK property chain: "users.$get", "users.$userId.$get", etc.
+ */
+type ExtractSdkPaths<T, Prefix extends string = "", Depth extends unknown[] = []> = Depth["length"] extends 10
+  ? never
+  : {
+    [K in keyof T & string]: T[K] extends RequestInstance
+    ? `${Prefix}${K}`
+    : T[K] extends Record<string, any>
+    ? ExtractSdkPaths<T[K], `${Prefix}${K}.`, [...Depth, unknown]>
+    : never;
+  }[keyof T & string];
 
 /**
  * Builds the set of valid configuration keys from an SDK schema:
  * - "*" (global wildcard)
- * - exact endpoint paths extracted from RequestInstance nodes
- * - wildcard patterns like "/users/*"
+ * - exact endpoint paths extracted from RequestInstance nodes (group keys)
+ * - wildcard patterns like "/users/*" (group keys)
+ * - dot-path accessor keys like "users.$get" (method-specific keys)
  */
 type SdkConfigurationKeys<Schema extends RecursiveSchemaType> =
   | "*"
   | ExtractSdkEndpoints<Schema>
-  | `${ExtractSdkEndpoints<Schema> & string}/*`;
+  | `${ExtractSdkEndpoints<Schema> & string}/*`
+  | ExtractSdkPaths<Schema>;
 
 /**
- * Maps endpoint paths or wildcard patterns to request defaults.
- * Keys are validated against the SDK schema — only known endpoints, their wildcard
- * variants, and "*" are accepted.
+ * Maps endpoint paths, wildcard patterns, or dot-path accessor keys to request defaults.
+ * Keys are validated against the SDK schema.
+ *
+ * Values can be:
+ * - A plain `SdkRequestDefaults` object (shorthand for common settings)
+ * - A function `(request) => request` for full access to every Request setter
  */
 export type SdkConfigurationMap<Schema extends RecursiveSchemaType = RecursiveSchemaType> = Partial<
-  Record<SdkConfigurationKeys<Schema>, SdkRequestDefaults>
+  Record<SdkConfigurationKeys<Schema>, SdkConfigurationValue>
 >;
 
 export type CreateSdkOptions<Schema extends RecursiveSchemaType = RecursiveSchemaType> = {
@@ -88,32 +113,74 @@ const endpointMatchesPattern = (endpoint: string, pattern: string): boolean => {
   return false;
 };
 
+const isDotPath = (key: string): boolean => {
+  return key.includes(".") && !key.startsWith("/");
+};
+
+const applyObjectDefaults = (request: RequestInstance, config: SdkRequestDefaults): RequestInstance => {
+  let result = request;
+  if (config.headers) result = result.setHeaders(config.headers);
+  if (config.auth !== undefined) result = result.setAuth(config.auth);
+  if (config.cache !== undefined) result = result.setCache(config.cache);
+  if (config.cacheTime !== undefined) result = result.setCacheTime(config.cacheTime);
+  if (config.staleTime !== undefined) result = result.setStaleTime(config.staleTime);
+  if (config.retry !== undefined) result = result.setRetry(config.retry);
+  if (config.retryTime !== undefined) result = result.setRetryTime(config.retryTime);
+  if (config.cancelable !== undefined) result = result.setCancelable(config.cancelable);
+  if (config.queued !== undefined) result = result.setQueued(config.queued);
+  if (config.offline !== undefined) result = result.setOffline(config.offline);
+  if (config.deduplicate !== undefined) result = result.setDeduplicate(config.deduplicate);
+  if (config.deduplicateTime !== undefined && config.deduplicateTime !== null) {
+    result = result.setDeduplicateTime(config.deduplicateTime);
+  }
+  return result;
+};
+
 const applyDefaults = (
   request: RequestInstance,
-  endpoint: string,
-  defaults?: Record<string, SdkRequestDefaults>,
+  context: { endpoint: string; sdkPath: string; defaults?: Partial<Record<string, SdkConfigurationValue>> },
 ): RequestInstance => {
+  const { endpoint, sdkPath, defaults } = context;
   if (!defaults) return request;
 
   let result = request;
   const entries = Object.entries(defaults);
 
+  // Sort: "*" first, then endpoint groups (start with "/"), then dot-path (method-specific) last
+  const globalEntries: [string, SdkConfigurationValue][] = [];
+  const groupEntries: [string, SdkConfigurationValue][] = [];
+  const pathEntries: [string, SdkConfigurationValue][] = [];
+
   for (let i = 0; i < entries.length; i += 1) {
-    const [pattern, config] = entries[i];
-    if (endpointMatchesPattern(endpoint, pattern)) {
-      if (config.headers) result = result.setHeaders(config.headers);
-      if (config.auth !== undefined) result = result.setAuth(config.auth);
-      if (config.cache !== undefined) result = result.setCache(config.cache);
-      if (config.cacheTime !== undefined) result = result.setCacheTime(config.cacheTime);
-      if (config.staleTime !== undefined) result = result.setStaleTime(config.staleTime);
-      if (config.retry !== undefined) result = result.setRetry(config.retry);
-      if (config.retryTime !== undefined) result = result.setRetryTime(config.retryTime);
-      if (config.cancelable !== undefined) result = result.setCancelable(config.cancelable);
-      if (config.queued !== undefined) result = result.setQueued(config.queued);
-      if (config.offline !== undefined) result = result.setOffline(config.offline);
-      if (config.deduplicate !== undefined) result = result.setDeduplicate(config.deduplicate);
-      if (config.deduplicateTime !== undefined && config.deduplicateTime !== null) {
-        result = result.setDeduplicateTime(config.deduplicateTime);
+    const [key, value] = entries[i];
+    if (!value) continue;
+    const entry: [string, SdkConfigurationValue] = [key, value];
+    if (entry[0] === "*") {
+      globalEntries.push(entry);
+    } else if (isDotPath(entry[0])) {
+      pathEntries.push(entry);
+    } else {
+      groupEntries.push(entry);
+    }
+  }
+
+  const sorted = [...globalEntries, ...groupEntries, ...pathEntries];
+
+  for (let i = 0; i < sorted.length; i += 1) {
+    const [pattern, config] = sorted[i];
+
+    let matches = false;
+    if (isDotPath(pattern)) {
+      matches = pattern === sdkPath;
+    } else {
+      matches = endpointMatchesPattern(endpoint, pattern);
+    }
+
+    if (matches) {
+      if (typeof config === "function") {
+        result = config(result);
+      } else {
+        result = applyObjectDefaults(result, config);
       }
     }
   }
@@ -121,9 +188,13 @@ const applyDefaults = (
   return result;
 };
 
-const createRecursiveProxy = (client: ClientInstance, path: string[], options?: CreateSdkOptions<any>): any => {
+const createRecursiveProxy = (
+  client: ClientInstance,
+  context: { path: string[]; sdkKeys: string[]; options?: CreateSdkOptions<any> },
+): any => {
+  const { path, sdkKeys, options } = context;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  return new Proxy(() => {}, {
+  return new Proxy(() => { }, {
     get: (_target, key: string) => {
       if (typeof key === "symbol" || key === "inspect") {
         return undefined;
@@ -135,26 +206,26 @@ const createRecursiveProxy = (client: ClientInstance, path: string[], options?: 
       let pathSegment = key;
 
       if (key.startsWith("$")) {
-        // This could be either a method or a parameter
-        // Try to determine by checking if it's a terminal access (method)
-        // For now, assume it's a method and strip the $ prefix
         isMethod = true;
         methodName = key.slice(1);
-        pathSegment = `:${key.slice(1)}`; // Convert to parameter format for path building
+        pathSegment = `:${key.slice(1)}`;
       } else if (options?.camelCaseToKebabCase) {
-        // Convert camelCase to kebab-case for path segments if option is enabled
         pathSegment = key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
       }
+
+      // Build the sdk dot-path for method-specific configuration matching
+      const currentSdkKeys = [...sdkKeys, key];
+      const sdkPath = currentSdkKeys.join(".");
 
       // Always create a request assuming this is a method call
       const endpoint = `/${path.join("/")}`;
       const method = getMethod(isMethod ? methodName : key, options);
       let request: RequestInstance = client.createRequest()({ endpoint, method });
-      request = applyDefaults(request, endpoint, options?.defaults);
+      request = applyDefaults(request, { endpoint, sdkPath, defaults: options?.defaults });
 
       // But also, assume the key is a new path segment for a deeper call
       const newPath = [...path, pathSegment];
-      const deeperProxy = createRecursiveProxy(client, newPath, options);
+      const deeperProxy = createRecursiveProxy(client, { path: newPath, sdkKeys: currentSdkKeys, options });
 
       // Return a new proxy that wraps both the request and the deeper proxy
       return new Proxy(request, {
@@ -191,7 +262,7 @@ export const createSdk = <Client extends ClientInstance, RecursiveSchema extends
 
   const mergedOptions: CreateSdkOptions<RecursiveSchema> = { camelCaseToKebabCase, methodTransform, ...rest };
   // Break inference for TypeDoc / tsserver (TS2589) — runtime value is unchanged.
-  const proxy = createRecursiveProxy(client, [], mergedOptions as never);
+  const proxy = createRecursiveProxy(client, { path: [], sdkKeys: [], options: mergedOptions as never });
 
   return new Proxy(proxy, {
     get: (target, key: string) => {

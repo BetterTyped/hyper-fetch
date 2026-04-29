@@ -1,0 +1,211 @@
+---
+slug: sdk-configuration
+title: "SDK Configuration: Method-Specific Defaults, Functions, and the Socket SDK"
+authors: [maciej]
+tags: [SDK, Sockets, Configuration, TypeScript]
+date: 2026-04-29
+---
+
+:::info Version
+This tutorial was written for **Hyper Fetch 8.0**.
+:::
+
+> Hyper Fetch SDK configuration gives you method-level precision, full access to every Request setter through
+> function-based values, and a Socket SDK that brings the same developer experience to real-time communication.
+
+{/* truncate */}
+
+## Precise Configuration with Dot-Path Keys
+
+The `$configure` API accepts **dot-path keys** that mirror the SDK's property chain. Since the SDK uses
+`sdk.users.$get` to access a request, you configure it with `"users.$get"`:
+
+```typescript
+const configured = sdk.$configure({
+  "users.$get": { cache: true, cacheTime: 30000 },
+  "users.$post": { retry: 0 },
+  "users.$userId.$get": { staleTime: 5000 },
+});
+```
+
+`"users.$get"` only affects `sdk.users.$get` — not `sdk.users.$post`, not `sdk.users.$userId.$get`. Each key maps
+to exactly one request.
+
+Endpoint-group keys like `"/users"` or `"/users/*"` are also supported for applying broad defaults across all methods
+on an endpoint.
+
+---
+
+## Function-Based Values
+
+Plain objects cover simple settings, but `$configure` also accepts **functions**. A function receives the Request
+instance and returns a modified one, giving you access to the full API:
+
+```typescript
+const configured = sdk.$configure({
+  // Plain object for simple settings
+  "*": { retry: 3 },
+
+  // Function for advanced configuration
+  "users.$get": (request) =>
+    request
+      .setResponseMapper(userListMapper)
+      .setCache(true)
+      .setCacheTime(30000),
+
+  // Mocking for tests
+  "auth.login.$post": (request) =>
+    request.setMock(() => ({
+      data: { token: "test-token" },
+      error: null,
+      status: 200,
+    })),
+});
+```
+
+This is particularly powerful for testing. Instead of mocking at the network level, you can create a test SDK with all
+endpoints mocked through `$configure`:
+
+```typescript
+export const testSdk = sdk.$configure({
+  "users.$get": (request) => request.setMock(() => ({ data: mockUsers })),
+  "users.$userId.$get": (request) => request.setMock(() => ({ data: mockUser })),
+  "posts.$get": (request) => request.setMock(() => ({ data: [] })),
+});
+```
+
+---
+
+## 3-Level Application Order
+
+Configurations stack deterministically. When multiple keys match, they apply in this order:
+
+1. **`"*"`** — Global defaults (applied first)
+2. **Endpoint groups** — `"/users"`, `"/users/*"` (applied second)
+3. **Dot-path keys** — `"users.$get"` (applied last, wins on conflict)
+
+```typescript
+const configured = sdk.$configure({
+  "*": { retry: 3 },
+  "/users": { cache: true },
+  "users.$get": { deduplicate: true },
+});
+
+const request = configured.users.$get;
+// retry: 3 (from "*") + cache: true (from "/users") + deduplicate: true (from "users.$get")
+// All three stack. Later levels only override properties they explicitly set.
+```
+
+Global defaults are the foundation, endpoint groups add domain-specific settings on top, and method-specific keys
+fine-tune individual requests. Properties from earlier levels are preserved unless a later level explicitly overwrites
+them.
+
+---
+
+## Socket SDK
+
+The SDK pattern extends to `@hyper-fetch/sockets`. The **Socket SDK** works exactly like the HTTP SDK, but uses
+`$listener` and `$emitter` as leaf keys instead of HTTP methods:
+
+```typescript
+import { createSocketSdk } from "@hyper-fetch/sockets";
+
+const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
+
+// Listen to events
+sdk.chat.messages.$listener.listen(({ data }) => {
+  console.log(data.text, data.user);
+});
+
+// Emit events
+sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
+
+// Dynamic topics with parameters
+sdk.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => console.log(data));
+```
+
+### Socket SDK Configuration
+
+The Socket SDK supports the same `$configure` pattern with full parity:
+
+```typescript
+const configured = sdk.$configure({
+  // Global — applies to all listeners and emitters
+  "*": { options: { reconnect: true } },
+
+  // Topic group — applies to everything under chat/*
+  "chat/*": { options: { priority: "high" } },
+
+  // Instance-specific — targets one emitter (type-narrowed, no cast needed)
+  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(messageMapper),
+});
+```
+
+The same 3-level application order applies: `"*"` (global) -> topic groups (`"chat/*"`) -> dot-path
+(`"chat.messages.$listener"`). Both plain-object shorthand and function-based values work. Dot-path keys narrow
+the callback parameter to the exact instance type — `$listener` keys receive `ListenerInstance`, `$emitter` keys
+receive `EmitterInstance`.
+
+---
+
+## Multi-File Configuration
+
+For large projects, split configuration by domain using `createConfiguration` (HTTP) or
+`createSocketConfiguration` (sockets):
+
+```typescript title="config/users.ts"
+import { createConfiguration } from "@hyper-fetch/core";
+
+export const usersConfig = createConfiguration<ApiSchema>()({
+  "users.$get": (request) =>
+    request.setResponseMapper(userListMapper).setCache(true),
+  "users.$userId.$get": (request) =>
+    request.setAuth(true).setStaleTime(5000),
+});
+```
+
+```typescript title="config/chat.ts"
+import { createSocketConfiguration } from "@hyper-fetch/sockets";
+
+export const chatConfig = createSocketConfiguration<ChatSchema>()({
+  "chat/*": { options: { reconnect: true } },
+  "chat.messages.$listener": (instance) =>
+    instance.setOptions({ buffer: true }),
+});
+```
+
+```typescript title="sdk.ts"
+export const api = createSdk(client)
+  .$configure(usersConfig);
+
+export const ws = createSocketSdk(socket)
+  .$configure(chatConfig);
+```
+
+Keys are validated against your schema at compile time — typos are caught immediately.
+
+---
+
+## How It Works Under the Hood
+
+The proxy that powers both SDKs tracks the **full accessor path** (e.g., `["users", "$get"]`) as you traverse the
+chain. When a leaf node is reached, the proxy joins this path into a dot-separated string and passes it to
+`applyDefaults`. The defaults function sorts all configuration entries into buckets by type, applies them in the
+correct order, and returns the fully configured instance.
+
+For sockets, the proxy also constructs the **topic string** from the path segments (converting `$paramName` keys to
+`:paramName` and applying camelCase-to-kebab-case), which enables topic group matching alongside dot-path matching.
+
+The type system uses recursive conditional types (`ExtractSdkPaths`, `ExtractSocketTopics`, `TopicPrefixes`,
+`ResolveDotPath`) to derive the exact set of valid configuration keys from your schema and narrow callback parameters
+to the correct instance type, providing full autocomplete and compile-time validation.
+
+---
+
+## Links
+
+- [HTTP SDK documentation](/docs/core/sdk)
+- [Socket SDK documentation](/docs/sockets/sdk)
+- [Testing with SDK mocks](/docs/guides/testing/mocking)

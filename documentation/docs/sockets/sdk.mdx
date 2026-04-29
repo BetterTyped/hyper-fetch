@@ -1,0 +1,241 @@
+---
+sidebar_position: 7
+title: Socket SDK
+sidebar_label: SDK
+---
+
+The **Socket SDK** brings the same proxy-based, type-safe SDK pattern from `@hyper-fetch/core` to real-time sockets.
+Instead of HTTP methods (`$get`, `$post`), you use `$listener` and `$emitter` as leaf keys to create listener and
+emitter instances on the fly.
+
+---
+
+:::tip Purpose
+
+1. **Type-Safe Sockets**: Full TypeScript coverage for topics, responses, and payloads.
+2. **tRPC-like Syntax**: Access listeners and emitters with dot-notation (e.g., `sdk.chat.messages.$listener`).
+3. **Zero Performance Overhead**: Generates instances on-demand using proxies.
+4. **Dynamic Topic Support**: Handle parameterized topics like `chat/:roomId`.
+5. **Centralized Configuration**: Configure all listeners/emitters from one place with `$configure`.
+
+:::
+
+---
+
+## Initialization
+
+```typescript
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+
+const socket = new Socket({ url: "ws://localhost:3000" });
+
+type MyChatSchema = {
+  // ... schema definition
+};
+
+const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
+```
+
+---
+
+## Defining the Schema
+
+The schema maps your socket topics as a nested type. Leaf nodes use `$listener` for receiving events and `$emitter` for
+sending events. Dynamic topic segments are prefixed with `$` (e.g., `$roomId` becomes `/:roomId`).
+
+```typescript
+import type { ListenerInstance, EmitterInstance, Socket } from "@hyper-fetch/sockets";
+
+type AppSocket = Socket;
+
+type MyChatSchema = {
+  chat: {
+    messages: {
+      // highlight-start
+      $listener: ListenerInstance<{
+        response: { text: string; user: string };
+        topic: "chat/messages";
+        socket: AppSocket;
+      }>;
+      $emitter: EmitterInstance<{
+        payload: { text: string };
+        topic: "chat/messages";
+        socket: AppSocket;
+      }>;
+      // highlight-end
+    };
+    $roomId: {
+      $listener: ListenerInstance<{
+        response: { text: string; user: string };
+        topic: "chat/:roomId";
+        socket: AppSocket;
+      }>;
+    };
+  };
+  notifications: {
+    $listener: ListenerInstance<{
+      response: { message: string };
+      topic: "notifications";
+      socket: AppSocket;
+    }>;
+  };
+};
+```
+
+---
+
+## Usage
+
+### Listening to events
+
+```typescript
+sdk.chat.messages.$listener.listen(({ data }) => {
+  console.log(data.text, data.user);
+});
+```
+
+### Emitting events
+
+```typescript
+sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
+```
+
+### Dynamic topics with parameters
+
+```typescript
+sdk.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => {
+    console.log(data);
+  });
+```
+
+---
+
+## SDK Configuration ($configure)
+
+The `$configure` method works the same way as the core HTTP SDK. Configuration supports two value formats:
+**plain objects** for common settings and **functions** for full access to every Listener/Emitter setter.
+
+### Instance-Specific Keys (Dot-Path)
+
+Use **dot-path keys** that mirror the SDK accessor chain to target a specific listener or emitter:
+
+```typescript
+const configured = sdk.$configure({
+  "chat.messages.$listener": (instance) => instance.setOptions({ buffer: true }),
+  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(myMapper),
+});
+```
+
+### Topic Group Keys
+
+Use **topic-based keys** to configure all listeners and emitters on a topic at once:
+
+```typescript
+const configured = sdk.$configure({
+  "chat/messages": { options: { priority: "high" } },
+  "chat/*": { options: { reconnect: true } },
+});
+```
+
+### Function-Based Values
+
+Functions receive the instance and return a modified one, giving access to every setter:
+
+```typescript
+import type { SocketSdkConfigurationValue } from "@hyper-fetch/sockets";
+
+const setReconnect: SocketSdkConfigurationValue = (instance) =>
+  instance.setOptions({ reconnect: true });
+
+const configured = sdk.$configure({
+  "*": setReconnect,
+  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(myMapper),
+});
+```
+
+### Plain Object Values
+
+For common settings, use a plain object shorthand:
+
+```typescript
+const configured = sdk.$configure({
+  "*": { options: { reconnect: true } },
+  "chat/*": { options: { priority: "high" } },
+});
+```
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `options` | `Record<string, unknown>` | Adapter-specific options passed to `setOptions` |
+
+### Application Order
+
+When multiple keys match, they apply in this order (later overrides earlier):
+
+1. **`"*"`** — Global defaults
+2. **Topic groups** — `"chat/messages"`, `"chat/*"`
+3. **Dot-path specific** — `"chat.messages.$listener"`
+
+### Configuration Keys
+
+- **`"*"`** — Matches all listeners and emitters (global defaults).
+- **Exact topic** — e.g. `"chat/messages"` matches all listeners/emitters on that topic.
+- **Wildcard** — e.g. `"chat/*"` matches topics like `chat/messages`, `chat/rooms`, etc.
+- **Dot-path** — e.g. `"chat.messages.$listener"` targets a specific instance.
+
+### Multi-file Configuration
+
+```typescript
+import { createSocketConfiguration } from "@hyper-fetch/sockets";
+import type { MyChatSchema } from "./schema";
+
+export const chatConfig = createSocketConfiguration<MyChatSchema>()({
+  "chat/*": { options: { reconnect: true } },
+  "chat.messages.$listener": (instance) => instance.setOptions({ buffer: true }),
+});
+```
+
+---
+
+:::secondary Summary
+
+The Socket SDK provides the same developer experience as the core HTTP SDK, adapted for real-time communication.
+Define your schema once, access listeners and emitters via dot-notation, and centralize configuration with `$configure`.
+Configuration supports plain-object shorthand, function-based values for full setter access, topic group matching with
+wildcards, and a clear 3-level application order (global -> topic group -> dot-path specific).
+
+:::
+
+---
+
+## See Also
+
+<LinkCard
+  type="docs"
+  title="Socket Class"
+  description="Learn about the Socket class and connection management."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listeners"
+  description="Dive deeper into creating and using listeners."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitters"
+  description="Dive deeper into creating and using emitters."
+  to="/docs/sockets/emitter"
+/>
+
+<LinkCard
+  type="docs"
+  title="HTTP SDK"
+  description="See how the same SDK pattern works for HTTP requests."
+  to="/docs/core/sdk"
+/>
