@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/npm/dm/@hyper-fetch/react" alt="npm downloads" />
   </a>
   <a href="https://bundlephobia.com/package/@hyper-fetch/react">
-    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/react" alt="bundle size" />
+    <img src="https://badgen.net/bundlephobia/minzip/@hyper-fetch/react" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
