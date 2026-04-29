@@ -1,0 +1,295 @@
+---
+slug: websockets-trpc-pattern
+title: "What if WebSockets felt like tRPC?"
+authors: [maciej]
+tags: [SDK, Sockets, WebSockets, SSE, Firebase, TypeScript]
+date: 2026-04-30
+image: ./img/websockets-trpc-pattern.png
+---
+
+import { BlogPostImage } from "@site/src/components";
+
+<BlogPostImage
+  title="What if WebSockets felt like tRPC?"
+  description="And SSE. And Firebase. And REST. One schema, every protocol."
+  badge="tutorial"
+  href="/blog/websockets-trpc-pattern"
+  pattern="hexagon"
+  patternMask="bottom"
+  file="sdk.ts"
+>
+
+```ts
+sdk.chat.$roomId.$listener.setParams({ roomId: "general" }).listen(({ data }) => addMessage(data));
+```
+
+</BlogPostImage>
+
+tRPC made HTTP feel like calling a local function. The proxy pattern that powers it - a TypeScript type as the schema, a
+runtime `Proxy` that materializes typed methods on demand - is the most ergonomic API client pattern we have. But it
+stops at HTTP. Real apps also speak WebSockets, SSE, and Firebase, and each transport drops you back into stringly-typed
+handlers, untyped event names, and bespoke client APIs. We applied the same pattern across all of them.
+
+{/* truncate */}
+
+:::info Version
+
+This tutorial was written for **Hyper Fetch 8.0**.
+
+:::
+
+## The mental tax of a real app
+
+Pick any product you have shipped recently. A chat app needs REST for auth and user lookups, WebSockets for live
+messages, Firebase for read receipts, and SSE for the notifications drawer. Four protocols. Four client APIs. Four
+typing stories.
+
+```ts
+const user = await axios.get<User>(`/users/${userId}`);
+
+socket.on("message", (raw) => {
+  const data = JSON.parse(raw) as ChatMessage;
+});
+
+const ref = doc(db, "users", userId, "receipts", messageId);
+onSnapshot(ref, (snapshot) => {
+  const receipt = snapshot.data() as Receipt;
+});
+
+const events = new EventSource("/notifications");
+events.addEventListener("notification", (e) => {
+  const payload = JSON.parse(e.data) as Notification;
+});
+```
+
+Each line works. Each line is also a small bet that the runtime shape matches the cast. Rename a Firestore field, move a
+WebSocket event, change an SSE channel name - the type system has nothing to say. You find out at runtime, usually in
+production.
+
+The HTTP corner of this picture is largely solved. tRPC, ts-rest, Zodios, oRPC and friends turn an HTTP API into a typed
+proxy you can autocomplete through. The other three corners are still wide open.
+
+---
+
+## One mental model, every transport
+
+Hyper Fetch's SDK is the same idea: a TypeScript type describes the API surface, a `Proxy` walks the property chain, and
+request instances appear on demand. No codegen step, no build pipeline. The schema is a type, not a file.
+
+```ts title="schema.ts"
+import type { RequestModel } from "@hyper-fetch/core";
+
+// Schemas describe shape only. The client is injected by createSdk(client).
+export type ApiSchema = {
+  users: {
+    $get: RequestModel<{
+      response: User[];
+      endpoint: "/users";
+    }>;
+    $userId: {
+      $get: RequestModel<{
+        response: User;
+        endpoint: "/users/:userId";
+      }>;
+    };
+  };
+};
+```
+
+```ts title="sdk.ts"
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { ApiSchema } from "./schema";
+
+const client = createClient({ url: "https://api.example.com" });
+export const sdk = createSdk<typeof client, ApiSchema>(client);
+
+// GET /users/123 - response typed as User
+const { data } = await sdk.users.$userId.$get.setParams({ userId: "123" }).send();
+```
+
+A quick note on the `RequestModel` type used above. Hyper Fetch ships **two** request types, and they look similar enough
+that mixing them up silently leaks `any`:
+
+- `RequestModel<{...}>` — for **defining one specific endpoint**. Omitted fields stay strict (`unknown`, `undefined`,
+  `Error`, `string`, `false`). Use this inside schemas.
+- `RequestInstance<{...}>` — for **constraining any request that matches a partial shape**. Omitted fields default to
+  `any`, on purpose, so any concrete `Request` satisfies the constraint. Use this in reusable components,
+  `sdk.$configure` callbacks, and generic helpers.
+
+The same split exists for sockets: `ListenerModel` / `EmitterModel` for schema leaves, `ListenerInstance` /
+`EmitterInstance` for constraints. Schemas describe one thing; constraints describe a family of things.
+
+If you have used tRPC, the schema-as-type part is the bit that should feel familiar. The interesting part is what
+happens when you keep the same shape and swap the transport.
+
+---
+
+## WebSockets, with the same shape
+
+Same schema idea, two new leaf keys: `$listener` for receiving events, `$emitter` for sending them. Dynamic topic
+segments use `$` prefixes the same way HTTP routes do, so `chat/$roomId` becomes the topic `chat/:roomId` with a typed
+`setParams` call.
+
+```ts title="schema.ts"
+import type { ListenerModel, EmitterModel } from "@hyper-fetch/sockets";
+
+// Schemas describe shape only. The socket is injected by createSocketSdk(socket).
+export type ChatSchema = {
+  chat: {
+    messages: {
+      // Server pushes new messages on this topic
+      $listener: ListenerModel<{
+        response: { text: string; user: string };
+        topic: "chat/messages";
+      }>;
+      // Client sends messages on the same topic
+      $emitter: EmitterModel<{
+        payload: { text: string };
+        topic: "chat/messages";
+      }>;
+    };
+    // Per-room subtopic with a dynamic param
+    $roomId: {
+      $listener: ListenerModel<{
+        response: { text: string; user: string };
+        topic: "chat/:roomId";
+      }>;
+    };
+  };
+};
+```
+
+```ts title="sdk.ts"
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+import type { ChatSchema } from "./schema";
+
+const socket = new Socket({ url: "ws://localhost:3000" });
+export const sdk = createSocketSdk<typeof socket, ChatSchema>(socket);
+
+// Subscribe to a typed topic
+sdk.chat.messages.$listener.listen(({ data }) => {
+  appendMessage(data.user, data.text);
+});
+
+// Emit a typed payload to the same topic
+sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
+
+// Dynamic topic, params are required and typed
+sdk.chat.$roomId.$listener.setParams({ roomId: "general" }).listen(({ data }) => appendMessage(data.user, data.text));
+```
+
+`sdk.chat.$roomId.$listener.setParams({ wrong: "x" })` does not compile. Renaming `roomId` in the schema breaks every
+call site. The runtime is one `Proxy`. The type-level work is a recursive mapped type with a depth guard. There is no
+codegen step to keep in sync.
+
+---
+
+## SSE and Firebase, no extra mental model
+
+The `Socket` is just a host for an adapter. Switch the adapter, keep the schema, keep the SDK. Your call sites do not
+change.
+
+```ts title="Server-Sent Events"
+import { Socket, sseAdapter, createSocketSdk } from "@hyper-fetch/sockets";
+
+const socket = new Socket({ url: "https://api.example.com/events" }).setAdapter(sseAdapter);
+
+const sdk = createSocketSdk<typeof socket, NotificationsSchema>(socket);
+
+sdk.notifications.$listener.listen(({ data }) => {
+  showToast(data.message);
+});
+```
+
+```ts title="Firebase Realtime Database + Firestore"
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+import { getDatabase } from "firebase/database";
+
+const socket = new Socket({
+  url: "",
+  adapter: FirebaseSocketsAdapter(getDatabase(app)),
+});
+
+const sdk = createSocketSdk<typeof socket, FirebaseSchema>(socket);
+
+// Listen to a Realtime DB path with full type safety
+sdk.posts.$postId.$listener.setParams({ postId: "42" }).listen(({ data }) => renderPost(data));
+```
+
+The same schema shape, the same `$listener` semantics, the same dot-notation access. The thing the user actually writes
+is identical whether the bytes on the wire come from a WebSocket frame, an SSE event, a Firestore snapshot, or a
+Realtime Database value change.
+
+---
+
+## How does this compare to tRPC?
+
+This is the question that comes up first, so let's be direct about it. The proxy pattern is shared. The scope is not.
+
+| Library          | Schema-driven proxy SDK | No codegen | HTTP    | WebSocket     | SSE     | Firebase Realtime | Firestore | Server framework required |
+| ---------------- | ----------------------- | ---------- | ------- | ------------- | ------- | ----------------- | --------- | ------------------------- |
+| Axios / Fetch    | No                      | Yes        | Yes     | No            | No      | No                | No        | No                        |
+| Zodios           | Yes                     | Yes        | Yes     | No            | No      | No                | No        | No                        |
+| ts-rest          | Yes                     | Yes        | Yes     | No            | No      | No                | No        | Optional                  |
+| tRPC             | Yes                     | Yes        | Yes     | Subscriptions | No      | No                | No        | **Yes**                   |
+| Socket.IO client | Event maps only         | Yes        | No      | Yes           | No      | No                | No        | Server pair               |
+| Firebase JS SDK  | Limited                 | Yes        | No      | No            | No      | Yes               | Yes       | No                        |
+| Typesaurus       | Yes (builder API)       | Yes        | No      | No            | No      | No                | Yes       | No                        |
+| **Hyper Fetch**  | **Yes**                 | **Yes**    | **Yes** | **Yes**       | **Yes** | **Yes**           | **Yes**   | **No**                    |
+
+The two columns that matter most:
+
+1. **Cross-protocol coverage.** tRPC owns the full-stack RPC story. Hyper Fetch covers any transport you point an
+   adapter at, with the same schema-as-type, same `Proxy` runtime, same dot-notation access.
+2. **Server framework requirement.** tRPC is opinionated about both ends of the wire. Hyper Fetch is client-side. It
+   talks to whatever backend you already have - a Rails monolith, a Go service, a Firebase project, an MQTT bridge.
+
+These are different bets. If you control both ends and can pick tRPC for everything, that is a great choice. If you ship
+against a backend you do not own, or you mix HTTP, sockets, and Firebase in the same codebase, the same proxy ergonomics
+still help.
+
+---
+
+## One config layer for all of it
+
+Once the SDK shape is uniform, configuration becomes uniform too. `$configure` works the same way for HTTP, WebSocket,
+SSE and Firebase, with three precedence levels:
+
+```ts
+const configured = sdk.$configure({
+  // Global default applied to everything
+  "*": { options: { reconnect: true } },
+
+  // Topic-group: every chat topic gets high priority
+  "chat/*": { options: { priority: "high" } },
+
+  // Specific instance: sanitize outgoing chat messages
+  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(sanitizeMessage),
+});
+```
+
+The same shape works for the HTTP SDK with `cache`, `retry`, `auth`, `setMock`, response mappers and every other
+`Request` setter. One pattern, one configuration story, one place to look when something behaves unexpectedly.
+
+For the deep dive into `$configure`, see the [SDK Configuration tutorial](/blog/sdk-configuration).
+
+---
+
+## Adopt it where it hurts most
+
+You do not have to migrate anything. Pick the surface that hurts most - the WebSocket handler full of `as` casts, the
+Firebase listener that broke after a schema change, the SSE channel nobody trusts - and replace just that piece. The
+schema is a type, not a build artifact, so you can drop it next to the existing code and delete the casts.
+
+The pattern is not new. tRPC proved that a TypeScript type plus a `Proxy` is the right shape for an API client. We
+borrowed the shape and stopped assuming the wire was always HTTP.
+
+---
+
+## Links
+
+- [HTTP SDK documentation](/docs/core/sdk)
+- [Socket SDK documentation](/docs/sockets/sdk)
+- [SDK Configuration tutorial](/blog/sdk-configuration)
+- [Firebase adapter](/docs/integrations/adapter-firebase/overview)

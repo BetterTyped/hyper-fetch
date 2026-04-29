@@ -1,0 +1,51 @@
+---
+description: Ensures TSDoc is present and accurate on every symbol referenced by (@import …) directives in documentation
+globs: packages/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TSDoc Requirements for `(@import …)` Targets
+
+The documentation site uses `(@import package Symbol type=…)` directives in `documentation/docs/**/*.mdx` to
+auto-generate API reference tables from TSDoc annotations. If a symbol lacks TSDoc or its description is outdated, the
+rendered docs will be empty or misleading.
+
+See the `Importer Usage Guide` section in `.cursor/rules/documentation.mdc` for directive syntax details.
+
+## Contract
+
+### Before adding a new `(@import …)` directive
+
+1. Open the target symbol in `packages/**`.
+2. Verify it has a `/** … */` block that accurately describes current behavior.
+3. If the TSDoc is missing or outdated, fix it **before** (or in the same commit as) adding the directive.
+
+### Per content-type requirements
+
+| Directive `type=` | TSDoc requirement |
+| --- | --- |
+| `methods` | The class/object must have a top-level `/** … */`, and **every public method** that should appear in the rendered table must have its own `/** … */` block. |
+| `returns` | The type/interface must have a top-level `/** … */`, and **every property** that should appear in the rendered table must have its own `/** … */` block. |
+| `import` | The exported symbol (factory, class, const) must have a `/** … */` block describing what it does and when to use it. |
+| `description` | The symbol must have a meaningful first-sentence summary in its `/** … */` block. |
+| Any other | The symbol must at minimum have a `/** … */` block present. |
+
+### Maintenance
+
+- When you change a symbol referenced by `(@import …)`, update its TSDoc in the same commit. Outdated TSDoc is a bug.
+- Do not copy-paste descriptions between similar methods without adjusting the text (e.g., `setEndpointMapper` must not
+  say "payload mapping").
+- Do not leave `@param` or `@returns` tags that reference parameters not present in the current signature.
+- If you rename or remove a symbol, search for its usages in `documentation/docs/` and update or remove the directive.
+
+## Finding which symbols are referenced
+
+```bash
+rg "(@import \w+ YourSymbolName" documentation/docs
+```
+
+To list all current imports:
+
+```bash
+rg "\(@import" documentation/docs
+```

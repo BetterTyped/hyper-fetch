@@ -12,7 +12,7 @@ import { getSocketError } from "../utils/socket.errors";
 
 /**
  * -------------------------------------------
- * Websocket
+ * Server-Sent Events
  * -------------------------------------------
  */
 
@@ -25,6 +25,7 @@ export type ServerSentEventsAdapterType = SocketAdapter<
   typeof stringifyQueryParams
 >;
 
+/** Create a preconfigured socket adapter for Server-Sent Events (EventSource) connections. */
 export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
   new SocketAdapter<
     MessageEvent<any>,

@@ -15,8 +15,8 @@ export type DevtoolsPluginOptions = {
    */
   debug?: boolean;
   /**
-   * App environment indication
-   *
-   * */
+   * App environment indication (e.g., "development", "staging", "production").
+   * Displayed alongside the app name in HyperFlow to distinguish deployments.
+   */
   environment?: string;
 };

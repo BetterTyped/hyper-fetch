@@ -44,6 +44,7 @@ export class Cache<Adapter extends AdapterInstance> {
     this.lazyStorage = lazyStorage;
   }
 
+  /** Initialize the cache with a client reference, set up logging, and start garbage collection. */
   initialize = (client: ClientInstance<{ adapter: Adapter }>) => {
     this.client = client;
     this.logger = client.loggerManager.initialize(client, "Cache");
@@ -126,8 +127,6 @@ export class Cache<Adapter extends AdapterInstance> {
    * Update the cache data with partial response data
    * @param request
    * @param partialResponse
-   * @param isTriggeredExtrenally - informs whether an update was triggered due to internal logic or externally, e.g.
-   * via plugin.
    * @returns
    */
   update = <Request extends RequestCacheType<RequestInstance>>(
@@ -273,8 +272,7 @@ export class Cache<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Used to receive keys from sync storage and lazy storage
-   * @param cacheKey
+   * Used to receive keys from lazy storage only
    */
   getLazyKeys = async () => {
     const keys = (await this.lazyStorage?.keys()) || [];
@@ -283,8 +281,7 @@ export class Cache<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Used to receive keys from sync storage and lazy storage
-   * @param cacheKey
+   * Used to receive deduplicated keys from both sync storage and lazy storage
    */
   getAllKeys = async () => {
     const keys = await this.lazyStorage?.keys();

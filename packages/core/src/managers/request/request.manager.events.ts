@@ -45,12 +45,13 @@ import type { RequestInstance } from "request";
 import type { Client } from "client";
 import type { ExtendRequest } from "types";
 
+/** Create event emitters and listeners for the request lifecycle: loading, progress, response, abort, deduplication, and removal. */
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
-   * Emiter
+   * Emitters
    */
 
-  // Deduplicated
+  /** Emit when a request is deduplicated (skipped because an identical one is in-flight) */
   emitDeduplicated: (data: RequestDeduplicatedEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getRequestDeduplicatedKey(), data, isTriggeredExternally);
     emitter.emit(getRequestDeduplicatedByIdKey(data.requestId), data, isTriggeredExternally);
@@ -58,7 +59,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getRequestDeduplicatedByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
-  // Loading
+  /** Emit loading state changes for a request */
   emitLoading: (data: RequestLoadingEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getLoadingKey(), data, isTriggeredExternally);
     emitter.emit(getLoadingByIdKey(data.requestId), data, isTriggeredExternally);
@@ -66,31 +67,33 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getLoadingByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
-  // Start
+  /** Emit when a request starts being sent */
   emitRequestStart: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getRequestStartKey(), data, isTriggeredExternally);
     emitter.emit(getRequestStartByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getRequestStarByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
+  /** Emit when the response starts being received */
   emitResponseStart: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getResponseStartKey(), data, isTriggeredExternally);
     emitter.emit(getResponseStartByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getResponseStartByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
-  // Progress
+  /** Emit upload progress updates */
   emitUploadProgress: (data: RequestProgressEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getUploadProgressKey(), data, isTriggeredExternally);
     emitter.emit(getUploadProgressByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getUploadProgressByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
+  /** Emit download progress updates */
   emitDownloadProgress: (data: RequestProgressEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getDownloadProgressKey(), data, isTriggeredExternally);
     emitter.emit(getDownloadProgressByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getDownloadProgressByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
-  // Response
+  /** Emit when a response is received */
   emitResponse: <Adapter extends AdapterInstance>(
     data: RequestResponseEventType<ExtendRequest<RequestInstance, { client: Client<any, Adapter> }>>,
     isTriggeredExternally = false,
@@ -100,14 +103,14 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getResponseByCacheKey(data.request.cacheKey), data, isTriggeredExternally);
   },
 
-  // Abort
+  /** Emit when a request is aborted */
   emitAbort: (data: RequestEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getAbortKey(), data, isTriggeredExternally);
     emitter.emit(getAbortByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getAbortByAbortKey(data.request.abortKey), data, isTriggeredExternally);
   },
 
-  // Remove
+  /** Emit when a request is removed from the dispatcher queue */
   emitRemove: (data: RequestRemovedEventType<RequestInstance>, isTriggeredExternally = false): void => {
     emitter.emit(getRemoveKey(), data, isTriggeredExternally);
     emitter.emit(getRemoveByIdKey(data.requestId), data, isTriggeredExternally);
@@ -118,7 +121,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
    * Listeners
    */
 
-  // Deduplicated
+  /** Listen for deduplicated request events */
   onDeduplicated: <T extends RequestInstance>(
     callback: (data: RequestDeduplicatedEventType<T>) => void,
   ): VoidFunction => {

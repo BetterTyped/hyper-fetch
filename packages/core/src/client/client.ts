@@ -232,7 +232,7 @@ export class Client<
   };
 
   /**
-   * Method for removing listeners on request.
+   * Method for removing response interceptors.
    * */
   removeOnResponseInterceptors = (
     callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
@@ -285,18 +285,22 @@ export class Client<
    * Key setters
    */
 
+  /** Set a custom mapper that generates the abort key used to cancel in-flight requests. */
   setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_abortKeyMapper = callback;
     return this;
   };
+  /** Set a custom mapper that generates the cache key used to store and retrieve cached responses. */
   setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_cacheKeyMapper = callback;
     return this;
   };
+  /** Set a custom mapper that generates the query key used to identify requests in the dispatcher queue. */
   setQueryKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_queryKeyMapper = callback;
     return this;
   };
+  /** Set a custom mapper that generates the unique request ID for deduplication and tracking. */
   setRequestIdMapper = (callback: (request: RequestInstance) => string) => {
     this.unstable_requestIdMapper = callback;
     return this;

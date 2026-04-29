@@ -4,6 +4,10 @@ import type { SocketInstance } from "socket";
 import type { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
 import type { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
+/**
+ * Represents a socket message emitter bound to a specific topic. Use it to send typed payloads
+ * over WebSocket or Server-Sent Events connections via the socket adapter.
+ */
 export class Emitter<
   Payload,
   Topic extends string,
@@ -35,16 +39,19 @@ export class Emitter<
     this.params = snapshot?.params;
   }
 
+  /** Set adapter-specific emit options (e.g., acknowledgment, timeout). */
   setOptions(options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined) {
     return this.clone({ options });
   }
 
+  /** Set the message payload to be emitted. */
   setPayload = <D extends Payload>(payload: D) => {
     return this.clone<D, D extends EmptyTypes ? false : true, HasParams>({
       payload,
     });
   };
 
+  /** Set a mapper function that transforms the payload before it is sent. */
   setPayloadMapper = <DataMapper extends (payload: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
     const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
 
@@ -53,6 +60,7 @@ export class Emitter<
     return cloned;
   };
 
+  /** Set the URL path parameters for the topic (e.g., `:channelId`). */
   setParams(params: NonNullable<ExtractUrlParams<Topic>>) {
     return this.clone<Payload, HasPayload, true>({ params });
   }
@@ -68,6 +76,7 @@ export class Emitter<
     return topic as Topic;
   };
 
+  /** Create a new emitter instance with optional configuration overrides. */
   clone<
     NewPayload extends Payload = Payload,
     NewHasPayload extends boolean = HasPayload,
@@ -94,6 +103,7 @@ export class Emitter<
     return newInstance;
   }
 
+  /** Send the message through the socket adapter on the configured topic. */
   emit: EmitType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>> = (options = {}) => {
     const typedOptions = options as EmitMethodOptionsType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>>;
     const instance = this.clone<Payload, HasPayload, HasParams>(typedOptions);

@@ -4,6 +4,7 @@ import type { CacheValueType } from "cache";
 import { getInvalidateByKey, getInvalidateKey, getCacheByKey, getCacheKey, getDeleteKey, getDeleteByKey } from "cache";
 import type { AdapterInstance } from "adapter";
 
+/** Create the cache event emitters and listeners for data changes, invalidation, and deletion. */
 export const getCacheEvents = (emitter: EventEmitter) => ({
   /**
    * Set cache data
@@ -31,7 +32,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.emit(getDeleteByKey(cacheKey), isTriggeredExternally);
   },
   /**
-   * Cache data listener
+   * Cache data listener for all keys
    * @param callback
    * @returns
    */
@@ -42,7 +43,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     return () => emitter.removeListener(getCacheKey(), callback);
   },
   /**
-   * Cache data listener
+   * Cache data listener filtered by a specific cache key
    * @param cacheKey
    * @param callback
    * @returns
@@ -73,10 +74,12 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.on(getInvalidateByKey(cacheKey), callback);
     return () => emitter.removeListener(getInvalidateByKey(cacheKey), callback);
   },
+  /** Cache deletion listener for all keys */
   onDelete: (callback: (cacheKey: string) => void): VoidFunction => {
     emitter.on(getDeleteKey(), callback);
     return () => emitter.removeListener(getDeleteKey(), callback);
   },
+  /** Cache deletion listener filtered by a specific cache key */
   onDeleteByKey: (cacheKey: string, callback: () => void): VoidFunction => {
     emitter.on(getDeleteByKey(cacheKey), callback);
     return () => emitter.removeListener(getDeleteByKey(cacheKey), callback);

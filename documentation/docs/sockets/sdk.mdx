@@ -43,44 +43,91 @@ const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
 The schema maps your socket topics as a nested type. Leaf nodes use `$listener` for receiving events and `$emitter` for
 sending events. Dynamic topic segments are prefixed with `$` (e.g., `$roomId` becomes `/:roomId`).
 
+:::tip Use `ListenerModel` / `EmitterModel` for schema leaves — not the `*Instance` types
+
+When defining a schema you are describing **one specific topic**. Use `ListenerModel<{...}>` / `EmitterModel<{...}>` —
+omitted fields stay strict (`unknown`, `undefined`, `string`, `false`) so the type system catches mismatches instead of
+silently collapsing to `any`. The mental model below explains when to reach for each type.
+
+:::
+
 ```typescript
-import type { ListenerInstance, EmitterInstance, Socket } from "@hyper-fetch/sockets";
+import type { ListenerModel, EmitterModel } from "@hyper-fetch/sockets";
 
-type AppSocket = Socket;
-
+// Schemas describe shape, response, payload and topic only. The socket (and its adapter)
+// is injected automatically by createSocketSdk(socket) - no need to repeat per leaf.
 type MyChatSchema = {
   chat: {
     messages: {
       // highlight-start
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { text: string; user: string };
         topic: "chat/messages";
-        socket: AppSocket;
       }>;
-      $emitter: EmitterInstance<{
+      $emitter: EmitterModel<{
         payload: { text: string };
         topic: "chat/messages";
-        socket: AppSocket;
       }>;
       // highlight-end
     };
     $roomId: {
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { text: string; user: string };
         topic: "chat/:roomId";
-        socket: AppSocket;
       }>;
     };
   };
   notifications: {
-    $listener: ListenerInstance<{
+    $listener: ListenerModel<{
       response: { message: string };
       topic: "notifications";
-      socket: AppSocket;
     }>;
   };
 };
 ```
+
+### `*Model` vs `*Instance` — two mindsets
+
+Hyper Fetch ships **two complementary type families** for describing listeners and emitters. They look similar but
+solve opposite problems. Picking the right one is the difference between strict end-to-end safety and accidental
+`any` leaks.
+
+| | `ListenerModel<{...}>` / `EmitterModel<{...}>` | `ListenerInstance<{...}>` / `EmitterInstance<{...}>` |
+| --- | --- | --- |
+| **Mindset** | "**This** specific topic." | "**Any** listener/emitter that matches this partial shape." |
+| **Use for** | Socket SDK schema leaves, single-topic definitions, listener / emitter factories. | Generic constraints (`<T extends ...>`), reusable hooks / wrappers / utilities that accept any listener or emitter. |
+| **Omitted fields default to** | Strict, non-`any` (`unknown`, `undefined`, `string`, `false`). | `any` — on purpose, so any concrete `Listener` / `Emitter` satisfies the constraint. |
+| **Why those defaults?** | Absence means "**there is no payload / no params**". The type should reject mismatches. | Absence means "**I don't care about that field**". The type should accept anything. |
+
+```ts
+// MODEL — defining the chat/messages topic exactly:
+//   response is { text, user }
+//   topic is the literal string
+//   strict types mean unrelated payloads / topics are rejected.
+type ChatMessages = ListenerModel<{
+  response: { text: string; user: string };
+  topic: "chat/messages";
+}>;
+
+// INSTANCE — accepting any listener whose response has a `text` field:
+//   response is constrained
+//   topic, params etc. can be ANY shape — caller picks.
+function MessageBubble<T extends ListenerInstance<{ response: { text: string } }>>(props: { listener: T }) {
+  // ...
+}
+```
+
+If you find yourself writing `ListenerInstance` inside a schema, that is a signal you wanted `ListenerModel`. If you
+find yourself writing `ListenerModel` as a generic constraint on a reusable component, that is a signal you wanted
+`ListenerInstance`.
+
+:::info Socket injection — you do not pass `socket` per leaf
+
+You do not have to add `socket: AppSocket` to every `ListenerModel` / `EmitterModel` declaration.
+`createSocketSdk(socket)` rewrites the schema type at the boundary so every `Listener` and `Emitter` leaf carries the
+actual socket (and therefore its adapter). The schema describes topic shape; the SDK supplies the runtime context.
+
+:::
 
 ---
 

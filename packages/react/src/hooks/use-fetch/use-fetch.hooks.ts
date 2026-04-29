@@ -20,7 +20,8 @@ const suspensePromiseMap = new Map<string, SuspenseEntry>();
 const suspenseResultMap = new Map<string, { data: any; error: any; status: any; extra: any; success: boolean }>();
 
 /**
- * This hooks aims to retrieve data from server.
+ * This hook aims to retrieve data from the server. It automatically fetches on mount and
+ * refetches based on dependencies, with support for caching, polling, and suspense.
  * @param request Request instance
  * @param options Hook options
  * @returns

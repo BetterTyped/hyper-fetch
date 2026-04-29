@@ -1,10 +1,50 @@
 import type { SocketInstance } from "socket";
-import type { ListenerInstance } from "listener";
-import type { EmitterInstance } from "emitter";
+import type { Listener, ListenerInstance } from "listener";
+import type { Emitter, EmitterInstance } from "emitter";
+import type {
+  ExtractListenerResponseType,
+  ExtractListenerTopicType,
+  ExtractListenerHasParamsType,
+  ExtractEmitterPayloadType,
+  ExtractEmitterTopicType,
+  ExtractEmitterHasPayloadType,
+  ExtractEmitterHasParamsType,
+} from "types";
 
 export type RecursiveSocketSchemaType = Record<string, any>;
 
 type SocketSdkLeaf = ListenerInstance | EmitterInstance;
+
+/**
+ * Recursively walks a socket schema and rebuilds every `Listener` / `Emitter` leaf with the
+ * SDK's actual socket type injected into the `Socket` generic slot. Lets users omit `socket`
+ * from their `ListenerModel<{...}>` / `EmitterModel<{...}>` declarations - the SDK fills it
+ * in from the socket passed to `createSocketSdk(socket)`.
+ *
+ * Non-leaf values (primitive types, plain values) are passed through unchanged. Nested schema
+ * objects are recursed into. Depth is guarded at 10 levels to keep the type checker within
+ * reasonable bounds.
+ */
+export type InjectSocket<T, S extends SocketInstance, Depth extends unknown[] = []> = Depth["length"] extends 10
+  ? T
+  : T extends ListenerInstance
+    ? Listener<
+        ExtractListenerResponseType<T>,
+        ExtractListenerTopicType<T> extends string ? ExtractListenerTopicType<T> : string,
+        S,
+        ExtractListenerHasParamsType<T> extends boolean ? ExtractListenerHasParamsType<T> : false
+      >
+    : T extends EmitterInstance
+      ? Emitter<
+          ExtractEmitterPayloadType<T>,
+          ExtractEmitterTopicType<T> extends string ? ExtractEmitterTopicType<T> : string,
+          S,
+          ExtractEmitterHasPayloadType<T> extends boolean ? ExtractEmitterHasPayloadType<T> : false,
+          ExtractEmitterHasParamsType<T> extends boolean ? ExtractEmitterHasParamsType<T> : false
+        >
+      : T extends Record<string, any>
+        ? { [K in keyof T]: InjectSocket<T[K], S, [...Depth, unknown]> }
+        : T;
 
 type ExtractTopicFromLeaf<T> = T extends { topic: infer Topic extends string } ? Topic : never;
 
@@ -225,14 +265,25 @@ const createSocketRecursiveProxy = ({
   });
 };
 
-export type SocketSdkInstance<Schema extends RecursiveSocketSchemaType> = Schema & {
-  $configure: (defaults: SocketSdkConfigurationMap<Schema>) => SocketSdkInstance<Schema>;
+/**
+ * The fully-resolved Socket SDK instance type returned by `createSocketSdk`.
+ *
+ * The schema is rewritten via {@link InjectSocket} so every `Listener` / `Emitter` leaf
+ * carries the actual socket type passed to `createSocketSdk(socket)` - users do not need
+ * to repeat `socket: AppSocket` in every `ListenerModel<{...}>` / `EmitterModel<{...}>`
+ * declaration.
+ */
+export type SocketSdkInstance<
+  Schema extends RecursiveSocketSchemaType,
+  S extends SocketInstance = SocketInstance,
+> = InjectSocket<Schema, S> & {
+  $configure: (defaults: SocketSdkConfigurationMap<Schema>) => SocketSdkInstance<Schema, S>;
 };
 
 export const createSocketSdk = <S extends SocketInstance, RecursiveSchema extends RecursiveSocketSchemaType>(
   socket: S,
   options?: CreateSocketSdkOptions<RecursiveSchema>,
-): SocketSdkInstance<RecursiveSchema> => {
+): SocketSdkInstance<RecursiveSchema, S> => {
   const { camelCaseToKebabCase = true, ...rest } = options ?? {};
 
   const mergedOptions: CreateSocketSdkOptions<RecursiveSchema> = { camelCaseToKebabCase, ...rest };
@@ -251,7 +302,7 @@ export const createSocketSdk = <S extends SocketInstance, RecursiveSchema extend
       }
       return target[key];
     },
-  }) as SocketSdkInstance<RecursiveSchema>;
+  }) as SocketSdkInstance<RecursiveSchema, S>;
 };
 
 /**

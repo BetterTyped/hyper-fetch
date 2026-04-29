@@ -36,6 +36,38 @@ export type RequestInstanceProperties = {
   hasPayload?: boolean;
 };
 
+/**
+ * The **constraint** form of a Request type. Mindset: "any Request that matches this partial shape".
+ *
+ * Use `RequestInstance` when you are writing a **reusable abstraction** that accepts requests from
+ * the outside - generic helpers (`<T extends RequestInstance>`), reusable UI components / hooks,
+ * `sdk.$configure({...})` callbacks, mocking utilities, interceptors, return types, etc.
+ *
+ * Unspecified generic parameters default to `any` **on purpose**: an omitted field means
+ * "I do not care about that field, the caller picks anything". This is exactly what you want
+ * for a constraint - any concrete `Request` satisfies it. Partial constraints work too:
+ * `RequestInstance<{ response: User[] }>` accepts every request that returns `User[]`,
+ * regardless of payload, params, queryParams, error, etc.
+ *
+ * For describing a **single endpoint** inside an SDK schema, use {@link RequestModel} instead.
+ * `RequestModel` uses safe non-`any` defaults (`unknown`, `undefined`, `Error`, `string`, `false`)
+ * so omitted fields stay strict instead of silently collapsing to `any`.
+ *
+ * @example
+ * ```ts
+ * // Reusable component: accepts any request whose response is User[]
+ * function UserList<T extends RequestInstance<{ response: User[] }>>(props: { request: T }) {
+ *   // ...
+ * }
+ *
+ * // sdk.$configure callback: accepts any request the SDK happens to dispatch
+ * sdk.$configure({
+ *   "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: [] })),
+ * });
+ * ```
+ *
+ * @see {@link RequestModel} - definition counterpart for SDK schema modeling.
+ */
 export type RequestInstance<
   RequestProperties extends RequestInstanceProperties = {
     response?: any;
@@ -55,6 +87,75 @@ export type RequestInstance<
   TypeWithDefaults<RequestProperties, "hasParams", any>,
   TypeWithDefaults<RequestProperties, "hasQueryParams", any>,
   any
+>;
+
+/**
+ * The **definition** form of a Request type. Mindset: "**this** specific endpoint".
+ *
+ * Use `RequestModel` when you are **defining** a request inside an SDK schema or a request
+ * factory. Unlike {@link RequestInstance}, every unspecified field stays strict instead of
+ * falling back to `any` - because in a definition, an omitted field means "**there is no
+ * payload / no query / no params here**", not "anything goes". The type system will reject
+ * mismatches at the call site instead of silently erasing them.
+ *
+ * The `client` field is also injected automatically by `createSdk(client)` at the SDK boundary,
+ * so you never need to repeat it inside schema declarations.
+ *
+ * ### Defaults for omitted fields
+ *
+ * | Field             | Default          | Why                                                                    |
+ * | ----------------- | ---------------- | ---------------------------------------------------------------------- |
+ * | `response`        | `unknown`        | Forces narrowing in consumer code; never silently widened.             |
+ * | `payload`         | `undefined`      | "No body declared." `.setData()` is required for typed bodies.         |
+ * | `queryParams`     | `undefined`      | Same as payload.                                                       |
+ * | `error`           | `Error`          | Sensible default; override per-endpoint when the API has a known shape.|
+ * | `endpoint`        | `string`         | Allows literal narrowing without erasure. Pass a string literal.       |
+ * | `client`          | `ClientInstance` | Injected by `createSdk(client)`; you do not need to set this manually. |
+ * | `hasPayload`      | `false`          | "Caller must call `.setData()`." Override only when payload is bound.  |
+ * | `hasParams`       | `false`          | Same as `hasPayload` for params.                                       |
+ * | `hasQueryParams`  | `false`          | Same as `hasPayload` for query params.                                 |
+ * | `mutationContext` | `undefined`      | Optional context; default is "no context".                             |
+ *
+ * @example
+ * ```ts
+ * // Schema describes shape only - client is injected by createSdk(client).
+ * type ApiSchema = {
+ *   users: {
+ *     $get: RequestModel<{
+ *       response: User[];
+ *       endpoint: "/users";
+ *     }>;
+ *     $userId: {
+ *       $get: RequestModel<{
+ *         response: User;
+ *         endpoint: "/users/:userId";
+ *       }>;
+ *     };
+ *   };
+ * };
+ * ```
+ *
+ * @see {@link RequestInstance} - constraint counterpart for accepting any Request.
+ */
+export type RequestModel<
+  RequestProperties extends RequestInstanceProperties = {
+    response?: unknown;
+    payload?: undefined;
+    queryParams?: undefined;
+    error?: Error;
+    client?: ClientInstance;
+  },
+> = Request<
+  TypeWithDefaults<RequestProperties, "response", unknown>,
+  TypeWithDefaults<RequestProperties, "payload", undefined>,
+  TypeWithDefaults<RequestProperties, "queryParams", undefined>,
+  TypeWithDefaults<RequestProperties, "error", Error>,
+  TypeWithDefaults<RequestProperties, "endpoint", string>,
+  TypeWithDefaults<RequestProperties, "client", ClientInstance>,
+  TypeWithDefaults<RequestProperties, "hasPayload", false>,
+  TypeWithDefaults<RequestProperties, "hasParams", false>,
+  TypeWithDefaults<RequestProperties, "hasQueryParams", false>,
+  undefined
 >;
 
 // Progress
@@ -108,7 +209,7 @@ export type RequestJSON<Request extends RequestInstance> = {
  */
 export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods = HttpMethodsType> = {
   /**
-   * Determine the endpoint for request request
+   * Determine the endpoint for the request
    */
   endpoint: GenericEndpoint;
   /**
@@ -149,7 +250,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   staleTime?: number;
   /**
-   * Should the requests from this request be send one-by-one
+   * Should the requests be queued and sent one-by-one
    */
   queued?: boolean;
   /**

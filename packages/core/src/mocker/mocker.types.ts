@@ -17,6 +17,7 @@ export type MockerConfigType = {
   totalDownloaded?: number;
 };
 
+/** Shape of a mocked response returned from the mocker. Must include either `data` (success) or `error` (failure). */
 export type MockResponseType<Response, Error, AdapterType extends AdapterInstance> = PartialBy<
   Omit<ResponseType<Response, Error, AdapterType>, "data" | "error" | "responseTimestamp" | "requestTimestamp">,
   "extra" | "success"

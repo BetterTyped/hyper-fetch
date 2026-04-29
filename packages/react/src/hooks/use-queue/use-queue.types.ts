@@ -7,14 +7,20 @@ import type {
 } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
+  /** Which dispatcher to use: "auto" picks based on request method, "fetch" or "submit" forces a specific one */
   dispatcherType?: "auto" | "fetch" | "submit";
+  /** When true, completed requests remain in the queue list for inspection */
   keepFinishedRequests?: boolean;
 };
 
 export type QueueRequest<Request extends RequestInstance> = ResolvedQueueItemType<Request> & {
+  /** Whether the request has failed after all retry attempts */
   failed?: boolean;
+  /** Whether the request was canceled before completing */
   canceled?: boolean;
+  /** Whether the request was removed from the queue */
   removed?: boolean;
+  /** Whether the request completed successfully */
   success?: boolean;
   /**
    * Uploading progress for given request

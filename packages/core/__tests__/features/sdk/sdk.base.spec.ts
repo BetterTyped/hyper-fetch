@@ -3,7 +3,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import type { Client } from "client";
 import { createClient } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import type { RequestInstance } from "request";
+import type { RequestModel } from "request";
 import { Request } from "request";
 import { createSdk } from "sdk";
 
@@ -11,28 +11,25 @@ const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 type TestClient = Client<Error, HttpAdapterType>;
 
+// Schema does not need to declare `client` per request - the SDK injects it from createSdk(client).
 type TestSchema = {
   users: {
-    $get: RequestInstance<{
-      client: TestClient;
+    $get: RequestModel<{
       queryParams: { page: number; limit: number };
       endpoint: "/users";
     }>;
     $userId: {
-      $get: RequestInstance<{
-        client: TestClient;
+      $get: RequestModel<{
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
-      $delete: RequestInstance<{
-        client: TestClient;
+      $delete: RequestModel<{
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
       posts: {
         $postId: {
-          $delete: RequestInstance<{
-            client: TestClient;
+          $delete: RequestModel<{
             response: { id: string; title: string };
             endpoint: "/users/:userId/posts/:postId";
           }>;
@@ -41,8 +38,7 @@ type TestSchema = {
     };
   };
   acceptInvitation: {
-    $post: RequestInstance<{
-      client: TestClient;
+    $post: RequestModel<{
       endpoint: "/accept-invitation";
     }>;
   };

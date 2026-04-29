@@ -5,9 +5,29 @@ sidebar_label: Extend Request
 ---
 
 In Hyper-Fetch, you can create highly reusable functions and components by building them to work with generic
-`RequestInstance` objects. This approach allows you to enforce specific type constraints, ensuring that any request
-passed to your component has the expected shape—for example, a response that is an array of items for an autocomplete
-component.
+`RequestInstance` objects. This approach lets you enforce a **partial shape constraint** on a request — for example "any
+request whose response is an array of strings" — while letting the caller decide every other detail.
+
+This guide walks you through that pattern. Before diving in, make sure you pick the right tool for the job:
+
+:::tip `RequestInstance` vs `RequestModel` — pick the right tool
+
+Hyper Fetch ships two complementary types. They look similar but mean opposite things at the type level. Using the wrong
+one silently leaks `any` into your codebase.
+
+|                               | `RequestInstance<{...}>` (this guide)                                                        | `RequestModel<{...}>`                                                       |
+| ----------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Mindset**                   | "**Any** request that matches this partial shape."                                           | "**This** specific endpoint."                                               |
+| **Use for**                   | Generic constraints, reusable components / hooks / helpers that accept any matching request. | SDK schema leaves, single-endpoint definitions.                             |
+| **Omitted fields default to** | `any` — on purpose, so any concrete `Request` satisfies the constraint.                      | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`).     |
+| **Why those defaults?**       | "I don't care about that field." Caller picks anything.                                      | "There is no payload / no query / no params here." Mismatches are rejected. |
+
+The rule of thumb:
+
+- Writing a **reusable abstraction** that accepts requests from outside? → `RequestInstance` (this guide).
+- Defining **one endpoint** in a schema? → `RequestModel` (see the [SDK guide](/docs/core/sdk#defining-the-schema)).
+
+:::
 
 This guide will walk you through how to extend requests using TypeScript generics to build flexible, type-safe, and
 modular features.
@@ -31,13 +51,14 @@ request instance like this:
 import { RequestInstance } from "@hyper-fetch/core";
 
 function someFunction<T extends RequestInstance>(request: T) {
-  // This function will accept any Request passed as a parameter.
+  // Accepts ANY Request - response, payload, queryParams, error all default to `any`,
+  // because you do not care what the caller passes.
 }
 ```
 
-However, the real power comes from making this more specific. The `RequestInstance` type from `@hyper-fetch/core` is a
-generic type itself, allowing you to specify the expected `response`, `payload`, `queryParams`, and `error` types. For
-many reusable components, you might only care about the `response` type.
+However, the real power comes from making this more specific. `RequestInstance` is a generic type itself, so you can
+**partially constrain** it — pin down only the fields you care about and let the rest stay `any`. For many reusable
+components you only need to constrain the `response` type.
 
 ### Practical Example: Autocomplete
 
@@ -98,8 +119,38 @@ This pattern is powerful for building reusable, type-safe components and functio
 - **Generic UI Components** like `<DataTable />` or `<SelectField />`.
 - **Type-safe utilities** for data processing.
 - **Abstracting business logic** into reusable functions.
+- **Mock / interceptor / configuration callbacks** in `sdk.$configure({...})`.
 
 By using this approach, you promote code reuse and maintain strong type safety across your application.
+
+### Not for schema definitions
+
+If you find yourself reaching for `RequestInstance` inside a schema declaration like this:
+
+```ts
+// ⛔ This silently widens response, payload, queryParams, error to `any` for that endpoint.
+type ApiSchema = {
+  users: {
+    $get: RequestInstance<{ response: User[]; endpoint: "/users" }>;
+  };
+};
+```
+
+…that is a signal you wanted `RequestModel` instead. Inside a schema, omitted fields should mean "**there is no payload
+here**" — not "anything goes". Switch the type and the rest of your code keeps the strictness it deserves:
+
+```ts
+import { RequestModel } from "@hyper-fetch/core";
+
+// ✅ Omitted payload / queryParams / error stay strict (undefined / Error) instead of any.
+type ApiSchema = {
+  users: {
+    $get: RequestModel<{ response: User[]; endpoint: "/users" }>;
+  };
+};
+```
+
+See the [SDK guide](/docs/core/sdk#defining-the-schema) for the full schema pattern.
 
 ---
 

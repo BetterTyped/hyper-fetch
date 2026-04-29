@@ -204,28 +204,34 @@ export class Request<
     this.updatedQueryKey = initialRequestConfiguration?.updatedQueryKey ?? false;
   }
 
+  /** Set the request headers. Returns a cloned request with the new headers applied. */
   public setHeaders = (headers: HeadersInit) => {
     return this.clone({ headers });
   };
 
+  /** Set whether authentication interceptors should run for this request. */
   public setAuth = (auth: boolean) => {
     return this.clone({ auth });
   };
 
+  /** Set the URL path parameters (e.g., `:userId`). */
   public setParams = <P extends ExtractParamsType<this>>(params: P) => {
     return this.clone<HasPayload, P extends null ? false : true, HasQuery>({ params });
   };
 
+  /** Set the request body payload. */
   public setPayload = <P extends Payload>(payload: P) => {
     return this.clone<P extends null ? false : true, HasParams, HasQuery>({
       payload,
     });
   };
 
+  /** Set the query parameters appended to the URL. */
   public setQueryParams = (queryParams: QueryParams) => {
     return this.clone<HasPayload, HasParams, true>({ queryParams });
   };
 
+  /** Set adapter-specific options (e.g., axios config, fetch init). */
   public setOptions = (options: ClientAdapterOptions<Client>) => {
     return this.clone<HasPayload, HasParams, true>({ options });
   };
@@ -242,14 +248,17 @@ export class Request<
     return cloned;
   };
 
+  /** Set whether in-flight requests with the same abort key are cancelled when a new one is dispatched. */
   public setCancelable = (cancelable: boolean) => {
     return this.clone({ cancelable });
   };
 
+  /** Set the number of retry attempts on failure. */
   public setRetry = (retry: ClientRequestOptions<Endpoint, Client>["retry"]) => {
     return this.clone({ retry });
   };
 
+  /** Set the delay in milliseconds between retry attempts. */
   public setRetryTime = (retryTime: ClientRequestOptions<Endpoint, Client>["retryTime"]) => {
     return this.clone({ retryTime });
   };
@@ -293,53 +302,65 @@ export class Request<
     >;
   };
 
+  /** Set how long (in ms) the response remains in cache before being garbage collected. */
   public setCacheTime = (cacheTime: ClientRequestOptions<Endpoint, Client>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
+  /** Set whether this request should use the cache. */
   public setCache = (cache: ClientRequestOptions<Endpoint, Client>["cache"]) => {
     return this.clone({ cache });
   };
 
+  /** Set how long (in ms) cached data is considered fresh before triggering a revalidation. */
   public setStaleTime = (staleTime: ClientRequestOptions<Endpoint, Client>["staleTime"]) => {
     return this.clone({ staleTime });
   };
 
+  /** Set whether the request should be queued and executed sequentially rather than immediately. */
   public setQueued = (queued: boolean) => {
     return this.clone({ queued });
   };
 
+  /** Override the abort key used to cancel this request. */
   public setAbortKey = (abortKey: string) => {
     this.updatedAbortKey = true;
     return this.clone({ abortKey });
   };
 
+  /** Override the cache key used to store/retrieve the response. */
   public setCacheKey = (cacheKey: string) => {
     this.updatedCacheKey = true;
     return this.clone({ cacheKey });
   };
 
+  /** Override the query key that identifies this request in the dispatcher queue. */
   public setQueryKey = (queryKey: string) => {
     this.updatedQueryKey = true;
     return this.clone({ queryKey });
   };
 
+  /** Enable or disable request deduplication. When enabled, concurrent identical requests share a single response. */
   public setDeduplicate = (deduplicate: boolean) => {
     return this.clone({ deduplicate });
   };
 
+  /** Set the time window (in ms) during which identical requests are deduplicated. */
   public setDeduplicateTime = (deduplicateTime: number) => {
     return this.clone({ deduplicateTime });
   };
 
+  /** Mark the request as used (prevents automatic refetching in hooks). */
   public setUsed = (used: boolean) => {
     return this.clone({ used });
   };
 
+  /** Set whether the request should be stored in the offline queue when there is no network connection. */
   public setOffline = (offline: boolean) => {
     return this.clone({ offline });
   };
 
+  /** Attach a mock handler to this request. When mocking is enabled, the handler is called instead of the real adapter. */
   public setMock = (
     fn: (options: {
       request: Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>;
@@ -354,12 +375,14 @@ export class Request<
     return this;
   };
 
+  /** Remove any attached mock handler and disable mocking for this request. */
   public clearMock = () => {
     this.unstable_mock = undefined;
     this.isMockerEnabled = false;
     return this;
   };
 
+  /** Enable or disable the mocker for this request without removing the mock handler. */
   public setMockingEnabled = (isMockerEnabled: boolean) => {
     this.isMockerEnabled = isMockerEnabled;
     return this;
@@ -432,6 +455,7 @@ export class Request<
     return stringEndpoint as Endpoint;
   };
 
+  /** Serialize the request configuration into a plain JSON object for persistence or transfer. */
   public toJSON(): RequestJSON<this> {
     return {
       requestOptions: this.requestOptions as unknown as RequestOptionsType<
@@ -473,6 +497,7 @@ export class Request<
     };
   }
 
+  /** Create a new request instance with optional configuration overrides. Used internally by all setter methods. */
   public clone<
     NewData extends true | false = HasPayload,
     NewParams extends true | false = HasParams,
@@ -537,6 +562,7 @@ export class Request<
     return cloned;
   }
 
+  /** Abort all in-flight requests sharing this request's abort key. */
   public abort = () => {
     const { requestManager } = this.client;
     requestManager.abortByKey(scopeKey(this.abortKey, this.scope));
@@ -544,6 +570,7 @@ export class Request<
     return this.clone();
   };
 
+  /** Extract the current cache data for this request into a portable hydration payload (useful for SSR). */
   public dehydrate = (config?: {
     /** in case of using adapter without cache we can provide response to dehydrate */
     response?: ResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
@@ -698,6 +725,7 @@ export class Request<
     return sendRequest(request, sendRequestOptions);
   };
 
+  /** Reconstruct a Request instance from a previously serialized JSON representation. */
   static fromJSON = <
     NewResponse,
     NewPayload,

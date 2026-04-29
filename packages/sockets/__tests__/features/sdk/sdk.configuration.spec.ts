@@ -1,39 +1,36 @@
 import type { SocketInstance } from "socket";
-import type { ListenerInstance } from "listener";
-import type { EmitterInstance } from "emitter";
+import type { ListenerModel } from "listener";
+import type { EmitterModel } from "emitter";
 import type { SocketSdkConfigurationValue } from "sdk";
 import { createSocketSdk, createSocketConfiguration } from "sdk";
 import { createSocket } from "../../utils/socket.utils";
 
 type TestSocket = SocketInstance;
 
+// Schema does not need to declare `socket` per leaf - the SDK injects it from createSocketSdk(socket).
 type TestSchema = {
   chat: {
     messages: {
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { text: string; user: string };
         topic: "chat/messages";
-        socket: TestSocket;
       }>;
-      $emitter: EmitterInstance<{
+      $emitter: EmitterModel<{
         payload: { text: string };
         topic: "chat/messages";
-        socket: TestSocket;
       }>;
     };
     rooms: {
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { name: string };
         topic: "chat/rooms";
-        socket: TestSocket;
       }>;
     };
   };
   notifications: {
-    $listener: ListenerInstance<{
+    $listener: ListenerModel<{
       response: { message: string };
       topic: "notifications";
-      socket: TestSocket;
     }>;
   };
 };

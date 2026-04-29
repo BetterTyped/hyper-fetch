@@ -26,6 +26,7 @@ export type WebsocketAdapterType = SocketAdapter<
   typeof stringifyQueryParams
 >;
 
+/** Create a preconfigured socket adapter for native WebSocket connections. */
 export const WebsocketAdapter = (): WebsocketAdapterType =>
   new SocketAdapter<
     MessageEvent<any>,

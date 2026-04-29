@@ -1,40 +1,37 @@
 import type { SocketInstance } from "socket";
 import { Listener } from "listener";
-import type { ListenerInstance } from "listener";
+import type { ListenerModel } from "listener";
 import { Emitter } from "emitter";
-import type { EmitterInstance } from "emitter";
+import type { EmitterModel } from "emitter";
 import { createSocketSdk } from "sdk";
 import { createSocket } from "../../utils/socket.utils";
 
 type TestSocket = SocketInstance;
 
+// Schema does not need to declare `socket` per leaf - the SDK injects it from createSocketSdk(socket).
 type TestSchema = {
   chat: {
     messages: {
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { text: string; user: string };
         topic: "chat/messages";
-        socket: TestSocket;
       }>;
-      $emitter: EmitterInstance<{
+      $emitter: EmitterModel<{
         payload: { text: string };
         topic: "chat/messages";
-        socket: TestSocket;
       }>;
     };
     $roomId: {
-      $listener: ListenerInstance<{
+      $listener: ListenerModel<{
         response: { text: string; user: string };
         topic: "chat/:roomId";
-        socket: TestSocket;
       }>;
     };
   };
   notifications: {
-    $listener: ListenerInstance<{
+    $listener: ListenerModel<{
       response: { message: string };
       topic: "notifications";
-      socket: TestSocket;
     }>;
   };
 };
@@ -107,10 +104,9 @@ describe("Socket SDK [ Base ]", () => {
   it("should handle camelCase to kebab-case conversion", () => {
     type KebabSchema = {
       someChannel: {
-        $listener: ListenerInstance<{
+        $listener: ListenerModel<{
           response: any;
           topic: "some-channel";
-          socket: TestSocket;
         }>;
       };
     };

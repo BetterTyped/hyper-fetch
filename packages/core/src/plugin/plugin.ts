@@ -1,6 +1,10 @@
 import type { PluginMethodParameters, PluginMethods, PluginOptionsType } from "plugin";
 import type { ClientInstance } from "client";
 
+/**
+ * Base class for plugins that hook into the request, cache, dispatcher, and adapter lifecycle.
+ * Extend this to build devtools, logging, analytics, or custom side-effect plugins.
+ */
 export class Plugin<Client extends ClientInstance = ClientInstance, PluginData = void> {
   public name: string;
   public data: PluginData;
@@ -16,11 +20,13 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     }
   }
 
+  /** Bind the plugin to a client instance. Called automatically when the plugin is added via `client.addPlugin()`. */
   initialize = (client: Client) => {
     this.client = client;
     return this;
   };
 
+  /** Invoke a registered plugin method by name. Used internally by the client to dispatch lifecycle events. */
   trigger = <Key extends keyof PluginMethods<Client>>(method: Key, data: PluginMethodParameters<Key, Client>) => {
     const callback = this.pluginMethods[method];
     if (callback) {
@@ -99,36 +105,43 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
    * Dispatcher lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
+  /** Called when the dispatcher storage is fully cleared */
   onDispatcherCleared = (callback: PluginMethods<Client>["onDispatcherCleared"]) => {
     this.pluginMethods.onDispatcherCleared = callback;
     return this;
   };
 
+  /** Called when a dispatcher queue has no more pending requests */
   onDispatcherQueueDrained = (callback: PluginMethods<Client>["onDispatcherQueueDrained"]) => {
     this.pluginMethods.onDispatcherQueueDrained = callback;
     return this;
   };
 
+  /** Called when a dispatcher queue transitions to running, paused, or stopped */
   onDispatcherQueueRunning = (callback: PluginMethods<Client>["onDispatcherQueueRunning"]) => {
     this.pluginMethods.onDispatcherQueueRunning = callback;
     return this;
   };
 
+  /** Called when a new item is added to a dispatcher queue */
   onDispatcherItemAdded = (callback: PluginMethods<Client>["onDispatcherItemAdded"]) => {
     this.pluginMethods.onDispatcherItemAdded = callback;
     return this;
   };
 
+  /** Called when an item is removed from a dispatcher queue */
   onDispatcherItemDeleted = (callback: PluginMethods<Client>["onDispatcherItemDeleted"]) => {
     this.pluginMethods.onDispatcherItemDeleted = callback;
     return this;
   };
 
+  /** Called when a new dispatcher queue is created */
   onDispatcherQueueCreated = (callback: PluginMethods<Client>["onDispatcherQueueCreated"]) => {
     this.pluginMethods.onDispatcherQueueCreated = callback;
     return this;
   };
 
+  /** Called when an entire dispatcher queue is cleared */
   onDispatcherQueueCleared = (callback: PluginMethods<Client>["onDispatcherQueueCleared"]) => {
     this.pluginMethods.onDispatcherQueueCleared = callback;
     return this;
@@ -138,11 +151,13 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
    * Cache lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
+  /** Called when a cache entry is created or updated */
   onCacheItemChange = (callback: PluginMethods<Client>["onCacheItemChange"]) => {
     this.pluginMethods.onCacheItemChange = callback;
     return this;
   };
 
+  /** Called when a cache entry is deleted */
   onCacheItemDelete = (callback: PluginMethods<Client>["onCacheItemDelete"]) => {
     this.pluginMethods.onCacheItemDelete = callback;
     return this;
@@ -152,6 +167,7 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
    * Adapter lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
+  /** Called when the adapter fetcher is about to execute a request */
   onAdapterFetch = (callback: PluginMethods<Client>["onAdapterFetch"]) => {
     this.pluginMethods.onAdapterFetch = callback;
     return this;

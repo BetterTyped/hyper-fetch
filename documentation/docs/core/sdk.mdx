@@ -61,40 +61,42 @@ for URL paths and then add properties for HTTP methods (`get`, `post`, `put`, `d
 Dynamic path segments are prefixed with a `$` sign. For example, `$userId` becomes a `/:userId` parameter in the
 endpoint.
 
+:::tip Use `RequestModel` for schema leaves — not `RequestInstance`
+
+When defining a schema you are describing **one specific endpoint**. Use `RequestModel<{...}>` — omitted fields stay
+strict (`unknown`, `undefined`, `Error`, `string`, `false`) so the type system catches mistakes instead of silently
+collapsing to `any`. The mental model below explains when to reach for each type.
+
+:::
+
 ```typescript
-import { Client, RequestInstance } from "@hyper-fetch/core";
+import { RequestModel } from "@hyper-fetch/core";
 
-// Define the client type for our schema
-type AppClient = Client<Error, any>;
-
-// Define the API Schema
+// Schemas describe shape and types only. The client (and its adapter / global error)
+// are injected automatically by createSdk(client) - no need to repeat per request.
 type MyApiSchema = {
   // GET /users
   // GET /users?page=1&limit=10
   users: {
-    get: RequestInstance<{
-      client: AppClient;
+    $get: RequestModel<{
       queryParams: { page: number; limit: number };
       endpoint: "/users";
     }>;
     // GET /users/:userId
     // DELETE /users/:userId
     $userId: {
-      get: RequestInstance<{
-        client: AppClient;
+      $get: RequestModel<{
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
-      delete: RequestInstance<{
-        client: AppClient;
+      $delete: RequestModel<{
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
       // DELETE /users/:userId/posts/:postId
       posts: {
         $postId: {
-          delete: RequestInstance<{
-            client: AppClient;
+          $delete: RequestModel<{
             response: { id: string; title: string };
             endpoint: "/users/:userId/posts/:postId";
           }>;
@@ -105,6 +107,52 @@ type MyApiSchema = {
 };
 ```
 
+### `RequestModel` vs `RequestInstance` — two mindsets
+
+Hyper Fetch ships **two complementary types** for describing requests at the type level. They look similar but solve
+opposite problems. Picking the right one is the difference between strict end-to-end safety and accidental `any` leaks.
+
+| | `RequestModel<{...}>` | `RequestInstance<{...}>` |
+| --- | --- | --- |
+| **Mindset** | "**This** specific endpoint." | "**Any** request that matches this partial shape." |
+| **Use for** | SDK schema leaves, single-endpoint definitions, request factories. | Generic constraints (`<T extends ...>`), reusable components / hooks / helpers that accept any request. |
+| **Omitted fields default to** | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`). | `any` — on purpose, so any concrete `Request` satisfies the constraint. |
+| **Why those defaults?** | Absence means "**there is no payload / no query / no params**". The type should reject mismatches. | Absence means "**I don't care about that field**". The type should accept anything. |
+
+```ts
+// MODEL — defining the /users endpoint exactly:
+//   response is an array of User
+//   no payload, no queryParams, no params
+//   any attempt to send extra data is a compile error.
+type GetUsers = RequestModel<{ response: User[]; endpoint: "/users" }>;
+
+// INSTANCE — accepting any request whose response is User[]:
+//   response is constrained
+//   payload, queryParams, error etc. can be ANY shape — caller picks.
+function autocomplete<T extends RequestInstance<{ response: User[] }>>(request: T) {
+  return request.send();
+}
+```
+
+If you find yourself writing `RequestInstance` inside a schema, that is a signal you wanted `RequestModel`. If you find
+yourself writing `RequestModel` as a generic constraint on a reusable component, that is a signal you wanted
+`RequestInstance`.
+
+:::info Client injection — you do not pass `client` per request
+
+You do not have to add `client: AppClient` to every `RequestModel` declaration. `createSdk(client)` rewrites the schema
+type at the boundary so every `Request` leaf carries the actual client (and therefore its adapter and global error
+type). The schema describes the API shape; the SDK supplies the runtime context.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="Extend Request — the `RequestInstance` constraint pattern"
+  description="When (and how) to use RequestInstance to build reusable components that accept any matching request."
+  to="/docs/guides/typescript/extend"
+/>
+
 ---
 
 ## How It Works: The Magic of Proxies
@@ -113,13 +161,13 @@ You might be wondering how the `sdk` object provides all these methods without y
 lies in **Recursive Proxy Generation**.
 
 The `sdk` object is not a simple JavaScript object with predefined properties. Instead, it's a `Proxy` that dynamically
-constructs requests as you access its properties. When you write `sdk.users.get`, you're triggering a chain of proxy
+constructs requests as you access its properties. When you write `sdk.users.$get`, you're triggering a chain of proxy
 getters:
 
 1.  `sdk.users`: The proxy intercepts this and internally notes down `users` as the first part of the endpoint path. It
     then returns a _new_ proxy to handle the next property.
-2.  `.get`: This access is caught by the new proxy. It recognizes `get` as an HTTP method, finalizes the request
-    configuration (`GET /users`), and returns a fully configured `Request` instance, ready to be used.
+2.  `.$get`: This access is caught by the new proxy. It recognizes the `$`-prefixed key as an HTTP method, finalizes
+    the request configuration (`GET /users`), and returns a fully configured `Request` instance, ready to be used.
 
 This approach has two major benefits:
 
@@ -138,11 +186,11 @@ Once your SDK is created, you can access your endpoints using the structure you 
 
 ### Making a simple request
 
-Here's how to get a list of users. The `.get` property corresponds to the `get` method for the `/users` endpoint.
+Here's how to get a list of users. The `$get` property corresponds to the `GET` method for the `/users` endpoint.
 
 ```typescript
 // GET /users?page=1&limit=10
-const getUsersRequest = sdk.users.get.setQueryParams({ page: 1, limit: 10 });
+const getUsersRequest = sdk.users.$get.setQueryParams({ page: 1, limit: 10 });
 
 // Send the request
 const { data, error } = await getUsersRequest.send();
@@ -154,7 +202,7 @@ To fetch a specific user, you access the `$userId` path and use `setParams` to p
 
 ```typescript
 // GET /users/123
-const getUserRequest = sdk.users.$userId.get.setParams({ userId: "123" });
+const getUserRequest = sdk.users.$userId.$get.setParams({ userId: "123" });
 
 const { data, error } = await getUserRequest.send();
 
@@ -169,7 +217,7 @@ The SDK handles nested routes seamlessly.
 
 ```typescript
 // DELETE /users/123/posts/456
-const deletePostRequest = sdk.users.$userId.posts.$postId.delete.setParams({
+const deletePostRequest = sdk.users.$userId.posts.$postId.$delete.setParams({
   userId: "123",
   postId: "456",
 });
@@ -186,7 +234,7 @@ import { useFetch } from "@hyper-fetch/react";
 import { sdk } from "api/sdk"; // Assumes you've exported your sdk instance
 
 function UserProfile({ userId }) {
-  const { data, loading } = useFetch(sdk.users.$userId.get.setParams({ userId }));
+  const { data, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));
 
   if (loading) {
     return <p>Loading...</p>;

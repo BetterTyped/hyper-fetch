@@ -4,6 +4,10 @@ import type { SocketInstance } from "socket";
 import type { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
 import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
+/**
+ * Represents a socket message listener bound to a specific topic. Use it to subscribe to
+ * typed messages from WebSocket or Server-Sent Events connections via the socket adapter.
+ */
 export class Listener<
   Response,
   Topic extends string,
@@ -23,14 +27,17 @@ export class Listener<
     this.options = options;
   }
 
+  /** Set adapter-specific listener options. */
   setOptions(options: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>) {
     return this.clone({ options });
   }
 
+  /** Set the URL path parameters for the topic (e.g., `:channelId`). */
   setParams(params: ExtractUrlParams<Topic>) {
     return this.clone<true>({ params });
   }
 
+  /** Create a new listener instance with optional configuration overrides. */
   clone<NewHasParams extends true | false = HasParams>(
     options?: ListenerConfigurationType<ExtractUrlParams<Topic>, Topic, Socket>,
   ) {
@@ -43,6 +50,7 @@ export class Listener<
     return newInstance;
   }
 
+  /** Start listening for messages on the configured topic. Returns a function to unsubscribe. */
   listen: ListenType<Listener<Response, Topic, Socket, HasParams>, Socket> = (
     callback: Parameters<ListenType<Listener<Response, Topic, Socket, HasParams>, Socket>>[0],
   ) => {

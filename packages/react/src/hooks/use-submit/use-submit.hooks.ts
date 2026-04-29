@@ -21,7 +21,8 @@ import { useProvider } from "provider";
 import { createTrackedProxy, getBounceData } from "utils";
 
 /**
- * This hooks aims to mutate data on the server.
+ * This hook aims to mutate data on the server. Unlike useFetch, it does not fire automatically -
+ * call the returned `submit` function to trigger the request (e.g., on button click).
  * @param request
  * @param options
  * @returns

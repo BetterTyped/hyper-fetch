@@ -1,11 +1,50 @@
 import type { ClientInstance } from "client";
-import type { RequestInstance } from "request";
-import type { ExtractEndpointType } from "types";
+import type { Request, RequestInstance } from "request";
+import type {
+  ExtractEndpointType,
+  ExtractResponseType,
+  ExtractPayloadType,
+  ExtractQueryParamsType,
+  ExtractLocalErrorType,
+  ExtractHasPayloadType,
+  ExtractHasParamsType,
+  ExtractHasQueryParamsType,
+  ExtractMutationContextType,
+} from "types";
 
 export type RecursiveSchemaType = Record<
   string, // for example users / $userId / posts / $postId
   any
 >;
+
+/**
+ * Recursively walks a schema and rebuilds every `Request` leaf with the SDK's actual client
+ * type injected into the `Client` generic slot. Lets users omit `client` from their
+ * `RequestModel<{...}>` declarations - the SDK fills it in from the client passed to
+ * `createSdk(client)`.
+ *
+ * Non-Request leaves (primitive values, plain types) are passed through unchanged. Nested
+ * schema objects are recursed into. Depth is guarded at 10 levels to keep the type checker
+ * within reasonable bounds.
+ */
+export type InjectClient<T, TClient extends ClientInstance, Depth extends unknown[] = []> = Depth["length"] extends 10
+  ? T
+  : T extends RequestInstance
+    ? Request<
+        ExtractResponseType<T>,
+        ExtractPayloadType<T>,
+        ExtractQueryParamsType<T>,
+        ExtractLocalErrorType<T>,
+        ExtractEndpointType<T> extends string ? ExtractEndpointType<T> : string,
+        TClient,
+        ExtractHasPayloadType<T> extends boolean ? ExtractHasPayloadType<T> : false,
+        ExtractHasParamsType<T> extends boolean ? ExtractHasParamsType<T> : false,
+        ExtractHasQueryParamsType<T> extends boolean ? ExtractHasQueryParamsType<T> : false,
+        ExtractMutationContextType<T>
+      >
+    : T extends Record<string, any>
+      ? { [K in keyof T]: InjectClient<T[K], TClient, [...Depth, unknown]> }
+      : T;
 
 /**
  * Per-request defaults that can be applied via SDK configuration.
@@ -242,18 +281,28 @@ const createRecursiveProxy = (
   });
 };
 
-export type SdkInstance<Schema extends RecursiveSchemaType> = Schema & {
+/**
+ * The fully-resolved SDK instance type returned by `createSdk`.
+ *
+ * The schema is rewritten via {@link InjectClient} so every `Request` leaf carries the
+ * actual client type passed to `createSdk(client)` - users do not need to repeat
+ * `client: AppClient` in every `RequestModel<{...}>` declaration.
+ */
+export type SdkInstance<
+  Schema extends RecursiveSchemaType,
+  TClient extends ClientInstance = ClientInstance,
+> = InjectClient<Schema, TClient> & {
   /**
    * Apply request defaults to the SDK. Returns a new SDK instance with the configuration applied.
    * Use "*" to match all endpoints, or specific endpoint strings / wildcard patterns.
    */
-  $configure: (defaults: SdkConfigurationMap<Schema>) => SdkInstance<Schema>;
+  $configure: (defaults: SdkConfigurationMap<Schema>) => SdkInstance<Schema, TClient>;
 };
 
 export const createSdk = <Client extends ClientInstance, RecursiveSchema extends RecursiveSchemaType>(
   client: Client,
   options?: CreateSdkOptions<RecursiveSchema>,
-): SdkInstance<RecursiveSchema> => {
+): SdkInstance<RecursiveSchema, Client> => {
   const {
     camelCaseToKebabCase = true,
     methodTransform = (method: string) => method.toUpperCase(),
@@ -277,7 +326,7 @@ export const createSdk = <Client extends ClientInstance, RecursiveSchema extends
       }
       return target[key];
     },
-  }) as SdkInstance<RecursiveSchema>;
+  }) as SdkInstance<RecursiveSchema, Client>;
 };
 
 /**

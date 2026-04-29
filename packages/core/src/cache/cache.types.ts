@@ -2,6 +2,7 @@ import type { AdapterInstance, ResponseType } from "adapter";
 import type { ResponseDetailsType } from "managers";
 import type { RequestInstance } from "request";
 
+/** Configuration options for the Cache instance. */
 export type CacheOptionsType = {
   /**
    * Assign your custom sync storage

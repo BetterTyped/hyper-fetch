@@ -118,13 +118,21 @@ export type RequestResponseType<Request extends RequestInstance> = {
   requestTimestamp: number;
 };
 
+/** The normalized response shape returned by every adapter after a request completes. */
 export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
+  /** Response data when successful, null on error */
   data: GenericDataType | null;
+  /** Error payload when the request fails, null on success */
   error: GenericErrorType | null;
+  /** HTTP status code or adapter-specific status indicator */
   status: ExtractAdapterStatusType<Adapter> | null;
+  /** Whether the request completed successfully */
   success: true | false;
+  /** Adapter-specific metadata (e.g., response headers) */
   extra: ExtractAdapterExtraType<Adapter> | null;
+  /** Timestamp (ms) when the response was received */
   responseTimestamp: number;
+  /** Timestamp (ms) when the request was sent */
   requestTimestamp: number;
 };
 export type ResponseSuccessType<GenericDataType, Adapter extends AdapterInstance> = {

@@ -9,6 +9,7 @@ import { useRequestEvents, useTrackedState } from "helpers";
 import { useProvider } from "provider";
 import { createTrackedProxy } from "utils";
 
+/** Subscribe to cache updates for a given request without triggering network activity. */
 export const useCache = <T extends RequestInstance>(
   request: T,
   options?: UseCacheOptionsType<T>,

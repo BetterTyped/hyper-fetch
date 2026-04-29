@@ -16,7 +16,8 @@ const canUpdate = (
 };
 
 /**
- * This hook allows to control dispatchers request queues
+ * This hook allows you to monitor and control dispatcher request queues for a given request,
+ * including starting, stopping, pausing, and inspecting pending/in-flight items.
  * @param request
  * @param options
  * @returns

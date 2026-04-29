@@ -1,29 +1,27 @@
 import type { Client } from "client";
 import { createClient } from "client";
 import type { HttpAdapterType } from "http-adapter";
-import type { RequestInstance } from "request";
+import type { RequestInstance, RequestModel } from "request";
 import { Request } from "request";
 import { createSdk, createConfiguration } from "sdk";
 
 type TestClient = Client<Error, HttpAdapterType>;
 
+// Schema does not need to declare `client` per request - the SDK injects it from createSdk(client).
 type TestSchema = {
   users: {
-    $get: RequestInstance<{
-      client: TestClient;
+    $get: RequestModel<{
       endpoint: "/users";
     }>;
     $userId: {
-      $get: RequestInstance<{
-        client: TestClient;
+      $get: RequestModel<{
         response: { id: string; name: string };
         endpoint: "/users/:userId";
       }>;
     };
   };
   posts: {
-    $get: RequestInstance<{
-      client: TestClient;
+    $get: RequestModel<{
       endpoint: "/posts";
     }>;
   };

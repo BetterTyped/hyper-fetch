@@ -5,6 +5,7 @@ import { DevtoolsEventHandler } from "./devtools.event.handler";
 import { CustomEvents, EventSourceType } from "./types/events.types";
 import type { DevtoolsPluginOptions } from "./types/plugin.types";
 
+/** Create a devtools plugin that streams request lifecycle events to the HyperFlow desktop app for inspection. */
 export const DevtoolsPlugin = (options: DevtoolsPluginOptions) => {
   const plugin = new Plugin({
     name: "plugin-devtools",

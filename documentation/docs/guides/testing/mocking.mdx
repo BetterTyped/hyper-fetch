@@ -119,6 +119,16 @@ export const testSdk = sdk.$configure({
 // highlight-end
 ```
 
+:::tip Why `RequestInstance` (and not `RequestModel`) here?
+
+`$configure` callbacks are a textbook **constraint** use case: the callback accepts the request that the SDK happens
+to dispatch and returns it (possibly mutated). You do not care about the exact shape — `RequestInstance` says "any
+request" and lets the chainable setters work without TypeScript fighting you. `RequestModel` is for **defining** an
+endpoint inside a schema; here we are **operating on** one. See the [Extend Request guide](/docs/guides/typescript/extend)
+for the full mental model.
+
+:::
+
 ### Injecting the Test SDK
 
 The test SDK is a drop-in replacement for the production SDK. Pass it into your components or hooks through props,

@@ -109,7 +109,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Return all
+   * Return all queue keys currently tracked by the dispatcher storage
    */
   getQueuesKeys = () => {
     return Array.from(this.storage.keys());

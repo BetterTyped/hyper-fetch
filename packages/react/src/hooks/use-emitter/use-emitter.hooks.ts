@@ -7,6 +7,7 @@ import { useSocketState } from "helpers";
 import { useProvider } from "provider";
 import { createTrackedProxy } from "utils";
 
+/** Send messages through a socket emitter with tracked connection state and lifecycle callbacks. */
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
   options?: UseEmitterOptionsType,

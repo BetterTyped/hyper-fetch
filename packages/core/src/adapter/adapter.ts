@@ -21,6 +21,11 @@ import { getAdapterHeaders, getAdapterPayload, RequestProcessingError } from "./
 export type DefaultMapperType = <V, C>(value: V, config: C) => V;
 export const defaultMapper: DefaultMapperType = (value) => value;
 
+/**
+ * Base adapter class responsible for executing HTTP requests. Adapters handle endpoint resolution,
+ * header/payload/query-params mapping, and the actual fetch call. Extend or configure this class
+ * to integrate custom transport layers (e.g., axios, graphql, firebase).
+ */
 export class Adapter<
   AdapterOptions,
   MethodType extends string,
@@ -92,6 +97,7 @@ export class Adapter<
     this.defaultRequestOptions = options.defaultRequestOptions;
   }
 
+  /** Initialize the adapter with a client reference and set up logging. Called automatically when the client is created. */
   initialize = (client: ClientInstance) => {
     this.logger = client.loggerManager.initialize(client, "Adapter");
     this.initialized = true;
@@ -101,6 +107,7 @@ export class Adapter<
     return this;
   };
 
+  /** Register a callback invoked once the adapter is initialized with a client. */
   onInitialize = (callback: (options: { client: ClientInstance }) => void) => {
     this.unstable_onInitializeCallback = callback;
     return this;
@@ -161,16 +168,19 @@ export class Adapter<
    * ********************
    */
 
+  /** Set the default HTTP method used when a request does not specify one. */
   setDefaultMethod = (method: MethodType) => {
     this.defaultMethod = method;
     return this;
   };
 
+  /** Set the default extra metadata attached to every request response (e.g., headers, status). */
   setDefaultExtra = (extra: Extra) => {
     this.defaultExtra = extra;
     return this;
   };
 
+  /** Set a function that formats the endpoint string for display in devtools. */
   setDevtoolsEndpointGetter = (callback: (endpoint: string) => string) => {
     this.unstable_devtoolsEndpointGetter = callback;
     return this;
@@ -217,6 +227,7 @@ export class Adapter<
     return this;
   };
 
+  /** Set a custom mapping for internal adapter errors before they are returned in the response. */
   setInternalErrorMapping = (callback: (error: ReturnType<typeof getErrorMessage>) => any) => {
     this.unstable_internalErrorMapping = callback;
     return this;
@@ -268,7 +279,7 @@ export class Adapter<
   };
 
   /**
-   * Set the request payload mapping function which get triggered before request get sent
+   * Set the endpoint mapping function which transforms the endpoint string before the request is sent
    */
   setEndpointMapper = <NewEndpointMapper extends EndpointMapper<EndpointType>>(endpointMapper: NewEndpointMapper) => {
     this.unstable_endpointMapper = ((endpoint: Parameters<NewEndpointMapper>[0]) =>
@@ -317,6 +328,7 @@ export class Adapter<
     >;
   };
 
+  /** Set the configuration object passed as the second argument to the query params mapper. */
   setQueryParamsMapperConfig = <NewQueryParamsMapperConfig extends Parameters<QueryParamsMapperType>[1]>(
     config: NewQueryParamsMapperConfig,
   ) => {
@@ -324,6 +336,7 @@ export class Adapter<
     return this;
   };
 
+  /** Set the configuration object passed as the second argument to the header mapper. */
   setHeaderMapperConfig = <NewHeaderMapperConfig extends Parameters<HeaderMapperType>[1]>(
     config: NewHeaderMapperConfig,
   ) => {
@@ -331,6 +344,7 @@ export class Adapter<
     return this;
   };
 
+  /** Set the configuration object passed as the second argument to the endpoint mapper. */
   setEndpointMapperConfig = <NewEndpointMapperConfig extends Parameters<EndpointMapperType>[1]>(
     config: NewEndpointMapperConfig,
   ) => {
@@ -338,6 +352,7 @@ export class Adapter<
     return this;
   };
 
+  /** Set the configuration object passed as the second argument to the payload mapper. */
   setPayloadMapperConfig = <NewPayloadMapperConfig extends Parameters<PayloadMapperType>[1]>(
     config: NewPayloadMapperConfig,
   ) => {
@@ -351,6 +366,7 @@ export class Adapter<
    * ********************
    */
 
+  /** Set the fetcher function that performs the actual network request. Must be called before any request can be executed. */
   public setFetcher(
     fetcher: AdapterFetcherType<
       Adapter<
@@ -372,6 +388,7 @@ export class Adapter<
     return this;
   }
 
+  /** Execute a request through the adapter pipeline: maps endpoint/headers/payload, runs plugins, then calls the fetcher. */
   public async fetch(
     request: ExtendRequest<
       RequestInstance,

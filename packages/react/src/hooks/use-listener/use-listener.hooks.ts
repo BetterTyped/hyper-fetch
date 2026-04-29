@@ -7,6 +7,7 @@ import type { UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
 import { createTrackedProxy } from "utils";
 
+/** Subscribe to incoming socket messages on a given listener topic with tracked connection state and callbacks. */
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
   options?: UseListenerOptionsType,

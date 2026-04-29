@@ -21,6 +21,7 @@ export type PluginRequest<C extends ClientInstance> = ExtendRequest<
   }
 >;
 
+/** Configuration options for creating a Plugin instance. */
 export type PluginOptionsType<PluginData> = {
   /**
    * Name of the plugin

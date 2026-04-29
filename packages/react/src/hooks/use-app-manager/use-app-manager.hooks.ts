@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { UseAppManagerReturnType } from "hooks/use-app-manager";
 
+/** Track the application's online/offline and focus/blur state through the client's AppManager. */
 export const useAppManager = <Client extends ClientInstance>(client: Client): UseAppManagerReturnType => {
   const [online, setIsOnline] = useState(client.appManager.isOnline);
   const [focused, setIsFocused] = useState(client.appManager.isFocused);

@@ -6,6 +6,7 @@ import type { AxiosExtra, RawAxiosHeaders } from "./adapter.types";
 
 export type AxiosAdapterType = typeof AxiosAdapter;
 
+/** Pre-configured adapter that uses Axios as the underlying HTTP transport. Supports upload/download progress and abort. */
 export const AxiosAdapter = new Adapter<
   Omit<AxiosRequestConfig, "url" | "baseURL" | "method" | "onUploadProgress" | "onDownloadProgress" | "data">,
   AxiosMethods,
