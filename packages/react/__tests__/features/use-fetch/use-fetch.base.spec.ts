@@ -57,7 +57,7 @@ describe("useFetch [ Base ]", () => {
       const view = renderUseFetch(request);
       await testCacheState(cache, view);
     });
-    it("should not load stale cache data", async () => {
+    it("should show stale cache data while revalidating", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
       const mock = mockRequest(request, { delay: 50 });
@@ -85,9 +85,9 @@ describe("useFetch [ Base ]", () => {
 
       await testCacheState(
         {
-          data: null,
+          data: mock,
           error: null,
-          status: null,
+          status: 200,
           success: true,
           extra: xhrExtra,
           responseTimestamp: timestamp,

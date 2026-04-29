@@ -5,8 +5,15 @@ globs: documentation/blog/tutorials/**
 
 # Tutorial blog posts
 
-Every tutorial blog post **must** include a version badge immediately after the frontmatter, before any other content.
-Use the Docusaurus `:::info` admonition:
+## Structure: intro, truncate, version, content
+
+Every tutorial follows this layout:
+
+1. **Intro paragraph** (before `{/* truncate */}`): a short, compelling hook that makes the reader want to click
+   through. This is what appears in the blog listing. Focus on the problem and what the reader will gain.
+2. **`{/* truncate */}`**: Docusaurus truncation marker.
+3. **Version badge** (after truncate): a `:::info Version` admonition stating the Hyper Fetch version.
+4. **Tutorial content**: the actual tutorial sections.
 
 ```mdx
 ---
@@ -17,10 +24,84 @@ tags: [Feature, TypeScript]
 date: 2026-05-01
 ---
 
+A compelling intro paragraph that hooks the reader. What problem does this solve?
+Why should they care? Keep it to 2-3 sentences max.
+
+{/* truncate */}
+
 :::info Version
 This tutorial was written for **Hyper Fetch X.Y**.
 :::
+
+## First section
+...
 ```
 
 The version should refer to the latest major (or major.minor) Hyper Fetch release that the tutorial content applies to.
 This helps readers know whether the tutorial matches their installed version.
+
+## Title conventions
+
+- Titles must be **short and descriptive** (ideally 3-7 words).
+- Avoid subtitles, colons with long elaborations, or keyword-stuffing.
+- Good: "SDK Configuration", "Socket SDK Basics", "Testing with SDK Mocks"
+- Bad: "SDK Configuration: Method-Specific Defaults, Functions, and the Socket SDK"
+
+## Writing quality
+
+- Tutorials must be **concise and concrete**. Every paragraph should earn its place.
+- Write in a direct, technical style. No filler, no fluff.
+- **No AI quirks**: avoid em-dashes ("—"), "Let's dive in", "In this tutorial, we will explore...",
+  "This is particularly powerful", "Fear not", and similar cliches.
+- **Empathetic, not provocative**. Describe real problems developers face, but don't lecture or blame.
+  Avoid "you grep and hope" or "your code is scattered". Instead, acknowledge the difficulty and show how
+  the feature helps. Good: "As the number of endpoints grows, keeping configuration consistent gets harder."
+  Bad: "Your config is a mess spread across 50 files."
+- Use short sentences. Prefer active voice.
+- Avoid restating what the code already shows. If the code is self-explanatory, don't narrate it.
+
+## Content structure
+
+1. **Open with the problem**. What does the reader gain? What pain does this solve? Be concrete and specific.
+2. **Show code early**. Readers come for working examples, not prose.
+3. **Keep sections focused**. One concept per section. Split with `---` between `#` and `##` headings.
+4. **End with links** to relevant docs, not a summary paragraph that repeats the intro.
+
+## Interactive examples
+
+- Use `live` code blocks (`` ```tsx live `` or `` ```ts live ``) when interactivity helps the reader understand behavior.
+- Live examples should be minimal and focused on a single concept.
+- Global scope variables are available without imports; check:
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/global-scope.ts`
+  - `documentation/src/theme/CodeBlock/live-code-block/playground/create-global-requests.ts`
+- Do not overuse live examples. One or two per tutorial is enough. Static code blocks are fine for most things.
+
+## Mermaid diagrams
+
+- Use mermaid diagrams when a concept benefits from visual explanation (flows, lifecycles, ordering).
+- **0-2 per post**. Not every tutorial needs one. Only add a diagram when it genuinely clarifies something
+  that text or code alone cannot.
+- Timelines work well for lifecycles and ordered steps. Flowcharts and sequence diagrams work for
+  request/response flows or decision logic.
+- Keep them small and readable. If a diagram has more than ~8 nodes, simplify it.
+
+Example (timeline):
+
+```mermaid
+    timeline
+        title Request Lifecycle
+          1. Pre-Request : Deduplication : Queueing : Interceptors
+          2. Request : onRequestStart() : onUploadProgress() : onRequestEnd()
+          3. Response : onResponseStart() : onDownloadProgress() : onResponseEnd()
+          4. Result : Interceptors : onSuccess() : onError() : onFinish()
+```
+
+## Code examples
+
+- Keep examples **short**. Long blocks are hard to scan.
+- **Use inline comments to explain intent, configs, and setup**. Comments help readers understand *why*
+  something is configured a certain way, not just *what* the code does. Good: `// Not idempotent, should not retry`.
+  Bad: `// Set retry to 0`. Skip comments on lines that are already self-explanatory.
+- Use highlighting (`// highlight-start`, `// highlight-next-line`) to draw attention to the key parts.
+- Use diffs (`// diff-add-start`, `// diff-remove-start`) when showing before/after changes.
+- Every example must be accurate against the current implementation in `/packages`.

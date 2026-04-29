@@ -1,206 +1,189 @@
 ---
 slug: sdk-configuration
-title: "SDK Configuration: Method-Specific Defaults, Functions, and the Socket SDK"
+title: "SDK Configuration"
 authors: [maciej]
 tags: [SDK, Sockets, Configuration, TypeScript]
 date: 2026-04-29
 ---
 
-:::info Version
-This tutorial was written for **Hyper Fetch 8.0**.
-:::
-
-> Hyper Fetch SDK configuration gives you method-level precision, full access to every Request setter through
-> function-based values, and a Socket SDK that brings the same developer experience to real-time communication.
+Your API schema generates a fully typed SDK, but the generated code only knows about endpoints and types. Real projects
+still need caching policies, retry rules, auth settings, and response mappers. `$configure` lets you inject all of that
+into the SDK in one place, so every request comes pre-configured the moment you access it. It also makes testing easier
+by letting you swap in mocks without tools like `msw` or `nock`.
 
 {/* truncate */}
 
-## Precise Configuration with Dot-Path Keys
+:::info Version This tutorial was written for **Hyper Fetch 8.0**. :::
 
-The `$configure` API accepts **dot-path keys** that mirror the SDK's property chain. Since the SDK uses
-`sdk.users.$get` to access a request, you configure it with `"users.$get"`:
+## Dot-path keys
+
+The SDK uses property chains like `sdk.users.$get`. Configuration keys mirror that path:
 
 ```typescript
 const configured = sdk.$configure({
+  // Cache the user list for 30s
   "users.$get": { cache: true, cacheTime: 30000 },
+  // Not idempotent, should not retry
   "users.$post": { retry: 0 },
+  // Serve stale profile data while revalidating in background
   "users.$userId.$get": { staleTime: 5000 },
 });
 ```
 
-`"users.$get"` only affects `sdk.users.$get` — not `sdk.users.$post`, not `sdk.users.$userId.$get`. Each key maps
-to exactly one request.
+`"users.$get"` targets exactly `sdk.users.$get`. It does not affect `$post` or nested routes.
 
-Endpoint-group keys like `"/users"` or `"/users/*"` are also supported for applying broad defaults across all methods
-on an endpoint.
-
----
-
-## Function-Based Values
-
-Plain objects cover simple settings, but `$configure` also accepts **functions**. A function receives the Request
-instance and returns a modified one, giving you access to the full API:
+To apply settings across an entire resource, use endpoint-group keys:
 
 ```typescript
 const configured = sdk.$configure({
-  // Plain object for simple settings
-  "*": { retry: 3 },
-
-  // Function for advanced configuration
-  "users.$get": (request) =>
-    request
-      .setResponseMapper(userListMapper)
-      .setCache(true)
-      .setCacheTime(30000),
-
-  // Mocking for tests
-  "auth.login.$post": (request) =>
-    request.setMock(() => ({
-      data: { token: "test-token" },
-      error: null,
-      status: 200,
-    })),
+  // All /users endpoints get caching
+  "/users": { cache: true },
+  // Admin routes require auth, no retry on privileged actions
+  "/admin/*": { auth: true, retry: 0 },
 });
 ```
 
-This is particularly powerful for testing. Instead of mocking at the network level, you can create a test SDK with all
-endpoints mocked through `$configure`:
+---
+
+## Function values
+
+Plain objects cover simple settings. When you need mappers or conditional logic, pass a function that receives the
+`Request` instance and returns a modified one:
+
+```typescript
+const configured = sdk.$configure({
+  // Base retry for all requests
+  "*": { retry: 3 },
+
+  // highlight-start
+  // Normalize the API's snake_case into camelCase for the frontend
+  "users.$get": (request) =>
+    request.setResponseMapper(snakeToCamelMapper).setCache(true).setCacheTime(30000),
+  // highlight-end
+
+  // Attach the org header that the billing API requires
+  "billing.invoices.$get": (request) =>
+    request.setHeaders({ "X-Org-Id": getCurrentOrgId() }),
+});
+```
+
+Every `Request` setter is available: mappers, headers, auth, mocks, interceptors.
+
+### SDK-level mocks for testing
+
+Instead of maintaining a separate network mock layer, mock directly on the SDK:
 
 ```typescript
 export const testSdk = sdk.$configure({
-  "users.$get": (request) => request.setMock(() => ({ data: mockUsers })),
-  "users.$userId.$get": (request) => request.setMock(() => ({ data: mockUser })),
-  "posts.$get": (request) => request.setMock(() => ({ data: [] })),
+  "users.$get": (req) => req.setMock(() => ({ data: [{ id: 1, name: "Alice" }] })),
+  "users.$userId.$get": (req) => req.setMock(() => ({ data: { id: 1, name: "Alice" } })),
+  "billing.invoices.$get": (req) => req.setMock(() => ({ data: [] })),
 });
 ```
 
+Import `testSdk` instead of `sdk` in your test setup. No interceptors, no service workers, no polyfills.
+
 ---
 
-## 3-Level Application Order
+## Application order
 
-Configurations stack deterministically. When multiple keys match, they apply in this order:
+When multiple keys match a single request, they stack in a fixed order:
 
-1. **`"*"`** — Global defaults (applied first)
-2. **Endpoint groups** — `"/users"`, `"/users/*"` (applied second)
-3. **Dot-path keys** — `"users.$get"` (applied last, wins on conflict)
+```mermaid
+    timeline
+        title Configuration layers
+          1. Global : "*" : Applied first, base defaults
+          2. Endpoint groups : "/users", "/admin/*" : Domain-level policies
+          3. Dot-path keys : "users.$get" : Per-request overrides, wins on conflict
+```
+
+Each level preserves settings from earlier levels unless it explicitly overrides them.
 
 ```typescript
 const configured = sdk.$configure({
+  // Retry everything 3 times by default
   "*": { retry: 3 },
+  // Cache all user-related endpoints
   "/users": { cache: true },
+  // Deduplicate only the user list fetch
   "users.$get": { deduplicate: true },
 });
 
 const request = configured.users.$get;
-// retry: 3 (from "*") + cache: true (from "/users") + deduplicate: true (from "users.$get")
-// All three stack. Later levels only override properties they explicitly set.
+// Result: retry: 3 + cache: true + deduplicate: true
 ```
 
-Global defaults are the foundation, endpoint groups add domain-specific settings on top, and method-specific keys
-fine-tune individual requests. Properties from earlier levels are preserved unless a later level explicitly overwrites
-them.
+Set global defaults once, add domain-level policies per resource, and fine-tune individual endpoints only when needed.
 
 ---
 
 ## Socket SDK
 
-The SDK pattern extends to `@hyper-fetch/sockets`. The **Socket SDK** works exactly like the HTTP SDK, but uses
-`$listener` and `$emitter` as leaf keys instead of HTTP methods:
+`@hyper-fetch/sockets` uses the same pattern. Leaf keys are `$listener` and `$emitter` instead of HTTP methods:
 
 ```typescript
 import { createSocketSdk } from "@hyper-fetch/sockets";
 
 const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
 
-// Listen to events
 sdk.chat.messages.$listener.listen(({ data }) => {
-  console.log(data.text, data.user);
+  appendMessage(data.text, data.user);
 });
 
-// Emit events
 sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
-
-// Dynamic topics with parameters
-sdk.chat.$roomId.$listener
-  .setParams({ roomId: "general" })
-  .listen(({ data }) => console.log(data));
 ```
 
-### Socket SDK Configuration
-
-The Socket SDK supports the same `$configure` pattern with full parity:
+Configuration uses the same 3-level order and supports both objects and functions:
 
 ```typescript
 const configured = sdk.$configure({
-  // Global — applies to all listeners and emitters
+  // Auto-reconnect all socket listeners
   "*": { options: { reconnect: true } },
-
-  // Topic group — applies to everything under chat/*
+  // Prioritize chat topic delivery
   "chat/*": { options: { priority: "high" } },
-
-  // Instance-specific — targets one emitter (type-narrowed, no cast needed)
-  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(messageMapper),
+  // highlight-next-line
+  // Sanitize outgoing messages before sending
+  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(sanitizeMessage),
 });
 ```
 
-The same 3-level application order applies: `"*"` (global) -> topic groups (`"chat/*"`) -> dot-path
-(`"chat.messages.$listener"`). Both plain-object shorthand and function-based values work. Dot-path keys narrow
-the callback parameter to the exact instance type — `$listener` keys receive `ListenerInstance`, `$emitter` keys
+Dot-path keys narrow the callback type automatically: `$listener` keys receive `ListenerInstance`, `$emitter` keys
 receive `EmitterInstance`.
 
 ---
 
-## Multi-File Configuration
+## Splitting config across files
 
-For large projects, split configuration by domain using `createConfiguration` (HTTP) or
-`createSocketConfiguration` (sockets):
+When your app grows past a dozen endpoints, split configuration by domain:
 
 ```typescript title="config/users.ts"
 import { createConfiguration } from "@hyper-fetch/core";
 
 export const usersConfig = createConfiguration<ApiSchema>()({
+  // Normalize and cache the user list
   "users.$get": (request) =>
-    request.setResponseMapper(userListMapper).setCache(true),
+    request.setResponseMapper(snakeToCamelMapper).setCache(true),
+  // Require auth, allow stale data for 5s on profile pages
   "users.$userId.$get": (request) =>
     request.setAuth(true).setStaleTime(5000),
 });
 ```
 
-```typescript title="config/chat.ts"
-import { createSocketConfiguration } from "@hyper-fetch/sockets";
-
-export const chatConfig = createSocketConfiguration<ChatSchema>()({
-  "chat/*": { options: { reconnect: true } },
-  "chat.messages.$listener": (instance) =>
-    instance.setOptions({ buffer: true }),
+```typescript title="config/billing.ts"
+export const billingConfig = createConfiguration<ApiSchema>()({
+  // Cache invoices for 1 minute
+  "billing.invoices.$get": { cache: true, cacheTime: 60000 },
+  // Never retry invoice creation
+  "billing.invoices.$post": { retry: 0 },
 });
 ```
 
 ```typescript title="sdk.ts"
-export const api = createSdk(client)
-  .$configure(usersConfig);
-
-export const ws = createSocketSdk(socket)
-  .$configure(chatConfig);
+export const api = createSdk(client).$configure(usersConfig).$configure(billingConfig);
 ```
 
-Keys are validated against your schema at compile time — typos are caught immediately.
-
----
-
-## How It Works Under the Hood
-
-The proxy that powers both SDKs tracks the **full accessor path** (e.g., `["users", "$get"]`) as you traverse the
-chain. When a leaf node is reached, the proxy joins this path into a dot-separated string and passes it to
-`applyDefaults`. The defaults function sorts all configuration entries into buckets by type, applies them in the
-correct order, and returns the fully configured instance.
-
-For sockets, the proxy also constructs the **topic string** from the path segments (converting `$paramName` keys to
-`:paramName` and applying camelCase-to-kebab-case), which enables topic group matching alongside dot-path matching.
-
-The type system uses recursive conditional types (`ExtractSdkPaths`, `ExtractSocketTopics`, `TopicPrefixes`,
-`ResolveDotPath`) to derive the exact set of valid configuration keys from your schema and narrow callback parameters
-to the correct instance type, providing full autocomplete and compile-time validation.
+Keys are validated against your schema at compile time. A typo in `"users.$gett"` fails the build, not a production
+request.
 
 ---
 
