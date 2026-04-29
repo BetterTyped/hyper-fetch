@@ -175,6 +175,21 @@ describe("useTrackedState [ Utils ]", () => {
       const result = getValidCacheData(mockRequest, null, cacheData);
       expect(result).toBe(cacheData);
     });
+
+    it("should return stale cache data for stale-while-revalidate", () => {
+      const staleTimestamp = new Date().getTime() - 5000; // Well beyond the 1000ms staleTime
+      const cacheData = {
+        data: "stale-data",
+        error: null,
+        status: 200,
+        success: true,
+        extra: null,
+        responseTimestamp: staleTimestamp,
+      } as any;
+
+      const result = getValidCacheData(mockRequest, null, cacheData);
+      expect(result).toBe(cacheData);
+    });
   });
 
   describe("when getInitialState handles async responseMapper", () => {

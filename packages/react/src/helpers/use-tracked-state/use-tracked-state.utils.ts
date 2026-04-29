@@ -76,9 +76,7 @@ export const getValidCacheData = <T extends RequestInstance>(
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
   cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
 ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
-  const isStale = isStaleCacheData(request.staleTime, cacheData?.responseTimestamp);
-
-  if (!isStale && cacheData) {
+  if (cacheData) {
     return cacheData;
   }
 
