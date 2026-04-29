@@ -142,10 +142,7 @@ describe("E2E [ WebSocket Callbacks & Interceptors ]", () => {
 
     const socket = new Socket({ url, adapterOptions: { autoConnect: false } });
     socket.onSend(({ emitter }) => {
-      return {
-        ...emitter,
-        payload: { ...(emitter.payload as any), modified: true },
-      };
+      return emitter.clone({ payload: { ...(emitter.payload as any), modified: true } });
     });
 
     await socket.connect();
