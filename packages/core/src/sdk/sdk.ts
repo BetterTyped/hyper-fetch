@@ -40,14 +40,14 @@ export type SdkConfigurationValue = SdkRequestDefaults | ((request: RequestInsta
 type ExtractSdkEndpoints<T, Depth extends unknown[] = []> = Depth["length"] extends 10
   ? never
   : {
-    [K in keyof T]: K extends `$${string}`
-    ? T[K] extends RequestInstance
-    ? ExtractEndpointType<T[K]>
-    : never
-    : T[K] extends Record<string, any>
-    ? ExtractSdkEndpoints<T[K], [...Depth, unknown]>
-    : never;
-  }[keyof T];
+      [K in keyof T]: K extends `$${string}`
+        ? T[K] extends RequestInstance
+          ? ExtractEndpointType<T[K]>
+          : never
+        : T[K] extends Record<string, any>
+          ? ExtractSdkEndpoints<T[K], [...Depth, unknown]>
+          : never;
+    }[keyof T];
 
 /**
  * Recursively extracts dot-path accessor keys from an SDK schema.
@@ -56,12 +56,12 @@ type ExtractSdkEndpoints<T, Depth extends unknown[] = []> = Depth["length"] exte
 type ExtractSdkPaths<T, Prefix extends string = "", Depth extends unknown[] = []> = Depth["length"] extends 10
   ? never
   : {
-    [K in keyof T & string]: T[K] extends RequestInstance
-    ? `${Prefix}${K}`
-    : T[K] extends Record<string, any>
-    ? ExtractSdkPaths<T[K], `${Prefix}${K}.`, [...Depth, unknown]>
-    : never;
-  }[keyof T & string];
+      [K in keyof T & string]: T[K] extends RequestInstance
+        ? `${Prefix}${K}`
+        : T[K] extends Record<string, any>
+          ? ExtractSdkPaths<T[K], `${Prefix}${K}.`, [...Depth, unknown]>
+          : never;
+    }[keyof T & string];
 
 /**
  * Builds the set of valid configuration keys from an SDK schema:
@@ -194,7 +194,7 @@ const createRecursiveProxy = (
 ): any => {
   const { path, sdkKeys, options } = context;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  return new Proxy(() => { }, {
+  return new Proxy(() => {}, {
     get: (_target, key: string) => {
       if (typeof key === "symbol" || key === "inspect") {
         return undefined;

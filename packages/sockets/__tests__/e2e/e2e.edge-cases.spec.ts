@@ -1,11 +1,7 @@
+/* eslint-disable no-await-in-loop */
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -16,7 +12,7 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
 
     const socket = new Socket({ url, adapterOptions: { autoConnect: false }, reconnectTime: 100 });
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
       await socket.connect();
       await sleep(50);
       await socket.disconnect();
@@ -73,9 +69,15 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
     const received2: any[] = [];
     const received3: any[] = [];
 
-    socket1.createListener<{ v: number }>()({ topic: "multi" }).listen(({ data }) => received1.push(data));
-    socket2.createListener<{ v: number }>()({ topic: "multi" }).listen(({ data }) => received2.push(data));
-    socket3.createListener<{ v: number }>()({ topic: "multi" }).listen(({ data }) => received3.push(data));
+    socket1
+      .createListener<{ v: number }>()({ topic: "multi" })
+      .listen(({ data }) => received1.push(data));
+    socket2
+      .createListener<{ v: number }>()({ topic: "multi" })
+      .listen(({ data }) => received2.push(data));
+    socket3
+      .createListener<{ v: number }>()({ topic: "multi" })
+      .listen(({ data }) => received3.push(data));
 
     await sleep(50);
     sendToAll("multi", { v: 1 });
@@ -101,7 +103,7 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
   });
 
   it("should handle disconnect during reconnection gracefully", async () => {
-    const { startServer, stopServer, terminateAllClients } = createWebsocketE2EServer();
+    const { startServer, stopServer } = createWebsocketE2EServer();
     const url = await startServer();
 
     const socket = new Socket({ url, reconnectTime: 500 });
@@ -145,11 +147,13 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
     const listenerCount = 100;
     const receivedCounts = new Array(listenerCount).fill(0);
 
-    for (let i = 0; i < listenerCount; i++) {
+    for (let i = 0; i < listenerCount; i += 1) {
       const idx = i;
-      socket.createListener<{ v: number }>()({ topic: "many-listeners" }).listen(() => {
-        receivedCounts[idx] += 1;
-      });
+      socket
+        .createListener<{ v: number }>()({ topic: "many-listeners" })
+        .listen(() => {
+          receivedCounts[idx] += 1;
+        });
     }
 
     await sleep(50);
@@ -174,13 +178,9 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
     });
 
     let errorFired = false;
-    let reconnectFailedFired = false;
 
     socket.onError(() => {
       errorFired = true;
-    });
-    socket.onReconnectFailed(() => {
-      reconnectFailedFired = true;
     });
 
     await socket.connect();
@@ -190,7 +190,7 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
   });
 
   it("should handle bidirectional communication", async () => {
-    const { startServer, stopServer, sendToAll, onMessage } = createWebsocketE2EServer();
+    const { startServer, stopServer, onMessage } = createWebsocketE2EServer();
     const url = await startServer();
 
     const socket = new Socket({ url });
@@ -207,9 +207,11 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
 
     // Set up client listener for response
     const clientReceived: any[] = [];
-    socket.createListener<{ message: string }>()({ topic: "echo-response" }).listen(({ data }) => {
-      clientReceived.push(data);
-    });
+    socket
+      .createListener<{ message: string }>()({ topic: "echo-response" })
+      .listen(({ data }) => {
+        clientReceived.push(data);
+      });
 
     await sleep(50);
 

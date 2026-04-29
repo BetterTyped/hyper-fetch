@@ -1,12 +1,23 @@
 /// <reference types="vitest/globals" />
-// @ts-expect-error no types available for eventsourcemock
-import EventSource from "eventsourcemock";
 import * as matchers from "jest-extended";
 import { expect } from "vitest";
 
 expect.extend(matchers);
 
-if (typeof window !== "undefined") {
+const isNodeEnv = typeof window === "undefined";
+
+if (isNodeEnv) {
+  // E2E tests: polyfill browser globals with real implementations
+  const { WebSocket: NodeWebSocket } = await import("ws");
+  const { EventSource: NodeEventSource } = await import("eventsource");
+
+  (globalThis as any).WebSocket = NodeWebSocket;
+  (globalThis as any).EventSource = NodeEventSource;
+  (globalThis as any).window = globalThis;
+} else {
+  // Unit tests: use mock EventSource for jsdom
+  // @ts-expect-error no types available for eventsourcemock
+  const EventSource = (await import("eventsourcemock")).default;
   Object.defineProperty(window, "EventSource", {
     value: EventSource,
     writable: true,

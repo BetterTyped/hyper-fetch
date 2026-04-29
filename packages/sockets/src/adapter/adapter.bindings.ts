@@ -50,32 +50,40 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     disconnect: () => Promise<any>;
     connect: () => Promise<any>;
   }): Promise<boolean> => {
+    // Capture attempts before disconnect/connect reset them
+    const currentAttempts = adapter.reconnectionAttempts;
+
     socket.unstable_onReconnectCallbacks.forEach((callback) => {
       callback();
     });
-    socket.events.emitReconnecting({ attempts: adapter.reconnectionAttempts });
+    socket.events.emitReconnecting({ attempts: currentAttempts });
 
     await disconnect();
-    if (adapter.reconnectionAttempts < socket.reconnectAttempts) {
-      socket.adapter.setReconnectionAttempts(adapter.reconnectionAttempts + 1);
+    if (currentAttempts < socket.reconnectAttempts) {
+      const nextAttempts = currentAttempts + 1;
+      socket.adapter.setReconnectionAttempts(nextAttempts);
       logger.debug({
         title: "Reconnecting",
         type: "system",
-        extra: { reconnectionAttempts: adapter.reconnectionAttempts },
+        extra: { reconnectionAttempts: nextAttempts },
       });
       await connect();
+      // Restore only if the connection didn't succeed — onConnected resets to 0 on success
+      if (!adapter.connected) {
+        socket.adapter.setReconnectionAttempts(nextAttempts);
+      }
       return true;
     }
 
     logger.error({
       title: "Stopped reconnecting",
       type: "system",
-      extra: { reconnectionAttempts: adapter.reconnectionAttempts },
+      extra: { reconnectionAttempts: currentAttempts },
     });
     socket.unstable_onReconnectFailedCallbacks.forEach((callback) => {
       callback();
     });
-    socket.events.emitReconnectingFailed({ attempts: adapter.reconnectionAttempts });
+    socket.events.emitReconnectingFailed({ attempts: currentAttempts });
     return false;
   };
 
@@ -129,6 +137,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     logger.info({ title: "Connection open", type: "system", extra: {} });
     adapter.setConnected(true);
     adapter.setConnecting(false);
+    adapter.setReconnectionAttempts(0);
     socket.events.emitConnecting({ connecting: false });
     socket.events.emitConnected();
     socket.unstable_onConnectedCallbacks.forEach((callback) => {

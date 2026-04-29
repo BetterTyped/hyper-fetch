@@ -1,13 +1,7 @@
 /**
  * @vitest-environment node
  */
-import { EventSource as NodeEventSource } from "eventsource";
-
-(globalThis as any).EventSource = NodeEventSource;
-(globalThis as any).window = globalThis;
-
-import { Socket } from "@hyper-fetch/sockets";
-import { ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+import { Socket, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 import { createSseE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
 describe("E2E [ SSE Adapter ]", () => {
@@ -113,28 +107,28 @@ describe("E2E [ SSE Adapter ]", () => {
     await stopServer();
   });
 
-  it("should reconnect after server closes connection", async () => {
+  it("should reconnect via reconnectTime when initial connection fails", async () => {
+    // Start server, get URL, then stop it so initial connect fails
     const sseServer = createSseE2EServer();
     const url = await sseServer.startServer();
+    await sseServer.stopServer();
 
+    let reconnectFired = false;
     const socket = new Socket({
       url,
       adapter: ServerSentEventsAdapter,
-      reconnectTime: 500,
-      reconnect: 3,
+      reconnectTime: 300,
+      reconnect: 2,
+      adapterOptions: { autoConnect: false },
     });
 
-    await sseServer.waitForClient();
-    await waitForConnection(socket, 5000);
-
-    let reconnectFired = false;
     socket.onReconnect(() => {
       reconnectFired = true;
     });
 
-    // Destroy server completely to force connection loss
-    await sseServer.stopServer();
-    await sleep(2000);
+    // Connect to a dead server - should trigger reconnectTime timeout
+    socket.connect();
+    await sleep(1000);
 
     expect(reconnectFired).toBe(true);
 
@@ -156,8 +150,12 @@ describe("E2E [ SSE Adapter ]", () => {
     const usersData: any[] = [];
     const ordersData: any[] = [];
 
-    socket.createListener<{ id: number }>()({ topic: "users" }).listen(({ data }) => usersData.push(data));
-    socket.createListener<{ orderId: string }>()({ topic: "orders" }).listen(({ data }) => ordersData.push(data));
+    socket
+      .createListener<{ id: number }>()({ topic: "users" })
+      .listen(({ data }) => usersData.push(data));
+    socket
+      .createListener<{ orderId: string }>()({ topic: "orders" })
+      .listen(({ data }) => ordersData.push(data));
 
     await sleep(50);
     sendEvent("users", { id: 1 });

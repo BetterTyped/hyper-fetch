@@ -117,12 +117,17 @@ const applySocketObjectDefaults = (instance: SocketSdkLeaf, config: SocketSdkDef
   return result;
 };
 
-const applySocketDefaults = (
-  instance: SocketSdkLeaf,
-  topic: string,
-  sdkPath: string,
-  defaults?: Partial<Record<string, SocketSdkConfigurationValue>>,
-): SocketSdkLeaf => {
+const applySocketDefaults = ({
+  instance,
+  topic,
+  sdkPath,
+  defaults,
+}: {
+  instance: SocketSdkLeaf;
+  topic: string;
+  sdkPath: string;
+  defaults?: Partial<Record<string, SocketSdkConfigurationValue>>;
+}): SocketSdkLeaf => {
   if (!defaults) return instance;
 
   let result = instance;
@@ -169,12 +174,17 @@ const applySocketDefaults = (
   return result;
 };
 
-const createSocketRecursiveProxy = (
-  socket: SocketInstance,
-  path: string[],
-  sdkKeys: string[],
-  options?: CreateSocketSdkOptions<any>,
-): any => {
+const createSocketRecursiveProxy = ({
+  socket,
+  path,
+  sdkKeys,
+  options,
+}: {
+  socket: SocketInstance;
+  path: string[];
+  sdkKeys: string[];
+  options?: CreateSocketSdkOptions<any>;
+}): any => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   return new Proxy(() => {}, {
     get: (_target, key: string) => {
@@ -203,12 +213,12 @@ const createSocketRecursiveProxy = (
           instance = socket.createEmitter()({ topic });
         }
 
-        instance = applySocketDefaults(instance, topic, sdkPath, options?.defaults);
+        instance = applySocketDefaults({ instance, topic, sdkPath, defaults: options?.defaults });
         return instance;
       }
 
       const newPath = [...path, pathSegment];
-      const deeperProxy = createSocketRecursiveProxy(socket, newPath, currentSdkKeys, options);
+      const deeperProxy = createSocketRecursiveProxy({ socket, path: newPath, sdkKeys: currentSdkKeys, options });
 
       return deeperProxy;
     },
@@ -226,7 +236,7 @@ export const createSocketSdk = <S extends SocketInstance, RecursiveSchema extend
   const { camelCaseToKebabCase = true, ...rest } = options ?? {};
 
   const mergedOptions: CreateSocketSdkOptions<RecursiveSchema> = { camelCaseToKebabCase, ...rest };
-  const proxy = createSocketRecursiveProxy(socket, [], [], mergedOptions as never);
+  const proxy = createSocketRecursiveProxy({ socket, path: [], sdkKeys: [], options: mergedOptions as never });
 
   return new Proxy(proxy, {
     get: (target: any, key: string) => {

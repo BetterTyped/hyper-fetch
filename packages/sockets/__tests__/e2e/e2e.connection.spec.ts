@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 

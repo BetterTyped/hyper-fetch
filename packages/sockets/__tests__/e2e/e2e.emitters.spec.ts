@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -74,9 +69,8 @@ describe("E2E [ WebSocket Emitters ]", () => {
 
     const emitter = socket.createEmitter<{ v: number }>()({ topic: "blocked" });
 
-    let errorFired = false;
     socket.events.onError(() => {
-      errorFired = true;
+      // expected — emit while disconnected
     });
 
     // Should not throw but should not send
@@ -149,7 +143,8 @@ describe("E2E [ WebSocket Emitters ]", () => {
       if (msg.topic === "sequential") messages.push(msg);
     });
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
       await emitter.setPayload({ i }).emit();
     }
 

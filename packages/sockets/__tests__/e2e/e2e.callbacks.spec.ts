@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -71,10 +66,10 @@ describe("E2E [ WebSocket Callbacks & Interceptors ]", () => {
   });
 
   it("should fire onReconnectFailed when attempts are exhausted", async () => {
-    const { startServer, stopServer } = createWebsocketE2EServer();
-    const url = await startServer();
+    const wsServer = createWebsocketE2EServer();
+    const url = await wsServer.startServer();
 
-    const socket = new Socket({ url, reconnect: 1, reconnectTime: 100 });
+    const socket = new Socket({ url, reconnect: 1, reconnectTime: 200 });
     await waitForConnection(socket);
 
     let failedFired = false;
@@ -82,8 +77,9 @@ describe("E2E [ WebSocket Callbacks & Interceptors ]", () => {
       failedFired = true;
     });
 
-    await stopServer();
-    await sleep(2000);
+    // Stop server completely so reconnect fails
+    await wsServer.stopServer();
+    await sleep(3000);
 
     expect(failedFired).toBe(true);
   });

@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -91,7 +86,8 @@ describe("E2E [ WebSocket Heartbeat ]", () => {
     });
 
     // Send activity messages to keep resetting the heartbeat timer
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
       await sleep(150);
       sendToAll("activity", { i });
     }

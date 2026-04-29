@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -178,7 +173,7 @@ describe("E2E [ WebSocket Listeners ]", () => {
     await sleep(50);
 
     const count = 50;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < count; i += 1) {
       wsServer.sendToAll("rapid", { i });
     }
 

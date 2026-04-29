@@ -167,7 +167,7 @@ describe("Socket SDK [ Configuration ]", () => {
       const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
       const setOpts: SocketSdkConfigurationValue = (instance) => instance.setOptions({ noMatch: true });
       const configured = sdk.$configure({
-        "notifications": setOpts,
+        notifications: setOpts,
       });
 
       const chatMsgListener = configured.chat.messages.$listener;
@@ -272,7 +272,8 @@ describe("Socket SDK [ Configuration ]", () => {
       const mapper = (payload: { text: string }) => ({ ...payload, transformed: true });
       const configured = sdk.$configure({
         "*": ((instance) => instance.setOptions({ global: true })) as SocketSdkConfigurationValue,
-        "chat/*": ((instance) => instance.setOptions({ ...instance.options, chatGroup: true })) as SocketSdkConfigurationValue,
+        "chat/*": ((instance) =>
+          instance.setOptions({ ...instance.options, chatGroup: true })) as SocketSdkConfigurationValue,
         "chat.messages.$emitter": (instance) => instance.setPayloadMapper(mapper),
       });
 

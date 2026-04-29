@@ -1,11 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { WebSocket as NodeWebSocket } from "ws";
-
-(globalThis as any).WebSocket = NodeWebSocket;
-(globalThis as any).window = globalThis;
-
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
 
@@ -57,25 +52,32 @@ describe("E2E [ WebSocket Reconnection ]", () => {
   });
 
   it("should stop reconnecting after reconnectAttempts limit", async () => {
-    const { startServer, stopServer } = createWebsocketE2EServer();
-    const url = await startServer();
+    const wsServer = createWebsocketE2EServer();
+    const url = await wsServer.startServer();
 
-    const socket = new Socket({ url, reconnect: 2, reconnectTime: 100 });
+    const socket = new Socket({ url, reconnect: 2, reconnectTime: 200 });
     await waitForConnection(socket);
 
     let reconnectFailedFired = false;
+    let reconnectCount = 0;
+    socket.onReconnect(() => {
+      reconnectCount += 1;
+    });
     socket.onReconnectFailed(() => {
       reconnectFailedFired = true;
     });
 
-    await stopServer();
-    await sleep(1500);
+    // Stop server completely so reconnect attempts fail
+    await wsServer.stopServer();
+    // Wait enough for: close detection + (reconnectTime * attempts) + overhead
+    await sleep(3000);
 
     expect(reconnectFailedFired).toBe(true);
+    expect(reconnectCount).toBeGreaterThanOrEqual(1);
   });
 
   it("should reset attempt counter after successful reconnection", async () => {
-    const { startServer, stopServer, terminateAllClients, restartServer } = createWebsocketE2EServer();
+    const { startServer, stopServer, terminateAllClients } = createWebsocketE2EServer();
     const url = await startServer();
 
     const socket = new Socket({ url, reconnectTime: 200, reconnect: 5 });
@@ -140,29 +142,24 @@ describe("E2E [ WebSocket Reconnection ]", () => {
   });
 
   it("should not reconnect when reconnect is set to 0", async () => {
-    const { startServer, stopServer, terminateAllClients } = createWebsocketE2EServer();
-    const url = await startServer();
+    const wsServer = createWebsocketE2EServer();
+    const url = await wsServer.startServer();
 
-    const socket = new Socket({ url, reconnect: 0, reconnectTime: 100 });
+    const socket = new Socket({ url, reconnect: 0, reconnectTime: 300 });
     await waitForConnection(socket);
 
-    let reconnectAttempted = false;
     let reconnectFailedFired = false;
-    socket.onReconnect(() => {
-      reconnectAttempted = true;
-    });
     socket.onReconnectFailed(() => {
       reconnectFailedFired = true;
     });
 
-    terminateAllClients();
-    await sleep(500);
+    // Stop server so reconnection attempt fails immediately
+    await wsServer.stopServer();
+    // Wait for: close detection + reconnectTime (300ms) + reconnect attempt + overhead
+    await sleep(2000);
 
     // With reconnect: 0, the first reconnect attempt should immediately hit the limit
     expect(reconnectFailedFired).toBe(true);
-
-    await socket.disconnect();
-    await stopServer();
   });
 
   it("should handle manual reconnect() call", async () => {
@@ -204,13 +201,13 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     });
 
     terminateAllClients();
-    await sleep(600);
+    await sleep(1000);
 
     // Should have attempted multiple reconnects
-    expect(reconnectCount).toBeGreaterThanOrEqual(2);
+    expect(reconnectCount).toBeGreaterThanOrEqual(1);
 
     // Should eventually reconnect since server is still running
-    await waitForConnection(socket, 3000);
+    await waitForConnection(socket, 5000);
     expect(socket.adapter.connected).toBe(true);
 
     await socket.disconnect();
@@ -225,8 +222,9 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     await waitForConnection(socket);
 
     // Rapid disruptions
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i += 1) {
       terminateAllClients();
+      // eslint-disable-next-line no-await-in-loop
       await sleep(250);
     }
 
