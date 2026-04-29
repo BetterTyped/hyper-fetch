@@ -190,7 +190,7 @@ describe("Dispatcher [ Requests ]", () => {
     describe("When stoping and starting particular requests", () => {
       it("should allow to stop request", async () => {
         const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-        mockRequest(request, { delay: 5 });
+        mockRequest(request, { delay: 500 });
 
         const requestId = dispatcher.add(request);
         await sleep(1);
