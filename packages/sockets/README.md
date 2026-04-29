@@ -1,68 +1,116 @@
 # 🛰️ Hyper Fetch Sockets
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Real-time data exchange for WebSockets, SSE, and Firebase. Type-safe listeners with automatic reconnection.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/sockets" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/sockets" alt="npm downloads" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/sockets">
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/sockets" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/sockets.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/sockets?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Hyper Fetch Sockets`** is a library for handling `web sockets` and `server sent events`. Thanks to it, we get a
-**neutral layer of control** to which we can easily integrate any available solution for dynamic two-way communication.
+`@hyper-fetch/sockets` provides a typed abstraction for real-time communication. It wraps WebSockets and Server-Sent Events behind a consistent API with typed listeners and emitters, automatic reconnection, offline queuing, and authentication support.
 
-## Features
+## 🎯 Key Capabilities
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/setup)
+- 🔮 **Type-safe events** — Every listener and emitter is typed end-to-end, no more `JSON.parse` guessing
+- 📡 **WebSocket + SSE, one API** — Switch between protocols without rewriting your event handlers
+- 🔁 **Never lose connection** — Auto-reconnect with exponential backoff handles flaky networks for you
+- 📴 **Offline event queuing** — Events you emit offline are saved and sent when connection returns
+- 🔐 **Auth built in** — Token and session-based authentication flows for socket connections
+- ⚛️ **React hooks included** — `useListener` and `useEmitter` plug real-time data straight into components
+- 🖥️ **SSR safe** — Import in server-rendered apps without breaking hydration
 
-🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/overview#Websockets)
+## 🚀 Quick Start
 
-✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/overview#Sockets)
+```bash
+npm install @hyper-fetch/sockets
+```
 
-🚀 **Type safe** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/typescript)
+```ts
+import { Socket } from "@hyper-fetch/sockets";
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
+const socket = new Socket({ url: "ws://localhost:3000" });
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/offline)
+const onMessage = socket.createListener<{ response: { text: string; author: string } }>()({
+  endpoint: "chat-message",
+});
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/sockets/adapter)
+onMessage.listen({ callback: ({ data }) => console.log(`${data.author}: ${data.text}`) });
+```
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/authentication)
+## 📚 Documentation
 
-## Help me keep working on this project ❤️
+- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- [Sockets Overview](https://hyperfetch.bettertyped.com/docs/sockets/overview)
+- [API Reference](https://hyperfetch.bettertyped.com/api/)
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+## 💡 Examples
 
-## React
+### Emitting typed events
 
-We have specially created hooks to support sockets.
+```ts
+const sendMessage = socket.createEmitter<{ payload: { text: string; room: string } }>()({
+  endpoint: "send-message",
+});
 
-[Check it out](https://hyperfetch.bettertyped.com/react/websockets)
+sendMessage.emit({ data: { text: "Hello!", room: "general" } });
+```
 
-## Sources
+### Listening with React hooks
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/sockets/overview)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/sockets)
-- #### [Guides](https://hyperfetch.bettertyped.com/docs/guides/sockets/setup)
+```tsx
+import { useListener } from "@hyper-fetch/react";
 
-## Other Packages
+const ChatMessages = ({ room }: { room: string }) => {
+  const { data, connected, timestamp } = useListener(onMessage);
 
-- #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-- #### [React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)
+  return (
+    <div>
+      <p>Status: {connected ? "Connected" : "Disconnected"}</p>
+      {data && (
+        <div>
+          <strong>{data.author}</strong>: {data.text}
+          <small>{new Date(timestamp).toLocaleTimeString()}</small>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### Server-Sent Events
+
+```ts
+const sseSocket = new Socket({ url: "https://api.example.com/events" });
+
+const onUpdate = sseSocket.createListener<{ response: { type: string; payload: unknown } }>()({
+  endpoint: "data-update",
+});
+
+onUpdate.listen({
+  callback: ({ data }) => console.log(`Event: ${data.type}`, data.payload),
+});
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

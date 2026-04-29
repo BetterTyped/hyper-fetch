@@ -1,84 +1,87 @@
-# Eslint Plugin Hyper Fetch
+# 🧹 Hyper Fetch ESLint Plugin
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>ESLint rules to enforce HyperFetch best practices and catch type issues early.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/eslint-plugin-hyper-fetch">
+    <img src="https://img.shields.io/npm/v/eslint-plugin-hyper-fetch" alt="npm version" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Eslint Plugin Hyper Fetch`** is a plugin for eslint rules to add some additional functionality for your code static
-analysis. It allows to find generic types issues like typos, missing values or completely incorrect usage of types.
+This ESLint plugin provides static analysis rules specific to HyperFetch. It catches generic type issues like typos, missing values, or incorrect usage of `createClient` and `createRequest` type parameters before they cause runtime errors.
 
-## Installation
+## 🎯 Key Capabilities
 
-Assuming you already have ESLint installed, run:
+- 🔮 **Catch type bugs before they run** — Validates `createClient` and `createRequest` generic parameters at lint time
+- ✨ **No more typo-induced `any`** — Detects misspelled keys like `rsponse` instead of `response`
+- 🔧 **Plug and play** — Use the recommended preset or configure rules one by one
 
-```sh
-#npm
-npm i eslint-plugin-hyper-fetch
+## 🚀 Quick Start
 
-#yarn
-yarn add -D eslint-plugin-hyper-fetch
+```bash
+npm install -D eslint-plugin-hyper-fetch
 ```
 
-Then extend the recommended eslint config:
-
-```js
+```json
 {
-  "extends": [
-    // ...
-    "plugin:hyper-fetch/recommended"
-  ]
+  "extends": ["plugin:hyper-fetch/recommended"]
 }
 ```
 
-### Custom Configuration
+Or configure individual rules:
 
-If you want more fine-grained configuration, you can instead add a snippet like this to your ESLint configuration file:
-
-```js
+```json
 {
-  "plugins": [
-    // ...
-    "hyper-fetch"
-  ],
+  "plugins": ["hyper-fetch"],
   "rules": {
-    // ...
     "hyper-fetch/client-generic-types": "error",
     "hyper-fetch/request-generic-types": "error"
   }
 }
 ```
 
-## Help me keep working on this project ❤️
+## 📚 Documentation
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+- [ESLint Plugin Docs](https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint)
+- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
 
-## Sources
+## 💡 Examples
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/react)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/basic/setup)
+### Catches incorrect generic types
 
-## Other Packages
+```ts
+// ❌ This will be flagged by hyper-fetch/request-generic-types
+const getUser = client.createRequest<{
+  rsponse: User; // Typo: "rsponse" instead of "response"
+}>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+```
 
-- - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
+```ts
+// ✅ Correct usage — no lint error
+const getUser = client.createRequest<{
+  response: User;
+}>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

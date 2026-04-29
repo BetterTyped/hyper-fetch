@@ -36,6 +36,7 @@ module.exports = {
         "shiny-text": "shiny-text 8s infinite",
         move: "move 5s linear infinite",
         ripple: "ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite",
+        "retro-grid": "retro-grid 20s linear infinite",
       },
       keyframes: {
         move: {
@@ -80,6 +81,10 @@ module.exports = {
           "50%": {
             transform: "translate(-50%, -50%) scale(0.9)",
           },
+        },
+        "retro-grid": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(calc(var(--cell-size) * -1))" },
         },
       },
     },

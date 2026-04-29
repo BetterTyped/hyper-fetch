@@ -1,0 +1,80 @@
+---
+description: HyperFetch brand positioning, messaging guidelines, and progressive reveal strategy
+globs: 
+alwaysApply: false
+---
+
+# HyperFetch Branding
+
+## Core Identity
+
+HyperFetch IS the SDK — the type-safe API layer for TypeScript apps.
+
+- **Not** just a fetcher
+- **Not** just a generator
+- **The** API layer for TypeScript apps
+
+## Positioning Statement
+
+> One SDK. Any API. Fully typed.
+
+Use this exact tagline in hero sections, READMEs, and social. Do not paraphrase.
+
+## Supporting Line
+
+> The type-safe API layer for TypeScript apps. Connect to REST, GraphQL, Firebase, WebSockets, SSE — all with one consistent interface and the best type safety in the ecosystem.
+
+## Three Pillars (always in this order)
+
+1. **Universal** — One interface for REST, GraphQL, Firebase, WebSockets, SSE
+2. **Best type safety** — End-to-end TypeScript types from schema to response, zero `any`
+3. **CLI generation** — Generate fully typed SDKs from OpenAPI/Swagger schemas (this is the accelerator, not the identity)
+
+## Messaging Hierarchy
+
+### What to say first
+- Works with ANY API through one interface
+- Best type safety in the ecosystem
+- Works in every framework and environment
+
+### What to say second
+- Generate SDKs from OpenAPI schemas
+- Built-in caching, retries, offline support
+- React hooks with optimistic updates
+
+### What to say last
+- Devtools (HyperFlow)
+- Advanced features (serialization, replay, queuing internals)
+- Platform roadmap
+
+## Progressive Reveal
+
+Show complexity in layers. Never dump everything at once.
+
+| Level | What to show | Where |
+| --- | --- | --- |
+| 1 | `createClient` → `createRequest` → `.send()` | Landing hero, Getting Started |
+| 2 | React hooks (`useFetch`, `useSubmit`) | React docs, README examples |
+| 3 | Caching, retries, offline, optimistic updates | Core concepts, guides |
+| 4 | Adapters, sockets, devtools, CLI | Integration docs, advanced |
+
+## Tone
+
+- Confident, not arrogant
+- Technical, not academic
+- Benefit-first, not feature-first
+- Show, don't tell — always include code
+
+## Words to use
+- "type-safe", "typed", "autocompletion"
+- "one interface", "universal", "any API"
+- "zero guesswork", "no `any`"
+- "works everywhere"
+
+## Words to avoid
+- "simple" (everyone says this)
+- "easy" (subjective and unhelpful)
+- "flexible" (too vague)
+- "powerful" (overused)
+- "supports everything" (sounds like marketing)
+- "best in class" without specifics

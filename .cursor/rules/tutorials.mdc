@@ -22,7 +22,23 @@ title: "My Tutorial Title"
 authors: [maciej]
 tags: [Feature, TypeScript]
 date: 2026-05-01
+image: ./img/my-tutorial.png
 ---
+
+import { BlogPostImage } from "@site/src/components";
+
+<BlogPostImage
+  title="My Tutorial Title"
+  description="Short tagline for the tutorial."
+  badge="tutorial"
+  href="/blog/my-tutorial"
+  pattern="grid"
+  file="example.ts"
+>
+
+{/* Optional: include a code snippet as children */}
+
+</BlogPostImage>
 
 A compelling intro paragraph that hooks the reader. What problem does this solve?
 Why should they care? Keep it to 2-3 sentences max.
@@ -66,6 +82,24 @@ This helps readers know whether the tutorial matches their installed version.
 2. **Show code early**. Readers come for working examples, not prose.
 3. **Keep sections focused**. One concept per section. Split with `---` between `#` and `##` headings.
 4. **End with links** to relevant docs, not a summary paragraph that repeats the intro.
+
+## BlogPostImage children
+
+Tutorials can optionally include a code snippet inside `<BlogPostImage>` as children. This renders as a terminal window
+overlay on the hero image. Use it when a short (3-6 line) code example captures the tutorial's core concept at a glance.
+Skip it when the tutorial topic is too abstract for a single snippet.
+
+```mdx
+<BlogPostImage title="SDK Configuration" description="One config. Every endpoint." badge="tutorial" pattern="flickering" file="sdk.ts">
+
+```ts
+const sdk = createSdk(client).$configure({
+  "users.$get": { cache: true, cacheTime: 30000 },
+});
+```
+
+</BlogPostImage>
+```
 
 ## Interactive examples
 

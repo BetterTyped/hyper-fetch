@@ -283,13 +283,6 @@ const config: Config = {
         //   docsPluginId: "default",
         //   className: "nav_versioning",
         // },
-        {
-          type: "custom-myButton",
-          to: "/docs/hyper-flow/download",
-          position: "right",
-          children: "Get Devtools Access",
-          navbarIcon: true,
-        },
       ],
     },
     footer: {

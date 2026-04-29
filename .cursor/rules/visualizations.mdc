@@ -1,0 +1,53 @@
+---
+description: Guidelines for when and how to create visual diagrams and graphs in documentation and blog posts
+globs: 
+alwaysApply: true
+---
+
+# Visualization Rules
+
+## When to Create a Visualization
+
+Only create a diagram, graph, or visual when it is a clear 10/10 fit for the concept. A visualization must make something
+significantly easier to understand than text alone. If the concept can be explained well with a code example, a list, or
+a short paragraph - skip the visual entirely.
+
+**Create a visual when:**
+
+- There is a clear spatial relationship (architecture, data flow, request lifecycle)
+- Multiple components interact in ways that are hard to follow in prose
+- The reader needs to see the "big picture" at a glance
+- Comparison of before/after, with/without is the core message
+
+**Skip a visual when:**
+
+- It just restates what the text already says
+- It shows a simple linear sequence that a numbered list covers better
+- The concept is straightforward and does not benefit from spatial layout
+- You are unsure whether it helps - if in doubt, leave it out
+
+## Diagram Variety
+
+Do NOT default to timeline/sequence diagrams for everything. Choose the diagram type that best fits the concept:
+
+| Concept | Best fit |
+| --- | --- |
+| Architecture / component relationships | Block diagram or flowchart |
+| Data flow / request lifecycle | Flowchart with directional arrows |
+| Comparison (before/after, with/without) | Side-by-side columns or table |
+| Hierarchy / nesting (config layers, inheritance) | Tree diagram |
+| Interaction between systems | Sequence diagram (only when timing matters) |
+| State transitions | State machine diagram |
+| Decision logic | Decision tree / branching flowchart |
+
+Never force a timeline when the concept has no temporal dimension. Default to NO diagram and only add one when it
+clearly earns its place.
+
+## Quality Bar
+
+Every visualization must be:
+
+1. **Self-explanatory** - understandable without reading surrounding text
+2. **Minimal** - no decorative elements, no redundant labels, no clutter
+3. **Accurate** - matches the actual implementation, not a simplified fantasy
+4. **Distinct** - adds information the text cannot convey as effectively

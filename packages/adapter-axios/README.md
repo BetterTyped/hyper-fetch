@@ -1,69 +1,100 @@
 # 🏛️ Hyper Fetch Axios
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Use Axios as the HTTP engine for HyperFetch. Drop-in replacement with interceptors and all Axios features.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/axios" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/axios" alt="npm downloads" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/axios">
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/axios" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-Axios-E10098?logo=axios&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/axios?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Hyper Fetch Axios`** is adapter for Hyper Fetch. It enables seamless communication with Axios, simplifying the
-retrieval and manipulation of data. Benefit from the convenience and efficiency of Hyper Fetch.
+This adapter replaces HyperFetch's built-in HTTP engine with Axios. You get all of Axios's features — interceptors, automatic JSON transforms, request/response transforms — while keeping HyperFetch's typed request system, caching, queuing, and React hooks.
 
-## Features
+## 🎯 Key Capabilities
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+- 🔌 **One line to switch** — Replace the default HTTP engine with Axios without touching your requests
+- 🎯 **Keep your interceptors** — Use existing Axios request/response interceptors and error transforms
+- ✨ **All HyperFetch features stay** — Caching, queuing, types, offline support, React hooks — nothing lost
+- 🔧 **Bring your own instance** — Pass a pre-configured Axios instance with custom defaults and auth headers
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
+## 🚀 Quick Start
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
+```bash
+npm install @hyper-fetch/core @hyper-fetch/axios axios
+```
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { AxiosAdapter } from "@hyper-fetch/axios";
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
+const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter());
+```
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
+## 📚 Documentation
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
+- [Axios Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios)
+- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- [API Reference](https://hyperfetch.bettertyped.com/api/)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+## 💡 Examples
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
+### Use with Axios interceptors
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)
+```ts
+import axios from "axios";
+import { createClient } from "@hyper-fetch/core";
+import { AxiosAdapter } from "@hyper-fetch/axios";
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+const axiosInstance = axios.create({ baseURL: "https://api.example.com" });
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+axiosInstance.interceptors.request.use((config) => {
+  config.headers.Authorization = `Bearer ${getToken()}`;
+  return config;
+});
 
-## Help us keep working on this project ❤️
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) refreshToken();
+    return Promise.reject(error);
+  },
+);
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+const client = createClient({ url: "https://api.example.com" }).setAdapter(
+  AxiosAdapter({ instance: axiosInstance }),
+);
+```
 
-## Sources
+### Create typed requests (same as core)
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/axios)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+```ts
+const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+const { data, error } = await getUsers.send();
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

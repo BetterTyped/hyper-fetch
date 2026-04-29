@@ -1,118 +1,111 @@
 # 🔥 Hyper Fetch Firebase Admin
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Type-safe Firebase Admin SDK adapter for HyperFetch. Server-side Firestore and Realtime Database — fully typed.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/firebase-admin" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/firebase-admin" alt="npm downloads" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/firebase-admin">
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/firebase-admin" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase-admin.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-Firebase-E10098?logo=firebase&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase-admin?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/firebase-ffca28?logo=firebase&logoColor=black" alt="Firebase" />
   </a>
 </p>
 
----
+## 📖 About
 
-## Description
+This adapter brings HyperFetch to server-side Firebase. Share request patterns between browser and Node.js, use the same typed API for Firestore and Realtime Database, and leverage HyperFetch's queuing and retry capabilities on top of the Firebase Admin SDK.
 
-`@hyper-fetch/firebase-admin` is the **official Firebase Admin SDK adapter** for
-[Hyper Fetch](https://hyperfetch.bettertyped.com). It brings the same declarative, type-safe API you use on the client
-to your server or cloud functions.
+## 🎯 Key Capabilities
 
----
+- 🔮 **Same code, server-side** — Identical HyperFetch patterns for server and client Firebase operations
+- 🔥 **Firestore & Realtime Database** — Both engines through one typed adapter
+- 🔁 **Server-side retry and queuing** — Automatic retries with backoff for flaky Firebase calls in backend services
+- ✨ **Full TypeScript types** — Parameters, payloads, and responses typed for every database operation
 
-:::tip Purpose
-
-1. **One API – everywhere** – share request definitions between the browser and Node.js environments.
-2. **First-class TypeScript** – strong typing for parameters, payloads and responses out of the box.
-3. **Queue & Retry** – leverage Hyper Fetch queueing on top of Firebase Admin SDK.
-4. **Unified tooling** – logging, events and interceptors identical on both sides.
-5. **Works with Firestore _and_ Realtime Database** – pick the storage that fits your use-case.
-
-:::
-
-## Installation
+## 🚀 Quick Start
 
 ```bash
 npm install @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
-# or
-yarn add @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
 ```
-
-> `firebase-admin` is a peer dependency and must be installed separately.
-
-## Quick start
-
-### 1. Initialize Firebase Admin SDK
-
-```ts
-import { initializeApp, applicationDefault } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-
-initializeApp({
-  credential: applicationDefault(),
-});
-
-export const db = getFirestore();
-```
-
-### 2. Create Hyper Fetch client with the Firebase Admin adapter
 
 ```ts
 import { createClient } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
-import { db } from "./firebase";
+import { getFirestore } from "firebase-admin/firestore";
 
-export const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(db));
+const db = getFirestore();
+const client = createClient({ url: "" }).setAdapter(FirebaseAdminAdapter(db));
 ```
 
-### 3. Server-side request example
+## 📚 Documentation
+
+- [Firebase Admin Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin)
+- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- [API Reference](https://hyperfetch.bettertyped.com/api/)
+
+## 💡 Examples
+
+### Server-side CRUD
 
 ```ts
-interface MessagePayload {
+interface Message {
   text: string;
+  author: string;
+  createdAt: number;
 }
 
-export const addMessage = client.createRequest<{ payload: MessagePayload; response: null }>()({
+const addMessage = client.createRequest<{ payload: Message; response: null }>()({
   endpoint: "/messages",
   method: "addDoc",
 });
 
-await addMessage.send({ payload: { text: "Hello from the server!" } });
+const getMessages = client.createRequest<{ response: Message[] }>()({
+  endpoint: "/messages",
+  method: "getDocs",
+});
+
+await addMessage.send({
+  data: { text: "Hello from server!", author: "system", createdAt: Date.now() },
+});
+
+const { data: messages } = await getMessages.send();
+messages.forEach((msg) => console.log(`${msg.author}: ${msg.text}`));
 ```
 
-## Supported methods
+### Update and delete
 
-| Firestore                | Realtime Database  |
-| ------------------------ | ------------------ |
-| `getDoc`, `getDocs`      | `get`              |
-| `setDoc`, `addDoc`       | `set`, `push`      |
-| `updateDoc`, `deleteDoc` | `update`, `remove` |
+```ts
+const updateMessage = client.createRequest<{ payload: Partial<Message>; response: null }>()({
+  endpoint: "/messages/:messageId",
+  method: "updateDoc",
+});
 
-## Resources
+const deleteMessage = client.createRequest<{ response: null }>()({
+  endpoint: "/messages/:messageId",
+  method: "deleteDoc",
+});
 
-- [Documentation](https://hyperfetch.bettertyped.com)
-- [API Reference](https://hyperfetch.bettertyped.com/api/modules/firebase-admin)
-- [Guides](https://hyperfetch.bettertyped.com/docs/guides)
-- [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase-admin)
+await updateMessage.setParams({ messageId: "abc" }).send({ data: { text: "Updated!" } });
+await deleteMessage.setParams({ messageId: "abc" }).send();
+```
 
-## Contributing
+## License
 
-We ❤️ contributions! Please read the [contributing guide](../../../CONTRIBUTING.md) and open an issue or pull request.
-
----
-
-Made with ☕ by [BetterTyped](https://bettertyped.com)
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

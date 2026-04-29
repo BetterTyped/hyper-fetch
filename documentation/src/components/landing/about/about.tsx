@@ -1,32 +1,32 @@
 import Link from "@docusaurus/Link";
 import { Description, Highlighter, Title } from "@site/src/components";
-import { BrainCircuit, LayoutDashboard, Milestone } from "lucide-react";
+import { Globe, Layers, Monitor } from "lucide-react";
 import { motion } from "motion/react";
 
 import { SmallBlock } from "../blocks/small-block/small-block";
 
 const aboutFeatures = [
   {
-    icon: BrainCircuit,
-    title: "AI / LLM Ready",
+    icon: Monitor,
+    title: "Every Framework",
     description:
-      "A standardized architecture that's AI-friendly, enabling AI-powered adapter and SDK generation with out-of-the-box LLM support.",
-    link: "/docs/getting-started/ai",
+      "React, Next.js, Remix, Astro, Node.js, Bun — same API and same patterns everywhere. Build SPAs, SSR apps, or edge functions with one SDK.",
+    link: "/docs/getting-started",
+  },
+  {
+    icon: Layers,
+    title: "Every API Protocol",
+    description:
+      "REST, GraphQL, Firebase, WebSockets, Server-Sent Events — connect through one consistent interface. Swap adapters without rewriting code.",
+    link: "/docs/core/overview",
     promo: true,
   },
   {
-    icon: Milestone,
-    title: "Fetching Standard",
+    icon: Globe,
+    title: "Every Environment",
     description:
-      "Enhance DX, reduce errors, and accelerate development with a robust fetching standard, featuring codegen for Swagger/OpenAPI.",
-    link: "/docs/core/overview",
-  },
-  {
-    icon: LayoutDashboard,
-    title: "Dedicated Devtools",
-    description:
-      "Gain deep insights with dedicated devtools. Monitor statistics, analyze performance, and take full control of your data and cache.",
-    link: "/docs/hyper-flow",
+      "Browser, server, edge, mobile — HyperFetch runs anywhere JavaScript runs. Full offline support, queuing, and retries in every environment.",
+    link: "/docs/getting-started",
   },
 ];
 
@@ -43,7 +43,7 @@ export const About = () => {
           >
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                Unified Fetching Layer
+                Universal by design
               </div>
             </div>
           </motion.div>
@@ -54,7 +54,7 @@ export const About = () => {
             viewport={{ once: true }}
           >
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Learn once, use everywhere
+              Works everywhere
             </Title>
           </motion.div>
           <motion.div
@@ -64,8 +64,8 @@ export const About = () => {
             viewport={{ once: true }}
           >
             <Description className="text-lg !text-zinc-400">
-              Hyper-Fetch is the data-exchange framework for modern development needs. It provides first-class
-              type-safety, an exceptional developer experience, and deep architectural flexibility.
+              One SDK that works with every framework, every API protocol, and every environment. Learn it once, use it
+              everywhere.
             </Description>
           </motion.div>
         </div>

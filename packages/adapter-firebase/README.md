@@ -1,70 +1,125 @@
-# 🔥 Hyper Fetch Firebase Web
+# 🔥 Hyper Fetch Firebase
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Type-safe Firebase/Firestore client built on HyperFetch. CRUD, realtime listeners, auth — all typed.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/firebase" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/firebase" alt="npm downloads" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/firebase">
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/firebase" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-Firebase-E10098?logo=firebase&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/firebase-ffca28?logo=firebase&logoColor=black" alt="Firebase" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Hyper Fetch Firebase`** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
-first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
-from the convenience and efficiency of Hyper Fetch for your Firebase-powered projects.
+This adapter brings HyperFetch's typed request system to Firebase. Use the same `createRequest` / `.send()` patterns for Firestore and Realtime Database operations with typed responses, caching, queuing, and React hooks — the same API you use for REST.
 
-## Key Features
+## 🎯 Key Capabilities
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+- 🔥 **Same API for Firebase** — Use `createRequest` / `.send()` for Firestore and Realtime Database, just like REST
+- 🔮 **Typed CRUD** — `getDoc`, `addDoc`, `updateDoc`, `deleteDoc` with full TypeScript types on every field
+- 📡 **Realtime subscriptions** — Listen to document and collection changes with typed data flowing in
+- ⚛️ **React hooks for Firebase** — `useFetch` and `useSubmit` work with Firebase operations — same patterns, different backend
+- 💾 **Cache and offline support** — HyperFetch's caching and offline queue work with Firebase out of the box
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
+## 🚀 Quick Start
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
+```bash
+npm install @hyper-fetch/core @hyper-fetch/firebase firebase
+```
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { FirebaseAdapter } from "@hyper-fetch/firebase";
+import { getFirestore } from "firebase/firestore";
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/core/cache)
+const db = getFirestore();
+const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(db));
+```
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
+## 📚 Documentation
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/environment)
+- [Firebase Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase)
+- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- [API Reference](https://hyperfetch.bettertyped.com/api/)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+## 💡 Examples
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/core/adapter)
+### Read a document
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/getting-started/testing)
+```ts
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "getDoc",
+});
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+const { data } = await getUser.setParams({ userId: "abc123" }).send();
+console.log(data.name, data.email);
+```
 
-## Help me keep working on this project ❤️
+### Write a document
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+```ts
+const createUser = client.createRequest<{
+  payload: { name: string; email: string };
+  response: null;
+}>()({
+  endpoint: "/users",
+  method: "addDoc",
+});
 
-## Sources
+await createUser.send({ data: { name: "Jane", email: "jane@example.com" } });
+```
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/basic/setup)
+### List documents
+
+```ts
+const listUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  method: "getDocs",
+});
+
+const { data: users } = await listUsers.send();
+users.forEach((user) => console.log(user.name));
+```
+
+### Use with React hooks
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+const UserProfile = ({ userId }: { userId: string }) => {
+  const { data, loading } = useFetch(getUser.setParams({ userId }));
+
+  if (loading) return <p>Loading...</p>;
+  return <h1>{data?.name}</h1>;
+};
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

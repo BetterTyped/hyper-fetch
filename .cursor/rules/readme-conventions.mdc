@@ -1,0 +1,97 @@
+---
+description: README conventions for all package and root READMEs
+globs: "**/README.md"
+alwaysApply: false
+---
+
+# README Conventions
+
+## Badge Rules
+
+- Always use `img.shields.io` for badges — NEVER `custom-icon-badges.demolab.com` (unreliable, frequently down)
+- Every package README must include: GitHub stars, npm version, npm downloads, bundle size, license, TypeScript badge
+- Badges go in a centered `<p align="center">` block right after the title
+- Adapter packages should add a technology badge (Firebase, GraphQL, Axios, OpenAPI, etc.)
+
+## Title & Visual Identity
+
+- Titles use emoji + human-friendly name: `# ⚡ Hyper Fetch`, NOT `# @hyper-fetch/core`
+- Each package has its own emoji (keep them consistent):
+  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🧪 testing
+- Subtitle goes in a centered `<p align="center"><b>...</b></p>` right after the title
+- READMEs must look visually appealing — emojis in section headers, bold key terms in capabilities
+
+## Section Order (strict)
+
+Every package README follows this exact section order:
+
+1. `# {emoji} {Name}` — Title with emoji
+2. `<p align="center"><b>...</b></p>` — One-line value proposition
+3. Badges block (centered)
+4. `## 📖 About` — 2-3 sentences: what it does, who it's for, what problem it solves
+5. `## 🎯 Key Capabilities` — Persuasive feature list (see rules below)
+6. `## 🚀 Quick Start` — Install command + 3-8 lines of working code
+7. `## 📚 Documentation` — Links to docs, guides, API reference
+8. `## 💡 Examples` — Rich, package-specific code examples (ALWAYS last content section)
+9. `## License` — MIT link
+
+## Key Capabilities Rules (CRITICAL)
+
+Key capabilities are the MOST IMPORTANT part of the README. They sell the package.
+
+### Tone & Style
+- Write from the USER's perspective — what problems do THEY stop having?
+- Short, punchy, benefit-first — not technical descriptions
+- Use emoji + **bold label** + dash + benefit: `- 🔮 **Zero guesswork** — Full autocompletion for every request, response, param, and error`
+- Each bullet should make someone think "I need this"
+- NO generic filler like "Simple setup", "Easy to use", "Flexible" — these say nothing
+
+### Content Rules
+- List 4-10 capabilities per package (more for core, fewer for small adapters)
+- Lead with the most impressive/unique capability
+- Focus on pain points solved: broken types? manual clients? debugging hell? offline crashes?
+- Include the specific HyperFetch feature name when relevant (e.g. `useFetch`, `createRequest`)
+- Keep each bullet to ONE line — if it wraps, it's too long
+
+### What NOT to write
+- ❌ "Simple setup" — everyone claims this
+- ❌ "Easy to use" — means nothing
+- ❌ "Flexible" — too vague
+- ❌ "Built-in adapter" — not a user benefit
+- ❌ Feature lists copied from other packages — each README must have UNIQUE capabilities
+
+## About Section Rules
+
+- 2-3 sentences maximum
+- First sentence: what the package IS (identity)
+- Second sentence: what it DOES for the user (benefit)
+- Optional third sentence: how it relates to the ecosystem
+- NO bullet lists in About — that's what Key Capabilities is for
+
+## Quick Start Rules
+
+- Install command first (npm install)
+- Then a WORKING code snippet (3-8 lines, copy-pasteable)
+- Must demonstrate the core use case of this specific package
+- Include TypeScript types in the example to show type safety
+
+## Examples Rules
+
+- Examples section is ALWAYS the last content section (before License)
+- Each example must be a real, practical use case — not toy code
+- Show things users actually do: auth, forms, pagination, error handling
+- Use descriptive `### Sub-heading` for each example
+- At least 2 examples per package (except testing/eslint which can have 1)
+
+## Root README Special Rules
+
+- Uses hero image at the top
+- Centered tagline: "One SDK. Any API. Fully typed."
+- Two quick start paths: manual setup + CLI generation
+- "Why HyperFetch?" section with 4 benefit bullets
+- Packages table with version/downloads/size badges (markdown table, not HTML)
+- Sponsor section preserved
+
+## Formatting Rules
+
+- NEVER use em dashes (`—`) anywhere in READMEs. Use a regular dash (`-`) or rewrite the sentence instead.

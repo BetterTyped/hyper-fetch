@@ -4,7 +4,28 @@ title: "SDK Configuration"
 authors: [maciej]
 tags: [SDK, Sockets, Configuration, TypeScript]
 date: 2026-04-29
+image: ./img/sdk-configuration.png
 ---
+
+import { BlogPostImage } from "@site/src/components";
+
+<BlogPostImage
+  title="SDK Configuration"
+  description="One config. Every endpoint. Fully typed."
+  badge="tutorial"
+  href="/blog/sdk-configuration"
+  pattern="flickering" 
+  file="sdk.ts"
+>
+
+```ts
+const sdk = createSdk(client).$configure({
+  "users.$get": { cache: true, cacheTime: 30000 },
+  "/admin/*": { auth: true, retry: 0 },
+});
+```
+
+</BlogPostImage>
 
 Your API schema generates a fully typed SDK, but the generated code only knows about endpoints and types. Real projects
 still need caching policies, retry rules, auth settings, and response mappers. `$configure` lets you inject all of that
@@ -13,7 +34,11 @@ by letting you swap in mocks without tools like `msw` or `nock`.
 
 {/* truncate */}
 
-:::info Version This tutorial was written for **Hyper Fetch 8.0**. :::
+:::info Version
+
+This tutorial was written for **Hyper Fetch 8.0**.
+
+:::
 
 ## Dot-path keys
 
@@ -57,13 +82,11 @@ const configured = sdk.$configure({
 
   // highlight-start
   // Normalize the API's snake_case into camelCase for the frontend
-  "users.$get": (request) =>
-    request.setResponseMapper(snakeToCamelMapper).setCache(true).setCacheTime(30000),
+  "users.$get": (request) => request.setResponseMapper(snakeToCamelMapper).setCache(true).setCacheTime(30000),
   // highlight-end
 
   // Attach the org header that the billing API requires
-  "billing.invoices.$get": (request) =>
-    request.setHeaders({ "X-Org-Id": getCurrentOrgId() }),
+  "billing.invoices.$get": (request) => request.setHeaders({ "X-Org-Id": getCurrentOrgId() }),
 });
 ```
 
@@ -89,13 +112,9 @@ Import `testSdk` instead of `sdk` in your test setup. No interceptors, no servic
 
 When multiple keys match a single request, they stack in a fixed order:
 
-```mermaid
-    timeline
-        title Configuration layers
-          1. Global : "*" : Applied first, base defaults
-          2. Endpoint groups : "/users", "/admin/*" : Domain-level policies
-          3. Dot-path keys : "users.$get" : Per-request overrides, wins on conflict
-```
+1. **Global** (`"*"`) - applied first, base defaults
+2. **Endpoint groups** (`"/users"`, `"/admin/*"`) - domain-level policies
+3. **Dot-path keys** (`"users.$get"`) - per-request overrides, wins on conflict
 
 Each level preserves settings from earlier levels unless it explicitly overrides them.
 
@@ -161,11 +180,9 @@ import { createConfiguration } from "@hyper-fetch/core";
 
 export const usersConfig = createConfiguration<ApiSchema>()({
   // Normalize and cache the user list
-  "users.$get": (request) =>
-    request.setResponseMapper(snakeToCamelMapper).setCache(true),
+  "users.$get": (request) => request.setResponseMapper(snakeToCamelMapper).setCache(true),
   // Require auth, allow stale data for 5s on profile pages
-  "users.$userId.$get": (request) =>
-    request.setAuth(true).setStaleTime(5000),
+  "users.$userId.$get": (request) => request.setAuth(true).setStaleTime(5000),
 });
 ```
 

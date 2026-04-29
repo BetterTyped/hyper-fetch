@@ -1,0 +1,68 @@
+---
+description: Landing page content guidelines and section structure
+globs: "documentation/src/components/landing/**"
+alwaysApply: false
+---
+
+# Landing Page Guidelines
+
+## Section Order (strict)
+
+1. **Hero** — "One SDK. Any API. Fully typed." + universality subtitle + Get Started / Generate SDK CTAs
+2. **CodePreview** — Video showing the SDK in action
+3. **Clients** — Company logo carousel (Swiper auto-scroll)
+4. **About ("Works everywhere")** — Three cards: Every Framework, Every API Protocol, Every Environment
+5. **Features ("How it works")** — Three feature rows: Any API One Interface / Best Type Safety / Generate from OpenAPI
+6. **Modules** — Auto-scrolling Swiper carousel of all packages (no static grid)
+7. **Blocks ("Faster. Better.")** — HyperFlow, Type Safety, Open Source highlight blocks
+8. **Preview ("Meet HyperFlow Devtools")** — Devtools screenshot + CTA (near the end, NOT prominent)
+9. **Sponsors** — Sponsor logos
+10. **CallToAction** — Final CTA
+
+## Hero Rules
+
+- H1 must be: "One SDK. Any API." with subtitle "Fully Typed." (with wavy underline)
+- Subtitle: universality message mentioning REST, GraphQL, Firebase, WebSockets, SSE
+- Primary CTA: "Get Started" → docs/getting-started
+- Secondary CTA: "Generate SDK" → docs/cli/commands/generate
+- Badge link above title: "Generate SDK from Swagger" → CLI docs
+
+## Section Content Rules
+
+### About — "Works everywhere"
+- Eyebrow: "Universal by design"
+- Three cards with lucide icons: Every Framework, Every API Protocol, Every Environment
+- Keep descriptions focused on WHAT the user gets, not technical details
+
+### Features — "How it works"
+- Eyebrow: "One interface for everything."
+- Three feature rows with alternating graphic/text layout:
+  1. Any API, One Interface — CLI SDK demo graphic
+  2. Best Type Safety in the Ecosystem — Scan animation graphic
+  3. Generate from OpenAPI — AnimatedBeam graphic
+- Each has: title, description, "Learn more" link
+
+### Modules
+- MUST be an auto-scrolling Swiper carousel, NOT a static grid
+- Shows all packages except ESLint
+- Continuous loop, no manual swiping needed
+- Fade edges with gradient overlays
+- "View all integrations" link below
+
+### Preview (Devtools)
+- This is NOT a primary selling point — keep it near the end
+- Eyebrow: "Power up your development workflow"
+- Title: "Meet HyperFlow Devtools"
+- Screenshot + CTA to download
+
+## Style Rules
+
+- All section headers use gradient text: `bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60`
+- Eyebrow labels use yellow-orange gradient: `from-yellow-500 to-orange-500`
+- Use `motion` from `motion/react` for scroll animations (not framer-motion directly)
+- All animations should have `viewport={{ once: true }}` to only trigger once
+- Primary buttons use yellow gradient, secondary use `shiny-btn` class
+
+## Formatting Rules
+
+- NEVER use em dashes (`—`) anywhere in landing page copy. Use a regular dash (`-`) or rewrite the sentence instead.

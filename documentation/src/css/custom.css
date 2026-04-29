@@ -1326,7 +1326,28 @@ pre code:has(.code-block-diff-remove-line) {
 /* Blog */
 
 article {
-  @apply relative;
+  @apply relative pb-10 mb-10 border-b border-zinc-200/10;
+}
+
+article:last-of-type {
+  @apply border-b-0 mb-0 pb-0;
+}
+
+article footer .col--2 b {
+  @apply text-sm text-zinc-500 dark:text-zinc-400 font-medium;
+}
+
+article footer .col--2 ul {
+  @apply flex flex-wrap gap-1.5;
+}
+
+a[rel="tag"] {
+  @apply !text-xs !px-2.5 !py-0.5 !rounded-md !border !no-underline transition-colors duration-150;
+  @apply !border-zinc-300/30 dark:!border-zinc-600/40;
+  @apply !text-zinc-600 dark:!text-zinc-400;
+  @apply !bg-zinc-100/50 dark:!bg-zinc-800/40;
+  @apply hover:!border-zinc-400/50 dark:hover:!border-zinc-500/50;
+  @apply hover:!text-zinc-800 dark:hover:!text-zinc-200;
 }
 
 article .markdown p:first-of-type img {
@@ -1334,7 +1355,19 @@ article .markdown p:first-of-type img {
 }
 
 article header h2 a {
-  @apply pb-6 text-3xl sm:text-4xl font-extrabold text-black dark:text-white;
+  @apply pb-6 text-3xl sm:text-4xl font-extrabold text-black;
+}
+
+[data-theme="dark"] article header h2 a {
+  color: transparent !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  background-image: linear-gradient(
+    to bottom,
+    rgb(228 228 231 / 0.6),
+    rgb(228 228 231),
+    rgb(228 228 231 / 0.6)
+  ) !important;
 }
 
 /* Date */
@@ -2450,4 +2483,47 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .shine-animate {
   animation: border-shine var(--duration, 2s) infinite linear;
+}
+
+/* BlogpostImage terminal - strip Docusaurus code block chrome */
+.blogpost-terminal-content {
+  padding: 0;
+  font-size: 13px;
+}
+.blogpost-terminal-content > div,
+.blogpost-terminal-content .theme-code-block,
+.blogpost-terminal-content pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.blogpost-terminal-content pre code {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  padding: 0.75rem 1rem !important;
+}
+.blogpost-terminal-content [class*="buttonGroup"] {
+  display: none !important;
+}
+
+.docusaurus-mt-lg {
+  @apply !mt-4 items-center;
+}
+
+.docusaurus-mt-lg .col:first-child:not(:last-child) {
+  flex: none !important;
+  flex-basis: none !important;
+  max-width: calc(100% - 200px);
+}
+.docusaurus-mt-lg .col:last-child:not(:first-child) {
+  flex: none !important;
+  flex-basis: none !important;
+  max-width: 200px;
+}
+
+.blog-list-page .margin-bottom--xl {
+  @apply !mb-4;
 }

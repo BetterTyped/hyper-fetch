@@ -1,95 +1,94 @@
 # 🔧 Hyper Fetch DevTools Plugin
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Bridge between your app and HyperFlow. Streams request data for real-time debugging and monitoring.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/plugin-devtools" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/plugin-devtools" alt="npm downloads" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/plugin-devtools">
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/plugin-devtools" alt="bundle size" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/plugin-devtools.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/plugin-devtools">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/plugin-devtools?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Hyper Fetch DevTools Plugin`** is an essential bridge between your application and HyperFlow. It enables real-time
-streaming of request data, allowing you to monitor, debug, and optimize your application's network operations. This
-plugin is the foundation that powers HyperFlow's advanced developer tools, providing the data pipeline needed for
-comprehensive request inspection and management.
+The devtools plugin connects your HyperFetch client to HyperFlow, streaming request lifecycle events, cache state changes, queue activity, and performance metrics in real time. It is the data pipeline that powers HyperFlow's debugging and monitoring capabilities.
 
-## Key Features
+## 🎯 Key Capabilities
 
-🔮 **Real-time Data Streaming** - Seamless streaming of request data to HyperFlow
+- 🔮 **See every request live** — Real-time stream of request lifecycle events, from start to response
+- 💎 **Watch your cache change** — See entries appear, update, and invalidate as they happen
+- 📊 **Spot slow endpoints instantly** — Timing breakdowns and payload sizes for every request
+- 🚀 **Monitor your queue** — Pending, active, and failed requests visible at a glance
+- 📴 **Offline detection** — Know immediately when your app loses or regains connectivity
 
-🎯 **Request Lifecycle Tracking** - Complete visibility into request lifecycle events
-
-✨ **Performance Metrics Collection** - Automatic gathering of timing and performance data
-
-🚀 **Queue State Monitoring** - Real-time tracking of request queue status
-
-💎 **Cache State Synchronization** - Live updates of cache state changes
-
-🪄 **Error Tracking** - Comprehensive error reporting and debugging information
-
-🎊 **Request/Response Interception** - Ability to inspect and modify requests and responses
-
-🔋 **Offline State Detection** - Automatic detection and reporting of offline states
-
-📡 **WebSocket Connection Management** - Specialized handling for WebSocket connections
-
-## Integration
-
-The DevTools Plugin is designed to work seamlessly with HyperFlow. To get started:
-
-1. Install the plugin:
+## 🚀 Quick Start
 
 ```bash
 npm install @hyper-fetch/plugin-devtools
 ```
 
-2. Add it to your Hyper Fetch client:
-
-```typescript
+```ts
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-const client = createClient({
-  url: "https://api.example.com",
-}).addPlugin(
-  DevtoolsPlugin({
-    // Name displayed in the HyperFlow
-    appName: "Adjusted App",
-  }),
+const client = createClient({ url: "https://api.example.com" }).addPlugin(
+  DevtoolsPlugin({ appName: "My App" }),
 );
 ```
 
-3. Connect to HyperFlow to start receiving real-time data.
+## 📚 Documentation
 
-## Help me keep working on this project ❤️
+- [Plugin Devtools Overview](https://hyperfetch.bettertyped.com/docs/plugin-devtools/overview)
+- [HyperFlow](https://hyperfetch.bettertyped.com/docs/hyper-flow)
+- [API Reference](https://hyperfetch.bettertyped.com/api/)
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+## 💡 Examples
 
-## Sources
+### Development-only setup
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/plugin-devtools/overview)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/plugin-devtools/getting-started)
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-## Other Packages
+const client = createClient({ url: "https://api.example.com" });
 
-- - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-- #### [HyperFlow](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/flow)
-- #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)
+if (process.env.NODE_ENV === "development") {
+  client.addPlugin(
+    DevtoolsPlugin({
+      appName: "My App - Dev",
+    }),
+  );
+}
+```
+
+### Multiple clients
+
+```ts
+const apiClient = createClient({ url: "https://api.example.com" }).addPlugin(
+  DevtoolsPlugin({ appName: "API Client" }),
+);
+
+const authClient = createClient({ url: "https://auth.example.com" }).addPlugin(
+  DevtoolsPlugin({ appName: "Auth Client" }),
+);
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

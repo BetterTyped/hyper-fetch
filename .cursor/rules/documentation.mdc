@@ -28,6 +28,19 @@ This document outlines the rules and best practices for creating guides for the 
 
 ## 3. Docs Structure
 
+### High-Level Documentation Hierarchy
+
+Documentation sections should follow this order to match the progressive reveal strategy:
+
+1. **Getting Started** — Install, first request, quick wins (5-minute success)
+2. **Real Examples** — Practical use cases: auth, forms, pagination, CRUD
+3. **Core Concepts** — Requests, client, cache, queue, adapters, types
+4. **Advanced** — Offline support, devtools, serialization, custom adapters, CLI generation
+
+Always lead with the simplest path to value. Show `createClient` → `createRequest` → `.send()` before anything else.
+
+### Individual Guide Structure
+
 Each guide should follow this structure:
 
 1.  **Introduction**: Start with a brief introduction to the topic.
@@ -322,3 +335,7 @@ console.log(123);
 - Keep live examples minimal and focused on a single concept.
 - Ensure all live examples are functional and error-free.
 - Only use live examples where interactivity adds value for the reader.
+
+## Formatting Rules
+
+- NEVER use em dashes (`—`) anywhere in documentation. Use a regular dash (`-`) or rewrite the sentence instead.

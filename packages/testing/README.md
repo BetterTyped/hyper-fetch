@@ -1,21 +1,47 @@
 # 🧪 Hyper Fetch Testing
 
-<p>
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
+<p align="center">
+  <b>Internal testing utilities for stubbing HyperFetch requests and sockets in test environments.</b>
+</p>
+
+<p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
   </a>
 </p>
 
-## About
+## 📖 About
 
-**`Hyper Fetch Testing`** is internal set of utilities allowing for easy stubbing the requests and websockets.
+`@hyper-fetch/testing` provides utilities for mocking and stubbing HyperFetch requests and WebSocket connections in test suites. It is primarily used internally across the HyperFetch monorepo.
 
-## Help us keep working on this project ❤️
+## 🎯 Key Capabilities
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+- 🔮 **Mock any request instantly** — Stub responses with custom data and status codes in one call
+- 🧪 **Test sockets too** — Mock WebSocket listeners and emitters for real-time test scenarios
+- 🚫 **Zero network calls** — All mocked requests resolve locally, tests stay fast and deterministic
+
+## 💡 Examples
+
+### Mock a request
+
+```ts
+import { getUser } from "./api";
+
+const mockedRequest = getUser.setMock({
+  data: { id: 1, name: "John Doe", email: "john@example.com" },
+  status: 200,
+});
+
+const { data } = await mockedRequest.send();
+console.log(data.name); // "John Doe"
+```
+
+## License
+
+[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

@@ -46,11 +46,11 @@ export const Landing = () => {
         <CodePreview />
         <Clients />
         <About />
-        <Preview />
-        <Modules />
         <Features />
-        {/* <Integrations /> */}
+        <Modules />
         <Blocks />
+        {/* <Integrations /> */}
+        <Preview />
         {/* <Example /> */}
         <Sponsors />
         <CallToAction />

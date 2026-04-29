@@ -1,0 +1,79 @@
+---
+description: Shared conventions for all blog posts - hero images, patterns, and post-type specific rules
+globs: documentation/blog/**
+alwaysApply: false
+---
+
+# Blog Post Conventions
+
+## BlogPostImage is required
+
+Every blog post (tutorial, release, feature) must use the `<BlogPostImage>` component as its hero image. Import it from
+`@site/src/components`. No raw `<img>` tags or markdown images for the post hero.
+
+```mdx
+import { BlogPostImage } from "@site/src/components";
+
+<BlogPostImage
+  title="Post Title"
+  description="Short tagline."
+  badge="tutorial"
+  href="/blog/slug"
+  pattern="grid"
+/>
+```
+
+## Pattern variety
+
+Available patterns: `dots`, `grid`, `hexagon`, `striped`, `flickering`, `retro`, `interactive`, `paths`.
+
+**Patterns must not repeat across consecutive posts.** When writing a new post, check the most recent 2-3 posts and pick
+a different pattern. Rotate through the full set over time.
+
+Exception: release posts always use `paths` (see below).
+
+## Pattern masks
+
+Control how the pattern fades at the edges via `patternMask`. Available masks:
+
+| Mask | Effect |
+| --- | --- |
+| `radial` (default) | Radial gradient fade, positioned by `patternFocus` (`top` / `center` / `bottom`) |
+| `full` | No mask, pattern fills the entire area |
+| `top` | Hides top, pattern visible toward bottom |
+| `bottom` | Hides bottom, pattern visible toward top |
+| `sides` | Hides left and right sides, visible in center |
+| `left` | Hides left side, pattern visible toward right |
+| `right` | Hides right side, pattern visible toward left |
+| `rectangle` | Visible only in a center rectangle, fades on all four edges |
+
+Vary masks across posts the same way you vary patterns - avoid repeating the same mask on consecutive posts.
+
+## Post-type rules
+
+### Tutorials (`badge="tutorial"`)
+
+- Can include a short code snippet as `<BlogPostImage>` children (renders as a terminal window).
+- Pick any pattern except `paths` (reserved for releases). Vary the choice.
+
+### Releases (`badge="release"`)
+
+- **Always use `pattern="paths"`** to match the hero section aesthetic.
+- **Do NOT include code as children.** Instead, the `BlogPostImage` for releases should visually communicate key
+  features. Use a concise feature list inside the post body (not inside the image component).
+- The release post body should open with a feature summary using a `:::success Key features` admonition containing a
+  numbered list. Each item should be bold feature name (1-2 words) followed by a short description.
+
+```mdx
+<BlogPostImage
+  title="Hyper Fetch 9.0"
+  description="Faster. Smarter. Typed."
+  badge="release"
+  href="/blog/hyper-fetch-9-0"
+/>
+```
+
+### Features (`badge="feature"`)
+
+- Pick any pattern except `paths`. Vary the choice.
+- Can optionally include code children if a short snippet captures the feature.

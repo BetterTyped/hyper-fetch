@@ -38,17 +38,16 @@ const features: FeatureItem[] = [
     gridTotal: "md:grid-cols-5",
     graphicColSpan: "col-span-3",
     textColSpan: "col-span-2",
-    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">SDK Generation</h5>,
+    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">Any API, One Interface</h5>,
     description: () => (
       <Description>
-        Generate <b>type-safe SDKs</b> from OpenAPI/Swagger schemas with our powerful CLI. Get <b>tRPC-like syntax</b>{" "}
-        with full autocompletion, zero-config setup, and <b>blazing-fast performance</b>. Your entire API surface
-        becomes a typed object.
+        REST, GraphQL, Firebase, WebSockets, SSE — use the same <b>createRequest / .send()</b> pattern for every API.
+        Swap adapters without rewriting application code. One SDK for your entire stack.
       </Description>
     ),
     graphic: () => <CliSdkDemo />,
     link: () => (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/cli/commands/generate">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/core/overview">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -56,19 +55,20 @@ const features: FeatureItem[] = [
   {
     name: () => (
       <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">
-        Built for{" "}
+        Best{" "}
         <PointerHighlight
           containerClassName="[&>div]:z-[-1]"
           rectangleClassName="bg-gradient-to-r from-rose-500/40 to-orange-500/40 brightness-150 border-none"
         >
-          <span className="text-6xl font-extrabold px-2 leading-[1.4]">AI and LLMs</span>{" "}
+          <span className="text-6xl font-extrabold px-2 leading-[1.4]">Type Safety</span>{" "}
         </PointerHighlight>
+        in the Ecosystem
       </h5>
     ),
     description: () => (
       <Description>
-        Handle <b>streaming responses</b>, real-time updates, and long-running AI conversations with ease. Built-in
-        support for <b>Server-Sent Events</b>, WebSockets, and request cancellation for modern AI applications.
+        End-to-end TypeScript types from schema to response. Typed <b>params, payloads, query params, errors</b>, and{" "}
+        <b>full autocompletion</b> everywhere. Zero <code>any</code>. Catch bugs at compile time, not in production.
       </Description>
     ),
     graphic: () => (
@@ -77,24 +77,24 @@ const features: FeatureItem[] = [
       </FeaturesCard>
     ),
     link: () => (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/getting-started/ai">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/guides/typescript/extend">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
   },
   {
-    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">Framework Agnostic</h5>,
+    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">Generate from OpenAPI</h5>,
     description: () => (
       <Description>
-        Works seamlessly with <b>React, Next.js, Remix, Astro, Node.js</b>, and any JavaScript framework. Same API, same
-        patterns, same performance benefits - whether you&apos;re building <b>SPAs, SSR apps, or static sites</b>.
+        Point the CLI at any OpenAPI or Swagger schema and get a <b>fully typed SDK</b> in seconds. Every endpoint
+        becomes a typed method with params, payloads, and responses — <b>zero manual typing</b>.
       </Description>
     ),
     graphic: () => {
       return <AnimatedBeamDemo />;
     },
     link: () => (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/getting-started#environments">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/cli/commands/generate">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -201,7 +201,7 @@ export function Features(): JSX.Element {
           >
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                The future is now.
+                One interface for everything.
               </div>
             </div>
           </motion.div>
@@ -212,7 +212,7 @@ export function Features(): JSX.Element {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Control your architecture
+              How it works
             </Title>
           </motion.div>
           <motion.div
@@ -222,8 +222,8 @@ export function Features(): JSX.Element {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Description className="text-lg !text-zinc-400">
-              Easily connect to the events that power our architecture and confidently create your own logic. We give
-              you full control over your data flow like no other framework can.
+              Define your requests once, connect to any API, and let HyperFetch handle types, caching, retries, and
+              offline support for you.
             </Description>
           </motion.div>
         </div>

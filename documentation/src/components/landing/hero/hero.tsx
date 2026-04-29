@@ -3,7 +3,7 @@
 import { Particles } from "@site/src/components/particles";
 import { Description, Title } from "@site/src/components";
 import Link from "@docusaurus/Link";
-import { ArrowRight, Download, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import { Paths } from "./paths/paths";
@@ -44,36 +44,32 @@ export const Hero = () => {
           as="h1"
           className="font-extrabold text-4xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:!leading-[1.3] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
         >
-          Integrate with any API. <br />
+          One SDK. Any API. <br />
           <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">
-            Simple,{" "}
+            Fully{" "}
             <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
-              TypeSafe
+              Typed
               <span
                 className="absolute text-3xl md:text-5xl lg:text-[3.9rem] -z-[1] inset-0 underline decoration-rose-500 decoration-wavy decoration-from-font underline-offset-2 !text-transparent disable-shadow pointer-events-none"
                 style={{
                   textShadow: "none",
                 }}
               >
-                TypeSafe
+                Typed
               </span>
             </span>
-            , Fast.
+            .
           </span>
         </Title>
         <Description
           size="none"
           className="mb-3 md:mb-8 text-lg md:text-lg lg:text-xl text-zinc-300 dark:text-[#ababab] text-center !leading-[1.28] w-[660px] max-w-[90vw]"
         >
-          Hyper Fetch is a framework that makes it easy to connect to any remote API. Using{" "}
+          The type-safe API layer for TypeScript apps. Connect to{" "}
           <span className="text-black dark:text-white" style={{ fontSize: "inherit" }}>
-            request
+            REST, GraphQL, Firebase, WebSockets, SSE
           </span>{" "}
-          based or{" "}
-          <span className="text-black dark:text-white" style={{ fontSize: "inherit" }}>
-            real-time
-          </span>{" "}
-          connection.
+          — all with one consistent interface and the best type safety in the ecosystem.
         </Description>
         <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
           <Link
@@ -83,10 +79,10 @@ export const Hero = () => {
             Get Started <ArrowRight className="w-[16px] ml-2" />
           </Link>
           <Link
-            to="/docs/hyper-flow/download"
+            to="/docs/cli/commands/generate"
             className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl"
           >
-            <Download className="w-[16px] mr-2" /> Get Devtools Access
+            <Sparkles className="w-[16px] mr-2" /> Generate SDK
           </Link>
         </div>
       </div>
