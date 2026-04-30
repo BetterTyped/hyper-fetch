@@ -50,7 +50,11 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
             <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8 md:pr-0">
               <div className="mt-6 mb-5 md:mt-0">
                 <div>
-                  <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-3xl">
+                  <Title
+                    size="none"
+                    wrapperClass="inline-flex flex-wrap font-bold pb-1"
+                    className="!text-4xl !leading-tight"
+                  >
                     {title}
                   </Title>
                   <Description size="none">{description}</Description>
@@ -66,7 +70,9 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
               </div>
             </div>
             {/* Image */}
-            <div className="hidden md:block relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden">{img}</div>
+            <div className="hidden md:flex items-center relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden">
+              {img}
+            </div>
           </div>
         </div>
       </HighlighterItem>

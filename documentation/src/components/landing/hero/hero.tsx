@@ -69,7 +69,7 @@ export const Hero = () => {
           <span className="text-black dark:text-white" style={{ fontSize: "inherit" }}>
             REST, GraphQL, Firebase, WebSockets, SSE
           </span>{" "}
-          — all with one consistent interface and the best type safety in the ecosystem.
+          . All with one consistent interface and the best type safety in the ecosystem.
         </Description>
         <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
           <Link

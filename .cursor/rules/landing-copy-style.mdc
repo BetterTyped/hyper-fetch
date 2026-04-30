@@ -1,0 +1,36 @@
+---
+description: Copy and writing style rules for the landing page and documentation UI components
+globs: documentation/src/components/landing/**/*.tsx, documentation/src/components/ui/**/*.tsx
+alwaysApply: false
+---
+
+# Landing Page & Docs Component Copy Style
+
+## Voice
+
+Write like a senior engineer talking to another engineer. Direct, concrete, no filler.
+
+## Rules
+
+1. **No dashes as separators**. No em dashes (—) or hyphens ( - ) to join clauses. Use a period and start a new sentence instead. Use a middle dot (·) for short status labels only.
+2. **No adverbs** like "seamlessly", "effortlessly", "elegantly", "beautifully", "simply".
+3. **No marketing fluff** - "revolutionary", "game-changing", "next-generation", "cutting-edge", "best-in-class".
+4. **No filler phrases** - "it's worth noting", "it's important to", "at the end of the day", "in order to".
+5. **Short sentences.** If a sentence has a comma followed by another clause, split it into two sentences.
+6. **Show, don't tell.** Prefer a code example or concrete detail over an abstract claim.
+7. **No exclamation marks** in feature descriptions or headings.
+8. **No emoji** in prose text (allowed in terminal/code animations only).
+
+## Examples
+
+```
+BAD:  "Seamlessly swap adapters — without rewriting a single line of code!"
+BAD:  "REST, GraphQL, Firebase - swap the adapter, keep the same API."
+GOOD: "REST, GraphQL, Firebase, Sockets. Swap the adapter, keep the same createRequest / .send() everywhere."
+
+BAD:  "Cache, queue, retry, dedup, offline replay - built in."
+GOOD: "Cache, queue, retry, dedup, offline replay. All built in."
+
+BAD:  "Loading, error, data — all managed."
+GOOD: "Loading, error, and data states all managed for you."
+```

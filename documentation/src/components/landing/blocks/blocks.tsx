@@ -2,8 +2,8 @@
 import Link from "@docusaurus/Link";
 import { Description, Title } from "@site/src/components";
 import { Highlighter } from "@site/src/components/highlighter";
-import { Particles } from "@site/src/components/particles";
 import { CliSdkDemo } from "@site/src/components/landing/features/cli-sdk-demo";
+import { Particles } from "@site/src/components/particles";
 import { motion } from "motion/react";
 
 import { BigBlock } from "./big-block/big-block";
@@ -14,7 +14,7 @@ const FeatureImg03 = "/img/feature-image-03.png";
 
 export const Blocks = () => {
   return (
-    <section className="relative pb-20 ">
+    <section className="relative">
       {/* Particles animation */}
       <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10 w-80 h-80 -mt-24 -ml-32">
         <Particles className="absolute inset-0 -z-10" quantity={6} staticity={30} />
@@ -88,7 +88,7 @@ export const Blocks = () => {
               <Link to="/docs/cli/commands/generate" className="!no-underline md:col-span-12">
                 <BigBlock
                   title="Generate a typed SDK in seconds"
-                  description="Point the CLI at any OpenAPI or Swagger schema and ship a fully typed SDK. Every endpoint becomes a typed method - params, payloads, responses, errors. Zero manual typing."
+                  description="Point the CLI at any OpenAPI or Swagger schema and ship a fully typed SDK. Zero manual typing."
                   img={
                     <div className="flex items-center justify-center h-full w-full p-4">
                       <CliSdkDemo bare />
@@ -99,7 +99,7 @@ export const Blocks = () => {
               <Link to="/docs/guides/typescript/extend" className="!no-underline md:col-span-7">
                 <MediumBlock
                   title="Designed for Type Safety"
-                  description="End-to-end TypeScript from schema to response. Typed params, payloads, errors - and zero any. Catch bugs at compile time, not in production."
+                  description="End-to-end TypeScript from schema to response. Typed params, payloads, errors. Zero any. Catch bugs at compile time, not in production."
                   img={
                     <img
                       className="absolute w-[240%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
@@ -111,7 +111,7 @@ export const Blocks = () => {
               </Link>
               <Link to="/docs/getting-started" className="!no-underline md:col-span-5">
                 <MediumBlock
-                  title="Open Source. Zero Lock-in."
+                  title="Open Source."
                   description="Framework agnostic, near-zero dependencies, MIT licensed. Drop it into any project and own your stack."
                   img={
                     <img

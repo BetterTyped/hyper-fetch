@@ -10,14 +10,14 @@ const aboutFeatures = [
     icon: Monitor,
     title: "Every Framework",
     description:
-      "React, Next.js, Remix, Astro, Node.js, Bun — same API and same patterns everywhere. Build SPAs, SSR apps, or edge functions with one SDK.",
+      "React, Next.js, Remix, Astro, Node.js, Bun. Same API and same patterns everywhere. Build SPAs, SSR apps, or edge functions with one SDK.",
     link: "/docs/getting-started",
   },
   {
     icon: Layers,
     title: "Every API Protocol",
     description:
-      "REST, GraphQL, Firebase, WebSockets, Server-Sent Events — connect through one consistent interface. Swap adapters without rewriting code.",
+      "REST, GraphQL, Firebase, WebSockets, Server-Sent Events. One consistent interface. Swap adapters without rewriting code.",
     link: "/docs/core/overview",
     promo: true,
   },
@@ -25,7 +25,7 @@ const aboutFeatures = [
     icon: Globe,
     title: "Every Environment",
     description:
-      "Browser, server, edge, mobile — HyperFetch runs anywhere JavaScript runs. Full offline support, queuing, and retries in every environment.",
+      "Browser, server, edge, mobile. HyperFetch runs anywhere JavaScript runs. Full offline support, queuing, and retries built in.",
     link: "/docs/getting-started",
   },
 ];

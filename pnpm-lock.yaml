@@ -319,12 +319,6 @@ importers:
       prismjs:
         specifier: ^1.29.0
         version: 1.30.0
-      react:
-        specifier: 19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: 19.2.5
-        version: 19.2.5(react@19.2.5)
       react-live:
         specifier: 4.1.8
         version: 4.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
