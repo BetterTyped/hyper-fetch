@@ -5,23 +5,26 @@
 </p>
 
 <p align="center">
+  <a href="https://bettertyped.com/">
+    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
+  </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
-    <img src="https://img.shields.io/npm/v/@hyper-fetch/core" alt="npm version" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
-    <img src="https://img.shields.io/npm/dm/@hyper-fetch/core" alt="npm downloads" />
-  </a>
-  <a href="https://bundlephobia.com/package/@hyper-fetch/core">
-    <img src="https://badgen.net/bundlephobia/minzip/@hyper-fetch/core" alt="bundle size" />
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
+    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm&color=e76f51" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+    <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/core?logoColor=fff&logo=trending-up" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+  </a>
+  <a href="https://bundlephobia.com/package/@hyper-fetch/core">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/core?color=64BC4B&logo=package" />
   </a>
 </p>
 

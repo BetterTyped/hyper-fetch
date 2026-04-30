@@ -6,6 +6,8 @@
 
 <div align="center">
 
+# Hyper Fetch
+
 **One SDK. Any API. Fully typed.**
 
 The type-safe API layer for TypeScript apps. Connect to REST, GraphQL, Firebase, WebSockets, SSE — all with one
@@ -18,20 +20,26 @@ consistent interface and the best type safety in the ecosystem.
 </div>
 
 <div align="center">
+  <a href="https://bettertyped.com/">
+    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
+  </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&style=flat" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
+    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=blue" />
+  </a>
+  <a href="https://github.com/semantic-release/semantic-release">
+    <img src="https://custom-icon-badges.demolab.com/badge/semver-commitzen-e10079?logo=semantic-release&color=9146ff" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/core">
-    <img src="https://img.shields.io/npm/v/@hyper-fetch/core" alt="npm version" />
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/core">
-    <img src="https://img.shields.io/npm/dm/@hyper-fetch/core" alt="npm downloads" />
+    <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/core?logoColor=fff&logo=trending-up" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
 </div>
 
@@ -81,9 +89,17 @@ const { data } = await sdk.users.list.send();
 ---
 
 <p align="center">
-	<a href="https://github.com/sponsors/prc5">
+	<a href="https://github.com/sponsors/prc5?tier=Platinum">
 		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/platinum/sponsorkit/sponsors.svg" alt="Platinum sponsors" />
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Platinum.png" alt="Platinum sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/platinum/sponsorkit/sponsors.svg" alt="Platinum sponsors"/>
 		</picture>
 	</a>
 </p>
@@ -101,6 +117,22 @@ const { data } = await sdk.users.list.send();
 | [@hyper-fetch/graphql](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql)               | [![npm](https://img.shields.io/npm/v/@hyper-fetch/graphql)](https://www.npmjs.com/package/@hyper-fetch/graphql)                 | [![downloads](https://img.shields.io/npm/dm/@hyper-fetch/graphql)](https://www.npmjs.com/package/@hyper-fetch/graphql)                 | [![size](https://badgen.net/bundlephobia/minzip/@hyper-fetch/graphql)](https://bundlephobia.com/package/@hyper-fetch/graphql)                 |
 | [@hyper-fetch/axios](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios)                   | [![npm](https://img.shields.io/npm/v/@hyper-fetch/axios)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![downloads](https://img.shields.io/npm/dm/@hyper-fetch/axios)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![size](https://badgen.net/bundlephobia/minzip/@hyper-fetch/axios)](https://bundlephobia.com/package/@hyper-fetch/axios)                     |
 | [@hyper-fetch/plugin-devtools](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-devtools)       | [![npm](https://img.shields.io/npm/v/@hyper-fetch/plugin-devtools)](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools) | [![downloads](https://img.shields.io/npm/dm/@hyper-fetch/plugin-devtools)](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools) | [![size](https://badgen.net/bundlephobia/minzip/@hyper-fetch/plugin-devtools)](https://bundlephobia.com/package/@hyper-fetch/plugin-devtools) |
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Gold">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Gold.png" alt="Gold sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Gold">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/gold/sponsorkit/sponsors.svg" alt="Gold sponsors"/>
+		</picture>
+	</a>
+</p>
 
 ## Examples
 
@@ -145,7 +177,23 @@ const UserList = () => {
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 - [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
 
-## Sponsors
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Silver.png" alt="Silver sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/silver/sponsorkit/sponsors.svg" alt="Silver sponsors"/>
+		</picture>
+	</a>
+</p>
+
+## Our sponsors
 
 <p align="center">
 	<a href="https://github.com/sponsors/prc5">
