@@ -1,8 +1,8 @@
+import { cn } from "@site/src/lib/utils";
 import FirebaseIcon from "@site/static/img/integration-firebase.svg";
 import GraphqlIcon from "@site/static/img/integration-graphql.svg";
 import RestIcon from "@site/static/img/integration-rest.svg";
 import SocketsIcon from "@site/static/img/integration-sockets.svg";
-import { cn } from "@site/src/lib/utils";
 import { ArrowDownToLine, Check, MonitorSmartphone } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -292,8 +292,8 @@ export function AdapterSwapAnimation() {
               <div className="size-1.5 rounded-full bg-zinc-700" />
               <div className="size-1.5 rounded-full bg-zinc-700" />
             </div>
-            <MonitorSmartphone className="ml-0.5 size-4 text-zinc-400" />
             <span className="text-[12px] font-semibold text-zinc-100">Your app</span>
+            <MonitorSmartphone className="ml-auto size-4 text-zinc-400" />
           </div>
           <div className="flex items-center gap-2 px-2.5 py-1.5">
             <Check className="size-4 shrink-0 text-emerald-400" />

@@ -116,7 +116,8 @@
       "@hyper-fetch/axios": "workspace:*",
       "@hyper-fetch/graphql": "workspace:*",
       "@hyper-fetch/plugin-devtools": "workspace:*",
-      "@hyper-fetch/testing": "workspace:*"
+      "@hyper-fetch/testing": "workspace:*",
+      "@swc/core": "^1.15.30"
     }
   },
   "keywords": [
