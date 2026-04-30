@@ -1,10 +1,10 @@
-import { useCallback } from "react";
 import { Box, Divider, MenuItem, MenuList, Popover, Typography } from "@mui/material";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const AccountPopover = (props: { anchorEl: HTMLElement | null; onClose: () => void; open: boolean }) => {
   const { anchorEl, onClose, open } = props;
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const handleSignOut = useCallback(() => {
     onClose?.();

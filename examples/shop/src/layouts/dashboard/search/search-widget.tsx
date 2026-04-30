@@ -1,15 +1,15 @@
+import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
+import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+import { Box, InputAdornment, OutlinedInput, SvgIcon } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import { ProductType, getProduct, getProductsSearch } from "api/firebase/products.api";
 import React, { useState } from "react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import OutsideClickHandler from "react-outside-click-handler";
-import { Box, InputAdornment, OutlinedInput, SvgIcon } from "@mui/material";
-import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
-import { useFetch, useSubmit } from "@hyper-fetch/react";
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
-import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 
-import { ProductType, getProduct, getProductsSearch } from "api/firebase/products.api";
 import styles from "./search-widget.module.css";
 
 const ListElement = ({ setClose, product }: { setClose: VoidFunction; product: ProductType }) => {

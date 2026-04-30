@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { useSubmit } from "@hyper-fetch/react";
 import { Box, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
-
 import { ProductType, getProduct } from "api/firebase/products.api";
 import { Price } from "components/price";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import styles from "./product-card.module.css";
 
 export const ProductCard = ({ product }: { product: ProductType }) => {

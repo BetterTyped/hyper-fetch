@@ -1,13 +1,12 @@
 import { useFetch, useListener } from "@hyper-fetch/react";
-import { Alert, Box, Container, Divider, Unstable_Grid2 as Grid, Skeleton, Stack, Typography } from "@mui/material";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { useParams } from "react-router-dom";
-
+import { Alert, Box, Container, Divider, Grid2 as Grid, Skeleton, Stack, Typography } from "@mui/material";
 import { client } from "api/clients";
 import { getProduct, getProducts } from "api/firebase/products.api";
 import { productListener } from "api/sockets/products.sockets";
 import { AddToCart } from "components/add-to-cart";
 import { Price } from "components/price";
+import { useParams } from "react-router-dom";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 export const ProductsDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -51,10 +50,7 @@ export const ProductsDetailsPage = () => {
         {data && (
           <Grid container spacing={10} mt={5} mx={0} maxWidth="100%">
             <Grid
-              xs={12}
-              md={6}
-              lg={6}
-              spacing={2}
+              size={{ xs: 12, md: 6, lg: 6 }}
               sx={{
                 maxWidth: "50vw",
                 borderRadius: 3,
@@ -78,7 +74,7 @@ export const ProductsDetailsPage = () => {
                 </TransformComponent>
               </TransformWrapper>
             </Grid>
-            <Grid xs={12} md={6} lg={6} spacing={2}>
+            <Grid size={{ xs: 12, md: 6, lg: 6 }}>
               <Typography variant="h3" gutterBottom>
                 {data.name}
               </Typography>
@@ -93,7 +89,7 @@ export const ProductsDetailsPage = () => {
         )}
         {!data && loading && (
           <Grid container spacing={10} mt={5} maxWidth="100%">
-            <Grid xs={12} md={6} lg={6} spacing={2}>
+            <Grid size={{ xs: 12, md: 6, lg: 6 }}>
               <Skeleton
                 sx={{
                   width: "100%",
@@ -105,7 +101,7 @@ export const ProductsDetailsPage = () => {
                 }}
               />
             </Grid>
-            <Grid xs={12} md={6} lg={6} spacing={2}>
+            <Grid size={{ xs: 12, md: 6, lg: 6 }}>
               <Skeleton height={40} sx={{ transform: "none", mb: 2 }} />
               <Skeleton height={200} sx={{ transform: "none", mb: 4 }} />
               <Skeleton height={60} width={250} sx={{ transform: "none", mb: 2 }} />

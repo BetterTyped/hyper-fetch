@@ -1,7 +1,8 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-import { QueueRequest } from "@hyper-fetch/react";
 import { RequestInstance } from "@hyper-fetch/core";
+import { QueueRequest } from "@hyper-fetch/react";
+import { Box, Typography } from "@mui/material";
+import React from "react";
+
 import { RequestCard } from "./request.card";
 
 interface QueuedRequestsListProps {

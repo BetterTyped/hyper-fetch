@@ -1,5 +1,5 @@
-import { useRouter } from "next/router";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 
 import { Viewer } from "../components/viewer";
 import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";

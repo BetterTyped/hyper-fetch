@@ -1,14 +1,14 @@
-import { CssBaseline } from "@mui/material";
 import { useListener } from "@hyper-fetch/react";
+import { CssBaseline } from "@mui/material";
 import "simplebar-react/dist/simplebar.min.css";
-import { RouterProvider } from "react-router-dom";
-
 import { client } from "api/clients";
 import { getProduct, getProducts } from "api/firebase/products.api";
 import { productsListener } from "api/sockets/products.sockets";
-import { CheckoutComplete } from "components/confetti";
 import { Providers } from "components/client";
+import { CheckoutComplete } from "components/confetti";
+import { RouterProvider } from "react-router-dom";
 import { router } from "router";
+
 import "./index.css";
 
 export const App = () => {

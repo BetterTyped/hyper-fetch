@@ -1,7 +1,6 @@
-import { Outlet } from "react-router-dom";
 import { styled } from "@mui/material/styles";
-
 import { TopNav } from "layouts/dashboard/top-nav";
+import { Outlet } from "react-router-dom";
 
 const LayoutRoot = styled("div")(() => ({
   display: "flex",

@@ -1,11 +1,11 @@
-import { useFetch } from "@hyper-fetch/react";
 import { $orderBy, $where, FirestorePermittedMethods } from "@hyper-fetch/firebase";
+import { useFetch } from "@hyper-fetch/react";
 import { Box, Container, Stack, Typography, Breadcrumbs, Alert, Skeleton } from "@mui/material";
-
 import { getProducts } from "api/firebase/products.api";
-import { Product } from "./product/product";
-import { Filters } from "./filters/filters";
 import { useQuery } from "hooks/use-query.hook";
+
+import { Filters } from "./filters/filters";
+import { Product } from "./product/product";
 import { Sorting } from "./sorting/sorting";
 
 export const ProductsPage = () => {

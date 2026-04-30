@@ -1,7 +1,7 @@
 import { CssBaseline, Stack } from "@mui/material";
-import * as ReactDOM from "react-dom/client";
-import { SnackbarProvider } from "notistack";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { SnackbarProvider } from "notistack";
+import * as ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
 import { router } from "./components/routing.constants";

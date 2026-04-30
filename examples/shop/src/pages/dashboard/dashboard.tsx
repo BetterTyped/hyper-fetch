@@ -1,10 +1,10 @@
-import { useFetch } from "@hyper-fetch/react";
 import { $limit } from "@hyper-fetch/firebase";
-import { Box, Button, Container, Typography, Unstable_Grid2 as Grid, Skeleton, Alert } from "@mui/material";
+import { useFetch } from "@hyper-fetch/react";
+import { Box, Button, Container, Typography, Grid2 as Grid, Skeleton, Alert } from "@mui/material";
+import { getProducts } from "api/firebase/products.api";
 import { Link } from "react-router-dom";
 
 import { ProductCard } from "./product-card/product-card";
-import { getProducts } from "api/firebase/products.api";
 
 export const DashboardPage = () => {
   const { data, error, loading } = useFetch(getProducts.setQueryParams({ constraints: [$limit(12)] }), {
@@ -76,7 +76,7 @@ export const DashboardPage = () => {
           {loading &&
             !data?.length &&
             Array.from({ length: 12 }, (_, element) => (
-              <Grid xs={12} md={4} lg={3} key={element}>
+              <Grid size={{ xs: 12, md: 4, lg: 3 }} key={element}>
                 <Box
                   position="relative"
                   sx={{
@@ -95,7 +95,7 @@ export const DashboardPage = () => {
               </Grid>
             ))}
           {data?.map((product) => (
-            <Grid xs={12} md={4} lg={3} key={product.__key}>
+            <Grid size={{ xs: 12, md: 4, lg: 3 }} key={product.__key}>
               <ProductCard product={product} />
             </Grid>
           ))}

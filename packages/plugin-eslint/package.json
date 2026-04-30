@@ -34,6 +34,7 @@
     }
   },
   "devDependencies": {
+    "@typescript-eslint/parser": "^7.18.0",
     "@typescript-eslint/rule-tester": "^7.18.0",
     "assert": "2.1.0",
     "eslint": "8.57.0",

@@ -251,7 +251,7 @@ const features: FeatureItem[] = [
   },
 ];
 
-export function Features(): JSX.Element {
+export function Features(): React.JSX.Element {
   const [isMobile, setIsMobile] = useState(false);
 
   useWindowSize(([width]) => {

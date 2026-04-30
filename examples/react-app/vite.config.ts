@@ -1,7 +1,7 @@
+import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin";
+import react from "@vitejs/plugin-react";
 /// <reference types="vitest/config" />
 import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react";
-import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin";
 
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {

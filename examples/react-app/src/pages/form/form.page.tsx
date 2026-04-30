@@ -1,13 +1,12 @@
+import { useSubmit, useQueue } from "@hyper-fetch/react";
+import { Button } from "@mui/material";
 /* eslint-disable no-console */
 import React from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { useSubmit, useQueue } from "@hyper-fetch/react";
 
 import { patchUser, postUser, postFile } from "../../api";
+import { QueuedRequestsList } from "../../components/queued-requests-list";
 import { Request } from "../../components/request";
 import { Viewer } from "../../components/viewer";
-import { RequestCard } from "../../components/request.card";
-import { QueuedRequestsList } from "../../components/queued-requests-list";
 
 export const FormPage: React.FC = () => {
   // Post

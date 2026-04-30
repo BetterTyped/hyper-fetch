@@ -1,11 +1,11 @@
+import { useAppManager } from "@hyper-fetch/react";
+import { Button, Stack, Box, Typography, Container, Chip, useTheme, lighten } from "@mui/material";
 /* eslint-disable react/require-default-props */
 import React, { useState } from "react";
-import { Button, Stack, Box, Typography, Container, Chip, useTheme, lighten } from "@mui/material";
-import { useAppManager } from "@hyper-fetch/react";
 import { useNavigate } from "react-router-dom";
 
-import { Sidebar } from "./sidebar";
 import { client } from "../api";
+import { Sidebar } from "./sidebar";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,

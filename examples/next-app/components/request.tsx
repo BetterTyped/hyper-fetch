@@ -1,24 +1,24 @@
+import { RequestInstance, ProgressType } from "@hyper-fetch/core";
+import { UseFetchReturnType, UseSubmitReturnType } from "@hyper-fetch/react";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
+import DataArrayIcon from "@mui/icons-material/DataArray";
+import ErrorIcon from "@mui/icons-material/Error";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
+import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
+import { useSnackbar } from "notistack";
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 /* eslint-disable react/require-default-props */
 import * as React from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Box, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
-import { UseFetchReturnType, UseSubmitReturnType } from "@hyper-fetch/react";
-import { RequestInstance, ProgressType } from "@hyper-fetch/core";
-import { useSnackbar } from "notistack";
-import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
-import AutorenewIcon from "@mui/icons-material/Autorenew";
-import ErrorIcon from "@mui/icons-material/Error";
-import DataArrayIcon from "@mui/icons-material/DataArray";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 type Props<R extends RequestInstance = RequestInstance> = {
   name: string;
@@ -83,7 +83,11 @@ export function Request<R extends RequestInstance = RequestInstance>({ name, chi
       <AccordionDetails>
         <code>
           <pre style={{ margin: 0 }}>
-            {JSON.stringify((error as unknown) instanceof Error ? { message: (error as Error).message } : error, null, 2)}
+            {JSON.stringify(
+              (error as unknown) instanceof Error ? { message: (error as Error).message } : error,
+              null,
+              2,
+            )}
           </pre>
         </code>
       </AccordionDetails>

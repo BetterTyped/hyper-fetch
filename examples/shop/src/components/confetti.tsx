@@ -1,6 +1,5 @@
-import Confetti from "react-confetti";
-
 import { useCheckout } from "hooks/use-checkout";
+import Confetti from "react-confetti";
 
 export const CheckoutComplete = () => {
   const { checkout, setCheckout } = useCheckout();

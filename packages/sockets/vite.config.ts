@@ -31,18 +31,25 @@ export default defineConfig({
       include: ["src/**/*.{ts,tsx}"],
       provider: "v8",
     },
-    environment: "jsdom",
     globals: true,
-    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    setupFiles: ["./__tests__/vitest.setup.ts"],
     projects: [
       {
         extends: true,
         test: {
+          name: "unit",
+          environment: "jsdom",
+          include: ["__tests__/features/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "e2e",
           environment: "node",
           include: ["__tests__/e2e/**/*.spec.{ts,tsx}"],
         },
       },
     ],
-    setupFiles: ["./__tests__/vitest.setup.ts"],
   },
 });

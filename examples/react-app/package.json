@@ -1,0 +1,10 @@
+{
+  "name": "react-app",
+  "private": true,
+  "dependencies": {
+    "@hyper-fetch/core": "workspace:*",
+    "@hyper-fetch/react": "workspace:*",
+    "@hyper-fetch/sockets": "workspace:*",
+    "@hyper-fetch/plugin-devtools": "workspace:*"
+  }
+}

@@ -1,13 +1,12 @@
-import React from "react";
 import { ThemeProvider } from "@mui/material/styles";
-
+import React from "react";
 import { createTheme } from "theme";
 
 export type ProvidersProps = {
   children: React.ReactNode;
 };
 
-export const Providers: React.FC<ProvidersProps> = ({ children }: ProvidersProps) => {
+export const Providers = ({ children }: ProvidersProps) => {
   const theme = createTheme();
 
   return (

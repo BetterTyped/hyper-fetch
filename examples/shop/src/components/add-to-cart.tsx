@@ -1,8 +1,7 @@
-import { useMemo } from "react";
 import { Button } from "@mui/material";
-
 import { ProductType } from "api/firebase/products.api";
 import { useCart } from "hooks/use-cart";
+import { useMemo } from "react";
 
 export const AddToCart = ({ product }: { product: ProductType }) => {
   const { items, addProduct } = useCart();

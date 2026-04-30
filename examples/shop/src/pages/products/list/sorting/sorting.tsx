@@ -1,13 +1,12 @@
-import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
+import ArrowDownIcon from "@heroicons/react/24/solid/ArrowDownIcon";
+import { SvgIcon } from "@mui/material";
 import Button from "@mui/material/Button";
 import Menu, { MenuProps } from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ArrowDownIcon from "@heroicons/react/24/solid/ArrowDownIcon";
-import { SvgIcon } from "@mui/material";
-
-import { useQuery } from "hooks/use-query.hook";
+import { styled, alpha } from "@mui/material/styles";
 import { ProductType } from "api/firebase/products.api";
+import { useQuery } from "hooks/use-query.hook";
+import * as React from "react";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu

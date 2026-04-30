@@ -1,12 +1,11 @@
+import { useDidUpdate } from "@better-hooks/lifecycle";
+import CreditCard from "@heroicons/react/24/solid/CreditCardIcon";
+import ShoppingIcon from "@heroicons/react/24/solid/ShoppingBagIcon";
 import { useCache } from "@hyper-fetch/react";
 import { Box, Button, Divider, Typography, SvgIcon, Stack } from "@mui/material";
-import { useDidUpdate } from "@better-hooks/lifecycle";
-import ShoppingIcon from "@heroicons/react/24/solid/ShoppingBagIcon";
-import CreditCard from "@heroicons/react/24/solid/CreditCardIcon";
-
 import { getProducts } from "api/firebase/products.api";
-import { ProductCartItem, useCart } from "hooks/use-cart";
 import { Price } from "components/price";
+import { ProductCartItem, useCart } from "hooks/use-cart";
 import { useCheckout } from "hooks/use-checkout";
 
 export const Cart = () => {

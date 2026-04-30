@@ -1,10 +1,10 @@
 import { createBrowserRouter, Outlet } from "react-router-dom";
 
 import DetailsPage from "../pages/details";
-import ListPage from "../pages/list";
 import FormPage from "../pages/form";
-import { WebsocketsPage } from "../pages/websocket/websocket";
 import DashboardPage from "../pages/index";
+import ListPage from "../pages/list";
+import { WebsocketsPage } from "../pages/websocket/websocket";
 
 export const router = createBrowserRouter([
   {

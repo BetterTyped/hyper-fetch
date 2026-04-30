@@ -7,11 +7,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hyper-fetch/core": "workspace:*",
+    "@hyper-fetch/firebase": "workspace:*",
+    "@hyper-fetch/plugin-devtools": "workspace:*",
+    "@hyper-fetch/react": "workspace:*",
+    "@hyper-fetch/sockets": "workspace:*",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@firebase/firestore": "^3.12.2",
     "@heroicons/react": "^2.2.0",
-    "@mui/material": "^5.13.4",
+    "@mui/material": "^6.5.0",
     "date-fns": "^2.30.0",
     "firebase": "^9.22.2",
     "firebase-admin": "^11.9.0",

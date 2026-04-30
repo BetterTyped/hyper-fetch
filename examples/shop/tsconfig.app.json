@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "baseUrl": "./src",
+    "rootDir": "./src",
+    "paths": {
+      "*": ["./src/*"]
+    },
     "types": ["node", "@nx/react/typings/cssmodule.d.ts", "@nx/react/typings/image.d.ts", "vite/client"],
     "module": "esnext",
     "target": "esnext",

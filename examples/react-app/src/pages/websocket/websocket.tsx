@@ -1,22 +1,21 @@
+import { useEmitter, useListener } from "@hyper-fetch/react";
+import { ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import { Typography, Box, TextField, Stack, Button, Card, CardContent, CardHeader, Avatar } from "@mui/material";
+import { blue, red } from "@mui/material/colors";
 /* eslint-disable react/no-array-index-key */
 import React, { useEffect, useState } from "react";
-import { useEmitter, useListener } from "@hyper-fetch/react";
-import { Typography, Box, TextField, Stack, Button, Card, CardContent, CardHeader, Avatar } from "@mui/material";
-import { ExtractListenerResponseType, ListenerInstance, EmitterInstance } from "@hyper-fetch/sockets";
-import { blue, red } from "@mui/material/colors";
 
-import { Viewer } from "../../components/viewer";
-import { getMessage, sendMessage } from "../../api/websockets/websockets";
 import { socket } from "../../api";
+import { getMessage, sendMessage } from "../../api/websockets/websockets";
+import { Viewer } from "../../components/viewer";
 
 export const WebsocketsPage: React.FC = () => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ExtractListenerResponseType<typeof getMessage>[]>([]);
-  const { onEvent } = useListener(getMessage as unknown as ListenerInstance<{ response: ExtractListenerResponseType<typeof getMessage> }>, {});
-  const { emit } = useEmitter(sendMessage as unknown as EmitterInstance, {});
+  const { onEvent } = useListener(getMessage, {});
+  const { emit } = useEmitter(sendMessage, {});
 
   onEvent((event) => {
-    console.log("I RECEIVED A MESSAGE", event);
     setMessages((prev) => [...prev, event.data]);
   });
 

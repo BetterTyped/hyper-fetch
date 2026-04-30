@@ -1,5 +1,5 @@
-import queryString from "query-string";
 import { NullableType, QueryParamsType } from "@hyper-fetch/core";
+import queryString from "query-string";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const options: any = {

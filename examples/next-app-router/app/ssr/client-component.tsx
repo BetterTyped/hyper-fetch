@@ -1,17 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
 import { ExtractAdapterResolvedType, RequestInstance } from "@hyper-fetch/core";
 import { useFetch } from "@hyper-fetch/react";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import StopIcon from "@mui/icons-material/Stop";
 import { Stack, Button } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import StopIcon from "@mui/icons-material/Stop";
+import React, { useState } from "react";
 
-import { Viewer } from "../../components/viewer";
-import { Request } from "../../components/request";
 import { getUser } from "../../api";
+import { Request } from "../../components/request";
+import { Viewer } from "../../components/viewer";
 
 export const ClientComponents: React.FC<{
   fallback: Partial<ExtractAdapterResolvedType<RequestInstance>>;

@@ -61,6 +61,13 @@
           "dev": false
         }
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsgo --noEmit -p tsconfig.app.json",
+        "cwd": "examples/shop"
+      }
     }
   }
 }

@@ -1,8 +1,8 @@
 import { Button, InputAdornment, OutlinedInput, Stack, Typography } from "@mui/material";
-
 import { ButtonCheckbox } from "components";
 import { useFilters } from "hooks/use-filters.hook";
 import { useQuery } from "hooks/use-query.hook";
+
 import styles from "./filters.module.css";
 
 export const Filters = () => {

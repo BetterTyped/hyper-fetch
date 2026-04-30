@@ -1,9 +1,9 @@
+import LogoutIcon from "@heroicons/react/24/solid/ArrowLeftOnRectangleIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import CogIcon from "@heroicons/react/24/solid/CogIcon";
 import ShoppingBagIcon from "@heroicons/react/24/solid/ShoppingBagIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
-import LogoutIcon from "@heroicons/react/24/solid/ArrowLeftOnRectangleIcon";
 import { SvgIcon } from "@mui/material";
 
 export const items = [

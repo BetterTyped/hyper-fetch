@@ -1,6 +1,6 @@
+import type { Draft } from "immer";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { Draft } from "immer";
 
 export type ProductCartItem = {
   __key: string;

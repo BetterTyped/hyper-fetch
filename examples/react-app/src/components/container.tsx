@@ -1,7 +1,7 @@
-import React from "react";
-import ContainerComponent from "@mui/material/Container";
 import Box from "@mui/material/Box";
+import ContainerComponent from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
+import React from "react";
 
 type ContainerProps = {
   children: React.ReactNode;

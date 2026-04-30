@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import ClockIcon from "@heroicons/react/24/solid/ClockIcon";
 import { Box, Card, CardContent, Chip, Divider, Stack, SvgIcon, Typography } from "@mui/material";
-
 import { ProductType } from "api/firebase/products.api";
 import { AddToCart } from "components/add-to-cart";
 import { Price } from "components/price";
+import { useNavigate } from "react-router-dom";
+
 import styles from "./product.module.css";
 
 export const Product = ({ product }: { product: ProductType }) => {

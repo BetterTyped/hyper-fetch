@@ -1,16 +1,16 @@
-import { useState } from "react";
 import CartIcon from "@heroicons/react/24/solid/ShoppingCartIcon";
 import { Avatar, Badge, Box, Container, Drawer, IconButton, Stack, SvgIcon, Tooltip } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+import { Logo } from "components/logo";
+import { routes } from "config/router";
+import { ProductCartItem, useCart } from "hooks/use-cart";
+import { usePopover } from "hooks/use-popover";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { usePopover } from "hooks/use-popover";
-import { ProductCartItem, useCart } from "hooks/use-cart";
 import { AccountPopover } from "./account-popover";
-import { Logo } from "components/logo";
 import { Cart } from "./cart/cart";
 import { SearchWidget } from "./search/search-widget";
-import { routes } from "config/router";
 
 const TOP_NAV_HEIGHT = 64;
 

@@ -1,6 +1,6 @@
+import { Box, Checkbox, Stack } from "@mui/material";
 /* eslint-disable react/require-default-props */
 import React from "react";
-import { Box, Checkbox, Stack } from "@mui/material";
 
 type ButtonCheckboxProps = {
   checked: boolean;

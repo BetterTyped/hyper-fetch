@@ -2,9 +2,9 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "types": ["vite/client"]
   },
   "files": [],

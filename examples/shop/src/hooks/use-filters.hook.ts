@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { NullableType, QueryParamType, QueryParamsType } from "@hyper-fetch/core";
 import { useDebounce } from "@better-hooks/performance";
+import { NullableType, QueryParamType, QueryParamsType } from "@hyper-fetch/core";
+import { useState } from "react";
 
 import { useQuery } from "./use-query.hook";
 

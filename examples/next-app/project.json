@@ -45,10 +45,17 @@
       }
     },
     "app-lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "executor": "nx:run-commands",
       "options": {
-        "lintFilePatterns": ["examples/next/**/*.{ts,tsx,js,jsx}"]
+        "command": "oxlint --config examples/.oxlintrc.json examples/next-app",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsgo --noEmit -p tsconfig.json",
+        "cwd": "examples/next-app"
       }
     }
   }

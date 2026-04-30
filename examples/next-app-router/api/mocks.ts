@@ -1,12 +1,19 @@
-import { HttpResponse, HttpResponseResolver, PathParams, delay, http } from "msw";
-import { DefaultBodyType, ResponseResolverInfo } from "msw/lib/core/handlers/RequestHandler";
-import { HttpRequestResolverExtras } from "msw/lib/core/handlers/HttpHandler";
 import { RequestInstance, Time, getErrorMessage } from "@hyper-fetch/core";
+import {
+  HttpResponse,
+  HttpResponseResolver,
+  PathParams,
+  delay,
+  http,
+  DefaultBodyType,
+  ResponseResolverInfo,
+  HttpRequestResolverExtras,
+} from "msw";
 
 import { getRandomUser, getRandomUsers } from "../utils";
 import { client } from "./client";
-import { deleteUser, getUser, getUsers, patchUser, postUser } from "./users/users.api";
 import { postFile } from "./files/files.api";
+import { deleteUser, getUser, getUsers, patchUser, postUser } from "./users/users.api";
 
 // Mocks setup
 const getMock = (

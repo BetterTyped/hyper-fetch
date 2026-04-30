@@ -1,6 +1,6 @@
 import { alpha } from "@mui/material/styles";
 
-const withAlphas = (color) => {
+const withAlphas = (color: { main: string; [key: string]: string }) => {
   return {
     ...color,
     alpha4: alpha(color.main, 0.04),

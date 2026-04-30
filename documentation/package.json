@@ -18,12 +18,12 @@
     "@docsearch/docusaurus-adapter": "^4.6.2",
     "@docsgen/core": "^1.2.6",
     "@docsgen/docusaurus": "^1.2.6",
-    "@docusaurus/core": "^3.10.0",
-    "@docusaurus/faster": "^3.10.0",
-    "@docusaurus/preset-classic": "^3.10.0",
-    "@docusaurus/remark-plugin-npm2yarn": "^3.10.0",
-    "@docusaurus/theme-live-codeblock": "^3.10.0",
-    "@docusaurus/theme-mermaid": "^3.10.0",
+    "@docusaurus/core": "3.10.1",
+    "@docusaurus/faster": "3.10.1",
+    "@docusaurus/preset-classic": "3.10.1",
+    "@docusaurus/remark-plugin-npm2yarn": "3.10.1",
+    "@docusaurus/theme-live-codeblock": "3.10.1",
+    "@docusaurus/theme-mermaid": "3.10.1",
     "@hyper-fetch/core": "file:../packages/core",
     "@hyper-fetch/react": "file:../packages/react",
     "@mdx-js/react": "^3.0.0",
@@ -46,8 +46,6 @@
     "motion": "^12.9.4",
     "postcss": "^8.4.31",
     "prismjs": "^1.29.0",
-    "react": "link:../node_modules/react",
-    "react-dom": "link:../node_modules/react-dom",
     "react-live": "4.1.8",
     "react-slick": "^0.29.0",
     "sass": "^1.80.5",
@@ -59,18 +57,13 @@
     "vanilla-cookieconsent": "^3.1.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.10.0",
-    "@docusaurus/tsconfig": "^3.10.0",
-    "@docusaurus/types": "^3.10.0",
+    "@docusaurus/module-type-aliases": "3.10.1",
+    "@docusaurus/tsconfig": "3.10.1",
+    "@docusaurus/types": "3.10.1",
     "@types/prismjs": "^1.26.3",
     "@types/react-slick": "^0.23.11",
     "tslib": "^2.6.2",
     "typescript": "~5.2.2"
-  },
-  "resolutions": {
-    "wrap-ansi": "7.0.0",
-    "string-width": "4.2.3",
-    "strip-ansi": "6.0.1"
   },
   "browserslist": {
     "production": [

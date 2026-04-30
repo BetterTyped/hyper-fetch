@@ -2,6 +2,7 @@ import { Provider } from "@hyper-fetch/react";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { SnackbarProvider } from "notistack";
+
 import { client } from "../api";
 
 // import "assets/index.css";

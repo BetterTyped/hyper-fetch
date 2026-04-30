@@ -1,12 +1,12 @@
+import { useAppManager } from "@hyper-fetch/react";
+import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
+import { useRouter } from "next/router";
 /* eslint-disable react/require-default-props */
 import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
-import { useAppManager } from "@hyper-fetch/react";
 
-import { Sidebar } from "./sidebar";
-import { DASHBOARD_PAGE } from "../constants/routing.constants";
 import { client } from "../api";
+import { DASHBOARD_PAGE } from "../constants/routing.constants";
+import { Sidebar } from "./sidebar";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,

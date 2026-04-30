@@ -1,7 +1,6 @@
 {
-  "msw": {
-    "workerDirectory": "public"
-  },
+  "name": "next-app-router",
+  "private": true,
   "dependencies": {
     "@hyper-fetch/core": "workspace:*",
     "@hyper-fetch/react": "workspace:*"

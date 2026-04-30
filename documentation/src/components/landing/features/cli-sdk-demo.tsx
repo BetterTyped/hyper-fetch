@@ -1,10 +1,10 @@
+import { Terminal, Sparkles, Code, Check, MousePointer2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Terminal, Sparkles, Code, Check, MousePointer2 } from "lucide-react";
 
-import { FeaturesCard } from "./features-card";
 import { Box } from "./box";
+import { FeaturesCard } from "./features-card";
 
 export function CliSdkDemo({ bare = false }: { bare?: boolean } = {}) {
   const [step, setStep] = useState(0);
@@ -175,9 +175,5 @@ export function CliSdkDemo({ bare = false }: { bare?: boolean } = {}) {
     return content;
   }
 
-  return (
-    <FeaturesCard bgColor="transparent">
-      {content}
-    </FeaturesCard>
-  );
+  return <FeaturesCard bgColor="transparent">{content}</FeaturesCard>;
 }

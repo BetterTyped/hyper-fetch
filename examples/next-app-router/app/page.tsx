@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 import { Viewer } from "../components/viewer";
 import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";

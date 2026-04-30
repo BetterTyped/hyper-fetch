@@ -1,8 +1,7 @@
-import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid } from "@mui/material";
-
-import { Layout as DashboardLayout } from "layouts/dashboard/layout";
+import { Box, Container, Stack, Typography, Grid2 as Grid } from "@mui/material";
 import { AccountProfile } from "layouts/dashboard/account/account-profile";
 import { AccountProfileDetails } from "layouts/dashboard/account/account-profile-details";
+import { Layout as DashboardLayout } from "layouts/dashboard/layout";
 
 export const AccountsPage = () => (
   <DashboardLayout>
@@ -20,10 +19,10 @@ export const AccountsPage = () => (
           </div>
           <div>
             <Grid container spacing={3}>
-              <Grid xs={12} md={6} lg={4}>
+              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                 <AccountProfile />
               </Grid>
-              <Grid xs={12} md={6} lg={8}>
+              <Grid size={{ xs: 12, md: 6, lg: 8 }}>
                 <AccountProfileDetails />
               </Grid>
             </Grid>

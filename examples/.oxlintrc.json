@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "react-hooks"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2024": true
+  },
+  "rules": {
+    "no-console": "off",
+    "import/no-default-export": "off",
+    "react/rules-of-hooks": "error",
+    "typescript/no-explicit-any": "off",
+    "max-params": "off",
+    "max-lines": "off"
+  },
+  "ignorePatterns": ["dist/", "node_modules/", ".nx/", ".next/"]
+}
