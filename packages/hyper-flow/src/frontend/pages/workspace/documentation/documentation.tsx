@@ -44,16 +44,17 @@ const steps = [
         <span className="text-zinc-500">$</span> <span className="text-yellow-400">npx</span>{" "}
         <span className="text-zinc-300">hyper-fetch generate</span>
         <br />
-        <span className="text-zinc-600">  ↳ schema detected: openapi@3.1</span>
+        <span className="text-zinc-600"> ↳ schema detected: openapi@3.1</span>
         <br />
-        <span className="text-zinc-600">  ↳ endpoints: 47 found</span>
+        <span className="text-zinc-600"> ↳ endpoints: 47 found</span>
         <br />
-        <span className="text-green-400">  ✓ SDK generated in 1.2s</span>
+        <span className="text-green-400"> ✓ SDK generated in 1.2s</span>
       </div>
     ),
     gradient: "from-yellow-500/20 to-orange-500/20",
     accentColor: "text-yellow-400",
     borderColor: "border-yellow-500/20",
+    beamColor: "#eab308",
   },
   {
     step: "02",
@@ -85,6 +86,7 @@ const steps = [
     gradient: "from-blue-500/20 to-cyan-500/20",
     accentColor: "text-blue-400",
     borderColor: "border-blue-500/20",
+    beamColor: "#3b82f6",
   },
   {
     step: "03",
@@ -114,6 +116,7 @@ const steps = [
     gradient: "from-emerald-500/20 to-green-500/20",
     accentColor: "text-emerald-400",
     borderColor: "border-emerald-500/20",
+    beamColor: "#10b981",
   },
 ];
 
@@ -170,7 +173,12 @@ export const WorkspaceDocumentation = () => {
     <div className="relative w-full overflow-y-auto overflow-x-hidden">
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-24">
         {/* Hero Section */}
-        <motion.section className="relative text-center space-y-6" initial="initial" animate="animate" variants={stagger}>
+        <motion.section
+          className="relative text-center space-y-6"
+          initial="initial"
+          animate="animate"
+          variants={stagger}
+        >
           <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
             <Badge variant="secondary" className="mb-4 text-yellow-400 border-yellow-500/30">
               <Sparkles className="size-3" />
@@ -265,7 +273,7 @@ export const WorkspaceDocumentation = () => {
                   <BorderBeam
                     size={120}
                     duration={8 + index * 2}
-                    colorFrom={step.accentColor === "text-yellow-400" ? "#eab308" : step.accentColor === "text-blue-400" ? "#3b82f6" : "#10b981"}
+                    colorFrom={step.beamColor}
                     colorTo="transparent"
                     delay={index * 2}
                   />
