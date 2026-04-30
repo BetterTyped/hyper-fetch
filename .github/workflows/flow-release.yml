@@ -1,10 +1,41 @@
 name: HyperFlow Release
+
+# Trigger: `workflow_dispatch` only (manual from Actions, or automation that calls the dispatch API).
+#
+# Integration with `workflow.yml`: that workflow’s `release` job sets job output `released` when semantic-release
+# creates a new tag (`true` / `false`). This workflow does not read `released` — callers must gate dispatch on it
+# in `workflow.yml` (e.g. a job with `if: needs.release.outputs.released == 'true'` before calling the dispatch API).
+# When extending triggers or inputs, thread / validate that `released` state explicitly; ensure `GITHUB_TOKEN`
+# workflow permissions allow dispatch where automation is used.
+
+# Pipeline: install deps → `pnpm build` → `hyper-flow:make:app` → `hyper-flow:publish:app`
+
 on:
-  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hyper-flow-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
+  verify-branch:
+    name: Verify branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require main
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" != "refs/heads/main" ]]; then
+            echo "::error::HyperFlow Release must run from main (got ${GITHUB_REF})"
+            exit 1
+          fi
+
   publish_on_win:
     name: Publish HyperFlow on Windows
+    needs: verify-branch
     runs-on: windows-latest
     timeout-minutes: 40
     steps:
@@ -34,9 +65,23 @@ jobs:
           path: |
             '**/node_modules'
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build
+      - name: Build monorepo packages
         run: pnpm build
-      - name: Release
+      - name: Build native installers (electron-forge make)
+        run: pnpm nx run hyper-flow:make:app
+        env:
+          NODE_ENV: production
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Publish native apps
         run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production
@@ -53,6 +98,7 @@ jobs:
 
   publish_on_linux:
     name: Publish HyperFlow on Linux
+    needs: verify-branch
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -82,9 +128,23 @@ jobs:
           path: |
             '**/node_modules'
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build
+      - name: Build monorepo packages
         run: pnpm build
-      - name: Release
+      - name: Build native installers (electron-forge make)
+        run: pnpm nx run hyper-flow:make:app
+        env:
+          NODE_ENV: production
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Publish native apps
         run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production
@@ -101,6 +161,7 @@ jobs:
 
   publish_on_mac:
     name: Publish HyperFlow on Mac
+    needs: verify-branch
     runs-on: macos-latest
     timeout-minutes: 40
     steps:
@@ -146,9 +207,23 @@ jobs:
           path: |
             '**/node_modules'
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-      - name: Build
+      - name: Build monorepo packages
         run: pnpm build
-      - name: Release
+      - name: Build native installers (electron-forge make)
+        run: pnpm nx run hyper-flow:make:app
+        env:
+          NODE_ENV: production
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SIGN_ID: ${{ secrets.SIGN_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_ENVIRONMENT: "production"
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+          VITE_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      - name: Publish native apps
         run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production

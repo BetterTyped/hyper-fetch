@@ -92,6 +92,8 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
     needs: [tests]
+    # `released`: whether semantic-release created a new tag — downstream automation (e.g. HyperFlow dispatch)
+    # must gate on this; `flow-release.yml` does not re-check it (see comment block there).
     outputs:
       released: ${{ steps.check_release.outputs.released }}
     permissions:
