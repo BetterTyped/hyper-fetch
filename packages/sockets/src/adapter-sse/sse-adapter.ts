@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams } from "@hyper-fetch/core";
-
-import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
-import { getServerSentEventsAdapter } from "./sse-adapter.utils";
-import type { SSEAdapterOptionsType } from "./sse-adapter.types";
+import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
+
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
+import type { SSEAdapterOptionsType } from "./sse-adapter.types";
+import { getServerSentEventsAdapter } from "./sse-adapter.utils";
 
 /**
  * -------------------------------------------
@@ -130,21 +130,21 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           if (!sse) {
             adapter.setConnected(false);
             adapter.setConnecting(false);
-            return Promise.resolve(true);
+            return true;
           }
           const currentSse = sse;
 
           if (currentSse.readyState === EventSource.CLOSED) {
             adapter.setConnected(false);
             adapter.setConnecting(false);
-            return Promise.resolve(true);
+            return true;
           }
 
           onDisconnect();
           currentSse.close();
           onDisconnected();
 
-          return Promise.resolve(true);
+          return true;
         };
 
         const reconnect = () => {

@@ -70,7 +70,7 @@ function UploadQueue() {
       const formData = new FormData();
       formData.append("file", file);
       // Each submit call adds a new request to the queue
-      submit({ data: formData });
+      submit({ payload: formData });
     });
   };
 

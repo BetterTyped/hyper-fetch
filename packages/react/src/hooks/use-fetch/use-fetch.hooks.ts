@@ -7,12 +7,11 @@ import type {
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 import { scopeKey } from "@hyper-fetch/core";
-import { useRef } from "react";
-
 import { useRequestEvents, useTrackedState } from "helpers";
 import type { UseFetchOptionsType, UseFetchReturnType } from "hooks/use-fetch";
 import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
+import { useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
 
 type SuspenseEntry = { promise: Promise<void>; resolve: () => void; cleanup: () => void };
@@ -270,10 +269,10 @@ export const useFetch = <R extends RequestInstance>(
     const suspenseResult = suspenseResultMap.get(cacheKey);
     if (suspenseResult) {
       suspenseResultMap.delete(cacheKey);
-      if (suspenseResult.data !== null) state.data = suspenseResult.data;
-      if (suspenseResult.error !== null) state.error = suspenseResult.error;
-      if (suspenseResult.status !== null) state.status = suspenseResult.status;
-      if (suspenseResult.extra !== null) state.extra = suspenseResult.extra;
+      if (suspenseResult.data !== null) {state.data = suspenseResult.data;}
+      if (suspenseResult.error !== null) {state.error = suspenseResult.error;}
+      if (suspenseResult.status !== null) {state.status = suspenseResult.status;}
+      if (suspenseResult.extra !== null) {state.extra = suspenseResult.extra;}
       state.success = suspenseResult.success;
     }
 

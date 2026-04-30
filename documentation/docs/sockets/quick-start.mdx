@@ -78,7 +78,8 @@ Just use the `listen` method and pass the callback function.
 ```ts
 import { onChatMessage } from "./listeners";
 
-onChatMessage.listen((data) => console.log(data));
+// The callback receives an object with `data` and `extra` properties
+onChatMessage.listen(({ data, extra }) => console.log(data));
 ```
 
 #### Emit events

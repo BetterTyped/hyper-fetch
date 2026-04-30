@@ -1,10 +1,9 @@
 import type { RequestInstance, ResolvedQueueItemType, QueueDataType, QueueItemType } from "@hyper-fetch/core";
 import { Request, getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
-import { useState, useEffect, useCallback } from "react";
-
 import type { UseQueueOptionsType, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useQueueDefaultOptions } from "hooks/use-queue";
 import { useProvider } from "provider";
+import { useState, useEffect, useCallback } from "react";
 
 const canUpdate = (
   item: Pick<QueueRequest<RequestInstance>, "success" | "failed" | "canceled" | "removed" | "resolved">,

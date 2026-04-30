@@ -1,7 +1,7 @@
 import { PostHogProvider } from "posthog-js/react";
 
-import { ApplicationsProvider } from "@/context/applications/applications";
 import { Toaster } from "@/components/ui/sonner";
+import { ApplicationsProvider } from "@/context/applications/applications";
 
 const options = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,

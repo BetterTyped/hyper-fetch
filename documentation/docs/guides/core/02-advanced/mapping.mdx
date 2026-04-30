@@ -33,7 +33,7 @@ Thanks to this, we do not have to change the cache keys for each mapped request.
 
 :::info
 
-Mappers can be asynchronus. This way we can build up bigger responses.
+Mappers can be asynchronous. This way we can build up bigger responses.
 
 :::
 
@@ -138,7 +138,7 @@ export const postUser = client
     });
 
     // Add custom headers and map data for every request
-    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" }).setData(formData);
+    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" }).setPayload(formData);
   });
 ```
 

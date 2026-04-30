@@ -1,10 +1,10 @@
-import type { ErrorInfo } from "react";
-import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Link } from "@tanstack/react-router";
+import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
+import type { ErrorInfo } from "react";
 
-import { Meteors } from "../ui/meteors";
 import { Button } from "../ui/button";
+import { Meteors } from "../ui/meteors";
 
 export const PageError = ({ error, errorInfo }: { error: Error; errorInfo: ErrorInfo }) => {
   const handleRefresh = () => {

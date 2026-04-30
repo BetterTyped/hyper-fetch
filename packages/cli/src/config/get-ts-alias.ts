@@ -3,7 +3,7 @@ import { loadConfig } from "tsconfig-paths";
 export async function getTsConfigAliasPrefix(cwd: string) {
   const tsConfig = await loadConfig(cwd);
 
-  if (tsConfig?.resultType === "failed" || !Object.entries(tsConfig?.paths).length) {
+  if (tsConfig?.resultType === "failed" || Object.entries(tsConfig?.paths).length === 0) {
     return null;
   }
 

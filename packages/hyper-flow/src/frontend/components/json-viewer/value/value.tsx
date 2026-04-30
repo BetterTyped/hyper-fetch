@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 import { jsonViewerStyles } from "../json-viewer.styles";
-
 import { cn } from "@/lib/utils";
 
 export const Value = ({
@@ -21,7 +20,7 @@ export const Value = ({
   const disabledStyles = disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400";
 
   const isDate = useMemo(() => {
-    const last = path[path.length - 1];
+    const last = path.at(-1);
     // TODO - just do the proper lookup for the date value, do not check for the keys
     if (typeof last === "string") {
       const keys = ["date", "createdAt", "updatedAt", "created_at", "updated_at", "timestamp"];
@@ -31,7 +30,7 @@ export const Value = ({
   }, [path]);
 
   const date = useMemo(() => {
-    if (!isDate || !raw) return undefined;
+    if (!isDate || !raw) {return;}
     const parsed = new Date(raw);
     return parsed.toISOString();
   }, [isDate, raw]);
@@ -44,7 +43,7 @@ export const Value = ({
           className={cn(jsonViewerStyles.input, "w-fit")}
           type="datetime-local"
           step="1"
-          value={date?.substring(0, 19)}
+          value={date?.slice(0, 19)}
           onChange={(e) => onChange(e.target.value)}
         />
       </span>

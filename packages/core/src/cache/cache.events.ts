@@ -1,8 +1,7 @@
-import type EventEmitter from "events";
-
+import type { AdapterInstance } from "adapter";
 import type { CacheValueType } from "cache";
 import { getInvalidateByKey, getInvalidateKey, getCacheByKey, getCacheKey, getDeleteKey, getDeleteByKey } from "cache";
-import type { AdapterInstance } from "adapter";
+import type EventEmitter from "events";
 
 /** Create the cache event emitters and listeners for data changes, invalidation, and deletion. */
 export const getCacheEvents = (emitter: EventEmitter) => ({

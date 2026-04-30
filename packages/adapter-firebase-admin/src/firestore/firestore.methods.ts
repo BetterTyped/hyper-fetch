@@ -1,16 +1,16 @@
-/* eslint-disable max-params */
-import type { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import type { getAdapterBindings } from "@hyper-fetch/core";
-
 import type { FirestoreMethodsUnion } from "adapter";
-import { getStatus } from "utils";
-import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 import type {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
+/* eslint-disable max-params */
+import type { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
+import { getStatus } from "utils";
+
+import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 
 type DataType = {
   constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];

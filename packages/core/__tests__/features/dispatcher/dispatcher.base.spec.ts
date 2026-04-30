@@ -1,9 +1,9 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import type { QueueDataType } from "dispatcher";
-import { createDispatcher } from "../../utils";
 import { Client } from "client";
+import type { QueueDataType } from "dispatcher";
 import { Plugin } from "plugin";
+
+import { createDispatcher } from "../../utils";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 

@@ -1,6 +1,5 @@
 import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
-
 import type { UseSubmitOptionsType } from "hooks/use-submit";
 import { useSubmit } from "hooks/use-submit";
 

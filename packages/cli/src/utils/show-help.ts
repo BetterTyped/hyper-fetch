@@ -1,5 +1,5 @@
-import type { z } from "zod";
 import Table from "cli-table3";
+import type { z } from "zod";
 
 import { zodToTable } from "./zod-to-table";
 

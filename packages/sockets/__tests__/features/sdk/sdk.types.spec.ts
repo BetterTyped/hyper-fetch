@@ -1,10 +1,10 @@
-import { describe, it, expect, expectTypeOf } from "vitest";
-
-import type { SocketInstance } from "socket";
-import type { Listener, ListenerInstance, ListenerModel } from "listener";
 import type { Emitter, EmitterInstance, EmitterModel } from "emitter";
+import type { Listener, ListenerInstance, ListenerModel } from "listener";
 import { createSocketSdk } from "sdk";
 import type { InjectSocket } from "sdk";
+import type { SocketInstance } from "socket";
+import { describe, it, expect, expectTypeOf } from "vitest";
+
 import { createSocket } from "../../utils/socket.utils";
 
 /**

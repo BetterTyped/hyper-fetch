@@ -1,8 +1,9 @@
+import { FirebaseAdminAdapter } from "adapter";
+
 /**
  * @vitest-environment node
  */
 import { realtimeDbAdmin, seedRealtimeDatabaseAdmin } from "../../../utils";
-import { FirebaseAdminAdapter } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {

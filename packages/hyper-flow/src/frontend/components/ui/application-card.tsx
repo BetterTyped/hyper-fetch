@@ -1,16 +1,15 @@
+import { FolderOpen, MoreVertical, Trash2, ChevronRight } from "lucide-react";
 import type { FC } from "react";
 import { useState } from "react";
-import { FolderOpen, MoreVertical, Trash2, ChevronRight } from "lucide-react";
 
-import { Card, CardContent, CardFooter, CardHeader } from "./card";
-import { Button } from "./button";
-import { Badge } from "./badge";
+import { AdapterIcon } from "./adapter-icon";
 import { Avatar } from "./avatar";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import { Card, CardContent, CardFooter, CardHeader } from "./card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
-import { AdapterIcon } from "./adapter-icon";
 import { ShineBorder } from "./shine-border";
-
 import { useApplications } from "@/store/applications/apps.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
 

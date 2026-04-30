@@ -1,6 +1,7 @@
 import type { ResponseType } from "adapter";
 import type { RequestInstance } from "request";
 import type { ExtendRequest, ExtractClientAdapterType } from "types";
+
 import type {
   ClientInstance,
   ClientMode,
@@ -30,7 +31,7 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
     for (const interceptor of interceptors) {
       // eslint-disable-next-line no-await-in-loop
       newRequest = (await interceptor(request)) as RequestInstance;
-      if (!newRequest) throw new Error("Request modifier must return request");
+      if (!newRequest) {throw new Error("Request modifier must return request");}
     }
   }
   return newRequest;
@@ -47,7 +48,7 @@ export const interceptResponse = async <GlobalErrorType, Client extends ClientIn
     for (const interceptor of interceptors) {
       // eslint-disable-next-line no-await-in-loop
       newResponse = await interceptor(response, request);
-      if (!newResponse) throw new Error("Response modifier must return data");
+      if (!newResponse) {throw new Error("Response modifier must return data");}
     }
   }
   return newResponse;

@@ -4,11 +4,12 @@ title: Adapter
 sidebar_label: Adapter
 ---
 
-[Read the API Reference »](/api/sockets/Classes/SocketAdapter.mdx)
+[Read the API Reference »](/docs/api/sockets/Classes/SocketAdapter)
 
-Adapter is a class that specify the way how to communicate with the server. It defines the way how to send and receive
-data, how to handle errors, how to handle reconnects, etc. Currently supporting connection types like `Websocket`,
-`Server Sent Events (SSE)` or integrations like `Firebase Realtime Database`.
+Adapter is a class that specifies how to communicate with the server. It defines the way to send and receive
+data, handle errors, handle reconnects, and more. The `@hyper-fetch/sockets` package ships with two built-in adapters:
+`WebsocketAdapter` and `ServerSentEventsAdapter`. Other integrations such as Firebase Realtime Database are available as
+separate packages (e.g., `@hyper-fetch/firebase`).
 
 ---
 

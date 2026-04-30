@@ -1,16 +1,15 @@
+import { input, select, confirm } from "@inquirer/prompts";
+import { OpenapiRequestGenerator } from "codegen/openapi/generator";
 /* eslint-disable no-param-reassign */
 import { Command } from "commander";
-import { z } from "zod";
-import * as path from "node:path";
 import * as fs from "fs-extra";
-import { input, select, confirm } from "@inquirer/prompts";
-
-import { handleError } from "utils/handle-error";
+import * as path from "node:path";
 import { preFlightGenerate } from "preflights/preflight-generate";
-import { OpenapiRequestGenerator } from "codegen/openapi/generator";
-import { spinner } from "utils/spinner";
+import { handleError } from "utils/handle-error";
 import { logger } from "utils/logger";
 import { showHelp } from "utils/show-help";
+import { spinner } from "utils/spinner";
+import { z } from "zod";
 
 export const generateOptionsSchema = z.object({
   template: z.enum(["openapi", "swagger"]).describe("API provider template to use"),
@@ -53,7 +52,7 @@ export const generate = new Command()
           message: "Enter the URL to generate the schema from:",
           validate: (value) => {
             const result = z.url("Please enter a valid URL.").safeParse(value);
-            if (result.success) return true;
+            if (result.success) {return true;}
             return result.error.message;
           },
         });
@@ -98,7 +97,7 @@ export const generate = new Command()
           throw new Error(`Invalid template: ${options.template}`);
         }
       }
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      handleError(error);
     }
   });

@@ -1,9 +1,8 @@
-import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ResizableProps } from "re-resizable";
 import { Resizable } from "re-resizable";
+import { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "./button";
-
 import { cn } from "@/lib/utils";
 
 const getPositionClasses = (position: "top" | "left" | "right" | "bottom") => {
@@ -18,9 +17,9 @@ const getPositionClasses = (position: "top" | "left" | "right" | "bottom") => {
 };
 
 const getOppositePosition = (position: "top" | "left" | "right" | "bottom") => {
-  if (position === "top") return "bottom";
-  if (position === "left") return "right";
-  if (position === "right") return "left";
+  if (position === "top") {return "bottom";}
+  if (position === "left") {return "right";}
+  if (position === "right") {return "left";}
   return "top";
 };
 
@@ -86,7 +85,7 @@ const availableBreakpoints = [
     name: "xl",
     breakpoint: 1200,
   },
-].reverse();
+].toReversed();
 
 const ResizableSidebarContext = createContext<{
   breakpoint: (typeof availableBreakpoints)[number];

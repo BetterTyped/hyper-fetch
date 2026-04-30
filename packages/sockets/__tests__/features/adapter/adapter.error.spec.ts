@@ -84,7 +84,7 @@ describe("Adapter [ Error ]", () => {
       );
       const event3 = new Event("close");
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       event3.code = 1010;
       expect(getSocketError(event3)).toBe(
         "An endpoint (client) is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake. <br /> Specifically, the extensions that are needed are: Unknown reason",

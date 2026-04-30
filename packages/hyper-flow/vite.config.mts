@@ -1,14 +1,10 @@
-/// <reference types="vitest/config" />
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vitest/config";
 
 const workspaceHyperFetchAliases = {
-  "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
   "@hyper-fetch/axios": path.resolve(__dirname, "../adapter-axios/src/index.ts"),
+  "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
   "@hyper-fetch/firebase": path.resolve(__dirname, "../adapter-firebase/src/index.ts"),
   "@hyper-fetch/firebase-admin": path.resolve(__dirname, "../adapter-firebase-admin/src/index.ts"),
   "@hyper-fetch/graphql": path.resolve(__dirname, "../adapter-graphql/src/index.ts"),
@@ -23,31 +19,31 @@ export default defineConfig({
   resolve: {
     alias: {
       ...workspaceHyperFetchAliases,
+      "@/": `${path.resolve(__dirname, "src/frontend")}/`,
+      "@app": path.resolve(__dirname, "src/app"),
       "@server": path.resolve(__dirname, "src/server"),
       "@shared": path.resolve(__dirname, "src/shared"),
-      "@app": path.resolve(__dirname, "src/app"),
       "@testing": path.resolve(__dirname, "__tests__"),
-      "@/": path.resolve(__dirname, "src/frontend") + "/",
     },
   },
   test: {
-    globals: true,
-    environment: "jsdom",
-    testTimeout: 15000,
-    setupFiles: ["./__tests__/vitest.setup.ts"],
-    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
-    coverage: {
-      provider: "v8",
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
-    },
     alias: {
       ...workspaceHyperFetchAliases,
+      "@/": `${path.resolve(__dirname, "src/frontend")}/`,
+      "@app": path.resolve(__dirname, "src/app"),
       "@server": path.resolve(__dirname, "src/server"),
       "@shared": path.resolve(__dirname, "src/shared"),
-      "@app": path.resolve(__dirname, "src/app"),
       "@testing": path.resolve(__dirname, "__tests__"),
-      "@/": path.resolve(__dirname, "src/frontend") + "/",
     },
+    coverage: {
+      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
+      include: ["src/**/*.{ts,tsx}"],
+      provider: "v8",
+    },
+    environment: "jsdom",
+    globals: true,
+    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    setupFiles: ["./__tests__/vitest.setup.ts"],
+    testTimeout: 15_000,
   },
 });

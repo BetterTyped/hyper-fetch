@@ -1,5 +1,5 @@
-import { EventEmitter } from "utils";
 import { getRequestManagerEvents } from "managers";
+import { EventEmitter } from "utils";
 
 /**
  * **Request Manager** is used to emit `request lifecycle events` like - request start, request end, upload and download progress.
@@ -48,7 +48,7 @@ export class RequestManager {
     const controllers = this.abortControllers.get(abortKey);
 
     if (controllers) {
-      const entries = Array.from(controllers.entries());
+      const entries = [...controllers.entries()];
       entries.forEach(([key]) => {
         this.useAbortController(abortKey, key);
       });
@@ -60,9 +60,9 @@ export class RequestManager {
   };
 
   abortAll = () => {
-    const entries = Array.from(this.abortControllers.entries());
+    const entries = [...this.abortControllers.entries()];
     entries.forEach(([abortKey, value]) => {
-      const controllers = Array.from(value.entries());
+      const controllers = [...value.entries()];
       controllers.forEach(([requestId]) => {
         this.useAbortController(abortKey, requestId);
       });

@@ -1,3 +1,5 @@
+import { useDidMount } from "@better-hooks/lifecycle";
+import { useDebounce, useThrottle } from "@better-hooks/performance";
 import type {
   ExtractAdapterResolvedType,
   RequestInstance,
@@ -9,15 +11,12 @@ import type {
   ExtractAdapterType,
 } from "@hyper-fetch/core";
 import { sendRequest } from "@hyper-fetch/core";
-import { useDidMount } from "@better-hooks/lifecycle";
-import { useDebounce, useThrottle } from "@better-hooks/performance";
-import { useMemo, useRef } from "react";
-
-import type { UseSubmitOptionsType, UseSubmitReturnType } from "hooks/use-submit";
-import { useSubmitDefaultOptions } from "hooks/use-submit";
 import type { UseTrackedStateType } from "helpers";
 import { useTrackedState, useRequestEvents } from "helpers";
+import type { UseSubmitOptionsType, UseSubmitReturnType } from "hooks/use-submit";
+import { useSubmitDefaultOptions } from "hooks/use-submit";
 import { useProvider } from "provider";
+import { useMemo, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
 
 /**

@@ -1,5 +1,5 @@
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { Input } from "@/components/ui/input";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useQueueStore } from "@/store/applications/queue.store";
 
 export const QueuesToolbar = () => {

@@ -9,7 +9,7 @@ export const getUserQueryString = `
   }
 `;
 
-export const getUserQuery = gql`
+export const getUserQuery: ReturnType<typeof gql> = gql`
   query GetUser {
     username {
       username

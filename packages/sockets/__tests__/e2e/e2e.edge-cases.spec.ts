@@ -145,7 +145,7 @@ describe("E2E [ WebSocket Edge Cases ]", () => {
     await waitForConnection(socket);
 
     const listenerCount = 100;
-    const receivedCounts = new Array(listenerCount).fill(0);
+    const receivedCounts = Array.from({ length: listenerCount }, () => 0);
 
     for (let i = 0; i < listenerCount; i += 1) {
       const idx = i;

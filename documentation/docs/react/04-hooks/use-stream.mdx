@@ -59,7 +59,8 @@ is sent with `streaming: true` — the `useStream` hook handles this for you.
 
 ## Auto Start
 
-Set `autoStart: true` to begin streaming immediately when the component mounts.
+Set `autoStart: true` to begin streaming immediately when the component mounts. When this option is `false` (the
+default), you must call `start()` manually to initiate the stream.
 
 ```tsx title="Auto-starting stream"
 import { useStream } from "@hyper-fetch/react";
@@ -76,6 +77,13 @@ function EventFeed() {
   );
 }
 ```
+
+:::info Cleanup on unmount
+
+When the component unmounts, an in-progress stream is automatically aborted, regardless of whether it was started
+manually or via `autoStart`.
+
+:::
 
 ---
 
@@ -99,6 +107,18 @@ function StreamWithReset() {
   );
 }
 ```
+
+---
+
+## Non-stream Response Handling
+
+If the server returns a response that is **not** a `ReadableStream` (i.e., the response body has no `getReader`
+method), the hook gracefully falls back to non-streaming behavior. The response data is converted to a string via
+`JSON.stringify` and set as the `text` value. The `chunks` array will remain empty, and `done` will be set to `true`
+immediately.
+
+This means `useStream` is safe to use even when the server might return a regular JSON response instead of a stream -
+the hook adapts without errors.
 
 ---
 

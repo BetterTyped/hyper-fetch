@@ -1,6 +1,4 @@
 import type { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
-
-import type { isEqual } from "utils";
 import type {
   OnProgressCallbackType,
   OnStartCallbackType,
@@ -10,6 +8,7 @@ import type {
   UseTrackedStateType,
   UseTrackedStateActions,
 } from "helpers";
+import type { isEqual } from "utils";
 
 export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**

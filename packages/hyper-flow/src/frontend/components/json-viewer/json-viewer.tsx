@@ -1,17 +1,16 @@
+import { produce } from "immer";
+import { Copy } from "lucide-react";
 /* eslint-disable max-params */
 /* eslint-disable react/no-unstable-nested-components */
 import type { CommonExternalProps } from "react-json-tree";
 import { JSONTree } from "react-json-tree";
-import { produce } from "immer";
-import { Copy } from "lucide-react";
 import { toast } from "sonner";
 
-import { Value } from "./value/value";
-import { Label } from "./label/label";
-import { getRaw, theme, updateValue } from "./json-viewer.utils";
 import { Button } from "../ui/button";
-
 import { jsonViewerStyles } from "./json-viewer.styles";
+import { getRaw, theme, updateValue } from "./json-viewer.utils";
+import { Label } from "./label/label";
+import { Value } from "./value/value";
 
 const CopyButton = ({ data }: { data: any }) => {
   const handleCopy = () => {

@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-`@hyper-fetch/react` connects HyperFetch's typed request system to React's component lifecycle. `useFetch` triggers requests on mount and re-fetches when dependencies change. `useSubmit` gives you a `submit` function for mutations triggered by user actions. Both hooks return fully typed `data`, `error`, and loading states with built-in callbacks.
+`@hyper-fetch/react` connects HyperFetch's typed request system to React's component lifecycle. `useFetch` triggers
+requests on mount and re-fetches when dependencies change. `useSubmit` gives you a `submit` function for mutations
+triggered by user actions. Both hooks return fully typed `data`, `error`, and loading states with built-in callbacks.
 
 ## 🎯 Key Capabilities
 
@@ -60,7 +62,13 @@ const UserList = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Something went wrong</p>;
-  return <ul>{data?.map((user) => <li key={user.id}>{user.name}</li>)}</ul>;
+  return (
+    <ul>
+      {data?.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
 };
 ```
 
@@ -79,9 +87,7 @@ import { useFetch } from "@hyper-fetch/react";
 
 const UserProfile = ({ userId }: { userId: number }) => {
   // setParams makes the request dynamic — re-fetches when userId changes
-  const { data, loading, error, onSuccess, onError } = useFetch(
-    getUser.setParams({ userId }),
-  );
+  const { data, loading, error, onSuccess, onError } = useFetch(getUser.setParams({ userId }));
 
   // Typed callbacks — response shape matches your request definition
   onSuccess(({ response }) => {
@@ -151,7 +157,9 @@ const UserPosts = ({ userId }: { userId: number }) => {
   return (
     <div>
       <h1>{user?.name}</h1>
-      {posts?.map((post) => <article key={post.id}>{post.title}</article>)}
+      {posts?.map((post) => (
+        <article key={post.id}>{post.title}</article>
+      ))}
     </div>
   );
 };
@@ -201,7 +209,9 @@ const AddComment = ({ postId }: { postId: number }) => {
   return (
     <form onSubmit={handleSubmit}>
       <input name="text" placeholder="Write a comment..." required />
-      <button type="submit" disabled={submitting}>Post</button>
+      <button type="submit" disabled={submitting}>
+        Post
+      </button>
     </form>
   );
 };

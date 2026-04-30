@@ -142,8 +142,8 @@ const getMethod = (key: string, options?: CreateSdkOptions<any>) => {
 };
 
 const endpointMatchesPattern = (endpoint: string, pattern: string): boolean => {
-  if (pattern === "*") return true;
-  if (pattern === endpoint) return true;
+  if (pattern === "*") {return true;}
+  if (pattern === endpoint) {return true;}
   // Simple wildcard: "/users/*" matches "/users/:userId", "/users/:userId/posts", etc.
   if (pattern.endsWith("/*")) {
     const prefix = pattern.slice(0, -1);
@@ -158,17 +158,17 @@ const isDotPath = (key: string): boolean => {
 
 const applyObjectDefaults = (request: RequestInstance, config: SdkRequestDefaults): RequestInstance => {
   let result = request;
-  if (config.headers) result = result.setHeaders(config.headers);
-  if (config.auth !== undefined) result = result.setAuth(config.auth);
-  if (config.cache !== undefined) result = result.setCache(config.cache);
-  if (config.cacheTime !== undefined) result = result.setCacheTime(config.cacheTime);
-  if (config.staleTime !== undefined) result = result.setStaleTime(config.staleTime);
-  if (config.retry !== undefined) result = result.setRetry(config.retry);
-  if (config.retryTime !== undefined) result = result.setRetryTime(config.retryTime);
-  if (config.cancelable !== undefined) result = result.setCancelable(config.cancelable);
-  if (config.queued !== undefined) result = result.setQueued(config.queued);
-  if (config.offline !== undefined) result = result.setOffline(config.offline);
-  if (config.deduplicate !== undefined) result = result.setDeduplicate(config.deduplicate);
+  if (config.headers) {result = result.setHeaders(config.headers);}
+  if (config.auth !== undefined) {result = result.setAuth(config.auth);}
+  if (config.cache !== undefined) {result = result.setCache(config.cache);}
+  if (config.cacheTime !== undefined) {result = result.setCacheTime(config.cacheTime);}
+  if (config.staleTime !== undefined) {result = result.setStaleTime(config.staleTime);}
+  if (config.retry !== undefined) {result = result.setRetry(config.retry);}
+  if (config.retryTime !== undefined) {result = result.setRetryTime(config.retryTime);}
+  if (config.cancelable !== undefined) {result = result.setCancelable(config.cancelable);}
+  if (config.queued !== undefined) {result = result.setQueued(config.queued);}
+  if (config.offline !== undefined) {result = result.setOffline(config.offline);}
+  if (config.deduplicate !== undefined) {result = result.setDeduplicate(config.deduplicate);}
   if (config.deduplicateTime !== undefined && config.deduplicateTime !== null) {
     result = result.setDeduplicateTime(config.deduplicateTime);
   }
@@ -180,7 +180,7 @@ const applyDefaults = (
   context: { endpoint: string; sdkPath: string; defaults?: Partial<Record<string, SdkConfigurationValue>> },
 ): RequestInstance => {
   const { endpoint, sdkPath, defaults } = context;
-  if (!defaults) return request;
+  if (!defaults) {return request;}
 
   let result = request;
   const entries = Object.entries(defaults);
@@ -192,7 +192,7 @@ const applyDefaults = (
 
   for (let i = 0; i < entries.length; i += 1) {
     const [key, value] = entries[i];
-    if (!value) continue;
+    if (!value) {continue;}
     const entry: [string, SdkConfigurationValue] = [key, value];
     if (entry[0] === "*") {
       globalEntries.push(entry);
@@ -236,7 +236,7 @@ const createRecursiveProxy = (
   return new Proxy(() => {}, {
     get: (_target, key: string) => {
       if (typeof key === "symbol" || key === "inspect") {
-        return undefined;
+        return;
       }
 
       // Check if this is a method (starts with $) or a path segment
@@ -249,7 +249,7 @@ const createRecursiveProxy = (
         methodName = key.slice(1);
         pathSegment = `:${key.slice(1)}`;
       } else if (options?.camelCaseToKebabCase) {
-        pathSegment = key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+        pathSegment = key.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
       }
 
       // Build the sdk dot-path for method-specific configuration matching

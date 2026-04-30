@@ -1,5 +1,6 @@
-import type { HttpMethodsType, HttpStatusType } from "../types";
 import type { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
+
+import type { HttpMethodsType, HttpStatusType } from "../types";
 import type { stringifyQueryParams } from "./http-adapter.utils";
 /**
  * Base Adapter
@@ -83,7 +84,7 @@ export type QueryStringifyOptionsType = {
 export type BufferEncoding =
   | "ascii"
   | "utf8"
-  | "utf-8"
+  | "utf8"
   | "utf16le"
   | "ucs2"
   | "ucs-2"

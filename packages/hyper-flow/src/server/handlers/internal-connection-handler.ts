@@ -1,7 +1,7 @@
-import type { WebSocket } from "ws";
 import type { AppInternalMessage, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
 import { InternalEvents, MessageType, SocketTopics } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
+import type { WebSocket } from "ws";
 
 import type { ConnectionMap } from "../types/connection.type";
 import { AppConnectionStatus } from "../types/connection.type";
@@ -22,12 +22,14 @@ export class InternalConnectionHandler {
 
   handleInternalMessage = (message: PluginInternalMessage | AppInternalMessage) => {
     switch (message.data.eventType) {
-      case InternalEvents.PLUGIN_INITIALIZED:
+      case InternalEvents.PLUGIN_INITIALIZED: {
         this.sendPluginHandshakeToApp(message.data.connectionName, message as PluginInternalMessage);
         break;
-      case InternalEvents.APP_INITIALIZED:
+      }
+      case InternalEvents.APP_INITIALIZED: {
         this.sendAppHandshakeResponseToPlugin(message.data.connectionName);
         break;
+      }
       default: {
         serverLogger.warning("Unhandled communication event received", {
           context: "WebSocketServer",
@@ -81,12 +83,10 @@ export class InternalConnectionHandler {
       return;
     }
     this.connectionState.appConnection?.send(
-      JSON.stringify({
-        ...{
-          topic: SocketTopics.APP_MAIN_LISTENER,
-          data: message.data,
-        },
-      }),
+      JSON.stringify(({
+	topic: SocketTopics.APP_MAIN_LISTENER,
+	data: message.data
+})),
     );
     this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.IN_PROGRESS;
     this.connectionState.connections[connectionName].clientMetaData = message;

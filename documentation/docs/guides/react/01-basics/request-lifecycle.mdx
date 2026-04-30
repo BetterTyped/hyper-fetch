@@ -36,28 +36,28 @@ function LifecycleLogger() {
     setLogs((prev) => [`[${timestamp}] ${message}`, ...prev]);
   };
 
-  // Setup the fetch hook with all the lifecycle callbacks
+  // Setup the fetch hook with lifecycle callback registrars
   // highlight-start
-  const { revalidate, abort } = useFetch(getUser, {
+  const { refetch, abort, onRequestStart, onSuccess, onError, onFinished, onAbort, onOfflineError } = useFetch(getUser, {
     disabled: true, // We will trigger it manually
-    onRequestStart: () => addLog("🚀 Request Started"),
-    onSuccess: () => addLog("✅ Request Succeeded"),
-    onError: () => addLog("❌ Request Errored"),
-    onFinished: () => addLog("🏁 Request Finished (Success or Error)"),
-    onAbort: () => addLog("🛑 Request Aborted"),
-    onOffline: () => addLog("🔌 Request Offline"),
   });
+
+  onRequestStart(() => addLog("Request Started"));
+  onSuccess(() => addLog("Request Succeeded"));
+  onError(() => addLog("Request Errored"));
+  onFinished(() => addLog("Request Finished (Success or Error)"));
+  onAbort(() => addLog("Request Aborted"));
+  onOfflineError(() => addLog("Request Offline"));
   // highlight-end
 
   const handleFetchSuccess = () => {
     addLog("--- Starting Success Fetch ---");
-    revalidate(getUser.setParams({ userId: 1 }));
+    refetch();
   };
 
   const handleFetchError = () => {
     addLog("--- Starting Error Fetch ---");
-    // Assuming userId 999 does not exist and will cause an error
-    revalidate(getUser.setParams({ userId: 999 }));
+    refetch();
   };
 
   const handleAbort = () => {
@@ -118,10 +118,10 @@ Here's a breakdown of the most commonly used lifecycle callbacks:
 - **`onFinished`**: Fires after _every_ request, regardless of whether it succeeded or failed. It's the equivalent of a
   `finally` block in a promise chain. Great for hiding a loading spinner.
 - **`onAbort`**: Fires when a request is manually cancelled using the `abort()` function returned by the hook.
-- **`onOffline`**: Fires if a request fails specifically because the browser is offline. This allows you to show a
+- **`onOfflineError`**: Fires if a request fails specifically because the browser is offline. This allows you to show a
   specific "You are offline" message.
 - **`onUploadProgress` / `onDownloadProgress`**: Fire repeatedly during a file upload or download. See the
-  [Progress guide](./progress.mdx) for more details.
+  [Progress guide](/docs/guides/react/basics/progress) for more details.
 
 By using these callbacks, you can create a highly interactive and informative UI that responds intelligently to the
 state of your data fetching.

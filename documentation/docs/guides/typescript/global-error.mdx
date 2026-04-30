@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-title: Typescript - Global Error
+title: TypeScript - Global Error
 sidebar_label: Global Error
 ---
 
@@ -48,9 +48,9 @@ type GlobalErrorType = MyApiError | Error;
 // 3. Now, we create a client and pass our global error type to it.
 // This generic will be propagated to all requests created from this client instance.
 // highlight-start
-export const client = createClient()({
+export const client = createClient<{ error: GlobalErrorType }>({
   url: "https://api.example.com",
-}).setExtra<{ error: GlobalErrorType }>();
+});
 // highlight-end
 
 // 4. Example usage

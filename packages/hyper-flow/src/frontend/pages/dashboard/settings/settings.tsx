@@ -1,7 +1,6 @@
 import { SettingsIcon } from "lucide-react";
 
 import { PortConfiguration } from "./port-configuration";
-
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "@/components/ui/section";
 
 export const Settings = () => {

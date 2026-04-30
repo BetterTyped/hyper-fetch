@@ -33,7 +33,9 @@
 
 ## 📖 About
 
-This adapter brings HyperFetch to server-side Firebase. Share request patterns between browser and Node.js, use the same typed API for Firestore and Realtime Database, and leverage HyperFetch's queuing and retry capabilities on top of the Firebase Admin SDK.
+This adapter brings HyperFetch to server-side Firebase. Share request patterns between browser and Node.js, use the same
+typed API for Firestore and Realtime Database, and leverage HyperFetch's queuing and retry capabilities on top of the
+Firebase Admin SDK.
 
 ## 🎯 Key Capabilities
 

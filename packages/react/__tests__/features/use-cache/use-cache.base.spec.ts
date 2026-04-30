@@ -1,10 +1,10 @@
-import { act } from "@testing-library/react";
 import type { CacheValueType } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act } from "@testing-library/react";
 
+import { testInitialState, testSuccessState } from "../../shared";
 import { client, createRequest } from "../../utils";
 import { renderUseCache } from "../../utils/use-cache.utils";
-import { testInitialState, testSuccessState } from "../../shared";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -21,10 +21,10 @@ describe("useCache [ Base ]", () => {
       },
     },
     retries: 0,
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     cacheKey: request.cacheKey,
     scope: request.scope,
     isCanceled: false,

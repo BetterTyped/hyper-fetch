@@ -6,17 +6,17 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
   /** istanbul ignore next */
   try {
     /** istanbul ignore next */
-    if (!window?.WebSocket) return null;
-  } catch (error) {
+    if (!window?.WebSocket) {return null;}
+  } catch {
     return null;
   }
 
   class HyperFetchWebsocket extends WebSocket {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
-    public registeredHandlers: Map<
+    public registeredHandlers = new Map<
       (...args: any[]) => any,
       { type: keyof WebSocketEventMap; listener: (...args: any[]) => void; options: any }
-    > = new Map();
+    >();
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
     constructor(socketUrl: string, protocols?: string | string[]) {

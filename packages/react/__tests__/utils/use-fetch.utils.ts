@@ -1,6 +1,5 @@
 import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
-
 import type { UseFetchOptionsType } from "hooks/use-fetch";
 import { useFetch } from "hooks/use-fetch";
 

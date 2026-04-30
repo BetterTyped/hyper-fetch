@@ -1,5 +1,5 @@
-import type { Firestore } from "firebase-admin/firestore";
 import type { Database } from "firebase-admin/database";
+import type { Firestore } from "firebase-admin/firestore";
 
 import { teas } from "./seed/seed.data";
 

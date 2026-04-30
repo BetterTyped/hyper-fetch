@@ -36,7 +36,7 @@ By defining a `payload` type in the `createRequest` generic, you enforce a stric
 ```ts
 // import { createClient } from '@hyper-fetch/core';
 
-export const client = createClient()({
+export const client = createClient({
   url: "https://api.example.com",
 });
 
@@ -63,10 +63,10 @@ const postUser = client.createRequest<{
 });
 
 // 4. Send the request with a type-safe payload
-// The `data` property in the `send` method is now strongly typed.
+// The `payload` property in the `send` method is now strongly typed.
 // Try adding a property that doesn't exist in `RequestPayloadType` to see an error.
 const { data, error } = await postUser.send({
-  data: {
+  payload: {
     name: "Jane Doe",
     email: "jane.doe@example.com",
     age: 30,
@@ -85,7 +85,7 @@ if (data) {
 You've learned how to define and use payload types!
 
 - You can specify a **`payload` type** for requests that send data to a server.
-- You can provide a **type-safe `data` object** to the `.send()` method.
+- You can provide a **type-safe payload** to the `.send()` method.
 - You can build more **reliable API interactions** with compile-time checks.
 
 :::

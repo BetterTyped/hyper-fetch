@@ -101,6 +101,61 @@ the dependencies of your request.
 
 ---
 
+## Returned Values
+
+The `useFetch` hook returns a rich set of values beyond just `data`, `loading`, and `error`:
+
+```tsx
+const {
+  data,               // The response data (typed)
+  error,              // The error object if the request failed
+  loading,            // Whether the request is in progress
+  success,            // Whether the last request was successful
+  status,             // HTTP status code
+  extra,              // Adapter-specific extra data (e.g. response headers)
+  retries,            // Number of retries performed
+  refetch,            // Function to manually re-fetch data
+  abort,              // Function to abort the current request
+  onSuccess,          // Registrar for success callbacks
+  onError,            // Registrar for error callbacks
+  onFinished,         // Registrar for finished callbacks (success or error)
+  onRequestStart,     // Registrar for request start callbacks
+  onAbort,            // Registrar for abort callbacks
+  onOfflineError,     // Registrar for offline error callbacks
+  setData,            // Manually set the data state
+  setError,           // Manually set the error state
+  setLoading,         // Manually set the loading state
+} = useFetch(getUsers);
+```
+
+---
+
+## Hook Options
+
+You can pass a second argument to `useFetch` to configure its behavior:
+
+```tsx
+const { data } = useFetch(getUser.setParams({ userId }), {
+  // Don't fetch on mount; only fetch when dependencies change
+  disabled: false,
+
+  // Keep showing previous data while a new request is loading
+  keepPreviousData: true,
+
+  // Custom dependencies array - re-fetch when these change
+  dependencies: [userId],
+});
+```
+
+Key options include:
+
+- **`disabled`**: When `true`, prevents the hook from fetching. Useful for conditional fetching.
+- **`keepPreviousData`**: Preserves the previous response data while a re-fetch is in progress, avoiding UI flicker.
+- **`dependencies`**: An array of values that trigger a re-fetch when they change (similar to React's `useEffect` deps).
+- **`initialResponse`**: Provide initial data for SSR or hydration scenarios.
+
+---
+
 :::success Congratulations!
 
 You've learned the basics of fetching data with `useFetch`!
@@ -108,6 +163,6 @@ You've learned the basics of fetching data with `useFetch`!
 - You can fetch **lists of data** and **single items** with parameters.
 - You can handle **loading** and **error states** to provide a better user experience.
 - You understand how `useFetch` **automatically re-fetches** when request parameters change.
-- You are ready to explore more advanced features of the [`useFetch` hook](/react/04-hooks/use-fetch.mdx).
+- You are ready to explore more advanced features of the [`useFetch` hook](/docs/react/hooks/use-fetch).
 
 :::

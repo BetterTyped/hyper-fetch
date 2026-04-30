@@ -1,6 +1,6 @@
 import type { Mock } from "vitest";
 
-export const testCallbacksExecution = (callbacks: Array<Mock>) => {
+export const testCallbacksExecution = (callbacks: Mock[]) => {
   callbacks.forEach((spyFn, index) => {
     const nextSpy = callbacks[index + 1];
     if (nextSpy) {

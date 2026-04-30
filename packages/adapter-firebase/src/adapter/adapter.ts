@@ -1,10 +1,9 @@
 import { Adapter } from "@hyper-fetch/core";
-import { Database } from "firebase/database";
-
 import type { FirebaseDBTypes, FirebaseAdapterTypes, FirebaseRealtimeDBType, FirestoreRequestType } from "adapter";
 import { FirestoreMethods, RealtimeDBMethods } from "adapter";
-import { getRealtimeDbBrowserMethods } from "realtime";
+import { Database } from "firebase/database";
 import { getFirestoreBrowserMethods } from "firestore";
+import { getRealtimeDbBrowserMethods } from "realtime";
 
 export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T): FirebaseAdapterTypes<T> => {
   const adapter = new Adapter({

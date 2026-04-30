@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { Adapter } from "@hyper-fetch/core";
-import type { DatabaseReference, DataSnapshot } from "firebase/database";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
-
 import type {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
 } from "constraints";
+import type { DatabaseReference, DataSnapshot } from "firebase/database";
 
 export type RealtimeSocketAdapterType = SocketAdapter<
   RealtimeDbOnValueMethodExtra,

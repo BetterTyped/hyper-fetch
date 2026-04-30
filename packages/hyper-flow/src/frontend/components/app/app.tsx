@@ -1,11 +1,10 @@
-import { useEffect } from "react";
 import { Outlet } from "@tanstack/react-router";
 import posthog from "posthog-js";
+import { useEffect } from "react";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { Navbar } from "./navbar/navbar";
 import { ServerCrashDialog } from "./server-crash-dialog/server-crash-dialog";
-
 import { useIsFocused } from "@/hooks/use-is-focused";
 import { cn } from "@/lib/utils";
 import { useTracking } from "@/store/general/tracking.store";

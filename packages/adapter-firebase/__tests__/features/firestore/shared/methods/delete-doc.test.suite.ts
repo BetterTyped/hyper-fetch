@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
-
 import type { FirebaseAdapter } from "adapter";
-import type { Tea } from "../../../../utils";
+
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
+import type { Tea } from "../../../../utils";
 
 export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("deleteDoc", () => {

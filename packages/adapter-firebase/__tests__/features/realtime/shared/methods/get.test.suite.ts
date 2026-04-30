@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
-
 import type { FirebaseAdapter } from "adapter";
+
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import type { Tea } from "../../../../utils";
 

@@ -33,12 +33,13 @@ function LiveActivityFeed() {
   const [lastUpdated, setLastUpdated] = React.useState(new Date());
 
   // highlight-start
-  const { data: activities, loading } = useFetch(getActivities, {
+  const { data: activities, loading, onSuccess } = useFetch(getActivities, {
     refresh: true,
-    refreshTime: Time.second * 5,
-    onSuccess: () => {
-      setLastUpdated(new Date());
-    },
+    refreshTime: Time.SEC * 5,
+  });
+
+  onSuccess(() => {
+    setLastUpdated(new Date());
   });
   // highlight-end
 
@@ -67,11 +68,12 @@ function LiveActivityFeed() {
 ### How It Works
 
 1.  **`refresh: true`**: This option enables the auto-refreshing feature for the hook.
-2.  **`refreshTime: Time.second * 5`**: This sets the polling interval. We specify that the data should be
+2.  **`refreshTime: Time.SEC * 5`**: This sets the polling interval. We specify that the data should be
     re-fetched every 5000 milliseconds (5 seconds). Using the `Time` enum from `@hyper-fetch/core` makes the
     time definition more readable than just `5000`.
-3.  **`onSuccess` callback**: We use the `onSuccess` callback to update a `lastUpdated` state variable every time a
-    successful refresh occurs. This allows us to give visual feedback to the user that the data is fresh.
+3.  **`onSuccess` callback**: We use the `onSuccess` registrar returned by `useFetch` to update a `lastUpdated` state
+    variable every time a successful refresh occurs. This allows us to give visual feedback to the user that the data is
+    fresh.
 4.  The component will now automatically call the `getActivities` request every 5 seconds, keeping the UI in sync with
     the latest data from the server.
 

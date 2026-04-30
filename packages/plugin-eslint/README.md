@@ -21,7 +21,9 @@
 
 ## 📖 About
 
-This ESLint plugin provides static analysis rules specific to HyperFetch. It catches generic type issues like typos, missing values, or incorrect usage of `createClient` and `createRequest` type parameters before they cause runtime errors.
+This ESLint plugin provides static analysis rules specific to HyperFetch. It catches generic type issues like typos,
+missing values, or incorrect usage of `createClient` and `createRequest` type parameters before they cause runtime
+errors.
 
 ## 🎯 Key Capabilities
 

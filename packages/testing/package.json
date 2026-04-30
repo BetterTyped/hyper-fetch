@@ -11,11 +11,11 @@
   "source": "src/index.ts",
   "scripts": {
     "test": "vitest run",
-    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "start": "pnpm build && npx run-when-changed --watch 'src/**/*.ts' --exec 'pnpm build'",
     "build": "vite build",
-    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
-    "format": "prettier --write .",
-    "tests": "yarn lint-staged"
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "tests": "pnpm lint-staged"
   },
   "publishConfig": {
     "access": "public",

@@ -1,7 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import { createClient } from "client";
 import { getAdapterHeaders, getAdapterPayload, getErrorMessage } from "adapter";
+import { createClient } from "client";
 import { parseResponse, parseErrorResponse, handleResponse, getResponseHeaders } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
@@ -126,7 +125,7 @@ describe("Adapter [ Utils ]", () => {
   describe("When handleResponse util gets triggered", () => {
     it("should return Buffer for arraybuffer response type", () => {
       const chunks = [Buffer.from("Hello"), Buffer.from("World")];
-      const result = handleResponse(chunks, "arraybuffer", "utf-8");
+      const result = handleResponse(chunks, "arraybuffer", "utf8");
 
       expect(Buffer.isBuffer(result)).toBe(true);
       expect(result.toString()).toBe("HelloWorld");
@@ -135,14 +134,14 @@ describe("Adapter [ Utils ]", () => {
     it("should parse JSON response type", () => {
       const data = { message: "test" };
       const chunks = [Buffer.from(JSON.stringify(data))];
-      const result = handleResponse(chunks, "json", "utf-8");
+      const result = handleResponse(chunks, "json", "utf8");
 
       expect(result).toEqual(data);
     });
 
     it("should return string for default response type", () => {
       const chunks = [Buffer.from("Hello"), Buffer.from("World")];
-      const result = handleResponse(chunks, "text", "utf-8");
+      const result = handleResponse(chunks, "text", "utf8");
 
       expect(typeof result).toBe("string");
       expect(result).toBe("HelloWorld");
@@ -150,14 +149,14 @@ describe("Adapter [ Utils ]", () => {
 
     it("should handle empty chunks", () => {
       const chunks: Buffer[] = [];
-      const result = handleResponse(chunks, "text", "utf-8");
+      const result = handleResponse(chunks, "text", "utf8");
 
       expect(result).toBe("");
     });
 
     it("should handle invalid JSON for json response type", () => {
       const chunks = [Buffer.from("invalid json")];
-      const result = handleResponse(chunks, "json", "utf-8");
+      const result = handleResponse(chunks, "json", "utf8");
 
       expect(result).toBe("invalid json");
     });

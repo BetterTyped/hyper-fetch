@@ -1,10 +1,10 @@
-import { Calendar, Trash2, ScanEye, Package } from "lucide-react";
 import { format } from "date-fns";
+import { Calendar, Trash2, ScanEye, Package } from "lucide-react";
 
+import { Countdown } from "@/components/countdown/countdown";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import type { DevtoolsCacheEvent } from "@/context/applications/types";
-import { Badge } from "@/components/ui/badge";
-import { Countdown } from "@/components/countdown/countdown";
 
 export const SectionOverview = ({
   item,

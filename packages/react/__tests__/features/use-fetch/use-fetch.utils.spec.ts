@@ -5,13 +5,13 @@ describe("useFetch [ Utils ]", () => {
   describe("given using getRefreshTime util", () => {
     describe("when state is available", () => {
       it("should give the reduced refresh time based on timestamp", async () => {
-        const timestamp = new Date(+new Date() - 500);
+        const timestamp = new Date(Date.now() - 500);
         const time = getRefreshTime(refreshTime, timestamp);
         expect(time).toBeLessThanOrEqual(500);
         expect(time).toBeGreaterThanOrEqual(490);
       });
       it("should give refreshTime on old timestamp", async () => {
-        const timestamp = new Date(+new Date() - refreshTime);
+        const timestamp = new Date(Date.now() - refreshTime);
         const time = getRefreshTime(refreshTime, timestamp);
         expect(time).toBe(refreshTime);
       });

@@ -1,5 +1,5 @@
-import { CacheList } from "./list/cache.list";
 import { CacheDetails } from "./details/cache.details";
+import { CacheList } from "./list/cache.list";
 
 export const ApplicationCache = () => {
   return (

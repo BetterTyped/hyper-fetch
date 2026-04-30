@@ -1,4 +1,5 @@
 import { clientGenericTypes } from "client-generic-types";
+
 import { requestGenericTypes } from "./request-generic-types/request-generic-types";
 
 export const configs = {

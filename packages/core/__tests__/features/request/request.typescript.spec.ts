@@ -4,7 +4,6 @@ import {
   expectNotType,
   expectType,
 } from "@hyper-fetch/testing";
-
 import { Client } from "client";
 import type { ExtractLocalErrorType } from "types";
 

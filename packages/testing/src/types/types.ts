@@ -16,13 +16,13 @@ export const expectNotType = <In>(_value?: In) => {
 
 export const expectFunctionParametersType = <In extends (...args: any) => any>(_fn?: In) => {
   return {
-    assert: <Out extends Array<any>>(assertedType: Out extends Parameters<In> ? Out : NOT_MATCHING) => assertedType,
+    assert: <Out extends any[]>(assertedType: Out extends Parameters<In> ? Out : NOT_MATCHING) => assertedType,
   };
 };
 
 export const expectNotFunctionParametersType = <In extends (...args: any) => any>(_fn?: In) => {
   return {
-    assert: <Out extends Array<any>>(assertedType: Out extends Parameters<In> ? NOT_MATCHING : Out) => assertedType,
+    assert: <Out extends any[]>(assertedType: Out extends Parameters<In> ? NOT_MATCHING : Out) => assertedType,
   };
 };
 

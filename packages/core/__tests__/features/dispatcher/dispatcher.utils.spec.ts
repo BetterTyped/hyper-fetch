@@ -1,5 +1,5 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
+import { Client } from "client";
 import type { ResolvedQueueItemType } from "dispatcher";
 import {
   canRetryRequest,
@@ -10,8 +10,8 @@ import {
   getIsEqualTimestamp,
   getRequestType,
 } from "dispatcher";
+
 import { createDispatcher, createAdapter } from "../../utils";
-import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -80,13 +80,13 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using getIsEqualTimestamp util", () => {
     it("should return true when timestamps are equal", async () => {
-      expect(getIsEqualTimestamp(+new Date(), 0, +new Date())).toBeTrue();
-      expect(getIsEqualTimestamp(+new Date(), 10, +new Date() + 5)).toBeTrue();
+      expect(getIsEqualTimestamp(Date.now(), 0, Date.now())).toBeTrue();
+      expect(getIsEqualTimestamp(Date.now(), 10, Date.now() + 5)).toBeTrue();
     });
     it("should return false when timestamps aren't equal", async () => {
-      expect(getIsEqualTimestamp(+new Date(), 0, +new Date() + 5)).toBeFalse();
-      expect(getIsEqualTimestamp(+new Date(), 10, +new Date() + 15)).toBeFalse();
-      expect(getIsEqualTimestamp(+new Date(), 10)).toBeFalse();
+      expect(getIsEqualTimestamp(Date.now(), 0, Date.now() + 5)).toBeFalse();
+      expect(getIsEqualTimestamp(Date.now(), 10, Date.now() + 15)).toBeFalse();
+      expect(getIsEqualTimestamp(Date.now(), 10)).toBeFalse();
     });
   });
   describe("When using canRetryRequest util", () => {
@@ -134,7 +134,7 @@ describe("Dispatcher [ Utils ]", () => {
         .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
         .setDeduplicateTime(1);
       const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
-      duplicated.timestamp = +new Date() - 1000;
+      duplicated.timestamp = Date.now() - 1000;
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
     });

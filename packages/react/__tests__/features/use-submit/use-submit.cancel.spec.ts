@@ -1,6 +1,6 @@
 import { getErrorMessage } from "@hyper-fetch/core";
-import { act } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act } from "@testing-library/react";
 
 import { testErrorState } from "../../shared";
 import { client, createRequest, renderUseSubmit } from "../../utils";

@@ -1,9 +1,22 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./src",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "e2e": ["./src/e2e"],
+      "e2e/*": ["./src/e2e/*"],
+      "graphql": ["./src/graphql"],
+      "graphql/*": ["./src/graphql/*"],
+      "http": ["./src/http"],
+      "http/*": ["./src/http/*"],
+      "sse": ["./src/sse"],
+      "sse/*": ["./src/sse/*"],
+      "types": ["./src/types"],
+      "types/*": ["./src/types/*"],
+      "websockets": ["./src/websockets"],
+      "websockets/*": ["./src/websockets/*"]
+    }
   },
   "include": ["./src", "./__tests__", "typings.d.ts"],
   "exclude": ["node_modules", "dist"]

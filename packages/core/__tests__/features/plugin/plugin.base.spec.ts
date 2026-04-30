@@ -1,6 +1,5 @@
-import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
+import { waitFor } from "@testing-library/dom";
 import { Client } from "client";
 import { Plugin } from "plugin";
 

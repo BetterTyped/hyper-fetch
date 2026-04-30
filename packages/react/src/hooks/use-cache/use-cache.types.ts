@@ -1,7 +1,6 @@
 import type { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
-
-import type { isEqual } from "utils";
 import type { UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import type { isEqual } from "utils";
 
 export type UseCacheOptionsType<T extends RequestInstance> = {
   /**
@@ -23,5 +22,5 @@ export type UseCacheReturnType<T extends RequestInstance> = UseTrackedStateType<
     /**
      * Invalidate cache for the current request or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    invalidate: (cacheKeys?: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => void;
+    invalidate: (cacheKeys?: string | RegExp | RequestInstance | (string | RegExp | RequestInstance)[]) => void;
   };

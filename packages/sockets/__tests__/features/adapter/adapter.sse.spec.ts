@@ -1,11 +1,11 @@
+import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 /* eslint-disable max-classes-per-file */
 import { waitFor } from "@testing-library/dom";
-import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
-
-import { createSocket } from "../../utils/socket.utils";
 import type { ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
 import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
+
 import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
+import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
@@ -135,7 +135,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should handle missing EventSource gracefully", async () => {
     const eventSource = window.EventSource;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.EventSource = undefined;
 
     const spy = vi.fn();
@@ -177,7 +177,7 @@ describe("Socket Adapter [ SSE ]", () => {
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.EventSource = OpenEventSource;
 
     const newSocket = createSocket<ServerSentEventsAdapterType>({
@@ -203,7 +203,7 @@ describe("Socket Adapter [ SSE ]", () => {
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.EventSource = OpenEventSource;
 
     const newSocket = createSocket<ServerSentEventsAdapterType>(socketOptions);

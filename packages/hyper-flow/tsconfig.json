@@ -2,16 +2,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": "./src",
     "jsx": "react-jsx",
     "outDir": "dist",
     "paths": {
-      "@/*": ["./frontend/*"],
-      "@app/*": ["./app/*"],
-      "@server/*": ["./server/*"],
-      "@shared/*": ["./shared/*"],
-      "@testing/*": ["../__tests__/*"]
+      "@/*": ["./src/frontend/*"],
+      "@app/*": ["./src/app/*"],
+      "app/*": ["./src/app/*"],
+      "@server/*": ["./src/server/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@testing/*": ["./__tests__/*"]
     }
   },
+  "include": ["src/**/*", "electron.d.ts", "vite-env.d.ts", "forge.env.d.ts"],
   "exclude": ["node_modules", "dist", "vite.config.mts", "__tests__", "configs"]
 }

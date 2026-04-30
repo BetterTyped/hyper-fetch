@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import type { RequestInstance } from "request";
+
 import type {
   EmptyTypes,
   ExtractAdapterEndpointMapperType,
@@ -99,7 +100,7 @@ export type DefaultPayloadMapper = (options: { request: RequestInstance; payload
 // QueryParams
 
 export type QueryParamValuesType = number | string | boolean | null | undefined | Record<any, any>;
-export type QueryParamType = QueryParamValuesType | Array<QueryParamValuesType> | Record<string, QueryParamValuesType>;
+export type QueryParamType = QueryParamValuesType | QueryParamValuesType[] | Record<string, QueryParamValuesType>;
 export type QueryParamsType = Record<string, QueryParamType>;
 
 // Responses

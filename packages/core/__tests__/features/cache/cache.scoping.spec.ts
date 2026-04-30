@@ -1,12 +1,12 @@
 import { waitFor } from "@testing-library/dom";
-
 import type { ResponseSuccessType } from "adapter";
-import type { ResponseDetailsType } from "managers";
-import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
 import { xhrExtra } from "http-adapter";
+import type { ResponseDetailsType } from "managers";
 import { scopeKey } from "request";
+
+import { createCache, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Scoping ]", () => {
   const response: ResponseSuccessType<unknown, HttpAdapterType> = {
@@ -20,10 +20,10 @@ describe("Cache [ Scoping ]", () => {
   };
   const details: ResponseDetailsType = {
     retries: 0,
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     isCanceled: false,
     isOffline: false,
     willRetry: false,
@@ -41,7 +41,11 @@ describe("Cache [ Scoping ]", () => {
       cache.set(a, { ...response, ...details, data: { id: 1 } });
       cache.set(b, { ...response, ...details, data: { id: 2 } });
 
-      cache.set(a, (prev) => ({ ...response, ...details, data: { id: (prev?.data as { id: number }).id + 10 } }));
+      cache.set(a, (prev) => ({
+        ...response,
+        ...details,
+        data: { id: ((prev?.data as { id: number } | undefined)?.id ?? 0) + 10 },
+      }));
 
       expect(cache.get(scopeKey(base.cacheKey, "a"))?.data).toStrictEqual({ id: 11 });
       expect(cache.get(scopeKey(base.cacheKey, "b"))?.data).toStrictEqual({ id: 2 });

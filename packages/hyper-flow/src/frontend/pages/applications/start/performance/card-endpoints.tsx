@@ -1,14 +1,14 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { useMemo } from "react";
 
+import { EmptyState } from "@/components/no-content/empty-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Method } from "@/components/ui/method";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { EmptyState } from "@/components/no-content/empty-state";
-import { Method } from "@/components/ui/method";
-import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { cn } from "@/lib/utils";
+import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { formatBytes, formatTime } from "@/utils/format";
 
 export const CardEndpoints = ({ className }: { className?: string }) => {
@@ -17,8 +17,8 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
   const methodsStats = useMethodStatsStore((state) => state.applications[application.name].methodsStats);
 
   const slowestEndpoints = useMemo(() => {
-    return Array.from(methodsStats.values())
-      .sort((a, b) => b.methodStats.avgResponseTime - a.methodStats.avgResponseTime)
+    return [...methodsStats.values()]
+      .toSorted((a, b) => b.methodStats.avgResponseTime - a.methodStats.avgResponseTime)
       .slice(0, 10);
   }, [methodsStats]);
 
@@ -38,7 +38,7 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
               <TableHead>Avg. Response Size</TableHead>
             </TableRow>
           </TableHeader>
-          {!!slowestEndpoints.length && (
+          {slowestEndpoints.length > 0 && (
             <TableBody>
               {slowestEndpoints.map((req) => (
                 <TableRow key={req.method}>
@@ -69,7 +69,7 @@ export const CardEndpoints = ({ className }: { className?: string }) => {
             </TableBody>
           )}
         </Table>
-        {!slowestEndpoints.length && (
+        {slowestEndpoints.length === 0 && (
           <EmptyState
             title="No endpoints statistics"
             description="Make some requests to see the data"

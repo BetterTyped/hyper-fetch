@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Time, serialize } from "@hyper-fetch/core";
+import { Time } from "@hyper-fetch/core";
 import { useFetch } from "@hyper-fetch/react";
 import { Stack, Button } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -18,10 +18,10 @@ const initialDate = +new Date();
 
 export async function getStaticProps() {
   const userRequest = getUser.setParams({ userId: 1 });
-  const data = await userRequest.exec({});
+  const response = await userRequest.exec({});
   return {
     props: {
-      fallbacks: [serialize(userRequest, data)],
+      fallbacks: [userRequest.dehydrate({ response })],
     },
   };
 }

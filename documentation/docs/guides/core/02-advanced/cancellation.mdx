@@ -148,7 +148,7 @@ const postFile = client.createRequest()({
 });
 
 // This request will be queued if offline
-postFile.send({ data: { some: "data" } });
+postFile.send({ payload: { some: "data" } });
 
 // Later, you can stop the entire "/files" queue
 // This will pause all requests targeting this endpoint

@@ -1,5 +1,10 @@
+import type { Client, ClientInstance } from "client";
+import type { LoggerMethods } from "managers";
+import { mocker } from "mocker";
+import type { RequestInstance, RequestOptionsType } from "request";
 /* eslint-disable class-methods-use-this */
 import type { EmptyTypes, ExtendRequest } from "types";
+
 import { getAdapterOnError, getAdapterBindings } from "./adapter.bindings";
 import type {
   EndpointMapper,
@@ -11,14 +16,10 @@ import type {
   RequestResponseType,
   ResponseType,
 } from "./adapter.types";
-import type { RequestInstance, RequestOptionsType } from "request";
-import type { Client, ClientInstance } from "client";
-import { mocker } from "mocker";
-import type { LoggerMethods } from "managers";
 import type { getErrorMessage } from "./adapter.utils";
 import { getAdapterHeaders, getAdapterPayload, RequestProcessingError } from "./adapter.utils";
 
-export type DefaultMapperType = <V, C>(value: V, config: C) => V;
+export type DefaultMapperType = <V, C = undefined>(value: V, config?: C) => V;
 export const defaultMapper: DefaultMapperType = (value) => value;
 
 /**

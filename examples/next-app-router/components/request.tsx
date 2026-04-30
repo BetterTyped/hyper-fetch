@@ -20,9 +20,9 @@ import ErrorIcon from "@mui/icons-material/Error";
 import DataArrayIcon from "@mui/icons-material/DataArray";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-type Props = {
+type Props<R extends RequestInstance = RequestInstance> = {
   name: string;
-  result: UseFetchReturnType<RequestInstance> | UseSubmitReturnType<RequestInstance>;
+  result: UseFetchReturnType<R> | UseSubmitReturnType<R>;
   children?: React.ReactNode;
 };
 
@@ -39,8 +39,8 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
   );
 }
 
-export function Request({ name, children, result }: Props) {
-  const { data, error, timestamp } = result;
+export function Request<R extends RequestInstance = RequestInstance>({ name, children, result }: Props<R>) {
+  const { data, error, responseTimestamp } = result;
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -83,7 +83,7 @@ export function Request({ name, children, result }: Props) {
       <AccordionDetails>
         <code>
           <pre style={{ margin: 0 }}>
-            {JSON.stringify(error instanceof Error ? { message: error.message } : error, null, 2)}
+            {JSON.stringify((error as unknown) instanceof Error ? { message: (error as Error).message } : error, null, 2)}
           </pre>
         </code>
       </AccordionDetails>
@@ -214,7 +214,9 @@ export function Request({ name, children, result }: Props) {
             <Divider orientation="vertical" flexItem sx={{ margin: "0 20px 0 10px" }} />
             <ListItemText
               secondary={
-                mounted && timestamp ? `${timestamp?.toDateString()} ${timestamp?.toLocaleTimeString()}` : "---"
+                mounted && responseTimestamp
+                  ? `${responseTimestamp?.toDateString()} ${responseTimestamp?.toLocaleTimeString()}`
+                  : "---"
               }
             />
           </ListItemButton>

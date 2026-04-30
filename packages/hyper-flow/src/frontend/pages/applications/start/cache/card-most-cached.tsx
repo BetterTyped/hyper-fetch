@@ -1,17 +1,17 @@
+import { HelpCircle } from "lucide-react";
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { HelpCircle } from "lucide-react";
 
+import { EntriesDocs } from "@/components/docs/entries.docs";
+import { EmptyState } from "@/components/no-content/empty-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Method } from "@/components/ui/method";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
-import { EmptyState } from "@/components/no-content/empty-state";
 import { cn } from "@/lib/utils";
-import { Method } from "@/components/ui/method";
+import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
 import { formatBytes } from "@/utils/size.utils";
-import { EntriesDocs } from "@/components/docs/entries.docs";
 
 export const CardMostCached = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -24,8 +24,8 @@ export const CardMostCached = ({ className }: { className?: string }) => {
   );
 
   const mostCachedEndpoints = useMemo(() => {
-    return Array.from(cacheStats.values())
-      .sort((a, b) => b.generalStats.cacheSize - a.generalStats.cacheSize)
+    return [...cacheStats.values()]
+      .toSorted((a, b) => b.generalStats.cacheSize - a.generalStats.cacheSize)
       .filter((item) => item.cacheEntries.size)
       .slice(0, 5);
   }, [cacheStats]);
@@ -73,7 +73,7 @@ export const CardMostCached = ({ className }: { className?: string }) => {
           </TableBody>
         </Table>
 
-        {!mostCachedEndpoints.length && (
+        {mostCachedEndpoints.length === 0 && (
           <EmptyState title="No cached endpoints found" description="No endpoints have been cached yet." />
         )}
       </CardContent>

@@ -21,7 +21,7 @@ export const ListPage: React.FC = () => {
 
   const result = useFetch(getUsers.setQueryParams({ page, search } as any), {
     refresh: false,
-    initialData: { data: [[], null, 200] },
+    initialResponse: { data: [], error: null, status: 200, success: true, extra: null, responseTimestamp: 0 },
     bounce: true,
     bounceTime: 600,
     dependencies: [search, dep],

@@ -1,14 +1,13 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import { SectionData } from "./section-data";
+import { SectionHead } from "./section-head";
 import { SectionOverview } from "./section-overview";
 import { SectionToolbar } from "./section-toolbar";
-import { SectionHead } from "./section-head";
-import { SectionData } from "./section-data";
-
-import { useNetworkStore } from "@/store/applications/network.store";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useNetworkStore } from "@/store/applications/network.store";
 
 export const NetworkDetails = () => {
   const { application } = useDevtools();
@@ -16,12 +15,12 @@ export const NetworkDetails = () => {
   const { requests, detailsRequestId } = useNetworkStore(useShallow((state) => state.applications[application.name]));
 
   const item = useMemo(() => {
-    if (!detailsRequestId) return null;
+    if (!detailsRequestId) {return null;}
     return requests.find((request) => request.requestId === detailsRequestId);
   }, [detailsRequestId, requests]);
 
   // It is never shown to the user
-  if (!item) return null;
+  if (!item) {return null;}
 
   return (
     <ResizableSidebar

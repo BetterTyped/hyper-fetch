@@ -1,15 +1,14 @@
-/* eslint-disable react/jsx-fragments */
-/* eslint-disable react/jsx-no-useless-fragment */
-import { Fragment } from "react";
 import type { HttpAdapterExtraType } from "@hyper-fetch/core";
 import { Client } from "@hyper-fetch/core";
 import { render, waitFor } from "@testing-library/react";
-
 import type { UseFetchReturnType } from "hooks/use-fetch";
 import { useFetch } from "hooks/use-fetch";
 import type { UseSubmitReturnType } from "hooks/use-submit";
 import { useSubmit } from "hooks/use-submit";
 import { Provider } from "provider";
+/* eslint-disable react/jsx-fragments */
+/* eslint-disable react/jsx-no-useless-fragment */
+import { Fragment } from "react";
 
 describe("Provider [ Hydration ]", () => {
   const data = [1, 2, 3, 4, 5];

@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { SectionToolbar } from "./section-toolbar";
+import { SectionData } from "./section-data";
 import { SectionHead } from "./section-head";
 import { SectionOverview } from "./section-overview";
-import { SectionData } from "./section-data";
-
-import { useCacheStore } from "@/store/applications/cache.store";
+import { SectionToolbar } from "./section-toolbar";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useCacheStore } from "@/store/applications/cache.store";
 
 export const CacheDetails = () => {
   const { client, application } = useDevtools();
@@ -22,7 +21,7 @@ export const CacheDetails = () => {
   );
 
   const item = useMemo(() => {
-    if (!detailsId) return null;
+    if (!detailsId) {return null;}
     return caches.get(detailsId);
   }, [detailsId, caches]);
 
@@ -43,7 +42,7 @@ export const CacheDetails = () => {
   }, [client.requestManager.emitter, item, item?.cacheKey]);
 
   // TODO NO CONTENT
-  if (!item) return null;
+  if (!item) {return null;}
 
   return (
     <ResizableSidebar

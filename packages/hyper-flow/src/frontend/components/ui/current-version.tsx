@@ -1,7 +1,6 @@
 import { memo, useMemo } from "react";
 
 import { Badge } from "./badge";
-
 import { cn } from "@/lib/utils";
 
 export const CurrentVersion = memo(({ className, ...props }: React.ComponentProps<typeof Badge>) => {

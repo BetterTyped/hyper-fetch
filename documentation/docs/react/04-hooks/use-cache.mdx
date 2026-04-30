@@ -8,17 +8,28 @@ sidebar_label: useCache
 
 [Read the API Reference »](/docs/api/react/Hooks/useCache)
 
-The `useCache` hook allows you to interact with the [`Cache`](/docs/core/cache) of a given request. It provides state,
-methods, and event callbacks for cache changes. Ensure that the `cacheKey` is stable and not affected by
-auto-generation, so the hook always references the correct cache entry.
+The `useCache` hook **subscribes to cache updates** for a given request without triggering any network request. It is a
+read-only observer of the cache layer - it provides cached state and methods to manipulate the cache, but it does not
+fetch, submit, or abort requests.
 
 :::tip Purpose
 
-1. Easily **manage and observe the cache** for a specific request in React.
-2. Provides **state and methods** to interact with the cache layer.
-3. Enables the cache **invalidation** for refetching.
+1. **Subscribe to cache changes** for a specific request without initiating a fetch.
+2. **Display cached data** from one request in a different component (cross-component data sharing).
+3. **Invalidate cache** to force other hooks (`useFetch`, `useSubmit`) to re-fetch.
+4. **Manipulate cache state** with `setData`, `setError`, and `setLoading`.
 
 :::
+
+:::caution What useCache does NOT provide
+
+Unlike `useFetch`, `useCache` does **not** provide `abort`, `onSuccess`, `onError`, `refetch`, or any network-related
+functionality. It only observes and manipulates the cache. If you need to fetch data, use `useFetch` instead.
+
+:::
+
+> **When to use it**: Use `useCache` when you need to display or react to cached data that was fetched elsewhere. For
+> example, a sidebar component that shows user details fetched by a different page component.
 
 ---
 
@@ -46,10 +57,17 @@ const { data } = useCache(getUser.setParams({ userId: 1 }));
 :::
 
 ```tsx
-import { useCache } from "@better-typed/react";
+import { useCache } from "@hyper-fetch/react";
 
 const { data, error, loading, invalidate, setData, setError, setLoading } = useCache(getUsers);
 ```
+
+:::info Cache-only - no network requests
+
+`useCache` never sends a request to the server. If the cache is empty when the hook mounts, `data` will be `null` until
+another hook (like `useFetch`) populates the cache for the same `cacheKey`.
+
+:::
 
 ---
 

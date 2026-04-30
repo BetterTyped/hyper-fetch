@@ -48,6 +48,75 @@ const client = new Client({
 
 ---
 
+## Lifecycle Hooks
+
+Plugins can subscribe to events across the entire Hyper Fetch system. Each hook method registers a callback and returns
+the `Plugin` instance for chaining.
+
+### Plugin Lifecycle
+
+| Hook | When it fires | Data received |
+| --- | --- | --- |
+| `onMount` | Plugin is added to the client via `addPlugin()` | `{ client }` |
+| `onUnmount` | Plugin is removed via `removePlugin()` | `{ client }` |
+
+### Request Lifecycle
+
+| Hook | When it fires | Data received |
+| --- | --- | --- |
+| `onRequestCreate` | A new request instance is created via `createRequest` | `{ request }` |
+| `onRequestTrigger` | A request is about to enter the dispatcher | `{ request }` |
+| `onRequestStart` | The adapter begins executing the request | `{ request }` |
+| `onRequestSuccess` | The adapter returns a successful response | `{ response, request }` |
+| `onRequestError` | The adapter returns an error response | `{ response, request }` |
+| `onRequestFinished` | The request completes (success or error) | `{ response, request }` |
+
+### Cache Lifecycle
+
+| Hook | When it fires | Data received |
+| --- | --- | --- |
+| `onCacheItemChange` | A cache entry is created or updated | `{ cache, cacheKey, prevData, newData }` |
+| `onCacheItemDelete` | A cache entry is deleted | `{ cacheKey, cache }` |
+
+### Dispatcher Lifecycle
+
+| Hook | When it fires | Data received |
+| --- | --- | --- |
+| `onDispatcherQueueCreated` | A new queue is created for an unseen `queryKey` | `{ dispatcher, queue }` |
+| `onDispatcherItemAdded` | A request is added to a queue | `{ dispatcher, queue, queueItem }` |
+| `onDispatcherItemDeleted` | A request is removed from a queue | `{ dispatcher, queue, queueItem }` |
+| `onDispatcherQueueRunning` | A queue status changes (`"running"`, `"paused"`, `"stopped"`) | `{ dispatcher, queue, status }` |
+| `onDispatcherQueueDrained` | A queue has no more pending requests | `{ dispatcher, queue }` |
+| `onDispatcherQueueCleared` | An entire queue is cleared | `{ dispatcher, queue }` |
+| `onDispatcherCleared` | All dispatcher storage is fully cleared | `{ dispatcher }` |
+
+### Adapter Lifecycle
+
+| Hook | When it fires | Data received |
+| --- | --- | --- |
+| `onAdapterFetch` | The adapter is about to execute a network request | `{ request, requestId, adapter }` |
+
+```ts title="Example: using multiple hooks"
+const analyticsPlugin = new Plugin({ name: "analytics" })
+  .onRequestStart(({ request }) => {
+    performance.mark(`req-start-${request.queryKey}`);
+  })
+  .onRequestFinished(({ request, response }) => {
+    performance.mark(`req-end-${request.queryKey}`);
+    analytics.track("api_call", {
+      endpoint: request.requestOptions.endpoint,
+      success: response.success,
+    });
+  })
+  .onCacheItemChange(({ cacheKey, newData }) => {
+    console.log(`Cache updated: ${cacheKey}`);
+  });
+
+client.addPlugin(analyticsPlugin);
+```
+
+---
+
 ## Available methods
 
 <ShowMore>

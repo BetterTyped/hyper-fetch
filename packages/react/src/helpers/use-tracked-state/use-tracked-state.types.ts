@@ -12,7 +12,6 @@ import type {
   CacheSetState,
   LoggerMethods,
 } from "@hyper-fetch/core";
-
 import type { isEqual } from "utils";
 
 export type UseTrackedStateProps<T extends RequestInstance> = {

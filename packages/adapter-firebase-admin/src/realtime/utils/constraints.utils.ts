@@ -1,7 +1,6 @@
-import type { Query } from "firebase-admin/database";
-
 import type { RealtimePermittedMethods } from "constraints";
 import { RealtimeQueryConstraints, SharedQueryConstraints } from "constraints";
+import type { Query } from "firebase-admin/database";
 
 export const applyRealtimeAdminConstraint = (ref: Query, { type, values }: RealtimePermittedMethods) => {
   switch (type) {

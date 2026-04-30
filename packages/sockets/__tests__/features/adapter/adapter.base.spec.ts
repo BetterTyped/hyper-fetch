@@ -1,4 +1,5 @@
 import { SocketAdapter } from "adapter";
+
 import { createSocket } from "../../utils/socket.utils";
 
 describe("Socket Adapter [ Base ]", () => {

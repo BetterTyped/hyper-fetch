@@ -1,5 +1,5 @@
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import {
   addQueueElement,
@@ -149,7 +149,7 @@ describe("useQueue [ Actions ]", () => {
             progress: 50,
             sizeLeft: 25,
             startTimestamp: +timestamp,
-            timeLeft: 20000,
+            timeLeft: 20_000,
             total: 50,
           });
         });
@@ -203,7 +203,7 @@ describe("useQueue [ Actions ]", () => {
             progress: 50,
             sizeLeft: 25,
             startTimestamp: +timestamp,
-            timeLeft: 20000,
+            timeLeft: 20_000,
             total: 50,
           });
         });

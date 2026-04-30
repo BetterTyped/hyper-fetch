@@ -186,7 +186,7 @@ const request = getArticles.setQueryParams({ filter: { id: 1, value: "hyper-fetc
 
 ## Parameter Precedence
 
-It's important to understand what happens when you set parameters in multiple places. Hyper Fetch do not allow you to
+It's important to understand what happens when you set parameters in multiple places. Hyper Fetch does not allow you to
 pass parameters that are already defined in the request.
 
 If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or
@@ -225,7 +225,3 @@ You've now mastered handling query parameters with Hyper-Fetch!
 - You know that parameters from the `.send()` method always override those set with `.set...()` methods.
 
 :::
-
-```
-
-```

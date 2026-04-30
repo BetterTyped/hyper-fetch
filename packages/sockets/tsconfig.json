@@ -1,12 +1,30 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./src",
     "jsx": "react-jsx",
     "outDir": "./dist",
     "paths": {
-      "@hyper-fetch/sockets": ["../src"]
+      "adapter": ["./src/adapter"],
+      "adapter/*": ["./src/adapter/*"],
+      "adapter-sse": ["./src/adapter-sse"],
+      "adapter-sse/*": ["./src/adapter-sse/*"],
+      "adapter-websockets": ["./src/adapter-websockets"],
+      "adapter-websockets/*": ["./src/adapter-websockets/*"],
+      "emitter": ["./src/emitter"],
+      "emitter/*": ["./src/emitter/*"],
+      "listener": ["./src/listener"],
+      "listener/*": ["./src/listener/*"],
+      "sdk": ["./src/sdk"],
+      "sdk/*": ["./src/sdk/*"],
+      "socket": ["./src/socket"],
+      "socket/*": ["./src/socket/*"],
+      "types": ["./src/types"],
+      "types/*": ["./src/types/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"],
+      "@hyper-fetch/sockets": ["./src"]
     }
   },
+  "include": ["src/**/*.ts", "../../global.d.ts"],
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

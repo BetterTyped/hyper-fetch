@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-import type { RequestInstance } from "request";
 import type { AdapterInstance, ResponseType } from "adapter";
 import type { Client } from "client";
+/* eslint-disable @typescript-eslint/no-shadow */
+import type { RequestInstance } from "request";
 import type { ExtendRequest, ExtractClientAdapterType, TypeWithDefaults } from "types";
 
 export type ClientErrorType = Record<string, any> | string;

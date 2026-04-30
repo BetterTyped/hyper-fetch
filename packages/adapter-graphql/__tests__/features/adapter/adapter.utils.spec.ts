@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
-
 import { GraphqlMethod, getRequestValues, GraphqlAdapter } from "adapter";
+
 import { gqlEndpointNameMapper } from "../../../src/adapter/adapter.utils";
 import { getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 

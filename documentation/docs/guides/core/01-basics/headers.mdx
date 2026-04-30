@@ -36,8 +36,9 @@ You can set headers on the `client` instance. These headers will be automaticall
 by that client. This is useful for headers that are common to all API calls, like `Accept` or `Authorization` tokens.
 
 ```ts
-// Let's create a new client from the base one, with added global headers
-const apiClient = client.new({
+// Create a client with global headers
+const apiClient = createClient({
+  url: "https://api.example.com",
   headers: {
     Accept: "application/json",
     Authorization: "Bearer your-static-token",
@@ -71,7 +72,8 @@ If a request always requires specific headers, you can define them when creating
 with global headers, with request-specific headers taking precedence in case of conflicts.
 
 ```ts
-const apiClient = client.new({
+const apiClient = createClient({
+  url: "https://api.example.com",
   headers: {
     Accept: "application/json",
   },

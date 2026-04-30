@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-export const loginMutation = gql`
+export const loginMutation: ReturnType<typeof gql> = gql`
   mutation Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
       username

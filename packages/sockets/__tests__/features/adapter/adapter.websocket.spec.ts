@@ -1,12 +1,12 @@
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
 /* eslint-disable max-classes-per-file */
 import { waitFor } from "@testing-library/dom";
-import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
+import type { Socket } from "socket";
 
 import type { WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
 import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
 import { getWebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import type { Socket } from "socket";
 
 describe("Websocket Adapter [ Base ]", () => {
   const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
@@ -38,7 +38,7 @@ describe("Websocket Adapter [ Base ]", () => {
   it("should handle missing WebSocket gracefully", async () => {
     const eventSource = window.WebSocket;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.WebSocket = undefined;
 
     const spy = vi.fn();
@@ -82,7 +82,7 @@ describe("Websocket Adapter [ Base ]", () => {
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.WebSocket = NewWebsocket;
 
     const newSocket = createSocket({
@@ -111,7 +111,7 @@ describe("Websocket Adapter [ Base ]", () => {
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
+    // @ts-expect-error-error
     window.WebSocket = NewWebsocket;
 
     const newSocket = createSocket();

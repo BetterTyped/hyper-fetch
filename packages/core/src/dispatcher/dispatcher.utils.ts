@@ -1,6 +1,6 @@
-import type { RequestInstance } from "request";
 import type { ResolvedQueueItemType } from "dispatcher";
 import { DispatcherMode } from "dispatcher";
+import type { RequestInstance } from "request";
 
 // Events
 
@@ -41,7 +41,7 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
 
 const isInDeduplicateRange = (request: RequestInstance, latestRequest: ResolvedQueueItemType) => {
   if (request.deduplicateTime) {
-    return +new Date() - latestRequest.timestamp <= request.deduplicateTime;
+    return Date.now() - latestRequest.timestamp <= request.deduplicateTime;
   }
   return true;
 };

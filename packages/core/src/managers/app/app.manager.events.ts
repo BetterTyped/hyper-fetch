@@ -1,5 +1,4 @@
 import type EventEmitter from "events";
-
 import { AppEvents } from "managers";
 
 /** Create event emitters and listeners for application-level focus, blur, online, and offline state changes. */

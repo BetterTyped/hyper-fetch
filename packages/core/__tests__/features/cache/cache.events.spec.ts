@@ -1,10 +1,10 @@
 import { sleep } from "@hyper-fetch/testing";
-
 import type { CacheValueType } from "cache";
-import { createCache } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
 import { Plugin } from "plugin";
+
+import { createCache } from "../../utils";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
@@ -21,10 +21,10 @@ describe("Cache [ Events ]", () => {
     success: true,
     extra: xhrExtra,
     retries: 0,
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     cached: true,
     isCanceled: false,
     isOffline: false,
@@ -33,7 +33,7 @@ describe("Cache [ Events ]", () => {
     scope: null,
     staleTime: request.staleTime,
     version: cache.version,
-    cacheTime: 300000,
+    cacheTime: 300_000,
   };
 
   beforeEach(() => {
@@ -151,10 +151,10 @@ describe("Cache [ Events ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         isCanceled: false,
         isOffline: false,
         willRetry: false,
@@ -172,10 +172,10 @@ describe("Cache [ Events ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         isCanceled: false,
         isOffline: false,
         willRetry: false,

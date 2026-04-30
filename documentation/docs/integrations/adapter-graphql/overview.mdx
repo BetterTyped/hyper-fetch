@@ -23,7 +23,7 @@ sidebar_label: Overview
 ## Installation
 
 To get started, you need to install the `@hyper-fetch/graphql` package. You will also need `graphql` and `graphql-tag`
-which are peer dependencies.
+as recommended companion packages.
 
 ```bash
 npm install @hyper-fetch/graphql graphql graphql-tag
@@ -38,15 +38,15 @@ Hyper Fetch GraphQL to interact with it. The setup process is simple and straigh
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
 // 1. Create a client
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 // 2. Define an interface for your data
 interface User {
-  username: {
+  user: {
     username: string;
     firstName: string;
   };
@@ -76,10 +76,10 @@ To perform a query, create a request with the `gql` tag and your GraphQL query s
 
 ```ts
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 const getUsers = client.createRequest<any[]>()({
   endpoint: gql`
@@ -101,10 +101,10 @@ Mutations work just like queries. Define your mutation string and use it in a re
 
 ```ts
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 const addUser = client.createRequest<any>()({
   endpoint: gql`

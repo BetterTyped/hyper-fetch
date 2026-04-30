@@ -112,7 +112,7 @@ export const AddUserForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // highlight-next-line
-    submit({ data: { name } });
+    submit({ payload: { name } });
   };
 
   return (

@@ -1,10 +1,10 @@
-import { CheckCircle2, CircleFadingArrowUp, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { CheckCircle2, CircleFadingArrowUp, Calendar } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
-import { Badge } from "@/components/ui/badge";
 
 export const SectionOverview = ({ item }: { item: DevtoolsRequestEvent }) => {
   const status = getStatus(item);

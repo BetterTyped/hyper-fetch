@@ -57,39 +57,22 @@ You can use the `.setPayload()` method to attach data to the emitter. This metho
 the data, so the original emitter remains unchanged.
 
 ```typescript
-const emitterWithPayload = sendChatMessage.setPayload({ message: "Hello from .setPayload()!" });
+const emitterWithPayload = sendChatMessage.setPayload({
+  message: "Hello from .setPayload()!",
+});
 
-emitterWithPayload.emit(
-  // No need to pass data here as it's already set
-  {},
-  // Acknowledgement callback
-  (error, data) => {
-    if (error) {
-      console.error("Error sending message:", error);
-      return;
-    }
-    console.log("Server acknowledgment:", data);
-  },
-);
+// No need to pass data here as it's already set
+emitterWithPayload.emit();
 ```
 
 ### 2. Passing Data to `.emit()`
 
-Alternatively, you can pass the data as the first argument to the `.emit()` method.
+Alternatively, you can pass the data as part of the options object to the `.emit()` method.
 
 ```typescript
-sendChatMessage.emit(
-  // The data to be sent
-  { message: "Hello from .emit()!" },
-  // Acknowledgement callback
-  (error, data) => {
-    if (error) {
-      console.error("Error sending message:", error);
-      return;
-    }
-    console.log("Server acknowledgment:", data);
-  },
-);
+sendChatMessage.emit({
+  payload: { message: "Hello from .emit()!" },
+});
 ```
 
 ---
@@ -110,13 +93,36 @@ const sendPrivateMessage = socketInstance.createEmitter<{ message: string }>()({
 You can then set the `userId` parameter when you emit the event:
 
 ```typescript
-const privateMessageEmitter = sendPrivateMessage.setParams({ userId: "user-123" });
+const privateMessageEmitter = sendPrivateMessage.setParams({
+  userId: "user-123",
+});
 
-privateMessageEmitter.emit({ message: "This is a private message!" });
+privateMessageEmitter.emit({
+  payload: { message: "This is a private message!" },
+});
 ```
 
 When this event is sent, `user-123` will be substituted into the topic, and the event will be sent to
 `private-message/user-123`.
+
+---
+
+## Payload Mapper
+
+You can transform the payload before it's sent using `setPayloadMapper`. This is useful for adding metadata, formatting
+data, or encrypting messages:
+
+```typescript
+const sendMessage = socketInstance
+  .createEmitter<{ message: string }>()({
+    endpoint: "chat-message",
+  })
+  .setPayloadMapper((payload) => ({
+    ...payload,
+    timestamp: Date.now(),
+    version: "v2",
+  }));
+```
 
 ---
 

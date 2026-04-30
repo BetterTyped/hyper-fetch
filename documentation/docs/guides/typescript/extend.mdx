@@ -5,8 +5,8 @@ sidebar_label: Extend Request
 ---
 
 In Hyper-Fetch, you can create highly reusable functions and components by building them to work with generic
-`RequestInstance` objects. This approach lets you enforce a **partial shape constraint** on a request — for example "any
-request whose response is an array of strings" — while letting the caller decide every other detail.
+`RequestInstance` objects. This approach lets you enforce a **partial shape constraint** on a request - for example "any
+request whose response is an array of strings" - while letting the caller decide every other detail.
 
 This guide walks you through that pattern. Before diving in, make sure you pick the right tool for the job:
 
@@ -19,7 +19,7 @@ one silently leaks `any` into your codebase.
 | ----------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | **Mindset**                   | "**Any** request that matches this partial shape."                                           | "**This** specific endpoint."                                               |
 | **Use for**                   | Generic constraints, reusable components / hooks / helpers that accept any matching request. | SDK schema leaves, single-endpoint definitions.                             |
-| **Omitted fields default to** | `any` — on purpose, so any concrete `Request` satisfies the constraint.                      | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`).     |
+| **Omitted fields default to** | `any` - on purpose, so any concrete `Request` satisfies the constraint.                      | Strict, non-`any` (`unknown`, `undefined`, `Error`, `string`, `false`).     |
 | **Why those defaults?**       | "I don't care about that field." Caller picks anything.                                      | "There is no payload / no query / no params here." Mismatches are rejected. |
 
 The rule of thumb:

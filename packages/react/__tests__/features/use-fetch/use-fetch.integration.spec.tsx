@@ -1,8 +1,8 @@
-import { useState, StrictMode } from "react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-
 import { useFetch } from "hooks/use-fetch";
+import { useState, StrictMode } from "react";
+
 import { createRequest, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();

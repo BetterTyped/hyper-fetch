@@ -1,20 +1,15 @@
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { parseResponse, getErrorMessage, Adapter, stringifyKey } from "@hyper-fetch/core";
 
+import { gqlExtra, defaultTimeout } from "./adapter.constants";
 import type {
   GraphqlAdapterType,
   GraphQlExtraType,
   GraphQlEndpointType,
   FetchGraphqlAdapterOptionsType,
-} from "adapter";
-import {
-  gqlExtra,
-  defaultTimeout,
-  getRequestValues,
-  GraphqlMethod,
-  gqlEndpointMapper,
-  gqlEndpointNameMapper,
-} from "adapter";
+} from "./adapter.types";
+import { GraphqlMethod } from "./adapter.types";
+import { getRequestValues, gqlEndpointMapper, gqlEndpointNameMapper } from "./adapter.utils";
 
 export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
@@ -109,7 +104,9 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
 
           const response = await fetch(fullUrl, init);
 
-          if (timeoutId) clearTimeout(timeoutId);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
 
           onResponseStart();
 
@@ -130,7 +127,9 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
             while (true) {
               // eslint-disable-next-line no-await-in-loop
               const { done, value } = await reader.read();
-              if (done) break;
+              if (done) {
+                break;
+              }
               chunks.push(value);
               receivedLength += value.length;
               onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
@@ -169,7 +168,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
               extra: { headers: responseHeaders, extensions },
             });
           }
-        } catch (err: any) {
+        } catch (error: any) {
           if (timeoutId) clearTimeout(timeoutId);
           unmountListener();
 
@@ -180,7 +179,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
             return;
           }
 
-          onError({ error: err, status: 0, extra: gqlExtra });
+          onError({ error: error, status: 0, extra: gqlExtra });
         }
       },
     );

@@ -1,14 +1,14 @@
 import type { QueueDataType } from "@hyper-fetch/core";
 import { useShallow } from "zustand/react/shallow";
 
-import { getQueueStatus, getQueueStatusColor } from "@/utils/queue.status.utils";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { Key } from "@/components/ui/key";
-import { Chip } from "@/components/ui/chip";
-import { useQueueStore } from "@/store/applications/queue.store";
-import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Chip } from "@/components/ui/chip";
+import { Key } from "@/components/ui/key";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { cn } from "@/lib/utils";
+import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
+import { useQueueStore } from "@/store/applications/queue.store";
+import { getQueueStatus, getQueueStatusColor } from "@/utils/queue.status.utils";
 
 export const Item = ({ queue }: { queue: QueueDataType }) => {
   const { application } = useDevtools();

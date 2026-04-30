@@ -1,16 +1,8 @@
-import { useState } from "react";
 import type { CacheValueType } from "@hyper-fetch/core";
 import { TrashIcon, FileXIcon, TriangleAlert, Database, XIcon, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { SidebarHeader } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import type { DevtoolsCacheEvent } from "@/context/applications/types";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useCacheStore } from "@/store/applications/cache.store";
 import {
   Dialog,
   DialogTitle,
@@ -37,9 +25,21 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import type { SimulatedError } from "@/store/applications/apps.store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { SidebarHeader } from "@/components/ui/sidebar";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
+import type { SimulatedError } from "@/store/applications/apps.store";
+import { useCacheStore } from "@/store/applications/cache.store";
 
 export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { application, client } = useDevtools();
@@ -54,7 +54,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { settings } = application;
 
   const invalidate = () => {
-    if (!item) return;
+    if (!item) {return;}
     client.cache.events.emitInvalidation(item.cacheKey, true);
   };
 
@@ -67,7 +67,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const simulateError = (simulatedError: SimulatedError) => {
-    if (!item) return;
+    if (!item) {return;}
     const data: CacheValueType<unknown, unknown, any> = {
       ...item.cacheData,
       data: null,
@@ -164,7 +164,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsCacheEvent }) => {
                   <Button
                     variant="default"
                     onClick={() => {
-                      if (!selectedError) return;
+                      if (!selectedError) {return;}
                       simulateError(selectedError);
                     }}
                   >

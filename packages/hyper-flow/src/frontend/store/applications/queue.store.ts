@@ -1,6 +1,6 @@
+import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
 import { produce } from "immer";
 import { create } from "zustand/react";
-import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 type QueryKey = string;
 

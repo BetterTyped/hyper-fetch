@@ -1,5 +1,5 @@
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { testSuccessState, testErrorState } from "../../shared";
 import { client, createRequest, renderUseSubmit } from "../../utils";

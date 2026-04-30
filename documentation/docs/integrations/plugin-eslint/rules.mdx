@@ -75,7 +75,7 @@ The rule checks for:
 ```tsx
 // ❌ Error: Unexpected generic type(s) found: nonExistingGenericType
 import { client } from "./client";
-const request = client.createRequest<{ nonExistingGenericType: any }>({ endpoint: "/api/users" });
+const request = client.createRequest<{ nonExistingGenericType: any }>()({ endpoint: "/api/users" });
 ```
 
 **Empty generic type:**
@@ -83,7 +83,7 @@ const request = client.createRequest<{ nonExistingGenericType: any }>({ endpoint
 ```tsx
 // ❌ Error: Generic type provided to createRequest is empty
 import { client } from "./client";
-const request = client.createRequest<{}>({ endpoint: "/api/users" });
+const request = client.createRequest<{}>()({ endpoint: "/api/users" });
 ```
 
 **Non-object-like generic type:**
@@ -91,7 +91,7 @@ const request = client.createRequest<{}>({ endpoint: "/api/users" });
 ```tsx
 // ❌ Error: Generic type provided to createRequest is not matching the expected object-like format
 import { client } from "./client";
-const request = client.createRequest<unknown>({ endpoint: "/api/users" });
+const request = client.createRequest<unknown>()({ endpoint: "/api/users" });
 ```
 
 ### Configuration

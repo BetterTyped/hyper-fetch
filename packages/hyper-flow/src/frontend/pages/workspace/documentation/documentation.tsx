@@ -1,5 +1,4 @@
 import { useNavigate } from "@tanstack/react-router";
-import { motion } from "motion/react";
 import {
   FileText,
   Zap,
@@ -14,15 +13,16 @@ import {
   RefreshCw,
   Clock,
 } from "lucide-react";
+import { motion } from "motion/react";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { BorderBeam } from "@/components/ui/border-beam";
-import { DotPattern } from "@/components/ui/dot-pattern";
-import { useWorkspaces } from "@/store/workspace/workspaces.store";
 import { EmptyState } from "@/components/no-content/empty-state";
+import { Badge } from "@/components/ui/badge";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DotPattern } from "@/components/ui/dot-pattern";
 import { cn } from "@/lib/utils";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },

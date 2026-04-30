@@ -1,7 +1,6 @@
-import { renderHook } from "@testing-library/react";
 import type { RequestInstance } from "@hyper-fetch/core";
 import { getRequestDispatcher, getProgressData } from "@hyper-fetch/core";
-
+import { renderHook } from "@testing-library/react";
 import type { UseQueueOptionsType } from "hooks/use-queue";
 import { useQueue } from "hooks/use-queue";
 
@@ -21,7 +20,7 @@ export const addQueueElement = <T extends RequestInstance>(
 ) => {
   const { stop = false, dispatcherType = "auto" } = options || {};
   const [dispatcher] = getRequestDispatcher(request, dispatcherType);
-  if (stop) dispatcher.stop(request.queryKey);
+  if (stop) {dispatcher.stop(request.queryKey);}
   return dispatcher.add(request);
 };
 
@@ -34,7 +33,7 @@ export const emitDownloadProgress = <T extends RequestInstance>(
   },
 ) => {
   const values = options || { total: 50, loaded: 25 };
-  const startTimestamp = new Date(+new Date() - 20000);
+  const startTimestamp = new Date(Date.now() - 20_000);
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
@@ -56,7 +55,7 @@ export const emitUploadProgress = <T extends RequestInstance>(
   },
 ) => {
   const values = options || { total: 50, loaded: 25 };
-  const startTimestamp = new Date(+new Date() - 20000);
+  const startTimestamp = new Date(Date.now() - 20_000);
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);

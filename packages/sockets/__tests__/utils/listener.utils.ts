@@ -1,8 +1,7 @@
 import { getUniqueRequestId } from "@hyper-fetch/core";
-
-import type { SocketInstance } from "socket";
-import type { ListenerOptionsType } from "listener";
 import type { SocketAdapterInstance } from "adapter";
+import type { ListenerOptionsType } from "listener";
+import type { SocketInstance } from "socket";
 
 export const createListener = <ResponseType = any>(
   socket: SocketInstance,

@@ -1,6 +1,6 @@
+import { Activity, AlertCircle, Clock } from "lucide-react";
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { Activity, AlertCircle, Clock } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
@@ -16,11 +16,11 @@ export const CardOverview = ({ className }: { className?: string }) => {
   const networkStats = useNetworkStatsStore(useShallow((state) => state.applications[application.name].networkStats));
 
   const mostUsedRequest = useMemo(() => {
-    return Array.from(networkEntries.values()).sort((a, b) => b.stats.totalRequests - a.stats.totalRequests)[0];
+    return [...networkEntries.values()].toSorted((a, b) => b.stats.totalRequests - a.stats.totalRequests)[0];
   }, [networkEntries]);
 
   const slowestRequest = useMemo(() => {
-    return Array.from(networkEntries.values()).sort((a, b) => b.stats.avgResponseTime - a.stats.avgResponseTime)[0];
+    return [...networkEntries.values()].toSorted((a, b) => b.stats.avgResponseTime - a.stats.avgResponseTime)[0];
   }, [networkEntries]);
 
   const errorRate = useMemo(() => {

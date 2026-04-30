@@ -1,9 +1,8 @@
+import type { NonNullableKeys } from "@hyper-fetch/core";
 import { produce } from "immer";
 import { create } from "zustand/react";
-import type { NonNullableKeys } from "@hyper-fetch/core";
 
 import { getDataSize, getEndpointAndMethod } from "./utils";
-
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
 export type NetworkStats = {
@@ -94,7 +93,7 @@ const getNetworkInitialState = (): NetworkStatsStore => ({
 });
 
 const getAvgValue = (currentAvg: number, newValue: number, enabled = true) => {
-  if (!currentAvg) return newValue;
+  if (!currentAvg) {return newValue;}
   return enabled ? parseFloat(((currentAvg + newValue) / 2).toFixed(2)) : currentAvg;
 };
 

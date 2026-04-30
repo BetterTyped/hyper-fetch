@@ -1,12 +1,11 @@
 import { Settings2, Network, AlertTriangle, Trash, Server, Globe, Cpu } from "lucide-react";
 
 import { AddErrorDialog } from "./add-error-dialog";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Section, SectionIcon, SectionHeader, SectionTitle, SectionDescription } from "@/components/ui/section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Section, SectionIcon, SectionHeader, SectionTitle, SectionDescription } from "@/components/ui/section";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import type { SimulatedError } from "@/store/applications/apps.store";
 import { useApplications } from "@/store/applications/apps.store";
@@ -28,7 +27,7 @@ export const ApplicationSettings = () => {
   };
 
   const handleRemoveError = (errorName: string) => {
-    if (errorName === "Default") return; // Don't allow removing default error
+    if (errorName === "Default") {return;} // Don't allow removing default error
 
     const newSimulatedErrors = { ...settings?.simulatedErrors };
     delete newSimulatedErrors[errorName];

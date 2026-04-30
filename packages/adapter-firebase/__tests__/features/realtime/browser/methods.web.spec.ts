@@ -1,6 +1,6 @@
+import { FirebaseAdapter } from "adapter";
 import { set, ref } from "firebase/database";
 
-import { FirebaseAdapter } from "adapter";
 import { realtimeDBBrowser } from "../../../utils";
 import { seedRealtimeDatabaseBrowser } from "../../../utils/browser/seed.browser";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";

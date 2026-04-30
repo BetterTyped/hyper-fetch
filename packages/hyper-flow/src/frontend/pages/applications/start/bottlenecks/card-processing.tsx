@@ -1,6 +1,6 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/utils/format";
 
@@ -95,9 +95,9 @@ export const CardProcessing = ({ className }: { className?: string }) => {
                       // eslint-disable-next-line no-nested-ternary
                       issue.severity === "high"
                         ? "bg-red-100 text-red-800 hover:bg-red-100"
-                        : issue.severity === "medium"
+                        : (issue.severity === "medium"
                           ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-                          : "bg-green-100 text-green-800 hover:bg-green-100"
+                          : "bg-green-100 text-green-800 hover:bg-green-100")
                     }
                   >
                     {issue.severity}

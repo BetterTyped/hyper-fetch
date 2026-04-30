@@ -1,6 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, type LucideIcon, AlertTriangle, AppWindow, Settings } from "lucide-react";
+import { ChevronRight, AlertTriangle, AppWindow, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -16,19 +17,15 @@ import {
 } from "@/components/ui/sidebar";
 import { useSettings } from "@/store/general/settings.store";
 
-const items: Array<
-  {
+const items: ({
     title: string;
     icon: LucideIcon;
     isActive?: boolean;
     onCrash?: boolean;
-    items?: Array<
-      {
+    items?: ({
         title: string;
-      } & Pick<LinkProps, "to" | "params">
-    >;
-  } & Pick<LinkProps, "to" | "params">
-> = [
+      } & Pick<LinkProps, "to" | "params">)[];
+  } & Pick<LinkProps, "to" | "params">)[] = [
   // {
   //   title: "Workspaces",
   //   link: "dashboard",

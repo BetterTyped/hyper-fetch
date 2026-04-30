@@ -29,7 +29,7 @@ export const DetailsPage: React.FC = () => {
     revalidate: false,
   });
 
-  const { refetch, timestamp } = result;
+  const { refetch, responseTimestamp } = result;
 
   return (
     <Viewer name="Details">
@@ -49,8 +49,8 @@ export const DetailsPage: React.FC = () => {
       <Typography>
         <b>Refresh in:</b>{" "}
         <Countdown
-          date={timestamp ? +timestamp + refreshTime : Date.now() + refreshTime}
-          key={String(timestamp?.getTime())}
+          date={responseTimestamp ? +responseTimestamp + refreshTime : Date.now() + refreshTime}
+          key={String(responseTimestamp?.getTime())}
         />
       </Typography>
     </Viewer>

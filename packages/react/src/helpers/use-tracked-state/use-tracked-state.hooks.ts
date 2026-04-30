@@ -11,8 +11,8 @@ import type {
 } from "@hyper-fetch/core";
 import { scopeKey } from "@hyper-fetch/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
-
 import { isEqual } from "utils";
+
 import type {
   UseTrackedStateActions,
   UseTrackedStateType,
@@ -49,7 +49,7 @@ export const useTrackedState = <T extends RequestInstance>({
   const { cache } = client;
 
   const state = useRef<UseTrackedStateType<T>>(getInitialState({ initialResponse, dispatcher, request, disabled }));
-  const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
+  const renderKeys = useRef<(keyof UseTrackedStateType<T>)[]>([]);
   const isProcessingData = useRef("");
   const previousCacheKey = useRef(cacheKey);
 
@@ -89,9 +89,9 @@ export const useTrackedState = <T extends RequestInstance>({
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: Array<keyof UseTrackedStateType>) => {
+  const renderKeyTrigger = (keys: (keyof UseTrackedStateType)[]) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) emitChange();
+    if (shouldRerender) {emitChange();}
   };
 
   const setRenderKey = (renderKey: keyof UseTrackedStateType) => {
@@ -264,37 +264,37 @@ export const useTrackedState = <T extends RequestInstance>({
     },
     setLoading: (loading) => {
       const value = loading instanceof Function ? loading(state.current.loading) : loading;
-      if (value === state.current.loading) return;
+      if (value === state.current.loading) {return;}
       state.current.loading = value;
       renderKeyTrigger(["loading"]);
     },
     setStatus: (status) => {
       const value = status instanceof Function ? status(state.current.status) : status;
-      if (value === state.current.status) return;
+      if (value === state.current.status) {return;}
       state.current.status = status instanceof Function ? status(state.current.status || null) : status;
       renderKeyTrigger(["status"]);
     },
     setSuccess: (success) => {
       const value = success instanceof Function ? success(state.current.success || false) : success;
-      if (value === state.current.success) return;
+      if (value === state.current.success) {return;}
       state.current.success = success instanceof Function ? success(state.current.success || false) : success;
       renderKeyTrigger(["success"]);
     },
     setExtra: (extra) => {
       const value = extra instanceof Function ? extra(state.current.extra) : extra;
-      if (value === state.current.extra) return;
+      if (value === state.current.extra) {return;}
       state.current.extra = extra instanceof Function ? extra(state.current.extra) : extra;
       renderKeyTrigger(["extra"]);
     },
     setRetries: (retries) => {
       const value = retries instanceof Function ? retries(state.current.retries || 0) : retries;
-      if (value === state.current.retries) return;
+      if (value === state.current.retries) {return;}
       state.current.retries = retries instanceof Function ? retries(state.current.retries || 0) : retries;
       renderKeyTrigger(["retries"]);
     },
     setResponseTimestamp: (timestamp) => {
       const value = timestamp instanceof Function ? timestamp(state.current.responseTimestamp) : timestamp;
-      if (value === state.current.responseTimestamp) return;
+      if (value === state.current.responseTimestamp) {return;}
       const getTimestamp = (prev: Date | null) => {
         return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
       };
@@ -304,7 +304,7 @@ export const useTrackedState = <T extends RequestInstance>({
     },
     setRequestTimestamp: (timestamp) => {
       const value = timestamp instanceof Function ? timestamp(state.current.requestTimestamp) : timestamp;
-      if (value === state.current.requestTimestamp) return;
+      if (value === state.current.requestTimestamp) {return;}
       const getTimestamp = (prev: Date | null) => {
         return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
       };

@@ -59,7 +59,7 @@ export const mocker = async <T extends AdapterInstance>({
       }
 
       const interval = 20;
-      const dataStart = +new Date();
+      const dataStart = Date.now();
       const intervals = Math.ceil(totalTime / interval);
       const chunkSize = Math.ceil(totalSize / intervals);
       let currentlyLoaded = 0;
@@ -69,7 +69,7 @@ export const mocker = async <T extends AdapterInstance>({
           clearInterval(timer);
         }
 
-        const currentTime = Math.min(totalTime, +new Date() - dataStart);
+        const currentTime = Math.min(totalTime, Date.now() - dataStart);
         currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
         progressFunction({
           total: totalSize,

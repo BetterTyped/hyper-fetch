@@ -1,5 +1,4 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
-
 import type { ProviderValueType } from "provider";
 import { Provider, useProvider } from "provider";
 
@@ -32,7 +31,7 @@ describe("useProvider [ Base ]", () => {
         });
       });
       it("should allow to modify received values", async () => {
-        const customConfig = { useFetchConfig: { bounceTime: 99999 } };
+        const customConfig = { useFetchConfig: { bounceTime: 99_999 } };
         render(<App />);
 
         act(() => {

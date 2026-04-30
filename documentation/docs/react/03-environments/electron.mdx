@@ -60,8 +60,8 @@ import { ipcRenderer } from "electron"; // Assuming exposed via preload script
 
 export const client = new Client({
   url: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
+  appManager: () =>
+    new AppManager({
       initiallyOnline: navigator.onLine,
       onlineEvent: (setOnline) => {
         const onlineListener = (event, isOnline: boolean) => setOnline(isOnline);
@@ -109,22 +109,18 @@ import { ipcRenderer } from "electron"; // Assuming exposed via preload script
 
 export const client = new Client({
   url: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
+  appManager: () =>
+    new AppManager({
       focusEvent: (setFocused) => {
-        const listener = () => setFocused();
-        ipcRenderer.on("window-focused", listener);
+        const focusListener = () => setFocused(true);
+        const blurListener = () => setFocused(false);
+
+        ipcRenderer.on("window-focused", focusListener);
+        ipcRenderer.on("window-blurred", blurListener);
 
         return () => {
-          ipcRenderer.removeListener("window-focused", listener);
-        };
-      },
-      blurEvent: (setBlurred) => {
-        const listener = () => setBlurred();
-        ipcRenderer.on("window-blurred", listener);
-
-        return () => {
-          ipcRenderer.removeListener("window-blurred", listener);
+          ipcRenderer.removeListener("window-focused", focusListener);
+          ipcRenderer.removeListener("window-blurred", blurListener);
         };
       },
     }),

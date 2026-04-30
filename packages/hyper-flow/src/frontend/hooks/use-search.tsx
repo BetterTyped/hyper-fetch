@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useDidUpdate } from "@better-hooks/lifecycle";
+import { useDebounce } from "@better-hooks/performance";
 import type { MatchSorterOptions } from "match-sorter";
 import { matchSorter } from "match-sorter";
-import { useDebounce } from "@better-hooks/performance";
-import { useDidUpdate } from "@better-hooks/lifecycle";
+import { useState } from "react";
 
 type JoinString<K, P, S extends string = "."> = K extends string | number
   ? P extends string | number
@@ -20,7 +20,7 @@ export type PathsOf<T, S extends string = ".", D extends number = 1> = [D] exten
       }[keyof T]
     : "";
 
-export const useSearch = <T extends Array<Record<string, any>>>({
+export const useSearch = <T extends Record<string, any>[]>({
   data,
   searchKeys,
   searchTerm,
@@ -28,7 +28,7 @@ export const useSearch = <T extends Array<Record<string, any>>>({
   ...options
 }: {
   data: T;
-  searchKeys: Array<PathsOf<T[0]>>;
+  searchKeys: PathsOf<T[0]>[];
   searchTerm: string;
   dependencies?: readonly any[];
 } & Omit<MatchSorterOptions<T[0]>, "keys">) => {

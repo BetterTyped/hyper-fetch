@@ -1,6 +1,6 @@
 import { Socket } from "@hyper-fetch/sockets";
-import { act, waitFor } from "@testing-library/react";
 import { createWebsocketMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { renderUseEmitter } from "../../utils/use-emitter.utils";
 

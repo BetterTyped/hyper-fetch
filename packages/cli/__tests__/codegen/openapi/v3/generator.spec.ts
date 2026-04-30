@@ -3,13 +3,12 @@
  * @vitest-environment node
  */
 
-import { promises as fsPromises } from "fs";
-import * as path from "path";
-import * as fs from "fs-extra";
-
 import type { Document, Operation } from "codegen/openapi";
 import { OpenapiRequestGenerator, getAvailableOperations } from "codegen/openapi";
 import { HttpMethod } from "codegen/openapi/http-methods.enum";
+import { promises as fsPromises } from "fs";
+import * as fs from "fs-extra";
+import * as path from "path";
 
 const expectedMetadata = {
   findPets: {
@@ -267,7 +266,7 @@ describe("Generator", () => {
       };
 
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
-      // @ts-ignore
+      // @ts-expect-error
       meta.errorType = null;
       meta.responseType = "ResponseType";
 
@@ -290,7 +289,7 @@ describe("Generator", () => {
 
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
       meta.errorType = "ErrorType";
-      // @ts-ignore
+      // @ts-expect-error
       meta.responseType = null;
 
       const types = OpenapiRequestGenerator.generateTypes(meta);
@@ -308,9 +307,9 @@ describe("Generator", () => {
       };
 
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
-      // @ts-ignore
+      // @ts-expect-error
       meta.errorType = null;
-      // @ts-ignore
+      // @ts-expect-error
       meta.responseType = null;
 
       const types = OpenapiRequestGenerator.generateTypes(meta);

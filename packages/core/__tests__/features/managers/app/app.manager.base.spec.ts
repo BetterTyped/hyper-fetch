@@ -1,8 +1,7 @@
-import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import { AppManager, appManagerInitialOptions, hasDocument, hasWindow } from "managers";
+import { waitFor } from "@testing-library/dom";
 import { Client } from "client";
+import { AppManager, appManagerInitialOptions, hasDocument, hasWindow } from "managers";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 

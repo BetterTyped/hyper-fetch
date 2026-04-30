@@ -3,6 +3,7 @@
  */
 
 import { FirebaseAdapter, FirebaseSocketsAdapter } from "adapter";
+
 import { deleteCollectionForBrowser, seedFirestoreDatabaseBrowser } from "../../../utils";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
 import { socketsMethodsSharedTestCases } from "../shared/methods.shared.tests";

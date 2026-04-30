@@ -1,8 +1,9 @@
 "use client";
 
-import { Folder, MoreHorizontal, Share, Trash2, type LucideIcon } from "lucide-react";
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
+import { Folder, MoreHorizontal, Share, Trash2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import {
   DropdownMenu,

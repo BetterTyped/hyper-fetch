@@ -1,6 +1,9 @@
-import type { RequestInstance } from "request";
 import type { ResponseErrorType, ResponseType, ResponseSuccessType, AdapterInstance } from "adapter";
+import type { Cache, CacheValueType } from "cache";
+import type { ClientInstance } from "client";
+import type { Dispatcher, QueueDataType, ResolvedQueueItemType } from "dispatcher";
 import type { Plugin } from "plugin";
+import type { RequestInstance } from "request";
 import type {
   ExtractAdapterType,
   ExtractErrorType,
@@ -8,9 +11,6 @@ import type {
   ExtendRequest,
   ExtractClientAdapterType,
 } from "types";
-import type { ClientInstance } from "client";
-import type { Cache, CacheValueType } from "cache";
-import type { Dispatcher, QueueDataType, ResolvedQueueItemType } from "dispatcher";
 
 export type PluginLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 export type PluginInstance = Plugin<any, any>;

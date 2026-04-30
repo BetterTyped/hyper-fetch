@@ -1,6 +1,6 @@
+import type { AdapterInstance, Cache } from "@hyper-fetch/core";
 import { produce } from "immer";
 import { create } from "zustand/react";
-import type { AdapterInstance, Cache } from "@hyper-fetch/core";
 
 import type { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
 

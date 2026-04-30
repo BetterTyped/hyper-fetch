@@ -10,15 +10,15 @@
     "dev": "vite",
     "clean": "npx rimraf dist",
     "test": "vitest run",
-    "start": "rimraf node_modules/.vite && yarn electron-forge start",
-    "package:app": "yarn electron-forge package",
-    "make:app": "yarn electron-forge make",
-    "publish:app": "yarn update:version && yarn electron-forge publish",
-    "release": "yarn semantic-release --extends ./release.config.js -t 'v${version}'",
-    "lint": "eslint . --fix",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false && tsc --noEmit -p __tests__/tsconfig.json",
-    "tests": "yarn lint-staged",
+    "start": "rimraf node_modules/.vite && pnpm electron-forge start",
+    "package:app": "pnpm electron-forge package",
+    "make:app": "pnpm electron-forge make",
+    "publish:app": "pnpm update:version && pnpm electron-forge publish",
+    "release": "pnpm semantic-release --extends ./release.config.js -t 'v${version}'",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
+    "tests": "pnpm lint-staged",
     "update:version": "node ../../scripts/update-package-version.js --prefix v"
   },
   "devDependencies": {
@@ -120,11 +120,6 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "vitest related --run --passWithNoTests"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react"
     ]
   },
   "publishConfig": {

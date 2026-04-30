@@ -31,41 +31,52 @@ export const getStatus = (
 
 export const getStatusColor = (status: Status, isLight: boolean): string => {
   switch (status) {
-    case Status.REMOVED:
+    case Status.REMOVED: {
       return isLight ? "text-zinc-600" : "text-zinc-700";
-    case Status.CANCELED:
+    }
+    case Status.CANCELED: {
       return isLight ? "text-orange-500" : "text-orange-400";
-    case Status.FAILED:
+    }
+    case Status.FAILED: {
       return isLight ? "text-red-500" : "text-red-400";
-    case Status.IN_PROGRESS:
+    }
+    case Status.IN_PROGRESS: {
       return isLight ? "text-blue-400" : "text-blue-200";
-    default:
+    }
+    default: {
       return "text-inherit";
+    }
   }
 };
 
 export const RequestStatusIcon = ({ status, className }: { status: Status; className?: string }) => {
   const getIconColor = () => {
     switch (status) {
-      case Status.REMOVED:
-        return "#9e9e9e"; // gray-400
-      case Status.CANCELED:
-        return "#f97316"; // orange-500
-      case Status.FAILED:
-        return "#ef4444"; // red-500
-      case Status.SUCCESS:
-        return "#22c55e"; // green-500
-      case Status.IN_PROGRESS:
-        return "#3b82f6"; // blue-500
-      default:
+      case Status.REMOVED: {
+        return "#9e9e9e";
+      } // gray-400
+      case Status.CANCELED: {
+        return "#f97316";
+      } // orange-500
+      case Status.FAILED: {
+        return "#ef4444";
+      } // red-500
+      case Status.SUCCESS: {
+        return "#22c55e";
+      } // green-500
+      case Status.IN_PROGRESS: {
+        return "#3b82f6";
+      } // blue-500
+      default: {
         return "currentColor";
+      }
     }
   };
 
   const baseClassName = "w-5 h-5";
 
   switch (status) {
-    case Status.REMOVED:
+    case Status.REMOVED: {
       return (
         <svg
           version="1.1"
@@ -100,7 +111,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           </g>
         </svg>
       );
-    case Status.CANCELED:
+    }
+    case Status.CANCELED: {
       return (
         <svg
           version="1.1"
@@ -122,7 +134,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           />
         </svg>
       );
-    case Status.FAILED:
+    }
+    case Status.FAILED: {
       return (
         <svg
           version="1.1"
@@ -141,7 +154,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           </g>
         </svg>
       );
-    case Status.SUCCESS:
+    }
+    case Status.SUCCESS: {
       return (
         <svg
           viewBox="6 6 50 50"
@@ -161,7 +175,8 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           </g>
         </svg>
       );
-    case Status.IN_PROGRESS:
+    }
+    case Status.IN_PROGRESS: {
       return (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +194,9 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
           />
         </svg>
       );
-    default:
+    }
+    default: {
       return null;
+    }
   }
 };

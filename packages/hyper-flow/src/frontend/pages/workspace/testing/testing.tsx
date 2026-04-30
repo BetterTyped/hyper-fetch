@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 
+import { EmptyState } from "@/components/no-content/empty-state";
 import { Button } from "@/components/ui/button";
 import { useWorkspaces } from "@/store/workspace/workspaces.store";
-import { EmptyState } from "@/components/no-content/empty-state";
 
 export const WorkspaceTesting = () => {
   const workspaceId = "1";

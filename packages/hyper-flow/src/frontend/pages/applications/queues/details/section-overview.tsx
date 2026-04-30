@@ -2,10 +2,10 @@ import type { QueueDataType } from "@hyper-fetch/core";
 import { Ban, CircleCheck, FileWarning, Loader, ScanEye } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 
 export const SectionOverview = ({ item }: { item: QueueDataType }) => {
   const { application } = useDevtools();

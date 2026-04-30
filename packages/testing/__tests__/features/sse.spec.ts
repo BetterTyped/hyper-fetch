@@ -1,6 +1,6 @@
-import { waitFor } from "@testing-library/dom";
 import type { ServerSentEventsAdapterType, SocketOptionsType } from "@hyper-fetch/sockets";
 import { ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
+import { waitFor } from "@testing-library/dom";
 
 import { createSseMockingServer } from "../../src";
 

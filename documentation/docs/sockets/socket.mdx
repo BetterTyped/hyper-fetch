@@ -4,12 +4,12 @@ title: Socket
 sidebar_label: Socket
 ---
 
-[Read the API Reference »](/api/sockets/Classes/Socket.mdx)
+[Read the API Reference »](/docs/api/sockets/Classes/Socket)
 
 **`Socket`** is the central class for configuring your server connection in the Hyper Fetch sockets module. It
-initializes all core subsystems—such as `events` and `interceptors`—and provides a unified way to create and
-manage listeners and emitters based on its configuration. By keeping all data and logic encapsulated within a single
-socket instance, you ensure that each socket remains isolated and independent from others.
+initializes all core subsystems and provides a unified way to create and manage listeners and emitters based on its
+configuration. By keeping all data and logic encapsulated within a single socket instance, you ensure that each socket
+remains isolated and independent from others.
 
 ---
 
@@ -57,9 +57,10 @@ const socket = createSocketClient({
 
 ---
 
-### Interceptors
+### Intercepting Events
 
-There are a few methods for intercepting events on the socket:
+The Socket class provides callback methods for intercepting outgoing and incoming events. These are not a separate
+subsystem - they are chainable methods on the socket instance itself:
 
 - `onSend` — triggered before sending an event. Receives the emitter instance and must return it (optionally modified).
 
@@ -85,7 +86,7 @@ new Socket({ url: "ws://localhost:3000" }).onMessage(({ event }) => {
 });
 ```
 
-You can modify received data or outgoing payloads with these interceptors before they are emitted to other sub-systems.
+You can modify received data or outgoing payloads with these callbacks before they are emitted to other sub-systems.
 
 ---
 

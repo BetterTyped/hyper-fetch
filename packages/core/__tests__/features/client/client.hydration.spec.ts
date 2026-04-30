@@ -1,5 +1,5 @@
-import { Client } from "client";
 import type { CacheValueType } from "cache";
+import { Client } from "client";
 import { xhrExtra } from "http-adapter";
 import { scopeKey } from "request";
 
@@ -69,10 +69,10 @@ describe("Client [ Hydration ]", () => {
         error: null,
         success: true,
         extra: {},
-        responseTimestamp: +new Date(),
-        requestTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        responseTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         retries: 0,
         isCanceled: false,
         isOffline: false,

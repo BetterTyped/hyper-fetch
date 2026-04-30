@@ -1,4 +1,3 @@
-import { setupWorker } from "msw";
 import { setupServer } from "msw/node";
 
 import { handlers } from "./mocks";
@@ -12,5 +11,7 @@ export * from "./users/users.api";
 if (typeof window === "undefined") {
   setupServer(...handlers).listen();
 } else {
-  setupWorker(...handlers).start();
+  void import("msw/browser").then(({ setupWorker }) => {
+    void setupWorker(...handlers).start();
+  });
 }

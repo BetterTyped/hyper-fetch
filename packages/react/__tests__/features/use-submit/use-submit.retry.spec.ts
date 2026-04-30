@@ -1,5 +1,5 @@
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
@@ -78,7 +78,7 @@ describe("useSubmit [ Retry ]", () => {
 
       act(() => {
         response.result.current.onSubmitRequestStart(() => {
-          time.push(+new Date());
+          time.push(Date.now());
         });
         response.result.current.submit();
       });

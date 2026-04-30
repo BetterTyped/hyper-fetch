@@ -1,3 +1,6 @@
+import type { AdapterInstance, RequestResponseType } from "adapter";
+import { getErrorMessage } from "adapter";
+import type { ClientInstance } from "client";
 import type {
   QueueDataType,
   DispatcherOptionsType,
@@ -7,13 +10,10 @@ import type {
   RunningRequestValueType,
 } from "dispatcher";
 import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } from "dispatcher";
-import type { ClientInstance } from "client";
-import { EventEmitter } from "utils";
 import type { ResponseDetailsType, LoggerMethods } from "managers";
 import type { RequestInstance, RequestJSON } from "request";
 import { Request, scopeKey } from "request";
-import type { AdapterInstance, RequestResponseType } from "adapter";
-import { getErrorMessage } from "adapter";
+import { EventEmitter } from "utils";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
@@ -112,7 +112,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Return all queue keys currently tracked by the dispatcher storage
    */
   getQueuesKeys = () => {
-    return Array.from(this.storage.keys());
+    return [...this.storage.keys()];
   };
 
   /**
@@ -217,7 +217,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const isStopped = queue && queue.stopped;
     const isOffline = !this.client.appManager.isOnline;
     const isConcurrent = !queueItem?.request.queued;
-    const isInactive = !runningRequests.length;
+    const isInactive = runningRequests.length === 0;
     const isEmpty = !queueItem;
 
     // When there are no requests to flush, when its stopped, there is running request
@@ -309,7 +309,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Get currently running requests from all queryKeys
    */
   getAllRunningRequests = () => {
-    return Array.from(this.runningRequests.values()).flat();
+    return [...this.runningRequests.values()].flat();
   };
 
   /**
@@ -342,7 +342,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Get the value based on the currently running requests
    */
   hasRunningRequests = (queryKey: string) => {
-    return !!this.getRunningRequests(queryKey).length;
+    return this.getRunningRequests(queryKey).length > 0;
   };
 
   /**
@@ -350,7 +350,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    */
   hasRunningRequest = (queryKey: string, requestId: string) => {
     const runningRequests = this.getRunningRequests(queryKey);
-    return !!runningRequests.find((req) => req.requestId === requestId);
+    return !!runningRequests.some((req) => req.requestId === requestId);
   };
 
   /**
@@ -420,7 +420,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const requestId = this.client.unstable_requestIdMapper(request);
     return {
       requestId,
-      timestamp: +new Date(),
+      timestamp: Date.now(),
       request,
       retries: 0,
       stopped: false,
@@ -491,7 +491,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const queue = this.getQueue(queryKey);
     const queueItem = queue.requests.find((req) => req.requestId === requestId);
 
-    if (!queueItem) return;
+    if (!queueItem) {return;}
 
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queryKey, queue);
@@ -512,7 +512,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       resolved: queueItem.resolved,
     });
 
-    if (!queue.requests.length) {
+    if (queue.requests.length === 0) {
       this.client.triggerPlugins("onDispatcherQueueDrained", { queue, dispatcher: this });
       this.events.emitDrained(queue);
     }

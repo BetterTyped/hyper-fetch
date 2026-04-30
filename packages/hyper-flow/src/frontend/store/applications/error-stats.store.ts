@@ -1,10 +1,9 @@
-import { produce } from "immer";
-import { create } from "zustand/react";
 import type { NonNullableKeys } from "@hyper-fetch/core";
 import { stringifyValue } from "@hyper-fetch/core";
+import { produce } from "immer";
+import { create } from "zustand/react";
 
 import { getEndpointAndMethod } from "./utils";
-
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
 export type ErrorStats = {

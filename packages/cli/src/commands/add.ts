@@ -1,12 +1,11 @@
-import { Command } from "commander";
 import { checkbox, confirm } from "@inquirer/prompts";
-import { z } from "zod";
-
+import { Command } from "commander";
+import { preFlightAdd } from "preflights/preflight-add";
+import { handleError } from "utils/handle-error";
 // import { Registry } from "registry/schema";
 import { logger } from "utils/logger";
-import { handleError } from "utils/handle-error";
-import { preFlightAdd } from "preflights/preflight-add";
 import { showHelp } from "utils/show-help";
+import { z } from "zod";
 
 // const registry: Registry[] = getRegistry();
 

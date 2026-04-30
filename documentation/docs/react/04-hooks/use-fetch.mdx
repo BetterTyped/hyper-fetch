@@ -6,7 +6,7 @@ sidebar_label: useFetch
 
 # useFetch
 
-[Read the API Reference »](/api/react/Hooks/useFetch.mdx)
+[Read the API Reference »](/docs/api/react/Hooks/useFetch)
 
 The `useFetch` hook is your main tool for **fetching and reading data** from a server in React components. It integrates
 seamlessly with Hyper Fetch's core systems, such as the [`Dispatcher`](/docs/core/dispatcher) and
@@ -210,8 +210,12 @@ const UsersListPage = () => {
 ## Suspense Mode
 
 `useFetch` supports React's [Suspense](https://react.dev/reference/react/Suspense) for data loading out of the box.
-When enabled, the hook throws a Promise while the request is loading, which is caught by the nearest `<Suspense>` boundary.
-Once the request resolves, the component re-renders with data immediately available — no `loading` state needed.
+When `suspense: true` is set, the hook throws a Promise while the request is in flight. React catches this Promise at
+the nearest `<Suspense>` boundary and renders its `fallback` until the data arrives. Once the request resolves, the
+component re-renders with `data` immediately available - no `loading` state needed.
+
+This means your component can be written as if data is always present, and the loading UI is handled entirely by the
+`<Suspense>` boundary.
 
 ```tsx title="Using Suspense"
 import { Suspense } from "react";
@@ -255,10 +259,11 @@ state and shows a fresh loading cycle. This prevents stale data from one resourc
 
 You can control this behavior with the `keepPreviousData` option:
 
-- `"auto"` (default) — Clears state when URL params change (different resource), preserves state when only query
-  params change (pagination/filtering).
-- `"preserve"` — Always keeps previous data visible until new data arrives. Ideal for pagination and infinite scroll.
-- `"clean"` — Always resets state to initial values when cache key changes.
+| Mode | Behavior | Best for |
+|------|----------|----------|
+| `"auto"` (default) | Clears state when URL params change (different resource), preserves state when only query params change (pagination/filtering). | General use |
+| `"preserve"` | Always keeps previous data visible until new data arrives, even when switching between different resources. | Pagination, infinite scroll, tab switching |
+| `"clean"` | Always resets state to initial values when the cache key changes. Shows a clean loading state for every new request. | Distinct resources where stale data would be confusing |
 
 ```tsx title="Pagination with keepPreviousData"
 import { useFetch } from "@hyper-fetch/react";
@@ -280,6 +285,31 @@ function UsersList() {
   );
 }
 ```
+
+---
+
+## Dependency Tracking
+
+By default, `useFetch` uses **field-level dependency tracking** (`dependencyTracking: true`). The component only
+re-renders when a field it actually accesses changes. For example, if your component only destructures `data`, changes
+to `error` or `loading` will not cause a re-render.
+
+This optimization happens automatically through a proxy - just destructure the fields you need and the hook handles
+the rest.
+
+```tsx title="Only re-renders when data changes"
+function UsersList() {
+  // highlight-next-line
+  const { data } = useFetch(getUsers);
+
+  // Changes to `error`, `loading`, `status`, etc. won't trigger a re-render
+  // because this component never reads them.
+  return <Table data={data} />;
+}
+```
+
+When `dependencyTracking` is set to `false`, the component re-renders on every state change, regardless of which fields
+are used. This can be useful for debugging or when you need to ensure the component always has the latest state.
 
 ---
 
@@ -326,6 +356,35 @@ const { ... } = useFetch(request, {
   // ... and more
 });
 ```
+
+### Defaults
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `suspense` | `false` | Enable React Suspense integration |
+| `dependencies` | `[]` | Array of values that trigger refetch on change |
+| `disabled` | `false` | Disable automatic fetching |
+| `dependencyTracking` | `true` | Only re-render when accessed fields change |
+| `revalidate` | `true` | Refetch on mount if data is stale |
+| `initialResponse` | `null` | Initial data before first fetch |
+| `keepPreviousData` | `"auto"` | Keep previous data strategy: `"auto"`, `"preserve"`, `"clean"` |
+| `refresh` | `false` | Enable periodic refresh |
+| `refreshTime` | `3600000` (1 hour) | Interval between refreshes in ms |
+| `refetchBlurred` | `true` | Allow refresh when the tab is blurred |
+| `refetchOnBlur` | `false` | Refetch when the window loses focus |
+| `refetchOnFocus` | `false` | Refetch when the window gains focus |
+| `refetchOnReconnect` | `false` | Refetch when the network connection is restored |
+| `bounce` | `false` | Enable debounce/throttle for the request |
+| `bounceType` | `"debounce"` | Bounce strategy: `"debounce"` or `"throttle"` |
+| `bounceTime` | `400` | Bounce delay in ms |
+| `deepCompare` | `true` | Deep compare options for memoization |
+
+:::info Refetch restarts the refresh timer
+
+Calling `refetch()` not only triggers an immediate fetch but also **restarts the refresh timer** if `refresh` is
+enabled. This prevents a scheduled refresh from firing right after a manual refetch.
+
+:::
 
 Below is a full list of available options.
 

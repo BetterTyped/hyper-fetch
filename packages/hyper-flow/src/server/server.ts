@@ -1,10 +1,10 @@
-import type { Server } from "http";
-import { createServer } from "http";
-import type { WebSocket } from "ws";
-import { WebSocketServer } from "ws";
-import url from "url";
 import type { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
+import type { Server } from "http";
+import { createServer } from "http";
+import url from "url";
+import type { WebSocket } from "ws";
+import { WebSocketServer } from "ws";
 
 import { ConnectionHandler } from "./handlers/connection-handler";
 
@@ -116,7 +116,7 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       });
     });
 
-  const startingServer: Promise<{ isReady: boolean; message?: string }> = new Promise((resolve) => {
+  const startingServer = new Promise<{ isReady: boolean; message?: string }>((resolve) => {
     server.on(`listening`, () => {
       resolve({ isReady: true });
     });

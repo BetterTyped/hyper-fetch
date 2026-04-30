@@ -1,23 +1,16 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["dom", "dom.iterable", "ESNext"],
-    "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "types": ["vitest/globals", "jest-extended", "@types/node"],
-    "baseUrl": "../src",
     "paths": {
+      "adapter": ["../src/adapter"],
+      "adapter/*": ["../src/adapter/*"],
       "@hyper-fetch/graphql": ["../src"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "../../../global.d.ts", "../../../vitest.d.ts"],
+  "exclude": ["node_modules"]
 }

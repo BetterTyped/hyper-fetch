@@ -1,6 +1,6 @@
-import { CardResponses } from "./card-responses";
 import { CardEndpoints } from "./card-endpoints";
 import { CardOverview } from "./card-overview";
+import { CardResponses } from "./card-responses";
 
 export const PerformanceDashboard = () => {
   return (

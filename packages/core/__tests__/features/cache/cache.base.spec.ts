@@ -1,11 +1,11 @@
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
-
 import type { ResponseSuccessType } from "adapter";
-import type { ResponseDetailsType } from "managers";
-import { createCache } from "../../utils";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
 import { xhrExtra } from "http-adapter";
+import type { ResponseDetailsType } from "managers";
+
+import { createCache } from "../../utils";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -21,10 +21,10 @@ describe("Cache [ Base ]", () => {
   };
   const details: ResponseDetailsType = {
     retries: 0,
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     isCanceled: false,
     isOffline: false,
     willRetry: false,

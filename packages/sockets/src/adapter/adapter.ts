@@ -6,13 +6,13 @@ import type {
   QueryStringifyOptionsType,
 } from "@hyper-fetch/core";
 import { defaultMapper } from "@hyper-fetch/core";
-
-import type { Socket, SocketInstance } from "socket";
-import type { Connector, RemoveListenerCallbackType } from "./adapter.types";
-import { getAdapterBindings } from "./adapter.bindings";
-import type { ListenerOfAdapter, ListenerCallbackType } from "listener";
 import type { EmitterInstance } from "emitter";
+import type { ListenerOfAdapter, ListenerCallbackType } from "listener";
+import type { Socket, SocketInstance } from "socket";
 import type { ExtractAdapterExtraType } from "types";
+
+import { getAdapterBindings } from "./adapter.bindings";
+import type { Connector, RemoveListenerCallbackType } from "./adapter.types";
 
 export class SocketAdapter<
   Extra = undefined,

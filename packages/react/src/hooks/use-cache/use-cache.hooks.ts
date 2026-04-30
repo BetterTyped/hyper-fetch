@@ -1,12 +1,11 @@
 import { useDidUpdate } from "@better-hooks/lifecycle";
 import type { RequestInstance } from "@hyper-fetch/core";
 import { getRequestDispatcher } from "@hyper-fetch/core";
-import { useRef } from "react";
-
+import { useRequestEvents, useTrackedState } from "helpers";
 import type { UseCacheOptionsType, UseCacheReturnType } from "hooks/use-cache";
 import { useCacheDefaultOptions } from "hooks/use-cache";
-import { useRequestEvents, useTrackedState } from "helpers";
 import { useProvider } from "provider";
+import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
 /** Subscribe to cache updates for a given request without triggering network activity. */
@@ -72,7 +71,7 @@ export const useCache = <T extends RequestInstance>(
     true,
   );
 
-  const invalidate = (cacheKeys?: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+  const invalidate = (cacheKeys?: string | RegExp | RequestInstance | (string | RegExp | RequestInstance)[]) => {
     cache.invalidate(cacheKeys ?? cacheKey);
   };
 

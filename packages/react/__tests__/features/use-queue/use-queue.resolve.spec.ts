@@ -1,6 +1,6 @@
-import { act, waitFor } from "@testing-library/react";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { addQueueElement, client, createRequest, renderUseQueue } from "../../utils";
 
@@ -66,7 +66,7 @@ describe("useQueue [ Resolve Queue Items ]", () => {
                 requestId: "json-request-1",
                 request: json as any,
                 retries: 0,
-                timestamp: +new Date(),
+                timestamp: Date.now(),
                 stopped: false,
                 resolved: false,
               },
@@ -102,7 +102,7 @@ describe("useQueue [ Resolve Queue Items ]", () => {
                 requestId: "json-status-1",
                 request: json as any,
                 retries: 0,
-                timestamp: +new Date(),
+                timestamp: Date.now(),
                 stopped: false,
                 resolved: false,
               },
@@ -140,7 +140,7 @@ describe("useQueue [ Resolve Queue Items ]", () => {
                 requestId: "class-instance-1",
                 request,
                 retries: 0,
-                timestamp: +new Date(),
+                timestamp: Date.now(),
                 stopped: false,
                 resolved: false,
               },
@@ -148,7 +148,7 @@ describe("useQueue [ Resolve Queue Items ]", () => {
                 requestId: "json-item-1",
                 request: json as any,
                 retries: 0,
-                timestamp: +new Date(),
+                timestamp: Date.now(),
                 stopped: false,
                 resolved: false,
               },

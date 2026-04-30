@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-This adapter replaces HyperFetch's built-in HTTP engine with Axios. You get all of Axios's features — interceptors, automatic JSON transforms, request/response transforms — while keeping HyperFetch's typed request system, caching, queuing, and React hooks.
+This adapter replaces HyperFetch's built-in HTTP engine with Axios. You get all of Axios's features — interceptors,
+automatic JSON transforms, request/response transforms — while keeping HyperFetch's typed request system, caching,
+queuing, and React hooks.
 
 ## 🎯 Key Capabilities
 
@@ -82,9 +84,7 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-const client = createClient({ url: "https://api.example.com" }).setAdapter(
-  AxiosAdapter({ instance: axiosInstance }),
-);
+const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter({ instance: axiosInstance }));
 ```
 
 ### Create typed requests (same as core)

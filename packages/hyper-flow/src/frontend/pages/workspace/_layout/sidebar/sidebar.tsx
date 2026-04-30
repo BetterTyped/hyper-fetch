@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { Atom, Book, Boxes, Earth, Home, Inbox, Settings2 } from "lucide-react";
+import * as React from "react";
 
 import {
   Sidebar,

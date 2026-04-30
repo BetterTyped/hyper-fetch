@@ -2,8 +2,8 @@ import { Outlet } from "@tanstack/react-router";
 import { Cloud, Users } from "lucide-react";
 
 import { ApplicationSidebar } from "./sidebar/sidebar";
-
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWorkspaces } from "@/store/workspace/workspaces.store";

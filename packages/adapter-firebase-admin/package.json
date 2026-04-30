@@ -12,14 +12,14 @@
   "scripts": {
     "test": "firebase emulators:exec 'npx vitest run'",
     "coverage": "firebase emulators:exec 'npx vitest run --coverage'",
-    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "start": "pnpm build && npx run-when-changed --watch 'src/**/*.ts' --exec 'pnpm build'",
     "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "vite build",
-    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false && tsc --noEmit -p __tests__/tsconfig.json",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
     "tests": "firebase emulators:exec 'npx vitest run'",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-admin-v${version}'"
+    "release": "pnpm semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-admin-v${version}'"
   },
   "publishConfig": {
     "access": "public",

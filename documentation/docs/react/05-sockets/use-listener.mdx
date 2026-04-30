@@ -52,7 +52,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const { data, connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
 
-  onEvent(({ data: message, error }) => {
+  onEvent(({ data: message }) => {
     if (message) {
       setMessages((prev) => [...prev, message]);
     }

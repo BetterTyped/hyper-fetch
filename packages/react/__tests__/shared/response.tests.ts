@@ -1,9 +1,9 @@
+import type { ResponseType, RequestInstance, AdapterInstance } from "@hyper-fetch/core";
 import type { RenderHookResult } from "@testing-library/react";
 import { waitFor } from "@testing-library/react";
-import type { ResponseType, RequestInstance, AdapterInstance } from "@hyper-fetch/core";
-
 import type { UseFetchReturnType } from "hooks/use-fetch";
 import type { UseSubmitReturnType } from "hooks/use-submit";
+
 import { getCurrentState } from "../utils";
 
 export const testInitialState = <H extends RenderHookResult<any, any>>(render: H, expectedLoading = true) => {

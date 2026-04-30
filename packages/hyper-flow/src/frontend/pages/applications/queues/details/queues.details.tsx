@@ -1,13 +1,12 @@
 import { useShallow } from "zustand/react/shallow";
 
-import { SectionHead } from "./section-head";
-import { SectionToolbar } from "./section-toolbar";
-import { SectionOverview } from "./section-overview";
 import { SectionData } from "./section-data";
-
-import { useQueueStore } from "@/store/applications/queue.store";
+import { SectionHead } from "./section-head";
+import { SectionOverview } from "./section-overview";
+import { SectionToolbar } from "./section-toolbar";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useQueueStore } from "@/store/applications/queue.store";
 
 export const QueuesDetails = () => {
   const { application } = useDevtools();
@@ -15,7 +14,7 @@ export const QueuesDetails = () => {
 
   const item = detailsId ? queues.get(detailsId) : null;
 
-  if (!item) return null;
+  if (!item) {return null;}
 
   return (
     <ResizableSidebar

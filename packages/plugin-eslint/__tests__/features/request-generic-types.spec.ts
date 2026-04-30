@@ -1,5 +1,4 @@
 import { RuleTester } from "@typescript-eslint/rule-tester";
-
 import { requestGenericTypes } from "request-generic-types";
 
 const ruleTester = new RuleTester({

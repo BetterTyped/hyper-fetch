@@ -1,5 +1,5 @@
-import { setupServer } from "msw/node";
 import type { ExtractResponseType, RequestInstance, RequestResponseType } from "@hyper-fetch/core";
+import { setupServer } from "msw/node";
 
 import type { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
 import { createMock, getMockSetup } from "./http.mock";

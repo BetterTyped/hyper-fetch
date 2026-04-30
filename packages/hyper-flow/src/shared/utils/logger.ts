@@ -14,7 +14,7 @@ interface LogOptions {
 }
 
 class Logger {
-  private static instances: Map<LogLocation, Logger> = new Map();
+  private static instances = new Map<LogLocation, Logger>();
   private isDebugEnabled: boolean;
   private location: LogLocation;
   private isProduction: boolean;
@@ -98,7 +98,7 @@ class Logger {
   }
 
   public info(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("info")) return;
+    if (!this.shouldLog("info")) {return;}
     const formattedMessage = this.formatMessage(message, { ...options, level: "info" });
     console.log(this.getColor("info")(formattedMessage));
     if (options?.details) {
@@ -107,7 +107,7 @@ class Logger {
   }
 
   public success(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("success")) return;
+    if (!this.shouldLog("success")) {return;}
     const formattedMessage = this.formatMessage(message, { ...options, level: "success" });
     console.log(this.getColor("success")(formattedMessage));
     if (options?.details) {
@@ -116,7 +116,7 @@ class Logger {
   }
 
   public warning(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("warning")) return;
+    if (!this.shouldLog("warning")) {return;}
     const formattedMessage = this.formatMessage(message, { ...options, level: "warning" });
     console.log(this.getColor("warning")(formattedMessage));
     if (options?.details) {
@@ -125,7 +125,7 @@ class Logger {
   }
 
   public error(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("error")) return;
+    if (!this.shouldLog("error")) {return;}
     const formattedMessage = this.formatMessage(message, { ...options, level: "error" });
     console.error(this.getColor("error")(formattedMessage));
     if (options?.error) {
@@ -137,7 +137,7 @@ class Logger {
   }
 
   public debug(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("debug") || !this.isDebugEnabled) return;
+    if (!this.shouldLog("debug") || !this.isDebugEnabled) {return;}
     const formattedMessage = this.formatMessage(message, { ...options, level: "debug" });
     console.log(this.getColor("debug")(formattedMessage));
   }

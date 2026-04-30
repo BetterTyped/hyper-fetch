@@ -1,11 +1,13 @@
-import { toast } from "sonner";
-import { useState } from "react";
-import { AlertCircle, CheckCircle2, Cpu, Info, Wrench } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, CheckCircle2, Cpu, Info, Wrench } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -16,12 +18,10 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardTitle, CardDescription, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { useSettings } from "@/store/general/settings.store";
 
 const portSchema = z.object({
-  port: z.number().int().min(1, "Port must be at least 1").max(65535, "Port cannot exceed 65535"),
+  port: z.number().int().min(1, "Port must be at least 1").max(65_535, "Port cannot exceed 65535"),
 });
 
 type PortConfigurationFormData = z.infer<typeof portSchema>;
@@ -41,7 +41,9 @@ export const PortConfiguration = () => {
   });
 
   const handleSubmit = (data: PortConfigurationFormData) => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
     setLoading(true);
     window.electron.server.restart({ port: data.port }).then(({ success, message }) => {
       if (success) {

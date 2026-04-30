@@ -1,13 +1,10 @@
 import { useParams } from "@tanstack/react-router";
 import { FolderOpen, BookText, Gauge, Database } from "lucide-react";
 
+import { CacheDashboard } from "./cache/cache";
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
-import { CacheDashboard } from "./cache/cache";
-
-import { useApplications } from "@/store/applications/apps.store";
 import { EmptyState } from "@/components/no-content/empty-state";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Section,
   SectionActions,
@@ -16,6 +13,8 @@ import {
   SectionIcon,
   SectionTitle,
 } from "@/components/ui/section";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useApplications } from "@/store/applications/apps.store";
 // import { Environments } from "./environments/environments";
 
 export const ApplicationStart = () => {

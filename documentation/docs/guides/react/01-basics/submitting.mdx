@@ -30,7 +30,7 @@ new to-do, toggling its completion status, and deleting it.
 
 ```tsx
 function TodoApp() {
-  const { data: todos, loading, revalidate } = useFetch(getTodos);
+  const { data: todos, loading, refetch } = useFetch(getTodos);
   const [newTodo, setNewTodo] = React.useState("");
 
   // 1. Setup submit hooks for each action
@@ -45,24 +45,24 @@ function TodoApp() {
     if (!newTodo.trim()) return;
 
     // The submit function returns a promise
-    await addTodo({ data: { title: newTodo, completed: false } });
+    await addTodo({ payload: { title: newTodo, completed: false } });
 
     // After success, clear the input and refetch the list
     setNewTodo("");
-    revalidate();
+    refetch();
   };
 
   const handleToggleTodo = async (todo) => {
     await updateTodo({
       params: { todoId: todo.id },
-      data: { completed: !todo.completed },
+      payload: { completed: !todo.completed },
     });
-    revalidate();
+    refetch();
   };
 
   const handleDeleteTodo = async (todoId) => {
     await deleteTodo({ params: { todoId } });
-    revalidate();
+    refetch();
   };
 
   if (loading) return <p className="p-4">Loading to-do list...</p>;
@@ -113,16 +113,53 @@ function TodoApp() {
 1.  **Setup**: We set up separate `useSubmit` hooks for each mutation: `createTodo`, `updateTodoRequest`, and
     `deleteTodoRequest`. This keeps the logic for each action clean and separate.
 2.  **Creating**: The `handleAddTodo` function calls `addTodo` with the new to-do's data. Because `submit` is a promise,
-    we can `await` it and then run code after it completes, such as clearing the input field and calling `revalidate()`
+    we can `await` it and then run code after it completes, such as clearing the input field and calling `refetch()`
     to refresh the to-do list.
 3.  **Updating**: `handleToggleTodo` calls `updateTodo` with the `todoId` in `params` and the new `completed` status in
-    `data`. We then revalidate to show the change.
-4.  **Deleting**: `handleDeleteTodo` calls `deleteTodo` with the appropriate `todoId` and revalidates.
+    `payload`. We then refetch to show the change.
+4.  **Deleting**: `handleDeleteTodo` calls `deleteTodo` with the appropriate `todoId` and refetches.
 5.  **Loading State**: The `submitting` boolean (which we aliased to `isAdding` for the create action) is used to
     disable the "Add" button while the request is in flight, preventing duplicate submissions.
 
 This example demonstrates how `useSubmit` can be the backbone for all the interactive, data-changing parts of your
 application.
+
+---
+
+## Lifecycle Callbacks
+
+The `useSubmit` hook returns registrar functions for monitoring the submission lifecycle. These are called outside of the
+JSX, similar to React's effect hooks:
+
+```tsx
+function ContactForm() {
+  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(sendMessage);
+
+  // highlight-start
+  onSubmitSuccess(({ response }) => {
+    toast.success("Message sent successfully!");
+  });
+
+  onSubmitError(({ response }) => {
+    toast.error(`Failed: ${response.error?.message}`);
+  });
+
+  onSubmitFinished(({ response }) => {
+    console.log("Submission complete", response.success);
+  });
+  // highlight-end
+
+  return (
+    <button onClick={() => submit({ payload: { text: "Hello" } })} disabled={submitting}>
+      {submitting ? "Sending..." : "Send Message"}
+    </button>
+  );
+}
+```
+
+Available lifecycle registrars: `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, `onSubmitRequestStart`,
+`onSubmitResponseStart`, `onSubmitAbort`, `onSubmitOfflineError`, `onSubmitDownloadProgress`,
+`onSubmitUploadProgress`.
 
 ---
 
@@ -133,6 +170,6 @@ You are now a pro at submitting data with `useSubmit`!
 - You can perform **create, update, and delete** operations with ease.
 - You know how to use the **`submit` promise** to chain actions after a request.
 - You can manage **loading states** to create a responsive and intuitive UI.
-- You can **revalidate** data from `useFetch` to keep your UI in sync with server changes.
+- You can **refetch** data from `useFetch` to keep your UI in sync with server changes.
 
 :::

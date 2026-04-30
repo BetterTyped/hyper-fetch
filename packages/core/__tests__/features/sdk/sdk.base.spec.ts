@@ -1,5 +1,4 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
 import type { Client } from "client";
 import { createClient } from "client";
 import type { HttpAdapterType } from "http-adapter";

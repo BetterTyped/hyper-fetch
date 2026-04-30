@@ -1,5 +1,4 @@
 import type { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
-
 import type { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import type { isEqual } from "utils";
 

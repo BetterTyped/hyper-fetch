@@ -1,7 +1,6 @@
-import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/dom";
 
-import { createAdapter, createDispatcher } from "../../utils";
 import type {
   HttpAdapterType,
   RequestInstance,
@@ -10,6 +9,7 @@ import type {
   ResponseType,
 } from "../../../src";
 import { Client, getErrorMessage, mocker } from "../../../src";
+import { createAdapter, createDispatcher } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -361,9 +361,9 @@ describe("Mocker [ Base ]", () => {
       }),
       { requestTime: 100, responseTime: 100 },
     );
-    const startDate = +new Date();
+    const startDate = Date.now();
     const response = await mockedRequest.send();
-    const endDate = +new Date();
+    const endDate = Date.now();
     expect(endDate - startDate).toBeGreaterThanOrEqual(200);
     expect(response).toStrictEqual({
       data: fixture,

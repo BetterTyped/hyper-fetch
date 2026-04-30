@@ -2,11 +2,10 @@ import * as React from "react";
 
 import { NavPrimary } from "./components/nav-primary";
 import { NavTertiary } from "./components/nav-tertiary";
-
+import icon from "@/assets/images/icon.png";
+import { CurrentVersion } from "@/components/ui/current-version";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { CurrentVersion } from "@/components/ui/current-version";
-import icon from "@/assets/images/icon.png";
 
 export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

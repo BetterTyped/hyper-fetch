@@ -1,13 +1,12 @@
-import * as path from "node:path";
-import * as fs from "fs-extra";
-import { loadConfig } from "tsconfig-paths";
-
-import { highlighter } from "utils/highlighter";
-import { resolveImport } from "utils/resolve-import";
-import { handleError } from "utils/handle-error";
+import { autoInit } from "config/auto-init";
 import type { Config } from "config/schema";
 import { configSchema } from "config/schema";
-import { autoInit } from "config/auto-init";
+import * as fs from "fs-extra";
+import * as path from "node:path";
+import { loadConfig } from "tsconfig-paths";
+import { handleError } from "utils/handle-error";
+import { highlighter } from "utils/highlighter";
+import { resolveImport } from "utils/resolve-import";
 
 export async function resolveConfigPaths(cwd: string, config: Omit<Config, "resolvedPaths">): Promise<Config> {
   // Read tsconfig.json.

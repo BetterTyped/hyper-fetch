@@ -8,6 +8,7 @@ describe("Request [ Utils ]", () => {
       const someString = "123";
       expect(stringifyKey(response)).toBe(JSON.stringify(response));
       expect(stringifyKey(someString)).toBe(someString);
+      // oxlint-disable-next-line unicorn/no-useless-undefined
       expect(stringifyKey(undefined)).toBe("");
       expect(stringifyKey(null)).toBe("");
     });

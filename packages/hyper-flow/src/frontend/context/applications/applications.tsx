@@ -1,22 +1,21 @@
+import { useDidUpdate, useWillMount } from "@better-hooks/lifecycle";
 import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useDidUpdate, useWillMount } from "@better-hooks/lifecycle";
 
 import { Bridge } from "./bridge/bridge";
 import { Events } from "./events/events";
 import { State } from "./state/state";
-
-import { useSettings } from "@/store/general/settings.store";
+import { useApplications } from "@/store/applications/apps.store";
+import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
+import { useCacheStore } from "@/store/applications/cache.store";
+import { useConnectionStore } from "@/store/applications/connection.store";
+import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useInitializerStore } from "@/store/applications/initialization.store";
+import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { useNetworkStore } from "@/store/applications/network.store";
-import { useCacheStore } from "@/store/applications/cache.store";
-import { useMethodStatsStore } from "@/store/applications/method-stats.store";
-import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
-import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useQueueStore } from "@/store/applications/queue.store";
-import { useApplications } from "@/store/applications/apps.store";
-import { useConnectionStore } from "@/store/applications/connection.store";
+import { useSettings } from "@/store/general/settings.store";
 
 export const ApplicationsProvider = ({ children }: { children: React.ReactNode }) => {
   const { settings } = useSettings();
@@ -53,7 +52,7 @@ export const ApplicationsProvider = ({ children }: { children: React.ReactNode }
 
   const initializeApplicationStates = useCallback(
     (application: string) => {
-      if (initializedApplications[application]) return;
+      if (initializedApplications[application]) {return;}
 
       initializeNetworkStore(application);
       initializeCacheStore(application);

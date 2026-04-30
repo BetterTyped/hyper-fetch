@@ -1,10 +1,10 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useFetch } from "hooks/use-fetch";
 /// <reference types="vitest/globals" />
 import type { ReactNode } from "react";
 import { Suspense, StrictMode, Component, useState } from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { useFetch } from "hooks/use-fetch";
 import { client, createRequest } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -483,7 +483,7 @@ describe("useFetch [ Suspense ]", () => {
 
       function NormalView() {
         const { data, loading } = useFetch(request, { dependencyTracking: false });
-        if (loading) return <div data-testid="normal-loading">Loading...</div>;
+        if (loading) {return <div data-testid="normal-loading">Loading...</div>;}
         return <div data-testid="normal-data">{JSON.stringify(data)}</div>;
       }
 

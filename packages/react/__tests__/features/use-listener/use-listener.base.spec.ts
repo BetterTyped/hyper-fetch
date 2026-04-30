@@ -1,5 +1,5 @@
-import { act, waitFor } from "@testing-library/react";
 import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { createListener } from "../../utils/listener.utils";
 import { renderUseListener } from "../../utils/use-listener.utils";

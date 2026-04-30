@@ -56,8 +56,8 @@ const getUsers = client.createRequest()({
 
 // The Authorization header will be automatically added to this request
 getUsers.send({
-  onSuccess: (response, request) => {
-    console.log("[onSuccess] Request successful. Headers sent:", request.headers);
+  onResponse: ({ response, request }) => {
+    console.log("[onResponse] Request successful. Headers sent:", request.headers);
   },
 });
 ```
@@ -93,8 +93,8 @@ const getUser = client.createRequest()({
 });
 
 getUser.send({
-  onSuccess: (response) => {
-    console.log("[onSuccess callback] Received data:", response.data);
+  onResponse: ({ response }) => {
+    console.log("[onResponse callback] Received data:", response.data);
   },
 });
 ```
@@ -193,12 +193,9 @@ const requestWithInterceptor = client.createRequest()({
   endpoint: "/users/1",
 });
 
-const requestWithoutInterceptor = client
-  .createRequest()({
+const requestWithoutInterceptor = client.createRequest()({
     method: "GET",
     endpoint: "/users/2",
-  })
-  .set({
     // highlight-next-line
     disableRequestInterceptors: true,
   });

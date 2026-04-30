@@ -70,7 +70,7 @@ export const useStream = <T extends RequestInstance>(
       while (true) {
         // eslint-disable-next-line no-await-in-loop
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         state.current.chunks = [...state.current.chunks, value];
         state.current.text += decoder.decode(value, { stream: true });
@@ -80,15 +80,15 @@ export const useStream = <T extends RequestInstance>(
       state.current.streaming = false;
       state.current.done = true;
       emitChange();
-    } catch (err) {
+    } catch (error) {
       state.current.streaming = false;
-      state.current.error = err as ExtractErrorType<T>;
+      state.current.error = error as ExtractErrorType<T>;
       emitChange();
     }
   };
 
   const start = useCallback(() => {
-    if (state.current.streaming) return;
+    if (state.current.streaming) {return;}
 
     state.current = {
       ...getInitialState<T>(),

@@ -2,7 +2,7 @@ import type { OpenAPIV3, OpenAPIV3_1 } from "openapi-types";
 
 export function adjustPathParamsFormat(path: string) {
   // Naive implementation for now:
-  return path.replace(/}/g, "").replace(/{/g, ":");
+  return path.replaceAll('}', "").replaceAll('{', ":");
 }
 export function createTypeBaseName(str: string) {
   const capitalizeFirstLetter = (s: string) => {
@@ -13,18 +13,18 @@ export function createTypeBaseName(str: string) {
 
 export function normalizeOperationId(key: string): string {
   return key
-    .replace(/\/(.)/g, (_match: string, p1: string) => {
+    .replaceAll(/\/(.)/g, (_match: string, p1: string) => {
       return p1.toUpperCase();
     })
-    .replace(/}/g, "")
-    .replace(/{/g, "$")
+    .replaceAll('}', "")
+    .replaceAll('{', "$")
     .replace(/^\//, "")
-    .replace(/[^0-9A-Za-z_$]+/g, "_");
+    .replaceAll(/[^0-9A-Za-z_$]+/g, "_");
 }
 export const isUrl = (schemaPath: string) => {
   try {
     return Boolean(new URL(schemaPath));
-  } catch (e) {
+  } catch {
     return false;
   }
 };

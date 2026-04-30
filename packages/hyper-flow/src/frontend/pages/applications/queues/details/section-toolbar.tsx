@@ -1,9 +1,10 @@
-import { useMemo } from "react";
 import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
-import { TrashIcon, XIcon, Sparkles, Cpu, LoaderCircle, Pause } from "lucide-react";
 import { useQueue } from "@hyper-fetch/react";
+import { TrashIcon, XIcon, Sparkles, Cpu, LoaderCircle, Pause } from "lucide-react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarHeader } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useQueueStore } from "@/store/applications/queue.store";
 import { useNetworkStore } from "@/store/applications/network.store";
+import { useQueueStore } from "@/store/applications/queue.store";
 
 export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> }) => {
   const { client, application } = useDevtools();
@@ -60,16 +60,16 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   };
 
   const latestItem = useMemo(() => {
-    if (!item) return null;
+    if (!item) {return null;}
 
     const element = requests.find((el) => el.request.queryKey === item.queryKey);
     if (!element)
-      return {
+      {return {
         request: {
           cacheKey: item.queryKey,
         } as any,
         requestId: "",
-      };
+      };}
     return element;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.queryKey, requests?.length]);
@@ -77,7 +77,7 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   const isLoading = item ? loadingKeys.has(latestItem?.request.queryKey || item.queryKey) : false;
 
   const toggleLoading = () => {
-    if (!item || !latestItem) return;
+    if (!item || !latestItem) {return;}
 
     // This is dummy data for the event, it is minimum that is required to trigger the event
     // We don't need to pass all the data, because it will be handled anyway

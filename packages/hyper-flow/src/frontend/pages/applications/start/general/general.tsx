@@ -1,7 +1,7 @@
-import { CardTraffic } from "./card-traffic";
+import { CardErrors } from "./card-errors";
 import { CardNetwork } from "./card-network";
 import { CardRecent } from "./card-recent";
-import { CardErrors } from "./card-errors";
+import { CardTraffic } from "./card-traffic";
 
 export const GeneralDashboard = () => {
   return (

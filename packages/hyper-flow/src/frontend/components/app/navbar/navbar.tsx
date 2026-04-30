@@ -1,6 +1,6 @@
-import React from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Home, Maximize2, X, Minus } from "lucide-react";
+import React from "react";
 
 import {
   Breadcrumb,

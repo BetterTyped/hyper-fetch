@@ -1,11 +1,10 @@
-import { FolderCode } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { FolderCode } from "lucide-react";
 
 import { Tutorial } from "./components/tutorial";
-
-import { useApplications } from "@/store/applications/apps.store";
 import { ApplicationCard } from "@/components/ui/application-card";
 import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle } from "@/components/ui/section";
+import { useApplications } from "@/store/applications/apps.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
 
 export const Applications = () => {
@@ -35,7 +34,7 @@ export const Applications = () => {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3 mt-4">
         {Object.values(applications)
-          .sort((a, b) => Number(!!connections[b.name]) - Number(!!connections[a.name]))
+          .toSorted((a, b) => Number(!!connections[b.name]) - Number(!!connections[a.name]))
           .map((application) => (
             <ApplicationCard
               key={application.name}

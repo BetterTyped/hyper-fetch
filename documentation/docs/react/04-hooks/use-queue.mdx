@@ -6,7 +6,7 @@ sidebar_label: useQueue
 
 # useQueue
 
-This hook controls the **dispatcher queues**. It uses the [`Dispatcher`](/core/dispatcher.mdx) to read the actual value
+This hook controls the **dispatcher queues**. It uses the [`Dispatcher`](/docs/core/dispatcher) to read the actual value
 of the queue, which is based on the `queryKey` retrieved from the request passed as the first argument.
 
 A prepared [`Request`](/core/request.mdx) is the minimum requirement for `useQueue`.
@@ -48,7 +48,7 @@ function App() {
         // highlight-start
         {/* List of currently running requests */}
         {requests.map((req) => (
-          <li key={req.requestId}>{req.requestOptions.endpoint}</li>
+          <li key={req.requestId}>{req.request.endpoint}</li>
         ))}
         // highlight-end
       </ul>
@@ -96,7 +96,7 @@ The hook returns methods to control the queue and individual requests:
 const { requests, stopped, stop, start, pause } = useQueue(getUsers);
 
 // Control all requests in the queue
-top(); // Stops the queue
+stop(); // Stops the queue
 pause(); // Pauses the queue
 start(); // Starts the queue
 
@@ -104,8 +104,19 @@ start(); // Starts the queue
 requests.forEach((req) => {
   req.stopRequest();
   req.startRequest();
+  req.deleteRequest();
 });
 ```
+
+### Per-request actions
+
+Each request object in the `requests` array provides methods for fine-grained control:
+
+| Method | Description |
+|--------|-------------|
+| `stopRequest()` | Stops the individual request from being dispatched. |
+| `startRequest()` | Resumes the individual request so it can be dispatched. |
+| `deleteRequest()` | Removes the request from the queue entirely. |
 
 Read more about the differences between `stop`, `pause`, and `start` in the [`Dispatcher`](/docs/core/dispatcher)
 documentation.
@@ -119,6 +130,13 @@ Customize the behavior of `useQueue` by passing an options object as the second 
 ```tsx
 const { ... } = useQueue(request, options);
 ```
+
+### Key Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `keepFinishedRequests` | `false` | When `true`, completed requests remain in the `requests` list instead of being removed after they finish. Useful for displaying upload/download history or a log of completed operations. |
+| `dispatcherType` | `"auto"` | Choose which dispatcher to monitor: `"auto"` picks the dispatcher based on the request's method, `"fetch"` monitors the fetch dispatcher, and `"submit"` monitors the submit dispatcher. |
 
 (@import react UseQueueOptionsType type=returns)
 

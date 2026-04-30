@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: Typescript - Local Error
+title: TypeScript - Local Error
 sidebar_label: Local Error
 ---
 
@@ -10,7 +10,7 @@ While global errors provide a consistent foundation, some endpoints have unique 
 defining **local error types** on a per-request basis. This local type extends the global error type, allowing you to
 handle specific error scenarios, like form validation, without cluttering your global error definition.
 
-The most common case are forms which, apart from basic errors from the server, can return specific field errors of a
+The most common case is forms which, apart from basic errors from the server, can return specific field errors of a
 given form. This error is only applicable to that particular location.
 
 :::secondary What you'll learn
@@ -34,7 +34,7 @@ given form. This error is only applicable to that particular location.
 
 ### Example
 
-Here is how to set up a local error on a request. Notice how the `localError` generic is used on the `createRequest`
+Here is how to set up a local error on a request. Notice how the `error` generic is used on the `createRequest`
 method. The final error type for this request will be a union of the `GlobalErrorType` and the `FormValidationError`.
 
 ```ts
@@ -42,9 +42,9 @@ method. The final error type for this request will be a union of the `GlobalErro
 
 // Assume we have a global error type defined on our client
 type GlobalErrorType = { message: string } | Error;
-export const client = createClient()({
+export const client = createClient<{ error: GlobalErrorType }>({
   url: "https://api.example.com",
-}).setExtra<{ error: GlobalErrorType }>();
+});
 
 // 1. Define a specific error type for a form submission, this is our local error
 type FormValidationError = {
@@ -63,7 +63,7 @@ type UserResponse = { id: number; name: string };
 const createUser = client.createRequest<{
   response: UserResponse;
   payload: UserPayload;
-  localError: FormValidationError;
+  error: FormValidationError;
 }>()({
   // highlight-end
   method: "POST",
@@ -75,7 +75,7 @@ const createUser = client.createRequest<{
 type CreateUserError = ExtractErrorType<typeof createUser>; // GlobalErrorType | FormValidationError
 
 // 5. Usage Example
-const { data, error } = await createUser.send({ data: { name: "John", email: "invalid-email" } });
+const { data, error } = await createUser.send({ payload: { name: "John", email: "invalid-email" } });
 
 if (error) {
   if (error instanceof Error) {

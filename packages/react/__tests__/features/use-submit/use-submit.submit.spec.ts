@@ -1,7 +1,7 @@
 import type { ExtendRequest, RequestSendType } from "@hyper-fetch/core";
 import { xhrExtra } from "@hyper-fetch/core";
-import { act } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act } from "@testing-library/react";
 
 import { client, createRequest, renderUseSubmit } from "../../utils";
 

@@ -67,7 +67,7 @@ export type AvailableChartColorsKeys = keyof typeof chartColors;
 
 export const AvailableChartColors: AvailableChartColorsKeys[] = Object.keys(
   chartColors,
-) as Array<AvailableChartColorsKeys>;
+) as AvailableChartColorsKeys[];
 
 export const constructCategoryColors = (
   categories: string[],

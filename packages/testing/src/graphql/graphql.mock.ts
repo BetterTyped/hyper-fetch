@@ -5,8 +5,8 @@ import { getErrorMessage } from "@hyper-fetch/core";
 import type { GraphQLResponseResolver } from "msw";
 import { HttpResponse, delay, graphql } from "msw";
 
-import { getMockSetup } from "../http/http.mock";
 import type { MockRequestOptions } from "../http";
+import { getMockSetup } from "../http/http.mock";
 
 const getName = (endpoint: string) => {
   if (endpoint.includes("mutation")) {

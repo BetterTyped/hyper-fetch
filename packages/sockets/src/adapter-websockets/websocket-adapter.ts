@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams, Time } from "@hyper-fetch/core";
-
-import type { EmitterInstance } from "emitter";
-import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
-import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
-import { getWebsocketAdapter } from "./websocket-adapter.utils";
+import type { EmitterInstance } from "emitter";
+import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
+
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
+import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
+import { getWebsocketAdapter } from "./websocket-adapter.utils";
 
 /**
  * -------------------------------------------
@@ -69,7 +69,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           const url = getSocketUrl(socket.url, getQueryParams());
           const enabled = onConnect();
           if (!enabled) {
-            return Promise.resolve(false);
+            return false;
           }
 
           clearTimeout(timeout);
@@ -88,7 +88,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
                 websocket,
               },
             });
-            return Promise.resolve(false);
+            return false;
           }
 
           // Clear listeners
@@ -163,7 +163,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           if (!websocket) {
             socket.adapter.setConnected(false);
             socket.adapter.setConnecting(false);
-            return Promise.resolve(true);
+            return true;
           }
           const currentWebsocket = websocket;
           const promise = new Promise<boolean>((resolve) => {
@@ -198,7 +198,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">) => {
-          if (!websocket) return false;
+          if (!websocket) {return false;}
           websocket!.send(JSON.stringify({ topic, data: payload }));
           return true;
         };
@@ -213,7 +213,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           /* istanbul ignore next */
           {};
 
-          if (socket.adapter.connecting || !heartbeat) return;
+          if (socket.adapter.connecting || !heartbeat) {return;}
           clearTimers();
           pingTimer = setTimeout(() => {
             sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
@@ -233,7 +233,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
         const emit = async (emitter: EmitterInstance) => {
           const mappedEmitter = await onEmit({ emitter });
-          if (!mappedEmitter) return;
+          if (!mappedEmitter) {return;}
 
           return sendEventMessage(mappedEmitter);
         };

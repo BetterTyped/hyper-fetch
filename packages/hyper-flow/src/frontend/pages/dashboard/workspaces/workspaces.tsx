@@ -1,21 +1,20 @@
-import { useState, useEffect } from "react";
-import { PlusIcon, ActivityIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { PlusIcon, ActivityIcon } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import { AddWorkspaceDialog } from "./add-workspace/add-workspace-dialog";
-
-import { useWorkspaces } from "@/store/workspace/workspaces.store";
-import { WorkspaceCard } from "@/components/ui/workspace-card";
 import { Card } from "@/components/ui/card";
 import { KpiCard3 } from "@/components/ui/kpi-card-3";
 import { KpiCardFeed } from "@/components/ui/kpi-card-feed";
+import { WorkspaceCard } from "@/components/ui/workspace-card";
+import { useWorkspaces } from "@/store/workspace/workspaces.store";
 
 export const Workspaces = () => {
   const workspaces = useWorkspaces((state) => state.workspaces);
   const navigate = useNavigate();
   const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
-  const [pulseHistory, setPulseHistory] = useState<Array<{ value: number; date: Date }>>(
+  const [pulseHistory, setPulseHistory] = useState<{ value: number; date: Date }[]>(
     Array(20)
       .fill(0)
       .map(() => ({ value: 15, date: new Date() })),

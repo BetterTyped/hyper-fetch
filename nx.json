@@ -20,7 +20,7 @@
       "application": {
         "babel": true,
         "style": "css",
-        "linter": "eslint",
+        "linter": "none",
         "bundler": "vite"
       },
       "component": {
@@ -28,13 +28,13 @@
       },
       "library": {
         "style": "css",
-        "linter": "eslint"
+        "linter": "none"
       }
     },
     "@nx/next": {
       "application": {
         "style": "css",
-        "linter": "eslint"
+        "linter": "none"
       }
     }
   },
@@ -49,13 +49,6 @@
       }
     },
     {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "eslint:lint",
-        "extensions": ["ts", "tsx", "js", "jsx", "html", "vue"]
-      }
-    },
-    {
       "plugin": "@nx/vite/plugin",
       "options": {
         "buildTargetName": "build",
@@ -63,15 +56,6 @@
         "serveTargetName": "vite:serve",
         "previewTargetName": "preview",
         "serveStaticTargetName": "serve-static"
-      }
-    },
-    {
-      "plugin": "@nx/storybook/plugin",
-      "options": {
-        "serveStorybookTargetName": "serve:storybook",
-        "buildStorybookTargetName": "build:storybook",
-        "testStorybookTargetName": "test-storybook",
-        "staticStorybookTargetName": "static-storybook"
       }
     }
   ],

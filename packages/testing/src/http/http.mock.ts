@@ -33,7 +33,7 @@ const getErrorMock = <Request extends RequestInstance, Status extends number, Gq
   }
 
   if (!error && !syntheticError) {
-    return undefined;
+    return;
   }
 
   if (config.gql) {
@@ -111,7 +111,7 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     const { requestManager } = request.client;
     const controllers = requestManager.abortControllers.get(request.abortKey);
     const size = controllers?.size || 0;
-    const abortController: any = Array.from(controllers || [])[size - 1];
+    const abortController: any = [...controllers || []][size - 1];
     // Todo: something generic?
     const timeoutTime = (request.options as any)?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;
@@ -129,15 +129,20 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
   };
 
   switch (String(method).toUpperCase()) {
-    case "POST":
+    case "POST": {
       return http.post(url, requestResolver);
-    case "PUT":
+    }
+    case "PUT": {
       return http.put(url, requestResolver);
-    case "PATCH":
+    }
+    case "PATCH": {
       return http.patch(url, requestResolver);
-    case "DELETE":
+    }
+    case "DELETE": {
       return http.delete(url, requestResolver);
-    default:
+    }
+    default: {
       return http.get(url, requestResolver);
+    }
   }
 };

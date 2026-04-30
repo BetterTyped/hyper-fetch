@@ -1,3 +1,5 @@
+import type { RealtimePermittedMethods } from "constraints";
+import { RealtimeQueryConstraints, SharedQueryConstraints } from "constraints";
 import {
   endAt,
   endBefore,
@@ -10,9 +12,6 @@ import {
   startAfter,
   startAt,
 } from "firebase/database";
-
-import type { RealtimePermittedMethods } from "constraints";
-import { RealtimeQueryConstraints, SharedQueryConstraints } from "constraints";
 
 export const mapRealtimeConstraint = ({ type, values }: RealtimePermittedMethods) => {
   switch (type) {

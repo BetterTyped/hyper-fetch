@@ -1,7 +1,7 @@
-import { useMemo } from "react";
 import type { ClientInstance } from "@hyper-fetch/core";
 import { createClient } from "@hyper-fetch/core";
 import { useParams } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { useApplications } from "@/store/applications/apps.store";

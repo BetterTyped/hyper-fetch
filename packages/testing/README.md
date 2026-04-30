@@ -18,7 +18,8 @@
 
 ## 📖 About
 
-`@hyper-fetch/testing` provides utilities for mocking and stubbing HyperFetch requests and WebSocket connections in test suites. It is primarily used internally across the HyperFetch monorepo.
+`@hyper-fetch/testing` provides utilities for mocking and stubbing HyperFetch requests and WebSocket connections in test
+suites. It is primarily used internally across the HyperFetch monorepo.
 
 ## 🎯 Key Capabilities
 

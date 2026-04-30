@@ -1,5 +1,4 @@
 import { expectType } from "@hyper-fetch/testing";
-
 import { Socket } from "socket";
 
 const client = new Socket({

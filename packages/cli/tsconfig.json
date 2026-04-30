@@ -2,8 +2,23 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": "./src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "cli": ["./src/cli"],
+      "cli/*": ["./src/cli/*"],
+      "codegen": ["./src/codegen"],
+      "codegen/*": ["./src/codegen/*"],
+      "commands": ["./src/commands"],
+      "commands/*": ["./src/commands/*"],
+      "config": ["./src/config"],
+      "config/*": ["./src/config/*"],
+      "features": ["./src/features"],
+      "features/*": ["./src/features/*"],
+      "preflights": ["./src/preflights"],
+      "preflights/*": ["./src/preflights/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

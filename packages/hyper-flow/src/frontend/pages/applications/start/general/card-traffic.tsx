@@ -1,12 +1,12 @@
 import { BarChart2 } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
-import { getMethodColor, Method } from "@/components/ui/method";
 import { EmptyBox } from "@/components/no-content/empty-box";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMethodColor, Method } from "@/components/ui/method";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { cn } from "@/lib/utils";
+import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 
 export const CardTraffic = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -14,8 +14,8 @@ export const CardTraffic = ({ className }: { className?: string }) => {
     useShallow((state) => state.applications[application.name]),
   );
 
-  const trafficByEndpoint = Array.from(networkEntries.values())
-    .sort((a, b) => b.stats.totalRequests - a.stats.totalRequests)
+  const trafficByEndpoint = [...networkEntries.values()]
+    .toSorted((a, b) => b.stats.totalRequests - a.stats.totalRequests)
     .slice(0, 10);
 
   return (
@@ -50,7 +50,7 @@ export const CardTraffic = ({ className }: { className?: string }) => {
               </div>
             </div>
           ))}
-          {!trafficByEndpoint.length && <EmptyBox title="No traffic data available for this application." />}
+          {trafficByEndpoint.length === 0 && <EmptyBox title="No traffic data available for this application." />}
         </div>
       </CardContent>
     </Card>

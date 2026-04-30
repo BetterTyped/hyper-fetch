@@ -1,4 +1,4 @@
-import WS from "jest-websocket-mock";
+import type { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
 import type {
   ListenerInstance,
   ExtractListenerResponseType,
@@ -10,7 +10,7 @@ import type {
   ExtractEmitterPayloadType,
   ExtractEmitterHasPayloadType,
 } from "@hyper-fetch/sockets";
-import type { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
+import WS from "jest-websocket-mock";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {
@@ -39,8 +39,6 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
   const emitListenerEvent = <T extends ListenerInstance>(
     listener: ExtendListener<
       T,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       { hasParams: ExtractUrlParams<ExtractListenerTopicType<T>> extends EmptyTypes ? false : true }
     >,
     event: ExtractListenerResponseType<T> extends Record<string, any>
@@ -61,8 +59,6 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
     emitter: ExtendEmitter<
       T,
       {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         hasParams: ExtractUrlParams<ExtractEmitterTopicType<T>> extends EmptyTypes ? false : true;
         hasData: Data extends void ? (ExtractEmitterHasPayloadType<T> extends false ? true : false) : false;
       }

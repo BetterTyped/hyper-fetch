@@ -35,7 +35,7 @@ describe("E2E [ WebSocket Connection ]", () => {
     const socket = new Socket({ url, adapterOptions: { autoConnect: false } });
 
     socket.events.onConnecting(({ connecting }) => {
-      if (connecting) events.push("connecting");
+      if (connecting) {events.push("connecting");}
     });
     socket.events.onConnected(() => {
       events.push("connected");

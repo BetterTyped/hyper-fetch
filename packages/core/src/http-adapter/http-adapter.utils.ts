@@ -1,9 +1,10 @@
 import type { QueryParamsType, QueryParamType, QueryParamValuesType } from "adapter";
 import { getErrorMessage } from "adapter";
+import { stringifyDefaultOptions } from "client";
 import type { RequestInstance } from "request";
 import type { ExtractErrorType, EmptyTypes } from "types";
+
 import type { BufferEncoding, QueryStringifyOptionsType } from "./http-adapter.types";
-import { stringifyDefaultOptions } from "client";
 
 // Utils
 
@@ -28,7 +29,7 @@ export const getResponseHeaders = (headersString: string): Record<string, string
 export const parseResponse = (response: string | unknown) => {
   try {
     return JSON.parse(response as string);
-  } catch (err) {
+  } catch {
     return response;
   }
 };
@@ -36,12 +37,15 @@ export const parseResponse = (response: string | unknown) => {
 export const handleResponse = (responseChunks: any[], responseType: string, responseEncoding: BufferEncoding) => {
   const bufferedResponse = Buffer.concat(responseChunks);
   switch (responseType) {
-    case "arraybuffer":
+    case "arraybuffer": {
       return bufferedResponse;
-    case "json":
+    }
+    case "json": {
       return parseResponse(bufferedResponse.toString(responseEncoding));
-    default:
+    }
+    default: {
       return bufferedResponse.toString(responseEncoding);
+    }
   }
 };
 
@@ -73,7 +77,7 @@ const encodeValue = (
   { encode, strict }: Pick<QueryStringifyOptionsType, "encode" | "strict">,
 ): string => {
   if (encode && strict) {
-    return encodeURIComponent(value).replace(/[!'()*]/g, (s) => `%${s.charCodeAt(0).toString(16).toUpperCase()}`);
+    return encodeURIComponent(value).replaceAll(/[!'()*]/g, (s) => `%${s.codePointAt(0)!.toString(16).toUpperCase()}`);
   }
   if (encode) {
     return encodeURIComponent(value);
@@ -103,7 +107,7 @@ const encodeParams = (key: string, value: QueryParamType, options: QueryStringif
   return `${encodeValue(key, options)}=${encodeValue(parsedValue(), options)}`;
 };
 
-const encodeArray = (key: string, array: Array<QueryParamValuesType>, options: QueryStringifyOptionsType): string => {
+const encodeArray = (key: string, array: QueryParamValuesType[], options: QueryStringifyOptionsType): string => {
   const { arrayFormat, arraySeparator } = options;
 
   return array
@@ -121,15 +125,15 @@ const encodeArray = (key: string, array: Array<QueryParamValuesType>, options: Q
           break;
         }
         case "comma": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}=`) || "";
+          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}=`) || "";
           return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(",")];
         }
         case "separator": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}=`) || "";
+          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}=`) || "";
           return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
         }
         case "bracket-separator": {
-          const keyValue = (!acc.length && `${encodeValue(key, options)}[]=`) || "";
+          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}[]=`) || "";
           return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
         }
         default: {
@@ -147,7 +151,7 @@ export const stringifyQueryParams = (
   queryParams: QueryParamsType | string | EmptyTypes,
   options: QueryStringifyOptionsType = stringifyDefaultOptions,
 ): string => {
-  if (!queryParams || !Object.keys(queryParams).length) {
+  if (!queryParams || Object.keys(queryParams).length === 0) {
     return "";
   }
 

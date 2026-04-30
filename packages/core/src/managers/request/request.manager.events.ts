@@ -1,6 +1,7 @@
+import type { AdapterInstance } from "adapter";
+import type { Client } from "client";
 /* eslint-disable max-params */
 import type EventEmitter from "events";
-
 import type {
   RequestEventType,
   RequestLoadingEventType,
@@ -40,9 +41,7 @@ import {
   getRequestDeduplicatedByCacheKey,
   getRequestDeduplicatedByQueryKey,
 } from "managers";
-import type { AdapterInstance } from "adapter";
 import type { RequestInstance } from "request";
-import type { Client } from "client";
 import type { ExtendRequest } from "types";
 
 /** Create event emitters and listeners for the request lifecycle: loading, progress, response, abort, deduplication, and removal. */

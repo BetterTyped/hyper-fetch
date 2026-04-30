@@ -1,6 +1,6 @@
-import { act } from "@testing-library/react";
 import { createClient } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act } from "@testing-library/react";
 
 import { renderUseRequestEvents } from "../../../utils";
 

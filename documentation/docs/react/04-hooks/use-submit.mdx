@@ -132,7 +132,7 @@ const LoginPage: React.FC = () => {
   });
 
   const onSubmit = (values: Values) => {
-    submit({ data: values });
+    submit({ payload: values });
   };
 
   return (
@@ -184,7 +184,7 @@ const LoginPage = () => {
   });
 
   const handleLogin = (values) => {
-    submit({ data: values });
+    submit({ payload: values });
   };
 
   // ... form rendering logic
@@ -218,11 +218,69 @@ const { submit } = useSubmit(patchUser);
 
 const handleSubmit = (id: number, name: string) => {
   submit({
-    data: { name },
+    payload: { name },
     params: { userId: id },
     queryParams: { notify: "true" },
   });
 };
+```
+
+---
+
+## Disabled Behavior
+
+When `disabled` is set to `true`, calling `submit()` does **not** throw or reject. Instead, it resolves immediately
+with an error response indicating the hook is disabled:
+
+```tsx
+const { submit } = useSubmit(createUser, { disabled: true });
+
+const result = await submit();
+// result = { data: null, error: Error("...disabled..."), status: null }
+```
+
+This makes it safe to call `submit()` unconditionally without wrapping it in a try/catch - the promise always resolves.
+Use `disabled` to prevent submissions while a form is invalid or while another operation is in progress.
+
+---
+
+## Bounce Behavior
+
+When `bounce` is enabled, rapid successive calls to `submit()` are **debounced** or **throttled** based on the
+`bounceType` option. This prevents duplicate submissions from fast button clicks or programmatic loops.
+
+```tsx
+const { submit } = useSubmit(createUser, {
+  // highlight-start
+  bounce: true,
+  bounceType: "debounce",
+  bounceTime: 400,
+  // highlight-end
+});
+
+// Rapid clicks - only the last call within the 400ms window fires
+submit({ payload: { name: "Alice" } });
+submit({ payload: { name: "Bob" } }); // Only this one actually sends
+```
+
+When multiple `submit()` calls are batched together by the bounce, the promises from earlier calls in the batch are
+resolved together with the result of the request that actually fires.
+
+---
+
+## Refetch
+
+`useSubmit` returns a `refetch()` method that triggers **cache invalidation** for the request's cache key. This is
+useful after a successful mutation to force other components using `useFetch` or `useCache` with the same cache key to
+re-fetch fresh data.
+
+```tsx
+const { submit, refetch, onSubmitSuccess } = useSubmit(updateUser);
+
+onSubmitSuccess(() => {
+  // Invalidate the cache so useFetch consumers get fresh data
+  refetch();
+});
 ```
 
 ---

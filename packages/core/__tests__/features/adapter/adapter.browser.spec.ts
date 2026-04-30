@@ -2,7 +2,6 @@
  * @vitest-environment jsdom
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
 import { HttpAdapter } from "http-adapter";

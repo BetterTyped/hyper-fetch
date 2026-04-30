@@ -1,16 +1,15 @@
-import { Command } from "commander";
 import { input, select } from "@inquirer/prompts";
-import { z } from "zod";
-import * as path from "node:path";
-import * as fs from "fs-extra";
-
-import { handleError } from "utils/handle-error";
-import { spinner } from "utils/spinner";
+import { Command } from "commander";
+import { getTsConfigAliasPrefix } from "config/get-ts-alias";
 import type { Config } from "config/schema";
 import { configSchema } from "config/schema";
+import * as fs from "fs-extra";
+import * as path from "node:path";
+import { handleError } from "utils/handle-error";
 import { logger } from "utils/logger";
-import { getTsConfigAliasPrefix } from "config/get-ts-alias";
 import { showHelp } from "utils/show-help";
+import { spinner } from "utils/spinner";
+import { z } from "zod";
 
 const initOptionsSchema = z.object({
   yes: z.boolean().optional().describe("skip confirmation prompt."),
@@ -61,7 +60,7 @@ export const init = new Command()
           mainPath = await input({
             message: "Enter the path to the main directory:",
             validate: (value) => {
-              if (!value) return "Path cannot be empty.";
+              if (!value) {return "Path cannot be empty.";}
               return true;
             },
           });
@@ -72,7 +71,7 @@ export const init = new Command()
           message: "Enter the name of the API directory:",
           default: "api",
           validate: (value) => {
-            if (!value) return "Directory name cannot be empty.";
+            if (!value) {return "Directory name cannot be empty.";}
             return true;
           },
         });
@@ -186,7 +185,7 @@ export const init = new Command()
       logger.break();
       logger.info("Configuration has been generated successfully! 🎉");
       logger.info(`You can now find your configuration at ${configPath}`);
-    } catch (err) {
-      handleError(err);
+    } catch (error) {
+      handleError(error);
     }
   });

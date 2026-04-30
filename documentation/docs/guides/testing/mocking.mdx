@@ -35,7 +35,7 @@ affected by external factors like network issues or backend changes. Mocking all
 
 ---
 
-## Build-in Mock Handlers
+## Built-in Mock Handlers
 
 You can create a mock handler for your requests. This function will take a Hyper Fetch request and a mock response.
 
@@ -238,7 +238,7 @@ export const testSocketSdk = socketSdk.$configure({
 - **Full control**: Function-based values let you use `setMock`, `setResponseMapper`, or any other Request setter.
 - **Immutable**: `$configure` returns a new SDK, so your production instance is never affected.
 - **Composable**: Chain `$configure` calls for per-test overrides without duplicating the entire mock setup.
-- **No network layer**: Mocks run inside the Request lifecycle — no need for MSW, interceptors, or fake servers.
+- **No network layer**: Mocks run inside the Request lifecycle - no need for MSW, interceptors, or fake servers.
 
 :::
 

@@ -1,21 +1,20 @@
+import { Tally4 } from "lucide-react";
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { useMemo } from "react";
-import { Tally4 } from "lucide-react";
 import { Treemap, ResponsiveContainer } from "recharts";
 
 import { Method } from "../ui/method";
-
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { formatBytes } from "@/utils/size.utils";
 
 const getDistributionFillColor = (cacheSize: number, totalCacheSize: number) => {
   // more than 50% of the total cache size
-  if (cacheSize > totalCacheSize / 2) return "#1234a4";
+  if (cacheSize > totalCacheSize / 2) {return "#1234a4";}
   // more than 25% of the total cache size
-  if (cacheSize > totalCacheSize / 4) return "#1e40af";
+  if (cacheSize > totalCacheSize / 4) {return "#1e40af";}
   // more than 15% of the total cache size
-  if (cacheSize > totalCacheSize / 6) return "#2c52cc";
+  if (cacheSize > totalCacheSize / 6) {return "#2c52cc";}
   // less than 15% of the total cache size
   return "#3374dd";
 };
@@ -98,7 +97,7 @@ function Content(
   const { depth, x, y, width, height, name, fill, totalSize, totalEntries, method, endpoint } = props;
 
   const formattedName = useMemo(() => {
-    if (name === "Cache") return name;
+    if (name === "Cache") {return name;}
 
     return (
       <div className="flex items-center gap-2">

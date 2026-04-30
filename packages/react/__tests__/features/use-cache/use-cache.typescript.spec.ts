@@ -1,6 +1,5 @@
-import { expectType, expectNotType, expectFunctionParametersType } from "@hyper-fetch/testing";
 import { Client } from "@hyper-fetch/core";
-
+import { expectType, expectNotType, expectFunctionParametersType } from "@hyper-fetch/testing";
 import type { UseCacheReturnType } from "hooks/use-cache";
 
 const client = new Client({

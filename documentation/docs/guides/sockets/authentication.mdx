@@ -6,13 +6,13 @@ sidebar_label: Authentication
 # Socket Authentication
 
 Authenticating web socket connections is crucial for securing real-time applications. Hyper-fetch provides a
-straightforward way to handle socket authentication, allowing you to pass authentication data during the initial
-connection and update it dynamically when needed. This guide will walk you through the process of setting up and
-managing authentication for your socket connections.
+straightforward way to handle socket authentication by passing credentials through query parameters during the initial
+connection handshake. This guide will walk you through the process of setting up and managing authentication for your
+socket connections.
 
 :::secondary What you'll learn
 
-1.  How to provide **initial authentication data** when creating a socket instance.
+1.  How to provide **initial authentication data** using query parameters when creating a socket instance.
 2.  How to **dynamically update authentication** details for a live socket connection.
 3.  How Hyper-fetch automatically handles **reconnection** when authentication data changes.
 
@@ -20,12 +20,10 @@ managing authentication for your socket connections.
 
 ---
 
-## Initial Authentication
+## Authentication via Query Parameters
 
-When establishing a socket connection, you can provide authentication data, such as a token, through the `auth` option
-in the `Socket` constructor. This data is sent to the server as query parameters during the connection handshake.
-
-Here's how you can set it up:
+The most common way to authenticate a WebSocket connection is by including a token in the connection URL's query
+parameters. Hyper-fetch makes this straightforward with the `queryParams` option in the `Socket` constructor.
 
 ```tsx
 import { Socket } from "@hyper-fetch/sockets";
@@ -33,59 +31,77 @@ import { Socket } from "@hyper-fetch/sockets";
 const token = "your-initial-auth-token";
 
 const socket = new Socket({
-  url: "ws://localhost:8080/auth-socket",
-  auth: { token },
+  url: "ws://localhost:8080",
+  queryParams: { token },
 });
 
-socket.onOpen(() => {
+socket.onConnected(() => {
   console.log("Socket connected with token!");
 });
 
-socket.onClose(() => {
+socket.onDisconnected(() => {
   console.log("Socket disconnected");
 });
 ```
 
-In this example, the `auth` object containing the token is passed to the server when the socket attempts to connect. The
-server can then use this information to verify the client's identity.
+The `queryParams` are appended to the connection URL, so the server receives them during the WebSocket handshake
+and can verify the client's identity before accepting the connection.
 
 ---
 
 ## Dynamic Authentication Updates
 
-Authentication tokens or credentials can expire or change during the application's lifecycle. Hyper-fetch allows you to
-update the authentication data for an existing socket instance using the `setAuth` method.
+Authentication tokens can expire or change during the application's lifecycle. Hyper-fetch allows you to update the
+connection credentials using the `setQueryParams` method.
 
-When you call `setAuth` with new data, Hyper-fetch will automatically disconnect the current socket and reconnect with
-the updated authentication details.
+When you call `setQueryParams` with new data, Hyper-fetch will automatically disconnect the current socket and reconnect
+with the updated query parameters.
 
 ```tsx
 import { Socket } from "@hyper-fetch/sockets";
 
-const initialToken = "your-initial-auth-token";
-
 const socket = new Socket({
-  url: "ws://localhost:8080/auth-socket",
-  auth: { token: initialToken },
+  url: "ws://localhost:8080",
+  queryParams: { token: "initial-token" },
 });
 
-socket.onOpen(() => {
+socket.onConnected(() => {
   console.log("Socket connected!");
 });
 
-socket.onClose(() => {
+socket.onDisconnected(() => {
   console.log("Socket disconnected");
 });
 
-// Later in your application, you might get a new token
+// Later in your application, when you receive a new token
 const updatedToken = "your-new-auth-token";
 
-// Update the auth data and trigger a reconnection
-socket.setAuth({ token: updatedToken });
+// highlight-next-line
+socket.setQueryParams({ token: updatedToken });
 ```
 
-This seamless reconnection ensures that your application maintains a valid authenticated session without manual
-intervention. The `setAuth` method is particularly useful in scenarios where you need to refresh tokens periodically.
+This triggers an automatic reconnection with the new token. The seamless reconnection ensures that your application
+maintains a valid authenticated session without manual intervention.
+
+---
+
+## Authentication via Adapter Options
+
+For adapters that support it (like Socket.IO), you can pass authentication data through `adapterOptions` which maps
+to the adapter's native connection options:
+
+```tsx
+import { Socket } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "ws://localhost:8080",
+  adapterOptions: {
+    auth: { token: "your-auth-token" },
+  },
+});
+```
+
+This is adapter-specific - check your adapter's documentation for supported authentication options.
 
 ---
 
@@ -93,8 +109,8 @@ intervention. The `setAuth` method is particularly useful in scenarios where you
 
 You now know how to handle authentication in Hyper-fetch sockets.
 
-- You can provide **initial authentication credentials** using the `auth` option.
-- You can dynamically update authentication data with the **`setAuth` method**.
-- You understand that changing authentication details **triggers an automatic reconnection**.
+- You can provide **initial authentication credentials** using `queryParams` or `adapterOptions`.
+- You can dynamically update authentication data with the **`setQueryParams`** method, which triggers a reconnection.
+- You understand that changing query parameters **triggers an automatic reconnection** with the new credentials.
 
 :::

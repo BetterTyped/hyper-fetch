@@ -1,6 +1,8 @@
 import { Earth } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
+import { AdapterIcon } from "@/components/ui/adapter-icon";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
@@ -8,8 +10,6 @@ import { cn } from "@/lib/utils";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { toNumber } from "@/store/applications/utils";
 import { formatBytes } from "@/utils/size.utils";
-import { AdapterIcon } from "@/components/ui/adapter-icon";
-import { Badge } from "@/components/ui/badge";
 
 export const CardNetwork = ({ className }: { className?: string }) => {
   const { application } = useDevtools();

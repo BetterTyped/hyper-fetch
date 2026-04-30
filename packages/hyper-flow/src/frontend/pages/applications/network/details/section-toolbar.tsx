@@ -1,6 +1,6 @@
 import { Sparkles, Trash, XIcon, Globe } from "lucide-react";
 
-import { SidebarHeader } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import type { DevtoolsRequestEvent } from "@/context/applications/types";
+import { SidebarHeader } from "@/components/ui/sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { useNetworkStore } from "@/store/applications/network.store";
 
 export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {

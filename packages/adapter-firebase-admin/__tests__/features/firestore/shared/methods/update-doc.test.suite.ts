@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
-
 import type { FirebaseAdminAdapter } from "adapter";
-import type { Tea } from "../../../../utils";
+
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
+import type { Tea } from "../../../../utils";
 
 export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("updateDoc", () => {

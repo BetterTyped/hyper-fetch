@@ -1,6 +1,6 @@
-import { act } from "@testing-library/react";
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { act } from "@testing-library/react";
 
 import { renderUseSocketState } from "../../../utils/use-socket-state.utils";
 
@@ -191,13 +191,13 @@ describe("useSocketState [ Base ]", () => {
         actions.setExtra({ test: true } as any);
         actions.setConnected(true);
         actions.setConnecting(true);
-        actions.setTimestamp(12345);
+        actions.setTimestamp(12_345);
       });
 
       expect(view.result.current[0].data).toBe("some-data");
       expect(view.result.current[0].connected).toBe(true);
       expect(view.result.current[0].connecting).toBe(true);
-      expect(view.result.current[0].timestamp).toBe(12345);
+      expect(view.result.current[0].timestamp).toBe(12_345);
 
       act(() => {
         view.result.current[1].clearState();

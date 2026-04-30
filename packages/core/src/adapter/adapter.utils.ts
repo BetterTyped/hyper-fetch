@@ -65,7 +65,7 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted" | "p
 export const stringifyValue = (response: string | unknown): string => {
   try {
     return JSON.stringify(response as string);
-  } catch (err) {
+  } catch {
     return "";
   }
 };
@@ -75,7 +75,7 @@ export const getAdapterHeaders = (request: RequestInstance) => {
   const isObject = typeof request.payload === "object" && request.payload !== null;
   const headers: HeadersInit = {};
 
-  if (!isFormData && isObject) headers["Content-Type"] = "application/json";
+  if (!isFormData && isObject) {headers["Content-Type"] = "application/json";}
 
   Object.assign(headers, request.headers);
   return headers as HeadersInit;
@@ -83,7 +83,7 @@ export const getAdapterHeaders = (request: RequestInstance) => {
 
 export const getAdapterPayload = (data: unknown): string | FormData => {
   const isFormData = hasWindow() && data instanceof FormData;
-  if (isFormData) return data;
+  if (isFormData) {return data;}
 
   return stringifyValue(data);
 };

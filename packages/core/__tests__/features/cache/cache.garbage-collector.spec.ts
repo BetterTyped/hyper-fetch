@@ -1,14 +1,14 @@
 import { waitFor } from "@testing-library/dom";
-
 import type { CacheValueType } from "cache";
 import { Client, Time, xhrExtra } from "index";
+
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
-  const staleTime = 30000;
+  const staleTime = 30_000;
   const version = "test";
-  const cacheTime = 10000;
+  const cacheTime = 10_000;
   const cacheData: CacheValueType = {
     data: null,
     error: null,
@@ -16,10 +16,10 @@ describe("Cache [ Garbage Collector ]", () => {
     success: true,
     extra: xhrExtra,
     retries: 0,
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     isCanceled: false,
     isOffline: false,
     willRetry: false,
@@ -46,16 +46,16 @@ describe("Cache [ Garbage Collector ]", () => {
     vi.resetAllMocks();
     vi.clearAllMocks();
 
-    cacheData.requestTimestamp = +new Date();
-    cacheData.responseTimestamp = +new Date();
-    cacheData.addedTimestamp = +new Date();
-    cacheData.triggerTimestamp = +new Date();
+    cacheData.requestTimestamp = Date.now();
+    cacheData.responseTimestamp = Date.now();
+    cacheData.addedTimestamp = Date.now();
+    cacheData.triggerTimestamp = Date.now();
   });
 
   describe("when garbage collector is triggered", () => {
     it("should not schedule garbage collector for non existing key", async () => {
       cache.scheduleGarbageCollector(cacheKey);
-      expect(Array.from(cache.garbageCollectors.keys())).toHaveLength(0);
+      expect([...cache.garbageCollectors.keys()]).toHaveLength(0);
     });
     it("should garbage collect data from sync storage", async () => {
       cache.set(request.setCacheTime(10), cacheData);
@@ -78,7 +78,7 @@ describe("Cache [ Garbage Collector ]", () => {
         storage,
         version,
       });
-      expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
+      expect([...cacheInstance.garbageCollectors.keys()]).toHaveLength(1);
     });
     it("should not schedule lazy storage garbage collection on mount", async () => {
       const lazyStorage = new Map<string, CacheValueType>();
@@ -89,7 +89,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
 
       await waitFor(() => {
-        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
+        expect([...cacheInstance.garbageCollectors.keys()]).toHaveLength(0);
       });
     });
     it("should schedule garbage collection when resource is added", async () => {
@@ -142,15 +142,15 @@ describe("Cache [ Garbage Collector ]", () => {
       });
 
       await waitFor(() => {
-        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
+        expect([...cacheInstance.garbageCollectors.keys()]).toHaveLength(0);
       });
     });
     it("should garbage collect when time left is less than zero", async () => {
-      const pastTimestamp = +new Date() - 20000; // 20 seconds ago
+      const pastTimestamp = Date.now() - 20_000; // 20 seconds ago
       const staleData = {
         ...cacheData,
         responseTimestamp: pastTimestamp,
-        cacheTime: 10000, // 10 seconds
+        cacheTime: 10_000, // 10 seconds
       };
 
       cache.set(request, staleData);
@@ -168,7 +168,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
 
       await waitFor(() => {
-        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
+        expect([...cacheInstance.garbageCollectors.keys()]).toHaveLength(0);
       });
     });
   });

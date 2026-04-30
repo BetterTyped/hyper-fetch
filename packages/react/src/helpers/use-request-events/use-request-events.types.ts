@@ -15,7 +15,6 @@ import type {
   ResponseType,
   ResponseSuccessType,
 } from "@hyper-fetch/core";
-
 import type { UseTrackedStateActions } from "helpers";
 
 // Misc

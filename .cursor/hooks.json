@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-destructive-git.sh",
+        "matcher": "git\\s+(stash|reset|clean|checkout|push\\s+--force|push\\s+-f|rebase)",
+        "failClosed": true
+      }
+    ]
+  }
+}

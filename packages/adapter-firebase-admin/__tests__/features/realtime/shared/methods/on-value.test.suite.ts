@@ -1,9 +1,9 @@
+import { Client } from "@hyper-fetch/core";
 /* eslint-disable max-params */
 import { Socket } from "@hyper-fetch/sockets";
-import { Client } from "@hyper-fetch/core";
+import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
 import waitForExpect from "wait-for-expect";
 
-import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
 import type { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (

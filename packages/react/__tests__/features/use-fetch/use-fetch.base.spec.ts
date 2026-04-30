@@ -1,10 +1,10 @@
-import { act, waitFor } from "@testing-library/react";
 import type { AdapterInstance, ResponseType } from "@hyper-fetch/core";
 import { xhrExtra } from "@hyper-fetch/core";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
-import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testClientIsolation } from "../../shared";
+import { createRequest, renderUseFetch, createCacheData, client } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -47,8 +47,8 @@ describe("useFetch [ Base ]", () => {
           status: 200,
           success: true,
           extra: xhrExtra,
-          responseTimestamp: +new Date(),
-          requestTimestamp: +new Date(),
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
         },
         details: {
           retries: 2,
@@ -59,7 +59,7 @@ describe("useFetch [ Base ]", () => {
     });
     it("should show stale cache data while revalidating", async () => {
       await testClientIsolation(client);
-      const timestamp = +new Date() - 11;
+      const timestamp = Date.now() - 11;
       const mock = mockRequest(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
@@ -104,8 +104,8 @@ describe("useFetch [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json" } },
-        responseTimestamp: +new Date(),
-        requestTimestamp: +new Date(),
+        responseTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
       };
       const view = renderUseFetch(request, { disabled: true, initialResponse });
 
@@ -121,8 +121,8 @@ describe("useFetch [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json" } },
-        responseTimestamp: +new Date(),
-        requestTimestamp: +new Date(),
+        responseTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
       };
       const view = renderUseFetch(request, { initialResponse });
       expect(view.result.current.data).toEqual(initialResponse.data);

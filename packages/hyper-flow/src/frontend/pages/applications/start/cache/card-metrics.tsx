@@ -1,15 +1,15 @@
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import { ChartCache } from "@/components/charts/chart-cache";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { cn } from "@/lib/utils";
 import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
 import { useCacheStore } from "@/store/applications/cache.store";
-import { ChartCache } from "@/components/charts/chart-cache";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { toNumber } from "@/store/applications/utils";
-import { cn } from "@/lib/utils";
 
 export const CardMetrics = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -28,7 +28,7 @@ export const CardMetrics = ({ className }: { className?: string }) => {
   );
 
   const chartData = useMemo(() => {
-    return Array.from(cachesStats.values()).map((cache) => ({
+    return [...cachesStats.values()].map((cache) => ({
       name: `${cache.method} ${cache.endpoint}`,
       endpoint: cache.endpoint,
       method: cache.method,

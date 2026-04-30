@@ -59,19 +59,23 @@ const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>((pr
 
   const getFillContent = (fillType: SparkAreaChartProps["fill"]) => {
     switch (fillType) {
-      case "none":
+      case "none": {
         return <stop stopColor="currentColor" stopOpacity={0} />;
-      case "gradient":
+      }
+      case "gradient": {
         return (
           <>
             <stop offset="5%" stopColor="currentColor" stopOpacity={0.4} />
             <stop offset="95%" stopColor="currentColor" stopOpacity={0} />
           </>
         );
-      case "solid":
+      }
+      case "solid": {
         return <stop stopColor="currentColor" stopOpacity={0.3} />;
-      default:
+      }
+      default: {
         return <stop stopColor="currentColor" stopOpacity={0.3} />;
+      }
     }
   };
 
@@ -91,11 +95,10 @@ const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>((pr
           <XAxis hide dataKey={index} />
           <YAxis hide domain={yAxisDomain as AxisDomain} />
           {categories.map((category) => {
-            const categoryId = `${areaId}-${category.replace(/[^a-zA-Z0-9]/g, "")}`;
+            const categoryId = `${areaId}-${category.replaceAll(/[^a-zA-Z0-9]/g, "")}`;
             return (
-              <defs>
+              <defs key={category}>
                 <linearGradient
-                  key={category}
                   className={cn(getColorClassName(categoryColors.get(category) as AvailableChartColorsKeys, "text"))}
                   id={categoryId}
                   x1="0"
@@ -109,9 +112,10 @@ const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>((pr
             );
           })}
           {categories.map((category) => {
-            const categoryId = `${areaId}-${category.replace(/[^a-zA-Z0-9]/g, "")}`;
+            const categoryId = `${areaId}-${category.replaceAll(/[^a-zA-Z0-9]/g, "")}`;
             return (
               <Area
+                key={category}
                 className={cn(getColorClassName(categoryColors.get(category) as AvailableChartColorsKeys, "stroke"))}
                 dot={false}
                 strokeOpacity={1}

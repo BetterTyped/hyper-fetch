@@ -49,8 +49,8 @@ const getUsers = client.createRequest()({
 
 // Multiple calls of the same request
 getUsers.send({
-  onStart: ({ G, request }) => {
-    console.log("Request starting...", { G, request });
+  onRequestStart: ({ request, requestId }) => {
+    console.log("Request starting...", { requestId, request });
   },
 });
 getUsers.send();
@@ -82,16 +82,16 @@ const getUsersWithTime = client.createRequest()({
 // highlight-end
 
 getUsersWithTime.send({
-  onStart: ({ G, request }) => {
-    console.log("Request starting with deduplicateTime...", { G, request });
+  onRequestStart: ({ request, requestId }) => {
+    console.log("Request starting with deduplicateTime...", { requestId, request });
   },
 });
 
 setTimeout(() => {
   getUsersWithTime.send({
-    onStart: ({ G, request }) => {
+    onRequestStart: ({ request, requestId }) => {
       // This will not be logged because it's within the 2000ms window
-      console.log("Second request starting...", { G, request });
+      console.log("Second request starting...", { requestId, request });
     },
   });
 }, 500);

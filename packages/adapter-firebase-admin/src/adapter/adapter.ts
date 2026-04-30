@@ -1,6 +1,4 @@
 import { Adapter } from "@hyper-fetch/core";
-import { Firestore } from "firebase-admin/firestore";
-
 import type {
   FirebaseAdminDBTypes,
   FirebaseAdminAdapterTypes,
@@ -8,6 +6,8 @@ import type {
   RealtimeDBRequestType,
 } from "adapter";
 import { FirestoreMethods, RealtimeDBMethods } from "adapter";
+import { Firestore } from "firebase-admin/firestore";
+
 import { getFirestoreAdminMethods } from "../firestore";
 import { getRealtimeDbAdminMethods } from "../realtime";
 

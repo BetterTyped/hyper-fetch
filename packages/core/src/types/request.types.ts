@@ -1,9 +1,10 @@
 import type { ResponseType } from "adapter";
-import type { ExtractUrlParams, Request, RequestInstance } from "request";
-import type { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
 import type { Client, ClientInstance } from "client";
-import type { TypeWithDefaults } from "./helpers.types";
+import type { ExtractUrlParams, Request, RequestInstance } from "request";
+
 import type { ExtractAdapterEndpointType } from "./adapter.types";
+import type { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
+import type { TypeWithDefaults } from "./helpers.types";
 
 export type ExtractAdapterResolvedType<T extends RequestInstance> = ResponseType<
   ExtractResponseType<T>,

@@ -27,7 +27,7 @@ real-time applications.
 By default, Hyper-fetch attempts to connect to the socket server as soon as the `Socket` instance is created. This
 behavior is controlled by the `autoConnect` option, which is set to `true` by default.
 
-You can disable autoconnect by setting `autoConnect: false` in the `Socket` constructor. This is useful when you want to
+You can disable autoconnect by setting `autoConnect: false` in the adapter options. This is useful when you want to
 delay the connection until a user performs a specific action, such as logging in or navigating to a certain page.
 
 ```ts
@@ -35,7 +35,7 @@ import { Socket } from "@hyper-fetch/sockets";
 
 const socket = new Socket({
   url: "ws://localhost:8080",
-  autoConnect: false,
+  adapterOptions: { autoConnect: false },
 });
 ```
 
@@ -53,7 +53,7 @@ function Component() {
   const [socket] = React.useState(() => {
     return new Socket({
       url: "ws://localhost:8080",
-      autoConnect: false,
+      adapterOptions: { autoConnect: false },
     });
   });
 
@@ -193,8 +193,7 @@ const socket = new Socket({
 
 You can also hook into the reconnection lifecycle with `onReconnect` and `onReconnectFailed` callbacks:
 
-- `onReconnect`: Triggered at the start of each reconnection attempt. It receives the attempt count and the total number
-  of retries.
+- `onReconnect`: Triggered at the start of each reconnection attempt.
 - `onReconnectFailed`: Triggered when all reconnection attempts have failed.
 
 ```tsx
@@ -206,8 +205,8 @@ function Component() {
       reconnectTime: 2000,
     });
 
-    instance.onReconnect((attempt, retries) => {
-      console.log(`Reconnection attempt ${attempt} of ${retries}`);
+    instance.onReconnect(() => {
+      console.log("Reconnection attempt started");
     });
 
     instance.onReconnectFailed(() => {
@@ -230,4 +229,6 @@ You now know how to manage socket connections in Hyper-fetch.
 - You can control **automatic and manual connections**.
 - You can **disconnect and reconnect** from the server on demand.
 - You can monitor the **connection lifecycle** with callbacks.
-- You can create robust **retry strategies** for network resilience. :::
+- You can create robust **retry strategies** for network resilience.
+
+:::

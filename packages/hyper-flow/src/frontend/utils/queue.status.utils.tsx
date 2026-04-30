@@ -10,7 +10,7 @@ export const getQueueStatus = (queue: QueueDataType): QueueStatus => {
   if (queue.stopped) {
     return QueueStatus.STOPPED;
   }
-  if (queue.requests.length) {
+  if (queue.requests.length > 0) {
     return QueueStatus.RUNNING;
   }
   return QueueStatus.PENDING;
@@ -23,7 +23,7 @@ export const getQueueStatusColor = ({ queue, active }: { queue: QueueDataType; a
   if (queue.stopped) {
     return { border: "border-orange-500" };
   }
-  if (queue.requests.length) {
+  if (queue.requests.length > 0) {
     return { border: "border-cyan-500" };
   }
   return { border: "border-zinc-700" };

@@ -8,7 +8,7 @@ sidebar_label: Parameters
 
 In Hyper Fetch, parameters are crucial for creating dynamic and flexible requests. They allow you to pass data to your
 API endpoints as part of the URL path. This guide covers everything you need to know about defining and using URL
-parameters effectively. For query parameters, see our [dedicated guide](./query-params.mdx).
+parameters effectively. For query parameters, see our [dedicated guide](./query-params).
 
 :::secondary What you'll learn
 
@@ -69,7 +69,7 @@ const response = getProduct.send({
 
 ## Parameter Precedence
 
-It's important to understand what happens when you set parameters in multiple places. Hyper Fetch do not allow you to
+It's important to understand what happens when you set parameters in multiple places. Hyper Fetch does not allow you to
 pass parameters that are already defined in the request.
 
 If you ignore Typescript - parameters passed directly to `send` will always override those set with `setParams` or

@@ -1,5 +1,4 @@
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
-
 import type { EmitterInstance } from "emitter";
 import { interceptEmitter, interceptListener, Socket } from "socket";
 

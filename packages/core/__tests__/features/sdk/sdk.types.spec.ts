@@ -1,11 +1,10 @@
-import { describe, it, expect, expectTypeOf } from "vitest";
-
 import { createClient } from "client";
 import type { ClientInstance, Client } from "client";
-import type { Request, RequestInstance, RequestModel } from "request";
 import type { HttpAdapterType } from "http-adapter";
+import type { Request, RequestInstance, RequestModel } from "request";
 import { createSdk } from "sdk";
 import type { InjectClient } from "sdk";
+import { describe, it, expect, expectTypeOf } from "vitest";
 
 /**
  * Type-only tests for the SDK type surface.
@@ -276,7 +275,7 @@ describe("$configure - dot-path callback narrowing", () => {
     // Compile-time only: just verify the call typechecks.
     sdk.$configure({
       "*": { retry: 3 },
-      "/users": { cache: true, cacheTime: 30000 },
+      "/users": { cache: true, cacheTime: 30_000 },
     });
 
     expect(true).toBe(true);

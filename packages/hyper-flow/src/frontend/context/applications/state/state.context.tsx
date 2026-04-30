@@ -1,7 +1,7 @@
-/* eslint-disable no-nested-ternary */
-import type { Updater } from "use-immer";
 import type { NonNullableKeys, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 import { stringifyValue } from "@hyper-fetch/core";
+/* eslint-disable no-nested-ternary */
+import type { Updater } from "use-immer";
 
 import type {
   DevtoolsRequestResponse,
@@ -11,9 +11,9 @@ import type {
   DevtoolsCacheEvent,
   Sort,
 } from "@/context/applications/types";
-import type { Status } from "@/utils/request.status.utils";
-import { createContext } from "@/utils/context";
 import { toNumber } from "@/store/applications/utils";
+import { createContext } from "@/utils/context";
+import type { Status } from "@/utils/request.status.utils";
 
 export type ConnectionStats = {
   // General

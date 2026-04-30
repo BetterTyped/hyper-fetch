@@ -1,10 +1,9 @@
-import { vi } from "vitest";
 import { input, select, confirm } from "@inquirer/prompts";
-
-import { generate } from "commands/generate";
-import { handleError } from "utils/handle-error";
-import { preFlightGenerate } from "preflights/preflight-generate";
 import { OpenapiRequestGenerator } from "codegen/openapi/generator";
+import { generate } from "commands/generate";
+import { preFlightGenerate } from "preflights/preflight-generate";
+import { handleError } from "utils/handle-error";
+import { vi } from "vitest";
 
 // Mocks
 vi.mock("utils/handle-error", () => ({ handleError: vi.fn() }));
@@ -21,7 +20,7 @@ vi.mock("preflights/preflight-generate", () => {
 vi.mock("codegen/openapi/generator", () => {
   class FakeGenerator {
     static getSchemaFromUrl = vi.fn(async () => ({ openapi: "3.0.0", paths: {} }));
-    generateFile = vi.fn(async () => undefined);
+    generateFile = vi.fn(async () => {});
   }
   return { OpenapiRequestGenerator: FakeGenerator };
 });
@@ -41,7 +40,7 @@ describe("cli generate command", () => {
   const originalArgv = process.argv;
   const exitSpy = vi
     .spyOn(process, "exit")
-    .mockImplementation((() => undefined) as (code?: string | number | null | undefined) => never);
+    .mockImplementation((() => {}) as (code?: string | number | null | undefined) => never);
 
   beforeEach(() => {
     vi.clearAllMocks();

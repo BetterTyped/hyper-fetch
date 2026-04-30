@@ -1,20 +1,20 @@
-import { useMemo, useState } from "react";
 import { Braces, Clock, FileText, FileUp, ChevronDown } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { JSONViewer } from "@/components/json-viewer/json-viewer";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/no-content/empty-state";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("payload");
 
   const config = useMemo(() => {
-    if (!item) return null;
+    if (!item) {return null;}
 
     const values = JSON.parse(JSON.stringify(item.request));
     delete values.payload;
@@ -27,15 +27,19 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
 
   const hasContent = (value: string) => {
     switch (value) {
-      case "response":
+      case "response": {
         return !!item.response;
-      case "details":
+      }
+      case "details": {
         return !!item.details;
+      }
       case "payload":
-      case "request":
+      case "request": {
         return true;
-      default:
+      }
+      default: {
         return false;
+      }
     }
   };
 

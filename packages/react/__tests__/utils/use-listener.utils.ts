@@ -1,6 +1,5 @@
-import { renderHook } from "@testing-library/react";
 import type { ListenerInstance } from "@hyper-fetch/sockets";
-
+import { renderHook } from "@testing-library/react";
 import type { UseListenerOptionsType } from "hooks/use-listener";
 import { useListener } from "hooks/use-listener";
 

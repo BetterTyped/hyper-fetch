@@ -22,7 +22,7 @@ describe("E2E [ WebSocket Heartbeat ]", () => {
 
     const heartbeats: any[] = [];
     onMessage((msg) => {
-      if (msg.topic === "heartbeat") heartbeats.push(msg);
+      if (msg.topic === "heartbeat") {heartbeats.push(msg);}
     });
 
     // Wait for at least one heartbeat
@@ -82,7 +82,7 @@ describe("E2E [ WebSocket Heartbeat ]", () => {
 
     const heartbeats: any[] = [];
     onMessage((msg) => {
-      if (msg.topic === "heartbeat") heartbeats.push(msg);
+      if (msg.topic === "heartbeat") {heartbeats.push(msg);}
     });
 
     // Send activity messages to keep resetting the heartbeat timer
@@ -119,7 +119,7 @@ describe("E2E [ WebSocket Heartbeat ]", () => {
 
     const heartbeats: any[] = [];
     onMessage((msg) => {
-      if (msg.topic === "heartbeat") heartbeats.push(msg);
+      if (msg.topic === "heartbeat") {heartbeats.push(msg);}
     });
 
     await sleep(600);
@@ -148,7 +148,7 @@ describe("E2E [ WebSocket Heartbeat ]", () => {
 
     const heartbeats: any[] = [];
     onMessage((msg) => {
-      if (msg.topic === "heartbeat") heartbeats.push(msg);
+      if (msg.topic === "heartbeat") {heartbeats.push(msg);}
     });
 
     await sleep(500);

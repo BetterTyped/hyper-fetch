@@ -7,5 +7,5 @@ export enum Time {
   MONTH_30 = 2.592e9,
   MONTH_31 = 2.6784e9,
   YEAR = 3.1536e10,
-  YEAR_LEAP = 3.16224e10,
+  YEAR_LEAP = 3.162_24e10,
 }

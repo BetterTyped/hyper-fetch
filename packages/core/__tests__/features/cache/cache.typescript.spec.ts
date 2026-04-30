@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { expectFunctionParametersType, expectNotFunctionParametersType } from "@hyper-fetch/testing";
-
 import type { ResponseSuccessType } from "adapter";
-import type { ResponseDetailsType } from "managers";
 import { Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
 import { xhrExtra } from "http-adapter";
+import type { ResponseDetailsType } from "managers";
+
 import { createCache } from "../../utils";
 
 interface UserResponse {

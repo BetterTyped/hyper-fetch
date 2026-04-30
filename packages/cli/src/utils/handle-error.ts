@@ -1,7 +1,6 @@
 import chalk from "chalk";
-import { z } from "zod";
-
 import { logger } from "utils/logger";
+import { z } from "zod";
 
 export function handleError(error: unknown) {
   logger.break();

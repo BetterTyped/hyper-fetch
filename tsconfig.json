@@ -19,7 +19,6 @@
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "downlevelIteration": true,
     "noImplicitReturns": false,
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
@@ -28,7 +27,6 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "strict": true,
-    "baseUrl": ".",
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import { Command } from "commander";
 import { select } from "@inquirer/prompts";
-
-import pkg from "../../package.json";
+import { Command } from "commander";
 import { generate } from "commands/generate";
 import { init } from "commands/init";
 import { handleError } from "utils/handle-error";
+
+import pkg from "../../package.json";
 
 const program = new Command();
 
@@ -43,10 +43,10 @@ const main = async () => {
     } else {
       await program.parseAsync([process.argv[0], process.argv[1], chosenCommand, ...process.argv.slice(3)]);
     }
-  } catch (e) {
-    handleError(e);
-    if (e instanceof Error) {
-      if (e.message.includes("User force closed the prompt")) {
+  } catch (error) {
+    handleError(error);
+    if (error instanceof Error) {
+      if (error.message.includes("User force closed the prompt")) {
         process.exit(0);
       }
     }

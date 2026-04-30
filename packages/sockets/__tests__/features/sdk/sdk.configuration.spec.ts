@@ -1,8 +1,9 @@
-import type { SocketInstance } from "socket";
-import type { ListenerModel } from "listener";
 import type { EmitterModel } from "emitter";
+import type { ListenerModel } from "listener";
 import type { SocketSdkConfigurationValue } from "sdk";
 import { createSocketSdk, createSocketConfiguration } from "sdk";
+import type { SocketInstance } from "socket";
+
 import { createSocket } from "../../utils/socket.utils";
 
 type TestSocket = SocketInstance;

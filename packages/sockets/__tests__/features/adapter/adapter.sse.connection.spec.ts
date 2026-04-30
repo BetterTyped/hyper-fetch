@@ -1,8 +1,8 @@
-import { waitFor } from "@testing-library/dom";
 import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/dom";
+import { ServerSentEventsAdapter } from "adapter-sse";
 
 import { createSocket } from "../../utils/socket.utils";
-import { ServerSentEventsAdapter } from "adapter-sse";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,

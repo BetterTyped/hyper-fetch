@@ -1,7 +1,3 @@
-/**
- * @vitest-environment node
- */
-import { URL } from "url";
 import { Client } from "@hyper-fetch/core";
 import type { RouteHandler } from "@hyper-fetch/testing";
 import {
@@ -12,6 +8,10 @@ import {
   fileDownloadHandler,
   echoHandler,
 } from "@hyper-fetch/testing";
+/**
+ * @vitest-environment node
+ */
+import { URL } from "url";
 
 const { route, startServer, stopServer } = createE2EServer();
 
@@ -73,7 +73,7 @@ beforeAll(async () => {
   // File Download
   const fileContent = Buffer.from("Hello, this is a test file content!");
   route("GET", "/download/test.txt", fileDownloadHandler(fileContent, "test.txt", "text/plain"));
-  const binaryContent = Buffer.alloc(1024, 0xab);
+  const binaryContent = Buffer.alloc(1024, 0xAB);
   route("GET", "/download/binary.bin", fileDownloadHandler(binaryContent, "binary.bin"));
 
   // Concurrent
@@ -265,7 +265,7 @@ describe("E2E [ Streaming ]", () => {
     expect(status).toBe(200);
     expect(data).toBeDefined();
     expect(progressEvents.length).toBeGreaterThanOrEqual(1);
-    const lastLoaded = progressEvents[progressEvents.length - 1];
+    const lastLoaded = progressEvents.at(-1);
     expect(lastLoaded).toBeGreaterThan(0);
   });
 
@@ -293,7 +293,7 @@ describe("E2E [ Streaming ]", () => {
     while (true) {
       // eslint-disable-next-line no-await-in-loop
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {break;}
       chunks.push(decoder.decode(value, { stream: true }));
     }
 

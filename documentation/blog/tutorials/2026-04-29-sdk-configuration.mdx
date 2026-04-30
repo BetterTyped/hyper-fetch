@@ -4,7 +4,6 @@ title: "SDK Configuration"
 authors: [maciej]
 tags: [SDK, Sockets, Configuration, TypeScript]
 date: 2026-04-29
-image: ./img/sdk-configuration.png
 ---
 
 import { BlogPostImage } from "@site/src/components";
@@ -82,11 +81,16 @@ const configured = sdk.$configure({
 
   // highlight-start
   // Normalize the API's snake_case into camelCase for the frontend
-  "users.$get": (request) => request.setResponseMapper(snakeToCamelMapper).setCache(true).setCacheTime(30000),
+  "users.$get": (request) =>
+    request
+      .setResponseMapper(snakeToCamelMapper)
+      .setCache(true)
+      .setCacheTime(30000),
   // highlight-end
 
   // Attach the org header that the billing API requires
-  "billing.invoices.$get": (request) => request.setHeaders({ "X-Org-Id": getCurrentOrgId() }),
+  "billing.invoices.$get": (request) =>
+    request.setHeaders({ "X-Org-Id": getCurrentOrgId() }),
 });
 ```
 
@@ -98,8 +102,10 @@ Instead of maintaining a separate network mock layer, mock directly on the SDK:
 
 ```typescript
 export const testSdk = sdk.$configure({
-  "users.$get": (req) => req.setMock(() => ({ data: [{ id: 1, name: "Alice" }] })),
-  "users.$userId.$get": (req) => req.setMock(() => ({ data: { id: 1, name: "Alice" } })),
+  "users.$get": (req) =>
+    req.setMock(() => ({ data: [{ id: 1, name: "Alice" }] })),
+  "users.$userId.$get": (req) =>
+    req.setMock(() => ({ data: { id: 1, name: "Alice" } })),
   "billing.invoices.$get": (req) => req.setMock(() => ({ data: [] })),
 });
 ```
@@ -162,7 +168,8 @@ const configured = sdk.$configure({
   "chat/*": { options: { priority: "high" } },
   // highlight-next-line
   // Sanitize outgoing messages before sending
-  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(sanitizeMessage),
+  "chat.messages.$emitter": (instance) =>
+    instance.setPayloadMapper(sanitizeMessage),
 });
 ```
 
@@ -180,7 +187,8 @@ import { createConfiguration } from "@hyper-fetch/core";
 
 export const usersConfig = createConfiguration<ApiSchema>()({
   // Normalize and cache the user list
-  "users.$get": (request) => request.setResponseMapper(snakeToCamelMapper).setCache(true),
+  "users.$get": (request) =>
+    request.setResponseMapper(snakeToCamelMapper).setCache(true),
   // Require auth, allow stale data for 5s on profile pages
   "users.$userId.$get": (request) => request.setAuth(true).setStaleTime(5000),
 });
@@ -196,7 +204,9 @@ export const billingConfig = createConfiguration<ApiSchema>()({
 ```
 
 ```typescript title="sdk.ts"
-export const api = createSdk(client).$configure(usersConfig).$configure(billingConfig);
+export const api = createSdk(client)
+  .$configure(usersConfig)
+  .$configure(billingConfig);
 ```
 
 Keys are validated against your schema at compile time. A typo in `"users.$gett"` fails the build, not a production

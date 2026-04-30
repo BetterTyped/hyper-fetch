@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
+import { render, screen, waitFor } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
+
 import { client, createRequest } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();

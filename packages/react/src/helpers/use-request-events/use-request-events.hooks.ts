@@ -1,3 +1,4 @@
+import { useWillUnmount } from "@better-hooks/lifecycle";
 import type {
   ExtractErrorType,
   ExtractResponseType,
@@ -11,9 +12,6 @@ import type {
   OptimisticCallbackResult,
 } from "@hyper-fetch/core";
 import { scopeKey } from "@hyper-fetch/core";
-import { useWillUnmount } from "@better-hooks/lifecycle";
-import { useRef } from "react";
-
 import type {
   OnErrorCallbackType,
   OnStartCallbackType,
@@ -25,6 +23,7 @@ import type {
   UseRequestEventsPropsType,
   UseRequestEventsLifecycleMap,
 } from "helpers";
+import { useRef } from "react";
 
 /**
  * This is helper hook that handles main Hyper-Fetch event/data flow
@@ -73,7 +72,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const clearLifecycleListeners = () => {
     const events = lifecycleEvents.current;
-    const listeners = Array.from(events.values());
+    const listeners = [...events.values()];
     listeners.forEach((value) => {
       value.unmount();
     });
@@ -140,7 +139,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
       // When we process the cache data, we don't want to change the loading state during it
       // This prevents the UI from flickering with { data: null, loading: false }
-      if (isProcessing) return;
+      if (isProcessing) {return;}
 
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
       if (loading || canDisableLoading) {

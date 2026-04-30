@@ -1,6 +1,6 @@
-import type { Socket } from "socket";
 import type { SocketAdapterInstance } from "adapter";
 import type { EmitterInstance } from "emitter";
+import type { Socket } from "socket";
 import type { ExtractAdapterOptionsType, ExtractAdapterQueryParamsType } from "types";
 
 export type SocketInstance = Socket<SocketAdapterInstance>;

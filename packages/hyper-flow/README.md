@@ -18,7 +18,9 @@
 
 ## 📖 About
 
-HyperFlow is a standalone desktop application that connects to your HyperFetch-powered app via the devtools plugin. It gives you real-time visibility into every request, cache entry, and queue operation — debug failed requests, inspect response data, monitor performance, and simulate offline behavior.
+HyperFlow is a standalone desktop application that connects to your HyperFetch-powered app via the devtools plugin. It
+gives you real-time visibility into every request, cache entry, and queue operation — debug failed requests, inspect
+response data, monitor performance, and simulate offline behavior.
 
 ## 🎯 Key Capabilities
 
@@ -42,9 +44,7 @@ npm install @hyper-fetch/plugin-devtools
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-const client = createClient({ url: "https://api.example.com" }).addPlugin(
-  DevtoolsPlugin({ appName: "My App" }),
-);
+const client = createClient({ url: "https://api.example.com" }).addPlugin(DevtoolsPlugin({ appName: "My App" }));
 ```
 
 3. Open HyperFlow to see requests, cache state, and queue activity in real time.
@@ -59,15 +59,18 @@ const client = createClient({ url: "https://api.example.com" }).addPlugin(
 
 ### Debugging a failed request
 
-Open HyperFlow and see the full request lifecycle: method, endpoint, headers, payload sent, response status, error details, and timing breakdown — all in one view.
+Open HyperFlow and see the full request lifecycle: method, endpoint, headers, payload sent, response status, error
+details, and timing breakdown — all in one view.
 
 ### Inspecting cache state
 
-Browse all cached entries, see when they were last updated, and manually invalidate specific cache keys to test refetching behavior.
+Browse all cached entries, see when they were last updated, and manually invalidate specific cache keys to test
+refetching behavior.
 
 ### Monitoring queue activity
 
-Watch requests enter and leave the queue in real time. See which requests are pending, retrying, or failed, and understand the order of execution.
+Watch requests enter and leave the queue in real time. See which requests are pending, retrying, or failed, and
+understand the order of execution.
 
 ## License
 

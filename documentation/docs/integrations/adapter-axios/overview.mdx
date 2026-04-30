@@ -40,9 +40,9 @@ npm install @hyper-fetch/axios
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { axiosAdapter } from "@hyper-fetch/axios";
+import { AxiosAdapter } from "@hyper-fetch/axios";
 
-const client = new Client({ url: "base-url" }).setAdapter(axiosAdapter);
+const client = new Client({ url: "base-url" }).setAdapter(AxiosAdapter);
 ```
 
 3. ...and voila! It's done. Now you can set `axios` options on your requests.

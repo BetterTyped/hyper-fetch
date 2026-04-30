@@ -15,15 +15,15 @@ In Hyper Fetch, in order to make use of these two methods, we have to use our `h
 
 ```tsx
 import {Socket} from "@hyper-fetch/sockets";
-import {firebaseSocketsAdapter} from "@hyper-fetch/firebase";
+import {FirebaseSocketsAdapter} from "@hyper-fetch/firebase";
 
 const firestoreWebDatabase = <initializedFirestoreDatabase>
-const socket = new Socket({ url: "teas/", adapter: firebaseSocketsAdapter(firestoreWebDatabase) });
+const socket = new Socket({ url: "teas/", adapter: FirebaseSocketsAdapter(firestoreWebDatabase) });
 const onSnapshotRequest = socket.createListener<Tea[]>()({
-  name: "",
+  topic: "",
   options: { groupByChangeType: true },
 });
-const unmount = await onValueReq.listen({ callback: ({data, extra} => {
+const unmount = onSnapshotRequest.listen({ callback: ({data, extra} => {
   // do something with data and extra received each time socket gets new data
 })});
 ```
@@ -33,7 +33,7 @@ As you can see in the presented example:
 1. First we need to initialize the socket itself. Here we need to pass an adapter:
    - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore - from the `@hyper-fetch/firebase`
      package.
-   - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/-firebase-admin`
+   - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/firebase-admin`
      package.
 
 The adapter accepts initialized database.
@@ -80,7 +80,7 @@ listener that will return data only for the object with `type` that equals `Gree
 ```tsx
 // Should listen for changes only for Green teas
 const onSnapshotReq = socket.createListener<Tea[]>()({
-  name: "",
+  topic: "",
   options: { constraints: [$where("type", "==", "Green")] },
 });
 ```

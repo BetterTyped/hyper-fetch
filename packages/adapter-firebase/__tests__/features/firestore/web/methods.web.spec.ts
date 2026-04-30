@@ -3,10 +3,11 @@
  */
 
 import { FirebaseAdapter } from "adapter";
-import { seedFirestoreDatabaseBrowser } from "../../../utils/browser/seed.browser";
+
 import { deleteCollectionForBrowser } from "../../../utils/browser/clean.browser";
-import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
+import { seedFirestoreDatabaseBrowser } from "../../../utils/browser/seed.browser";
+import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Firestore Browser [ Methods ]", () => {
   beforeEach(async () => {

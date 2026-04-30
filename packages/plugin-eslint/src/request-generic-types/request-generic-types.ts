@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { ESLintUtils } from "@typescript-eslint/utils";
-
 import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic-utilities.types";
 
 // The Rule creator returns a function that is used to create a well-typed ESLint rule
@@ -15,7 +14,6 @@ export const requestGenericTypes = createRule({
   name: "request-generic-types",
   meta: {
     docs: {
-      recommended: "error",
       description: "Rules extending HyperFetch possibilities for generic types",
     },
     type: "problem",
@@ -59,7 +57,7 @@ export const requestGenericTypes = createRule({
           });
           const isEmpty = getEmptyGenerics({ typeParameters });
 
-          if (unexpectedGenericElements.length) {
+          if (unexpectedGenericElements.length > 0) {
             context.report({
               node,
               messageId: "unexpectedGenerics",

@@ -105,7 +105,8 @@ export const client = createClient({
     return request;
   })
   .onError(async (response, request) => {
-    const status = response[2];
+    // highlight-next-line
+    const status = response.status;
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
 
     // If the error is 401, we have a refresh token, and we haven't tried refreshing yet
@@ -117,7 +118,8 @@ export const client = createClient({
       });
 
       // Send the refresh token to get a new pair of tokens
-      const [data, error] = await refreshTokenRequest.setPayload({ refreshToken }).send();
+      // highlight-next-line
+      const { data, error } = await refreshTokenRequest.setPayload({ refreshToken }).send();
 
       if (data) {
         // Save the new tokens
@@ -125,6 +127,7 @@ export const client = createClient({
         localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, data.refreshToken);
 
         // Retry the original request.
+        // highlight-next-line
         // setUsed(true) marks the request to prevent infinite loops.
         return request.setUsed(true).send();
       }
@@ -154,6 +157,40 @@ out of the box. The underlying browser `fetch` API or libraries like `axios` man
 When your server responds with a `Set-Cookie` header, the browser securely stores the cookie and automatically includes
 it in all subsequent requests to the same domain. You don't need any extra configuration in Hyper Fetch for this to
 work.
+
+---
+
+## API Key Authentication
+
+For services that authenticate via an API key in headers or query parameters, you can use the `onAuth` callback just
+like with bearer tokens:
+
+```ts
+export const client = createClient({
+  url: "https://api.example.com",
+}).onAuth((request) => {
+  return request.setHeaders({
+    ...request.headers,
+    "X-API-Key": process.env.API_KEY,
+  });
+});
+
+// Mark the request as requiring authentication
+const getWeather = client.createRequest()({
+  endpoint: "/weather",
+  auth: true,
+});
+```
+
+:::note When is it helpful?
+
+- **Bearer tokens**: Attach JWT or OAuth2 access tokens to every authenticated request.
+- **Token refresh**: Automatically retry on 401 by refreshing the token in `onError`.
+- **API keys**: Add static or environment-based API keys to request headers.
+- **Cookie auth**: Works out of the box with no configuration needed.
+- **Multi-tenant auth**: Switch tokens based on the request's endpoint or custom properties.
+
+:::
 
 ---
 

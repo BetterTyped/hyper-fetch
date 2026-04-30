@@ -1,5 +1,5 @@
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { addQueueElement, client, createRequest, renderUseQueue } from "../../utils";
 
@@ -55,7 +55,7 @@ describe("useQueue [ Base ]", () => {
           progress: 0.5,
           timeLeft: 2000,
           sizeLeft: 100,
-          startTimestamp: +new Date(),
+          startTimestamp: Date.now(),
         };
         const { result } = renderUseQueue(request);
         act(() => {
@@ -84,7 +84,7 @@ describe("useQueue [ Base ]", () => {
           progress: 0.5,
           timeLeft: 2000,
           sizeLeft: 100,
-          startTimestamp: +new Date(),
+          startTimestamp: Date.now(),
         };
         const { result } = renderUseQueue(request);
         act(() => {
@@ -147,8 +147,8 @@ describe("useQueue [ Base ]", () => {
               status: 200,
               success: true,
               extra: {},
-              responseTimestamp: +new Date(),
-              requestTimestamp: +new Date(),
+              responseTimestamp: Date.now(),
+              requestTimestamp: Date.now(),
             },
             request,
           } as any);
@@ -183,8 +183,8 @@ describe("useQueue [ Base ]", () => {
               status: 500,
               success: false,
               extra: {},
-              responseTimestamp: +new Date(),
-              requestTimestamp: +new Date(),
+              responseTimestamp: Date.now(),
+              requestTimestamp: Date.now(),
             },
             request,
           } as any);
@@ -266,8 +266,8 @@ describe("useQueue [ Base ]", () => {
               status: 500,
               success: false,
               extra: {},
-              responseTimestamp: +new Date(),
-              requestTimestamp: +new Date(),
+              responseTimestamp: Date.now(),
+              requestTimestamp: Date.now(),
             },
             request,
           } as any);
@@ -288,8 +288,8 @@ describe("useQueue [ Base ]", () => {
               status: 200,
               success: true,
               extra: {},
-              responseTimestamp: +new Date(),
-              requestTimestamp: +new Date(),
+              responseTimestamp: Date.now(),
+              requestTimestamp: Date.now(),
             },
             request,
           } as any);
@@ -341,8 +341,8 @@ describe("useQueue [ Base ]", () => {
               status: 200,
               success: true,
               extra: {},
-              responseTimestamp: +new Date(),
-              requestTimestamp: +new Date(),
+              responseTimestamp: Date.now(),
+              requestTimestamp: Date.now(),
             },
             request,
           } as any);

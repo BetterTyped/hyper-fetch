@@ -22,7 +22,7 @@ export const createSseE2EServer = () => {
 
         req.on("close", () => {
           const idx = responses.indexOf(res);
-          if (idx !== -1) responses.splice(idx, 1);
+          if (idx !== -1) {responses.splice(idx, 1);}
         });
       });
 
@@ -30,7 +30,7 @@ export const createSseE2EServer = () => {
         sockets.push(socket);
         socket.on("close", () => {
           const idx = sockets.indexOf(socket);
-          if (idx !== -1) sockets.splice(idx, 1);
+          if (idx !== -1) {sockets.splice(idx, 1);}
         });
       });
 
@@ -66,8 +66,8 @@ export const createSseE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) reject(err);
-        else resolve();
+        if (err) {reject(err);}
+        else {resolve();}
       });
     });
   };

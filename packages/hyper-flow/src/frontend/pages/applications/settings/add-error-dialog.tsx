@@ -1,13 +1,12 @@
-import * as z from "zod";
-import { useState, useEffect } from "react";
-import { Plus, Pencil } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseResponse } from "@hyper-fetch/core";
+import { Plus, Pencil } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +17,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { SimulatedError } from "@/store/applications/apps.store";
 
 const errorFormSchema = z.object({
@@ -40,7 +40,7 @@ const stringifyBody = (body: any) => {
   try {
     const data = typeof body === "string" ? JSON.parse(body) : body;
     return JSON.stringify(data, null, 2);
-  } catch (error) {
+  } catch {
     return body;
   }
 };

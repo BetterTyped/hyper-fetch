@@ -116,8 +116,8 @@ const getUsers = client.createRequest()({
   endpoint: "/users",
 });
 
-const customCacheKey = client.getCacheKey(getUsers);
-console.log(customCacheKey); // Cache__GET__/users
+// highlight-next-line
+console.log(getUsers.cacheKey); // Cache__GET__/users
 ```
 
 ---
@@ -153,8 +153,9 @@ const getUsers = client.createRequest()({
   endpoint: "/users",
 });
 
-const customRequestId = client.getRequestId(getUsers);
-console.log(customRequestId); // Request__/users__1718858400000
+// The custom ID is assigned when the request enters the dispatcher
+const requestId = client.fetchDispatcher.add(getUsers);
+console.log(requestId); // Request__/users__1718858400000
 ```
 
 ---

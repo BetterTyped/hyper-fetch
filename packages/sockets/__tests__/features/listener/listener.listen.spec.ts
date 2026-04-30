@@ -1,5 +1,5 @@
-import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/dom";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";

@@ -14,12 +14,13 @@ import { BlogPostImage } from "@site/src/components";
   badge="tutorial"
   href="/blog/websockets-trpc-pattern"
   pattern="hexagon"
-  patternMask="bottom"
   file="sdk.ts"
 >
 
 ```ts
-sdk.chat.$roomId.$listener.setParams({ roomId: "general" }).listen(({ data }) => addMessage(data));
+sdk.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => addMessage(data));
 ```
 
 </BlogPostImage>
@@ -103,7 +104,9 @@ const client = createClient({ url: "https://api.example.com" });
 export const sdk = createSdk<typeof client, ApiSchema>(client);
 
 // GET /users/123 - response typed as User
-const { data } = await sdk.users.$userId.$get.setParams({ userId: "123" }).send();
+const { data } = await sdk.users.$userId.$get
+  .setParams({ userId: "123" })
+  .send();
 ```
 
 A quick note on the `RequestModel` type used above. Hyper Fetch ships **two** request types, and they look similar enough
@@ -174,7 +177,9 @@ sdk.chat.messages.$listener.listen(({ data }) => {
 sdk.chat.messages.$emitter.emit({ payload: { text: "Hello!" } });
 
 // Dynamic topic, params are required and typed
-sdk.chat.$roomId.$listener.setParams({ roomId: "general" }).listen(({ data }) => appendMessage(data.user, data.text));
+sdk.chat.$roomId.$listener
+  .setParams({ roomId: "general" })
+  .listen(({ data }) => appendMessage(data.user, data.text));
 ```
 
 `sdk.chat.$roomId.$listener.setParams({ wrong: "x" })` does not compile. Renaming `roomId` in the schema breaks every
@@ -191,7 +196,9 @@ change.
 ```ts title="Server-Sent Events"
 import { Socket, sseAdapter, createSocketSdk } from "@hyper-fetch/sockets";
 
-const socket = new Socket({ url: "https://api.example.com/events" }).setAdapter(sseAdapter);
+const socket = new Socket({ url: "https://api.example.com/events" }).setAdapter(
+  sseAdapter,
+);
 
 const sdk = createSocketSdk<typeof socket, NotificationsSchema>(socket);
 
@@ -213,40 +220,14 @@ const socket = new Socket({
 const sdk = createSocketSdk<typeof socket, FirebaseSchema>(socket);
 
 // Listen to a Realtime DB path with full type safety
-sdk.posts.$postId.$listener.setParams({ postId: "42" }).listen(({ data }) => renderPost(data));
+sdk.posts.$postId.$listener
+  .setParams({ postId: "42" })
+  .listen(({ data }) => renderPost(data));
 ```
 
 The same schema shape, the same `$listener` semantics, the same dot-notation access. The thing the user actually writes
 is identical whether the bytes on the wire come from a WebSocket frame, an SSE event, a Firestore snapshot, or a
 Realtime Database value change.
-
----
-
-## How does this compare to tRPC?
-
-This is the question that comes up first, so let's be direct about it. The proxy pattern is shared. The scope is not.
-
-| Library          | Schema-driven proxy SDK | No codegen | HTTP    | WebSocket     | SSE     | Firebase Realtime | Firestore | Server framework required |
-| ---------------- | ----------------------- | ---------- | ------- | ------------- | ------- | ----------------- | --------- | ------------------------- |
-| Axios / Fetch    | No                      | Yes        | Yes     | No            | No      | No                | No        | No                        |
-| Zodios           | Yes                     | Yes        | Yes     | No            | No      | No                | No        | No                        |
-| ts-rest          | Yes                     | Yes        | Yes     | No            | No      | No                | No        | Optional                  |
-| tRPC             | Yes                     | Yes        | Yes     | Subscriptions | No      | No                | No        | **Yes**                   |
-| Socket.IO client | Event maps only         | Yes        | No      | Yes           | No      | No                | No        | Server pair               |
-| Firebase JS SDK  | Limited                 | Yes        | No      | No            | No      | Yes               | Yes       | No                        |
-| Typesaurus       | Yes (builder API)       | Yes        | No      | No            | No      | No                | Yes       | No                        |
-| **Hyper Fetch**  | **Yes**                 | **Yes**    | **Yes** | **Yes**       | **Yes** | **Yes**           | **Yes**   | **No**                    |
-
-The two columns that matter most:
-
-1. **Cross-protocol coverage.** tRPC owns the full-stack RPC story. Hyper Fetch covers any transport you point an
-   adapter at, with the same schema-as-type, same `Proxy` runtime, same dot-notation access.
-2. **Server framework requirement.** tRPC is opinionated about both ends of the wire. Hyper Fetch is client-side. It
-   talks to whatever backend you already have - a Rails monolith, a Go service, a Firebase project, an MQTT bridge.
-
-These are different bets. If you control both ends and can pick tRPC for everything, that is a great choice. If you ship
-against a backend you do not own, or you mix HTTP, sockets, and Firebase in the same codebase, the same proxy ergonomics
-still help.
 
 ---
 
@@ -264,7 +245,8 @@ const configured = sdk.$configure({
   "chat/*": { options: { priority: "high" } },
 
   // Specific instance: sanitize outgoing chat messages
-  "chat.messages.$emitter": (instance) => instance.setPayloadMapper(sanitizeMessage),
+  "chat.messages.$emitter": (instance) =>
+    instance.setPayloadMapper(sanitizeMessage),
 });
 ```
 

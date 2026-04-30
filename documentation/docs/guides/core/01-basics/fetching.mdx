@@ -28,6 +28,14 @@ pass data, and handle their lifecycle events.
 The most direct way to execute a request is by calling the `send` method on it. This method is asynchronous and returns
 a promise that resolves with the request's outcome, including data, error, and status.
 
+:::note Promises never reject
+
+One of Hyper-Fetch's design principles is that `send()` **never rejects**. Whether the request succeeds or fails, the
+promise always resolves with a response object containing `data`, `error`, `success`, and `status`. This eliminates the
+need for `try...catch` blocks around your requests.
+
+:::
+
 Let's start by defining a request to fetch a user.
 
 ```ts title="src/api/users.ts"
@@ -48,10 +56,10 @@ const requestWithParams = getUser.setParams({ userId: 1 });
 
 // highlight-start
 // Execute the request and destructure the response
-const { data, error, isSuccess, status } = await requestWithParams.send();
+const { data, error, success, status } = await requestWithParams.send();
 // highlight-end
 
-if (isSuccess) {
+if (success) {
   console.log(`Request successful with status ${status}!`);
   console.log("User data:", data);
 } else {
@@ -73,7 +81,7 @@ Hyper-Fetch provides flexible ways to pass data, parameters, and query parameter
 
 ### 1. Using Setter Methods
 
-You can use methods like `setData`, `setParams`, and `setQueryParams` to prepare a request before sending it. This is
+You can use methods like `setPayload`, `setParams`, and `setQueryParams` to prepare a request before sending it. This is
 useful for building up a request in multiple steps or based on dynamic conditions.
 
 ```ts
@@ -86,7 +94,7 @@ const updateUser = client.createRequest<{
   method: "PUT",
 });
 
-const preparedRequest = updateUser.setParams({ userId: 1 }).setData({ name: "New Name" }).setQueryParams({
+const preparedRequest = updateUser.setParams({ userId: 1 }).setPayload({ name: "New Name" }).setQueryParams({
   limit: 10,
 });
 
@@ -108,7 +116,7 @@ const postData = client.createRequest()({
 async function createPost() {
   const { data, error } = await postData.send({
     // highlight-start
-    data: { title: "New Post", content: "..." },
+    payload: { title: "New Post", content: "..." },
     queryParams: { authorId: 5 },
     // highlight-end
   });
@@ -176,6 +184,33 @@ await requestWithParams.send({
 
 This approach is useful when you want to trigger the request with `send` and still need access to the `requestId` for
 tracking purposes within the same scope.
+
+---
+
+## Cache Policy
+
+The `send` method supports a `cachePolicy` option that controls how caching behaves for the request. This lets you
+fine-tune whether to use cached data or always go to the network:
+
+```ts
+// Always fetch from the network, ignoring any cached data
+const { data } = await getUser.setParams({ userId: 1 }).send({
+  // highlight-next-line
+  cachePolicy: "network-only",
+});
+
+// Return cached data if available and fresh, otherwise fetch from the network
+const { data: cachedFirst } = await getUser.setParams({ userId: 1 }).send({
+  // highlight-next-line
+  cachePolicy: "cache-first",
+});
+
+// Return cached data immediately but also revalidate in the background
+const { data: revalidated } = await getUser.setParams({ userId: 1 }).send({
+  // highlight-next-line
+  cachePolicy: "revalidate",
+});
+```
 
 ---
 

@@ -3,7 +3,7 @@ import { app, clipboard, Menu, shell } from "electron";
 export const isMac = process.platform === "darwin";
 
 export const createMenu = () => {
-  const template: Array<Electron.MenuItemConstructorOptions | Electron.MenuItem> = [
+  const template: (Electron.MenuItemConstructorOptions | Electron.MenuItem)[] = [
     {
       label: "HyperFlow",
       submenu: [
@@ -54,33 +54,33 @@ export const createMenu = () => {
     {
       label: "View",
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       submenu: [
         {
           label: "Take screenshot",
           accelerator: "CmdOrCtrl+Shift+I",
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
             if (focusedWindow)
-              focusedWindow.capturePage().then((image) => {
+              {focusedWindow.capturePage().then((image) => {
                 clipboard.writeImage(image);
-              });
+              });}
           },
         },
         {
           label: "Reload",
           accelerator: "CmdOrCtrl+R",
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            if (focusedWindow) focusedWindow.reload();
+            if (focusedWindow) {focusedWindow.reload();}
           },
         },
         {
           label: "Toggle Developer Tools",
           accelerator: (() => {
-            if (process.platform === "darwin") return "Alt+Command+I";
+            if (process.platform === "darwin") {return "Alt+Command+I";}
             return "Ctrl+Shift+I";
           })(),
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            if (focusedWindow) focusedWindow.webContents.openDevTools();
+            if (focusedWindow) {focusedWindow.webContents.openDevTools();}
           },
         },
       ].filter(Boolean),

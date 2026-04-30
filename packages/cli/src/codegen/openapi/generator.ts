@@ -1,18 +1,18 @@
 import type { ExportedType } from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
 import DtsGenerator from "@anttiviljami/dtsgenerator/dist/core/dtsGenerator";
-import RefParser from "@apidevtools/json-schema-ref-parser";
 import { parseSchema } from "@anttiviljami/dtsgenerator/dist/core/type";
-import * as lodash from "lodash";
-import * as prettier from "prettier";
-import * as fs from "fs-extra";
-import * as path from "node:path";
+import RefParser from "@apidevtools/json-schema-ref-parser";
 import { createClient } from "@hyper-fetch/core";
+import type { Config } from "config/schema";
+import * as fs from "fs-extra";
+import * as lodash from "lodash";
+import * as path from "node:path";
+import * as prettier from "prettier";
 
+import { HttpMethod } from "./http-methods.enum";
 import type { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
 import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, isUrl } from "./utils";
-import { HttpMethod } from "./http-methods.enum";
-import type { Config } from "config/schema";
 
 interface RefError {
   path: string;
@@ -98,7 +98,7 @@ export class OpenapiRequestGenerator {
       throw error || new Error("Failed to fetch schema");
     }
 
-    const schema = fs.readFileSync(path.join(config.resolvedPaths.cwd, url), "utf-8");
+    const schema = fs.readFileSync(path.join(config.resolvedPaths.cwd, url), "utf8");
     return JSON.parse(schema);
   };
 
@@ -127,7 +127,7 @@ export class OpenapiRequestGenerator {
           key = `$${segment.slice(1)}`;
         } else if (segment.includes("-")) {
           // Convert kebab-case to camelCase for path segments
-          key = segment.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+          key = segment.replaceAll(/-([a-z])/g, (_, letter) => letter.toUpperCase());
         } else {
           key = segment;
         }
@@ -315,7 +315,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
     const errors: RefError[] = [];
 
     function validateRefs(obj: any, refPath = "") {
-      if (!obj || typeof obj !== "object") return;
+      if (!obj || typeof obj !== "object") {return;}
 
       // Check if current object has $ref
       if (obj.$ref && typeof obj.$ref === "string" && obj.$ref.endsWith("/")) {

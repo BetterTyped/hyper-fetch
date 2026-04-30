@@ -1,7 +1,6 @@
 import { LoggerManager } from "@hyper-fetch/core";
-
-import { Socket } from "socket";
 import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
+import { Socket } from "socket";
 
 describe("Socket [ Methods ]", () => {
   beforeEach(() => {

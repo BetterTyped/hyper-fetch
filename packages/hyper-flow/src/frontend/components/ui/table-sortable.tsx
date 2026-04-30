@@ -12,9 +12,9 @@ interface TableSortableProps extends React.HTMLAttributes<HTMLTableCellElement> 
 
 export function TableSortable({ children, sort, onSort, className, ...props }: TableSortableProps) {
   const handleSort = () => {
-    if (sort === null) onSort("asc");
-    else if (sort === "asc") onSort("desc");
-    else onSort(null);
+    if (sort === null) {onSort("asc");}
+    else if (sort === "asc") {onSort("desc");}
+    else {onSort(null);}
   };
 
   return (

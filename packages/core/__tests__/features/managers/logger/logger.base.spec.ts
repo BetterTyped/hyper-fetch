@@ -1,7 +1,6 @@
-import type { Mock } from "vitest";
-
 import { Client } from "client";
 import { LoggerManager } from "managers";
+import type { Mock } from "vitest";
 
 describe("Logger [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" }).setDebug(true);

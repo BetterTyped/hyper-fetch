@@ -32,7 +32,7 @@ aware of the device's connectivity, preventing requests from being sent when the
 
 ```tsx title="services/client.ts"
 import { Client } from "@hyper-fetch/core";
-import { AppManager } from "@hyper-fetch/react";
+import { AppManager } from "@hyper-fetch/core";
 import NetInfo from "@react-native-community/netinfo";
 
 import { environment } from "src/environments";
@@ -40,8 +40,8 @@ import { ServerErrorType } from "src/types";
 
 export const client = new Client<ServerErrorType>({
   url: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
+  appManager: () =>
+    new AppManager({
       initiallyOnline: NetInfo.fetch().then((state) => !!state.isConnected),
       onlineEvent: (setOnline) => {
         return NetInfo.addEventListener((state) => {
@@ -63,15 +63,15 @@ focused. When it's `inactive` or in the `background`, it's blurred.
 ```tsx title="services/client.ts"
 import { AppState, AppStateStatus } from "react-native";
 import { Client } from "@hyper-fetch/core";
-import { AppManager } from "@hyper-fetch/react";
+import { AppManager } from "@hyper-fetch/core";
 
 import { environment } from "src/environments";
 import { ServerErrorType } from "src/types";
 
 export const client = new Client<ServerErrorType>({
   url: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
+  appManager: () =>
+    new AppManager({
       focusEvent: (setFocused) => {
         const onChange = (status: AppStateStatus) => {
           setFocused(status === "active");

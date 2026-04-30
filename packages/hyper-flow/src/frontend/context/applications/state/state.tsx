@@ -1,20 +1,19 @@
 import { useDidMount } from "@better-hooks/lifecycle";
+import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 import { memo, useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
-import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { initialApplicationState, useApplicationStates } from "./state.context";
-
 import type { DevtoolsCacheEvent, DevtoolsRequestEvent } from "@/context/applications/types";
-import { useNetworkStore } from "@/store/applications/network.store";
-import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
+import { useCacheStore } from "@/store/applications/cache.store";
+import { useConnectionStore } from "@/store/applications/connection.store";
+import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
-import { useCacheStore } from "@/store/applications/cache.store";
-import { useQueueStore } from "@/store/applications/queue.store";
+import { useNetworkStore } from "@/store/applications/network.store";
 import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
-import { useConnectionStore } from "@/store/applications/connection.store";
+import { useQueueStore } from "@/store/applications/queue.store";
 
 export const State = memo(({ application }: { application: string }) => {
   const { setApplicationStates } = useApplicationStates("State");
@@ -202,7 +201,7 @@ export const State = memo(({ application }: { application: string }) => {
       });
     });
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((data) => {
-      if (!data.requests.length) {
+      if (data.requests.length === 0) {
         removeLoadingKey({
           application,
           queryKey: data.queryKey,
@@ -226,7 +225,7 @@ export const State = memo(({ application }: { application: string }) => {
       });
     });
     const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((data) => {
-      if (!data.requests.length) {
+      if (data.requests.length === 0) {
         removeLoadingKey({
           application,
           queryKey: data.queryKey,

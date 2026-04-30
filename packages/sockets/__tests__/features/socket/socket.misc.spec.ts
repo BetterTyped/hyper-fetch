@@ -1,9 +1,9 @@
-import type { MockInstance } from "vitest";
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { getServerSentEventsAdapter } from "adapter-sse/sse-adapter.utils";
+import { getWebsocketAdapter } from "adapter-websockets/websocket-adapter.utils";
+import type { MockInstance } from "vitest";
 
 import { createSocket } from "../../utils/socket.utils";
-import { getWebsocketAdapter } from "adapter-websockets/websocket-adapter.utils";
-import { getServerSentEventsAdapter } from "adapter-sse/sse-adapter.utils";
 
 const windowInstance = global.window;
 

@@ -1,6 +1,6 @@
-import { waitFor } from "@testing-library/dom";
 import type { WebsocketAdapterType } from "@hyper-fetch/sockets";
 import { Socket } from "@hyper-fetch/sockets";
+import { waitFor } from "@testing-library/dom";
 
 import { createWebsocketMockingServer, waitForConnection } from "../../src";
 

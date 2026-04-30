@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import { useMemo } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Key } from "@/components/ui/key";
@@ -9,12 +9,15 @@ export const SectionHead = ({ item }: { item: QueueDataType<RequestInstance> }) 
   const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
   const color = useMemo(() => {
     switch (status) {
-      case QueueStatus.RUNNING:
+      case QueueStatus.RUNNING: {
         return "success";
-      case QueueStatus.PENDING:
+      }
+      case QueueStatus.PENDING: {
         return "secondary";
-      default:
+      }
+      default: {
         return "destructive";
+      }
     }
   }, [status]);
 

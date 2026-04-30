@@ -1,12 +1,12 @@
 import { sleep } from "@hyper-fetch/testing";
-
 import type { CacheAsyncStorageType, CacheValueType } from "cache";
-import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
 
+import { createCache, createLazyCacheAdapter } from "../../utils";
+
 describe("Cache [ Lazy Storage ]", () => {
-  const staleTime = 10000;
+  const staleTime = 10_000;
   const version = "test";
   const cacheKey = "1";
   const cacheData: CacheValueType = {
@@ -16,10 +16,10 @@ describe("Cache [ Lazy Storage ]", () => {
     success: true,
     extra: xhrExtra,
     retries: 0,
-    addedTimestamp: +new Date(),
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
+    addedTimestamp: Date.now(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
     isCanceled: false,
     isOffline: false,
     willRetry: false,
@@ -79,7 +79,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should not emit stale data", async () => {
-      await cache.options?.lazyStorage?.set(cacheKey, { ...cacheData, responseTimestamp: +new Date() - staleTime });
+      await cache.options?.lazyStorage?.set(cacheKey, { ...cacheData, responseTimestamp: Date.now() - staleTime });
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);

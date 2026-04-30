@@ -1,36 +1,19 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["dom", "dom.iterable", "ESNext"],
-    "jsx": "react-jsx",
-    "strict": true,
-    "strictPropertyInitialization": false,
     "noEmit": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/node"],
-    "baseUrl": "../src",
-    "paths": {
-      "@/*": ["./frontend/*"],
-      "@app/*": ["./app/*"],
-      "@server/*": ["./server/*"],
-      "@shared/*": ["./shared/*"],
-      "@testing/*": ["../__tests__/*"]
-    }
+    "types": ["vitest/globals", "@testing-library/jest-dom", "@types/node"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "../vite-env.d.ts",
-    "../electron.d.ts",
     "../../../global.d.ts",
-    "../../../vitest.d.ts"
-  ]
+    "../../../vitest.d.ts",
+    "../electron.d.ts",
+    "../vite-env.d.ts",
+    "../forge.env.d.ts"
+  ],
+  "exclude": ["node_modules"]
 }

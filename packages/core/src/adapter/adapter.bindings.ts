@@ -75,7 +75,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   }
 
   const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
-  const startTime = +new Date();
+  const startTime = Date.now();
   onStartTime(startTime);
 
   const getRequestStartTimestamp = () => {
@@ -89,7 +89,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Progress
 
   const getTotal = (previousTotal: number, progress?: ProgressDataType) => {
-    if (!progress) return previousTotal;
+    if (!progress) {return previousTotal;}
     const total = Number(progress.total || 0);
     const loaded = Number(progress.loaded || 0);
     return Math.max(total, loaded, previousTotal);
@@ -156,7 +156,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       total: requestTotal,
       loaded: progress?.loaded || 0,
     };
-    requestStartTimestamp = +new Date();
+    requestStartTimestamp = Date.now();
     handleRequestProgress(requestStartTimestamp, requestStartTimestamp, initialPayload);
     requestManager.events.emitRequestStart({ requestId, request });
     return requestStartTimestamp;
@@ -164,11 +164,11 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   const onRequestProgress = (progress: ProgressDataType) => {
     if (!requestStartTimestamp) {
-      requestStartTimestamp = +new Date();
+      requestStartTimestamp = Date.now();
     }
     requestTotal = getTotal(requestTotal, progress);
 
-    const progressTimestamp = +new Date();
+    const progressTimestamp = Date.now();
 
     handleRequestProgress(requestStartTimestamp, progressTimestamp, {
       total: requestTotal,
@@ -179,10 +179,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   const onRequestEnd = () => {
     if (!requestStartTimestamp) {
-      requestStartTimestamp = +new Date();
+      requestStartTimestamp = Date.now();
     }
 
-    const progressTimestamp = +new Date();
+    const progressTimestamp = Date.now();
     handleRequestProgress(requestStartTimestamp, progressTimestamp, {
       total: requestTotal,
       loaded: requestTotal,
@@ -193,7 +193,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Response
 
   const onResponseStart = (progress?: ProgressDataType) => {
-    responseStartTimestamp = +new Date();
+    responseStartTimestamp = Date.now();
 
     responseTotal = getTotal(responseTotal, progress);
 
@@ -209,10 +209,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   const onResponseProgress = (progress: ProgressDataType) => {
     if (!responseStartTimestamp) {
-      responseStartTimestamp = +new Date();
+      responseStartTimestamp = Date.now();
     }
 
-    const progressTimestamp = +new Date();
+    const progressTimestamp = Date.now();
     responseTotal = getTotal(responseTotal, progress);
 
     handleResponseProgress(responseStartTimestamp, progressTimestamp, {
@@ -224,10 +224,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   const onResponseEnd = () => {
     if (!responseStartTimestamp) {
-      responseStartTimestamp = +new Date();
+      responseStartTimestamp = Date.now();
     }
 
-    const progressTimestamp = +new Date();
+    const progressTimestamp = Date.now();
     handleResponseProgress(responseStartTimestamp, progressTimestamp, {
       total: responseTotal,
       loaded: responseTotal,
@@ -255,7 +255,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       status,
       extra,
       requestTimestamp: startTime,
-      responseTimestamp: +new Date(),
+      responseTimestamp: Date.now(),
     };
     response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
     response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
@@ -458,7 +458,7 @@ export function getAdapterOnError<T extends AdapterInstance>({
       success: false,
       extra,
       requestTimestamp: startTime,
-      responseTimestamp: +new Date(),
+      responseTimestamp: Date.now(),
     };
 
     response = (await client.unstable_modifyResponse(response, request)) as typeof response;

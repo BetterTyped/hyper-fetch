@@ -1,11 +1,11 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import path from "node:path";
 import { loadEnv } from "vite";
 import type { UserConfigFnObject } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 export const config: UserConfigFnObject = ({ mode }) => {
   const env = loadEnv(mode, path.resolve(__dirname, "../"));

@@ -1,3 +1,24 @@
+import type { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
+import type { ClientInstance } from "client";
+import { Time } from "constants/time.constants";
+import type { MockerConfigType, MockResponseType } from "mocker";
+import type {
+  ExtractAdapterType,
+  ExtractClientAdapterType,
+  ExtractClientGlobalError,
+  ExtractEndpointType,
+  ExtractParamsType,
+  ExtractPayloadType,
+  ExtractQueryParamsType,
+  EmptyTypes,
+  ExtractAdapterMethodType,
+  ExtractAdapterOptionsType,
+  HydrateDataType,
+  SyncOrAsync,
+} from "types";
+
+import type { RequestHooks } from "./request.hooks";
+import { createRequestHooks } from "./request.hooks";
 /* eslint-disable max-lines */
 import type {
   RequestSendOptionsType,
@@ -15,27 +36,7 @@ import type {
   RetryOnErrorCallbackType,
   OptimisticCallback,
 } from "./request.types";
-import type { RequestHooks } from "./request.hooks";
-import { createRequestHooks } from "./request.hooks";
 import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
-import type { ClientInstance } from "client";
-import type { ResponseErrorType, ResponseSuccessType, ResponseType } from "adapter";
-import type {
-  ExtractAdapterType,
-  ExtractClientAdapterType,
-  ExtractClientGlobalError,
-  ExtractEndpointType,
-  ExtractParamsType,
-  ExtractPayloadType,
-  ExtractQueryParamsType,
-  EmptyTypes,
-  ExtractAdapterMethodType,
-  ExtractAdapterOptionsType,
-  HydrateDataType,
-  SyncOrAsync,
-} from "types";
-import { Time } from "constants/time.constants";
-import type { MockerConfigType, MockResponseType } from "mocker";
 
 type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
 type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
@@ -396,7 +397,7 @@ export class Request<
   public setPayloadMapper = <MappedPayload extends any | Promise<any>>(
     payloadMapper: (data: Payload) => MappedPayload,
   ) => {
-    const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
     cloned.unstable_payloadMapper = payloadMapper as typeof this.unstable_payloadMapper;
 
@@ -409,7 +410,7 @@ export class Request<
    * @returns new request
    */
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
-    const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
     cloned.unstable_requestMapper = requestMapper;
 
@@ -448,7 +449,7 @@ export class Request<
     let stringEndpoint = String(endpoint);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        stringEndpoint = stringEndpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+        stringEndpoint = stringEndpoint.replaceAll(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 
@@ -588,7 +589,7 @@ export class Request<
         staleTime: this.staleTime,
         cacheKey: this.cacheKey,
         scope: this.scope,
-        timestamp: +new Date(),
+        timestamp: Date.now(),
         hydrated: true,
         cache: true,
         response,
@@ -609,7 +610,7 @@ export class Request<
       staleTime: this.staleTime,
       cacheKey: this.cacheKey,
       scope: this.scope,
-      timestamp: +new Date(),
+      timestamp: Date.now(),
       hydrated: true,
       cache: true,
       response: {
@@ -694,7 +695,7 @@ export class Request<
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
-    const { dispatcherType, cachePolicy = "network-only", ...configuration } = options || {};
+    const { dispatcherType: _dispatcherType, cachePolicy = "network-only", ...configuration } = options || {};
 
     const request = this.clone(configuration) as unknown as this;
 

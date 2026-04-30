@@ -1,39 +1,44 @@
 import React, { useId } from "react";
-import { cn } from "@site/src/lib/utils";
+
+import { cn } from "../../../lib/utils";
 
 interface StripedPatternProps extends React.SVGProps<SVGSVGElement> {
-  width?: number;
-  height?: number;
-  x?: number;
-  y?: number;
   direction?: "left" | "right";
-  className?: string;
 }
 
 export function StripedPattern({
-  width = 40,
-  height = 40,
-  x = -1,
-  y = -1,
   direction = "left",
   className,
+  width = 10,
+  height = 10,
   ...props
 }: StripedPatternProps) {
   const id = useId();
-
-  const d = direction === "left"
-    ? `M${width} 0L0 ${height}`
-    : `M0 0L${width} ${height}`;
+  const w = Number(width);
+  const h = Number(height);
 
   return (
     <svg
       aria-hidden="true"
-      className={cn("pointer-events-none absolute inset-0 h-full w-full stroke-gray-400/30", className)}
+      className={cn("pointer-events-none absolute inset-0 h-full w-full stroke-[0.5]", className)}
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <defs>
-        <pattern id={id} width={width} height={height} patternUnits="userSpaceOnUse" x={x} y={y}>
-          <path d={d} fill="none" />
+        <pattern id={id} width={w} height={h} patternUnits="userSpaceOnUse">
+          {direction === "left" ? (
+            <>
+              <line x1="0" y1={h} x2={w} y2="0" stroke="currentColor" />
+              <line x1={-w} y1={h} x2="0" y2="0" stroke="currentColor" />
+              <line x1={w} y1={h} x2={w * 2} y2="0" stroke="currentColor" />
+            </>
+          ) : (
+            <>
+              <line x1="0" y1="0" x2={w} y2={h} stroke="currentColor" />
+              <line x1={-w} y1="0" x2="0" y2={h} stroke="currentColor" />
+              <line x1={w} y1="0" x2={w * 2} y2={h} stroke="currentColor" />
+            </>
+          )}
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#${id})`} />

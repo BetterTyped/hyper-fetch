@@ -1,6 +1,6 @@
-import { EventEmitter } from "utils";
 import type { AppManagerOptionsType } from "managers";
 import { appManagerInitialOptions, getAppManagerEvents, hasDocument } from "managers";
+import { EventEmitter } from "utils";
 
 /**
  * App manager handles main application states - focus and online. Those two values can answer questions:

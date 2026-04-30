@@ -23,11 +23,11 @@ Here's how to create a simple query to fetch a user's data.
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
 // 1. Initialize Client with adapter
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 // 2. Define an interface for your data
 interface User {
@@ -62,10 +62,10 @@ variables in your GraphQL query and passing them in the `send` method.
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 // 1. Define types for the response and variables
 type User = {

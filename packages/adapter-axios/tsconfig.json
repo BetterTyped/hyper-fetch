@@ -2,10 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "./src",
     "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"]
+      "@browser-adapter": ["./src/adapter/adapter.browser.ts"],
+      "@server-adapter": ["./src/adapter/adapter.server.ts"]
     }
   },
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]

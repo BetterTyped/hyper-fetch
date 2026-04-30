@@ -1,6 +1,7 @@
-import { Client, createClient } from "client";
 import type { AdapterInstance } from "adapter";
 import { Adapter, RequestProcessingError, getAdapterHeaders, getAdapterPayload } from "adapter";
+import { Client, createClient } from "client";
+
 import { HttpMethods } from "../../../src/constants/http.constants";
 
 describe("Adapter [ Base ]", () => {

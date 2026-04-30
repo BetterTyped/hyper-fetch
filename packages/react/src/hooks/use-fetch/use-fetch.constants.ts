@@ -1,6 +1,5 @@
 import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 import { Time } from "@hyper-fetch/core";
-
 import type { UseFetchOptionsType } from "hooks/use-fetch";
 
 type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse">> & {

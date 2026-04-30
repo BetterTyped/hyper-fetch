@@ -1,17 +1,17 @@
-/* eslint-disable max-params */
-import type { Database } from "firebase/database";
-import { get, push, query, ref, remove, set, update } from "firebase/database";
 import type { getAdapterBindings } from "@hyper-fetch/core";
-
 import type { RealtimeDBMethodsUnion, RealtimeDBStatuses } from "adapter/types";
-import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
-import { getStatus, isDocOrQuery } from "utils";
 import type {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
 } from "constraints";
+/* eslint-disable max-params */
+import type { Database } from "firebase/database";
+import { get, push, query, ref, remove, set, update } from "firebase/database";
+import { getStatus, isDocOrQuery } from "utils";
+
+import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 
 type DataType = {
   constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];

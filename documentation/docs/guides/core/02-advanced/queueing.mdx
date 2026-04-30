@@ -60,14 +60,14 @@ logStatus(`Sending 4 requests...`);
 
 requests.forEach((req) => {
   fileRequest.send({
-    onStart: () => logStatus(`Request ${req} started.`),
-    onFinished: ({ isSuccess }) =>
-      logStatus(`Request ${req} finished ${isSuccess ? "successfully" : "with an error"}.`),
+    onRequestStart: () => logStatus(`Request ${req} started.`),
+    onResponse: ({ response }) =>
+      logStatus(`Request ${req} finished ${response.success ? "successfully" : "with an error"}.`),
   });
 });
 ```
 
-The example above demonstrates that even if we fire all requests at once, they are executed one by one. The `onStart`
+The example above demonstrates that even if we fire all requests at once, they are executed one by one. The `onRequestStart`
 and `onFinished` callbacks show the lifecycle of each request in the queue.
 
 ## Global Configuration

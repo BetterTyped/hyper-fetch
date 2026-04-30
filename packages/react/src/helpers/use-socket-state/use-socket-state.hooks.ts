@@ -1,8 +1,7 @@
-import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
-import { useCallback, useRef, useSyncExternalStore } from "react";
-
+import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import type { UseSocketStateType, UseSocketStateProps } from "helpers";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 export const useSocketState = <DataType, Socket extends SocketInstance>(
   socket: Socket,
@@ -22,7 +21,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     connecting: socket.adapter.connecting,
     timestamp: null,
   });
-  const renderKeys = useRef<Array<keyof UseSocketStateType<Socket, DataType>>>([]);
+  const renderKeys = useRef<(keyof UseSocketStateType<Socket, DataType>)[]>([]);
 
   // ******************
   // useSyncExternalStore
@@ -51,9 +50,9 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<Socket, DataType>>) => {
+  const renderKeyTrigger = (keys: (keyof UseSocketStateType<Socket, DataType>)[]) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) emitChange();
+    if (shouldRerender) {emitChange();}
   };
 
   const setRenderKey = (renderKey: keyof UseSocketStateType<Socket, DataType>) => {

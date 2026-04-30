@@ -1,7 +1,7 @@
 import { client } from "../client";
 
 export const postFile = client
-  .createRequest<{ response: string }, { file: File }>()({
+  .createRequest<{ response: string; payload: { file: File } }>()({
     endpoint: "/api/files",
     method: "POST",
     queued: true,
@@ -9,6 +9,6 @@ export const postFile = client
   })
   .setPayloadMapper((data) => {
     const formData = new FormData();
-    formData.append("file", data.file);
+    if (data) formData.append("file", data.file);
     return formData;
   });

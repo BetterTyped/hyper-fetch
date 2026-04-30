@@ -1,6 +1,6 @@
 import { xhrExtra } from "@hyper-fetch/core";
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
@@ -10,7 +10,7 @@ const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingSe
 describe("useFetch [ refetch ]", () => {
   let request = createRequest();
   let mock = mockRequest(request, {
-    data: { someData: 12345 },
+    data: { someData: 12_345 },
   });
 
   beforeAll(() => {
@@ -30,7 +30,7 @@ describe("useFetch [ refetch ]", () => {
     request = createRequest();
     client.clear();
     mock = mockRequest(request, {
-      data: { someData: 12345 },
+      data: { someData: 12_345 },
     });
   });
 
@@ -44,10 +44,10 @@ describe("useFetch [ refetch ]", () => {
       success: true,
       extra: { headers: { "content-type": "application/json" } },
       retries: 0,
-      addedTimestamp: +new Date(),
-      triggerTimestamp: +new Date(),
-      requestTimestamp: +new Date(),
-      responseTimestamp: +new Date(),
+      addedTimestamp: Date.now(),
+      triggerTimestamp: Date.now(),
+      requestTimestamp: Date.now(),
+      responseTimestamp: Date.now(),
       isCanceled: false,
       isOffline: false,
       willRetry: false,
@@ -86,10 +86,10 @@ describe("useFetch [ refetch ]", () => {
       success: true,
       extra: xhrExtra,
       retries: 0,
-      addedTimestamp: +new Date(),
-      triggerTimestamp: +new Date(),
-      requestTimestamp: +new Date(),
-      responseTimestamp: +new Date(),
+      addedTimestamp: Date.now(),
+      triggerTimestamp: Date.now(),
+      requestTimestamp: Date.now(),
+      responseTimestamp: Date.now(),
       isCanceled: false,
       isOffline: false,
       willRetry: false,

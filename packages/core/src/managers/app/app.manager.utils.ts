@@ -1,7 +1,7 @@
 export const hasWindow = () => {
   try {
     return Boolean(window && window.addEventListener);
-  } catch (err) {
+  } catch {
     /* istanbul ignore next */
     return false;
   }
@@ -10,7 +10,7 @@ export const hasWindow = () => {
 export const hasDocument = () => {
   try {
     return Boolean(hasWindow() && window.document && window.document.addEventListener);
-  } catch (err) {
+  } catch {
     /* istanbul ignore next */
     return false;
   }

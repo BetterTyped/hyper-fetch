@@ -17,8 +17,8 @@ export const createContext = <ContextValueType extends object | null>(
 
   const useContext = (consumerName: string) => {
     const context = React.useContext(Context);
-    if (context) return context;
-    if (initialValue !== undefined) return initialValue;
+    if (context) {return context;}
+    if (initialValue !== undefined) {return initialValue;}
     throw new Error(`${consumerName} must be used within a ${providerName}`);
   };
 

@@ -1,10 +1,9 @@
-import type { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
 import { useDidUpdate } from "@better-hooks/lifecycle";
-import { useRef } from "react";
-
-import type { UseEmitterOptionsType } from "hooks/use-emitter";
+import type { EmitterInstance, EmitterCallbackErrorType, EmitType } from "@hyper-fetch/sockets";
 import { useSocketState } from "helpers";
+import type { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useProvider } from "provider";
+import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
 /** Send messages through a socket emitter with tracked connection state and lifecycle callbacks. */

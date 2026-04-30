@@ -1,51 +1,210 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable react/no-array-index-key */
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-import React, { useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
-import { TimelineMax, Back } from "gsap";
+import { Description, Particles, Title } from "@site/src/components";
+import { useWindowSize } from "@site/src/hooks/use-window-size";
+import { cn } from "@site/src/lib/utils";
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-import { Description, Particles, Title } from "@site/src/components";
-import { cn } from "@site/src/lib/utils";
-import { useWindowSize } from "@site/src/hooks/use-window-size";
+import React, { useState } from "react";
 
-import "./animation.scss";
-import { FeaturesCard } from "./features-card";
-import { PointerHighlight } from "../../ui/pointer-highlight";
-import { Scan } from "./scan";
-import { AnimatedBeamDemo } from "./environments";
-import { CliSdkDemo } from "./cli-sdk-demo";
+import { CodeSnippet } from "./code-snippet";
 
 type FeatureItem = {
   name: () => React.ReactNode;
   description: () => React.ReactNode;
   graphic: () => React.ReactNode;
   link: () => React.ReactNode;
-  gridTotal?: string;
-  graphicColSpan?: string;
-  textColSpan?: string;
 };
+
+const typeSafetyCode = [
+  [
+    { text: "const ", type: "keyword" as const },
+    { text: "getUser" },
+    { text: " = " },
+    { text: "client" },
+    { text: "." },
+    { text: "createRequest", type: "method" as const },
+    { text: "<{" },
+  ],
+  [
+    { text: "  response", type: "property" as const },
+    { text: ": " },
+    { text: "User", type: "type" as const },
+    { text: ";" },
+  ],
+  [
+    { text: "  error", type: "property" as const },
+    { text: ": " },
+    { text: "ValidationError", type: "type" as const },
+    { text: ";" },
+  ],
+  [{ text: "}>()({" }],
+  [
+    { text: "  endpoint", type: "property" as const },
+    { text: ": " },
+    { text: '"/users/:userId"', type: "string" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  method", type: "property" as const },
+    { text: ": " },
+    { text: '"GET"', type: "string" as const },
+    { text: "," },
+  ],
+  [{ text: "});" }],
+  [],
+  [{ text: "// userId is inferred from the endpoint string", type: "comment" as const }],
+  [
+    { text: "getUser" },
+    { text: "." },
+    { text: "setParams", type: "method" as const },
+    { text: "({ " },
+    { text: "userId", type: "property" as const },
+    { text: ": " },
+    { text: "1", type: "number" as const },
+    { text: " });" },
+  ],
+  [{ text: "//        ^ full autocompletion", type: "comment" as const }],
+];
+
+const universalCode = [
+  [{ text: "// REST - default adapter", type: "comment" as const }],
+  [
+    { text: "const ", type: "keyword" as const },
+    { text: "client" },
+    { text: " = " },
+    { text: "createClient", type: "method" as const },
+    { text: "({ " },
+    { text: "url", type: "property" as const },
+    { text: ": " },
+    { text: '"https://api.example.com"', type: "string" as const },
+    { text: " });" },
+  ],
+  [],
+  [{ text: "// GraphQL - same pattern", type: "comment" as const }],
+  [
+    { text: "const ", type: "keyword" as const },
+    { text: "gqlClient" },
+    { text: " = " },
+    { text: "createClient", type: "method" as const },
+    { text: "({ " },
+    { text: "url", type: "property" as const },
+    { text: ": " },
+    { text: '"..."', type: "string" as const },
+    { text: " })" },
+  ],
+  [
+    { text: "  ." },
+    { text: "setAdapter", type: "method" as const },
+    { text: "(" },
+    { text: "graphqlAdapter" },
+    { text: ");" },
+  ],
+  [],
+  [{ text: "// Firebase - same pattern", type: "comment" as const }],
+  [
+    { text: "const ", type: "keyword" as const },
+    { text: "fbClient" },
+    { text: " = " },
+    { text: "createClient", type: "method" as const },
+    { text: "({ " },
+    { text: "url", type: "property" as const },
+    { text: ": " },
+    { text: '"..."', type: "string" as const },
+    { text: " })" },
+  ],
+  [
+    { text: "  ." },
+    { text: "setAdapter", type: "method" as const },
+    { text: "(" },
+    { text: "firebaseAdapter" },
+    { text: ");" },
+  ],
+  [],
+  [{ text: "// Same API everywhere", type: "comment" as const }],
+  [
+    { text: "client" },
+    { text: "." },
+    { text: "createRequest", type: "method" as const },
+    { text: "()({ " },
+    { text: "endpoint", type: "property" as const },
+    { text: ": " },
+    { text: '"/users"', type: "string" as const },
+    { text: " })." },
+    { text: "send", type: "method" as const },
+    { text: "();" },
+  ],
+];
+
+const builtInCode = [
+  [
+    { text: "const ", type: "keyword" as const },
+    { text: "getUsers" },
+    { text: " = " },
+    { text: "client" },
+    { text: "." },
+    { text: "createRequest", type: "method" as const },
+    { text: "()({" },
+  ],
+  [
+    { text: "  endpoint", type: "property" as const },
+    { text: ": " },
+    { text: '"/users"', type: "string" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  method", type: "property" as const },
+    { text: ": " },
+    { text: '"GET"', type: "string" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  cache", type: "property" as const },
+    { text: ": " },
+    { text: "true", type: "keyword" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  cacheTime", type: "property" as const },
+    { text: ": " },
+    { text: "50000", type: "number" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  retry", type: "property" as const },
+    { text: ": " },
+    { text: "3", type: "number" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  deduplication", type: "property" as const },
+    { text: ": " },
+    { text: "true", type: "keyword" as const },
+    { text: "," },
+  ],
+  [
+    { text: "  offline", type: "property" as const },
+    { text: ": " },
+    { text: "true", type: "keyword" as const },
+    { text: "," },
+  ],
+  [{ text: "});" }],
+];
 
 const features: FeatureItem[] = [
   {
-    gridTotal: "md:grid-cols-5",
-    graphicColSpan: "col-span-3",
-    textColSpan: "col-span-2",
-    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">Any API, One Interface</h5>,
+    name: () => (
+      <h5 className="text-4xl md:text-5xl font-extrabold flex flex-wrap gap-2 leading-tight">
+        One interface for every API
+      </h5>
+    ),
     description: () => (
       <Description>
-        REST, GraphQL, Firebase, WebSockets, SSE — use the same <b>createRequest / .send()</b> pattern for every API.
-        Swap adapters without rewriting application code. One SDK for your entire stack.
+        REST, GraphQL, Firebase, WebSockets, SSE - the same <b>createRequest / .send()</b> pattern everywhere. Swap
+        adapters without rewriting code.
       </Description>
     ),
-    graphic: () => <CliSdkDemo />,
+    graphic: () => <CodeSnippet lines={universalCode} />,
     link: () => (
       <Link className="text-sm flex gap-1 items-center" to="/docs/core/overview">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
@@ -54,28 +213,17 @@ const features: FeatureItem[] = [
   },
   {
     name: () => (
-      <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">
-        Best{" "}
-        <PointerHighlight
-          containerClassName="[&>div]:z-[-1]"
-          rectangleClassName="bg-gradient-to-r from-rose-500/40 to-orange-500/40 brightness-150 border-none"
-        >
-          <span className="text-6xl font-extrabold px-2 leading-[1.4]">Type Safety</span>{" "}
-        </PointerHighlight>
-        in the Ecosystem
+      <h5 className="text-4xl md:text-5xl font-extrabold flex flex-wrap gap-2 leading-tight">
+        Tired of <code className="text-rose-400">any</code> leaking through your data layer?
       </h5>
     ),
     description: () => (
       <Description>
-        End-to-end TypeScript types from schema to response. Typed <b>params, payloads, query params, errors</b>, and{" "}
-        <b>full autocompletion</b> everywhere. Zero <code>any</code>. Catch bugs at compile time, not in production.
+        End-to-end TypeScript from schema to response. Typed <b>params, payloads, query params, errors</b>. Full
+        autocompletion. Zero <code>any</code>.
       </Description>
     ),
-    graphic: () => (
-      <FeaturesCard right>
-        <Scan />
-      </FeaturesCard>
-    ),
+    graphic: () => <CodeSnippet lines={typeSafetyCode} />,
     link: () => (
       <Link className="text-sm flex gap-1 items-center" to="/docs/guides/typescript/extend">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
@@ -83,18 +231,20 @@ const features: FeatureItem[] = [
     ),
   },
   {
-    name: () => <h5 className="text-6xl font-extrabold flex flex-wrap gap-2">Generate from OpenAPI</h5>,
+    name: () => (
+      <h5 className="text-4xl md:text-5xl font-extrabold flex flex-wrap gap-2 leading-tight">
+        Cache, queues, retries, offline - built in
+      </h5>
+    ),
     description: () => (
       <Description>
-        Point the CLI at any OpenAPI or Swagger schema and get a <b>fully typed SDK</b> in seconds. Every endpoint
-        becomes a typed method with params, payloads, and responses — <b>zero manual typing</b>.
+        Smart caching, request queuing, retries, offline support, optimistic updates, deduplication. Same behavior in
+        browser, server, edge, mobile.
       </Description>
     ),
-    graphic: () => {
-      return <AnimatedBeamDemo />;
-    },
+    graphic: () => <CodeSnippet lines={builtInCode} />,
     link: () => (
-      <Link className="text-sm flex gap-1 items-center" to="/docs/cli/commands/generate">
+      <Link className="text-sm flex gap-1 items-center" to="/docs/core/cache">
         Learn more <ArrowRight className="size-3 translate-y-[1px]" />
       </Link>
     ),
@@ -112,47 +262,9 @@ export function Features(): JSX.Element {
     }
   });
 
-  useEffect(() => {
-    const bolt = document.querySelector(".bolt");
-    const element = bolt.querySelector("div");
-
-    const animation = new TimelineMax({
-      onStart() {
-        bolt.classList.add("animate");
-      },
-      onComplete() {
-        bolt.classList.remove("animate");
-        setTimeout(() => {
-          animation.restart();
-        }, 1000);
-      },
-    })
-      .set(element, {
-        rotation: 360,
-      })
-      .to(element, 0.7, {
-        y: 80,
-        rotation: 370,
-      })
-      .to(element, 0.6, {
-        y: -140,
-        rotation: 20,
-      })
-      .to(element, 0.1, {
-        rotation: -24,
-        y: 80,
-      })
-      .to(element, 0.8, {
-        ease: Back.easeOut.config(1.6),
-        rotation: 0,
-        y: 0,
-      });
-  }, []);
-
   return (
     <section className="relative pb-5 pt-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-10">
-        {/* Illustration */}
         <div
           className="absolute inset-0 -z-10 -mx-28 rounded-t-[3rem] pointer-events-none overflow-hidden opacity-40"
           aria-hidden="true"
@@ -162,34 +274,6 @@ export function Features(): JSX.Element {
           </div>
         </div>
         <Particles className="absolute inset-0 -z-10" />
-
-        {/* Bolt */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="bolt !scale-50"
-        >
-          <svg viewBox="0 0 170 57" className="white left">
-            <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
-          </svg>
-          <svg viewBox="0 0 170 57" className="white right">
-            <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
-          </svg>
-          <div>
-            <span />
-          </div>
-          <svg viewBox="0 0 112 44" className="circle">
-            <path d="M96.9355003,2 C109.46067,13.4022454 131.614152,42 56.9906735,42 C-17.6328048,42 1.51790702,13.5493875 13.0513641,2" />
-          </svg>
-          <svg viewBox="0 0 70 3" className="line left">
-            <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
-          </svg>
-          <svg viewBox="0 0 70 3" className="line right">
-            <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
-          </svg>
-        </motion.div>
 
         {/* Section header */}
         <div className="max-w-3xl mx-auto text-center pb-20 md:pb-32">
@@ -201,7 +285,7 @@ export function Features(): JSX.Element {
           >
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                One interface for everything.
+                Stop fighting your data layer
               </div>
             </div>
           </motion.div>
@@ -212,7 +296,7 @@ export function Features(): JSX.Element {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              How it works
+              Problems HyperFetch solves
             </Title>
           </motion.div>
           <motion.div
@@ -222,8 +306,7 @@ export function Features(): JSX.Element {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Description className="text-lg !text-zinc-400">
-              Define your requests once, connect to any API, and let HyperFetch handle types, caching, retries, and
-              offline support for you.
+              Three things every TypeScript app re-invents - and how HyperFetch removes them.
             </Description>
           </motion.div>
         </div>
@@ -236,11 +319,7 @@ export function Features(): JSX.Element {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          {/* Feature */}
           {features.map((feature, index) => {
-            const gridTotal = feature.gridTotal || "md:grid-cols-2";
-            const graphicColSpan = feature.graphicColSpan || "md:col-span-1";
-            const textColSpan = feature.textColSpan || "md:col-span-1";
             const order = index % 2 === 0 ? "md:order-1" : "!md:order-0";
 
             return (
@@ -251,17 +330,11 @@ export function Features(): JSX.Element {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
               >
-                <div className={cn("grid gap-10 md:gap-20 items-center", `${gridTotal}`)}>
-                  <div
-                    className={cn(
-                      "flex items-center justify-center",
-                      `${graphicColSpan}`,
-                      isMobile ? "order-1" : order,
-                    )}
-                  >
+                <div className="grid gap-10 md:gap-20 items-center md:grid-cols-2">
+                  <div className={cn("flex items-center justify-center", isMobile ? "order-1" : order)}>
                     <feature.graphic />
                   </div>
-                  <div className={cn(textColSpan)}>
+                  <div>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}

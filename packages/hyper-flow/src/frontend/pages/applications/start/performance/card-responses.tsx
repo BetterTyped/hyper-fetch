@@ -1,7 +1,9 @@
 import { useMemo } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { useShallow } from "zustand/react/shallow";
 
+import { EmptyBox } from "@/components/no-content/empty-box";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
 import {
   ChartContainer,
@@ -10,14 +12,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getMethodColor } from "@/components/ui/method";
 import { Progress } from "@/components/ui/progress";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { EmptyBox } from "@/components/no-content/empty-box";
+import { cn } from "@/lib/utils";
 import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
-import { cn } from "@/lib/utils";
-import { getMethodColor } from "@/components/ui/method";
 import { formatTime, formatBytes } from "@/utils/format";
 
 export const CardResponses = ({ className }: { className?: string }) => {
@@ -39,14 +39,14 @@ export const CardResponses = ({ className }: { className?: string }) => {
   const chartData = useMemo(() => {
     // Convert methodStats to the array format expected by the chart
     return (
-      Array.from(methodsStats.values())
+      [...methodsStats.values()]
         .map(({ method, methodStats }) => ({
           method,
           requests: methodStats.totalRequests,
           fill: getMethodColor(method).var,
         }))
         // Sort by method name for consistent display order
-        .sort((a, b) => a.method.localeCompare(b.method))
+        .toSorted((a, b) => a.method.localeCompare(b.method))
     );
   }, [methodsStats]);
 
@@ -90,8 +90,8 @@ export const CardResponses = ({ className }: { className?: string }) => {
 
         <div className="pt-4 border-t">
           <h3 className="text-sm font-medium mb-4">Response time breakdown</h3>
-          {!chartData.length && <EmptyBox title="No requests recorded yet" />}
-          {!!chartData.length && (
+          {chartData.length === 0 && <EmptyBox title="No requests recorded yet" />}
+          {chartData.length > 0 && (
             <ChartContainer config={chartConfig}>
               <BarChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />

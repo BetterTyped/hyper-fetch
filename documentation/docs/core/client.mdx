@@ -307,6 +307,17 @@ Always scope to the current user/session context in server environments.
 Plugins are a powerful feature that allows you to extend the functionality of the client. They can be used to listen to
 the events happening inside of the Hyper Fetch.
 
+:::caution Debug mode required for logging
+
+`client.setDebug(true)` must be called for any logger output to appear. Without it, the `LoggerManager` silently
+discards all log messages regardless of log level. Enable it during development or when using the devtools plugin.
+
+```ts
+const client = createClient({ url: "http://localhost:3000" }).setDebug(true);
+```
+
+:::
+
 ```tsx
 import { createClient } from "@hyper-fetch/core";
 import { Plugin } from "@hyper-fetch/core";
@@ -341,6 +352,78 @@ const loggingPlugin = new Plugin({
 // highlight-next-line
 client.addPlugin(loggingPlugin);
 ```
+
+#### Removing Plugins
+
+Plugins can be removed at runtime. When a plugin is removed, its `onUnmount` hook is called automatically.
+
+```tsx
+// highlight-next-line
+client.removePlugin(loggingPlugin);
+```
+
+---
+
+7. ### Clearing the Client
+
+The `clear()` method aborts all in-flight requests, clears both dispatchers and the cache, then recreates all
+subsystems from the original factory options. This is important for testing teardown and SSR cleanup to prevent state
+leaking between requests.
+
+```ts
+// Abort everything, clear cache and queues, reinitialize subsystems
+// highlight-next-line
+client.clear();
+```
+
+---
+
+8. ### Restoring Requests from JSON
+
+The `fromJSON` method restores a `Request` instance from its serialized JSON representation. This is essential for
+persistence and offline scenarios where requests are stored (e.g. in `localStorage`) and need to be recreated later.
+
+```ts
+// Serialize a request
+const json = getUser.toJSON();
+
+// Later, restore it
+// highlight-next-line
+const restored = client.fromJSON(json);
+await restored.send();
+```
+
+You can also use the static method directly: `Request.fromJSON(client, json)`.
+
+---
+
+9. ### Interceptor Removal
+
+Each `onAuth`, `onRequest`, `onResponse`, `onError`, and `onSuccess` call stores the callback. You can remove
+specific interceptors later for cleanup or dynamic reconfiguration.
+
+```ts
+const authInterceptor = (request) => {
+  return request.setHeaders({ Authorization: `Bearer ${token}` });
+};
+
+// Register
+client.onAuth(authInterceptor);
+
+// Remove later
+// highlight-next-line
+client.removeOnAuthInterceptors([authInterceptor]);
+```
+
+Available removal methods:
+
+| Method | Removes interceptors from |
+| --- | --- |
+| `removeOnAuthInterceptors` | `onAuth` |
+| `removeOnRequestInterceptors` | `onRequest` |
+| `removeOnResponseInterceptors` | `onResponse` |
+| `removeOnErrorInterceptors` | `onError` |
+| `removeOnSuccessInterceptors` | `onSuccess` |
 
 ---
 

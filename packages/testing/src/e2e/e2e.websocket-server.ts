@@ -1,5 +1,5 @@
-import { WebSocketServer, WebSocket } from "ws";
 import http from "http";
+import { WebSocketServer, WebSocket } from "ws";
 
 export const createWebsocketE2EServer = () => {
   let wss: WebSocketServer | null = null;
@@ -16,7 +16,7 @@ export const createWebsocketE2EServer = () => {
         clients.push(ws);
         ws.on("close", () => {
           const idx = clients.indexOf(ws);
-          if (idx !== -1) clients.splice(idx, 1);
+          if (idx !== -1) {clients.splice(idx, 1);}
         });
       });
 
@@ -56,8 +56,8 @@ export const createWebsocketE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) reject(err);
-        else resolve();
+        if (err) {reject(err);}
+        else {resolve();}
       });
     });
   };
@@ -99,7 +99,7 @@ export const createWebsocketE2EServer = () => {
 
   const closeClient = (index: number, code?: number, reason?: string) => {
     const ws = clients[index];
-    if (ws) ws.close(code, reason);
+    if (ws) {ws.close(code, reason);}
   };
 
   const terminateAllClients = () => {
@@ -165,7 +165,7 @@ export const createWebsocketE2EServer = () => {
   };
 
   const onMessage = (callback: (msg: { topic: string; data: unknown }, ws: WebSocket) => void) => {
-    if (!wss) return;
+    if (!wss) {return;}
     const connectionHandler = (ws: WebSocket) => {
       ws.on("message", (raw) => {
         try {

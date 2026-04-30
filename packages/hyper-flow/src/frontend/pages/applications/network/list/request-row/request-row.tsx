@@ -1,15 +1,15 @@
-import { useMemo } from "react";
 import { Boxes, Hexagon } from "lucide-react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { TableCell, TableRow } from "@/components/ui/table";
-import type { DevtoolsRequestEvent } from "@/context/applications/types";
-import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useNetworkStore } from "@/store/applications/network.store";
-import { Method } from "@/components/ui/method";
 import { Badge } from "@/components/ui/badge";
+import { Method } from "@/components/ui/method";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
+import { useNetworkStore } from "@/store/applications/network.store";
 import { formatTime } from "@/utils/format";
+import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
 
 export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEvent; clickable?: boolean }) => {
   const { application } = useDevtools();

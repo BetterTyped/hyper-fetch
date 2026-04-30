@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
-import { FirebaseAdapter, FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+import { FirebaseAdapter, FirebaseSocketsAdapter, FirestoreSocketAdapterType } from "@hyper-fetch/firebase";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
@@ -24,4 +24,4 @@ export const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(db)).ad
     appName: "Ecommerce Shop",
   }),
 );
-export const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(db) });
+export const socket = new Socket<FirestoreSocketAdapterType>({ url: "", adapter: FirebaseSocketsAdapter(db) as FirestoreSocketAdapterType });

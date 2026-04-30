@@ -23,10 +23,10 @@ export const Meteors = ({
   angle = 215,
   className,
 }: MeteorsProps) => {
-  const [meteorStyles, setMeteorStyles] = useState<Array<React.CSSProperties>>([]);
+  const [meteorStyles, setMeteorStyles] = useState<React.CSSProperties[]>([]);
 
   useEffect(() => {
-    const styles = [...new Array(number)].map(() => ({
+    const styles = Array.from({ length: number }, () => ({
       "--angle": `${-angle}deg`,
       top: "-5%",
       left: `calc(0% + ${Math.floor(Math.random() * window.innerWidth)}px)`,

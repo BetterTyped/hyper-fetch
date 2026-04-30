@@ -2,7 +2,18 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "./src"
+    "paths": {
+      "adapter": ["./src/adapter"],
+      "adapter/*": ["./src/adapter/*"],
+      "constraints": ["./src/constraints"],
+      "constraints/*": ["./src/constraints/*"],
+      "firestore": ["./src/firestore"],
+      "firestore/*": ["./src/firestore/*"],
+      "realtime": ["./src/realtime"],
+      "realtime/*": ["./src/realtime/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

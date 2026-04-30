@@ -1,922 +1,540 @@
 ---
 sidebar_position: 5
 title: Why Hyper Fetch is Unique
-sidebar_label: Comparison
+sidebar_label: Why HF?
 ---
 
-import { Info } from "lucide-react";
-import Tippy from "@tippyjs/react";
-import "tippy.js/dist/tippy.css";
+# Why Hyper Fetch?
 
-# Comparison
-
-The biggest difference between **`Hyper Fetch`** and other libraries is the opinionated architecture and assumptions on
-which it is built. Hyper Fetch's core features are written in TS **without dependencies**; because of this, it can work
-in many environments without a specific connection to a given framework.
+The TypeScript data-fetching ecosystem is large and every library occupies a different niche. Understanding where Hyper
+Fetch sits helps you decide whether it is the right fit for your project.
 
 :::info
 
-Producing an accurate and unbiased comparison is quite a challenge. Libraries develop quickly, so if you notice that our
-data needs to be corrected, please let us know by opening an issue.
+This page describes Hyper Fetch's own capabilities and design decisions. Where other tools are mentioned it is only to
+sketch the general landscape - every library moves fast, so always check the source you care about directly.
 
 :::
 
 ---
 
-## Why Hyper Fetch Is Unique
+## The ecosystem in brief
 
-- Easy upload/download progress and ETA tracking
-- Supports request queueing and many [dispatching strategies](/docs/core/dispatcher#modes)!
-- [Command](/core/request.mdx) / [Builder](/core/client.mdx) pattern gives you amazing control over requests at any time
-- Code-sharing architecture lets [testers to hook into development setup and types](/guides/testing/index.mdx)
-- Features flat side-effects [helper hooks annotation](/react/overview.mdx#helper-hooks) and promotes readable code
-- Provides structure [recipes](/docs/getting-started/development#1-project-structure) for large scale applications that
-  significantly limit maintenance costs.
-- Core features include [offline](/guides/core/02-advanced/offline.mdx) and
-  [persistence](/guides/core/02-advanced/persistence.mdx) support, giving you full control over your data
+Most libraries you encounter fall into one of these categories:
 
----
+**Server-state managers** — focused on synchronizing remote data with UI state. They are intentionally transport-agnostic:
+you provide the actual fetch call, they handle caching and re-rendering. They do not define request schemas, lifecycle
+control (queueing, persistence), or real-time transports.
 
-## Features
+**Protocol-specific SDKs** — tightly coupled to one wire format (GraphQL, Firebase, WebSockets). They are excellent at
+that protocol but are not designed to cover HTTP, sockets, SSE, and Firebase within a single unified API.
 
-<div>✅ - Documented support</div>
-<div>🚧 - Work in progress</div>
-<div>🔵 - Require additional Plugin/Coding</div>
-<div>🔴 - Not supported / Not documented</div>
+**Full-stack RPC frameworks** — own both ends of the wire. Maximum type safety when you control the server, but
+require adopting their router format and running their server-side runtime.
 
-<br />
-<br />
-
-<div className="comparison-table">
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>Hyper Fetch</th>
-        <th>
-          <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
-            Query
-          </a>
-        </th>
-        <th>
-          <a href="https://swr.vercel.app/">SWR</a>
-        </th>
-        <th>
-          <a href="https://www.apollographql.com/documentation/04-react/">Apollo</a>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Supported environments</td>
-        <td>Any</td>
-        <td>Any</td>
-        <td>React</td>
-        <td>Any</td>
-      </tr>
-      <tr>
-        <td>Protocols</td>
-        <td>Any</td>
-        <td>Any</td>
-        <td>Any</td>
-        <td>GraphQL</td>
-      </tr>
-      <tr>
-        <td>Caching Approach</td>
-        <td>Request Schema</td>
-        <td>Hierarchical Key > Value</td>
-        <td>Unique Key > Value</td>
-        <td>Normalized Schema</td>
-      </tr>
-      <tr>
-        <td>Cache Key Strategy</td>
-        <td>Request Key</td>
-        <td>JSON</td>
-        <td>JSON</td>
-        <td>GraphQL Query</td>
-      </tr>
-      <tr>
-        <td>Data Change Detection</td>
-        <td>Deep Comparison</td>
-        <td>Deep Comparison</td>
-        <td>Deep Comparison</td>
-        <td>Deep Comparison</td>
-      </tr>
-      <tr>
-        <td>Data Memoization</td>
-        <td>Identity</td>
-        <td>Full Structural Sharing</td>
-        <td>Identity</td>
-        <td>Normalized Identity</td>
-      </tr>
-      <tr>
-        <td>Queue Key Strategy</td>
-        <td>Request Key</td>
-        <td>N/A</td>
-        <td>N/A</td>
-        <td>N/A</td>
-      </tr>
-      <tr>
-        <td>Devtools</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to prepare global setup for server connection">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Server Connection Setup
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to prepare requests to be reused in the application">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Shared Request
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="It allows to limit re-rendering only to the dependent key changes">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Dependency tracking
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>Cache Persistence</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Possibility to keep data prepared for request in persistent storage and resend it on new session">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Requests Persistence
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Tracking of the download progress to being able to access size left and time ETA">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Download ETA
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Tracking of the upload progress to being able to access size left and time ETA">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Uploading ETA
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Fetch new data at interval">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Pooling
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to hold on one request until another is finished">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Dependent Queries
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>Paginated Queries</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Built-in query parsing from object or string">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Query Params Parsing
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Allows to group requests in queues and control sending process">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Queueing
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="When request fails try again to trigger it">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Retries
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Library includes prepared adapter for requesting">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Default Adapter
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="When we want to dynamically 'load more' content on the list">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Infinite Queries
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Server Side Rendering">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              SSR
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Initialize with prepared placeholder data">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Initial Data
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Allows to hydrate cache storage with data from other sources">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Cache Hydration
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Stale data gets removed from memory">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Garbage Collecting
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Intercept and modify every request before being triggered">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Pre Request Intercepting
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Intercept and modify every response before being saved and emitted">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Post Request Intercepting
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Prefetch your data before your components being mounted">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Prefetching
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Cancel ongoing request">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Cancellation
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Cancel group of ongoing requests by their queue key">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Queue Cancellation
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Has built-in solutions for authentication like intercepting and possibilities to turn on/off">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Authentication
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Load cache data and refresh it in background">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Stale While Revalidate
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>Refresh Data</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="When app goes offline, it waits until connection is back and retries paused requests">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Offline Request Pause
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Trigger re-fetch when your app goes online">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Network Status Re-fetching
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Trigger re-fetch when you switch tabs or windows">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Window Focus Re-fetching
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Storing cached data in flat schema based architecture to prevent duplication">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Normalized Caching
-            </div>
-          </Tippy>
-        </td>
-        <td>🔴</td>
-        <td>🔵</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Refresh cache data once you post mutation request">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Automatic Re-fetch After Mutation
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Make operations on queued queries by their keys - you can cancel, stop or delete them from queue.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Query Matching
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Make operations on queries by their keys. Re-fetch groups of requests with partial names/regex or full keys.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Cache Matching
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Receive every lifecycle response for any request. Request start, progress, response start, success, error, finished.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Query Lifecycle Events
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Having standardized format for data exchange and for easy reading/dumping">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Data Flow Standard
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Possibility to control particular request in a queue.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Request Start/Stop
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Possibility to control all queued requests.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Request Queue Start/Stop/Pause
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Before we send a request we can map the data it's transferring to different format before it gets to server">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Request Data Mapping
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>N/A</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Invalidate cache data to re-fetch it.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Cache Invalidation
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="File upload with built-in adapter">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              File Uploading
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔵</td>
-        <td>🔵</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="We can hook global listeners on a particular request to listen and trigger side effects while it's being send">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Global Response Side-Effects
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Going back to previous cache will restore scroll as data will be imminently shown to the user.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Scroll Recovery
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Possibility to trigger requests requests">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Simple Request Execution
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Possibility to show requests being uploaded throughout the whole system. Works like uploading managers, but much more advanced.">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Requests Manager
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to synchronize tabs data">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Tabs Storages Synchronization
-            </div>
-          </Tippy>
-        </td>
-        <td>🔴</td>
-        <td>🚧</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to synchronize not sent queries queues between tabs which is required to present full persistence in browser">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Tabs Dispatching Synchronization
-            </div>
-          </Tippy>
-        </td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to listen and emit events">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Websocket
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔵</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to listen to server sent events">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Server Sent Events
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+**Transport-agnostic API layers** — this is where Hyper Fetch lives. One typed schema, one runtime, pluggable
+adapters. REST, GraphQL, WebSockets, SSE, and Firebase all look identical from your application code.
 
 ---
 
-## Typescript features
+## SDK, code generation, and CLI
 
-<div className="comparison-table">
-  <table>
-    <thead>
-      <tr>
-        <th></th>
-        <th>Hyper Fetch</th>
-        <th>
-          <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
-            Query
-          </a>
-        </th>
-        <th>
-          <a href="https://swr.vercel.app/">SWR</a>
-        </th>
-        <th>
-          <a href="https://www.apollographql.com/documentation/04-react/">Apollo</a>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <Tippy content="What data type you expect to receive from server">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Response types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Pass the type to specify the data schema to be send">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Request data types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Specify possible error responses for all requests in the system">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Global error types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to specify particular endpoint errors apart from global error type">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Local error types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>🔴</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to pass type checking for endpoint query params">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Query params types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy content="Being able to automatically track the record of endpoint string">
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Params types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-      <tr>
-        <td>
-          <Tippy
-            showOnCreate
-            content="Types to check if you already set the data/params/query params on given request to prevent data corruption"
-          >
-            <div className="flex items-center gap-2 w-fit">
-              <Info className="w-4 h-4" />
-              Request state tracking types
-            </div>
-          </Tippy>
-        </td>
-        <td>✅</td>
-        <td>🔴</td>
-        <td>🔴</td>
-        <td>✅</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+### Proxy-based SDK with dot-notation access
+
+`createSdk` wraps a typed schema in a recursive `Proxy`. Instead of importing individual request objects, you access
+endpoints with dot-notation and TypeScript autocompletes the entire API surface for you. No codegen step required —
+the schema is just a TypeScript type.
+
+```ts
+const sdk = createSdk<typeof client, MyApiSchema>(client);
+
+// GET /users/:userId
+const { data } = await sdk.users.$userId.$get.setParams({ userId: "123" }).send();
+
+// DELETE /users/:userId/posts/:postId
+const { data } = await sdk.users.$userId.posts.$postId.$delete
+  .setParams({ userId: "123", postId: "456" })
+  .send();
+```
+
+The same pattern extends to real-time: `createSocketSdk` gives you `$listener` and `$emitter` leaves with identical
+dot-notation access for WebSocket and SSE topics.
+
+:::tip Unique to HF
+
+A proxy-based, schema-driven SDK that covers both HTTP and real-time sockets under the same dot-notation API — with
+zero codegen and no server framework required — is unique to HF.
+
+:::
+
+### SDK configuration with pattern matching
+
+`$configure` applies per-request defaults across the SDK using dot-path keys, endpoint strings, or wildcards. This is
+where you centralize auth, caching strategy, response mappers, and retry policy — without scattering them across
+individual request definitions.
+
+```ts
+const api = sdk.$configure({
+  "*": { retry: 3 },                           // all requests
+  "/users/*": { auth: true },                  // all user sub-routes
+  "users.$userId.$get": (req) =>               // one specific endpoint
+    req.setResponseMapper(userMapper).setStaleTime(5000),
+});
+```
+
+For large codebases, `createConfiguration` splits config across files by domain. Keys are validated against the
+schema at compile time — a typo in a key is a compile error, not a silent miss.
+
+:::tip Unique to HF
+
+Pattern-matched, type-safe SDK configuration with wildcard and dot-path keys — validated at compile time — is not
+available in other TypeScript API client libraries.
+
+:::
+
+### CLI and OpenAPI code generation
+
+The `@hyper-fetch/cli` package generates a fully typed HF SDK — client, request schema, and data models — directly
+from an OpenAPI or Swagger spec. You point it at a URL or a local file and it produces everything needed to start
+making typed requests immediately.
+
+```bash
+npx @hyper-fetch/cli@latest generate \
+  --template openapi \
+  --url https://api.example.com/openapi.json \
+  --output ./src/api/client.ts
+```
+
+The generated output is a `createSdk` schema. You bring your own `Client` (base URL, auth, adapter) and the
+generated schema plugs straight in. No lock-in to a generated runtime — just types and a thin factory.
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { createSdk } from "./src/api/client";     // generated
+
+const client = createClient({ url: "https://api.example.com" });
+export const api = createSdk(client);
+
+// Fully typed, autocompleted from the OpenAPI spec
+const { data } = await api.store.inventory.$get.send();
+```
+
+:::tip Unique to HF
+
+Generating a proxy-based, type-safe SDK (not just types or a raw fetch wrapper) from OpenAPI — with no runtime
+dependency on the generated file and no server framework required — is unique to HF.
+
+:::
+
+---
+
+## Universal protocol coverage
+
+### One interface for every transport
+
+A single `createClient` instance — or a pair of HTTP/socket clients — covers every transport you are likely to need.
+Switching a request from REST to GraphQL, or adding a real-time listener alongside an HTTP mutation, does not change
+the shape of your application code.
+
+| Adapter | Protocols |
+| --- | --- |
+| `@hyper-fetch/core` (default) | HTTP / HTTPS via the Fetch API |
+| `@hyper-fetch/adapter-axios` | HTTP / HTTPS via Axios |
+| `@hyper-fetch/adapter-graphql` | GraphQL over HTTP |
+| `@hyper-fetch/adapter-firebase` | Firestore, Realtime Database, Storage (client-side) |
+| `@hyper-fetch/adapter-firebase-admin` | Firestore, Realtime Database (server-side / admin) |
+| Socket adapter | WebSockets, Server-Sent Events |
+
+:::tip Unique to HF
+
+No other general-purpose TypeScript client library provides one typed pattern across HTTP, WebSockets, SSE, and
+Firebase. Most cover one protocol; mixing them means adopting a separate API and mental model for each.
+
+:::
+
+### WebSockets
+
+The socket client provides `createListener` (subscribe to an event) and `createEmitter` (send an event) with the
+same typed schema pattern as HTTP requests. Reconnection, event buffering, and lifecycle hooks are handled by the
+adapter.
+
+### Server-Sent Events
+
+SSE streams are handled via the socket adapter. Incoming events flow into the same listener model as WebSocket
+events.
+
+:::tip Unique to HF
+
+First-class SSE support with typed listeners under the same API as WebSockets and HTTP is unique. In the broader
+ecosystem, SSE handling is typically left entirely to user code.
+
+:::
+
+---
+
+## TypeScript capabilities
+
+These are compile-time guarantees inferred from your request schema - not runtime validations.
+
+### End-to-end types — zero `any`
+
+Types flow from the schema through the adapter, into the hook, and out to your component. Response shape, payload
+shape, URL params, query params, and error shape are all inferred at compile time.
+
+```ts
+const updateUser = client.createRequest<{
+  response: User;
+  payload: UpdateUserPayload;
+  queryParams: { notify?: boolean };
+  error: ValidationError;
+}>()({
+  endpoint: "/users/:userId",
+  method: "PATCH",
+});
+```
+
+Most server-state managers carry types only on the response. Query param types, URL param types, global/local error
+variants, and request-state tracking are not common across the ecosystem; they are a core part of Hyper Fetch's design.
+
+### Full capability reference
+
+| Capability | What it means |
+| --- | --- |
+| Response types | The shape returned by `.send()` and all hooks is inferred from the schema |
+| Payload types | `.setPayload()` accepts only the declared payload shape |
+| Global error type | One error type set on the client propagates to every request automatically |
+| Local error types ★ | Individual requests can extend the global error with endpoint-specific variants |
+| Query param types | `.setQueryParams()` is type-checked; unknown keys are compile errors |
+| URL param types ★ | Param keys are extracted from the endpoint string - `:userId` becomes a required typed field |
+| Request state tracking ★ | The type system records whether required fields have been set, preventing silent sends with missing data |
+
+Rows marked ★ are features not commonly found in other TypeScript API client libraries.
+
+### Request state tracking types
+
+The type system tracks whether required fields (params, payload, query params) have been set on a request. Attempting
+to call `.send()` before required data is populated is a compile error, not a runtime surprise.
+
+:::tip Unique to HF
+
+Compile-time tracking of request readiness — knowing whether required params or payload are set before the call
+happens — is not found in other TypeScript API client libraries.
+
+:::
+
+---
+
+## Queueing and offline
+
+### Request queueing
+
+Requests are grouped into named dispatcher queues. Each queue has a concurrency setting and a dispatch strategy.
+
+| Strategy | Behaviour |
+| --- | --- |
+| `one-by-one` | Each request waits for the previous to complete |
+| `parallel` | All queued requests fire concurrently |
+| `race` | New request cancels any previous in-flight request for the same key |
+
+:::tip Unique to HF
+
+Named dispatcher queues with multiple concurrency strategies are not available in any other general-purpose
+HTTP/data client. Most libraries fire requests immediately with no lifecycle control.
+
+:::
+
+### Queue control
+
+Individual queues can be paused, resumed, cleared, or stopped at runtime. This enables patterns like "hold all
+requests during an auth refresh" or "pause uploads while the user reviews a confirmation dialog" without any custom
+state management.
+
+:::tip Unique to HF
+
+Runtime pause, resume, and clear of entire named queues — without writing custom state management — is a feature
+unique to HF in the TypeScript client ecosystem.
+
+:::
+
+### Request persistence
+
+Unsent requests can be serialized into pluggable storage. On the next session the queue is restored and requests
+resume from where they left off. This is the foundation for true offline-first behaviour.
+
+:::tip Unique to HF
+
+Persisting unsent requests across page reloads and restoring the dispatch queue on the next session is not
+available in any other general-purpose HTTP or data-fetching library.
+
+:::
+
+### Offline request pause
+
+When network connectivity is lost, queued requests are automatically paused. When connectivity is restored they
+resume without any application code required. The behaviour is driven by the `AppManager`'s online/offline listeners.
+
+### Network status and window focus re-fetching
+
+Requests that fail due to offline state are automatically retried when connectivity is restored. Active subscriptions
+(from `useFetch`) re-fetch when the window regains focus. Both behaviours are configurable.
+
+---
+
+## Request lifecycle
+
+### Upload and download progress with ETA
+
+For any request that involves a body or binary response, Hyper Fetch emits granular progress events:
+
+- `onUploadProgress` / `onDownloadProgress`
+- bytes loaded, bytes total, bytes remaining
+- elapsed time, estimated time remaining (ETA)
+
+:::tip Unique to HF
+
+Built-in bytes-remaining and time-to-completion (ETA) tracking is rare across the ecosystem. Most libraries expose
+no progress events at all and leave file upload UI entirely to user code.
+
+:::
+
+### Pre- and post-request intercepting
+
+`client.onRequest()` intercepts every outgoing request before it is dispatched - useful for attaching auth headers,
+logging, or modifying payloads. `client.onResponse()` intercepts every response before it is stored - useful for
+token refresh, error normalization, or analytics.
+
+### Authentication
+
+Built-in interceptor hooks make the common auth patterns (attach Bearer token, refresh on 401, toggle auth per
+request) first-class. A `useAuth` option on individual requests opts them out of the auth flow entirely.
+
+### Retries
+
+Configurable retry count and retry delay (fixed, exponential backoff, or custom function) per request or as a global
+default on the client. Retries respect the queue, so a retried request does not bypass ordering guarantees.
+
+### Cancellation
+
+Individual requests can be cancelled via `AbortController` at any time. Entire queues can be cancelled by key. This
+is built into the dispatcher - no external cancellation token library is needed.
+
+### Deduplication
+
+Concurrent identical requests (same key, in-flight at the same time) are collapsed into one. Every caller receives
+the same response once it settles. This is on by default and configurable per request.
+
+---
+
+## Request definition
+
+### Shared request schema
+
+Requests are defined as first-class objects outside of components or hooks. The same object is used in your
+application code, in tests, and in any tooling that needs to introspect it. You never repeat endpoint strings or
+payload shapes.
+
+```ts
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+```
+
+### Request data mapping
+
+A `setPayloadMapper` on any request transforms outgoing data before it reaches the adapter. A `setResponseMapper`
+transforms the raw response before it is stored in cache or returned to hooks. Both are fully typed.
+
+### Query params parsing
+
+Built-in serialization converts objects to query strings automatically. Nested objects, arrays, and custom formats are
+supported. No external `qs` or manual `URLSearchParams` required.
+
+---
+
+## React / UI layer
+
+### Hooks with flat side-effect API
+
+`useFetch` and `useSubmit` expose named event callbacks (`onSuccess`, `onError`, `onFinished`) that are called outside
+the render cycle. There is no need to track side effects with `useEffect`.
+
+```tsx
+const { data, loading, error, onSuccess, onError } = useFetch(
+  getUser.setParams({ userId }),
+);
+
+onSuccess(({ response }) => toast.success(`Welcome, ${response.name}`));
+onError(({ response }) => toast.error(response.message));
+```
+
+:::tip Unique to HF
+
+Named lifecycle callbacks that fire outside the render cycle — no `useEffect` needed for side effects — are not a
+standard pattern in other React data-fetching hook libraries.
+
+:::
+
+### Dependency tracking
+
+State updates are scoped to the specific fields a component reads. A component that only renders `data` does not
+re-render when `loading` changes. This mirrors the selector pattern in state managers but is automatic.
+
+### Dependent queries
+
+A request can be gated on a condition - typically the result of a prior request. Until the condition is satisfied the
+request is not dispatched.
+
+### Paginated and infinite queries
+
+Both patterns are supported via query param updates (pagination) and the `useFetch` `fetchMore` pattern (infinite
+scroll). The cache accumulates pages under separate keys.
+
+### Prefetching
+
+Requests can be dispatched imperatively before the component that will consume them mounts. The cache entry is warm
+by the time the hook renders.
+
+### Polling
+
+A `refreshTime` option on `useFetch` triggers re-fetch at a fixed interval. The timer is paused when the window is
+not visible and resumed when focus returns.
+
+### SSR support
+
+The client and request definitions are isomorphic. Cache can be hydrated server-side and serialized into the HTML
+payload for client-side hand-off, matching the patterns used by Next.js and Remix loaders.
+
+### Initial data
+
+An `initialData` option pre-populates the hook state before any request fires. Useful for skeleton renders or data
+passed from a parent component.
+
+### Scroll recovery
+
+Because cached data is available synchronously on navigation-back, the page can restore its previous content
+immediately. The browser's native scroll position is preserved without any scroll-management library.
+
+---
+
+## Caching
+
+### Caching approach
+
+Hyper Fetch caches by **request key** - a deterministic string derived from the endpoint, method, params, and query
+params. Every distinct request configuration maps to its own cache entry. Updates to that entry notify all subscribers.
+The key is always derived automatically from the request schema — no manual key construction needed.
+
+### Cache persistence
+
+Cache entries can be serialized and stored in any pluggable storage (localStorage, AsyncStorage, IndexedDB, etc.).
+On the next session, stale data is immediately available while a background revalidation runs.
+
+### Cache hydration
+
+Cache can be seeded programmatically before any component mounts. Useful for SSR hand-off, test setup, or preloading
+data from another source.
+
+### Stale-while-revalidate
+
+Cached data is served to subscribers immediately while a fresh fetch runs in the background. The UI updates once the
+fresh response arrives. This behaviour is configurable per-request via `staleTime`.
+
+### Cache invalidation and matching
+
+`client.cache.invalidate()` accepts exact keys, partial key prefixes, or RegExp patterns. Invalidating all
+`/users/:id` entries after a mutation is a one-liner. Automatic re-fetch after mutation is triggered via the same
+mechanism and can be configured globally or per-request.
+
+### Garbage collection
+
+Cache entries that have no active subscribers and have exceeded their `cacheTime` are automatically removed from
+memory. This prevents unbounded growth in long-lived single-page applications.
+
+### Normalized caching
+
+Hyper Fetch does **not** maintain a normalized entity store. If your application requires entity normalization (one
+canonical record updated across all views when a mutation occurs), that pattern is better served by libraries built
+around it.
+
+---
+
+## Tooling and observability
+
+### Devtools (HyperFlow)
+
+The `@hyper-fetch/plugin-devtools` package integrates with the HyperFlow devtools panel. You can inspect active
+queues, browse the cache, replay requests, and observe lifecycle events in real time.
+
+### Requests manager
+
+A global view of all in-flight and queued requests is available programmatically via the client's dispatchers. This
+is the data source for progress indicators, upload managers, and background sync dashboards.
+
+:::tip Unique to HF
+
+A reactive, programmatic view of every queued and in-flight request — usable as a data source for upload managers or
+background sync dashboards — is not available in other general-purpose data clients.
+
+:::
+
+### Data flow standard
+
+Every response is stored and emitted in a standardized envelope: `{ data, error, status, extra, isSuccess,
+responseTime, requestTime }`. The shape is consistent across adapters, making it straightforward to write generic
+utilities (logging, error boundaries, analytics) that work regardless of the underlying protocol.
+
+:::tip Unique to HF
+
+A consistent response envelope across every adapter (HTTP, WebSockets, Firebase) is unique to HF. Protocol
+differences are fully abstracted, so logging, error boundaries, and analytics utilities work unchanged across
+transports.
+
+:::
+
+### Testable architecture
+
+Because requests are defined as plain objects outside components, test utilities import the same typed definitions the
+application uses. Mocking a request, asserting on its payload, or intercepting a lifecycle event requires no
+string-matching or monkey-patching.
+
+:::tip Unique to HF
+
+First-class typed request objects that can be imported and introspected in tests — without string-matching URLs or
+monkey-patching fetch — is a direct consequence of HF's command-pattern architecture.
+
+:::
+
+---
+
+## Architecture
+
+### Environment support
+
+Hyper Fetch's core is written in TypeScript with zero runtime dependencies. It runs in browsers, Node.js, React
+Native, Electron, and any environment that supports the Fetch API (or a polyfill for it). Framework-specific packages
+(`@hyper-fetch/react`) add thin UI bindings on top.
+
+### Default adapter included
+
+The core package ships with a production-ready HTTP adapter. Most server-state managers expect you to supply your own
+fetching function. Hyper Fetch works out of the box without wiring up an external HTTP client first.
+
+### Server connection setup
+
+The `Client` holds everything that is global to your API: base URL, headers, auth interceptors, adapters, cache
+configuration, and default request options. You configure it once and every request inherits those settings. Changing
+the base URL or swapping the adapter in tests requires one line.
+
+---
+
+## What Hyper Fetch does not try to be
+
+**It is not a normalized entity cache.** If your application requires one canonical record updated across all views
+when a mutation occurs, a library built around normalization will serve that use case better.
+
+**It is not a full-stack RPC framework.** If you control both ends of the wire, a type-safe RPC layer gives you a
+tighter contract. Hyper Fetch is intentionally client-only: it talks to whatever backend you already have.
+
+**It is not a UI state manager.** Local state, form state, and derived client state belong in your component layer or
+a store. Hyper Fetch is concerned with server state only.

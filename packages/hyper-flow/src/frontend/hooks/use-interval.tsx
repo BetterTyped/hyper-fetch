@@ -12,7 +12,7 @@ export const useInterval = (callback: () => void, interval: number | null, optio
   const savedCallback = useRef(callback);
 
   const stop = () => {
-    if (id) clearInterval(id);
+    if (id) {clearInterval(id);}
     setId(null);
   };
 

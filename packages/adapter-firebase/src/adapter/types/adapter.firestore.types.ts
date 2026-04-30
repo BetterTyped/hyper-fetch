@@ -1,5 +1,13 @@
+import type { DocumentData } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { Adapter } from "@hyper-fetch/core";
+import type { SocketAdapter } from "@hyper-fetch/sockets";
+import type {
+  FirestoreConstraintsUnion,
+  FirestorePermittedMethods,
+  PermittedConstraints,
+  SharedQueryConstraints,
+} from "constraints";
 import type {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
@@ -7,15 +15,6 @@ import type {
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
-import type { SocketAdapter } from "@hyper-fetch/sockets";
-import type { DocumentData } from "@firebase/firestore";
-
-import type {
-  FirestoreConstraintsUnion,
-  FirestorePermittedMethods,
-  PermittedConstraints,
-  SharedQueryConstraints,
-} from "constraints";
 
 export type FirestoreSocketAdapterType = SocketAdapter<
   FirestoreOnSnapshotExtra,

@@ -1,10 +1,9 @@
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
 import type { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
-import { useRef } from "react";
-
 import { useSocketState } from "helpers";
 import type { UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
+import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
 /** Subscribe to incoming socket messages on a given listener topic with tracked connection state and callbacks. */
@@ -39,7 +38,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
       onEventCallback.current?.({ data, extra });
       actions.setData(data);
       actions.setExtra(extra);
-      actions.setTimestamp(+new Date());
+      actions.setTimestamp(Date.now());
     });
   };
 

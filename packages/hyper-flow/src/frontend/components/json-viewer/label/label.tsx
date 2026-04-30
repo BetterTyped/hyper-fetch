@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
 import { CircleCheck, Copy } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { jsonViewerStyles } from "../json-viewer.styles";
-
 import { useClipboard } from "@/hooks/use-clipboard";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +14,8 @@ export const Label = ({
   expandable: boolean;
   getRaw: () => string;
 }) => {
-  const ref = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // oxlint-disable-next-line unicorn/no-useless-undefined
+  const ref = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [copied, setCopied] = useState(false);
 
   const { copy } = useClipboard({

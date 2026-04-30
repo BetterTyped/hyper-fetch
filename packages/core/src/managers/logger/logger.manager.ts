@@ -1,6 +1,5 @@
-import EventEmitter from "events";
-
 import type { ClientInstance } from "client";
+import EventEmitter from "events";
 import type { LogLevel, LoggerOptionsType, LoggerType, LoggerMethods } from "managers";
 import { logger, logLevelOrder } from "managers";
 

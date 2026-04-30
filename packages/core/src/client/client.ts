@@ -1,6 +1,5 @@
 import type { AdapterInstance, ResponseType } from "adapter";
-import type { HttpAdapterType } from "http-adapter";
-import { parseResponse, HttpAdapter } from "http-adapter";
+import { Cache } from "cache";
 import type {
   ClientErrorType,
   ClientInstance,
@@ -10,14 +9,14 @@ import type {
   RequestInterceptorType,
   ResponseInterceptorType,
 } from "client";
-import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
+import type { HttpAdapterType } from "http-adapter";
+import { parseResponse, HttpAdapter } from "http-adapter";
+import type { LogLevel } from "managers";
+import { AppManager, LoggerManager, RequestManager } from "managers";
 import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
 import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";
-import type { LogLevel } from "managers";
-import { AppManager, LoggerManager, RequestManager } from "managers";
-import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
 import type {
   EmptyTypes,
   TypeWithDefaults,
@@ -31,6 +30,8 @@ import type {
   ExtractAdapterDefaultQueryParamsType,
 } from "types";
 import { getUniqueRequestId } from "utils";
+
+import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -270,7 +271,7 @@ export class Client<
   };
 
   triggerPlugins = <Key extends keyof PluginMethods<Client>>(key: Key, data: PluginMethodParameters<Key, Client>) => {
-    if (!this.plugins.length) {
+    if (this.plugins.length === 0) {
       return this;
     }
 
@@ -408,7 +409,7 @@ export class Client<
     options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
   ) => {
     hydrationData?.forEach((item) => {
-      if (!item) return;
+      if (!item) {return;}
 
       const { cacheKey, scope, response, ...fallbackOptions } = item;
       const defaults = {

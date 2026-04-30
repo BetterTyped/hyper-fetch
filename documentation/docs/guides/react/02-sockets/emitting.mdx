@@ -16,7 +16,7 @@ is perfect for actions like sending messages, updating user status, or any other
 1.  How to use the **`useEmitter`** hook to send data to a socket server.
 2.  How to trigger an event using the returned **`emit` function**.
 3.  How to handle server **acknowledgements** for sent events.
-4.  How to use helper hooks like **`onEvent`**, **`onError`**, and **`onReconnecting`** to manage the emitter's
+4.  How to use helper hooks like **`onEmit`**, **`onError`**, and **`onReconnecting`** to manage the emitter's
     lifecycle.
 
 :::
@@ -38,9 +38,9 @@ function ChatInput() {
   const [message, setMessage] = React.useState("");
   const [status, setStatus] = React.useState("Waiting for message...");
 
-  const { emit, connected, onEvent, onError, onReconnecting } = useEmitter(sendMessage);
+  const { emit, connected, onEmit, onError, onReconnecting } = useEmitter(sendMessage);
 
-  onEvent((emitter) => {
+  onEmit((emitter) => {
     console.log("Event was sent!", emitter);
   });
 
@@ -59,17 +59,9 @@ function ChatInput() {
     // The data we send
     const payload = { message, user: "Me", timestamp: Date.now() };
 
-    // The acknowledgement callback
-    const acknowledge = (error, response) => {
-      if (error) {
-        setStatus("Server did not acknowledge the message.");
-      } else {
-        setStatus(`Server received: "${response.message}"`);
-      }
-    };
-
-    // Emit the event with payload and acknowledgement
-    emit(payload, acknowledge);
+    // Emit the event with payload as an options object
+    // highlight-next-line
+    emit({ payload });
     setMessage("");
   };
 
@@ -99,8 +91,7 @@ function ChatInput() {
 ```
 
 In this example, `sendMessage` is a pre-defined emitter request. You can learn more about creating them in the
-[sockets guide](/docs/guides/sockets/emitting). The `emit` function takes the data payload as its first argument and an
-optional acknowledgement callback as its second.
+[sockets guide](/docs/guides/sockets/emitting). The `emit` function takes an options object with a `payload` property.
 
 ---
 
@@ -111,6 +102,6 @@ You've mastered emitting socket events from your React application!
 - You can use **`useEmitter`** to get an `emit` function for sending data.
 - You can call the **`emit` function** with a data payload to send an event.
 - You can handle server responses using **acknowledgement callbacks**.
-- You can monitor the emitter's lifecycle with **`onEvent`**, **`onError`**, and **`onReconnecting`**.
+- You can monitor the emitter's lifecycle with **`onEmit`**, **`onError`**, and **`onReconnecting`**.
 
 :::

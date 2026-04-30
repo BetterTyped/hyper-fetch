@@ -1,7 +1,6 @@
 import type { ExtractUrlParams, ParamsType, PayloadMapperType, EmptyTypes } from "@hyper-fetch/core";
-
-import type { SocketInstance } from "socket";
 import type { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType, EmitType } from "emitter";
+import type { SocketInstance } from "socket";
 import type { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
 /**
@@ -53,7 +52,7 @@ export class Emitter<
 
   /** Set a mapper function that transforms the payload before it is sent. */
   setPayloadMapper = <DataMapper extends (payload: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
-    const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
+    const cloned = this.clone<Payload, HasPayload, HasParams>();
 
     cloned.unstable_payloadMapper = payloadMapper;
 
@@ -69,7 +68,7 @@ export class Emitter<
     let topic = this.emitterOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
+        topic = topic.replaceAll(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 

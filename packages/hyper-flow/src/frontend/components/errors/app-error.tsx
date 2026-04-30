@@ -1,10 +1,10 @@
-import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
-import type { ErrorComponentProps } from "@tanstack/router-core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { Link } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/router-core";
+import { RefreshCw, AlertTriangle, ArrowLeft } from "lucide-react";
 
-import { Meteors } from "../ui/meteors";
 import { Button } from "../ui/button";
+import { Meteors } from "../ui/meteors";
 
 export const AppError = ({ error, info, reset }: ErrorComponentProps) => {
   useDidMount(() => {

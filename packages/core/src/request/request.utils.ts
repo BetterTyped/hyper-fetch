@@ -1,8 +1,9 @@
 import { getErrorMessage } from "adapter";
-import { HttpMethods } from "constants/http.constants";
 import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType } from "adapter";
+import { HttpMethods } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
+
 import type {
   OptimisticCallbackResult,
   ProgressEventType,
@@ -17,18 +18,18 @@ export const scopeKey = (key: string, scope: string | null): string => {
 
 export const stringifyKey = (value: unknown): string => {
   try {
-    if (typeof value === "string") return value;
-    if (value === undefined || value === null) return "";
+    if (typeof value === "string") {return value;}
+    if (value === undefined || value === null) {return "";}
     const data = JSON.stringify(value);
-    if (typeof data !== "string") throw new Error();
+    if (typeof data !== "string") {throw new TypeError();}
     return data;
-  } catch (_) {
+  } catch {
     return "";
   }
 };
 
 export const getProgressValue = ({ loaded, total }: ProgressEventType): number => {
-  if (!loaded || !total) return 0;
+  if (!loaded || !total) {return 0;}
   return Number(((loaded * 100) / total).toFixed(0));
 };
 
@@ -152,17 +153,17 @@ export const sendRequest = async <Request extends RequestInstance>(
         client: request.client,
         payload: request.payload,
       });
-    } catch (err) {
+    } catch (error) {
       return {
         data: null,
         error: new Error(
-          `Optimistic callback failed: ${err instanceof Error ? err.message : err}`,
+          `Optimistic callback failed: ${error instanceof Error ? error.message : error}`,
         ) as unknown as ExtractErrorType<Request>,
         status: null,
         success: false,
         extra: client.adapter.defaultExtra,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
     }
   }
@@ -214,10 +215,10 @@ export const sendRequest = async <Request extends RequestInstance>(
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
-        if (!success && isOfflineStatus) return;
+        if (!success && isOfflineStatus) {return;}
 
         // When request is in retry mode we need to listen for retries end
-        if (!success && willRetry) return;
+        if (!success && willRetry) {return;}
 
         options?.onResponse?.(enrichedValues);
         $hooks.__emit("onResponse", enrichedValues);
@@ -257,8 +258,8 @@ export const sendRequest = async <Request extends RequestInstance>(
           success: false,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
           extra: request.client.adapter.defaultExtra,
-          requestTimestamp: +new Date(),
-          responseTimestamp: +new Date(),
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
         });
 
         // Unmount Listeners

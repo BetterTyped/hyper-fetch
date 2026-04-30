@@ -1,12 +1,11 @@
-import * as path from "node:path";
-import * as fs from "fs-extra";
-import type { z } from "zod";
-
 import type { addOptionsSchema } from "commands/add";
-import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
+import * as fs from "fs-extra";
+import * as path from "node:path";
+import * as ERRORS from "utils/errors";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
+import type { z } from "zod";
 
 export async function preFlightAdd(options: z.infer<typeof addOptionsSchema>) {
   const errors: Record<string, boolean> = {};
@@ -28,7 +27,7 @@ export async function preFlightAdd(options: z.infer<typeof addOptionsSchema>) {
       errors,
       config: config!,
     };
-  } catch (error) {
+  } catch {
     logger.break();
     logger.error(
       `An invalid ${highlighter.info("api.json")} file was found at ${highlighter.info(

@@ -5,7 +5,7 @@
  */
 export const createTrackedProxy = <T extends Record<string, unknown>, K extends string>(
   target: T,
-  trackedKeys: ReadonlyArray<K>,
+  trackedKeys: readonly K[],
   setRenderKey: (key: K) => void,
 ): T => {
   return new Proxy(target, {

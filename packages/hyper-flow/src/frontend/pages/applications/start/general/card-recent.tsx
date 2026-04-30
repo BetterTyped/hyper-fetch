@@ -1,16 +1,15 @@
-import { useShallow } from "zustand/react/shallow";
-import { Clock, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { Clock, ArrowRight } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 
 import { RequestRow } from "../../network/list/request-row/request-row";
-
+import { EmptyState } from "@/components/no-content/empty-state";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { EmptyState } from "@/components/no-content/empty-state";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useNetworkStore } from "@/store/applications/network.store";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useNetworkStore } from "@/store/applications/network.store";
 
 export const CardRecent = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -45,7 +44,7 @@ export const CardRecent = ({ className }: { className?: string }) => {
               <EmptyState title="Waiting for API activity" description="No requests processed yet" />
             ) : (
               <Table className="w-full h-full" wrapperClassName="pb-4">
-                <TableHeader className={cn(!requests.length && "opacity-40", "sticky top-0 z-10")}>
+                <TableHeader className={cn(requests.length === 0 && "opacity-40", "sticky top-0 z-10")}>
                   <TableRow>
                     <TableHead />
                     <TableHead>Endpoint</TableHead>

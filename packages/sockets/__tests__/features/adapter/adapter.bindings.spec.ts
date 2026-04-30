@@ -1,5 +1,6 @@
-import { createSocket } from "../../utils/socket.utils";
 import { getAdapterBindings } from "adapter";
+
+import { createSocket } from "../../utils/socket.utils";
 
 describe("Socket Adapter [ Bindings ]", () => {
   let socket = createSocket({ adapterOptions: { autoConnect: false } });

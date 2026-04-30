@@ -1,15 +1,15 @@
 import { ActivitySquare } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { cn } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { EmptyState } from "@/components/no-content/empty-state";
-import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Method } from "@/components/ui/method";
-import { formatBytes } from "@/utils/size.utils";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { cn } from "@/lib/utils";
+import { useMethodStatsStore } from "@/store/applications/method-stats.store";
 import { formatTime } from "@/utils/format";
+import { formatBytes } from "@/utils/size.utils";
 
 export const CardPatterns = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -28,7 +28,7 @@ export const CardPatterns = ({ className }: { className?: string }) => {
       <CardContent className="space-y-2">
         {!stats?.size && <EmptyState title="Analyzing API usage patterns..." description="No patterns detected yet." />}
 
-        {Array.from(stats?.values() || []).map(({ method, methodStats }) => (
+        {[...stats?.values() || []].map(({ method, methodStats }) => (
           <div key={method} className="p-3 border rounded-md bg-zinc-500/40">
             <div className="flex justify-between items-center">
               <span className="font-mono text-sm">

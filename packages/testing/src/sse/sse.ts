@@ -1,12 +1,12 @@
-import { sources } from "eventsourcemock";
-import { WS } from "jest-websocket-mock";
+import type { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
 import type {
   ListenerInstance,
   ExtractListenerResponseType,
   ExtendListener,
   ExtractListenerTopicType,
 } from "@hyper-fetch/sockets";
-import type { ExtractUrlParams, EmptyTypes } from "@hyper-fetch/core";
+import { sources } from "eventsourcemock";
+import { WS } from "jest-websocket-mock";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {
@@ -44,8 +44,6 @@ export const createSseMockingServer = (url = "ws://localhost:1234") => {
   const emitListenerEvent = <T extends ListenerInstance>(
     listener: ExtendListener<
       T,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       { hasParams: ExtractUrlParams<ExtractListenerTopicType<T>> extends EmptyTypes ? false : true }
     >,
     event: ExtractListenerResponseType<T> extends Record<string, any>

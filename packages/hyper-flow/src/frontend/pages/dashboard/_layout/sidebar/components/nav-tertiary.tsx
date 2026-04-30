@@ -1,5 +1,6 @@
+import { LifeBuoy, Send } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import * as React from "react";
-import { LifeBuoy, Send, type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -9,11 +10,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const items: Array<{
+const items: {
   name: string;
   link: string;
   icon: LucideIcon;
-}> = [
+}[] = [
   {
     name: "Support",
     link: "https://github.com/BetterTyped/hyper-fetch/issues",

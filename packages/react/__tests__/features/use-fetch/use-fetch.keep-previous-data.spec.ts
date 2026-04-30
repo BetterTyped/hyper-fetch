@@ -1,5 +1,5 @@
-import { waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/react";
 
 import { createRequest, renderUseFetch, client } from "../../utils";
 

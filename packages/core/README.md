@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-HyperFetch Core is the foundation of the HyperFetch ecosystem. Every API call is a typed, immutable request object with built-in caching, queuing, retries, and offline support. It works in any JavaScript environment — browser, server, or edge — and connects to any API through pluggable adapters.
+HyperFetch Core is the foundation of the HyperFetch ecosystem. Every API call is a typed, immutable request object with
+built-in caching, queuing, retries, and offline support. It works in any JavaScript environment — browser, server, or
+edge — and connects to any API through pluggable adapters.
 
 ## 🎯 Key Capabilities
 
@@ -121,9 +123,7 @@ const listUsers = client.createRequest<{
 });
 
 // Query params are appended to the URL: /users?page=1&limit=20&search=john
-const { data } = await listUsers
-  .setQueryParams({ page: 1, limit: 20, search: "john" })
-  .send();
+const { data } = await listUsers.setQueryParams({ page: 1, limit: 20, search: "john" }).send();
 ```
 
 ### Lifecycle callbacks

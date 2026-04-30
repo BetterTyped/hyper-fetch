@@ -1,6 +1,6 @@
-import type { SocketInstance } from "socket";
-import type { Listener, ListenerInstance } from "listener";
 import type { Emitter, EmitterInstance } from "emitter";
+import type { Listener, ListenerInstance } from "listener";
+import type { SocketInstance } from "socket";
 import type {
   ExtractListenerResponseType,
   ExtractListenerTopicType,
@@ -142,8 +142,8 @@ const isTopicGroup = (key: string): boolean => {
 };
 
 const topicMatchesPattern = (topic: string, pattern: string): boolean => {
-  if (pattern === "*") return true;
-  if (pattern === topic) return true;
+  if (pattern === "*") {return true;}
+  if (pattern === topic) {return true;}
   if (pattern.endsWith("/*")) {
     const prefix = pattern.slice(0, -1);
     return topic.startsWith(prefix) || topic === prefix.slice(0, -1);
@@ -153,7 +153,7 @@ const topicMatchesPattern = (topic: string, pattern: string): boolean => {
 
 const applySocketObjectDefaults = (instance: SocketSdkLeaf, config: SocketSdkDefaults): SocketSdkLeaf => {
   let result = instance;
-  if (config.options !== undefined) result = result.setOptions(config.options);
+  if (config.options !== undefined) {result = result.setOptions(config.options);}
   return result;
 };
 
@@ -168,7 +168,7 @@ const applySocketDefaults = ({
   sdkPath: string;
   defaults?: Partial<Record<string, SocketSdkConfigurationValue>>;
 }): SocketSdkLeaf => {
-  if (!defaults) return instance;
+  if (!defaults) {return instance;}
 
   let result = instance;
   const entries = Object.entries(defaults);
@@ -179,7 +179,7 @@ const applySocketDefaults = ({
 
   for (let i = 0; i < entries.length; i += 1) {
     const [key, value] = entries[i];
-    if (!value) continue;
+    if (!value) {continue;}
     const entry: [string, SocketSdkConfigurationValue] = [key, value];
     if (entry[0] === "*") {
       globalEntries.push(entry);
@@ -229,7 +229,7 @@ const createSocketRecursiveProxy = ({
   return new Proxy(() => {}, {
     get: (_target, key: string) => {
       if (typeof key === "symbol" || key === "inspect") {
-        return undefined;
+        return;
       }
 
       const currentSdkKeys = [...sdkKeys, key];
@@ -240,7 +240,7 @@ const createSocketRecursiveProxy = ({
       if (key.startsWith("$") && !LEAF_KEYS.has(key)) {
         pathSegment = `:${key.slice(1)}`;
       } else if (options?.camelCaseToKebabCase) {
-        pathSegment = key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+        pathSegment = key.replaceAll(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
       }
 
       if (LEAF_KEYS.has(key)) {

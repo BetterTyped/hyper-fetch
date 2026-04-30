@@ -1,14 +1,14 @@
-import { waitFor, configure } from "@testing-library/react";
 import { InternalEvents, MessageType } from "@hyper-fetch/plugin-devtools";
 import { AppConnectionStatus, PluginConnectionStatus } from "@server/types/connection.type";
+import { waitFor, configure } from "@testing-library/react";
 
 import type { StartServer } from "../../src/server";
 import { startServer } from "../../src/server";
 import { connectDevtoolsFrontend, connectDevtoolsClient } from "../helpers/helpers";
 
-configure({ asyncUtilTimeout: 10000 });
+configure({ asyncUtilTimeout: 10_000 });
 
-const getRandomPort = () => 10000 + Math.floor(Math.random() * 50000);
+const getRandomPort = () => 10_000 + Math.floor(Math.random() * 50_000);
 
 describe("Devtools Socket Server", () => {
   let serverObject: StartServer | null = null;

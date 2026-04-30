@@ -1,8 +1,8 @@
-import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
 import type { ResponseErrorType, ResponseSuccessType } from "adapter";
-import type { ResponseDetailsType } from "managers";
+import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
 import type { HttpAdapterType } from "http-adapter";
 import { xhrExtra } from "http-adapter";
+import type { ResponseDetailsType } from "managers";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {
@@ -20,10 +20,10 @@ describe("Cache [ Utils ]", () => {
         success: false,
         extra: xhrExtra,
         retries: 0,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         isCanceled: false,
         isOffline: false,
         willRetry: false,
@@ -54,10 +54,10 @@ describe("Cache [ Utils ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         isCanceled: false,
         isOffline: false,
         willRetry: false,
@@ -69,10 +69,10 @@ describe("Cache [ Utils ]", () => {
         success: true,
         extra: xhrExtra,
         retries: 0,
-        requestTimestamp: +new Date(),
-        responseTimestamp: +new Date(),
-        addedTimestamp: +new Date(),
-        triggerTimestamp: +new Date(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
         isCanceled: false,
         isOffline: false,
         willRetry: false,

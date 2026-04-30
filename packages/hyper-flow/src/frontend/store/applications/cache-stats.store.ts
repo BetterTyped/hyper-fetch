@@ -1,9 +1,8 @@
+import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 import { produce } from "immer";
 import { create } from "zustand/react";
-import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
 
 import { getDataSize, getEndpointAndMethod } from "./utils";
-
 import type { DevtoolsRequestEvent, DevtoolsRequestResponse } from "@/context/applications/types";
 
 type CacheKey = string;
@@ -99,8 +98,8 @@ const generateCacheStats = ({
     });
   }
 
-  const totalSize = Array.from(currentStats.cacheEntries.values()).reduce((acc, curr) => acc + curr.stats.size, 0);
-  const notCachedSize = Array.from(currentStats.notCachedEntries.values()).reduce(
+  const totalSize = [...currentStats.cacheEntries.values()].reduce((acc, curr) => acc + curr.stats.size, 0);
+  const notCachedSize = [...currentStats.notCachedEntries.values()].reduce(
     (acc, curr) => acc + curr.stats.size,
     0,
   );
@@ -177,7 +176,7 @@ export const useCacheStatsStore = create<Store>((set) => ({
           }),
         );
 
-        const totalSize = Array.from(draft.applications[application].cachesStats.values()).reduce(
+        const totalSize = [...draft.applications[application].cachesStats.values()].reduce(
           (acc, curr) => acc + curr.generalStats.cacheSize,
           0,
         );

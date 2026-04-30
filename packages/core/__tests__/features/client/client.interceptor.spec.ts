@@ -1,9 +1,9 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import { interceptorCallback } from "../../utils";
-import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
+
+import { testCallbacksExecution } from "../../shared";
+import { interceptorCallback } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

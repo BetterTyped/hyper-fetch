@@ -32,7 +32,7 @@ export const theme: Theme = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateValue = <S extends object>(target: S, path: KeyPath, value: any): S => {
-  const keys = [...path].reverse();
+  const keys = [...path].toReversed();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reference: any = typeof target === "object" ? new Proxy(target, {}) : target;
   if (typeof target === "object" && target !== null) {
@@ -41,8 +41,9 @@ export const updateValue = <S extends object>(target: S, path: KeyPath, value: a
         reference = reference[key];
       }
     });
-    if (keys[keys.length - 1] in reference) {
-      reference[keys[keys.length - 1]] = value;
+    const lastKey = keys.at(-1);
+    if (lastKey !== undefined && lastKey in reference) {
+      reference[lastKey] = value;
     }
   } else {
     return value;

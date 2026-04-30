@@ -2,8 +2,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": "./src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "helpers": ["./src/helpers"],
+      "helpers/*": ["./src/helpers/*"],
+      "hooks": ["./src/hooks"],
+      "hooks/*": ["./src/hooks/*"],
+      "provider": ["./src/provider"],
+      "provider/*": ["./src/provider/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

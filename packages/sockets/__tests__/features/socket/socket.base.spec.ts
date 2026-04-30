@@ -1,10 +1,10 @@
-import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
-
-import { Socket } from "socket";
-import { createSocket } from "../../utils/socket.utils";
-import { createEmitter } from "../../utils/emitter.utils";
+import { waitFor } from "@testing-library/dom";
 import { Emitter } from "emitter";
+import { Socket } from "socket";
+
+import { createEmitter } from "../../utils/emitter.utils";
+import { createSocket } from "../../utils/socket.utils";
 
 type DataType = {
   test: string;

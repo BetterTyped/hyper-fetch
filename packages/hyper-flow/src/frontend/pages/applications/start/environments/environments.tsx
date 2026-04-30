@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { Atom } from "lucide-react";
+import { useState } from "react";
 
 import { EnvironmentDialog } from "./environment-dialog";
-
 import { Button } from "@/components/ui/button";
 
 export const Environments = () => {

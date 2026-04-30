@@ -1,9 +1,8 @@
-import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
-
+import { waitFor } from "@testing-library/dom";
+import { Client } from "client";
 import type { QueueDataType } from "dispatcher";
 import { Dispatcher } from "dispatcher";
-import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -26,7 +25,7 @@ const createSerializingStorage = () => {
       const value = store.get(key);
       return value ? JSON.parse(value) : undefined;
     },
-    keys: () => Array.from(store.keys()),
+    keys: () => [...store.keys()],
     entries: () => {
       return Array.from(
         store.entries(),

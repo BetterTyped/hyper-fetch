@@ -1,0 +1,104 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "react-hooks", "import", "jsx-a11y", "unicorn"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "warn",
+    "style": "warn",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2024": true
+  },
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-continue": "off",
+    "no-underscore-dangle": "off",
+    "no-param-reassign": "error",
+    "no-throw-literal": "off",
+    "max-params": ["error", { "max": 3 }],
+    "max-lines": ["error", { "max": 800 }],
+
+    "sort-imports": "off",
+    "import/no-default-export": "error",
+    "import/no-cycle": "off",
+    "import/prefer-default-export": "off",
+
+    "react/exhaustive-deps": "warn",
+    "react/rules-of-hooks": "error",
+    "react/jsx-props-no-spreading": "off",
+
+    "typescript/no-explicit-any": "off",
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-return": "off",
+
+    "no-magic-numbers": "off",
+    "react/react-in-jsx-scope": "off",
+    "import/no-named-export": "off",
+    "import/group-exports": "off",
+    "import/exports-last": "off",
+    "import/no-namespace": "off",
+    "import/max-dependencies": "off",
+    "import/no-nodejs-modules": "off",
+    "import/default": "off",
+    "import/no-unassigned-import": "off",
+    "unicorn/no-null": "off",
+    "unicorn/prefer-global-this": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-instanceof-builtins": "off",
+    "unicorn/prefer-event-target": "off",
+    "unicorn/filename-case": "off",
+    "id-length": "off",
+    "react/jsx-max-depth": "off",
+    "max-lines-per-function": "off",
+    "max-statements": "off",
+    "no-ternary": "off",
+    "func-style": "off",
+    "no-duplicate-imports": "off",
+    "no-implicit-coercion": "off",
+    "sort-keys": "off",
+    "init-declarations": "off",
+    "new-cap": "off",
+    "no-warning-comments": "off",
+    "no-inline-comments": "off",
+    "capitalized-comments": "off",
+    "no-negated-condition": "off",
+    "parameter-properties": "off",
+    "arrow-body-style": "off",
+    "consistent-indexed-object-style": "off",
+    "prefer-destructuring": "off",
+    "typescript/ban-types": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "consistent-type-definitions": "off",
+    "require-await": "off",
+    "no-redeclare": "off",
+    "unicorn/no-unreadable-array-destructuring": "off",
+    "unicorn/prefer-ternary": "off",
+    "unicorn/no-immediate-mutation": "off",
+    "unicorn/no-array-callback-reference": "off",
+    "unicorn/prefer-top-level-await": "off",
+    "unicorn/prefer-logical-operator-over-ternary": "off",
+    "import/no-named-as-default": "off",
+    "react/display-name": "off",
+    "react/hook-use-state": "off",
+    "no-empty-interface": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "rules": {
+        "max-lines": "off"
+      }
+    },
+    {
+      "files": ["*.config.ts", "*.config.js", "*.config.mjs", "*.config.mts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/", "coverage/", "node_modules/", ".nx/", "documentation/", ".yarn/", "examples/"]
+}

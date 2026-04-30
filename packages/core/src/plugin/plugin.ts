@@ -1,5 +1,5 @@
-import type { PluginMethodParameters, PluginMethods, PluginOptionsType } from "plugin";
 import type { ClientInstance } from "client";
+import type { PluginMethodParameters, PluginMethods, PluginOptionsType } from "plugin";
 
 /**
  * Base class for plugins that hook into the request, cache, dispatcher, and adapter lifecycle.

@@ -94,6 +94,41 @@ const { data, error } = await getCategory.setParams({ categoryId: 2 }).send();
 const { data, error } = await getCategory.send({ params: { categoryId: 1 }, queryParams: { sort: "createdAt" } });
 ```
 
+##### Cache Policy
+
+The `send()` method accepts a `cachePolicy` option that controls how the request interacts with the cache:
+
+- **`"network-only"`** (default) - Always fetches from the network, ignoring any cached data.
+- **`"cache-first"`** - Returns cached data if available and not stale. Falls back to a network request otherwise.
+- **`"revalidate"`** - Returns cached data immediately (if available), then fetches from the network in the background
+  to refresh the cache (stale-while-revalidate pattern).
+
+```ts
+// Default - always goes to network
+const { data } = await getUser.send();
+
+// Use cache if available, otherwise fetch
+// highlight-next-line
+const { data } = await getUser.send({ cachePolicy: "cache-first" });
+
+// Return cache immediately, refresh in background
+// highlight-next-line
+const { data } = await getUser.send({ cachePolicy: "revalidate" });
+```
+
+##### Dispatcher Type
+
+You can force which dispatcher handles a request using the `dispatcherType` option:
+
+- **`"auto"`** (default) - GET requests go to `fetchDispatcher`, mutations go to `submitDispatcher`.
+- **`"fetch"`** - Force use of `fetchDispatcher` regardless of method.
+- **`"submit"`** - Force use of `submitDispatcher` regardless of method.
+
+```ts
+// Force a GET request through the submit dispatcher
+const { data } = await getUser.send({ dispatcherType: "submit" });
+```
+
 2. #### `.exec(options)`
 
 This method is very similar to `send` but it ignores the built-in features - like for example deduplication or caching.
@@ -338,6 +373,47 @@ const request = client.createRequest()({
 Adapter options may vary depending on the adapter you use.
 
 :::
+
+---
+
+### Default Values
+
+When creating a request, the following defaults are applied unless overridden:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `auth` | `true` | Whether auth interceptor runs for this request |
+| `method` | Adapter's default method | HTTP method (typically `"GET"`) |
+| `cancelable` | `false` | Whether sending a new request auto-cancels the previous one |
+| `retry` | `0` | Number of retry attempts on failure |
+| `retryTime` | `500` (ms) | Delay between retries |
+| `cacheTime` | `300000` (5 min) | How long cached data is stored |
+| `cache` | `true` | Whether the response is cached |
+| `staleTime` | `300000` (5 min) | How long cached data is considered fresh |
+| `queued` | `false` | Whether requests are queued (sequential execution) |
+| `offline` | `true` | Whether requests are stored when offline |
+| `deduplicate` | `false` | Whether identical in-flight requests are deduplicated |
+| `deduplicateTime` | `null` | Custom deduplication window (uses request duration when `null`) |
+
+---
+
+### Disabling Interceptors
+
+Individual requests can opt out of client-level interceptors. This is useful when a specific endpoint should bypass
+global auth or response processing logic.
+
+```ts
+const publicRequest = client.createRequest()({
+  endpoint: "/public/health",
+  // highlight-start
+  disableRequestInterceptors: true,
+  disableResponseInterceptors: true,
+  // highlight-end
+});
+```
+
+When `disableRequestInterceptors` is `true`, the `onRequest` and `onAuth` interceptors are skipped. When
+`disableResponseInterceptors` is `true`, the `onResponse`, `onSuccess`, and `onError` interceptors are skipped.
 
 ---
 
@@ -755,6 +831,23 @@ of retry attempts and the delay between them. This feature helps improve reliabi
 // Retry failed requests automatically
 const retryRequest = client.createRequest()({ endpoint: "/unstable", retry: 2, retryTime: 1000 });
 retryRequest.send(); // Will retry up to 2 times on failure
+```
+
+#### Conditional retries
+
+Use `setRetryOnError` to decide at runtime whether a failed request should be retried. The callback receives the error
+response and returns a boolean. When it returns `false`, retries are skipped even if the `retry` count has not been
+exhausted.
+
+```ts
+const request = client
+  .createRequest()({ endpoint: "/unstable", retry: 3, retryTime: 1000 })
+  // highlight-start
+  .setRetryOnError((response) => {
+    // Only retry on server errors, not on 4xx client errors
+    return response.status >= 500;
+  });
+  // highlight-end
 ```
 
 <LinkCard

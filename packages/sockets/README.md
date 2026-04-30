@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-`@hyper-fetch/sockets` provides a typed abstraction for real-time communication. It wraps WebSockets and Server-Sent Events behind a consistent API with typed listeners and emitters, automatic reconnection, offline queuing, and authentication support.
+`@hyper-fetch/sockets` provides a typed abstraction for real-time communication. It wraps WebSockets and Server-Sent
+Events behind a consistent API with typed listeners and emitters, automatic reconnection, offline queuing, and
+authentication support.
 
 ## 🎯 Key Capabilities
 

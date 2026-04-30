@@ -33,15 +33,15 @@ depends on whether you are working in a client-side web application or a server-
 
 Use this package for client-side applications running in the browser.
 
-- **`firebaseAdapter`**: For standard database operations (get, set, update).
-- **`firebaseSocketsAdapter`**: For setting up real-time listeners to your database.
+- **`FirebaseAdapter`**: For standard database operations (get, set, update).
+- **`FirebaseSocketsAdapter`**: For setting up real-time listeners to your database.
 
 ### Server-side / Admin Environments (`@hyper-fetch/firebase-admin`)
 
 Use this package for backend applications using the Firebase Admin SDK.
 
-- **`firebaseAdminAdapter`**: For standard database operations.
-- **`firebaseSocketsAdminAdapter`**: For real-time listeners on the server.
+- **`FirebaseAdminAdapter`**: For standard database operations.
+- **`FirebaseSocketsAdminAdapter`**: For real-time listeners on the server.
 
 ---
 
@@ -55,7 +55,7 @@ Here's an example of setting up the client for a **web application**:
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { firebaseAdapter } from "@hyper-fetch/firebase";
+import { FirebaseAdapter } from "@hyper-fetch/firebase";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
@@ -66,10 +66,10 @@ const app = initializeApp({
 const db = getFirestore(app);
 
 // 2. Create a Hyper-fetch client with the Firebase adapter
-const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+const client = new Client({ url: "teas/" }).setAdapter(() => FirebaseAdapter(db));
 
 // 3. Create a request
-const getTeas = client.createRequest<{ response Tea[] }>()({
+const getTeas = client.createRequest<{ response: Tea[] }>()({
   endpoint: "",
   method: "getDocs",
 });
@@ -104,7 +104,7 @@ You can build complex queries by passing an array of constraints.
 ```tsx
 import { $limit, $orderBy, $where } from "@hyper-fetch/firebase"; // or @hyper-fetch/firebase-admin
 
-const getTeas = client.createRequest<{ response Tea[] }>()({
+const getTeas = client.createRequest<{ response: Tea[] }>()({
   endpoint: "",
   method: "getDocs",
 });
@@ -120,7 +120,7 @@ const { data } = await getTeas.send({
 
 The adapter provides wrappers for most of Firebase's query methods:
 
-- **Filtering**: `$where`, `$startAt`, `$startAfter`, `$endAt`, `$endAfter`, `$equalTo`
+- **Filtering**: `$where`, `$startAt`, `$startAfter`, `$endAt`, `$endBefore`, `$equalTo`
 - **Ordering**: `$orderBy`, `$orderByChild`, `$orderByKey`, `$orderByValue`
 - **Limiting**: `$limit`, `$limitToFirst`, `$limitToLast`
 

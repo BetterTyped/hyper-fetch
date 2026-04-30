@@ -34,14 +34,14 @@ import { Provider } from "@hyper-fetch/react";
 const customConfig = {
   useFetchConfig: {
     // Default options for all useFetch instances
-    revalidateOnFocus: true,
+    refetchOnFocus: true,
     bounce: true,
     bounceTime: 200,
   },
   useSubmitConfig: {
     // Default options for all useSubmit instances
-    debounce: true,
-    debounceTime: 300,
+    bounce: true,
+    bounceTime: 300,
   },
 };
 

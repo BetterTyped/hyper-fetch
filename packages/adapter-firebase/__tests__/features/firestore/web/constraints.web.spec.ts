@@ -2,10 +2,10 @@
  * @vitest-environment node
  */
 import { Client } from "@hyper-fetch/core";
-
 import { FirebaseAdapter } from "adapter";
-import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
+
 import { seedFirestoreDatabaseBrowser, deleteCollectionForBrowser } from "../../../utils";
+import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Firestore Browser [ Constraints ]", () => {

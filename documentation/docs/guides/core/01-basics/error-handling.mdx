@@ -100,7 +100,7 @@ type UserValidationError = {
 const signUpRequest = clientForLocalError.createRequest<{ error: UserValidationError }>()({
   endpoint: "/users",
   method: "POST",
-  data: { email: "not-an-email" },
+  payload: { email: "not-an-email" },
 });
 
 // 3. Example usage

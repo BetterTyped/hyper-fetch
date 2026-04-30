@@ -10,7 +10,7 @@ the UI _immediately_ after a user action, assuming the server request will succe
 changes are automatically rolled back. This avoids making the user wait for the network round-trip.
 
 HyperFetch provides first-class support for optimistic updates through the `request.setOptimistic()` API. You define
-cache manipulation, rollback logic, and invalidation targets directly on the request — the framework orchestrates
+cache manipulation, rollback logic, and invalidation targets directly on the request - the framework orchestrates
 everything automatically, whether you use `send()`, `$hooks`, or React hooks.
 
 :::secondary What you'll learn
@@ -85,14 +85,14 @@ function UserList() {
   const { data: users } = useFetch(getUsers);
   const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
 
-  // mutationContext is auto-inferred — no extra generics needed
+  // mutationContext is auto-inferred - no extra generics needed
   onSubmitSuccess(({ mutationContext }) => {
     console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
   });
 
   onSubmitError(({ mutationContext }) => {
     // rollback already happened automatically
-    alert("Update failed — changes have been reverted.");
+    alert("Update failed - changes have been reverted.");
   });
 
   const handleRename = (userId: number, newName: string) => {
@@ -124,7 +124,7 @@ function UserList() {
    typed `mutationContext`.
 4. **On failure**: `rollback()` is called automatically to restore the cache, then `onSubmitError` fires with
    `mutationContext`.
-5. **On abort**: treated like failure — `rollback()` runs, then `onSubmitAbort` fires.
+5. **On abort**: treated like failure - `rollback()` runs, then `onSubmitAbort` fires.
 
 ---
 
@@ -199,11 +199,11 @@ const createUser = client
 
 :::success Summary
 
-- Use **`request.setOptimistic()`** to define optimistic behavior on the request itself — no hook configuration needed.
+- Use **`request.setOptimistic()`** to define optimistic behavior on the request itself - no hook configuration needed.
 - Return **`context`** for typed data available in all lifecycle callbacks as `mutationContext`.
 - Return **`rollback`** to automatically revert cache changes on failure or abort.
 - Return **`invalidate`** to refresh stale cache entries on success.
-- **`mutationContext` is auto-inferred** from the `setOptimistic` return type — no extra generics on `useSubmit`.
+- **`mutationContext` is auto-inferred** from the `setOptimistic` return type - no extra generics on `useSubmit`.
 
 :::
 

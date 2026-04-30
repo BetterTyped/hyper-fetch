@@ -2,10 +2,10 @@ import { createClient, getErrorMessage } from "@hyper-fetch/core";
 import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
 import { createGraphqlMockingServer } from "../../src/graphql";
-import type { GetUserQueryResponse } from "../constants/queries.constants";
-import { getUserQuery, getUserQueryString } from "../constants/queries.constants";
 import type { LoginMutationVariables } from "../constants/mutations.constants";
 import { loginMutation } from "../constants/mutations.constants";
+import type { GetUserQueryResponse } from "../constants/queries.constants";
+import { getUserQuery, getUserQueryString } from "../constants/queries.constants";
 
 describe("Graphql Mocking [ Base ]", () => {
   const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();

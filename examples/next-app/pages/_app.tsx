@@ -1,4 +1,4 @@
-import { ConfigProvider } from "@hyper-fetch/react";
+import { Provider } from "@hyper-fetch/react";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import { SnackbarProvider } from "notistack";
@@ -7,8 +7,12 @@ import { client } from "../api";
 // import "assets/index.css";
 
 function CustomApp({ Component, pageProps }: AppProps) {
+  if (pageProps?.fallbacks) {
+    client.hydrate(pageProps.fallbacks);
+  }
+
   return (
-    <ConfigProvider client={client} fallbacks={pageProps?.fallbacks}>
+    <Provider>
       <SnackbarProvider
         maxSnack={6}
         autoHideDuration={1000}
@@ -24,7 +28,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </main>
       </SnackbarProvider>
-    </ConfigProvider>
+    </Provider>
   );
 }
 

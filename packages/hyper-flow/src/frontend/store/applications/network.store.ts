@@ -2,9 +2,8 @@ import { produce } from "immer";
 import { create } from "zustand/react";
 
 import { useApplications } from "./apps.store";
-
-import type { Status } from "@/utils/request.status.utils";
 import type { DevtoolsRequestEvent, Sort } from "@/context/applications/types";
+import type { Status } from "@/utils/request.status.utils";
 
 export type NetworkStore = {
   networkSearchTerm: string;

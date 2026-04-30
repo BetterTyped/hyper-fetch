@@ -3,7 +3,7 @@ import { parse, stringify } from "superjson";
 export const tryParseJson = (json: string) => {
   try {
     return parse(json);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -11,7 +11,7 @@ export const tryParseJson = (json: string) => {
 export const tryStringifyJson = (json: any) => {
   try {
     return stringify(json);
-  } catch (error) {
+  } catch {
     return null;
   }
 };

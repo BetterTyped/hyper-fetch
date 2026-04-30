@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-The devtools plugin connects your HyperFetch client to HyperFlow, streaming request lifecycle events, cache state changes, queue activity, and performance metrics in real time. It is the data pipeline that powers HyperFlow's debugging and monitoring capabilities.
+The devtools plugin connects your HyperFetch client to HyperFlow, streaming request lifecycle events, cache state
+changes, queue activity, and performance metrics in real time. It is the data pipeline that powers HyperFlow's debugging
+and monitoring capabilities.
 
 ## 🎯 Key Capabilities
 
@@ -50,9 +52,7 @@ npm install @hyper-fetch/plugin-devtools
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
 
-const client = createClient({ url: "https://api.example.com" }).addPlugin(
-  DevtoolsPlugin({ appName: "My App" }),
-);
+const client = createClient({ url: "https://api.example.com" }).addPlugin(DevtoolsPlugin({ appName: "My App" }));
 ```
 
 ## 📚 Documentation
@@ -83,9 +83,7 @@ if (process.env.NODE_ENV === "development") {
 ### Multiple clients
 
 ```ts
-const apiClient = createClient({ url: "https://api.example.com" }).addPlugin(
-  DevtoolsPlugin({ appName: "API Client" }),
-);
+const apiClient = createClient({ url: "https://api.example.com" }).addPlugin(DevtoolsPlugin({ appName: "API Client" }));
 
 const authClient = createClient({ url: "https://auth.example.com" }).addPlugin(
   DevtoolsPlugin({ appName: "Auth Client" }),

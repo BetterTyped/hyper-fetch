@@ -89,13 +89,13 @@ const updateUserProfile = client
     formData.append("avatar", data.avatar);
 
     // Set the transformed FormData back on the request
-    return request.setData(formData);
+    return request.setPayload(formData);
   });
 // highlight-end
 
 // We can now send a strongly-typed object.
 updateUserProfile.send({
-  data: {
+  payload: {
     username: "Maciej",
     avatar: new File([""], "avatar.jpg", { type: "image/jpeg" }),
   },
@@ -201,7 +201,7 @@ mapper, to get different views of the same data without making extra network cal
 
 ```ts
 // Base request that gets the raw user data and caches it
-const getBaseUser = client.createRequest<User>()({
+const getBaseUser = client.createRequest<{ response: User }>()({
   endpoint: "/users/1",
 });
 

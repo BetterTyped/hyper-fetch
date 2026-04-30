@@ -79,6 +79,32 @@ Here, we created a new request `getUsersWithRetries` with 2 retries and a 2-seco
 
 ---
 
+## Conditional Retries
+
+By default, Hyper-fetch retries on any error. You can use `setRetryOnError` to add a condition - for example, only retry
+on server errors (5xx) but not on client errors (4xx) where retrying won't help:
+
+```ts
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  retry: 3,
+  retryTime: 1000,
+});
+
+// highlight-start
+const smartRetry = getUsers.setRetryOnError((response) => {
+  // Only retry on server errors, not client errors
+  return response.status >= 500;
+});
+// highlight-end
+```
+
+The callback receives the error response and must return `true` to allow the retry or `false` to stop retrying. This is
+useful for avoiding unnecessary retries when the server returns a definitive error like `400 Bad Request` or
+`404 Not Found`.
+
+---
+
 :::success Congratulations!
 
 You've learned how to make your requests more resilient with Hyper-fetch's retry feature!

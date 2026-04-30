@@ -69,7 +69,7 @@ application's lifecycle—for example, when a related component mounts or when t
 
 ```typescript
 getUsers.send({
-  onSuccess: ({ response }) => {
+  onResponse: ({ response }) => {
     // highlight-next-line
     // The data is now in the cache, ready for instant access.
     console.log("Prefetched data:", response.data);
@@ -115,7 +115,7 @@ function prefetchUser(userId) {
   // We set the required parameter and send the request.
   // The response will be cached against the request key, which includes the user ID.
   getUser.setParams({ userId }).send({
-    onSuccess: ({ response }) => {
+    onResponse: ({ response }) => {
       console.log(`Prefetched user ${userId}:`, response.data);
     },
   });

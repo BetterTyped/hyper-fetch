@@ -1,7 +1,6 @@
 import type { ExtractUrlParams, ParamsType } from "@hyper-fetch/core";
-
-import type { SocketInstance } from "socket";
 import type { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
+import type { SocketInstance } from "socket";
 import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
 /**
@@ -67,7 +66,7 @@ export class Listener<
     let topic = this.listenerOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
+        topic = topic.replaceAll(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 

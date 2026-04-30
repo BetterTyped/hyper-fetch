@@ -23,7 +23,7 @@ export const ClientComponents: React.FC<{
     disabled,
     dependencies: [dep],
     revalidate: false,
-    initialData: props.fallback,
+    initialResponse: props.fallback as any,
   });
 
   const { refetch } = result;

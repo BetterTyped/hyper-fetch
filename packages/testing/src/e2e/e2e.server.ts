@@ -1,5 +1,6 @@
 import http from "http";
 
+// eslint-disable-next-line max-params
 export type RouteHandler = (
   req: http.IncomingMessage,
   res: http.ServerResponse,
@@ -28,7 +29,7 @@ export const createE2EServer = () => {
 
   const pathToRegex = (path: string): { pattern: RegExp; paramNames: string[] } => {
     const paramNames: string[] = [];
-    const regexStr = path.replace(/:([^/]+)/g, (_match, paramName) => {
+    const regexStr = path.replaceAll(/:([^/]+)/g, (_match, paramName) => {
       paramNames.push(paramName);
       return "([^/]+)";
     });
@@ -47,7 +48,7 @@ export const createE2EServer = () => {
     let found: { handler: RouteHandler; params: Record<string, string> } | null = null;
 
     routes.some((entry) => {
-      if (entry.method !== method.toUpperCase()) return false;
+      if (entry.method !== method.toUpperCase()) {return false;}
       const match = pathname.match(entry.pattern);
       if (match) {
         const params: Record<string, string> = {};
@@ -88,11 +89,11 @@ export const createE2EServer = () => {
         try {
           const body = await collectBody(req);
           await result.handler(req, res, body, result.params);
-        } catch (err: any) {
+        } catch (error: any) {
           if (!res.headersSent) {
             res.writeHead(500, { "Content-Type": "application/json" });
           }
-          res.end(JSON.stringify({ message: err.message }));
+          res.end(JSON.stringify({ message: error.message }));
         }
       });
 
@@ -118,8 +119,8 @@ export const createE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) reject(err);
-        else resolve();
+        if (err) {reject(err);}
+        else {resolve();}
       });
     });
   };

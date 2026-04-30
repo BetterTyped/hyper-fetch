@@ -456,3 +456,52 @@ than making the user wait for all transfers to finish.
 :::
 
 ---
+
+## Flushing Queues
+
+The `flush()` and `flushQueue()` methods trigger immediate execution of all pending requests in dispatcher queues. This
+is useful for scenarios where you want to force-send all queued requests at once, such as when the app comes back online
+or during a manual sync operation.
+
+```ts
+// Flush a specific queue by queryKey
+// highlight-next-line
+await client.fetchDispatcher.flushQueue(getUser.queryKey);
+
+// Flush all queues in the dispatcher at once
+// highlight-next-line
+await client.fetchDispatcher.flush();
+```
+
+---
+
+## Queue Events
+
+Dispatchers emit lifecycle events through the plugin system. These events allow you to monitor queue activity for
+logging, persistence, analytics, or custom UI.
+
+| Event | When it fires |
+| --- | --- |
+| `onDispatcherQueueCreated` | A new queue is created for a previously unseen `queryKey` |
+| `onDispatcherItemAdded` | A request is added to a queue |
+| `onDispatcherItemDeleted` | A request is removed from a queue (after completion or cancellation) |
+| `onDispatcherQueueRunning` | A queue transitions between `"running"`, `"paused"`, or `"stopped"` |
+| `onDispatcherQueueDrained` | A queue has no more pending requests |
+| `onDispatcherQueueCleared` | An entire queue is cleared |
+| `onDispatcherCleared` | All dispatcher storage is fully cleared |
+
+These events are received through [Plugins](/docs/core/plugin). See the Plugin documentation for how to subscribe.
+
+```ts
+const queueMonitor = new Plugin({ name: "queue-monitor" })
+  .onDispatcherItemAdded(({ queue, queueItem }) => {
+    console.log(`Added to queue ${queue.queryKey}:`, queueItem.requestId);
+  })
+  .onDispatcherQueueDrained(({ queue }) => {
+    console.log(`Queue ${queue.queryKey} is empty`);
+  });
+
+client.addPlugin(queueMonitor);
+```
+
+---

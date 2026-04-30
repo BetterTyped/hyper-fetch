@@ -1,6 +1,5 @@
-import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
-
+import { waitFor } from "@testing-library/dom";
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
 import { xhrExtra } from "http-adapter";
@@ -34,7 +33,11 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
-      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -49,7 +52,11 @@ describe("Request [ Sending ]", () => {
         .exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
-      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await requestExecution;
       expect(response).toStrictEqual({
         data: { nested: fixture },
         error: null,
@@ -61,7 +68,11 @@ describe("Request [ Sending ]", () => {
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
-      const { responseTimestamp, requestTimestamp, ...response } = await request.send({});
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await request.send({});
 
       expect(response).toStrictEqual({
         data: fixture,
@@ -72,9 +83,11 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return mapped adapter response", async () => {
-      const { responseTimestamp, requestTimestamp, ...response } = await request
-        .setResponseMapper((res) => ({ ...res, data: { nested: res.data } }) as typeof res)
-        .send({});
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } }) as typeof res).send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
@@ -85,8 +98,12 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return async mapped adapter response", async () => {
-      const { responseTimestamp, requestTimestamp, ...response } = await request
-        .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } } as typeof res))
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await request
+        .setResponseMapper(async (res) => ({ ...res, data: { nested: res.data } }) as typeof res)
         .send({});
 
       expect(response).toStrictEqual({
@@ -111,7 +128,11 @@ describe("Request [ Sending ]", () => {
         unmount();
       });
 
-      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -133,7 +154,11 @@ describe("Request [ Sending ]", () => {
         unmount();
       });
 
-      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -151,7 +176,11 @@ describe("Request [ Sending ]", () => {
       const runningRequests = client.fetchDispatcher.getAllRunningRequests();
       client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
-      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
+      const {
+        responseTimestamp: _responseTimestamp,
+        requestTimestamp: _requestTimestamp,
+        ...response
+      } = await requestExecution;
       expect(response).toStrictEqual({
         data: null,
         error: getErrorMessage("deleted"),
@@ -179,9 +208,9 @@ describe("Request [ Sending ]", () => {
       const mock = mockRequest(newRequest);
 
       const [
-        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
-        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
-        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+        { requestTimestamp: _requestTimestamp1, responseTimestamp: _responseTimestamp1, ...res1 },
+        { requestTimestamp: _requestTimestamp2, responseTimestamp: _responseTimestamp2, ...res2 },
+        { requestTimestamp: _requestTimestamp3, responseTimestamp: _responseTimestamp3, ...res3 },
       ] = await Promise.all([newRequest.send({}), newRequest.send({}), newRequest.send({})]);
 
       expect(res1).toStrictEqual({
@@ -219,9 +248,9 @@ describe("Request [ Sending ]", () => {
       const mock = mockRequest(getUsers);
 
       const [
-        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
-        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
-        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+        { requestTimestamp: _requestTimestamp1, responseTimestamp: _responseTimestamp1, ...res1 },
+        { requestTimestamp: _requestTimestamp2, responseTimestamp: _responseTimestamp2, ...res2 },
+        { requestTimestamp: _requestTimestamp3, responseTimestamp: _responseTimestamp3, ...res3 },
       ] = await Promise.all([getUsers.send({}), getUsers.send({}), getUsers.send({})]);
 
       expect(res1).toStrictEqual({
@@ -279,7 +308,11 @@ describe("Request [ Sending ]", () => {
         await r.send({});
         fetchSpy.mockClear();
 
-        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "cache-first" });
+        const {
+          responseTimestamp: _responseTimestamp,
+          requestTimestamp: _requestTimestamp,
+          ...response
+        } = await r.send({ cachePolicy: "cache-first" });
 
         expect(response).toStrictEqual({
           data: fixture,
@@ -308,7 +341,11 @@ describe("Request [ Sending ]", () => {
         fetchSpy.mockClear();
         fetchSpy.mockImplementation(() => ({ data: { refreshed: true } as any, status: 200 }));
 
-        const { responseTimestamp, requestTimestamp, ...immediate } = await r.send({ cachePolicy: "revalidate" });
+        const {
+          responseTimestamp: _responseTimestamp,
+          requestTimestamp: _requestTimestamp,
+          ...immediate
+        } = await r.send({ cachePolicy: "revalidate" });
 
         expect(immediate.data).toStrictEqual(fixture);
 
@@ -326,14 +363,22 @@ describe("Request [ Sending ]", () => {
         const r = request.setMock(fetchSpy);
         client.cache.clear();
 
-        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "revalidate" });
+        const {
+          responseTimestamp: _responseTimestamp,
+          requestTimestamp: _requestTimestamp,
+          ...response
+        } = await r.send({ cachePolicy: "revalidate" });
 
         expect(response.data).toStrictEqual(fixture);
         expect(fetchSpy).toHaveBeenCalledTimes(1);
       });
 
       it("network-only matches default send", async () => {
-        const { responseTimestamp, requestTimestamp, ...response } = await request.send({
+        const {
+          responseTimestamp: _responseTimestamp,
+          requestTimestamp: _requestTimestamp,
+          ...response
+        } = await request.send({
           cachePolicy: "network-only",
         });
 
@@ -354,7 +399,11 @@ describe("Request [ Sending ]", () => {
         await r.send({});
         fetchSpy.mockClear();
 
-        const { responseTimestamp, requestTimestamp, ...response } = await r.send({ cachePolicy: "cache-first" });
+        const {
+          responseTimestamp: _responseTimestamp,
+          requestTimestamp: _requestTimestamp,
+          ...response
+        } = await r.send({ cachePolicy: "cache-first" });
 
         expect(response.data).toStrictEqual({ nested: fixture });
         expect(fetchSpy).not.toHaveBeenCalled();

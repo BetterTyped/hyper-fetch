@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { FolderOpen, Upload } from "lucide-react";
+import { useState } from "react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWorkspaces } from "@/store/workspace/workspaces.store";
@@ -55,10 +55,10 @@ export const AddWorkspaceDialog = ({ open, onOpenChange }: AddWorkspaceDialogPro
           <div className="flex flex-col items-center gap-4 mb-4">
             <div
               className="h-20 w-20 rounded-md overflow-hidden bg-zinc-100 flex items-center justify-center border cursor-pointer"
-              onClick={() => document.getElementById("icon-upload")?.click()}
+              onClick={() => (document.querySelector("#icon-upload") as HTMLElement)?.click()}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
-                  document.getElementById("icon-upload")?.click();
+                  (document.querySelector("#icon-upload") as HTMLElement)?.click();
                 }
               }}
               role="button"
@@ -72,7 +72,7 @@ export const AddWorkspaceDialog = ({ open, onOpenChange }: AddWorkspaceDialogPro
               )}
             </div>
             <input id="icon-upload" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-            <Button variant="outline" size="sm" onClick={() => document.getElementById("icon-upload")?.click()}>
+            <Button variant="outline" size="sm" onClick={() => (document.querySelector("#icon-upload") as HTMLElement)?.click()}>
               <Upload className="h-4 w-4 mr-2" />
               Upload Icon
             </Button>

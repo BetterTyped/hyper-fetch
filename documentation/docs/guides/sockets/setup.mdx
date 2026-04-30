@@ -39,7 +39,7 @@ Then, having already prepared the connection setup for the server, we use the so
 **[Listeners](/sockets/listener.mdx)** and assign types to them.
 
 ```tsx title="src/listeners.ts"
-import { socket } from "socket";
+import { socket } from "./socket";
 
 type ChatMessageType = {
   message: string;

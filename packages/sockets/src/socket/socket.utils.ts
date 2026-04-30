@@ -1,4 +1,5 @@
 import type { EmitterInstance } from "emitter";
+
 import type { MessageCallbackType, SendCallbackType } from "./socket.types";
 
 export const getErrorKey = () => "socket_error";
@@ -21,7 +22,7 @@ export const interceptListener = (interceptors: MessageCallbackType<any>[], even
   // eslint-disable-next-line no-restricted-syntax
   for (const interceptor of interceptors) {
     newResponse = interceptor({ event: event.data });
-    if (!newResponse) throw new Error("Listener modifier must return data");
+    if (!newResponse) {throw new Error("Listener modifier must return data");}
   }
 
   return newResponse;
@@ -35,7 +36,7 @@ export const interceptEmitter = <EmitterType extends EmitterInstance>(
   // eslint-disable-next-line no-restricted-syntax
   for (const interceptor of interceptors) {
     newEmitter = interceptor({ emitter }) as EmitterType;
-    if (!newEmitter) throw new Error("Send modifier must return emitter");
+    if (!newEmitter) {throw new Error("Send modifier must return emitter");}
   }
   return newEmitter;
 };

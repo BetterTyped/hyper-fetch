@@ -14,7 +14,6 @@ import type {
   ResponseType,
 } from "@hyper-fetch/core";
 import { scopeKey } from "@hyper-fetch/core";
-
 import type { UseTrackedStateType } from "helpers";
 import { initialState } from "helpers";
 
@@ -24,7 +23,7 @@ import { initialState } from "helpers";
  */
 const getCacheKeyIdentity = (cacheKey: string): string => {
   const lastUnderscoreIndex = cacheKey.lastIndexOf("_");
-  if (lastUnderscoreIndex === -1) return cacheKey;
+  if (lastUnderscoreIndex === -1) {return cacheKey;}
   return cacheKey.substring(0, lastUnderscoreIndex);
 };
 
@@ -40,10 +39,10 @@ export const getShouldClearState = (
   oldCacheKey: string,
   newCacheKey: string,
 ): boolean => {
-  if (oldCacheKey === newCacheKey) return false;
+  if (oldCacheKey === newCacheKey) {return false;}
 
-  if (mode === "clean") return true;
-  if (mode === "preserve") return false;
+  if (mode === "clean") {return true;}
+  if (mode === "preserve") {return false;}
 
   // "auto" — compare the identity part (method + endpoint with params)
   return getCacheKeyIdentity(oldCacheKey) !== getCacheKeyIdentity(newCacheKey);
@@ -58,17 +57,17 @@ export const getDetailsState = (
     isCanceled: false,
     isOffline: false,
     willRetry: false,
-    addedTimestamp: +new Date(),
-    triggerTimestamp: +new Date(),
-    requestTimestamp: +new Date(),
-    responseTimestamp: +new Date(),
+    addedTimestamp: Date.now(),
+    triggerTimestamp: Date.now(),
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
     ...details,
   };
 };
 
 export const isStaleCacheData = (staleTime: number, staleTimestamp: NullableType<Date | number>) => {
-  if (!staleTimestamp) return true;
-  return +new Date() > +staleTimestamp + staleTime;
+  if (!staleTimestamp) {return true;}
+  return Date.now() > +staleTimestamp + staleTime;
 };
 
 export const getValidCacheData = <T extends RequestInstance>(
@@ -95,8 +94,8 @@ export const getValidCacheData = <T extends RequestInstance>(
       cacheKey: request.cacheKey,
       scope: request.scope,
       cacheTime: request.cacheTime,
-      requestTimestamp: initialResponse?.requestTimestamp ?? +new Date(),
-      responseTimestamp: initialResponse?.responseTimestamp ?? +new Date(),
+      requestTimestamp: initialResponse?.requestTimestamp ?? Date.now(),
+      responseTimestamp: initialResponse?.responseTimestamp ?? Date.now(),
     };
   }
 

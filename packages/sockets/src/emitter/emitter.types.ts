@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import type { ExtractUrlParams, EmptyTypes, TypeWithDefaults, ParamsType } from "@hyper-fetch/core";
-
 import type { SocketAdapterInstance } from "adapter";
 import type { Emitter } from "emitter";
 import type { SocketInstance } from "socket";

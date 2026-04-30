@@ -1,5 +1,4 @@
-import { memo, useEffect } from "react";
-import { useEmitter, useListener } from "@hyper-fetch/react";
+import { useDidMount } from "@better-hooks/lifecycle";
 import {
   CoreEvents,
   CustomEvents,
@@ -8,7 +7,8 @@ import {
   MessageOrigin,
   MessageType,
 } from "@hyper-fetch/plugin-devtools";
-import { useDidMount } from "@better-hooks/lifecycle";
+import { useEmitter, useListener } from "@hyper-fetch/react";
+import { memo, useEffect } from "react";
 
 import { useConnectionStore } from "@/store/applications/connection.store";
 

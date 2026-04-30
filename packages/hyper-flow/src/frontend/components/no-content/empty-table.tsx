@@ -1,9 +1,8 @@
 import { Info } from "lucide-react";
 
-import { Title } from "../ui/title";
-import { Particles } from "../ui/particles";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-
+import { Particles } from "../ui/particles";
+import { Title } from "../ui/title";
 import { cn } from "@/lib/utils";
 
 export const EmptyTable = ({

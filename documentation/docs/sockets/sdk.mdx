@@ -36,6 +36,14 @@ type MyChatSchema = {
 const sdk = createSocketSdk<typeof socket, MyChatSchema>(socket);
 ```
 
+:::note Default topic naming
+
+`createSocketSdk` defaults to `camelCaseToKebabCase: true`. This means property names in your SDK schema are
+automatically converted to kebab-case topic strings (e.g., `chatMessages` becomes `chat-messages`). You can disable
+this by passing `{ camelCaseToKebabCase: false }` as the third argument.
+
+:::
+
 ---
 
 ## Defining the Schema

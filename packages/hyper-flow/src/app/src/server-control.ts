@@ -1,12 +1,11 @@
-import { ipcMain, BrowserWindow, app } from "electron";
 import { parseResponse } from "@hyper-fetch/core";
+import { ipcMain, BrowserWindow, app } from "electron";
 import * as net from "net";
 
 import type { StartServer } from "../../server";
 import { startServer } from "../../server";
-import { store } from "./persistent-store";
 import { appLogger } from "../../shared/utils/logger";
-
+import { store } from "./persistent-store";
 import type { Settings } from "@/store/general/settings.store";
 
 // Store server instance for control

@@ -1,6 +1,5 @@
 import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
-
 import type { UseTrackedStateProps } from "helpers";
 import { useTrackedState } from "helpers";
 import { isEqual } from "utils";

@@ -1,8 +1,8 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import { middlewareCallback } from "../../utils";
-import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
+
+import { testCallbacksExecution } from "../../shared";
+import { middlewareCallback } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

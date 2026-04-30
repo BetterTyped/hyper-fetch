@@ -96,7 +96,7 @@ interface Tea {
 import { firestoreSocket } from "./setup"; // Assume setup is in a separate file
 
 const teasListener = firestoreSocket.createListener<Tea[]>()({
-  endpoint: "teas",
+  topic: "teas",
 });
 
 const unmount = teasListener.listen({
@@ -135,7 +135,7 @@ When listening to a collection, you can set `groupByChangeType: true` in the lis
 
 ```typescript
 const teasListener = firestoreSocket.createListener<Tea[]>()({
-  endpoint: "teas",
+  topic: "teas",
   options: { groupByChangeType: true },
 });
 
@@ -160,7 +160,7 @@ For Realtime Database listeners, you can use the `onlyOnce: true` option to fetc
 import { realtimeSocket } from "./setup";
 
 const configListener = realtimeSocket.createListener<any>()({
-  endpoint: "config",
+  topic: "config",
   options: { onlyOnce: true },
 });
 
@@ -185,7 +185,7 @@ import { firestoreSocket } from "./setup";
 
 // Listen for changes only for Green teas
 const greenTeasListener = firestoreSocket.createListener<Tea[]>()({
-  endpoint: "teas",
+  topic: "teas",
   options: {
     constraints: [$where("type", "==", "Green")],
   },

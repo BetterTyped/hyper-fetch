@@ -88,6 +88,17 @@ abortKey. It enables granular progress tracking and advanced cancellation scenar
 
 :::
 
+#### Bulk Abort
+
+The `abortAll()` method aborts every in-flight request tracked by the `RequestManager`. This is useful for cleanup
+on unmount, page navigation, or test teardown.
+
+```ts
+// Abort all tracked requests at once
+// highlight-next-line
+client.requestManager.abortAll();
+```
+
 ```tsx title="Tracking Upload/Download Progress"
 // highlight-start
 const unmountUploadListener = client.requestManager.events.onUploadProgressById(requestId, (progress) => {
@@ -204,11 +215,36 @@ formatting to keep logs organized and actionable.
 
 :::
 
+:::caution Debug mode required
+
+`client.setDebug(true)` must be called for any log output to appear. Without it, the `LoggerManager` silently discards
+all messages regardless of log level.
+
+```ts
+const client = createClient({ url: "http://localhost:3000" }).setDebug(true);
+```
+
+:::
+
 ```ts title="Custom Logger Example"
 // highlight-start
 const logger = client.loggerManager.init("My Module");
 logger.error("Something went wrong!"); // Output: [My Module] Something went wrong!
 // highlight-end
+```
+
+#### Filtering Logs by Module
+
+Use `setModules` to restrict log output to specific module names. When set, only loggers whose names match the provided
+list will produce output. Pass `undefined` to remove the filter and show all modules.
+
+```ts
+// Only show logs from "Cache" and "Dispatcher" modules
+// highlight-next-line
+client.loggerManager.setModules(["Cache", "Dispatcher"]);
+
+// Show all modules again
+client.loggerManager.setModules(undefined);
 ```
 
 ---

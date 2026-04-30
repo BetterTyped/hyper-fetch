@@ -3,7 +3,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import { useCountdown } from "@/hooks/use-countdown";
 
 const getPlural = (value: number, singular: string) => {
-  if (value === 1) return `${value} ${singular}`;
+  if (value === 1) {return `${value} ${singular}`;}
   return `${value} ${singular}s`;
 };
 
@@ -22,9 +22,9 @@ export const Countdown = ({
 }) => {
   const triggered = useRef(false);
   const number = useMemo(() => {
-    if (value === Infinity) return -1;
-    if (Number.isNaN(value)) return -1;
-    if (value < 1) return -1;
+    if (value === Infinity) {return -1;}
+    if (Number.isNaN(value)) {return -1;}
+    if (value < 1) {return -1;}
 
     return value;
   }, [value]);
@@ -52,9 +52,9 @@ export const Countdown = ({
     triggered.current = false;
   }, [value]);
 
-  if (number === -1) return String(value);
-  if (Object.values(countdown).every((v) => !v)) return doneText;
-  if (Object.values(countdown).some((v) => v < 0)) return doneText;
+  if (number === -1) {return String(value);}
+  if (Object.values(countdown).every((v) => !v)) {return doneText;}
+  if (Object.values(countdown).some((v) => v < 0)) {return doneText;}
 
   return (
     <>

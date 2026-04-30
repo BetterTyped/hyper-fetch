@@ -1,9 +1,9 @@
-import type { FC } from "react";
 import { CloudIcon, FolderOpen } from "lucide-react";
+import type { FC } from "react";
 
-import { Card, CardContent, CardFooter, CardHeader } from "./card";
-import { Button } from "./button";
 import { Badge } from "./badge";
+import { Button } from "./button";
+import { Card, CardContent, CardFooter, CardHeader } from "./card";
 
 interface WorkspaceCardProps {
   name: string;

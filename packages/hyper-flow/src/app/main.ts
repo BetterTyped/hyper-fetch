@@ -1,15 +1,15 @@
-import { app, BrowserWindow, shell } from "electron";
-import path from "node:path";
-import started from "electron-squirrel-startup";
 import * as Sentry from "@sentry/electron/main";
+import { app, BrowserWindow, shell } from "electron";
+import started from "electron-squirrel-startup";
+import path from "node:path";
 
 import { appLogger } from "../shared/utils/logger";
-import { setupWindowControls } from "./src/window-controls";
-import { persistentStore } from "./src/persistent-store";
-import { copyToClipboard } from "./src/clipboard";
-import { closeServer, setupServerControl } from "./src/server-control";
-import { createMenu } from "./src/menu";
 import { autoUpdater } from "./src/auto-updater";
+import { copyToClipboard } from "./src/clipboard";
+import { createMenu } from "./src/menu";
+import { persistentStore } from "./src/persistent-store";
+import { closeServer, setupServerControl } from "./src/server-control";
+import { setupWindowControls } from "./src/window-controls";
 import { setupWindowVariablesIPC } from "./src/window-variables";
 
 Sentry.init({

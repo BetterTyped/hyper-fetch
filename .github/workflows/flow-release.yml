@@ -6,47 +6,38 @@ jobs:
   publish_on_win:
     name: Publish HyperFlow on Windows
     runs-on: windows-latest
-    # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
+          cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
             **/node_modules
-            **/.eslintcache
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --network-timeout 1000000
+        run: pnpm install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Release
-        run: yarn nx run hyper-flow:publish:app
+        run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -63,48 +54,38 @@ jobs:
   publish_on_linux:
     name: Publish HyperFlow on Linux
     runs-on: ubuntu-latest
-    # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
+          cache: "pnpm"
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
             **/node_modules
-            **/.eslintcache
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Release
-        run: yarn nx run hyper-flow:publish:app
+        run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -121,17 +102,17 @@ jobs:
   publish_on_mac:
     name: Publish HyperFlow on Mac
     runs-on: macos-latest
-    # Tests timeout after 40 minutes
     timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.3"
-          cache: "yarn"
-          cache-dependency-path: yarn.lock
+          cache: "pnpm"
       - name: Install Python
         uses: actions/setup-python@v4
         with:
@@ -141,43 +122,34 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.APPSTORE_CERTIFICATES_FILE_BASE64 }}
           p12-password: ${{ secrets.APPSTORE_CERTIFICATES_PASSWORD }}
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-          echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
       - name: Restore node_modules
         uses: actions/cache/restore@v3
         id: cache-node-modules
         with:
           path: |
             **/node_modules
-            **/.eslintcache
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Install macos-alias
-        run: yarn add macos-alias@0.2.12 -W
+        run: pnpm add macos-alias@0.2.12 -w
       - name: Rebuild native modules
         run: |
           npm install -g node-gyp
           npm rebuild
-          yarn install --frozen-lockfile --force
+          pnpm install --frozen-lockfile
       - name: Cache node_modules
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: |
-            ${{ steps.yarn-cache-dir-path.outputs.dir }}
             '**/node_modules'
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Build
-        run: yarn build
+        run: pnpm build
       - name: Release
-        run: yarn nx run hyper-flow:publish:app
+        run: pnpm nx run hyper-flow:publish:app
         env:
           NODE_ENV: production
           APPLE_ID: ${{ secrets.APPLE_ID }}

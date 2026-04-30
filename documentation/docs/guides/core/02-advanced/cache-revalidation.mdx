@@ -1,57 +1,75 @@
 ---
-title: Guide - Cache Revalidation
-sidebar_label: Cache Revalidation
+title: Guide - Cache Invalidation
+sidebar_label: Cache Invalidation
 ---
 
-# Cache Revalidation
+# Cache Invalidation
 
 When building dynamic applications, keeping the data displayed to the user up-to-date is crucial. Data can become stale
-for many reasons—another user might have updated it, a background process changed it, or the current user performed an
-action that invalidates the existing view. Hyper-fetch provides powerful and flexible cache revalidation mechanisms to
+for many reasons - another user might have updated it, a background process changed it, or the current user performed an
+action that invalidates the existing view. Hyper-fetch provides powerful and flexible cache invalidation mechanisms to
 ensure your app's data is always fresh.
 
 ---
 
 :::secondary What you'll learn
 
-1.  What **cache revalidation** is and why it's essential.
-2.  How to revalidate the cache for a specific request using `client.cache.revalidate`.
-3.  How to perform revalidation in plain TypeScript with `client.cache.revalidate`.
-4.  Advanced revalidation techniques using **Regular Expressions (RegExp)** to invalidate multiple cache entries at
-    once.
+1.  What **cache invalidation** is and why it's essential.
+2.  How to invalidate the cache using `client.cache.invalidate` with **request instances**, **strings**, and **RegExp**.
+3.  How to **batch-invalidate** multiple cache entries in a single call.
+4.  How to **read**, **update**, and **delete** cache entries directly.
+5.  How invalidation **triggers automatic re-fetching** in React hooks.
 
 :::
 
+---
+
 ## The Basics
 
-Cache revalidation is the process of marking cached data as stale and triggering a re-fetch to get the fresh version
-from the server. This is typically done after a data mutation (like creating, updating, or deleting a resource) to
-ensure the UI reflects the latest state.
+Cache invalidation marks cached data as stale by setting its `staleTime` to `0`. The next consumer - whether a React
+`useFetch` hook or a manual `send()` call with caching enabled - will see the data is out of date and trigger a fresh
+request to the server.
 
-In Hyper-fetch, every request that is cached gets a unique `cacheKey`. This key is used to identify and manage the
-cached data. Revalidation works by targeting these keys.
+Every cached request is identified by a unique `cacheKey`, which is derived from the request's method, endpoint, and
+query parameters (e.g. `GET_/users` or `GET_/users?page=2`). Invalidation works by targeting these keys.
 
 ---
 
-## Revalidation
+## Invalidating by Request, String, or RegExp
 
-In a vanilla TypeScript environment, you can perform cache revalidation directly on the client instance.
+The `client.cache.invalidate` method accepts three different argument types, giving you flexible control over what gets
+invalidated:
 
 ```typescript
-import { client, getUsers } from "./api"; // Your API setup
+import { client, getUsers, getUser } from "./api";
 
-// ... after some operation that invalidates the users
-client.cache.revalidate(getUsers);
+// 1. Pass a request instance - uses the request's cacheKey and scope
+// highlight-next-line
+client.cache.invalidate(getUsers);
 
-// You can also use a cacheKey or RegExp
-client.cache.revalidate(getUsers.cacheKey);
-client.cache.revalidate(new RegExp("/users"));
+// 2. Pass a cacheKey string directly
+// highlight-next-line
+client.cache.invalidate("GET_/users");
+
+// 3. Pass a RegExp to match multiple cache entries at once
+// highlight-next-line
+client.cache.invalidate(new RegExp("GET_/users"));
 ```
 
-### Example
+:::note When is it helpful?
 
-Let's see it in action. Below, we fetch a list of users. When we add a new user, we call `revalidate()` to refresh the
-list.
+- After a **mutation** (create, update, delete) to refresh related lists.
+- When you need to **force fresh data** from the server for a specific resource.
+- When **external events** (e.g. websocket notifications) indicate stale data.
+- When you need to **bulk-invalidate** a family of related endpoints (e.g. all paginated pages).
+
+:::
+
+---
+
+## Invalidation After Mutations
+
+The most common pattern is invalidating a list after adding, updating, or deleting an item. Here is a practical example:
 
 ```typescript
 const getUsers = client.createRequest()({
@@ -59,44 +77,57 @@ const getUsers = client.createRequest()({
   method: "GET",
 });
 
-const addUser = client.createRequest()({
+const addUser = client.createRequest<{
+  response: { id: number; name: string };
+  payload: { name: string };
+}>()({
   endpoint: "/users",
   method: "POST",
 });
 
-// 1. First, let's fetch the users and cache the response
-await getUsers.send({
-  onSuccess: (response) => {
-    console.log("Initial users list:", response.data);
-  },
+// 1. Fetch and cache the users list
+const { data } = await getUsers.send();
+console.log("Initial users list:", data);
+
+// 2. Add a new user
+const { success } = await addUser.send({
+  payload: { name: "New User" },
 });
 
-// 2. Now, let's add a new user
-await addUser.send({
-  data: { name: "New User" },
-  onSuccess: () => {
-    console.log("New user added successfully.");
-    // 3. After adding, we revalidate the users list
-    // This will trigger a new fetch for the 'getUsers' request
-    client.cache.revalidate(getUsers, {
-      onSuccess: (response) => {
-        // This onSuccess is for the revalidation fetch
-        toast({ title: "Users list revalidated", message: "Fetched latest users.", type: "success" });
-        console.log("Revalidated users list:", response.data);
-      },
-    });
-  },
-});
+if (success) {
+  console.log("New user added successfully.");
+  // 3. Invalidate the list so hooks will re-fetch automatically
+  // highlight-next-line
+  client.cache.invalidate(getUsers);
+}
 ```
 
 ---
 
-## Advanced Revalidation with RegExp
+## Batch Invalidation
+
+You can invalidate multiple cache entries in a single call by passing an array. The array can mix request instances,
+strings, and RegExp patterns:
+
+```ts
+// Invalidate several related endpoints at once
+// highlight-start
+client.cache.invalidate([
+  getUsers,
+  getUser.setParams({ userId: 1 }),
+  new RegExp("GET_/users/\\d+/posts"),
+]);
+// highlight-end
+```
+
+This is useful after a complex mutation that affects multiple resources.
+
+---
+
+## Pattern Matching with RegExp
 
 Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
 for individual items (`/users/1`, `/users/2`) and a list of all items (`/users`). A `RegExp` is perfect for this.
-
-Imagine you have requests for a list of articles and for individual articles:
 
 ```ts
 const getArticles = client.createRequest()({
@@ -110,30 +141,88 @@ const getArticle = client.createRequest()({
 });
 ```
 
-When a single article is updated, you might want to revalidate both the list and that specific article's cache, as well
-as any other related paginated lists.
+When a single article is updated, you can invalidate the entire family of article caches:
 
 ```ts
-// Let's say we updated article with id '1'
-const updatedArticleId = 1;
-
-// This will revalidate every cache entry whose key starts with `GET_/articles`
-// 1. The main list: `GET_/articles`
-// 2. A specific article: `GET_/articles/1`
-// 3. Paginated lists: `GET_/articles?page=1`, `GET_/articles?page=2`, etc.
-client.cache.revalidate(new RegExp("GET_/articles"));
+// This will invalidate every cache entry whose key matches the pattern:
+// 1. The main list:      GET_/articles
+// 2. Individual items:   GET_/articles/1, GET_/articles/2
+// 3. Paginated lists:    GET_/articles?page=1, GET_/articles?page=2
+// highlight-next-line
+client.cache.invalidate(new RegExp("GET_/articles"));
 ```
 
-This powerful feature helps you keep your cache consistent with minimal effort.
+---
+
+## Reading, Updating, and Deleting Cache
+
+Beyond invalidation, the cache provides direct access methods for advanced scenarios like optimistic updates or
+debugging:
+
+### Reading Cache
+
+```ts
+const cachedData = client.cache.get(getUsers.cacheKey);
+
+if (cachedData) {
+  console.log("Cached response:", cachedData.data);
+  console.log("Cached at:", cachedData.responseTimestamp);
+}
+```
+
+### Updating Cache Directly
+
+Use `cache.update` for optimistic updates - modifying the cached data without a network request. The update is merged
+with the existing cache entry:
+
+```ts
+// Optimistically add a new user to the cached list
+client.cache.update(getUsers, (previousData) => {
+  if (!previousData) return previousData;
+  return {
+    ...previousData,
+    data: [...previousData.data, { id: 999, name: "Optimistic User" }],
+  };
+});
+```
+
+### Deleting Cache Entries
+
+Use `cache.delete` to completely remove an entry from both sync and async storage. Unlike `invalidate`, which marks
+data as stale, `delete` removes it entirely:
+
+```ts
+// Remove the cached users list entirely
+client.cache.delete(getUsers.cacheKey);
+```
+
+### Clearing All Cache
+
+```ts
+// Remove all cached data
+await client.cache.clear();
+```
+
+---
+
+## How Invalidation Triggers Re-fetching
+
+When you call `client.cache.invalidate`, it emits an invalidation event for each matching `cacheKey`. React hooks like
+`useFetch` listen for these events and automatically dispatch a fresh request when the data they depend on is
+invalidated. This means you don't need to manually re-fetch after invalidating - the hooks handle it for you.
+
+In plain TypeScript (without React hooks), invalidation only marks data as stale. You would need to call `send()` again
+to actually re-fetch the data.
 
 ---
 
 :::success Congratulations!
 
-You've learned how to handle cache revalidation in Hyper-fetch!
+You've learned how to handle cache invalidation in Hyper-fetch!
 
-1.  You can revalidate cache programmatically using `client.cache.revalidate` in **plain TypeScript**.
-2.  You can target specific requests by passing the **request instance**, its **`cacheKey`**, or using a **RegExp**.
-3.  You can implement **advanced revalidation strategies** to keep complex UIs in sync.
+- You can invalidate cache using `client.cache.invalidate` with **request instances**, **strings**, or **RegExp**.
+- You can **batch-invalidate** multiple entries by passing an **array**.
+- You can **read**, **update**, and **delete** cache entries directly for advanced use cases.
+- You understand how invalidation **automatically triggers re-fetching** in React hooks.
 
 :::

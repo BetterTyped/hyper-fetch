@@ -50,16 +50,15 @@ const getUser = client
     method: "GET",
     endpoint: "users/:userId",
   })
-  .setResponseMapper(async (response) => {
-    // For most adapters, we need to get the JSON data from the response
-    const data = await response.json();
+  .setResponseMapper((response) => {
+    if (response.data) {
+      // Validate the parsed response data against our schema.
+      // If parsing fails, Zod throws an error that Hyper Fetch will catch.
+      UserSchema.parse(response.data);
+    }
 
-    // Now we can parse it against our schema.
-    // If parsing fails, Zod throws an error that Hyper Fetch will catch.
-    UserSchema.parse(data);
-
-    // If validation succeeds, we return the parsed data.
-    return data;
+    // Return the response object (possibly with transformed data)
+    return response;
   });
 
 // Usage
@@ -125,7 +124,7 @@ const createPost = client
 
 // Example 1: Invalid data
 const { error: validationError } = await createPost.send({
-  data: { title: "A", body: "Short", userId: 1 },
+  payload: { title: "A", body: "Short", userId: 1 },
 });
 
 if (validationError) {
@@ -135,7 +134,7 @@ if (validationError) {
 
 // Example 2: Valid data
 const { data, error } = await createPost.send({
-  data: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
+  payload: { title: "A valid title", body: "A much longer and valid body", userId: 1 },
 });
 
 if (error) {
@@ -156,4 +155,6 @@ error. The request will be aborted before it is sent, and the error will be retu
 1.  You can perform **response validation** using `.setResponseMapper()` to ensure data from the server is safe to use.
 2.  You can implement **request validation** with `.setRequestMapper()` to prevent sending invalid data.
 3.  You know how to use **mappers** to integrate third-party validation libraries like Zod.
-4.  You can create **type-safe requests** where the types are inferred directly from your validation schemas. :::
+4.  You can create **type-safe requests** where the types are inferred directly from your validation schemas.
+
+:::

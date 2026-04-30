@@ -1,10 +1,10 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import * as Sentry from "@sentry/electron/renderer";
 import { init } from "@sentry/react";
+import { contextBridge, ipcRenderer } from "electron";
 
 import { GET_APP_VERSION_CHANNEL } from "./src/window-variables";
 
@@ -83,10 +83,6 @@ if (process.contextIsolated) {
     console.error(error);
   }
 } else {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore (define in dts)
   window.electron = api;
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore (define in dts)
   // window.api = api;
 }

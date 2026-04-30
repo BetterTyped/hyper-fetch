@@ -25,7 +25,7 @@ export const getDataSize = async (data: unknown): Promise<number> => {
       while (true) {
         // eslint-disable-next-line no-await-in-loop
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {break;}
 
         // For Uint8Array or similar buffer types
         if (value && value.byteLength) {
@@ -35,7 +35,7 @@ export const getDataSize = async (data: unknown): Promise<number> => {
           streamSize += new Blob([String(value)]).size;
         }
       }
-    } catch (error) {
+    } catch {
       // Handle potential stream errors silently
     }
 

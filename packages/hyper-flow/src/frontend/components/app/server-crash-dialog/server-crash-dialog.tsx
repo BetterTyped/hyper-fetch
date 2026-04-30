@@ -1,10 +1,10 @@
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/react/shallow";
-import { useNavigate } from "@tanstack/react-router";
 
-import { useSettings } from "@/store/general/settings.store";
 import { Badge } from "@/components/ui/badge";
+import { useSettings } from "@/store/general/settings.store";
 
 const handledServerCrash = {
   notified: false,
@@ -30,7 +30,7 @@ export const ServerCrashDialog = () => {
   useEffect(() => {
     // Show toast when server is down
     const showServerDownToast = () => {
-      if (!handledServerCrash.notified) return;
+      if (!handledServerCrash.notified) {return;}
       handledServerCrash.notified = false;
       handledServerCrash.handled = false;
 
@@ -75,7 +75,7 @@ export const ServerCrashDialog = () => {
           setServerStatus("crashed");
           showServerDownToast();
         }
-      } catch (error) {
+      } catch {
         setServerStatus("crashed");
       }
     };

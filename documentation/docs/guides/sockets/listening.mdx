@@ -17,7 +17,7 @@ that can be easily managed and integrated into your application, including React
 1.  How to define an event listener using **`createListener`**.
 2.  How to **start and stop** listening to events.
 3.  How to **handle incoming data** from the socket.
-4.  How to integrate socket listeners in React using the **`useListen` hook**.
+4.  How to integrate socket listeners in React using the **`useListener` hook**.
 5.  How to manage **multiple listeners** for the same event.
 
 :::
@@ -66,27 +66,27 @@ unlisten();
 
 ---
 
-## React Integration with `useListen`
+## React Integration with `useListener`
 
-For React applications, `@hyper-fetch/react` provides a `useListen` hook that simplifies the process of listening to
+For React applications, `@hyper-fetch/react` provides a `useListener` hook that simplifies the process of listening to
 socket events within your components. It automatically handles starting and stopping the listener based on the
 component's lifecycle.
 
-The `useListen` hook takes the listener instance as its first argument and an object with an `onMessage` callback as the
-second.
+The `useListener` hook takes the listener instance as its first argument and returns an `onEvent` callback registrar
+for handling incoming messages.
 
 ```tsx
 function ChatComponent() {
   const [messages, setMessages] = React.useState([]);
 
   // highlight-start
-  // The useListen hook manages the listener's lifecycle,
+  // The useListener hook manages the listener's lifecycle,
   // automatically calling listen() on mount and unlisten() on unmount.
   // highlight-end
-  useListen(onChatMessage, {
-    onMessage: (newMessage) => {
-      setMessages((previousMessages) => [...previousMessages, newMessage]);
-    },
+  const { onEvent } = useListener(onChatMessage);
+
+  onEvent(({ data: newMessage }) => {
+    setMessages((previousMessages) => [...previousMessages, newMessage]);
   });
 
   return (
@@ -135,7 +135,7 @@ You now have a solid understanding of how to listen for socket events with Hyper
 
 - You can **create a typed listener** for any socket event.
 - You know how to **start and stop listening** and the importance of cleaning up.
-- You can integrate socket listeners into your **React components** effortlessly with the `useListen` hook.
+- You can integrate socket listeners into your **React components** effortlessly with the `useListener` hook.
 - You are able to set up **multiple callbacks** for a single event and manage them independently.
 
 :::

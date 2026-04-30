@@ -3,7 +3,7 @@ import { HttpMethods, stringifyQueryParams } from "@hyper-fetch/core";
 import type { OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
-import type { GraphQlEndpointType } from "adapter";
+import type { GraphQlEndpointType } from "./adapter.types";
 
 export const getRequestValues = <R extends RequestInstance>(request: R) => {
   const isPostRequest = request.method === HttpMethods.POST;
@@ -50,14 +50,14 @@ export const gqlEndpointNameMapper = (endpoint: string): string => {
         return selection.typeCondition.name.value;
       }
     }
-  } catch (error) {
+  } catch {
     // We can ignore this error and just return some fallback
   }
 
   // Fallback for invalid gql queries or something else
   const clearedQuery = endpoint
     .replace(/(query|mutation|subscription)/, "")
-    .replace(/[{}().,:]/g, " ")
+    .replaceAll(/[{}().,:]/g, " ")
     .trim();
   const [name] = clearedQuery.split(" ");
 

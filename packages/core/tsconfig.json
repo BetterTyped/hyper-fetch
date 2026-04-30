@@ -1,10 +1,38 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./src",
+    "types": ["node"],
     "paths": {
-      "@hyper-fetch/core": ["../src"]
+      "adapter": ["./src/adapter"],
+      "adapter/*": ["./src/adapter/*"],
+      "cache": ["./src/cache"],
+      "cache/*": ["./src/cache/*"],
+      "client": ["./src/client"],
+      "client/*": ["./src/client/*"],
+      "constants": ["./src/constants"],
+      "constants/*": ["./src/constants/*"],
+      "dispatcher": ["./src/dispatcher"],
+      "dispatcher/*": ["./src/dispatcher/*"],
+      "http-adapter": ["./src/http-adapter"],
+      "http-adapter/*": ["./src/http-adapter/*"],
+      "managers": ["./src/managers"],
+      "managers/*": ["./src/managers/*"],
+      "mocker": ["./src/mocker"],
+      "mocker/*": ["./src/mocker/*"],
+      "plugin": ["./src/plugin"],
+      "plugin/*": ["./src/plugin/*"],
+      "request": ["./src/request"],
+      "request/*": ["./src/request/*"],
+      "sdk": ["./src/sdk"],
+      "sdk/*": ["./src/sdk/*"],
+      "types": ["./src/types"],
+      "types/*": ["./src/types/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"],
+      "index": ["./src/index"],
+      "@hyper-fetch/core": ["./src"]
     }
   },
+  "include": ["src/**/*.ts", "../../global.d.ts"],
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

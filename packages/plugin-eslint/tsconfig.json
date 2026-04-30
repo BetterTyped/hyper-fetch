@@ -2,8 +2,15 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": "./src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "client-generic-types": ["./src/client-generic-types"],
+      "client-generic-types/*": ["./src/client-generic-types/*"],
+      "request-generic-types": ["./src/request-generic-types"],
+      "request-generic-types/*": ["./src/request-generic-types/*"],
+      "utils": ["./src/utils"],
+      "utils/*": ["./src/utils/*"]
+    }
   },
   "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
 }

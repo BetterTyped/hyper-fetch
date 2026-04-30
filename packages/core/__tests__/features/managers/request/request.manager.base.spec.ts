@@ -1,9 +1,8 @@
-import EventEmitter from "events";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
-
+import { Client } from "client";
+import EventEmitter from "events";
 import type { RequestProgressEventType } from "managers";
 import { getRequestManagerEvents } from "managers";
-import { Client } from "client";
 import type { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -176,18 +175,18 @@ describe("RequestManager [ Base ]", () => {
           status: 200,
           success: true,
           extra: null,
-          requestTimestamp: +new Date(),
-          responseTimestamp: +new Date(),
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
         },
         details: {
           retries: 0,
           isCanceled: false,
           isOffline: false,
           willRetry: false,
-          requestTimestamp: +new Date(),
-          responseTimestamp: +new Date(),
-          triggerTimestamp: +new Date(),
-          addedTimestamp: +new Date(),
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+          triggerTimestamp: Date.now(),
+          addedTimestamp: Date.now(),
         },
       });
 

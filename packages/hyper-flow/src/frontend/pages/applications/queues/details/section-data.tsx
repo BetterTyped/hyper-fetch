@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import type { QueueDataType } from "@hyper-fetch/core";
-import { useShallow } from "zustand/react/shallow";
 import { motion } from "framer-motion";
 import { Activity, Clock, Database, GaugeCircle, Timer, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 
+import { useResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { cn } from "@/lib/utils";
 import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { formatBytes, formatTime } from "@/utils/format";
-import { cn } from "@/lib/utils";
-import { useResizableSidebar } from "@/components/ui/resizable-sidebar";
 
 const StatBlock = ({
   title,
@@ -58,7 +58,7 @@ export const SectionData = ({ item }: { item: QueueDataType }) => {
     }
   }, [breakpoint]);
 
-  if (!stats) return null;
+  if (!stats) {return null;}
 
   return (
     <div className="space-y-4 my-4">

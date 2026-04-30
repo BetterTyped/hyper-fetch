@@ -1,5 +1,4 @@
 import type { ClientInstance, RequestInstance } from "@hyper-fetch/core";
-
 import type { FirestoreAdapterType } from "adapter";
 
 export const setCacheManually = (

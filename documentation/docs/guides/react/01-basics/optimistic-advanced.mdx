@@ -5,7 +5,7 @@ sidebar_label: Advanced Optimistic
 
 # Advanced Optimistic Patterns
 
-The [Optimistic Updates](/docs/guides/react/basics/optimistic-approach) guide covers the fundamentals — snapshot, rollback,
+The [Optimistic Updates](/docs/guides/react/basics/optimistic-approach) guide covers the fundamentals - snapshot, rollback,
 and invalidation for single mutations. This guide explores patterns you'll encounter in real applications: concurrent
 mutations on the same list, reorder operations, batch toggling, and cross-cache coordination.
 
@@ -77,7 +77,7 @@ const toggleTodo = client
     return {
       context: { todoId, previousItem },
       rollback: () => {
-        // Revert only this item — other concurrent mutations are untouched
+        // Revert only this item - other concurrent mutations are untouched
         if (previousItem) {
           client.cache.update(getTodos, (prev) => ({
             ...prev,
@@ -96,7 +96,7 @@ When two `toggleTodo` mutations fire concurrently:
 
 1. **Mutation A** (todo #1): snapshots item #1, marks it completed, sets rollback for item #1
 2. **Mutation B** (todo #2): snapshots item #2, marks it completed, sets rollback for item #2
-3. If **Mutation A fails**: rollback restores only item #1 — item #2's optimistic state is preserved
+3. If **Mutation A fails**: rollback restores only item #1 - item #2's optimistic state is preserved
 4. If **Mutation B succeeds**: `invalidate` refreshes the list with server truth
 
 Each mutation operates on its own item snapshot, so rollbacks never interfere with each other.
@@ -176,7 +176,7 @@ const togglePin = client
   });
 ```
 
-Notice there's no `invalidate` — for simple toggles, the rollback is enough on failure, and the cache already reflects
+Notice there's no `invalidate` - for simple toggles, the rollback is enough on failure, and the cache already reflects
 the correct state on success.
 
 ---

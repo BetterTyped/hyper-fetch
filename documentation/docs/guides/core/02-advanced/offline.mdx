@@ -29,6 +29,39 @@ By default, Hyper-fetch listens to the browser's `online` and `offline` events t
 configuration is needed for this to work in a standard web environment. When the browser detects a lost connection, the
 `AppManager` puts all active and queued requests on hold. Once the connection returns, it automatically resumes them.
 
+### Marking Requests for Offline Support
+
+For a request to be queued when offline (instead of failing immediately), you must mark it with `offline: true`:
+
+```typescript
+const createPost = client.createRequest()({
+  endpoint: "/posts",
+  method: "POST",
+  // highlight-next-line
+  offline: true,
+});
+
+// If the user is offline when this is called, the request will be queued
+// and automatically sent when the connection is restored
+createPost.send({ payload: { title: "My Post", content: "Written offline" } });
+```
+
+Without `offline: true`, requests made while offline will fail immediately with an error.
+
+### Combining with Queuing
+
+For the best offline experience, combine `offline: true` with `queued: true`. This ensures that multiple offline
+requests are sent sequentially once the connection is restored, avoiding overwhelming the server:
+
+```typescript
+const syncAction = client.createRequest()({
+  endpoint: "/sync",
+  method: "POST",
+  offline: true,
+  queued: true,
+});
+```
+
 ## Customization
 
 The default browser events are not always available in non-browser environments like React Native. For these cases, you

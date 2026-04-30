@@ -45,15 +45,15 @@ import {
   ExtractParamsType,
 } from "@hyper-fetch/core";
 
-export const client = createClient()({
+export const client = createClient({
   url: "https://api.example.com",
-}).setExtra<{ error: { message: string } | Error }>();
+});
 
 // 1. Define a complex request
 const updateUser = client.createRequest<{
   response: { id: number; name: string; email: string; updatedAt: string };
   payload: { name?: string; email?: string };
-  localError: { errors: { email?: string } };
+  error: { errors: { email?: string } };
 }>()({
   method: "PATCH",
   endpoint: "/users/:userId",
@@ -73,7 +73,7 @@ function displayUser(user: UserResponse) {
 }
 
 async function handleUpdate(params: UserParams, payload: UserPayload) {
-  const { data, error } = await updateUser.setParams(params).send({ data: payload });
+  const { data, error } = await updateUser.setParams(params).send({ payload });
 
   if (data) {
     displayUser(data);
@@ -106,14 +106,14 @@ Here is a quick reference for all the available type extractors.
 - **`ExtractResponseType<T>`**: Extracts the `response` type.
 - **`ExtractPayloadType<T>`**: Extracts the `payload` type.
 - **`ExtractQueryParamsType<T>`**: Extracts the `queryParams` type.
-- **`ExtractErrorType<T>`**: Extracts the union of global and `localError` types.
+- **`ExtractErrorType<T>`**: Extracts the union of global and local `error` types.
 - **`ExtractGlobalErrorType<T>`**: Extracts only the global `error` type from the client.
-- **`ExtractLocalErrorType<T>`**: Extracts only the `localError` type from the request.
+- **`ExtractLocalErrorType<T>`**: Extracts only the local `error` type from the request.
 - **`ExtractParamsType<T>`**: Extracts the URL parameters type from the endpoint string.
 - **`ExtractEndpointType<T>`**: Extracts the endpoint string literal type.
 - **`ExtractAdapterOptionsType<T>`**: Extracts the options type of the adapter.
-- **`ExtractAdapterReturnType<T>`**: Extracts the raw `[data, error, status]` tuple from the adapter.
-- **`ExtractHasDataType<T>`**: Extracts a boolean literal type indicating if `data` has been set.
+- **`ExtractAdapterReturnType<T>`**: Extracts the adapter's resolved response type.
+- **`ExtractHasPayloadType<T>`**: Extracts a boolean literal type indicating if payload has been set.
 - **`ExtractHasParamsType<T>`**: Extracts a boolean literal type indicating if `params` have been set.
 - **`ExtractHasQueryParamsType<T>`**: Extracts a boolean literal type indicating if `queryParams` have been set.
 

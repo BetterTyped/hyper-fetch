@@ -1,5 +1,6 @@
 import type { EmitterInstance } from "emitter";
 import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
+
 import type { SocketAdapter } from "./adapter";
 
 export type RemoveListenerCallbackType = () => void;

@@ -1,6 +1,4 @@
 import type { AdapterInstance, ResponseType } from "adapter";
-import type { ResponseDetailsType, LoggerMethods } from "managers";
-import type { ClientInstance } from "client";
 import type {
   CacheOptionsType,
   CacheAsyncStorageType,
@@ -10,6 +8,8 @@ import type {
   RequestCacheType,
 } from "cache";
 import { getCacheData, getCacheEvents } from "cache";
+import type { ClientInstance } from "client";
+import type { ResponseDetailsType, LoggerMethods } from "managers";
 import type { RequestInstance } from "request";
 import { Request, scopeKey } from "request";
 import type { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
@@ -172,7 +172,7 @@ export class Cache<Adapter extends AdapterInstance> {
   keys = (): string[] => {
     const values = this.storage.keys();
 
-    return Array.from(values);
+    return [...values];
   };
 
   /**
@@ -197,11 +197,11 @@ export class Cache<Adapter extends AdapterInstance> {
    * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = (cacheKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+  invalidate = (cacheKeys: string | RegExp | RequestInstance | (string | RegExp | RequestInstance)[]) => {
     this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { cacheKeys } });
 
     const onInvalidate = (key: string | RegExp | RequestInstance) => {
-      const keys = Array.from(this.storage.keys());
+      const keys = [...this.storage.keys()];
       const handleInvalidation = (invalidateStorageKey: string, notifyCacheKey: string = invalidateStorageKey) => {
         const value = this.storage.get(invalidateStorageKey);
         if (value) {
@@ -220,7 +220,7 @@ export class Cache<Adapter extends AdapterInstance> {
         handleInvalidation(scopeKey(key.cacheKey, key.scope), key.cacheKey);
       } else if (typeof key === "string") {
         handleInvalidation(key);
-      } else if (keys.length) {
+      } else if (keys.length > 0) {
         keys.forEach((entityKey) => {
           if (key.test(entityKey)) {
             handleInvalidation(entityKey);
@@ -249,7 +249,7 @@ export class Cache<Adapter extends AdapterInstance> {
     // No data in lazy storage
     const hasLazyData = this.lazyStorage && data;
     if (hasLazyData) {
-      const now = +new Date();
+      const now = Date.now();
       const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
       const isStaleData = data.staleTime <= now - data.responseTimestamp;
       const isValidLazyData = data.version === this.version;
@@ -285,8 +285,8 @@ export class Cache<Adapter extends AdapterInstance> {
    */
   getAllKeys = async () => {
     const keys = await this.lazyStorage?.keys();
-    const asyncKeys = Array.from(keys || []);
-    const syncKeys = Array.from(this.storage.keys());
+    const asyncKeys = [...keys || []];
+    const syncKeys = [...this.storage.keys()];
 
     return [...new Set([...asyncKeys, ...syncKeys])];
   };
@@ -305,7 +305,7 @@ export class Cache<Adapter extends AdapterInstance> {
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - +new Date();
+      const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - Date.now();
       // null
       if (cacheData.cacheTime === null) {
         this.logger.debug({ title: "Cache time is null", type: "system", extra: { cacheKey } });

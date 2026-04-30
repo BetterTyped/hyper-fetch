@@ -1,14 +1,14 @@
+import { AlertCircle, ThumbsUp } from "lucide-react";
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { AlertCircle, ThumbsUp } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/no-content/empty-state";
-import { useErrorStatsStore } from "@/store/applications/error-stats.store";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Method } from "@/components/ui/method";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { cn } from "@/lib/utils";
-import { Method } from "@/components/ui/method";
+import { useErrorStatsStore } from "@/store/applications/error-stats.store";
 
 export const CardErrors = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -20,8 +20,8 @@ export const CardErrors = ({ className }: { className?: string }) => {
   );
 
   const topFailingEndpoints = useMemo(() => {
-    return Array.from(endpointErrorStats.values())
-      .sort((a, b) => b.count - a.count)
+    return [...endpointErrorStats.values()]
+      .toSorted((a, b) => b.count - a.count)
       .slice(0, 5);
   }, [endpointErrorStats]);
 

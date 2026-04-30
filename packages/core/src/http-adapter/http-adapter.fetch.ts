@@ -1,10 +1,11 @@
-import { Adapter } from "../adapter/adapter";
+import type { QueryParamsType } from "adapter";
 import { HttpMethods } from "constants/http.constants";
 import type { HttpMethodsType, HttpStatusType } from "types";
-import type { QueryParamsType } from "adapter";
+
+import { Adapter } from "../adapter/adapter";
+import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
 import type { HttpAdapterExtraType, FetchAdapterOptionsType } from "./http-adapter.types";
 import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
-import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
 
 const defaultExtra = xhrExtra;
 
@@ -93,7 +94,7 @@ export const getAdapter = () =>
 
           const response = await fetch(fullUrl, init);
 
-          if (timeoutId) clearTimeout(timeoutId);
+          if (timeoutId) {clearTimeout(timeoutId);}
 
           onResponseStart();
 
@@ -128,7 +129,7 @@ export const getAdapter = () =>
               while (true) {
                 // eslint-disable-next-line no-await-in-loop
                 const { done, value } = await reader.read();
-                if (done) break;
+                if (done) {break;}
                 chunks.push(value);
                 receivedLength += value.length;
                 onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
@@ -157,8 +158,8 @@ export const getAdapter = () =>
               onError({ error, status, extra });
             }
           }
-        } catch (err: any) {
-          if (timeoutId) clearTimeout(timeoutId);
+        } catch (error: any) {
+          if (timeoutId) {clearTimeout(timeoutId);}
           unmountListener();
 
           if (controller?.signal?.aborted) {
@@ -168,7 +169,7 @@ export const getAdapter = () =>
             return;
           }
 
-          onError({ error: err, status: 0, extra: defaultExtra });
+          onError({ error, status: 0, extra: defaultExtra });
         }
       },
     );

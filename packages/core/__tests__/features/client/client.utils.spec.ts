@@ -1,5 +1,4 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-
 import { Client, interceptRequest, interceptResponse, stringifyDefaultOptions } from "client";
 import { stringifyQueryParams } from "http-adapter";
 
@@ -152,7 +151,7 @@ describe("Client [ Utils ]", () => {
   describe("When using headerMapper", () => {
     it("should assign default headers with headers mapper", async () => {
       const defaultHeaders = {};
-      const headers = client.adapter.unstable_headerMapper(request, undefined);
+      const headers = client.adapter.unstable_headerMapper(request);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -160,14 +159,14 @@ describe("Client [ Utils ]", () => {
       const defaultHeaders = {};
       const data = new FormData();
       const formDataRequest = request.setPayload(data);
-      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest);
 
       expect(headers).toEqual(defaultHeaders);
     });
     it("should not re-assign form data headers", async () => {
       const defaultHeaders = { "Content-Type": "some-custom-format" };
       const formDataRequest = request.setHeaders(defaultHeaders);
-      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -175,7 +174,7 @@ describe("Client [ Utils ]", () => {
       const defaultHeaders = { "Content-Type": "application/json" };
       const data = { data: [] } as any;
       const formDataRequest = request.setPayload(data);
-      const headers = client.adapter.unstable_headerMapper(formDataRequest, undefined);
+      const headers = client.adapter.unstable_headerMapper(formDataRequest);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -184,29 +183,30 @@ describe("Client [ Utils ]", () => {
   describe("When using payloadMapper", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.adapter.unstable_payloadMapper(undefined, undefined);
+      // oxlint-disable-next-line unicorn/no-useless-undefined
+      const payload = client.adapter.unstable_payloadMapper(undefined);
 
       expect(payload).toBeUndefined();
     });
     it("should not stringify invalid payload", async () => {
-      const payload = client.adapter.unstable_payloadMapper(() => null, undefined);
+      const payload = client.adapter.unstable_payloadMapper(() => null);
       expect(payload).toBeUndefined();
     });
   });
@@ -214,24 +214,25 @@ describe("Client [ Utils ]", () => {
   describe("When using stringifyValue util", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.adapter.unstable_payloadMapper(undefined, undefined);
+      // oxlint-disable-next-line unicorn/no-useless-undefined
+      const payload = client.adapter.unstable_payloadMapper(undefined);
 
       expect(payload).toBeUndefined();
     });
@@ -239,7 +240,7 @@ describe("Client [ Utils ]", () => {
       const data: Record<string, unknown> = {};
       data.a = { b: data };
 
-      const payload = client.adapter.unstable_payloadMapper(data, undefined);
+      const payload = client.adapter.unstable_payloadMapper(data);
       expect(payload).toBe("");
     });
   });

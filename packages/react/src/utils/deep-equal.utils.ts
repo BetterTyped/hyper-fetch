@@ -3,10 +3,14 @@
  * @param value any object or primitive
  * @returns true when value is empty
  */
-export const isEmpty = (value: unknown): boolean => {
+export const isEmpty = (value?: unknown): boolean => {
   const valueType = Object.prototype.toString.call(value);
-  if (Array.isArray(value)) return !value.length;
-  if (typeof value === "object" && value !== null && valueType === "[object Object]") return !Object.keys(value).length;
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+  if (typeof value === "object" && value !== null && valueType === "[object Object]") {
+    return Object.keys(value).length === 0;
+  }
   return false;
 };
 
@@ -16,9 +20,11 @@ export const isEmpty = (value: unknown): boolean => {
  * @param secondValue unknown
  * @returns true when elements are equal
  */
-export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
+export const isEqual = (firstValue?: unknown, secondValue?: unknown): boolean => {
   // Nulls (objects), and other primitives
-  if (firstValue === secondValue) return true;
+  if (firstValue === secondValue) {
+    return true;
+  }
 
   try {
     const firstValueType = Object.prototype.toString.call(firstValue);
@@ -31,24 +37,34 @@ export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
     const isTypeValue = (type: unknown) => firstValueType === type && secondValueType === type;
 
     // Compared types are different
-    if (firstValueType !== secondValueType) return false;
+    if (firstValueType !== secondValueType) {
+      return false;
+    }
 
     // NaN
-    if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
+    if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) {
+      return true;
+    }
 
     // Empty Array or Object
-    if (isEmpty(firstValue) && isEmpty(secondValue)) return true;
+    if (isEmpty(firstValue) && isEmpty(secondValue)) {
+      return true;
+    }
 
     // Array
     if (Array.isArray(firstValue) && Array.isArray(secondValue)) {
-      if (firstValue.length !== secondValue.length) return false;
+      if (firstValue.length !== secondValue.length) {
+        return false;
+      }
 
       return !firstValue.some((element, i) => !isEqual(element, secondValue[i]));
     }
 
     // Object
     if (isType("object") && isTypeValue("[object Object]")) {
-      if (Object.keys(firstValue as object).length !== Object.keys(secondValue as object).length) return false;
+      if (Object.keys(firstValue as object).length !== Object.keys(secondValue as object).length) {
+        return false;
+      }
 
       return !Object.entries(firstValue as object).some(
         ([key, value]) => !isEqual(value, (secondValue as Record<string, unknown>)[key]),
@@ -62,8 +78,8 @@ export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
 
     // undefined, string, number, bool
     return firstValue === secondValue;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     return false;
   }
 };

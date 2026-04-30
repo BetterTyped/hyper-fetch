@@ -1,9 +1,9 @@
-import { useRef } from "react";
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
-import { render } from "@testing-library/react";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
-
+import { render } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
+import { useRef } from "react";
+
 import { client, createRequest, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();

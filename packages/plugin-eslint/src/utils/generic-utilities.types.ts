@@ -1,10 +1,10 @@
-import type { NewExpression } from "@typescript-eslint/types/dist/generated/ast-spec";
+import type { TSESTree } from "@typescript-eslint/utils";
 
 export function getUnexpectedGenerics({
   typeParameters,
   allowedGenerics,
 }: {
-  typeParameters: NewExpression["typeParameters"] | undefined;
+  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
   allowedGenerics: string[];
 }) {
   /**
@@ -33,7 +33,11 @@ export function getUnexpectedGenerics({
   return [mainGenericParam.type];
 }
 
-export function getEmptyGenerics({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
+export function getEmptyGenerics({
+  typeParameters,
+}: {
+  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
+}) {
   /**
    * This is valid: doSomething({ endpoint: "/ping" });
    */
@@ -45,7 +49,7 @@ export function getEmptyGenerics({ typeParameters }: { typeParameters: NewExpres
   const mainGenericParam = typeParameters.params[0];
 
   if (mainGenericParam && "members" in mainGenericParam) {
-    return !mainGenericParam.members.length;
+    return mainGenericParam.members.length === 0;
   }
   return false;
 }
@@ -53,7 +57,7 @@ export function getEmptyGenerics({ typeParameters }: { typeParameters: NewExpres
 export function getNotMatchingGeneric({
   typeParameters,
 }: {
-  typeParameters: NewExpression["typeParameters"] | undefined;
+  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
 }) {
   /**
    * This is valid: doSomething({ endpoint: "/ping" });

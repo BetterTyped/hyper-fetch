@@ -30,7 +30,9 @@
 
 ## 📖 About
 
-The HyperFetch CLI reads your OpenAPI 3.x schema and generates a complete, fully typed SDK built on `@hyper-fetch/core`. Every endpoint with an `operationId` becomes a typed request — params, payloads, query params, and response types are all extracted from the schema. The generated code is standard HyperFetch you can customize freely.
+The HyperFetch CLI reads your OpenAPI 3.x schema and generates a complete, fully typed SDK built on `@hyper-fetch/core`.
+Every endpoint with an `operationId` becomes a typed request — params, payloads, query params, and response types are
+all extracted from the schema. The generated code is standard HyperFetch you can customize freely.
 
 ## 🎯 Key Capabilities
 
@@ -79,12 +81,13 @@ Sets up the project directory structure and creates the `api.json` config file.
 npx @hyper-fetch/cli init
 ```
 
-| Flag | Description |
-| --- | --- |
-| `-y`, `--yes` | Skip prompts and use defaults (`src/api/`) |
+| Flag                 | Description                                        |
+| -------------------- | -------------------------------------------------- |
+| `-y`, `--yes`        | Skip prompts and use defaults (`src/api/`)         |
 | `-c`, `--cwd <path>` | Set working directory (default: current directory) |
 
 Without `--yes`, you'll be asked to choose:
+
 - **Main directory** — `src`, `app`, or a custom path
 - **API subdirectory** — name of the folder for generated files (default: `api`)
 
@@ -96,13 +99,13 @@ Reads an OpenAPI schema and generates a typed SDK file.
 npx @hyper-fetch/cli generate --url <schema> [options]
 ```
 
-| Flag | Description |
-| --- | --- |
-| `-u`, `--url <url>` | Schema source — a URL or local file path (relative to cwd) |
+| Flag                      | Description                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| `-u`, `--url <url>`       | Schema source — a URL or local file path (relative to cwd)        |
 | `-t`, `--template <type>` | Schema type: `openapi` or `swagger` (default: interactive prompt) |
-| `-f`, `--fileName <name>` | Output filename (default: `api-openapi.sdk.ts`) |
-| `-o`, `--overwrite` | Overwrite existing file without asking |
-| `-c`, `--cwd <path>` | Set working directory (default: current directory) |
+| `-f`, `--fileName <name>` | Output filename (default: `api-openapi.sdk.ts`)                   |
+| `-o`, `--overwrite`       | Overwrite existing file without asking                            |
+| `-c`, `--cwd <path>`      | Set working directory (default: current directory)                |
 
 Without flags, the CLI runs in **interactive mode** — it prompts for every option.
 
@@ -123,9 +126,9 @@ The `init` command creates an `api.json` file at your project root. This is the 
 }
 ```
 
-| Field | Description |
-| --- | --- |
-| `tsx` | When `true`, generates `.ts` files. When `false`, generates `.js` |
+| Field     | Description                                                                                   |
+| --------- | --------------------------------------------------------------------------------------------- |
+| `tsx`     | When `true`, generates `.ts` files. When `false`, generates `.js`                             |
 | `aliases` | Path aliases resolved from your `tsconfig.json` paths. Controls where the SDK file is written |
 
 The CLI auto-detects your `tsconfig.json` path aliases (e.g. `@/*` → `./src/*`) to resolve output directories.
@@ -174,11 +177,15 @@ export const createSdk = <Client extends ClientInstance>(client: Client) =>
 
 ## ⚠️ Important Notes
 
-- **`operationId` is required** — Only endpoints with an `operationId` in the schema are included. Endpoints without one are silently skipped.
-- **JSON schemas only for local files** — Local file paths must point to `.json` files. YAML is not supported for local files.
-- **Remote schemas are fetched with GET** — No auth headers are sent. If your schema requires authentication, download it locally first and pass the file path.
+- **`operationId` is required** — Only endpoints with an `operationId` in the schema are included. Endpoints without one
+  are silently skipped.
+- **JSON schemas only for local files** — Local file paths must point to `.json` files. YAML is not supported for local
+  files.
+- **Remote schemas are fetched with GET** — No auth headers are sent. If your schema requires authentication, download
+  it locally first and pass the file path.
 - **Path params are converted** — `{userId}` in OpenAPI becomes `:userId` in HyperFetch endpoints.
-- **Path segments are camelCased** — Kebab-case path segments become camelCase keys in the SDK tree. `{param}` segments become `$param`.
+- **Path segments are camelCased** — Kebab-case path segments become camelCase keys in the SDK tree. `{param}` segments
+  become `$param`.
 
 ## 📚 Documentation
 

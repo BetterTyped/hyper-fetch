@@ -1,17 +1,17 @@
-import { useMemo } from "react";
 import { HelpCircle } from "lucide-react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
-import { EmptyState } from "@/components/no-content/empty-state";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
-import { Method } from "@/components/ui/method";
-import { formatBytes } from "@/utils/size.utils";
 import { EntriesDocs } from "@/components/docs/entries.docs";
+import { EmptyState } from "@/components/no-content/empty-state";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Method } from "@/components/ui/method";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { cn } from "@/lib/utils";
+import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
+import { formatBytes } from "@/utils/size.utils";
 
 export const CardNotCached = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -24,8 +24,8 @@ export const CardNotCached = ({ className }: { className?: string }) => {
   );
 
   const notCachedEndpoints = useMemo(() => {
-    return Array.from(cacheStats.values())
-      .sort((a, b) => b.generalStats.notCachedSize - a.generalStats.notCachedSize)
+    return [...cacheStats.values()]
+      .toSorted((a, b) => b.generalStats.notCachedSize - a.generalStats.notCachedSize)
       .filter((item) => item.notCachedEntries.size)
       .slice(0, 5);
   }, [cacheStats]);
@@ -73,7 +73,7 @@ export const CardNotCached = ({ className }: { className?: string }) => {
           </TableBody>
         </Table>
 
-        {!notCachedEndpoints.length && (
+        {notCachedEndpoints.length === 0 && (
           <EmptyState title="No requests found" description="No requests have been made yet." />
         )}
       </CardContent>

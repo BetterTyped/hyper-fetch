@@ -1,7 +1,4 @@
-import type { Database } from "firebase/database";
-import type { Firestore } from "firebase/firestore";
 import type { Adapter, Request, Client } from "@hyper-fetch/core";
-
 import type {
   RealtimeDbAdapterType,
   FirestoreAdapterType,
@@ -12,6 +9,8 @@ import type {
   FirestoreMethodsUnion,
   FirestoreQueryParams,
 } from "adapter/index";
+import type { Database } from "firebase/database";
+import type { Firestore } from "firebase/firestore";
 
 export type FirebaseDBTypes = Database | Firestore;
 export type FirebaseAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;

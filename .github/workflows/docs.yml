@@ -16,11 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "22.21.1"
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -30,13 +33,13 @@ jobs:
           aws-region: ${{ secrets.PROD_AWS_REGION }}
 
       - name: Install packages
-        run: yarn install
+        run: pnpm install
 
       - name: Build packages
-        run: yarn build
+        run: pnpm build
 
       - name: Build docs
-        run: yarn build:docs
+        run: pnpm build:docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOC_APP_ID: ${{ secrets.DOC_APP_ID }}

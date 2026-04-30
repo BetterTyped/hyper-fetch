@@ -33,14 +33,17 @@
 
 ## 📖 About
 
-This adapter brings HyperFetch's typed request system to Firebase. Use the same `createRequest` / `.send()` patterns for Firestore and Realtime Database operations with typed responses, caching, queuing, and React hooks — the same API you use for REST.
+This adapter brings HyperFetch's typed request system to Firebase. Use the same `createRequest` / `.send()` patterns for
+Firestore and Realtime Database operations with typed responses, caching, queuing, and React hooks — the same API you
+use for REST.
 
 ## 🎯 Key Capabilities
 
 - 🔥 **Same API for Firebase** — Use `createRequest` / `.send()` for Firestore and Realtime Database, just like REST
 - 🔮 **Typed CRUD** — `getDoc`, `addDoc`, `updateDoc`, `deleteDoc` with full TypeScript types on every field
 - 📡 **Realtime subscriptions** — Listen to document and collection changes with typed data flowing in
-- ⚛️ **React hooks for Firebase** — `useFetch` and `useSubmit` work with Firebase operations — same patterns, different backend
+- ⚛️ **React hooks for Firebase** — `useFetch` and `useSubmit` work with Firebase operations — same patterns, different
+  backend
 - 💾 **Cache and offline support** — HyperFetch's caching and offline queue work with Firebase out of the box
 
 ## 🚀 Quick Start

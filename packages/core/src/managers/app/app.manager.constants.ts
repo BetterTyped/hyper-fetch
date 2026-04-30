@@ -1,5 +1,6 @@
-import type { RequiredKeys } from "types";
 import type { AppManagerOptionsType } from "managers";
+import type { RequiredKeys } from "types";
+
 import { onWindowEvent, onDocumentEvent } from "./app.manager.utils";
 
 export enum AppEvents {

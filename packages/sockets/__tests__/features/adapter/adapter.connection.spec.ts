@@ -1,8 +1,8 @@
-import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer, sleep, waitForConnection } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/dom";
+import { Socket } from "socket";
 
 import { createSocket } from "../../utils/socket.utils";
-import { Socket } from "socket";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,

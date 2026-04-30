@@ -1,9 +1,10 @@
-import React from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { Zap, Rocket, BookOpen, Sparkles } from "lucide-react";
-import { cn } from "@site/src/lib/utils";
 import { Particles } from "@site/src/components/particles";
 import { DotPattern } from "@site/src/components/ui/dot-pattern";
+import { cn } from "@site/src/lib/utils";
+import { Zap, Rocket, BookOpen, Sparkles } from "lucide-react";
+import React from "react";
+
 import {
   GridPattern,
   StripedPattern,
@@ -68,6 +69,14 @@ const maskStyles: Record<PatternMask, string> = {
   rectangle: "",
 };
 
+/** When `patternMask` is omitted, pick a sensible default fade for each pattern. */
+function resolvePatternMask(pattern: PatternType, explicit: PatternMask | undefined): PatternMask {
+  if (explicit !== undefined) return explicit;
+  if (pattern === "hexagon") return "top";
+  if (pattern === "striped") return "radial";
+  return "radial";
+}
+
 function Badge({ type }: { type: BadgeType }) {
   const config = badgeConfig[type];
   const Icon = config.icon;
@@ -119,9 +128,9 @@ function BackgroundPattern({
           <GridPattern width={36} height={36} className={cn("stroke-zinc-400/20 fill-transparent", patternClass)} />
         );
       case "hexagon":
-        return <HexagonPattern radius={28} className={cn("stroke-zinc-400/20", patternClass)} />;
+        return <HexagonPattern radius={28} className={cn("stroke-zinc-600 !opacity-20", patternClass)} />;
       case "striped":
-        return <StripedPattern width={28} height={28} className={cn("stroke-zinc-400/20", patternClass)} />;
+        return <StripedPattern width={28} height={28} className={cn("stroke-zinc-600 !opacity-20", patternClass)} />;
       case "flickering":
         return (
           <BrowserOnly>
@@ -175,7 +184,7 @@ export function BlogPostImage({
   description,
   pattern,
   patternFocus = "center",
-  patternMask = "radial",
+  patternMask,
   badge,
   href,
   file,
@@ -183,6 +192,7 @@ export function BlogPostImage({
   className,
 }: BlogPostImageProps) {
   const resolvedPattern = pattern ?? (badge === "release" ? "paths" : "dots");
+  const resolvedMask = resolvePatternMask(resolvedPattern, patternMask);
   return (
     <div
       className={cn(
@@ -228,7 +238,7 @@ export function BlogPostImage({
 
         {/* Background pattern */}
         <div className="absolute inset-0 z-[1]" aria-hidden="true">
-          <BackgroundPattern pattern={resolvedPattern} focus={patternFocus} mask={patternMask} />
+          <BackgroundPattern pattern={resolvedPattern} focus={patternFocus} mask={resolvedMask} />
         </div>
 
         {/* Particles */}

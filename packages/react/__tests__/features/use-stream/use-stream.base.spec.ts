@@ -1,6 +1,6 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
-
 import { useStream } from "hooks/use-stream";
+
 import { client } from "../../utils";
 
 const createStreamRequest = () => {

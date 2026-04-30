@@ -1,5 +1,4 @@
 import { createClient } from "@hyper-fetch/core";
-
 import { getValidCacheData, getInitialState, initialState } from "helpers";
 import { isEmpty, isEqual } from "utils";
 
@@ -16,7 +15,7 @@ describe("useTrackedState [ Utils ]", () => {
       expect(isEmpty(NaN)).toBe(false);
       expect(isEmpty("")).toBe(false);
       expect(isEmpty(false)).toBe(false);
-      expect(isEmpty(undefined)).toBe(false);
+      expect(isEmpty()).toBe(false);
       expect(isEmpty(0)).toBe(false);
       expect(isEmpty(true)).toBe(false);
       expect(isEmpty(123)).toBe(false);
@@ -70,7 +69,7 @@ describe("useTrackedState [ Utils ]", () => {
 
       expect(isEqual(true, true)).toBe(true);
       expect(isEqual(false, false)).toBe(true);
-      expect(isEqual(undefined, undefined)).toBe(true);
+      expect(isEqual()).toBe(true);
       expect(isEqual(null, null)).toBe(true);
       expect(isEqual(date, date)).toBe(true);
       expect(isEqual(date, date)).toBe(true);
@@ -135,8 +134,8 @@ describe("useTrackedState [ Utils ]", () => {
         data: "test-data",
         status: 200,
         success: true,
-        requestTimestamp: new Date().getTime(),
-        responseTimestamp: new Date().getTime(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
 
       const result = getValidCacheData(mockRequest, initialResponse, null);
@@ -162,7 +161,7 @@ describe("useTrackedState [ Utils ]", () => {
     });
 
     it("should return cache data when not stale", () => {
-      const currentTime = new Date().getTime();
+      const currentTime = Date.now();
       const cacheData = {
         data: "cached-data",
         error: null,
@@ -177,7 +176,7 @@ describe("useTrackedState [ Utils ]", () => {
     });
 
     it("should return stale cache data for stale-while-revalidate", () => {
-      const staleTimestamp = new Date().getTime() - 5000; // Well beyond the 1000ms staleTime
+      const staleTimestamp = Date.now() - 5000; // Well beyond the 1000ms staleTime
       const cacheData = {
         data: "stale-data",
         error: null,
@@ -223,7 +222,7 @@ describe("useTrackedState [ Utils ]", () => {
 
   describe("when getInitialState handles sync responseMapper", () => {
     it("should apply sync responseMapper to cache data", () => {
-      const currentTime = new Date().getTime();
+      const currentTime = Date.now();
       const cacheData = {
         data: "original-data",
         error: null,
@@ -242,7 +241,7 @@ describe("useTrackedState [ Utils ]", () => {
       });
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error
       client.cache = {
         get: vi.fn().mockReturnValue(cacheData),
         version: "1",

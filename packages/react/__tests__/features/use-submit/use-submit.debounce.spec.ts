@@ -1,6 +1,6 @@
 import type { RequestInstance, ExtractAdapterResolvedType } from "@hyper-fetch/core";
-import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { act, waitFor } from "@testing-library/react";
 
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
@@ -40,9 +40,9 @@ describe("useSubmit [ Bounce ]", () => {
 
         act(() => {
           response.result.current.onSubmitRequestStart(() => {
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
         });
 
@@ -62,9 +62,9 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -122,9 +122,9 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -155,7 +155,7 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
           response.result.current.submit();
           await waitForRender(10);
@@ -185,9 +185,9 @@ describe("useSubmit [ Bounce ]", () => {
 
         act(() => {
           response.result.current.onSubmitRequestStart(() => {
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
           response.result.current.submit();
         });
@@ -207,9 +207,9 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -266,9 +266,9 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
-          submitTime = +new Date();
+          submitTime = Date.now();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -298,7 +298,7 @@ describe("useSubmit [ Bounce ]", () => {
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
             spy();
-            startTime = +new Date();
+            startTime = Date.now();
           });
           response.result.current.submit();
           await waitForRender(10);

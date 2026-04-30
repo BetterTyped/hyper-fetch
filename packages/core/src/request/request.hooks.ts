@@ -1,4 +1,5 @@
 import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+
 import type { RequestInstance } from "./request.types";
 
 type HookName =
@@ -21,7 +22,7 @@ export interface RequestHooks<R extends RequestInstance> {
   /** @internal Invoke all registered listeners for a given hook */
   __emit: (name: HookName, data: any) => void;
   /** @internal Get a snapshot of all registered listeners (used by clone) */
-  __snapshot: () => Record<HookName, Array<(...args: any[]) => void>>;
+  __snapshot: () => Record<HookName, ((...args: any[]) => void)[]>;
 }
 
 const HOOK_NAMES: HookName[] = [
@@ -35,9 +36,9 @@ const HOOK_NAMES: HookName[] = [
 ];
 
 export function createRequestHooks<R extends RequestInstance>(
-  initial?: Record<HookName, Array<(...args: any[]) => void>>,
+  initial?: Record<HookName, ((...args: any[]) => void)[]>,
 ): RequestHooks<R> {
-  const listeners: Record<HookName, Array<(...args: any[]) => void>> = {
+  const listeners: Record<HookName, ((...args: any[]) => void)[]> = {
     onBeforeSent: [],
     onRequestStart: [],
     onResponseStart: [],
@@ -58,7 +59,7 @@ export function createRequestHooks<R extends RequestInstance>(
       listeners[name].push(cb);
       return () => {
         const idx = listeners[name].indexOf(cb);
-        if (idx !== -1) listeners[name].splice(idx, 1);
+        if (idx !== -1) {listeners[name].splice(idx, 1);}
       };
     };
   };
@@ -77,7 +78,7 @@ export function createRequestHooks<R extends RequestInstance>(
       });
     },
     __snapshot() {
-      const snap = {} as Record<HookName, Array<(...args: any[]) => void>>;
+      const snap = {} as Record<HookName, ((...args: any[]) => void)[]>;
       HOOK_NAMES.forEach((name) => {
         snap[name] = [...listeners[name]];
       });

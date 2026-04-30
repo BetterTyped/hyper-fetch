@@ -140,7 +140,7 @@ describe("E2E [ WebSocket Emitters ]", () => {
 
     const messages: any[] = [];
     wsServer.onMessage((msg) => {
-      if (msg.topic === "sequential") messages.push(msg);
+      if (msg.topic === "sequential") {messages.push(msg);}
     });
 
     for (let i = 0; i < 5; i += 1) {

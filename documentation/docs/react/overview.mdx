@@ -64,7 +64,57 @@ const { data } = useFetch(getUsers);
 
 Hook return values produce **readable output** in the browser console and Node.js `console.log`. You will see actual
 values like `{ data: {...}, error: null, loading: false }` instead of opaque getter references. This works through
-`toJSON()` and `[Symbol.for("nodejs.util.inspect.custom")]` implementations that snapshot the current state.
+a tracked proxy that snapshots the current state when inspected.
+
+---
+
+## Provider
+
+The `<Provider>` component sets **global defaults** for all hooks in the component tree. Wrap your application (or a
+subtree) with `<Provider>` to configure shared options once instead of repeating them on every hook call.
+
+```tsx title="Setting global defaults"
+import { Provider } from "@hyper-fetch/react";
+
+function App() {
+  return (
+    <Provider
+      config={{
+        useFetchConfig: {
+          revalidate: true,
+          refetchOnReconnect: true,
+          refetchOnFocus: true,
+          dependencyTracking: true,
+        },
+        useSubmitConfig: {
+          bounce: true,
+          bounceTime: 300,
+        },
+        useCacheConfig: {
+          dependencyTracking: true,
+        },
+        useQueueConfig: {
+          keepFinishedRequests: false,
+        },
+      }}
+    >
+      {/* All hooks inside this tree inherit the config above */}
+      <Dashboard />
+    </Provider>
+  );
+}
+```
+
+The `config` object supports these keys:
+
+| Key | Applies to | Description |
+|-----|------------|-------------|
+| `useFetchConfig` | `useFetch` | Default options for all `useFetch` hooks. |
+| `useSubmitConfig` | `useSubmit` | Default options for all `useSubmit` hooks. |
+| `useCacheConfig` | `useCache` | Default options for all `useCache` hooks. |
+| `useQueueConfig` | `useQueue` | Default options for all `useQueue` hooks. |
+
+Options passed directly to a hook always override the Provider defaults.
 
 ---
 
@@ -87,7 +137,7 @@ const {
   onUploadProgress,
   onFinished,
   onAbort,
-  onOffline,
+  onOfflineError,
 } = useFetch(getUsers);
 
 onRequestStart(({ details, request }) => {
@@ -110,7 +160,7 @@ onAbort(({ response, details, request }) => {
   // Do something on query cancellation
 });
 
-onOffline(({ response, details, request }) => {
+onOfflineError(({ response, details, request }) => {
   // Do something when query goes stale while offline
 });
 

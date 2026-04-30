@@ -1,46 +1,48 @@
+import path from "path";
 /// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import tsconfigPaths from "vite-tsconfig-paths";
-import path from "path";
-import { getDtsCompilerOptionsForPackage } from "../../scripts/vite-dts-internal-paths";
+
 import { getRollupExternalsFromPackageJson } from "../../scripts/vite-lib-externals-from-package";
 
 export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts",
-      formats: ["es"],
       fileName: "index",
+      formats: ["es"],
     },
-    sourcemap: true,
     minify: false,
     rollupOptions: {
       external: getRollupExternalsFromPackageJson(__dirname),
     },
+    sourcemap: true,
   },
-  plugins: [
-    dts({
-      entryRoot: "src",
-      compilerOptions: getDtsCompilerOptionsForPackage(__dirname),
-    }),
-    tsconfigPaths(),
-  ],
+  plugins: [tsconfigPaths(), dts({ entryRoot: "src" })],
   test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: ["./__tests__/vitest.setup.ts"],
-    environmentMatchGlobs: [["__tests__/e2e/**", "node"]],
-    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
-    coverage: {
-      provider: "v8",
-      include: ["src/**/*.{ts,tsx}"],
-      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
-    },
     alias: {
       "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
       "@hyper-fetch/sockets": path.resolve(__dirname, "./src/index.ts"),
       "@hyper-fetch/testing": path.resolve(__dirname, "../testing/src/index.ts"),
     },
+    coverage: {
+      exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
+      include: ["src/**/*.{ts,tsx}"],
+      provider: "v8",
+    },
+    environment: "jsdom",
+    globals: true,
+    include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    projects: [
+      {
+        extends: true,
+        test: {
+          environment: "node",
+          include: ["__tests__/e2e/**/*.spec.{ts,tsx}"],
+        },
+      },
+    ],
+    setupFiles: ["./__tests__/vitest.setup.ts"],
   },
 });

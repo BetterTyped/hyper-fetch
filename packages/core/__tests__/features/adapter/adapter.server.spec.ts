@@ -1,12 +1,11 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { getErrorMessage } from "adapter";
+import { Client } from "client";
+import { HttpAdapter } from "http-adapter";
 /**
  * @vitest-environment node
  */
 import type { Mock } from "vitest";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
-
-import { getErrorMessage } from "adapter";
-import { Client } from "client";
-import { HttpAdapter } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

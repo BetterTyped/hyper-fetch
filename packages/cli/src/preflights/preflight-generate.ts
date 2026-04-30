@@ -1,14 +1,13 @@
-import * as path from "node:path";
-import * as fs from "fs-extra";
-import type { z } from "zod";
-
 import type { generateOptionsSchema } from "commands/generate";
-import * as ERRORS from "utils/errors";
 import { getConfig } from "config/get-config";
 import type { Config } from "config/schema";
+import * as fs from "fs-extra";
+import * as path from "node:path";
+import * as ERRORS from "utils/errors";
+import { handleError } from "utils/handle-error";
 import { highlighter } from "utils/highlighter";
 import { logger } from "utils/logger";
-import { handleError } from "utils/handle-error";
+import type { z } from "zod";
 
 export async function preFlightGenerate(options: z.infer<typeof generateOptionsSchema>): Promise<{
   errors: Record<string, boolean>;
@@ -31,7 +30,7 @@ export async function preFlightGenerate(options: z.infer<typeof generateOptionsS
       errors,
       config: config!,
     };
-  } catch (error) {
+  } catch {
     logger.break();
     logger.error(
       `An invalid ${highlighter.info("api.json")} file was found at ${highlighter.info(

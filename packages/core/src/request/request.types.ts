@@ -1,3 +1,6 @@
+import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
+import type { ClientInstance } from "client";
+import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 /* eslint-disable @typescript-eslint/no-shadow */
 import type {
   NullableKeys,
@@ -17,10 +20,8 @@ import type {
   ExtractAdapterMethodType,
   TypeWithDefaults,
 } from "types";
+
 import type { Request } from "./request";
-import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
-import type { ClientInstance } from "client";
 
 // Instance
 

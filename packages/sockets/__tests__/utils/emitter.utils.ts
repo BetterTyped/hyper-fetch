@@ -1,7 +1,6 @@
 import { getUniqueRequestId } from "@hyper-fetch/core";
-
-import type { SocketInstance } from "socket";
 import type { EmitterOptionsType } from "emitter";
+import type { SocketInstance } from "socket";
 
 export const createEmitter = <PayloadType = any>(
   socket: SocketInstance,

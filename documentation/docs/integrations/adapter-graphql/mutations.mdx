@@ -23,11 +23,11 @@ Here is a basic example of how to create a mutation to log in a user.
 
 ```tsx
 import { Client } from "@hyper-fetch/core";
-import { graphqlAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 import gql from "graphql-tag";
 
 // 1. Initialize the client
-const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(graphqlAdapter);
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
 // 2. Define types for the variables
 type Variables = {

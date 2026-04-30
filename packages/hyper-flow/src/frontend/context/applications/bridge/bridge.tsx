@@ -1,13 +1,13 @@
-import { memo } from "react";
-import { Client } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
-import { Socket } from "@hyper-fetch/sockets";
+import { Client } from "@hyper-fetch/core";
 import type { AppInternalMessage, HFEventMessage, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
 import { InternalEvents, MessageOrigin, SocketTopics } from "@hyper-fetch/plugin-devtools";
+import { Socket } from "@hyper-fetch/sockets";
+import { memo } from "react";
 
-import { useConnectionStore } from "@/store/applications/connection.store";
-import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
 import { ConnectionName } from "@/constants/connection.name";
+import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
+import { useConnectionStore } from "@/store/applications/connection.store";
 
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
   const addConnection = useConnectionStore((state) => state.addConnection);
@@ -25,14 +25,14 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
     })
       .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP })
       .onConnected(() => {
-        if (!nameRef.current) return;
+        if (!nameRef.current) {return;}
 
         updateConnection(nameRef.current, {
           connected: true,
         });
       })
       .onDisconnected(() => {
-        if (!nameRef.current) return;
+        if (!nameRef.current) {return;}
 
         updateConnection(nameRef.current, {
           connected: false,

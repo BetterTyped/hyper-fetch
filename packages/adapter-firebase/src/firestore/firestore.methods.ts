@@ -1,8 +1,4 @@
-/* eslint-disable max-params */
-import type { Firestore } from "firebase/firestore";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
 import type { getAdapterBindings } from "@hyper-fetch/core";
-
 import type { FirestoreMethodsUnion } from "adapter/types";
 import type {
   FirestoreConstraintsUnion,
@@ -10,7 +6,11 @@ import type {
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
+/* eslint-disable max-params */
+import type { Firestore } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc } from "firebase/firestore";
 import { getStatus } from "utils";
+
 import { getOrderedResultFirestore, mapConstraint } from "./utils";
 
 type DataType = {

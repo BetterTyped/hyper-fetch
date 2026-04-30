@@ -6,7 +6,7 @@ import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 import { Viewer } from "../components/viewer";
 import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";
 
-export function Index() {
+function Index() {
   const { push } = useRouter();
 
   return (

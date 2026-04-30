@@ -1,12 +1,11 @@
+import type { RequestSendType, ExtractMutationContextType } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 import {
   expectType,
   expectNotType,
   expectFunctionParametersType,
   expectNotFunctionParametersType,
 } from "@hyper-fetch/testing";
-import type { RequestSendType, ExtractMutationContextType } from "@hyper-fetch/core";
-import { Client } from "@hyper-fetch/core";
-
 import type { UseSubmitReturnType } from "hooks/use-submit";
 
 const client = new Client({

@@ -1,6 +1,5 @@
 import type { RequestInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
-
 import type { UseCacheOptionsType } from "hooks/use-cache";
 import { useCache } from "hooks/use-cache";
 

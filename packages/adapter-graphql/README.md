@@ -33,7 +33,9 @@
 
 ## 📖 About
 
-This adapter connects HyperFetch to GraphQL APIs. You get typed queries, mutations, and subscriptions that work with HyperFetch's caching, queuing, and React hooks — the same request patterns you use for REST, but with GraphQL operations.
+This adapter connects HyperFetch to GraphQL APIs. You get typed queries, mutations, and subscriptions that work with
+HyperFetch's caching, queuing, and React hooks — the same request patterns you use for REST, but with GraphQL
+operations.
 
 ## 🎯 Key Capabilities
 
@@ -138,7 +140,13 @@ const UserList = () => {
   );
 
   if (loading) return <p>Loading...</p>;
-  return <ul>{data?.users.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
+  return (
+    <ul>
+      {data?.users.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
 };
 ```
 

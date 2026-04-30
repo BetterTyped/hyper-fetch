@@ -1,10 +1,10 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
-import { motion } from "motion/react";
-import { Particles } from "@site/src/components/particles";
-import { Highlighter } from "@site/src/components/highlighter";
 import { Description, Title } from "@site/src/components";
-import App from "@site/static/img/previews/app.png";
+import { Highlighter } from "@site/src/components/highlighter";
+import { Particles } from "@site/src/components/particles";
+import { CliSdkDemo } from "@site/src/components/landing/features/cli-sdk-demo";
+import { motion } from "motion/react";
 
 import { BigBlock } from "./big-block/big-block";
 import { MediumBlock } from "./medium-block/medium-block";
@@ -34,31 +34,19 @@ export const Blocks = () => {
                     viewport={{ once: true }}
                   >
                     <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                      Simply
+                      Built for shipping
                     </div>
                   </motion.div>
-                  <h2 className="h2 pb-2 flex justify-center flex-col md:flex-row">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                      viewport={{ once: true }}
-                    >
-                      <Title as="span" size="lg">
-                        Faster.
-                      </Title>
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.3 }}
-                      viewport={{ once: true }}
-                    >
-                      <Title as="span" size="lg">
-                        Better.
-                      </Title>
-                    </motion.div>
-                  </h2>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                  >
+                    <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
+                      From schema to typed SDK
+                    </Title>
+                  </motion.div>
                 </div>
               </div>
               <motion.div
@@ -68,8 +56,8 @@ export const Blocks = () => {
                 viewport={{ once: true }}
               >
                 <Description className="text-lg text-zinc-400">
-                  Hyper Fetch provides a powerful, type-safe, backend & framework agnostic architecture for efficient
-                  data exchange.
+                  Skip the boilerplate. HyperFetch generates the API layer for you, with the strongest type safety in
+                  the ecosystem.
                 </Description>
               </motion.div>
             </div>
@@ -97,23 +85,21 @@ export const Blocks = () => {
               </svg>
             </div>
             <Highlighter className="grid md:grid-cols-12 gap-6 group">
-              <Link to="/docs/hyper-flow" className="!no-underline md:col-span-12">
+              <Link to="/docs/cli/commands/generate" className="!no-underline md:col-span-12">
                 <BigBlock
-                  title="HyperFlow"
-                  description="Inspect, debug, and manage your requests in real-time. Gain full visibility into caching, queuing, and the entire request lifecycle."
+                  title="Generate a typed SDK in seconds"
+                  description="Point the CLI at any OpenAPI or Swagger schema and ship a fully typed SDK. Every endpoint becomes a typed method - params, payloads, responses, errors. Zero manual typing."
                   img={
-                    <img
-                      className="absolute top-0 left-0 w-[160%] max-w-[160%] h-auto mt-12 rounded-md overflow-hidden"
-                      src={App}
-                      alt="Feature 01"
-                    />
+                    <div className="flex items-center justify-center h-full w-full p-4">
+                      <CliSdkDemo bare />
+                    </div>
                   }
                 />
               </Link>
               <Link to="/docs/guides/typescript/extend" className="!no-underline md:col-span-7">
                 <MediumBlock
                   title="Designed for Type Safety"
-                  description="Leverage TypeScript to its full potential with automatic type generation, robust error handling, and enhanced developer confidence."
+                  description="End-to-end TypeScript from schema to response. Typed params, payloads, errors - and zero any. Catch bugs at compile time, not in production."
                   img={
                     <img
                       className="absolute w-[240%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
@@ -125,8 +111,8 @@ export const Blocks = () => {
               </Link>
               <Link to="/docs/getting-started" className="!no-underline md:col-span-5">
                 <MediumBlock
-                  title="Flexible & Open Source"
-                  description="Framework agnostic, built almost zero dependencies. Integrate seamlessly into any project and contribute to its growth."
+                  title="Open Source. Zero Lock-in."
+                  description="Framework agnostic, near-zero dependencies, MIT licensed. Drop it into any project and own your stack."
                   img={
                     <img
                       className="absolute w-[160%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"

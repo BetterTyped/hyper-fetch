@@ -1,8 +1,8 @@
 import { ListXIcon } from "lucide-react";
 
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { useNetworkStore } from "@/store/applications/network.store";
 
 export const NetworkToolbar = () => {
