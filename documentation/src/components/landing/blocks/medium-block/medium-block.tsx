@@ -31,7 +31,7 @@ export const MediumBlock = ({
             <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] h-full">
               <div className="flex flex-col justify-between md:max-w-[480px] shrink-0 order-1 md:order-none px-6 py-4 md:px-8 md:py-4 h-full">
                 <div className="mt-4 flex-1">
-                  <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
+                  <Title size="none" wrapperClass="inline-flex flex-wrap gap-x-2 font-bold pb-1" className="text-2xl">
                     {title}
                   </Title>
                   <Description size="none" className="text-zinc-400">

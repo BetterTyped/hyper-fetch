@@ -34,6 +34,7 @@ const tier2ItemVariants = {
 
 interface InlineFeature {
   icon: React.ElementType;
+  label: string;
   title: string;
   description: string;
   tags: string[];
@@ -42,36 +43,42 @@ interface InlineFeature {
 const inlineFeatures: InlineFeature[] = [
   {
     icon: Shield,
+    label: "Type safety",
     title: "End-to-end TypeScript",
     description: "Params inferred from URL strings. Typed responses, payloads, query params, errors. Zero any.",
     tags: ["URL params", "Responses", "Payloads", "Query", "Errors"],
   },
   {
     icon: Code2,
+    label: "React",
     title: "React hooks built in",
     description: "useFetch for queries. useSubmit for mutations. Loading, error, and data states all managed for you.",
     tags: ["useFetch", "useSubmit", "loading", "error", "data"],
   },
   {
     icon: Activity,
+    label: "Devtools",
     title: "HyperFlow DevTools",
     description: "Inspect every request, cache entry, queue, and event. Debug your data layer visually.",
     tags: ["Network", "Cache", "Queues", "Events"],
   },
   {
     icon: Globe,
+    label: "Runtimes",
     title: "Runs everywhere",
     description: "Browser, Node, edge, mobile, SSR. Same client, same behavior, every runtime.",
     tags: ["Browser", "Node", "Edge", "Mobile", "SSR"],
   },
   {
     icon: Zap,
+    label: "Mutations",
     title: "Optimistic updates",
     description: "Mutate the UI first, reconcile with the server. Smooth, race-condition-free.",
     tags: ["Mutate first", "Reconcile", "Race-safe", "Rollback"],
   },
   {
     icon: Layers3,
+    label: "Performance",
     title: "Smart deduplication",
     description: "Five components ask for the same data. One network call fires. Automatic.",
     tags: ["Shared promise", "One request", "Auto"],
@@ -199,10 +206,11 @@ export function Features(): React.JSX.Element {
               variants={tier2ItemVariants}
               className="group relative flex h-full flex-col"
             >
-              <div className="flex size-10 items-center justify-center rounded-lg bg-yellow-500/[0.08]">
-                <feature.icon className="size-5 text-yellow-500" />
-              </div>
-              <h4 className="mt-4 text-lg font-semibold tracking-tight text-zinc-100">{feature.title}</h4>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                <feature.icon className="size-3.5" />
+                {feature.label}
+              </span>
+              <h4 className="mt-2 text-xl font-extrabold tracking-tight text-zinc-100">{feature.title}</h4>
               <p className="mt-2 text-[15px] leading-relaxed text-zinc-400">{feature.description}</p>
               <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
                 {feature.tags.map((tag) => (

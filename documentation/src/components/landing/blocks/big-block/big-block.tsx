@@ -52,8 +52,8 @@ export const BigBlock = ({ title, description, img }: { title: string; descripti
                 <div>
                   <Title
                     size="none"
-                    wrapperClass="inline-flex flex-wrap font-bold pb-1"
-                    className="!text-4xl !leading-tight"
+                    wrapperClass="inline-flex flex-wrap gap-x-3 font-bold pb-1"
+                    className="!text-4xl !leading-tight font-extrabold"
                   >
                     {title}
                   </Title>

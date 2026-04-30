@@ -1,22 +1,22 @@
-import { useState } from "react";
 import { useDidMount } from "@better-hooks/lifecycle";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import Layout from "@theme/Layout";
 import { useWindowEvent } from "@site/src/hooks/use-window-event";
+import Layout from "@theme/Layout";
+import { useState } from "react";
 
-import { Hero } from "./hero";
-import { Clients } from "./clients";
+import { Cookies } from "../cookies/cookies";
+import { About } from "./about/about";
 import { Blocks } from "./blocks";
 import { CallToAction } from "./call-to-action";
-import { Modules } from "./modules/modules";
+import { Clients } from "./clients";
+import { CodePreview } from "./code/code";
 // import { Integrations } from "./integrations/integrations";
 import { Features } from "./features/features";
+import { Hero } from "./hero";
+import { Modules } from "./modules/modules";
 // import { Example } from "./example/example";
 import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
-import { About } from "./about/about";
-import { Cookies } from "../cookies/cookies";
-import { CodePreview } from "./code/code";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -47,10 +47,10 @@ export const Landing = () => {
         <Clients />
         <About />
         <Features />
+        <Preview />
         <Modules />
         <Blocks />
         {/* <Integrations /> */}
-        <Preview />
         {/* <Example /> */}
         <Sponsors />
         <CallToAction />

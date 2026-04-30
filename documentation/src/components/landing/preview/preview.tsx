@@ -12,6 +12,7 @@ import { CacheHitRateVisual, MetricsSparklineVisual, NetworkLogVisual, QueueFlow
 
 interface DevtoolsFeature {
   icon: React.ElementType;
+  label: string;
   title: string;
   description: string;
   link: string;
@@ -21,6 +22,7 @@ interface DevtoolsFeature {
 const devtoolsFeatures: DevtoolsFeature[] = [
   {
     icon: Network,
+    label: "Network",
     title: "Network Inspector",
     description: "Stream every request as it fires. Headers, payload, response, and per-phase timings.",
     link: "/docs/hyper-flow/features/network",
@@ -28,6 +30,7 @@ const devtoolsFeatures: DevtoolsFeature[] = [
   },
   {
     icon: Database,
+    label: "Cache",
     title: "Cache Inspector",
     description: "Browse cached entries with hit rates, size, and last update. Drill into any key to debug stale data.",
     link: "/docs/hyper-flow/features/cache",
@@ -35,6 +38,7 @@ const devtoolsFeatures: DevtoolsFeature[] = [
   },
   {
     icon: Workflow,
+    label: "Queues",
     title: "Queue Manager",
     description: "Live view of every queue. Track pending, in-flight, and stuck requests across your app.",
     link: "/docs/hyper-flow/features/queues",
@@ -42,6 +46,7 @@ const devtoolsFeatures: DevtoolsFeature[] = [
   },
   {
     icon: Gauge,
+    label: "Metrics",
     title: "Performance Dashboard",
     description:
       "Network, cache, and queue metrics in one view. Success rates, hit ratios, throughput, slow endpoints.",
@@ -129,7 +134,7 @@ export function Preview(): React.JSX.Element {
       </section>
 
       {/* Feature cards — emerge from the dashboard fade */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-20 md:mt-40 mb-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-40 mb-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
           {devtoolsFeatures.map((feature, index) => (
             <motion.div
@@ -147,13 +152,12 @@ export function Preview(): React.JSX.Element {
             >
               <Noise visibility="medium" />
               <Link to={feature.link} className="!no-underline relative z-10 flex h-full flex-col">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-lg bg-yellow-500/10">
-                    <feature.icon className="size-5 text-yellow-500" />
-                  </div>
-                  <h4 className="text-lg font-semibold tracking-tight text-zinc-100">{feature.title}</h4>
-                </div>
-                <p className="mt-3 text-[15px] leading-relaxed text-zinc-400">{feature.description}</p>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                  <feature.icon className="size-3.5" />
+                  {feature.label}
+                </span>
+                <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-zinc-100">{feature.title}</h4>
+                <p className="mt-2 text-[15px] leading-relaxed text-zinc-400">{feature.description}</p>
                 <div className="mt-5">{feature.visual}</div>
                 <span className="mt-auto inline-flex items-center gap-1 pt-5 text-xs font-medium text-zinc-500 transition-colors group-hover/card:text-zinc-300">
                   Open in docs

@@ -46,7 +46,7 @@ export const SmallBlock = ({
             <div className="flex flex-col md:max-w-[480px] shrink-0 order-1 md:order-none px-6 py-4 md:px-8 md:py-6 h-full">
               <div className="flex flex-col h-full">
                 <div className="size-12 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-4">{icon}</div>
-                <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
+                <Title size="none" wrapperClass="inline-flex flex-wrap gap-x-2 font-bold pb-1" className="text-2xl">
                   {title}
                 </Title>
                 <Description size="none" className="text-zinc-400 text-lg !mt-1 !mb-2 flex-1">

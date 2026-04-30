@@ -1,25 +1,25 @@
 import React, { Fragment } from "react";
 
-/* ─── Network Inspector — mini request log ───────────────────────── */
+/* ─── Network Inspector — request log with timing bars ───────────── */
 
 interface LogRow {
   method: "GET" | "POST" | "PUT" | "DELETE";
   path: string;
   status: number;
-  time: string;
+  time: number;
 }
 
 const networkLog: LogRow[] = [
-  { method: "GET", path: "/users", status: 200, time: "142ms" },
-  { method: "POST", path: "/users/42", status: 201, time: "89ms" },
-  { method: "GET", path: "/posts/12", status: 304, time: "12ms" },
+  { method: "GET", path: "/users", status: 200, time: 142 },
+  { method: "POST", path: "/users/42", status: 201, time: 89 },
+  { method: "GET", path: "/posts/12", status: 304, time: 12 },
 ];
 
-const methodTones: Record<LogRow["method"], string> = {
-  GET: "text-emerald-300",
-  POST: "text-violet-300",
-  PUT: "text-amber-300",
-  DELETE: "text-rose-300",
+const methodBadgeTones: Record<LogRow["method"], string> = {
+  GET: "border-emerald-400/30 bg-emerald-400/[0.08] text-emerald-300",
+  POST: "border-violet-400/30 bg-violet-400/[0.08] text-violet-300",
+  PUT: "border-amber-400/30 bg-amber-400/[0.08] text-amber-300",
+  DELETE: "border-rose-400/30 bg-rose-400/[0.08] text-rose-300",
 };
 
 function statusTone(status: number) {
@@ -29,17 +29,37 @@ function statusTone(status: number) {
   return "text-emerald-300";
 }
 
+function timingBarTone(time: number) {
+  if (time > 150) return "bg-amber-400/70";
+  if (time > 60) return "bg-emerald-400/70";
+  return "bg-sky-400/70";
+}
+
+const TIMING_CAP = 180;
+
 export function NetworkLogVisual() {
   return (
-    <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-3 gap-y-1 font-mono text-[11px] leading-none">
-      {networkLog.map((row) => (
-        <Fragment key={`${row.method}-${row.path}`}>
-          <span className={`whitespace-nowrap font-semibold ${methodTones[row.method]}`}>{row.method}</span>
-          <span className="min-w-0 truncate text-zinc-300">{row.path}</span>
-          <span className={`whitespace-nowrap tabular-nums ${statusTone(row.status)}`}>{row.status}</span>
-          <span className="whitespace-nowrap tabular-nums text-zinc-500">{row.time}</span>
-        </Fragment>
-      ))}
+    <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-x-2.5 gap-y-2 font-mono text-[11px] leading-none">
+      {networkLog.map((row) => {
+        const widthPct = Math.min(100, (row.time / TIMING_CAP) * 100);
+        return (
+          <Fragment key={`${row.method}-${row.path}`}>
+            <span
+              className={`whitespace-nowrap rounded border px-1.5 py-1 text-[10px] font-bold uppercase leading-none ${methodBadgeTones[row.method]}`}
+            >
+              {row.method}
+            </span>
+            <span className="min-w-0 truncate text-zinc-300">{row.path}</span>
+            <span className={`whitespace-nowrap tabular-nums font-semibold ${statusTone(row.status)}`}>
+              {row.status}
+            </span>
+            <div className="h-1 w-14 overflow-hidden rounded-full bg-white/[0.06]">
+              <div style={{ width: `${widthPct}%` }} className={`h-full rounded-full ${timingBarTone(row.time)}`} />
+            </div>
+            <span className="whitespace-nowrap tabular-nums text-zinc-500">{row.time}ms</span>
+          </Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -71,37 +91,60 @@ export function CacheHitRateVisual() {
   );
 }
 
-/* ─── Queue Manager — flow rows ──────────────────────────────────── */
+/* ─── Queue Manager — chip rows ──────────────────────────────────── */
 
 interface QueueRow {
   label: string;
   count: number;
-  dots: number;
+  chips: number;
+  chipClass: string;
   dotClass: string;
   pulseAt?: number;
 }
 
 const queueRows: QueueRow[] = [
-  { label: "In-flight", count: 2, dots: 2, dotClass: "bg-amber-400", pulseAt: 1 },
-  { label: "Pending", count: 5, dots: 5, dotClass: "bg-white/20" },
-  { label: "Done", count: 128, dots: 8, dotClass: "bg-emerald-400/50" },
+  {
+    label: "In-flight",
+    count: 2,
+    chips: 2,
+    chipClass: "bg-gradient-to-b from-amber-400 to-amber-500 shadow-[0_0_6px_rgba(251,191,36,0.45)]",
+    dotClass: "bg-amber-400",
+    pulseAt: 1,
+  },
+  {
+    label: "Pending",
+    count: 5,
+    chips: 5,
+    chipClass: "bg-white/[0.04] border border-white/[0.12]",
+    dotClass: "bg-white/30",
+  },
+  {
+    label: "Done",
+    count: 128,
+    chips: 8,
+    chipClass: "bg-gradient-to-b from-emerald-500/50 to-emerald-600/40",
+    dotClass: "bg-emerald-400/70",
+  },
 ];
 
 export function QueueFlowVisual() {
   return (
-    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-1.5 font-mono text-[11px] leading-none">
+    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-6 gap-y-4 font-mono text-[11px] leading-none">
       {queueRows.map((row) => (
         <Fragment key={row.label}>
-          <span className="whitespace-nowrap text-zinc-500">{row.label}</span>
+          <span className="inline-flex items-center gap-2 whitespace-nowrap text-zinc-400">
+            <span className={`size-1.5 rounded-full ${row.dotClass}`} />
+            {row.label}
+          </span>
           <div className="flex gap-1">
-            {Array.from({ length: row.dots }).map((_, i) => (
+            {Array.from({ length: row.chips }).map((_, i) => (
               <span
                 key={`${row.label}-${i.toString()}`}
-                className={`size-1.5 rounded-full ${row.dotClass} ${row.pulseAt === i ? "animate-pulse" : ""}`}
+                className={`h-3 w-3.5 rounded-[3px] ${row.chipClass} ${row.pulseAt === i ? "animate-pulse" : ""}`}
               />
             ))}
           </div>
-          <span className="whitespace-nowrap tabular-nums text-zinc-500">{row.count}</span>
+          <span className="whitespace-nowrap tabular-nums text-zinc-400">{row.count}</span>
         </Fragment>
       ))}
     </div>

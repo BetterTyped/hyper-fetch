@@ -34,7 +34,7 @@ export function CliSdkDemo({ bare = false }: { bare?: boolean } = {}) {
         {"."}
       </AnimatedSpan>
 
-      <AnimatedSpan className="!text-blue-400">🚀 Ship it.</AnimatedSpan>
+      <AnimatedSpan className="!text-blue-400">🚀 Just use it.</AnimatedSpan>
     </Terminal>
   );
 
