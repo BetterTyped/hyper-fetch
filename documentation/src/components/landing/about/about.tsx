@@ -28,7 +28,7 @@ const problems = [
       "You update a record, but three other components still render the old version until someone refreshes the page. Rollbacks are manual. Nothing is type-checked.",
     solutionTitle: "Typed optimistic updates with automatic rollback",
     solutionDescription:
-      "Mutate the UI instantly with fully typed cache updates. If the server rejects, HyperFetch rolls back automatically. WebSockets push live changes into the same cache.",
+      "Mutate the UI instantly with fully typed cache updates. If the server rejects, HyperFetch rolls back automatically. WebSocket events can update REST cache in real time.",
   },
   {
     icon: WifiOff,
