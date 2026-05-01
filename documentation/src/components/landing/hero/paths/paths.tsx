@@ -1,71 +1,45 @@
-/* eslint-disable react/no-array-index-key */
-import { gsap } from "gsap";
 import { useIsMounted } from "@better-hooks/lifecycle";
 import { useWindowSize } from "@site/src/hooks/use-window-size";
+/* eslint-disable react/no-array-index-key */
+import { gsap } from "gsap";
 import { MotionPathPlugin } from "gsap/dist/MotionPathPlugin";
 import { useCallback, useLayoutEffect, useState } from "react";
 
 import { Animation } from "./animations/animation.types";
-import { Glow } from "./glow/glow";
 import { Dot } from "./dot/dot";
+import { Glow } from "./glow/glow";
 
 const tools: Array<{ name: string; dotClassName: string }> = [
-  {
-    name: "form data",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "rest",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "websockets",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "sse",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "firebase",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "realtime",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "upload",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "download",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "stream",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "form data",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "rest",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "websockets",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "sse",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
-  {
-    name: "firebase",
-    dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500",
-  },
+  { name: "request", dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500" },
+  { name: "event", dotClassName: "bg-amber-400 shadow-neon shadow-amber-400" },
+  { name: "stream", dotClassName: "bg-amber-500 shadow-neon shadow-amber-500" },
+  { name: "tool call", dotClassName: "bg-rose-500 shadow-neon shadow-rose-500" },
+  { name: "agent run", dotClassName: "bg-pink-500 shadow-neon shadow-pink-500" },
+  { name: "message", dotClassName: "bg-yellow-400 shadow-neon shadow-yellow-400" },
+  { name: "notification", dotClassName: "bg-orange-400 shadow-neon shadow-orange-400" },
+  { name: "form data", dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500" },
+  { name: "image", dotClassName: "bg-amber-500 shadow-neon shadow-amber-500" },
+  { name: "PDF", dotClassName: "bg-yellow-600 shadow-neon shadow-yellow-600" },
+  { name: "video", dotClassName: "bg-orange-400 shadow-neon shadow-orange-400" },
+  { name: "spreadsheet", dotClassName: "bg-amber-400 shadow-neon shadow-amber-400" },
+  { name: "vector", dotClassName: "bg-rose-400 shadow-neon shadow-rose-400" },
+  { name: "upload", dotClassName: "bg-yellow-400 shadow-neon shadow-yellow-400" },
+  { name: "download", dotClassName: "bg-yellow-500 shadow-neon shadow-yellow-500" },
+  { name: "embedding", dotClassName: "bg-pink-500 shadow-neon shadow-pink-500" },
+  { name: "JSON", dotClassName: "bg-yellow-400 shadow-neon shadow-yellow-400" },
+  { name: "binary", dotClassName: "bg-yellow-600 shadow-neon shadow-yellow-600" },
+  { name: "realtime", dotClassName: "bg-yellow-300 shadow-neon shadow-yellow-300" },
+  { name: "prompt", dotClassName: "bg-pink-400 shadow-neon shadow-pink-400" },
+  { name: "completion", dotClassName: "bg-rose-400 shadow-neon shadow-rose-400" },
+  { name: "vector", dotClassName: "bg-pink-400 shadow-neon shadow-pink-400" },
+  { name: "XML", dotClassName: "bg-yellow-600 shadow-neon shadow-yellow-600" },
+  { name: "inference", dotClassName: "bg-rose-500 shadow-neon shadow-rose-500" },
+  { name: "CSV", dotClassName: "bg-yellow-400 shadow-neon shadow-yellow-400" },
+  { name: "Excel", dotClassName: "bg-amber-500 shadow-neon shadow-amber-500" },
+  { name: "audio", dotClassName: "bg-amber-400 shadow-neon shadow-amber-400" },
+  { name: "chat", dotClassName: "bg-pink-400 shadow-neon shadow-pink-400" },
+  { name: "document", dotClassName: "bg-yellow-600 shadow-neon shadow-yellow-600" },
+  { name: "HTML", dotClassName: "bg-amber-400 shadow-neon shadow-amber-400" },
 ];
 
 const paths = [
@@ -107,43 +81,23 @@ const max = paths.length - 1;
 
 gsap.registerPlugin(MotionPathPlugin);
 
-function getRandomNumber(excludedNumbers: number[]): number {
-  const possibleNumbers = Array.from({ length: 15 }, (_, i) => i).filter((num) => !excludedNumbers.includes(num));
-  if (possibleNumbers.length === 0) {
-    return 0;
-  }
-  const randomIndex = Math.floor(Math.random() * possibleNumbers.length);
-  return possibleNumbers[randomIndex];
-}
+const DURATION = 12;
 
 const generateAnimationData = () => {
   const availableIndexes = [...Array(max).keys()];
-
-  const previousDelays: Array<{ pathIndex: number; delay: number }> = [];
+  const staggerInterval = DURATION / tools.length;
 
   return tools.map((tool, index) => {
-    const itemIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-    availableIndexes.splice(itemIndex, 1); // prevent duplicates
+    const randomPosition = Math.floor(Math.random() * availableIndexes.length);
+    const itemIndex = availableIndexes[randomPosition];
+    availableIndexes.splice(randomPosition, 1);
 
-    // Index should be max and it has to start counting from 1 over again
     const pathIndex = itemIndex - Math.floor(itemIndex / max) * max + 1;
-    const duration = 16;
 
-    const neighbors = previousDelays.filter((d) => d.pathIndex === pathIndex - 1 || d.pathIndex === pathIndex + 1);
-
-    // Cannot be in the offset range of neighbors delays
-    // To prevent overlapping of the dots
-    const delay = getRandomNumber(
-      neighbors
-        .map((d) => d.delay)
-        .reduce((acc, curr) => {
-          const numbers = [curr - 2, curr - 1, curr, curr + 1, curr + 2].filter((n) => n >= 0);
-
-          return [...new Set([...acc, ...numbers])];
-        }, [] as number[]),
-    );
-
-    previousDelays.push({ pathIndex, delay });
+    // Evenly staggered with slight jitter so dots never start at the exact same time
+    const baseDelay = index * staggerInterval;
+    const jitter = (Math.random() - 0.5) * staggerInterval * 0.6;
+    const delay = Math.max(0, baseDelay + jitter);
 
     const timeline = gsap.timeline({
       repeat: -1,
@@ -158,17 +112,14 @@ const generateAnimationData = () => {
     const label = `#idLabel${index}`;
 
     const props: Parameters<Animation>[0] = {
-      // IDS
       path,
       item,
       dot,
       glow,
       label,
-      // Settings
       timeline,
       delay,
-      duration,
-      // Other
+      duration: DURATION,
       pathIndex,
       index,
     };

@@ -137,7 +137,9 @@ export const About = () => {
                         <CheckCircle2 className="size-5 text-emerald-300" />
                       </div>
                       <div>
-                        <h3 className="text-base font-extrabold tracking-tight text-zinc-100">{problem.solutionTitle}</h3>
+                        <h3 className="text-base font-extrabold tracking-tight text-zinc-100">
+                          {problem.solutionTitle}
+                        </h3>
                         <p className="mt-1 text-sm leading-6 text-zinc-400">{problem.solutionDescription}</p>
                       </div>
                     </div>
