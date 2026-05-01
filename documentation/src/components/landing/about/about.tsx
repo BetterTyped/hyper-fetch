@@ -89,53 +89,69 @@ export const About = () => {
             </Description>
           </motion.div>
         </div>
-        <div className="hidden pb-4 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 lg:grid lg:grid-cols-[1fr_72px_1fr]">
-          <div>Common problem</div>
-          <div />
-          <div>HyperFetch answer</div>
+        <div className="pb-4 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 flex flex-wrap gap-x-4 gap-y-1 lg:grid lg:grid-cols-[1fr_72px_1fr]">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-rose-400/50 lg:hidden" />
+            Common problem
+          </div>
+          <div className="hidden lg:block" />
+          <div className="flex items-center gap-2 lg:justify-start">
+            <span className="size-2 rounded-full bg-emerald-400/50 lg:hidden" />
+            HyperFetch answer
+          </div>
         </div>
 
         <div className="space-y-4">
           {problems.map((problem, index) => {
             const Icon = problem.icon;
+            const isLast = index === problems.length - 1;
 
             return (
-              <motion.div
-                key={problem.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 + index * 0.08 }}
-                viewport={{ once: true }}
-                className="grid gap-3 lg:grid-cols-[1fr_72px_1fr] lg:items-stretch"
-              >
-                <div className="h-full rounded-2xl border border-rose-400/10 bg-rose-950/[0.08] p-5">
-                  <div className="flex gap-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/15 bg-rose-400/10">
-                      <Icon className="size-5 text-rose-300" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-extrabold tracking-tight text-zinc-100">{problem.title}</h3>
-                      <p className="mt-1 text-sm leading-6 text-zinc-400">{problem.description}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative flex items-center justify-center">
-                  <ArrowRight className="size-5 rotate-90 text-zinc-500 lg:rotate-0" />
-                </div>
-
-                <div className="h-full rounded-2xl border border-emerald-400/15 bg-emerald-950/[0.08] p-5">
-                  <div className="flex gap-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
-                      <CheckCircle2 className="size-5 text-emerald-300" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-extrabold tracking-tight text-zinc-100">{problem.solutionTitle}</h3>
-                      <p className="mt-1 text-sm leading-6 text-zinc-400">{problem.solutionDescription}</p>
+              <div key={problem.title}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 + index * 0.08 }}
+                  viewport={{ once: true }}
+                  className="grid gap-3 lg:grid-cols-[1fr_72px_1fr] lg:items-stretch"
+                >
+                  <div className="h-full rounded-2xl border border-rose-400/10 bg-rose-950/[0.08] p-5">
+                    <div className="flex gap-4">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/15 bg-rose-400/10">
+                        <Icon className="size-5 text-rose-300" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-extrabold tracking-tight text-zinc-100">{problem.title}</h3>
+                        <p className="mt-1 text-sm leading-6 text-zinc-400">{problem.description}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+
+                  <div className="relative hidden items-center justify-center lg:flex">
+                    <ArrowRight className="size-5 text-zinc-500" />
+                  </div>
+
+                  <div className="h-full rounded-2xl border border-emerald-400/15 bg-emerald-950/[0.08] p-5">
+                    <div className="flex gap-4">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10">
+                        <CheckCircle2 className="size-5 text-emerald-300" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-extrabold tracking-tight text-zinc-100">{problem.solutionTitle}</h3>
+                        <p className="mt-1 text-sm leading-6 text-zinc-400">{problem.solutionDescription}</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {!isLast && (
+                  <div className="flex items-center justify-center gap-1.5 py-4 lg:hidden">
+                    <span className="size-1 rounded-full bg-zinc-600" />
+                    <span className="size-1 rounded-full bg-zinc-700" />
+                    <span className="size-1 rounded-full bg-zinc-600" />
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
