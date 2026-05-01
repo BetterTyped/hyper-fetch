@@ -1,11 +1,11 @@
-import type { Config } from "@docusaurus/types";
-import type * as Preset from "@docusaurus/preset-classic";
-import path from "path";
-import fs from "fs";
+import { importer } from "@docsgen/core";
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import plugin from "@docsgen/docusaurus";
-import { importer } from "@docsgen/core";
+import type * as Preset from "@docusaurus/preset-classic";
+import type { Config } from "@docusaurus/types";
 import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yarn2pnpm";
+import fs from "fs";
+import path from "path";
 
 import docsVersions from "./versions.json";
 
@@ -270,11 +270,19 @@ const config: Config = {
           position: "left",
           label: "Blog",
         },
+        // {
+        //   href: "https://github.com/BetterTyped/hyper-fetch",
+        //   label: "Github",
+        //   position: "right",
+        //   className: "github",
+        // },
         {
-          href: "https://github.com/BetterTyped/hyper-fetch",
-          label: "Github",
+          type: "custom-githubStarButton",
           position: "right",
-          className: "github",
+          owner: "BetterTyped",
+          repo: "hyper-fetch",
+          stars: 1300,
+          variant: "navbar",
         },
         // {
         //   type: "docsVersionDropdown",

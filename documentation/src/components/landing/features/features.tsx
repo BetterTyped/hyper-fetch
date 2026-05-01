@@ -135,8 +135,8 @@ export function Features(): React.JSX.Element {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Description className="text-lg !text-zinc-400 !mb-0">
-              Stop juggling libraries, hand-typing types, and rebuilding cache, retries, and offline in every project.
-              HyperFetch is the complete data layer for every protocol you ship.
+              Modern apps often require combining multiple tools for fetching, caching, realtime updates, and state
+              synchronization. HyperFetch brings all of this into one system.
             </Description>
           </motion.div>
         </div>

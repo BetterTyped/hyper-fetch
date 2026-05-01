@@ -13,6 +13,7 @@ import { CodePreview } from "./code/code";
 // import { Integrations } from "./integrations/integrations";
 import { Features } from "./features/features";
 import { Hero } from "./hero";
+import { Hub } from "./hub/hub";
 import { Modules } from "./modules/modules";
 // import { Example } from "./example/example";
 import { Preview } from "./preview/preview";
@@ -47,6 +48,7 @@ export const Landing = () => {
         <Clients />
         <About />
         <Features />
+        <Hub />
         <Preview />
         <Modules />
         <Blocks />
