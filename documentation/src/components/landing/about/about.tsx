@@ -4,41 +4,49 @@ import { motion } from "motion/react";
 
 const problems = [
   {
-    icon: Bot,
-    title: "AI needs predictable APIs",
-    description: "LLMs struggle when every endpoint, SDK, and data flow follows a different shape.",
-    solutionTitle: "A standard interface for AI",
-    solutionDescription:
-      "HyperFetch gives AI tools one typed pattern to understand, generate, and use across your app.",
-  },
-  {
     icon: Layers,
-    title: "Too many data tools",
-    description: "Fetching, caching, realtime updates, queues, and state sync live in different libraries.",
-    solutionTitle: "One data layer",
-    solutionDescription: "Requests, cache, realtime events, queues, and offline replay run through the same client.",
-  },
-  {
-    icon: Database,
-    title: "State gets out of sync",
-    description: "Requests, cache, optimistic updates, and subscriptions all need to agree.",
-    solutionTitle: "Shared lifecycle",
+    title: "Five libraries for one data flow",
+    description:
+      "Axios for fetching. React Query for caching. A custom hook for retries. Another package for WebSockets. Each with its own config and mental model.",
+    solutionTitle: "One client replaces all of them",
     solutionDescription:
-      "The same request lifecycle updates cache, React state, and subscriptions without extra glue code.",
-  },
-  {
-    icon: WifiOff,
-    title: "Realtime adds pressure",
-    description: "WebSockets and subscriptions need lifecycle control, retries, and predictable cleanup.",
-    solutionTitle: "Realtime with control",
-    solutionDescription: "Sockets and subscriptions use the same lifecycle tools as regular requests.",
+      "Fetch, cache, retry, queue, dedup, and offline replay. One import, one configuration surface, zero glue code between packages.",
   },
   {
     icon: Repeat,
-    title: "The setup keeps growing",
-    description: "Each new API pattern adds another wrapper, hook, or convention.",
-    solutionTitle: "One pattern keeps working",
-    solutionDescription: "REST, GraphQL, Firebase, WebSockets, and SSE keep the same typed request API.",
+    title: "Every endpoint is hand-written",
+    description:
+      "REST calls, socket listeners, Firebase queries. Each one gets its own wrapper, type definition, and error handler. Add a new endpoint, copy-paste the last one, tweak it.",
+    solutionTitle: "SDK generated from your schema or types",
+    solutionDescription:
+      "Point at an OpenAPI spec or import types from your monorepo backend. HyperFetch generates a fully typed SDK for REST and Sockets. No hand-written wrappers.",
+  },
+  {
+    icon: Database,
+    title: "Cache shows stale data after mutations",
+    description:
+      "You update a record, but three other components still render the old version until someone refreshes the page. Rollbacks are manual. Nothing is type-checked.",
+    solutionTitle: "Typed optimistic updates with automatic rollback",
+    solutionDescription:
+      "Mutate the UI instantly with fully typed cache updates. If the server rejects, HyperFetch rolls back automatically. WebSockets push live changes into the same cache.",
+  },
+  {
+    icon: WifiOff,
+    title: "WebSockets break your patterns",
+    description:
+      "REST uses hooks and query clients. Sockets get a custom event system. Two separate data layers with different error handling.",
+    solutionTitle: "Same mental model for realtime",
+    solutionDescription:
+      "WebSockets, SSE, and Firebase listeners follow the same typed request pattern. Shared lifecycle, shared retries, shared queue logic.",
+  },
+  {
+    icon: Bot,
+    title: "AI gets your API calls wrong",
+    description:
+      "LLMs guess at parameter names, payloads, and error shapes. Without typed contracts, every AI-generated API call is a coin flip.",
+    solutionTitle: "Typed schemas AI can work with",
+    solutionDescription:
+      "Your SDK, types, and schemas give AI agents a complete contract for every endpoint. Code generation and agentic workflows become type-safe by default.",
   },
 ];
 
@@ -55,7 +63,7 @@ export const About = () => {
           >
             <div>
               <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
-                Data problems, solved
+                Why this exists
               </div>
             </div>
           </motion.div>
@@ -66,7 +74,7 @@ export const About = () => {
             viewport={{ once: true }}
           >
             <Title wrapperClass="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Data chaos? Under control.
+              Same bugs, different project
             </Title>
           </motion.div>
           <motion.div
@@ -76,8 +84,8 @@ export const About = () => {
             viewport={{ once: true }}
           >
             <Description className="text-lg !text-zinc-400">
-              Apps do not break because fetching is hard. They break when cache, realtime events, retries, queues, and
-              UI state all follow different rules.
+              Apps break when cache, realtime events, retries, queues, and UI state each follow different rules in
+              different libraries. HyperFetch puts them under one roof.
             </Description>
           </motion.div>
         </div>

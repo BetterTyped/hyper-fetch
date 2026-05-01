@@ -17,17 +17,17 @@ const signalPoints: SignalPoint[] = [
   {
     icon: Network,
     label: "Any API",
-    title: "REST, GraphQL, Firebase, WebSockets, SSE. One request model.",
+    title: "REST, GraphQL, Firebase, WebSockets, SSE. Five protocols. One typed request model. Swap the adapter, keep every line of app code.",
   },
   {
     icon: ShieldCheck,
     label: "Typed contract",
-    title: "Typed params, payloads, responses, and errors. No any.",
+    title: "Autocomplete from endpoint to error handler. Params, payloads, responses, query strings. If it compiles, it matches the API.",
   },
   {
     icon: Bot,
     label: "AI agents",
-    title: "Expose the same typed operations to AI workflows.",
+    title: "Your AI agent calls the same typed .send() your React component does. One SDK for humans and machines.",
   },
 ];
 
@@ -46,7 +46,7 @@ export function Hub(): React.JSX.Element {
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-yellow-200">
               <Sparkles className="size-3.5" />
-              API flow
+              Your API layer
             </div>
           </motion.div>
 
@@ -57,7 +57,7 @@ export function Hub(): React.JSX.Element {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Title wrapperClass="h2 mt-5 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Streamline every API into one typed flow
+              One typed client for every API
             </Title>
           </motion.div>
 
@@ -68,8 +68,9 @@ export function Hub(): React.JSX.Element {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <Description className="mx-auto max-w-3xl !mb-0 !text-zinc-400">
-              HyperFetch gives your app one typed path to every backend. Use the same SDK for UI code, server runtime,
-              and AI workflows. Keep transport, cache, retries, realtime updates, and offline behavior in one place.
+              HyperFetch replaces per-endpoint fetch wrappers with one typed SDK. REST, GraphQL, Firebase, WebSockets,
+              and SSE all use the same createRequest() and .send() pattern. Cache, retries, queues, and offline replay
+              are built in.
             </Description>
           </motion.div>
         </div>

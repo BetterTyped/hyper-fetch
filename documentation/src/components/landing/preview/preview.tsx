@@ -4,11 +4,15 @@ import { cn } from "@site/src/lib/utils";
 import DashboardPreview from "@site/static/img/previews/app.png";
 import { ArrowRight, Database, Gauge, Network, Workflow } from "lucide-react";
 import { motion } from "motion/react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import SwiperLib, { Autoplay } from "swiper";
+import "swiper/swiper.min.css";
 
 import { Noise } from "../../ui/noise";
 import { BorderBeam } from "./border-beam";
 import { CacheHitRateVisual, MetricsSparklineVisual, NetworkLogVisual, QueueFlowVisual } from "./devtools-visuals";
+
+SwiperLib.use([Autoplay]);
 
 interface DevtoolsFeature {
   icon: React.ElementType;
@@ -56,12 +60,31 @@ const devtoolsFeatures: DevtoolsFeature[] = [
 ];
 
 export function Preview(): React.JSX.Element {
+  const swiperRef = useRef<SwiperLib | null>(null);
+
+  useEffect(() => {
+    swiperRef.current = new SwiperLib(".devtools-carousel", {
+      slidesPerView: 1,
+      spaceBetween: 24,
+      centeredSlides: false,
+      loop: true,
+      speed: 18000,
+      autoplay: {
+        delay: 0,
+        disableOnInteraction: false,
+      },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+      },
+    });
+    return () => {
+      swiperRef.current?.destroy?.();
+    };
+  }, []);
+
   return (
     <>
       <section className="relative pb-20 pt-4 -z-10 group mb-28">
-        {/* <Particles className="absolute inset-0 -z-10" /> */}
-
-        {/* Section header */}
         <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -133,40 +156,47 @@ export function Preview(): React.JSX.Element {
         </div>
       </section>
 
-      {/* Feature cards — emerge from the dashboard fade */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 mt-40 mb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-          {devtoolsFeatures.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
-              viewport={{ once: true, margin: "-40px" }}
-              className={cn(
-                "group/card relative h-full overflow-hidden rounded-2xl bg-zinc-900/80 bg-with-noise p-6 lg:p-7",
-                "[border:1px_solid_rgba(255,255,255,.1)]",
-                "[box-shadow:0_-20px_80px_-20px_#ffffff10_inset]",
-                "transition-colors duration-500",
-              )}
-            >
-              <Noise visibility="medium" />
-              <Link to={feature.link} className="!no-underline relative z-10 flex h-full flex-col">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
-                  <feature.icon className="size-3.5" />
-                  {feature.label}
-                </span>
-                <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-zinc-100">{feature.title}</h4>
-                <p className="mt-2 text-[15px] leading-relaxed text-zinc-400">{feature.description}</p>
-                <div className="mt-5">{feature.visual}</div>
-                <span className="mt-auto inline-flex items-center gap-1 pt-5 text-xs font-medium text-zinc-500 transition-colors group-hover/card:text-zinc-300">
-                  Open in docs
-                  <ArrowRight className="size-3 transition-transform group-hover/card:translate-x-0.5" />
-                </span>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+      <div className="relative z-10 mt-40 mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <div className="overflow-hidden">
+            <div className="devtools-carousel swiper-container relative before:absolute before:inset-0 before:w-[30%] before:z-10 before:pointer-events-none before:bg-gradient-to-r before:from-[var(--background)] after:absolute after:inset-0 after:left-auto after:w-[30%] after:z-10 after:pointer-events-none after:bg-gradient-to-l after:from-[var(--background)]">
+              <div className="swiper-wrapper !ease-linear select-none items-stretch">
+                {devtoolsFeatures.map((feature) => (
+                  <div key={feature.title} className="swiper-slide !h-auto">
+                    <div
+                      className={cn(
+                        "group/card relative h-full overflow-hidden rounded-2xl bg-zinc-900/80 bg-with-noise p-6 lg:p-7",
+                        "[border:1px_solid_rgba(255,255,255,.1)]",
+                        "[box-shadow:0_-20px_80px_-20px_#ffffff10_inset]",
+                        "transition-colors duration-500",
+                      )}
+                    >
+                      <Noise visibility="medium" />
+                      <Link to={feature.link} className="!no-underline relative z-10 flex h-full flex-col">
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                          <feature.icon className="size-3.5" />
+                          {feature.label}
+                        </span>
+                        <h4 className="mt-2 text-2xl font-extrabold tracking-tight text-zinc-100">{feature.title}</h4>
+                        <p className="mt-2 text-[15px] leading-relaxed text-zinc-400">{feature.description}</p>
+                        <div className="mt-5">{feature.visual}</div>
+                        <span className="mt-auto inline-flex items-center gap-1 pt-5 text-xs font-medium text-zinc-500 transition-colors group-hover/card:text-zinc-300">
+                          Open in docs
+                          <ArrowRight className="size-3 transition-transform group-hover/card:translate-x-0.5" />
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </>
   );
