@@ -41,6 +41,9 @@ consistent interface and the best type safety in the ecosystem.
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
+  <a href="https://twitter.com/maciej_pyrc">
+    <img src="https://img.shields.io/twitter/follow/maciej_pyrc" alt="Follow on Twitter" />
+  </a>
 </div>
 
 <br />
