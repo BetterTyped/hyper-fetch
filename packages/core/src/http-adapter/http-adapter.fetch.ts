@@ -1,5 +1,5 @@
 import type { QueryParamsType } from "adapter";
-import { HttpMethods } from "constants/http.constants";
+import { HttpMethods, SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { HttpMethodsType, HttpStatusType } from "types";
 
 import { Adapter } from "../adapter/adapter";
@@ -26,6 +26,15 @@ export const getAdapter = () =>
     systemErrorExtra: defaultExtra,
   })
     .setQueryParamsMapper(stringifyQueryParams)
+    // Safe reads (GET, QUERY) deduplicate by default: concurrent identical requests collapse
+    // into one network call. Explicit `deduplicate` in request options still wins.
+    .setRequestDefaults((options) => {
+      const method = options.method ?? HttpMethods.GET;
+      if (SAFE_HTTP_METHODS.includes(method)) {
+        return { deduplicate: true };
+      }
+      return {};
+    })
     .setFetcher(
       async ({
         request,

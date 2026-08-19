@@ -153,11 +153,15 @@ describe("useFetch [ Base ]", () => {
     });
     it("should map the data on deps change", async () => {
       mockRequest(request);
+      // Distinct queries need distinct queryKeys: deduplication joins concurrent
+      // requests within one queryKey queue, regardless of their cacheKey.
       const request1 = request
         .setCacheKey("request1")
+        .setQueryKey("request1")
         .setResponseMapper((response) => ({ ...response, data: 1 }) as typeof response);
       const request2 = request
         .setCacheKey("request2")
+        .setQueryKey("request2")
         .setResponseMapper((response) => ({ ...response, data: 2 }) as typeof response);
 
       const { result, rerender } = renderUseFetch(request1);

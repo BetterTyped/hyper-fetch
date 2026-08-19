@@ -68,12 +68,12 @@ export class Adapter<
   public defaultExtra: Extra;
   public systemErrorStatus: StatusType;
   public systemErrorExtra: Extra;
-  public defaultRequestOptions?: RequestOptionsType<EndpointType, AdapterOptions, MethodType>;
+  public defaultRequestOptions?: RequestOptionsType<EndpointType, AdapterOptions, MethodType> = undefined;
   public logger: LoggerMethods;
   public initialized = false;
   public client: ClientInstance;
 
-  public unstable_onInitializeCallback?: (options: { client: ClientInstance }) => void;
+  public unstable_onInitializeCallback?: (options: { client: ClientInstance }) => void = undefined;
 
   public unstable_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
   public unstable_headerMapperConfig: Parameters<HeaderMapperType>[1];
@@ -152,11 +152,11 @@ export class Adapter<
         >;
       }
     >,
-  ) => AdapterOptions;
+  ) => AdapterOptions = undefined;
   /** Get default request options for the request. */
   public unstable_getRequestDefaults?: (
     options: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
-  ) => Partial<RequestOptionsType<EndpointType, AdapterOptions, MethodType>>;
+  ) => Partial<RequestOptionsType<EndpointType, AdapterOptions, MethodType>> = undefined;
   /**
    * Get formatted endpoint name of the request.
    * Helpful in displaying long endpoints like in case of graphql schemas etc.

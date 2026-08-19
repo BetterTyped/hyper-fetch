@@ -110,7 +110,8 @@ describe("useFetch [ Refreshing ]", () => {
   it("should refetch when tab is focused and refetchOnFocus is true", async () => {
     const spy = vi.fn();
     mockRequest(request);
-    const { result } = renderUseFetch(request, { ...hookOptions });
+    // Deduplication would collapse the focus refetch into the still-running initial fetch
+    const { result } = renderUseFetch(request.setDeduplicate(false), { ...hookOptions });
 
     act(() => {
       result.current.onRequestStart(spy);

@@ -90,8 +90,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = vi.fn();
       const secondSpy = vi.fn();
       const thirdSpy = vi.fn();
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
@@ -114,8 +114,8 @@ describe("Dispatcher [ Requests ]", () => {
     it("should allow to cancel single running requests", async () => {
       const firstSpy = vi.fn();
       const secondSpy = vi.fn();
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
@@ -136,8 +136,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = vi.fn();
       const secondSpy = vi.fn();
       const thirdSpy = vi.fn();
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
@@ -161,8 +161,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = vi.fn();
       const secondSpy = vi.fn();
       const thirdSpy = vi.fn();
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 

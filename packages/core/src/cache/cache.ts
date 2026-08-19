@@ -27,7 +27,7 @@ export class Cache<Adapter extends AdapterInstance> {
   public events: ReturnType<typeof getCacheEvents>;
 
   public storage: CacheStorageType;
-  public lazyStorage?: CacheAsyncStorageType;
+  public lazyStorage?: CacheAsyncStorageType = undefined;
   public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerMethods;

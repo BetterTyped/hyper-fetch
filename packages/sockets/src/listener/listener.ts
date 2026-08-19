@@ -14,8 +14,8 @@ export class Listener<
   HasParams extends boolean = false,
 > {
   readonly topic: Topic;
-  params?: ParamsType;
-  options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>>;
+  params?: ParamsType = undefined;
+  options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>> = undefined;
 
   constructor(
     readonly socket: Socket,

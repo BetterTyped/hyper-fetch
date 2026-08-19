@@ -87,7 +87,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(dispatcher.getAllRunningRequests()).toHaveLength(1);
     });
     it("should send all concurrent requests", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false, deduplicate: false });
       mockRequest(request);
 
       const spy = vi.spyOn(dispatcher, "performRequest");
@@ -99,7 +99,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(dispatcher.getAllRunningRequests()).toHaveLength(2);
     });
     it("should send all concurrent requests without any duplicates", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false, deduplicate: false });
       mockRequest(request, { delay: 40 });
 
       const spy1 = vi.spyOn(dispatcher, "performRequest");
@@ -235,8 +235,8 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When flushing requests", () => {
     it("should flush all queues request", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "2", deduplicate: false });
       mockRequest(firstRequest);
       mockRequest(secondRequest);
 
@@ -307,7 +307,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should not duplicate ongoing requests using flushQueue", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(request, { delay: 30 });
 
       const spy = vi.spyOn(dispatcher, "performRequest");
@@ -334,7 +334,7 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When starting and stopping queue", () => {
     it("should stop queue from being send", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
       mockRequest(request);
 
       const spy = vi.spyOn(client.adapter, "fetch");
@@ -348,7 +348,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should stop queue and cancel ongoing requests", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
       mockRequest(request);
 
       const spy = vi.spyOn(client.adapter, "fetch");
@@ -372,7 +372,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should start previously stopped queue", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
       mockRequest(request);
 
       const spy = vi.spyOn(client.adapter, "fetch");
@@ -387,7 +387,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should pause queue and finish ongoing requests", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
       mockRequest(request);
 
       const spy = vi.spyOn(client.adapter, "fetch");

@@ -92,7 +92,7 @@ describe("Dispatcher [ Custom Serializing Storage - Issue #125 ]", () => {
     });
 
     it("should handle multiple concurrent requests with serializing storage", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: false });
       mockRequest(request);
 
       const fetchSpy = vi.spyOn(client.adapter, "fetch");

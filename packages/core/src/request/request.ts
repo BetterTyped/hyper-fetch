@@ -77,13 +77,13 @@ export class Request<
   MutationContext = undefined,
 > {
   endpoint: Endpoint;
-  headers?: HeadersInit;
+  headers?: HeadersInit = undefined;
   auth: boolean;
   method: ClientAdapterMethod<Client>;
   params: ExtractUrlParams<Endpoint> | EmptyTypes;
   payload: PayloadType<Payload>;
   queryParams: QueryParams | EmptyTypes;
-  options?: ClientAdapterOptions<Client> | undefined;
+  options?: ClientAdapterOptions<Client> | undefined = undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -112,23 +112,37 @@ export class Request<
 
   isMockerEnabled = false;
 
+  static readonly OPTIONAL_FIELDS = [
+    "unstable_mock",
+    "unstable_payloadMapper",
+    "unstable_requestMapper",
+    "unstable_responseMapper",
+    "retryOnError",
+    "optimistic",
+  ] as const;
+
+  // The `= undefined` initializers below are load-bearing. Metro (React Native) compiles
+  // class properties in loose mode, which drops field declarations that have no initializer,
+  // and the SDK proxy relies on an `in` check to tell request properties apart from deeper
+  // API path segments (see OPTIONAL_REQUEST_FIELDS in sdk/sdk.ts).
   unstable_mock?: {
     fn: (options: {
       request: RequestInstance;
       requestId: string;
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
     config: MockerConfigType;
-  };
+  } = undefined;
   /** @internal */
-  unstable_payloadMapper?: PayloadMapperType<Payload>;
+  unstable_payloadMapper?: PayloadMapperType<Payload> = undefined;
   /** @internal */
-  unstable_requestMapper?: RequestMapper<any, any>;
+  unstable_requestMapper?: RequestMapper<any, any> = undefined;
   /** @internal */
-  unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>>;
+  unstable_responseMapper?: ResponseMapper<this, ResponseSuccessType<any, any> | ResponseErrorType<any, any>> =
+    undefined;
   /** @internal */
-  retryOnError?: RetryOnErrorCallbackType<RequestInstance>;
+  retryOnError?: RetryOnErrorCallbackType<RequestInstance> = undefined;
   /** @internal */
-  optimistic?: OptimisticCallback<RequestInstance, any>;
+  optimistic?: OptimisticCallback<RequestInstance, any> = undefined;
 
   unstable_hasParams: HasParams = false as HasParams;
   unstable_hasPayload: HasPayload = false as HasPayload;

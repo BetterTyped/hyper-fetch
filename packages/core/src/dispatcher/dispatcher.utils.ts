@@ -47,8 +47,11 @@ const isInDeduplicateRange = (request: RequestInstance, latestRequest: ResolvedQ
 };
 
 export const getRequestType = (request: RequestInstance, latestRequest: ResolvedQueueItemType | undefined) => {
-  const { queued, cancelable, deduplicate } = request;
+  const { queued, cancelable, deduplicate, used } = request;
   const canDeduplicate = latestRequest ? isInDeduplicateRange(request, latestRequest) : false;
+  // Only join requests that are genuinely still ongoing. A resolved item already emitted its
+  // response (a late joiner would wait forever), and a stopped item may never fire at all.
+  const isOngoing = latestRequest ? !latestRequest.resolved && !latestRequest.stopped : false;
 
   if (queued) {
     return DispatcherMode.ONE_BY_ONE;
@@ -56,7 +59,10 @@ export const getRequestType = (request: RequestInstance, latestRequest: Resolved
   if (cancelable) {
     return DispatcherMode.PREVIOUS_CANCELED;
   }
-  if (canDeduplicate && deduplicate) {
+  // A request marked with setUsed(true) is an intentional resend, like the auth interceptor
+  // retrying after a token refresh. Deduplicating it against the original in-flight request
+  // would deadlock: the retry would wait for a response that is blocked on the interceptor.
+  if (canDeduplicate && isOngoing && deduplicate && !used) {
     return DispatcherMode.DEDUPLICATED;
   }
   return DispatcherMode.ALL_AT_ONCE;

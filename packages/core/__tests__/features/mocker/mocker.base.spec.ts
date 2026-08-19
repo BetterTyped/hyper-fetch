@@ -92,7 +92,7 @@ describe("Mocker [ Base ]", () => {
     const firstSpy = vi.fn();
     const secondSpy = vi.fn();
     const firstRequest = client
-      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint", deduplicate: false })
       .setMock(
         () => ({
           data: fixture,
@@ -103,7 +103,7 @@ describe("Mocker [ Base ]", () => {
         },
       );
     const secondRequest = client
-      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint", deduplicate: false })
       .setMock(
         () => ({
           data: fixture,

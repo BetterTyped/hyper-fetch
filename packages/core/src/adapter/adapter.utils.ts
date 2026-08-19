@@ -25,7 +25,7 @@ export class DeletedError extends Error {
 }
 
 export class RequestProcessingError extends Error {
-  description?: string;
+  description?: string = undefined;
 
   constructor(description?: string) {
     super("Request processing error");
@@ -35,7 +35,7 @@ export class RequestProcessingError extends Error {
 }
 
 export class UnexpectedError extends Error {
-  description?: string;
+  description?: string = undefined;
 
   constructor(description?: string) {
     super("Unexpected error");

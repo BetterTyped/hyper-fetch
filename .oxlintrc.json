@@ -13,7 +13,9 @@
     "node": true,
     "es2024": true
   },
+  "jsPlugins": ["./lint/optional-field-initializer-plugin.mjs"],
   "rules": {
+    "hyper-fetch/require-optional-field-initializer": "error",
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-continue": "off",
     "no-underscore-dangle": "off",
@@ -95,6 +97,12 @@
     },
     {
       "files": ["*.config.ts", "*.config.js", "*.config.mjs", "*.config.mts"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": ["lint/*.mjs"],
       "rules": {
         "import/no-default-export": "off"
       }

@@ -117,10 +117,36 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(customMock, response);
     });
   });
+  it("should not get swallowed by deduplication when refetching over an in-flight request", async () => {
+    // The initial fetch is slow and matched the old mock the moment it started. A manual
+    // refetch must bypass deduplication: joining that stale in-flight request would resolve
+    // with data older than the refetch call itself.
+    resetMocks();
+    mockRequest(request, { data: { someData: 12_345 }, delay: 50 });
+    const response = renderUseFetch(request);
+
+    await waitFor(() => {
+      expect(client.fetchDispatcher.hasRunningRequests(request.queryKey)).toBe(true);
+    });
+
+    // Registered after the initial fetch started; lands after it too, so the fresh
+    // data deterministically overwrites the stale response in cache.
+    const freshMock = mockRequest(request, { data: { fresh: true }, delay: 80 });
+
+    act(() => {
+      response.result.current.refetch();
+    });
+
+    await waitFor(async () => {
+      await testSuccessState(freshMock, response);
+    });
+  });
   it("should allow to refetch hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
-    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
+    // Distinct queries need distinct queryKeys: deduplication joins concurrent
+    // requests within one queryKey queue, regardless of their cacheKey.
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej").setQueryKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper").setQueryKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
@@ -138,8 +164,10 @@ describe("useFetch [ refetch ]", () => {
     });
   });
   it("should allow to refetch hook by keys array", async () => {
-    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
+    // Distinct queries need distinct queryKeys: deduplication joins concurrent
+    // requests within one queryKey queue, regardless of their cacheKey.
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej").setQueryKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper").setQueryKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
@@ -157,8 +185,10 @@ describe("useFetch [ refetch ]", () => {
     });
   });
   it("should allow to refetch hook by key", async () => {
-    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
+    // Distinct queries need distinct queryKeys: deduplication joins concurrent
+    // requests within one queryKey queue, regardless of their cacheKey.
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej").setQueryKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper").setQueryKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);

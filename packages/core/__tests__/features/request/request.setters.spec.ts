@@ -105,9 +105,10 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.queryKey).toBe("test");
   });
   it("should allow for setting deduplicate", async () => {
-    expect(request.deduplicate).toBeFalse();
-    const updatedRequest = request.setDeduplicate(true);
-    expect(updatedRequest.deduplicate).toBeTrue();
+    // GET requests deduplicate by default on the HTTP adapter
+    expect(request.deduplicate).toBeTrue();
+    const updatedRequest = request.setDeduplicate(false);
+    expect(updatedRequest.deduplicate).toBeFalse();
   });
   it("should allow for setting deduplicate time", async () => {
     expect(request.deduplicateTime).toBe(null);

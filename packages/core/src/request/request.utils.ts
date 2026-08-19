@@ -1,6 +1,6 @@
 import { getErrorMessage } from "adapter";
 import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType } from "adapter";
-import { HttpMethods } from "constants/http.constants";
+import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
 
@@ -116,8 +116,8 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
 ): [Dispatcher<ExtractAdapterType<Request>>, isFetchDispatcher: boolean] => {
   const { fetchDispatcher, submitDispatcher } = request.client;
-  const isGet = request.method === HttpMethods.GET;
-  const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
+  const isSafeRead = SAFE_HTTP_METHODS.includes(request.method as string);
+  const isFetchDispatcher = (dispatcherType === "auto" && isSafeRead) || dispatcherType === "fetch";
   const dispatcher = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 
   return [dispatcher, isFetchDispatcher];

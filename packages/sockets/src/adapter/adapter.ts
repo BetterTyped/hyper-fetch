@@ -24,10 +24,10 @@ export class SocketAdapter<
 > {
   public name: string;
   public socket: SocketInstance;
-  public defaultExtra?: Extra;
+  public defaultExtra?: Extra = undefined;
 
-  public queryParams?: QueryParams;
-  public queryParamsConfig?: QueryStringifyOptionsType;
+  public queryParams?: QueryParams = undefined;
+  public queryParamsConfig?: QueryStringifyOptionsType = undefined;
 
   /** Config for the query params mapper */
   public unstable_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];

@@ -15,11 +15,11 @@ export class Emitter<
   HasParams extends boolean = false,
 > {
   readonly topic: Topic;
-  params?: ParamsType;
+  params?: ParamsType = undefined;
   payload: Payload | undefined;
   options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
   /** @internal */
-  unstable_payloadMapper?: PayloadMapperType<any>;
+  unstable_payloadMapper?: PayloadMapperType<any> = undefined;
 
   constructor(
     readonly socket: Socket,

@@ -138,5 +138,32 @@ describe("Dispatcher [ Utils ]", () => {
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
     });
+    it("should not deduplicate onto a resolved queue item", async () => {
+      // A resolved item already emitted its response, so a late joiner would wait forever
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      duplicated.resolved = true;
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
+    });
+    it("should not deduplicate onto a stopped queue item", async () => {
+      // A stopped item may never fire, so a joiner would never receive a response
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      duplicated.stopped = true;
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
+    });
+    it("should not deduplicate a request marked as used", async () => {
+      // setUsed(true) marks intentional resends, like the auth interceptor retrying after a
+      // token refresh. Deduplicating them against the original in-flight request would
+      // deadlock: the retry would await a response blocked on its own interceptor.
+      const request = client
+        .createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true })
+        .setUsed(true);
+      const duplicated: ResolvedQueueItemType<typeof request> = dispatcher.createStorageItem(request);
+      const type = getRequestType(request, duplicated);
+      expect(type).toBe(DispatcherMode.ALL_AT_ONCE);
+    });
   });
 });

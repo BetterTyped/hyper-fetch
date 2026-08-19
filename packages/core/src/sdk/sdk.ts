@@ -1,5 +1,6 @@
 import type { ClientInstance } from "client";
-import type { Request, RequestInstance } from "request";
+import type { RequestInstance } from "request";
+import { Request } from "request";
 import type {
   ExtractEndpointType,
   ExtractResponseType,
@@ -136,6 +137,8 @@ export type CreateSdkOptions<Schema extends RecursiveSchemaType = RecursiveSchem
   defaults?: SdkConfigurationMap<Schema>;
 };
 
+const OPTIONAL_REQUEST_FIELDS = Request.OPTIONAL_FIELDS;
+
 const getMethod = (key: string, options?: CreateSdkOptions<any>) => {
   const { methodTransform = (method: string) => method.toUpperCase() } = options ?? {};
   return methodTransform(key);
@@ -270,7 +273,11 @@ const createRecursiveProxy = (
       return new Proxy(request, {
         get: (reqTarget, reqKey: string) => {
           // If the property exists on the request instance (like .send(), .setParams()), return it.
-          if (reqKey in reqTarget) {
+          // Optional fields are checked by name as well: transpilers that compile class
+          // properties in loose mode (Metro on React Native) drop uninitialized field
+          // declarations, and falling through to the deeper proxy would hand callers a
+          // truthy path proxy where they expect undefined.
+          if (reqKey in reqTarget || (OPTIONAL_REQUEST_FIELDS as readonly string[]).includes(reqKey)) {
             return reqTarget[reqKey as keyof typeof reqTarget];
           }
           // Otherwise, it's a deeper path, so delegate to the deeper proxy.

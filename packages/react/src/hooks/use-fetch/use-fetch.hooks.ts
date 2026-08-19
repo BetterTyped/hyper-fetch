@@ -101,10 +101,14 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
   // Fetching
   // ******************
-  const handleFetch = () => {
+  const handleFetch = (options?: { force?: boolean }) => {
     if (!disabled) {
       logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
-      dispatcher.add(request as unknown as R);
+      // A forced fetch must not be deduplicated into an already running request: that request
+      // started earlier, so its response can be older than the state that prompted the call.
+      // Manual refetch() promises data at least as fresh as the moment it was called.
+      const requestToAdd = options?.force ? request.setDeduplicate(false) : request;
+      dispatcher.add(requestToAdd as unknown as R);
     } else {
       logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }
@@ -142,7 +146,7 @@ export const useFetch = <R extends RequestInstance>(
   }
 
   const refetch = () => {
-    handleFetch();
+    handleFetch({ force: true });
     handleRefresh();
   };
 
