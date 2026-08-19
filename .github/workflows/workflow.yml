@@ -129,11 +129,13 @@ jobs:
       - name: Get latest tag before release
         id: pre_release_tag
         run: echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT
+      # npm auth comes from trusted publishing (OIDC): the id-token permission above lets
+      # semantic-release exchange the Actions identity for a publish token. No NPM_TOKEN.
+      # Requires the registry to be https://registry.npmjs.org/ (the .org host, exactly).
       - name: Publish
         run: pnpm release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Get latest tag after release
         id: post_release_tag
         run: |
