@@ -99,6 +99,16 @@ const { data } = await sdk.users.list.send();
 
 ---
 
+## Try other BetterTyped projects
+
+Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build alongside it.
+
+<p align="center">
+  <a href="https://www.hype-stack.dev">
+    <img src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
+  </a>
+</p>
+
 <p align="center">
 	<a href="https://github.com/sponsors/prc5?tier=Platinum">
 		<picture>
