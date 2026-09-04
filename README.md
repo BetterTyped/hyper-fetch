@@ -49,7 +49,7 @@ consistent interface and the best type safety in the ecosystem.
 <br />
 
 <p align="center">
-  <a href="https://www.hype-stack.dev/discord">
+  <a href="https://discord.gg/7upC2kVmyM">
     <img src="./.github/assets/discord.png" alt="Join our Discord community" />
   </a>
 </p>
