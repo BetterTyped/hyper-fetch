@@ -46,7 +46,8 @@ describe("Socket Client  [ Callbacks ]", () => {
 
   it("should trigger onMessage callbacks", async () => {
     const spy = vi.fn().mockImplementation((res) => res);
-    createSocket().onMessage(spy);
+    const socket = createSocket().onMessage(spy);
+    await waitForConnection(socket);
     getServer().send({ data: { topic: "test", data: "test" } });
 
     await waitFor(() => {
@@ -85,6 +86,29 @@ describe("Socket Client  [ Callbacks ]", () => {
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("should register onConnect callbacks and allow chaining", () => {
+    const callback = vi.fn(({ connection }) => connection);
+    const socket = createSocket({ adapterOptions: { autoConnect: false } });
+
+    const result = socket.onConnect(callback);
+
+    expect(result).toBe(socket);
+    expect(socket.unstable_onConnectCallbacks).toEqual([callback]);
+  });
+
+  it("should trigger onConnect callbacks before connecting", async () => {
+    const spy = vi.fn(({ connection }) => connection);
+    const socket = createSocket().onConnect(spy);
+
+    await waitForConnection(socket);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({
+      connection: { url: "ws://localhost:1234", queryParams: undefined, adapterOptions: {} },
+      attempt: 0,
     });
   });
 });

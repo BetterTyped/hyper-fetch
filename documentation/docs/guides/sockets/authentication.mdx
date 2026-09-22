@@ -5,16 +5,15 @@ sidebar_label: Authentication
 
 # Socket Authentication
 
-Authenticating web socket connections is crucial for securing real-time applications. Hyper-fetch provides a
-straightforward way to handle socket authentication by passing credentials through query parameters during the initial
-connection handshake. This guide will walk you through the process of setting up and managing authentication for your
-socket connections.
+Authenticating web socket connections is crucial for securing real-time applications. Hyper-fetch lets you pass
+credentials during the connection handshake - through query parameters, WebSocket subprotocols or adapter specific
+options - and resolve them fresh for every connection attempt, so reconnects always use valid credentials.
 
 :::secondary What you'll learn
 
 1.  How to provide **initial authentication data** using query parameters when creating a socket instance.
-2.  How to **dynamically update authentication** details for a live socket connection.
-3.  How Hyper-fetch automatically handles **reconnection** when authentication data changes.
+2.  How to resolve **short-lived credentials before every connection attempt** with the `onConnect` interceptor.
+3.  How to authenticate through **WebSocket subprotocols** and adapter options.
 
 :::
 
@@ -49,39 +48,79 @@ and can verify the client's identity before accepting the connection.
 
 ---
 
-## Dynamic Authentication Updates
+## Resolving Credentials on Every Connection Attempt
 
-Authentication tokens can expire or change during the application's lifecycle. Hyper-fetch allows you to update the
-connection credentials using the `setQueryParams` method.
-
-When you call `setQueryParams` with new data, Hyper-fetch will automatically disconnect the current socket and reconnect
-with the updated query parameters.
+Access tokens expire. A connection established with a valid token may be lost hours later, and the automatic reconnect
+must not reuse the token captured when the socket was created. The `onConnect` interceptor solves this: Hyper-fetch calls
+it right before **every** connection attempt - the initial connection, automatic reconnects and manual reconnects - and
+uses whatever it returns to open the connection.
 
 ```tsx
 import { Socket } from "@hyper-fetch/sockets";
 
 const socket = new Socket({
   url: "ws://localhost:8080",
-  queryParams: { token: "initial-token" },
-});
-
-socket.onConnected(() => {
-  console.log("Socket connected!");
-});
-
-socket.onDisconnected(() => {
-  console.log("Socket disconnected");
-});
-
-// Later in your application, when you receive a new token
-const updatedToken = "your-new-auth-token";
-
-// highlight-next-line
-socket.setQueryParams({ token: updatedToken });
+}).onConnect(({ connection }) => ({
+  // highlight-start
+  ...connection,
+  queryParams: { token: authStore.getState().accessToken },
+  // highlight-end
+}));
 ```
 
-This triggers an automatic reconnection with the new token. The seamless reconnection ensures that your application
-maintains a valid authenticated session without manual intervention.
+The interceptor receives the current `connection` details (`url`, `queryParams` and `adapterOptions`) and must return
+them, modified or not. It can be async, so you can refresh the token before connecting. The `attempt` number tells you
+whether this is a fresh connection (`0`) or a reconnection attempt.
+
+```tsx
+const socket = new Socket({
+  url: "ws://localhost:8080",
+}).onConnect(async ({ connection, attempt }) => {
+  // highlight-start
+  const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { token } };
+  // highlight-end
+});
+```
+
+Credentials stay in your auth store and the socket reads them only when it actually needs them. A token refreshed while
+the connection is alive does not force a reconnect - the next attempt simply picks up the latest value.
+
+If the interceptor throws, the connection attempt fails, the `onError` callbacks receive the error and the socket stays
+disconnected. Call `connect()` (or let the socket reconnect when the app goes back online) to try again.
+
+:::info setQueryParams
+
+`socket.setQueryParams()` replaces the defaults used by the next connection attempt. It does not reconnect on its own -
+call `socket.reconnect()` to apply the new values to a live connection. For credentials that change over time, prefer
+`onConnect`.
+
+:::
+
+---
+
+## Authentication via WebSocket Subprotocols
+
+Some backends read credentials from the `Sec-WebSocket-Protocol` handshake header instead of the URL. With the
+`WebsocketAdapter` you can pass them through the `protocols` adapter option, and resolve them per attempt with
+`onConnect` exactly like query params.
+
+```tsx
+import { Socket, WebsocketAdapter } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "wss://example.com/ws",
+  adapter: WebsocketAdapter(),
+}).onConnect(({ connection }) => ({
+  ...connection,
+  // highlight-start
+  adapterOptions: {
+    ...connection.adapterOptions,
+    protocols: ["authorization", authStore.getState().accessToken],
+  },
+  // highlight-end
+}));
+```
 
 ---
 
@@ -101,7 +140,8 @@ const socket = new Socket({
 });
 ```
 
-This is adapter-specific - check your adapter's documentation for supported authentication options.
+This is adapter-specific - check your adapter's documentation for supported authentication options. Because `onConnect`
+receives `adapterOptions` too, the same per-attempt resolution works for every adapter.
 
 ---
 
@@ -110,7 +150,7 @@ This is adapter-specific - check your adapter's documentation for supported auth
 You now know how to handle authentication in Hyper-fetch sockets.
 
 - You can provide **initial authentication credentials** using `queryParams` or `adapterOptions`.
-- You can dynamically update authentication data with the **`setQueryParams`** method, which triggers a reconnection.
-- You understand that changing query parameters **triggers an automatic reconnection** with the new credentials.
+- You can resolve **short-lived credentials before every connection attempt** with the `onConnect` interceptor.
+- You can authenticate through **WebSocket subprotocols** with the `protocols` adapter option.
 
 :::

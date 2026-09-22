@@ -251,4 +251,34 @@ describe("Websocket Adapter [ Base ]", () => {
 
     expect(result).toBeUndefined();
   });
+
+  it("should cancel the scheduled automatic reconnect when disconnect is called", async () => {
+    const reconnectingSpy = vi.fn();
+    const disconnectedSpy = vi.fn();
+    const newSocket = createSocket({
+      url,
+      adapter: WebsocketAdapter(),
+      reconnectTime: 50,
+      adapterOptions: { autoConnect: false },
+    });
+    newSocket.events.onReconnecting(reconnectingSpy);
+    newSocket.events.onDisconnected(disconnectedSpy);
+
+    await newSocket.adapter.connect();
+    await waitForConnection(newSocket);
+
+    getServer().close({ code: 1006, reason: "Abnormal closure", wasClean: false });
+    await waitFor(() => {
+      expect(disconnectedSpy).toHaveBeenCalled();
+    });
+
+    await newSocket.adapter.disconnect();
+    startServer();
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 150);
+    });
+    expect(reconnectingSpy).not.toHaveBeenCalled();
+    expect(newSocket.adapter.connected).toBe(false);
+  });
 });

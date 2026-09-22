@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type { QueryParamsType } from "@hyper-fetch/core";
+import type { EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams, Time } from "@hyper-fetch/core";
 import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
@@ -42,9 +42,9 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
     .setConnector(
       ({
         socket,
-        logger,
         getQueryParams,
         onConnect,
+        onConnectFailed,
         onReconnect,
         onDisconnect,
         onListen,
@@ -60,34 +60,29 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             : true;
 
         let websocket: ReturnType<typeof getWebsocketAdapter> | undefined;
+        // Options of the current connection attempt (after onConnect interceptors)
+        let options: WebsocketAdapterOptionsType | EmptyTypes = socket.adapter.adapterOptions;
 
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
         let timeout: ReturnType<typeof setTimeout> | undefined;
 
         const connect = async (): Promise<boolean> => {
-          const url = getSocketUrl(socket.url, getQueryParams());
-          const enabled = onConnect();
-          if (!enabled) {
-            return false;
+          const connection = await onConnect();
+          if (!connection) {
+            return socket.adapter.connected;
           }
 
           clearTimeout(timeout);
           websocket?.clearListeners();
           websocket?.close(1000);
 
-          const newWebsocket = getWebsocketAdapter(url, socket.adapter.adapterOptions);
+          options = connection.adapterOptions;
+          const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
+          const newWebsocket = createWebsocket(url, options);
           websocket = newWebsocket;
 
-          // Make sure we picked good environment
           if (!newWebsocket) {
-            logger.error({
-              title: "Cannot connect to websocket",
-              type: "system",
-              extra: {
-                websocket,
-              },
-            });
             return false;
           }
 
@@ -160,20 +155,23 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         };
 
         const disconnect = async (): Promise<boolean> => {
-          if (!websocket) {
-            socket.adapter.setConnected(false);
-            socket.adapter.setConnecting(false);
+          // Manual disconnect cancels a scheduled automatic reconnect
+          clearTimeout(timeout);
+
+          const currentWebsocket = websocket;
+          const hasTransport = currentWebsocket && currentWebsocket.readyState !== WebSocket.CLOSED;
+
+          if (!hasTransport) {
+            // Nothing to close - only a connection attempt may still be preparing (onConnect), cancel it
+            const wasConnecting = socket.adapter.connecting;
+            onDisconnect();
+            if (wasConnecting) {
+              onDisconnected();
+            }
             return true;
           }
-          const currentWebsocket = websocket;
-          const promise = new Promise<boolean>((resolve) => {
-            if (currentWebsocket.readyState === WebSocket.CLOSED) {
-              resolve(true);
-              socket.adapter.setConnected(false);
-              socket.adapter.setConnecting(false);
-              return;
-            }
 
+          const promise = new Promise<boolean>((resolve) => {
             const resolveDisconnected = () => {
               resolve(true);
               currentWebsocket.removeEventListener("close", resolveDisconnected);
@@ -192,13 +190,29 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           await onReconnect({ disconnect, connect });
         };
 
+        /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
+        const createWebsocket = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
+          try {
+            const instance = getWebsocketAdapter(url, adapterOptions);
+            if (!instance) {
+              onConnectFailed({ error: new Error("WebSocket is not available in this environment") });
+            }
+            return instance;
+          } catch (error) {
+            onConnectFailed({ error: error as Error });
+            return null;
+          }
+        };
+
         const clearTimers = () => {
           clearTimeout(pingTimer);
           clearTimeout(pongTimer);
         };
 
         const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">) => {
-          if (!websocket) {return false;}
+          if (!websocket) {
+            return false;
+          }
           websocket!.send(JSON.stringify({ topic, data: payload }));
           return true;
         };
@@ -209,11 +223,13 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             pingTimeout = Time.SEC * 5,
             pongTimeout = Time.SEC * 5,
             heartbeatMessage = "heartbeat",
-          } = socket.adapter.adapterOptions ||
+          } = options ||
           /* istanbul ignore next */
           {};
 
-          if (socket.adapter.connecting || !heartbeat) {return;}
+          if (socket.adapter.connecting || !heartbeat) {
+            return;
+          }
           clearTimers();
           pingTimer = setTimeout(() => {
             sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
@@ -233,7 +249,9 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
         const emit = async (emitter: EmitterInstance) => {
           const mappedEmitter = await onEmit({ emitter });
-          if (!mappedEmitter) {return;}
+          if (!mappedEmitter) {
+            return;
+          }
 
           return sendEventMessage(mappedEmitter);
         };

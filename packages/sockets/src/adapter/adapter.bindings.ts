@@ -1,16 +1,52 @@
 import type { SocketAdapterInstance } from "adapter";
 import type { EmitterInstance } from "emitter";
 import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
-import type { Socket } from "socket";
-import type { ExtractAdapterExtraType } from "types";
+import type { Socket, SocketConnectionType } from "socket";
+import type { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
 
 export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Socket<T>) => {
   const { adapter } = socket;
   const logger = socket.loggerManager.initialize(socket, "Socket Bindings");
 
+  // Every connection attempt gets an id, so an attempt that was cancelled or superseded while
+  // its connection was being prepared (async interceptors) can be discarded safely.
+  let connectionId = 0;
+
+  const onError = ({ error }: { error: Error }) => {
+    logger.info({ title: "Error message", type: "system", extra: { error } });
+    socket.unstable_onErrorCallbacks.forEach((callback) => {
+      callback({ error });
+    });
+    socket.events.emitError({ error });
+  };
+
   // Methods
 
-  const onConnect = (): boolean => {
+  /**
+   * Marks the current connection attempt as failed before any transport was established
+   * (e.g. an `onConnect` interceptor threw or the transport could not be created).
+   */
+  const onConnectFailed = ({ error }: { error: Error }) => {
+    logger.error({ title: "Connection attempt failed", type: "system", extra: { error } });
+    socket.adapter.setConnecting(false);
+    socket.events.emitConnecting({ connecting: false });
+    onError({ error });
+  };
+
+  /**
+   * Opens a connection attempt. Returns the connection details (after `onConnect` interceptors) that the adapter
+   * should use to establish the connection, or `null` when no attempt should be made right now
+   * (already connected, offline, another attempt in progress or the interceptors failed).
+   */
+  const onConnect = async (): Promise<SocketConnectionType<T> | null> => {
+    if (adapter.connected) {
+      logger.debug({
+        title: "Already connected, use reconnect to establish a new connection",
+        type: "system",
+        extra: {},
+      });
+      return null;
+    }
     if (!socket.appManager.isOnline || adapter.connecting) {
       logger.warning({
         title: "Cannot initialize adapter.",
@@ -20,14 +56,43 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
           online: socket.appManager.isOnline,
         },
       });
-      return false;
+      return null;
     }
+
+    // Set by onReconnect before it calls connect - 0 means a fresh connection
+    const attempt = adapter.reconnectionAttempts;
+    connectionId += 1;
+    const currentConnectionId = connectionId;
 
     socket.adapter.setForceClosed(false);
     socket.adapter.setConnecting(true);
     socket.adapter.setReconnectionAttempts(0);
     socket.events.emitConnecting({ connecting: true });
-    return true;
+
+    const defaults: SocketConnectionType<T> = {
+      url: socket.url,
+      queryParams: adapter.queryParams,
+      adapterOptions: adapter.adapterOptions,
+    };
+
+    let connection: SocketConnectionType<T>;
+    try {
+      // Yield once so callbacks chained right after socket creation (`new Socket().onConnect(...)`)
+      // are registered before the interceptors of the first (auto) connection are collected
+      await Promise.resolve();
+      connection = await socket.unstable__modifyConnection({ connection: defaults, attempt });
+    } catch (error) {
+      onConnectFailed({ error: error instanceof Error ? error : new Error(String(error)) });
+      return null;
+    }
+
+    const cancelled = currentConnectionId !== connectionId || !adapter.connecting;
+    if (cancelled) {
+      logger.debug({ title: "Connection attempt cancelled while preparing", type: "system", extra: { attempt } });
+      return null;
+    }
+
+    return connection;
   };
 
   const onDisconnect = (): boolean => {
@@ -156,14 +221,6 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     });
   };
 
-  const onError = ({ error }: { error: Error }) => {
-    logger.info({ title: "Error message", type: "system", extra: { error } });
-    socket.unstable_onErrorCallbacks.forEach((callback) => {
-      callback({ error });
-    });
-    socket.events.emitError({ error });
-  };
-
   const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
     logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
@@ -172,8 +229,9 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.events.emitListenerEvent({ topic, data: modifiedData, extra: modifiedExtra });
   };
 
-  const getQueryParams = () =>
-    socket.adapter.unstable_queryParamsMapper(socket.adapter.queryParams, socket.adapter.queryParamsConfig);
+  /** Maps query params to the format required by the adapter (defaults to the adapter's stored query params) */
+  const getQueryParams = (queryParams: ExtractAdapterQueryParamsType<T> | undefined = adapter.queryParams) =>
+    socket.adapter.unstable_queryParamsMapper(queryParams, socket.adapter.queryParamsConfig);
 
   return {
     socket,
@@ -181,6 +239,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     logger,
     getQueryParams,
     onConnect,
+    onConnectFailed,
     onReconnect,
     onDisconnect,
     onListen,

@@ -10,6 +10,8 @@ import type { ListenerOptionsType } from "listener";
 import { Listener } from "listener";
 import type {
   SocketOptionsType,
+  ConnectCallbackType,
+  SocketConnectionType,
   ReconnectCallbackType,
   ReconnectFailedCallbackType,
   OpenCallbackType,
@@ -18,7 +20,7 @@ import type {
   SendCallbackType,
   ErrorCallbackType,
 } from "socket";
-import { getSocketEvents, interceptListener, interceptEmitter } from "socket";
+import { getSocketEvents, interceptListener, interceptEmitter, interceptConnection } from "socket";
 import type { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
 
 export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
@@ -32,6 +34,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   autoConnect: boolean;
 
   // Callbacks
+  unstable_onConnectCallbacks: ConnectCallbackType<Adapter>[] = [];
   unstable_onConnectedCallbacks: OpenCallbackType[] = [];
   unstable_onDisconnectCallbacks: CloseCallbackType[] = [];
   unstable_onReconnectCallbacks: ReconnectCallbackType[] = [];
@@ -87,6 +90,10 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     await this.adapter.reconnect();
   };
 
+  /**
+   * Set the default query params used by the next connection attempts.
+   * Call `reconnect()` to apply them to a live connection, or use `onConnect` to resolve them per attempt.
+   */
   setQueryParams = (queryParams: ExtractAdapterQueryParamsType<Adapter>) => {
     this.adapter.setQueryParams(queryParams);
     return this;
@@ -119,6 +126,18 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   /**
    * Callbacks
    */
+
+  /**
+   * Triggered before every connection attempt (initial, automatic and manual reconnect).
+   * Receives the connection details (`url`, `queryParams`, `adapterOptions`) and must return them, optionally
+   * modified. Use it to resolve values that change over time - like auth tokens - right when they are needed.
+   * @param callback
+   * @returns
+   */
+  onConnect(callback: ConnectCallbackType<Adapter>) {
+    this.unstable_onConnectCallbacks.push(callback);
+    return this;
+  }
 
   /**
    * Triggered when connection is opened
@@ -194,6 +213,10 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * Interceptors
    * ********************
    */
+
+  unstable__modifyConnection = (data: { connection: SocketConnectionType<Adapter>; attempt: number }) => {
+    return interceptConnection(this.unstable_onConnectCallbacks, data);
+  };
 
   unstable__modifySend = (emitter: EmitterInstance) => {
     return interceptEmitter(this.unstable_onSendCallbacks, emitter);

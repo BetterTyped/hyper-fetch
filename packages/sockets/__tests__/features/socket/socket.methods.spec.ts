@@ -16,7 +16,7 @@ describe("Socket [ Methods ]", () => {
 
   it("should allow to set new query params stringify", async () => {
     const method = () => "testing";
-    const socket = new Socket({ url: "ws://localhost:1234" });
+    const socket = new Socket({ url: "ws://localhost:1234", adapterOptions: { autoConnect: false } });
     socket.adapter.setQueryParamsMapper(method);
     const queryParams = socket.adapter.unstable_queryParamsMapper({ test: 1 });
     expect(queryParams).toBe("testing");

@@ -28,7 +28,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should emit event on disconnect", async () => {
-    startServer();
+    await startServer();
 
     const spy = vi.fn();
     socket.onDisconnected(spy);
@@ -40,9 +40,9 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should throw error when emitting", async () => {
-    startServer();
+    await startServer();
 
-    expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
+    await expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
   });
 
   it("should reconnect when going online", async () => {
@@ -280,5 +280,39 @@ describe("Socket Adapter [ SSE ]", () => {
 
     expect(errorSpy).toHaveBeenCalled();
     expect(socket.adapter.connected).toBe(false);
+  });
+
+  it("should use connection details returned from onConnect interceptors", async () => {
+    const newUrl = "http://localhost:4321/events";
+    const { startServer: startNewServer, getServer: getNewServer } = createSseMockingServer(`${newUrl}?token=B`);
+    const connectSpy = vi.fn();
+
+    const newSocket = createSocket<ServerSentEventsAdapterType>({
+      adapter: ServerSentEventsAdapter,
+      queryParams: { token: "A" },
+      adapterOptions: { autoConnect: false, eventSourceInit: { withCredentials: false } },
+    }).onConnect(({ connection, attempt }) => {
+      connectSpy({ connection, attempt });
+      return {
+        url: newUrl,
+        queryParams: { token: "B" },
+        adapterOptions: { ...connection.adapterOptions, eventSourceInit: { withCredentials: true } },
+      };
+    });
+
+    const connectPromise = newSocket.adapter.connect();
+    await startNewServer();
+    await expect(connectPromise).resolves.toBe(true);
+
+    expect(connectSpy).toHaveBeenCalledWith({
+      connection: {
+        url: "ws://localhost:1234",
+        queryParams: { token: "A" },
+        adapterOptions: { autoConnect: false, eventSourceInit: { withCredentials: false } },
+      },
+      attempt: 0,
+    });
+    expect(getNewServer().url).toBe(`${newUrl}?token=B`);
+    expect(getNewServer().withCredentials).toBe(true);
   });
 });

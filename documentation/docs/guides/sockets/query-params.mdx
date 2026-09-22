@@ -6,16 +6,17 @@ sidebar_label: Query Params
 # Query Parameters
 
 Query parameters are a powerful feature for passing additional data to the server when establishing a socket connection.
-With Hyper-fetch, you can set initial query parameters and dynamically update them, which will automatically trigger a
-reconnection with the new values. This guide will walk you through managing `queryParams` for your socket connections.
+With Hyper-fetch, you can set initial query parameters, update the defaults with `setQueryParams` and resolve them
+fresh for every connection attempt with `onConnect`. This guide will walk you through managing `queryParams` for your
+socket connections.
 
 ---
 
 :::secondary What you'll learn
 
 1.  How to set **initial query parameters** when creating a `Socket` instance.
-2.  How to **dynamically update** `queryParams` using the `setQueryParams` method.
-3.  That updating `queryParams` automatically triggers a **socket reconnection**.
+2.  How to **update the defaults** with the `setQueryParams` method and apply them with `reconnect`.
+3.  How to **resolve query parameters per connection attempt** with the `onConnect` interceptor.
 4.  How to ensure **type-safety** for your query parameters.
 
 :::
@@ -44,16 +45,15 @@ safety from the start.
 
 ## Dynamic Updates
 
-You can change the `queryParams` at any time using the `setQueryParams` method on your `Socket` instance. When you call
-this method, Hyper-fetch will automatically close the existing connection and establish a new one with the updated
-parameters.
+You can change the `queryParams` at any time using the `setQueryParams` method on your `Socket` instance. It replaces
+the defaults used by the **next** connection attempt. To apply them to a live connection, call `reconnect()`.
 
 {/* TODO fix */}
 
 {/* (@import sockets Socket type=method&name=setQueryParams) */}
 
-This is particularly useful for scenarios where connection details, like authentication tokens or dynamic filters, need
-to change during the application's lifecycle.
+This is particularly useful for scenarios where connection details, like dynamic filters, need to change during the
+application's lifecycle.
 
 ### Example
 
@@ -77,6 +77,7 @@ function App() {
 
   const handleReconnect = () => {
     socket.setQueryParams({ userId });
+    socket.reconnect();
     setQueryParams(socket.queryParams);
   };
 
@@ -98,6 +99,26 @@ function App() {
   );
 }
 ```
+
+## Resolving Query Params per Connection Attempt
+
+When query params depend on state that changes over time - an access token, the currently selected workspace - keeping
+the socket in sync with `setQueryParams` gets tedious. The `onConnect` interceptor is called right before **every**
+connection attempt (initial, automatic and manual reconnect) and lets you return the query params to use for that
+attempt.
+
+```tsx
+const socket = new Socket({
+  url: "ws://localhost:8080",
+}).onConnect(({ connection }) => ({
+  ...connection,
+  // highlight-next-line
+  queryParams: { ...connection.queryParams, token: authStore.getState().accessToken },
+}));
+```
+
+The interceptor can be async and receives the reconnection `attempt` number. See the
+[authentication guide](/docs/guides/sockets/authentication) for a complete walkthrough.
 
 ## Type-Safety
 
@@ -139,7 +160,8 @@ socket.setQueryParams({ userId: 456, token: "new-token" });
 You now know how to effectively manage query parameters with Hyper-fetch sockets.
 
 - You can set **initial query parameters** in the `Socket` constructor.
-- You can dynamically update query parameters with the **`setQueryParams`** method, which triggers a reconnection.
+- You can update the defaults with **`setQueryParams`** and apply them with **`reconnect`**.
+- You can resolve query parameters per connection attempt with the **`onConnect`** interceptor.
 - You can enforce **type-safety** on your `queryParams` by providing a generic type to the `Socket` instance.
 
 :::

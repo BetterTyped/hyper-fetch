@@ -15,8 +15,9 @@ real-time applications.
 1.  How to enable or disable **automatic connections**.
 2.  How to **manually connect and disconnect** from the socket.
 3.  How to implement **manual reconnection logic**.
-4.  How to monitor the **connection status** using callbacks.
-5.  How to configure **connection retries** and handle reconnection failures.
+4.  How to **prepare every connection attempt** with the `onConnect` interceptor.
+5.  How to monitor the **connection status** using callbacks.
+6.  How to configure **connection retries** and handle reconnection failures.
 
 :::
 
@@ -65,7 +66,8 @@ function Component() {
 }
 ```
 
-The `connect` method is asynchronous and returns a promise that resolves once the connection is established.
+The `connect` method is asynchronous and returns a promise that resolves once the connection is established. Calling it
+on an already connected socket keeps the current connection - use `reconnect()` to establish a fresh one.
 
 ---
 
@@ -118,6 +120,30 @@ function Component() {
 ```
 
 The `reconnect` method will attempt to connect again, respecting the retry policies configured on the socket instance.
+
+---
+
+## Preparing the Connection
+
+Every connection attempt - the initial one, automatic reconnects and manual reconnects - goes through the `onConnect`
+interceptor. It receives the connection details (`url`, `queryParams`, `adapterOptions`) and the reconnection `attempt`
+number, and must return the details to use. It can be async, which makes it the right place to resolve anything that
+changes over time: auth tokens, the selected workspace, feature flags.
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "ws://localhost:8080",
+}).onConnect(async ({ connection, attempt }) => {
+  const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { token } };
+});
+```
+
+Register the interceptor right after creating the socket - callbacks chained on the constructor apply to the automatic
+first connection as well. If the interceptor throws, the attempt fails and the error is passed to the `onError`
+callbacks.
 
 ---
 
@@ -228,6 +254,7 @@ You now know how to manage socket connections in Hyper-fetch.
 
 - You can control **automatic and manual connections**.
 - You can **disconnect and reconnect** from the server on demand.
+- You can **prepare every connection attempt** with the `onConnect` interceptor.
 - You can monitor the **connection lifecycle** with callbacks.
 - You can create robust **retry strategies** for network resilience.
 

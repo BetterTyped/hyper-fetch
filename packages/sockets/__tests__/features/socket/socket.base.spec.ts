@@ -58,11 +58,19 @@ describe("Socket [ Base ]", () => {
   });
   it("should allow to connect", async () => {
     const spy = vi.fn();
-    socket.events.onConnected(spy);
-    socket.adapter.connect();
+    const newSocket = createSocket({ adapterOptions: { autoConnect: false } });
+    newSocket.events.onConnected(spy);
+    newSocket.adapter.connect();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
+  });
+  it("should keep the connection when connect is called on a connected socket", async () => {
+    const spy = vi.fn();
+    socket.events.onConnected(spy);
+    await expect(socket.adapter.connect()).resolves.toBe(true);
+    expect(spy).toHaveBeenCalledTimes(0);
+    expect(socket.adapter.connected).toBe(true);
   });
   it("should allow to disconnect", async () => {
     const spy = vi.fn();
