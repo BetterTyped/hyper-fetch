@@ -21,10 +21,17 @@ export const createSseMockingServer = (url = "ws://localhost:1234") => {
   };
 
   /**
-   * This method starts the connection with sse server
-   * Has to be invoked BEFORE creating a socket in tests
+   * This method opens the connection with the mocked sse server.
+   * Sockets create their EventSource asynchronously (after the `onConnect` interceptors run),
+   * so we yield once to let the connecting socket register its source before opening it.
    */
   const startServer = async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    if (!sources[url]) {
+      throw new Error(`[createSseMockingServer] No EventSource connected to ${url}`);
+    }
     sources[url].emitOpen();
   };
 

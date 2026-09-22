@@ -86,14 +86,28 @@ new Socket({ url: "ws://localhost:3000" }).onMessage(({ event }) => {
 });
 ```
 
-You can modify received data or outgoing payloads with these callbacks before they are emitted to other sub-systems.
+- `onConnect` — triggered before **every connection attempt**: the initial connection, automatic reconnects and manual
+  reconnects. Receives the connection details (`url`, `queryParams`, `adapterOptions`) together with the reconnection
+  `attempt` number and must return the connection, optionally modified. It can be async, which makes it the place to
+  resolve values that change over time - like access tokens - right when they are needed.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onConnect(async ({ connection, attempt }) => {
+  const token = await auth.getValidAccessToken({ forceRefresh: attempt > 0 });
+  return { ...connection, queryParams: { ...connection.queryParams, token } };
+});
+```
+
+You can modify received data, outgoing payloads or connection details with these callbacks before they are used by
+other sub-systems.
 
 ---
 
 ### Query Params
 
 You can pass query parameters to the socket connection via the `queryParams` constructor option. They will be appended
-to the connection URL. You can also update them later using `setQueryParams`.
+to the connection URL. `setQueryParams` replaces the defaults used by the **next** connection attempt - it does not
+reconnect on its own, so call `reconnect()` when the new values should apply to a live connection.
 
 ```tsx
 export const socket = createSocketClient({
@@ -101,21 +115,29 @@ export const socket = createSocketClient({
   queryParams: { param1: [1, 2, 3], param2: "test" },
 });
 
-// Update query params dynamically
+// Store new defaults and apply them right away
 socket.setQueryParams({ param1: [4, 5], param2: "updated" });
+socket.reconnect();
 ```
+
+For values that change over time, prefer the `onConnect` interceptor - it resolves them right before every connection
+attempt, so you never have to keep the socket in sync with your application state.
 
 ---
 
 ### Authentication
 
-To exchange authenticated events, set up the `queryParams` parameter with authentication parameter.
+To exchange authenticated events, set up the `queryParams` parameter with authentication parameter or resolve the
+credentials for every connection attempt with `onConnect`.
 
 ```tsx
 export const socket = createSocketClient({
   url: "ws://localhost:3000",
   queryParams: { authToken: "1234567890" },
-});
+}).onConnect(({ connection }) => ({
+  ...connection,
+  queryParams: { authToken: authStore.getState().token },
+}));
 ```
 
 <LinkCard
@@ -153,6 +175,9 @@ await socket.connect();
 await socket.disconnect();
 await socket.reconnect();
 ```
+
+`connect()` resolves immediately when the socket is already connected. Use `reconnect()` to establish a fresh
+connection (for example after changing query params).
 
 ---
 

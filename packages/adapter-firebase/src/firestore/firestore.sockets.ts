@@ -19,9 +19,9 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
   ).setConnector(
     ({ socket, onConnect, onReconnect, onDisconnect, onListen, onConnected, onDisconnected, onEvent, onError }) => {
       const connect = async () => {
-        const enabled = onConnect();
+        const connection = await onConnect();
 
-        if (enabled) {
+        if (connection) {
           enableNetwork(database);
           onConnected();
         }

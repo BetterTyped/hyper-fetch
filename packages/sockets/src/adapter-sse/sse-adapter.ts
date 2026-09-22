@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type { QueryParamsType } from "@hyper-fetch/core";
+import type { EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams } from "@hyper-fetch/core";
 import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
@@ -44,6 +44,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         adapter,
         getQueryParams,
         onConnect,
+        onConnectFailed,
         onReconnect,
         onDisconnect,
         onListen,
@@ -59,22 +60,21 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             ? socket.adapter.adapterOptions?.autoConnect
             : true;
 
-        const connect = () => {
-          const url = getSocketUrl(socket.url, getQueryParams());
-          const enabled = onConnect();
-          if (!enabled) {
-            return Promise.resolve(false);
+        const connect = async (): Promise<boolean> => {
+          const connection = await onConnect();
+          if (!connection) {
+            return socket.adapter.connected;
           }
 
           sse?.clearListeners();
           sse?.close();
 
-          const eventSource = getServerSentEventsAdapter(url, adapter.adapterOptions);
+          const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
+          const eventSource = createEventSource(url, connection.adapterOptions);
           sse = eventSource;
 
-          // Make sure we picked good environment
           if (!eventSource) {
-            return Promise.resolve(false);
+            return false;
           }
 
           // Reconnection timeout
@@ -127,28 +127,38 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         };
 
         const disconnect = async (): Promise<boolean> => {
-          if (!sse) {
-            adapter.setConnected(false);
-            adapter.setConnecting(false);
-            return true;
-          }
           const currentSse = sse;
+          const hasTransport = currentSse && currentSse.readyState !== EventSource.CLOSED;
 
-          if (currentSse.readyState === EventSource.CLOSED) {
-            adapter.setConnected(false);
-            adapter.setConnecting(false);
-            return true;
-          }
-
+          // When there is nothing to close, only a connection attempt may still be preparing (onConnect) - cancel it
+          const wasConnecting = adapter.connecting;
           onDisconnect();
-          currentSse.close();
-          onDisconnected();
+          if (hasTransport) {
+            currentSse.close();
+          }
+          if (hasTransport || wasConnecting) {
+            onDisconnected();
+          }
 
           return true;
         };
 
         const reconnect = () => {
           onReconnect({ disconnect, connect });
+        };
+
+        /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
+        const createEventSource = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
+          try {
+            const instance = getServerSentEventsAdapter(url, adapterOptions);
+            if (!instance) {
+              onConnectFailed({ error: new Error("EventSource is not available in this environment") });
+            }
+            return instance;
+          } catch (error) {
+            onConnectFailed({ error: error as Error });
+            return null;
+          }
         };
 
         const listen = (
@@ -163,7 +173,6 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         };
 
         // Initialize
-
         if (autoConnect) {
           connect();
         }

@@ -42,7 +42,7 @@ You can pass adapter-specific options via the `adapterOptions` constructor optio
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
-| `protocols` | `string[]` | — | Subprotocols passed to the `WebSocket` constructor. |
+| `protocols` | `string \| string[]` | — | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header). |
 | `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
 | `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
 | `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
@@ -58,6 +58,24 @@ const socket = createSocketClient({
     heartbeatMessage: "ping",
   },
 });
+```
+
+#### Dynamic options
+
+Every adapter option can be resolved right before a connection attempt with the `onConnect` interceptor on the socket.
+It runs for the initial connection, automatic reconnects and manual reconnects, so short-lived values such as auth
+tokens passed through `protocols` are always fresh.
+
+```tsx
+const socket = createSocketClient({
+  url: "wss://example.com/ws",
+}).onConnect(({ connection }) => ({
+  ...connection,
+  adapterOptions: {
+    ...connection.adapterOptions,
+    protocols: ["authorization", authStore.getState().accessToken],
+  },
+}));
 ```
 
 <LinkCard
@@ -124,6 +142,27 @@ There is nothing to prevent you from changing this and creating the adapter you 
 can set your own adapter as you wish by only fulfilling the typescript requirements. This way you can create your own
 adapters for existing libraries like `socket.io`. Refer to the `SocketAdapter` API reference for the full contract your
 custom adapter must satisfy.
+
+The connector receives a set of bindings that keep your adapter consistent with the rest of the system. The most
+important one is `onConnect` - call it at the start of every connection attempt. It marks the socket as connecting, runs
+the `onConnect` interceptors registered on the socket and resolves with the connection details to use (`url`,
+`queryParams`, `adapterOptions`), or with `null` when no attempt should be made (already connected, offline, another
+attempt in progress or an interceptor failed).
+
+```ts
+const connect = async () => {
+  const connection = await onConnect();
+  if (!connection) {
+    return socket.adapter.connected;
+  }
+
+  const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
+  // ...open the transport with `url` and `connection.adapterOptions`
+};
+```
+
+Use `onConnectFailed({ error })` when the transport cannot be created, and `onConnected` / `onDisconnected` /
+`onError` / `onEvent` to report what happens afterwards.
 
 ---
 

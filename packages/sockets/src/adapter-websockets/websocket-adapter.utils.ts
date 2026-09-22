@@ -6,7 +6,9 @@ export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapte
   /** istanbul ignore next */
   try {
     /** istanbul ignore next */
-    if (!window?.WebSocket) {return null;}
+    if (!window?.WebSocket) {
+      return null;
+    }
   } catch {
     return null;
   }
