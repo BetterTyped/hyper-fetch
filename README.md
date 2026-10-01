@@ -104,7 +104,7 @@ const { data } = await sdk.users.list.send();
 Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build alongside it.
 
 <p align="center">
-  <a href="https://hype-stack.dev">
+  <a href="https://www.hype-stack.dev/?utm_medium=referral&utm_source=hyper-fetch&utm_campaign=readme">
     <img src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
   </a>
 </p>

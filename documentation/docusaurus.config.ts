@@ -327,7 +327,7 @@ const config: Config = {
             },
             {
               label: "Hype Stack",
-              href: "https://hype-stack.dev",
+              href: "https://www.hype-stack.dev/?utm_medium=referral&utm_source=hyper-fetch&utm_campaign=docs-footer",
             },
             {
               label: "BetterTyped",
