@@ -1,7 +1,7 @@
-import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import type { UseSocketStateType, UseSocketStateProps } from "helpers";
-import { useCallback, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 export const useSocketState = <DataType, Socket extends SocketInstance>(
   socket: Socket,
@@ -141,7 +141,17 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   // Hook to events
   // ******************
 
-  useDidMount(() => {
+  // Plain effect on purpose - StrictMode runs mount, cleanup and mount again,
+  // so a mount-once guard would leave the hook without any subscriptions
+  useEffect(() => {
+    // Catch up with anything that happened between the render and the subscription
+    if (state.current.connected !== socket.adapter.connected) {
+      actions.setConnected(socket.adapter.connected);
+    }
+    if (state.current.connecting !== socket.adapter.connecting) {
+      actions.setConnecting(socket.adapter.connecting);
+    }
+
     const umountOnError = socket.events.onError((event) => {
       onErrorCallback.current?.(event);
     });
@@ -172,7 +182,8 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
       umountOnReconnecting();
       umountOnReconnectingFailed();
     };
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket]);
 
   return [state.current, actions, callbacks, { setRenderKey }] as const;
 };

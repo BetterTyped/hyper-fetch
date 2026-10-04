@@ -1,4 +1,3 @@
-import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import type {
   ExtractAdapterResolvedType,
@@ -16,7 +15,7 @@ import { useTrackedState, useRequestEvents } from "helpers";
 import type { UseSubmitOptionsType, UseSubmitReturnType } from "hooks/use-submit";
 import { useSubmitDefaultOptions } from "hooks/use-submit";
 import { useProvider } from "provider";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
 
 /**
@@ -197,9 +196,12 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // Lifecycle
   // ******************
 
-  useDidMount(() => {
+  // Plain effect on purpose - StrictMode runs mount, cleanup and mount again,
+  // so a mount-once guard would leave the hook without the cache subscription
+  useEffect(() => {
     addCacheDataListener(request);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setSubmitRenderKey = (key: string) => {
     setRenderKey((key === "submitting" ? "loading" : key) as keyof UseTrackedStateType);
