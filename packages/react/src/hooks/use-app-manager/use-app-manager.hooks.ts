@@ -1,7 +1,6 @@
-import { useDidMount } from "@better-hooks/lifecycle";
 import type { ClientInstance } from "@hyper-fetch/core";
 import type { UseAppManagerReturnType } from "hooks/use-app-manager";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /** Track the application's online/offline and focus/blur state through the client's AppManager. */
 export const useAppManager = <Client extends ClientInstance>(client: Client): UseAppManagerReturnType => {
@@ -9,6 +8,10 @@ export const useAppManager = <Client extends ClientInstance>(client: Client): Us
   const [focused, setIsFocused] = useState(client.appManager.isFocused);
 
   const mountEvents = () => {
+    // Catch up with anything that happened between the render and the subscription
+    setIsOnline(client.appManager.isOnline);
+    setIsFocused(client.appManager.isFocused);
+
     const unmountIsOnline = client.appManager.events.onOnline(() => setIsOnline(true));
     const unmountIsOffline = client.appManager.events.onOffline(() => setIsOnline(false));
     const unmountIsFocus = client.appManager.events.onFocus(() => setIsFocused(true));
@@ -30,7 +33,10 @@ export const useAppManager = <Client extends ClientInstance>(client: Client): Us
     client.appManager.setFocused(isFocused);
   };
 
-  useDidMount(mountEvents);
+  // Plain effect on purpose - StrictMode runs mount, cleanup and mount again,
+  // so a mount-once guard would leave the hook without any subscriptions
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(mountEvents, [client]);
 
   return { isOnline: online, isFocused: focused, setOnline, setFocused };
 };
