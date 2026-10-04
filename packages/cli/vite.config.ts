@@ -16,10 +16,22 @@ export default defineConfig({
       formats: ["cjs"],
     },
     minify: false,
+    // The CLI runs in Node: without the ssr target Vite builds for the browser and
+    // swaps `fs`, `path` and friends for an empty stub, which crashes on startup.
+    ssr: true,
     rollupOptions: {
       external: [...getRollupExternalsFromPackageJson(__dirname), "@hyper-fetch/core"],
     },
     sourcemap: true,
+  },
+  // Dependencies stay bundled, only Node builtins (and peers above) are left as `require` calls
+  ssr: {
+    noExternal: true,
+    resolve: {
+      // Output is CJS, so prefer the CJS build of dual packages (ESM entries of some of them
+      // touch `module.exports` and break once bundled)
+      mainFields: ["main", "module"],
+    },
   },
   plugins: [tsconfigPaths(), dts({ entryRoot: "src" })],
   test: {

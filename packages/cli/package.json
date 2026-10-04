@@ -10,8 +10,10 @@
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "cli": "src/cli/index.ts",
-  "climain": "dist/index.js",
-  "bin": "dist/index.js",
+  "climain": "dist/cli.js",
+  "bin": {
+    "hyper-fetch": "dist/cli.js"
+  },
   "scripts": {
     "test": "vitest run",
     "dev": "npx tsx ./src/cli/index.ts",

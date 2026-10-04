@@ -37,7 +37,9 @@ export const add = new Command()
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
   .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-o, --overwrite", "overwrite existing files.", false)
-  .option("-h, --help <help>", "display help for command")
+  // Built-in help is off, the action renders help from the options schema
+  .helpOption(false)
+  .option("-h, --help", "display help for command")
   .action(async (sdks: string[], opts: z.infer<typeof addOptionsSchema>) => {
     try {
       const help = process.argv.includes("--help") || process.argv.includes("-h");

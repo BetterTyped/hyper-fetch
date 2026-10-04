@@ -30,7 +30,10 @@ const main = async () => {
       chosenCommand = command.name();
     }
 
-    if (!chosenCommand) {
+    if (!chosenCommand && process.argv[2]?.startsWith("-")) {
+      // Flags like --help or --version are for commander, not for the command picker
+      await program.parseAsync(process.argv);
+    } else if (!chosenCommand) {
       chosenCommand = await select({
         message: "What do you want to do?",
         choices: program.commands.map((cmd) => ({

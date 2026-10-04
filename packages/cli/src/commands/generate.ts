@@ -27,7 +27,9 @@ export const generate = new Command()
   .option("-f, --fileName <fileName>", "The output file for the SDK.")
   .option("-o, --overwrite", "overwrite existing files.")
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
-  .option("-h, --help <help>", "display help for command")
+  // Built-in help is off, the action renders help from the options schema
+  .helpOption(false)
+  .option("-h, --help", "display help for command")
   .action(async (opts: z.infer<typeof generateOptionsSchema>) => {
     try {
       const help = process.argv.includes("--help") || process.argv.includes("-h");

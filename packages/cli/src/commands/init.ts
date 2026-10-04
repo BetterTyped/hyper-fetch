@@ -26,7 +26,9 @@ export const init = new Command()
   .description("Initialize HyperFetch Client configuration.")
   .option("-y, --yes", "skip confirmation prompt.", false)
   .option("-c, --cwd <cwd>", "the working directory. defaults to the current directory.", process.cwd())
-  .option("-h, --help <help>", "display help for command")
+  // Built-in help is off, the action renders help from the options schema
+  .helpOption(false)
+  .option("-h, --help", "display help for command")
   .action(async (opts) => {
     try {
       const help = process.argv.includes("--help") || process.argv.includes("-h");
