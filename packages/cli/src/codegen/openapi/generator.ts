@@ -260,31 +260,40 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
   }
 
   static generateMethodMetadata(
-    operation: { operationId: string; path: string; method: string } & Partial<Operation>,
+    operation: { operationId?: string; path: string; method: string } & Partial<Operation>,
     exportTypes: ExportedType[],
   ) {
     const { operationId, method, path: relPath } = operation;
-    const normalizedOperationId = normalizeOperationId(operationId);
-    const pathParametersType = lodash.find(exportTypes, {
-      schemaRef: `#/paths/${normalizedOperationId}/pathParameters`,
-    })?.path;
-    const queryParametersType = lodash.find(exportTypes, {
-      schemaRef: `#/paths/${normalizedOperationId}/queryParameters`,
-    })?.path;
+    const httpMethod = method ? method.toLowerCase() : HttpMethod.GET;
+    const normalizedPath = normalizeOperationId(relPath);
+    // Operations without operationId are named by dtsgenerator after their path and method
+    const id = operationId ? normalizeOperationId(operationId) : `${httpMethod}_${normalizedPath}`;
+    const operationRef = operationId ? `#/paths/${id}` : `#/paths/${normalizedPath}/${httpMethod}`;
+    // Parameters declared on the path item are shared by all of its operations
+    const pathItemRef = `#/paths/${normalizedPath}`;
+    const findParametersType = (name: "pathParameters" | "queryParameters") => {
+      const types = lodash
+        .uniq([`${operationRef}/${name}`, `${pathItemRef}/${name}`])
+        .map((schemaRef) => lodash.find(exportTypes, { schemaRef })?.path)
+        .filter(Boolean);
+      return types.length ? types.join(" & ") : undefined;
+    };
+
+    const pathParametersType = findParametersType("pathParameters");
+    const queryParametersType = findParametersType("queryParameters");
     const requestBodyType = lodash.find(exportTypes, {
-      schemaRef: `#/paths/${normalizedOperationId}/requestBody`,
+      schemaRef: `${operationRef}/requestBody`,
     })?.path;
     const responseTypePaths = lodash
       .chain(exportTypes)
-      .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/2`))
+      .filter(({ schemaRef }) => schemaRef.startsWith(`${operationRef}/responses/2`))
       .map(({ path: responsePath }) => responsePath)
       .value();
     const errorTypePaths = lodash
       .chain(exportTypes)
       .filter(
         ({ schemaRef }) =>
-          schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) ||
-          schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/5`),
+          schemaRef.startsWith(`${operationRef}/responses/4`) || schemaRef.startsWith(`${operationRef}/responses/5`),
       )
       .map(({ path: errorPath }) => errorPath)
       .value();
@@ -298,7 +307,7 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
       : false;
 
     return {
-      id: normalizedOperationId,
+      id,
       pathParametersType,
       queryParametersType,
       requestBodyType,

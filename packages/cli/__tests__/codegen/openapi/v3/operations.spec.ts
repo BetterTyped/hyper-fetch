@@ -44,6 +44,16 @@ describe("Operations", () => {
       }
     });
   });
+  it("should include operations without operationId", async () => {
+    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/no-operation-id.json"), "utf8");
+    const operations = getAvailableOperations(JSON.parse(file) as Document);
+
+    expect(operations.map(({ path: operationPath, method, operationId }) => [operationPath, method, operationId])).toEqual([
+      ["/", "get", undefined],
+      ["/users/{userId}/posts-list", "get", undefined],
+      ["/users/{userId}/posts-list", "post", "createPost"],
+    ]);
+  });
   it("should return empty object if no correct json was passed", () => {
     const operations = getAvailableOperations({} as unknown as Document);
     expect(operations).toStrictEqual([]);

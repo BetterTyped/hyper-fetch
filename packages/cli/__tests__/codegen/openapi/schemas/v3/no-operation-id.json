@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "No operationId", "version": "1.0.0" },
+  "paths": {
+    "/": {
+      "get": { "responses": { "200": { "description": "ok" } } }
+    },
+    "/users/{userId}/posts-list": {
+      "parameters": [{ "name": "userId", "in": "path", "required": true, "schema": { "type": "string" } }],
+      "get": {
+        "parameters": [{ "name": "page", "in": "query", "required": true, "schema": { "type": "number" } }],
+        "responses": {
+          "200": {
+            "description": "ok",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+          },
+          "404": {
+            "description": "not found",
+            "content": {
+              "application/json": { "schema": { "type": "object", "properties": { "message": { "type": "string" } } } }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPost",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": { "User": { "type": "object", "properties": { "id": { "type": "string" } } } }
+  }
+}

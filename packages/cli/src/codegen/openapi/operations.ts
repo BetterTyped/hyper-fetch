@@ -8,15 +8,15 @@ export function getAvailableOperations(openApiJson: OpenAPIV3.Document | OpenAPI
   return Object.entries(paths).flatMap(([path, pathObject]) => {
     return Object.values(HttpMethod)
       .map((method) => ({ path, method, operation: pathObject?.[method] }))
-      .filter(({ operation }) => operation?.operationId)
+      .filter(({ operation }) => operation && typeof operation === "object")
       .map(({ operation, method }) => {
-        const op: { operationId: string; path: string; method: string } & Partial<Operation> = {
+        // operationId is optional in the OpenAPI spec - operations without it are identified by path and method
+        const op: { operationId?: string; path: string; method: string } & Partial<Operation> = {
           ...operation,
-          operationId: operation!.operationId as string,
           path,
           method,
         };
         return op;
       });
-  }) as ({ operationId: string } & Operation)[];
+  }) as ({ operationId?: string } & Operation)[];
 }

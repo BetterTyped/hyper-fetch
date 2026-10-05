@@ -198,6 +198,66 @@ describe("Generator", () => {
   //
   // });
 
+  describe("Operations without operationId", () => {
+    let noIdSchema: Document;
+
+    beforeAll(async () => {
+      const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/no-operation-id.json"), "utf8");
+      noIdSchema = JSON.parse(file);
+    });
+
+    it("should resolve types by path and method", async () => {
+      const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(noIdSchema);
+      const operation = getAvailableOperations(noIdSchema).find(
+        (op) => op.path === "/users/{userId}/posts-list" && op.method === "get",
+      );
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation!, exportedTypes);
+
+      expect(meta).toMatchObject({
+        id: "get_Users$userIdPosts_list",
+        pathParametersType: "Paths.Users$UserIdPostsList.PathParameters",
+        queryParametersType: "Paths.Users$UserIdPostsList.Get.QueryParameters",
+        requestBodyType: undefined,
+        responseType: "Paths.Users$UserIdPostsList.Get.Responses.$200",
+        errorType: "Paths.Users$UserIdPostsList.Get.Responses.$404",
+        path: "/users/:userId/posts-list",
+        method: "GET",
+        queryParamsRequired: true,
+      });
+    });
+
+    it("should use path level parameters for operations with operationId", async () => {
+      const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(noIdSchema);
+      const operation = getAvailableOperations(noIdSchema).find((op) => op.operationId === "createPost");
+
+      const meta = OpenapiRequestGenerator.generateMethodMetadata(operation!, exportedTypes);
+
+      expect(meta).toMatchObject({
+        id: "createPost",
+        pathParametersType: "Paths.Users$UserIdPostsList.PathParameters",
+        requestBodyType: "Paths.CreatePost.RequestBody",
+        responseType: "Paths.CreatePost.Responses.$201",
+      });
+    });
+
+    it("should populate the SdkSchema", async () => {
+      const { sdkSchema, generatedTypes } = await new OpenapiRequestGenerator(noIdSchema).generateRequestsFromSchema();
+      const compact = sdkSchema.replaceAll(/\s+/g, " ");
+
+      expect(compact).toContain(
+        'users: { $userId: { postsList: { $get: Request<GetUsers$userIdPostsListResponseType, undefined, GetUsers$userIdPostsListQueryParams, GetUsers$userIdPostsListErrorType, "/users/:userId/posts-list", Client>;',
+      );
+      expect(compact).toContain(
+        '$post: Request<CreatePostResponseType, CreatePostRequestBody, undefined, CreatePostErrorType, "/users/:userId/posts-list", Client>;',
+      );
+      expect(compact).toContain('$get: Request<GetResponseType, undefined, undefined, GetErrorType, "/", Client>;');
+      expect(generatedTypes.join("\n")).toContain(
+        "export type GetUsers$userIdPostsListResponseType = Paths.Users$UserIdPostsList.Get.Responses.$200",
+      );
+    });
+  });
+
   describe("HTTP Method handling", () => {
     it("should use provided HTTP method in uppercase", async () => {
       const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document);
