@@ -38,7 +38,7 @@ First, let's define an emitter.
 import { socketInstance } from "./socket";
 
 export const emitMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  endpoint: "chat-message", // endpoint of the event
+  topic: "chat-message", // topic of the event
 });
 ```
 

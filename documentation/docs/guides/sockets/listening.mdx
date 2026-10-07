@@ -25,7 +25,7 @@ that can be easily managed and integrated into your application, including React
 ## Creating a Listener
 
 To start listening for events, you first need to create a listener. This is done using the `socket.createListener`
-method, which requires an `endpoint` that corresponds to the event name you want to listen to. It's also a good practice
+method, which requires a `topic` that corresponds to the event name you want to listen to. It's also a good practice
 to provide a type for the expected message payload for type safety.
 
 ```ts
@@ -34,7 +34,7 @@ to provide a type for the expected message payload for type safety.
 // This helps to avoid re-creating listeners and attaching multiple handlers for the same event.
 // highlight-end
 const onChatMessage = socketInstance.createListener<{ message: string }>()({
-  endpoint: "chat-message",
+  topic: "chat-message",
 });
 ```
 
@@ -44,7 +44,7 @@ received from this event will be correctly typed.
 ## Starting and Stopping
 
 Once you have a listener, you can start listening for events by calling the `.listen()` method with a callback function.
-This function will be executed every time a new message arrives on the specified endpoint.
+This function will be executed every time a new message arrives on the specified topic.
 
 The `.listen()` method returns an `unlisten` function, which you can call to stop listening for events. It's crucial to
 call this cleanup function when the listener is no longer needed to prevent memory leaks.
@@ -126,6 +126,22 @@ unlistenTwo();
 // To stop the first listener:
 unlistenOne();
 ```
+
+## Dealing with High-Frequency Streams
+
+If a topic emits hundreds of messages per second, you rarely want every one of them to reach your callbacks. The
+`delivery` option lets a listener sample (`latest`) or batch (`batch`) messages before they are delivered, while
+`listen()` and `useListener` keep working unchanged:
+
+```ts
+const onPrice = socketInstance.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+```
+
+Read the [Throttling & Batching guide](/docs/guides/sockets/throttling) for timelines, trade-offs and custom
+strategies.
 
 ---
 

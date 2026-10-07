@@ -1,0 +1,177 @@
+---
+sidebar_position: 3
+title: React - Socket Throttling & Batching
+sidebar_label: Throttling & Batching
+---
+
+# Throttling & Batching in React
+
+With `useListener`, every delivered message is a state update, and every state update is a render. On a stream that
+pushes hundreds of messages per second, that is hundreds of renders per second for a screen that refreshes sixty times.
+
+The fix lives on the listener, not in the component. Configure a `delivery` strategy once, and `useListener` simply
+receives fewer, better-shaped updates. No hook options, no manual throttling in effects.
+
+---
+
+:::secondary What you'll learn
+
+1.  How a **`latest`** listener turns a price firehose into one render per frame.
+2.  How a **`batch`** listener delivers arrays so you can append many rows in one state update.
+3.  How to let the user **choose the refresh rate** with `setDelivery` and `useMemo`.
+4.  The one **gotcha** with custom strategies and React re-renders.
+
+:::
+
+> Start with the framework-agnostic [Throttling & Batching guide](/docs/guides/sockets/throttling) if you have not
+> read it - this page focuses on the React side.
+
+---
+
+## Sampling a price ticker
+
+Define the listener with a `latest` strategy. `useListener` needs no changes: `data` is simply the newest price in the
+last window.
+
+```ts title="api/socket.ts"
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  // highlight-next-line
+  delivery: { strategy: "latest", interval: 16 },
+});
+```
+
+```tsx title="PriceTicker.tsx"
+import { useListener } from "@hyper-fetch/react";
+import { onPrice } from "./api/socket";
+
+export function PriceTicker() {
+  // highlight-start
+  // Renders at most ~60 times per second regardless of how fast the server sends.
+  // highlight-end
+  const { data, connected } = useListener(onPrice);
+
+  if (!connected) return <span>Connecting…</span>;
+  return <span>{data ? data.value.toFixed(2) : "—"}</span>;
+}
+```
+
+---
+
+## Batching a trade log
+
+With `batch`, `data` and the `onEvent` payload are **arrays**, typed automatically as `Trade[]`. Append the whole batch
+in a single state update.
+
+```ts title="api/socket.ts"
+export const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  // highlight-next-line
+  delivery: { strategy: "batch", interval: 100, maxSize: 500 },
+});
+```
+
+```tsx title="TradeLog.tsx"
+import { useState } from "react";
+import { useListener } from "@hyper-fetch/react";
+import { onTrade } from "./api/socket";
+
+export function TradeLog() {
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const { onEvent } = useListener(onTrade);
+
+  onEvent(({ data }) => {
+    // highlight-start
+    // `data` is Trade[] - one setState per window instead of one per trade.
+    // highlight-end
+    setTrades((previous) => [...previous, ...data].slice(-1000));
+  });
+
+  return (
+    <ul>
+      {trades.map((trade) => (
+        <li key={trade.id}>
+          {trade.symbol} {trade.price}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+---
+
+## Letting the user pick the refresh rate
+
+`setDelivery` returns a new listener. Memoize it on the user's choice and pass it to `useListener`; the hook
+re-subscribes when the delivery changes and disposes the previous window.
+
+```tsx title="PriceTicker.tsx"
+import { useMemo, useState } from "react";
+import { useListener } from "@hyper-fetch/react";
+import { onPrice } from "./api/socket";
+
+export function PriceTicker() {
+  const [rate, setRate] = useState(16);
+  // highlight-start
+  // A new listener only when `rate` changes - not on every render.
+  // highlight-end
+  const live = useMemo(() => onPrice.setDelivery({ strategy: "latest", interval: rate }), [rate]);
+  const { data } = useListener(live);
+
+  return (
+    <>
+      <select value={rate} onChange={(event) => setRate(Number(event.target.value))}>
+        <option value={16}>Realtime</option>
+        <option value={250}>Relaxed</option>
+        <option value={1000}>Slow</option>
+      </select>
+      <span>{data?.value ?? "—"}</span>
+    </>
+  );
+}
+```
+
+---
+
+## The gotcha: custom strategies and identity
+
+`useListener` decides whether to re-subscribe by comparing the listener's `topic`, `options` and `delivery`:
+
+- **Preset objects** (`{ strategy: "latest", interval: 16 }`) are compared **by value**. Writing them inline is fine.
+- **Custom strategy functions** are compared **by identity**. Define them at module level, next to your listeners. A
+  strategy created inside a component is a new function on every render and would re-subscribe each time, dropping
+  whatever was buffered.
+
+```ts title="api/socket.ts"
+// ✅ module level - stable identity
+export const summarize = createDeliveryStrategy<Trade, Summary>(/* ... */);
+export const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", delivery: summarize });
+```
+
+---
+
+:::success Congratulations!
+
+You can now keep React UIs smooth on the busiest streams.
+
+- A **`latest`** listener caps renders at the rate you choose.
+- A **`batch`** listener gives you arrays and one state update per window.
+- **`setDelivery` + `useMemo`** lets the user control the rate.
+- Custom strategies live at **module level** to keep a stable identity.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Full reference for the useListener hook."
+  to="/docs/react/sockets/use-listener"
+/>
+
+<LinkCard
+  type="docs"
+  title="Throttling & Batching"
+  description="The framework-agnostic guide with timelines, semantics and custom strategies."
+  to="/docs/guides/sockets/throttling"
+/>

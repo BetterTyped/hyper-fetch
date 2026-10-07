@@ -37,7 +37,7 @@ First, create a `Listener` instance using your socket client.
 import { socketInstance } from "./socket";
 
 export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
-  endpoint: "chat-message",
+  topic: "chat-message",
 });
 ```
 
@@ -145,6 +145,58 @@ function App() {
   );
 }
 ```
+
+---
+
+## Throttling & Batching
+
+Every delivered message is a state update, so a fast stream means fast re-rendering. Instead of throttling inside the
+component, configure a [delivery strategy](/docs/sockets/listener#delivery-strategies) on the listener. `useListener`
+needs no options for this - it simply receives fewer, better-shaped updates, and `data` follows the delivered type.
+
+```tsx title="Sampling - one render per frame at most"
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+
+function PriceTicker() {
+  const { data } = useListener(onPrice); // data: Price | null
+  return <span>{data?.value}</span>;
+}
+```
+
+```tsx title="Batching - arrays, one state update per window"
+export const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: { strategy: "batch", interval: 100 },
+});
+
+function TradeLog() {
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const { onEvent } = useListener(onTrade); // data: Trade[] | null
+
+  onEvent(({ data }) => {
+    setTrades((previous) => [...previous, ...data]);
+  });
+  // ...
+}
+```
+
+To let the user change the rate, memoize a `setDelivery` clone - the hook re-subscribes when the delivery changes:
+
+```tsx
+const live = useMemo(() => onPrice.setDelivery({ strategy: "latest", interval: rate }), [rate]);
+const { data } = useListener(live);
+```
+
+:::info Custom strategies
+
+Preset objects are compared by value and can be written inline. Custom strategy functions are compared by identity -
+define them at module level, or the hook will re-subscribe on every render. See the
+[React Throttling & Batching guide](/docs/guides/react/sockets/throttling).
+
+:::
 
 ---
 

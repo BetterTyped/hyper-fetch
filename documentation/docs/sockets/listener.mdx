@@ -138,6 +138,70 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ---
 
+### Delivery Strategies {#delivery-strategies}
+
+High-frequency streams (prices, trades, logs) can call your callbacks hundreds of times per second. The `delivery`
+option controls how messages reach `listen` callbacks, right inside the listener, so `listen()`, `useListener` and the
+SDK all benefit without changes. Omit it for immediate delivery of every message - that is the default and has zero
+overhead.
+
+```ts
+// Sampling - deliver the first message immediately, then at most one (the newest) per 16ms.
+// Best for state-like data where only the latest value matters.
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+onPrice.listen(({ data }) => {}); // data: Price
+
+// Batching - deliver everything collected during 100ms as one array. Nothing is dropped.
+// Best for event-like data where every message must be processed.
+export const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: { strategy: "batch", interval: 100, maxSize: 500 },
+});
+onTrade.listen(({ data }) => {}); // data: Trade[]
+
+// Custom - full control over buffering and timing.
+export const onTick = socket.createListener<Tick>()({
+  topic: "ticks",
+  delivery: createDeliveryStrategy<Tick, Summary>(({ deliver }) => ({
+    push: ({ data, extra }) => {
+      /* accumulate, then deliver({ data: summary, extra }) */
+    },
+    dispose: () => {
+      /* clear timers */
+    },
+  })),
+});
+onTick.listen(({ data }) => {}); // data: Summary
+```
+
+| | `latest` | `batch` | custom |
+| --- | --- | --- | --- |
+| Callback `data` | `Response` | `Response[]` | your `Output` type |
+| Drops messages | Yes, intermediate ones | Never | up to you |
+| Options | `interval`, `leading` (default `true`) | `interval`, `maxSize` | - |
+
+Semantics shared by all strategies:
+
+- `extra` is the `extra` of the last message that went into the delivery.
+- Unsubscribing disposes the strategy: timers are cleared and pending messages are dropped, so nothing fires after
+  `unlisten()`.
+- Every `listen()` call gets its own buffers and timers.
+- `delivery` is kept by `setParams`, `setOptions` and `clone`. Use `setDelivery` to change it (returns a clone);
+  pass `undefined` to restore immediate delivery.
+- `socket.events.onListenerEvent` still receives every raw message - useful for devtools and logging.
+
+:::info Full guide
+
+Timelines, how to choose a strategy, and complete custom strategy examples live in the
+[Throttling & Batching guide](/docs/guides/sockets/throttling).
+
+:::
+
+---
+
 ### Global Event Subscriptions
 
 You can use `socket.events.onListenerEventByTopic` to subscribe to all events for a given listener, regardless of
@@ -217,8 +281,8 @@ application.
 
 :::danger Methods Return Clones
 
-Methods on a `Listener` instance (e.g., `setParams`, `setOptions`) do not modify the original listener instance in
-place. Instead, they return a **new, cloned instance** of the listener with the specified modifications applied. The
+Methods on a `Listener` instance (e.g., `setParams`, `setOptions`, `setDelivery`) do not modify the original listener
+instance in place. Instead, they return a **new, cloned instance** of the listener with the specified modifications applied. The
 original listener instance remains unchanged.
 
 **Always use the returned new instance for subsequent operations.** This immutable approach ensures isolation between
@@ -313,6 +377,31 @@ onChatMessage.listen(({ data }) => {
 
 This simple yet powerful feature eliminates guesswork and ensures that your application correctly handles the data
 structures sent by the server.
+
+### Delivered Type
+
+A listener carries two types: the **response type** (what arrives on the wire) and the **delivered type** (what your
+`listen` callbacks receive). They are the same unless a [delivery strategy](#delivery-strategies) changes the shape -
+`batch` delivers `Response[]`, a custom strategy delivers its declared output. The delivered type is inferred from the
+`delivery` option, so you never write it by hand.
+
+```ts
+const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  delivery: { strategy: "batch", interval: 100 },
+});
+
+type Wire = ExtractListenerResponseType<typeof onTrade>; // Trade
+type Delivered = ExtractListenerDeliveredType<typeof onTrade>; // Trade[]
+
+onTrade.listen(({ data }) => {
+  // data: Trade[]
+});
+```
+
+Reusable abstractions keep working: a batched listener still satisfies `ListenerInstance<{ response: Trade }>`. When
+you need to constrain on what callbacks receive, use the `delivered` field, e.g.
+`ListenerInstance<{ delivered: Trade[] }>`.
 
 ---
 

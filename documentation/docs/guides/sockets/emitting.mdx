@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Guide - Socket Emitting
 sidebar_label: Emitting
 ---
@@ -36,7 +36,7 @@ type ChatMessageType = {
 //highlight-end
 
 const sendChatMessage = socketInstance.createEmitter<ChatMessageType>()({
-  endpoint: "chat-message", // topic of the event
+  topic: "chat-message", // topic of the event
 });
 ```
 
@@ -86,7 +86,7 @@ Let's create an emitter to send a private message to a specific user.
 
 ```typescript
 const sendPrivateMessage = socketInstance.createEmitter<{ message: string }>()({
-  endpoint: "private-message/:userId",
+  topic: "private-message/:userId",
 });
 ```
 
@@ -115,7 +115,7 @@ data, or encrypting messages:
 ```typescript
 const sendMessage = socketInstance
   .createEmitter<{ message: string }>()({
-    endpoint: "chat-message",
+    topic: "chat-message",
   })
   .setPayloadMapper((payload) => ({
     ...payload,
