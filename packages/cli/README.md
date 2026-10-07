@@ -152,7 +152,8 @@ The generated file contains:
 
 ```ts
 // What gets generated (simplified)
-import { createSdk as coreCreateSdk, ClientInstance, Request } from "@hyper-fetch/core";
+import { createSdk as coreCreateSdk } from "@hyper-fetch/core";
+import type { ClientInstance, RequestModel } from "@hyper-fetch/core";
 
 // Schema types extracted from your OpenAPI document
 export interface Components {
@@ -162,17 +163,16 @@ export interface Components {
   };
 }
 
-// Typed request for each endpoint with operationId
-export const getUsers = client.createRequest<{
-  response: Components["schemas"]["User"][];
-}>()({
-  endpoint: "/users",
-  method: "GET",
-});
+// Request model for each endpoint with operationId
+export type SdkSchema = {
+  users: {
+    $get: RequestModel<{ response: Components["schemas"]["User"][]; endpoint: "/users" }>;
+  };
+};
 
 // SDK tree you import and use
 export const createSdk = <Client extends ClientInstance>(client: Client) =>
-  coreCreateSdk<Client, SdkSchema<Client>>(client);
+  coreCreateSdk<Client, SdkSchema>(client);
 ```
 
 ## ⚠️ Important Notes

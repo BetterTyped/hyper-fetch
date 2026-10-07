@@ -246,12 +246,13 @@ describe("Generator", () => {
       const compact = sdkSchema.replaceAll(/\s+/g, " ");
 
       expect(compact).toContain(
-        'users: { $userId: { postsList: { $get: Request<GetUsers$userIdPostsListResponseType, undefined, GetUsers$userIdPostsListQueryParams, GetUsers$userIdPostsListErrorType, "/users/:userId/posts-list", Client>;',
+        'users: { $userId: { postsList: { $get: RequestModel<{ response: GetUsers$userIdPostsListResponseType; queryParams: GetUsers$userIdPostsListQueryParams; error: GetUsers$userIdPostsListErrorType; endpoint: "/users/:userId/posts-list" }>;',
       );
       expect(compact).toContain(
-        '$post: Request<CreatePostResponseType, CreatePostRequestBody, undefined, CreatePostErrorType, "/users/:userId/posts-list", Client>;',
+        '$post: RequestModel<{ response: CreatePostResponseType; payload: CreatePostRequestBody; error: CreatePostErrorType; endpoint: "/users/:userId/posts-list" }>;',
       );
-      expect(compact).toContain('$get: Request<GetResponseType, undefined, undefined, GetErrorType, "/", Client>;');
+      expect(compact).toContain('$get: RequestModel<{ response: GetResponseType; error: GetErrorType; endpoint: "/" }>;');
+      expect(compact).toContain("export type SdkSchema = {");
       expect(generatedTypes.join("\n")).toContain(
         "export type GetUsers$userIdPostsListResponseType = Paths.Users$UserIdPostsList.Get.Responses.$200",
       );

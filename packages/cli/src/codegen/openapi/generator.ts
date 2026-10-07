@@ -47,7 +47,9 @@ export class OpenapiRequestGenerator {
     const defaultFileName = "openapi.client";
     const { schemaTypes, generatedTypes, sdkSchema, createSdkFn } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { createSdk as coreCreateSdk, ClientInstance, Request } from "@hyper-fetch/core";`,
+      `import { createSdk as coreCreateSdk } from "@hyper-fetch/core";`,
+      "\n",
+      `import type { ClientInstance, RequestModel } from "@hyper-fetch/core";`,
       "\n\n",
       schemaTypes,
       "\n\n",
@@ -111,7 +113,7 @@ export class OpenapiRequestGenerator {
     getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
       const operationTypes = OpenapiRequestGenerator.generateTypes(meta);
-      const requestInstanceType = OpenapiRequestGenerator.generateRequestInstanceType(meta, operationTypes);
+      const requestModelType = OpenapiRequestGenerator.generateRequestModelType(meta, operationTypes);
 
       generatedTypes.push(Object.values(operationTypes).join("\n"));
 
@@ -138,24 +140,24 @@ export class OpenapiRequestGenerator {
         currentLevel = currentLevel[key];
       }
       // Prefix method names with $
-      currentLevel[`$${method.toLowerCase()}`] = requestInstanceType;
+      currentLevel[`$${method.toLowerCase()}`] = requestModelType;
     });
 
-    const sdkSchema = `export type SdkSchema<Client extends ClientInstance> = {\n${formatSchema(schemaTree)}\n}`;
+    const sdkSchema = `export type SdkSchema = {\n${formatSchema(schemaTree)}\n}`;
 
     const createSdkFn = `
 
 export type { Components };
 
 export const createSdk = <Client extends ClientInstance>(client: Client, options?: Parameters<typeof coreCreateSdk>[1] | undefined) => {
-  return coreCreateSdk<Client, SdkSchema<Client>>(client, options);
+  return coreCreateSdk<Client, SdkSchema>(client, options);
 };
 `;
 
     return { schemaTypes, generatedTypes, sdkSchema, createSdkFn };
   };
 
-  static generateRequestInstanceType(
+  static generateRequestModelType(
     { id, path: endpoint, queryParamsRequired }: { id: string; path: string; queryParamsRequired?: boolean },
     types: Record<string, string>,
   ) {
@@ -168,9 +170,22 @@ export const createSdk = <Client extends ClientInstance>(client: Client, options
       ? `${createTypeBaseName(id)}QueryParams`
       : undefined;
 
-    const QueryParamsGeneric = QueryParams && !queryParamsRequired ? `${QueryParams} | undefined` : QueryParams;
+    const fields: string[] = [];
+    if (Response) {
+      fields.push(`response: ${Response}`);
+    }
+    if (Payload) {
+      fields.push(`payload: ${Payload}`);
+    }
+    if (QueryParams) {
+      fields.push(`${queryParamsRequired ? "queryParams" : "queryParams?"}: ${QueryParams}`);
+    }
+    if (LocalError) {
+      fields.push(`error: ${LocalError}`);
+    }
+    fields.push(`endpoint: "${endpoint}"`);
 
-    return `Request<${Response}, ${Payload}, ${QueryParamsGeneric}, ${LocalError}, "${endpoint}", Client>`;
+    return `RequestModel<{ ${fields.join("; ")} }>`;
   }
 
   static generateHyperFetchRequest(
