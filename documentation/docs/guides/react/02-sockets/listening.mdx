@@ -82,6 +82,9 @@ function LiveChat() {
 In the example above, `onChatMessage` is a pre-defined listener request. You can learn more about creating them in the
 [sockets guide](/docs/guides/sockets/listening).
 
+If the stream is fast and your component re-renders too often, configure a `delivery` strategy on the listener - see
+[Throttling & Batching in React](/docs/guides/react/sockets/throttling).
+
 ---
 
 :::success Congratulations!

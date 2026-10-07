@@ -20,28 +20,28 @@ type ChatMessage = { text: string; user: string };
 describe("ListenerModel - defaults for omitted fields", () => {
   it("should default response to unknown", () => {
     type L = ListenerModel<{ topic: "chat/messages" }>;
-    type Response = L extends Listener<infer R, any, any, any> ? R : never;
+    type Response = L extends Listener<infer R, any, any, any, any> ? R : never;
     expectTypeOf<Response>().toEqualTypeOf<unknown>();
     expect(true).toBe(true);
   });
 
   it("should default topic to string when not provided", () => {
     type L = ListenerModel<{ response: ChatMessage }>;
-    type Topic = L extends Listener<any, infer T, any, any> ? T : never;
+    type Topic = L extends Listener<any, infer T, any, any, any> ? T : never;
     expectTypeOf<Topic>().toEqualTypeOf<string>();
     expect(true).toBe(true);
   });
 
   it("should default socket to SocketInstance when not provided", () => {
     type L = ListenerModel<{ response: ChatMessage; topic: "chat" }>;
-    type Sock = L extends Listener<any, any, infer S, any> ? S : never;
+    type Sock = L extends Listener<any, any, infer S, any, any> ? S : never;
     expectTypeOf<Sock>().toEqualTypeOf<SocketInstance>();
     expect(true).toBe(true);
   });
 
   it("should default hasParams to false", () => {
     type L = ListenerModel<{ topic: "chat" }>;
-    type HasParams = L extends Listener<any, any, any, infer Hp> ? Hp : never;
+    type HasParams = L extends Listener<any, any, any, infer Hp, any> ? Hp : never;
     expectTypeOf<HasParams>().toEqualTypeOf<false>();
     expect(true).toBe(true);
   });
@@ -82,8 +82,8 @@ describe("EmitterModel - defaults for omitted fields", () => {
 describe("ListenerModel / EmitterModel - user-provided fields override defaults", () => {
   it("should narrow response and topic on a Listener when provided", () => {
     type L = ListenerModel<{ response: ChatMessage; topic: "chat/messages" }>;
-    type Response = L extends Listener<infer R, any, any, any> ? R : never;
-    type Topic = L extends Listener<any, infer T, any, any> ? T : never;
+    type Response = L extends Listener<infer R, any, any, any, any> ? R : never;
+    type Topic = L extends Listener<any, infer T, any, any, any> ? T : never;
     expectTypeOf<Response>().toEqualTypeOf<ChatMessage>();
     expectTypeOf<Topic>().toEqualTypeOf<"chat/messages">();
     expect(true).toBe(true);
@@ -102,7 +102,7 @@ describe("ListenerModel / EmitterModel - user-provided fields override defaults"
 describe("ListenerInstance / EmitterInstance - keep `any` defaults (constraint use)", () => {
   it("should keep ListenerInstance wide so concrete listeners satisfy it", () => {
     type LI = ListenerInstance;
-    type Response = LI extends Listener<infer R, any, any, any> ? R : never;
+    type Response = LI extends Listener<infer R, any, any, any, any> ? R : never;
     expectTypeOf<Response>().toEqualTypeOf<any>();
     expect(true).toBe(true);
   });
@@ -126,7 +126,7 @@ describe("InjectSocket - schema-level socket injection", () => {
       $listener: ListenerModel<{ response: ChatMessage; topic: "chat" }>;
     };
     type Injected = InjectSocket<Schema, TestSocket>;
-    type ResolvedSocket = Injected["$listener"] extends Listener<any, any, infer S, any> ? S : never;
+    type ResolvedSocket = Injected["$listener"] extends Listener<any, any, infer S, any, any> ? S : never;
     expectTypeOf<ResolvedSocket>().toEqualTypeOf<TestSocket>();
     expect(true).toBe(true);
   });
@@ -155,9 +155,10 @@ describe("InjectSocket - schema-level socket injection", () => {
     };
     type Injected = InjectSocket<Schema, TestSocket>;
 
-    type LSocket = Injected["chat"]["messages"]["$listener"] extends Listener<any, any, infer S, any> ? S : never;
+    type LSocket = Injected["chat"]["messages"]["$listener"] extends Listener<any, any, infer S, any, any> ? S : never;
     type ESocket = Injected["chat"]["messages"]["$emitter"] extends Emitter<any, any, infer S, any, any> ? S : never;
-    type NestedLSocket = Injected["chat"]["$roomId"]["$listener"] extends Listener<any, any, infer S, any> ? S : never;
+    type NestedLSocket =
+      Injected["chat"]["$roomId"]["$listener"] extends Listener<any, any, infer S, any, any> ? S : never;
 
     expectTypeOf<LSocket>().toEqualTypeOf<TestSocket>();
     expectTypeOf<ESocket>().toEqualTypeOf<TestSocket>();
@@ -174,8 +175,8 @@ describe("InjectSocket - schema-level socket injection", () => {
     };
     type Injected = InjectSocket<Schema, TestSocket>;
 
-    type LResp = Injected["chat"]["$listener"] extends Listener<infer R, any, any, any> ? R : never;
-    type LTopic = Injected["chat"]["$listener"] extends Listener<any, infer T, any, any> ? T : never;
+    type LResp = Injected["chat"]["$listener"] extends Listener<infer R, any, any, any, any> ? R : never;
+    type LTopic = Injected["chat"]["$listener"] extends Listener<any, infer T, any, any, any> ? T : never;
     type EPayload = Injected["chat"]["$emitter"] extends Emitter<infer P, any, any, any, any> ? P : never;
     type ETopic = Injected["chat"]["$emitter"] extends Emitter<any, infer T, any, any, any> ? T : never;
 
@@ -205,9 +206,9 @@ describe("createSocketSdk - produces a fully resolved SDK type", () => {
     const sdk = createSocketSdk<typeof socket, Schema>(socket);
 
     type ChatListener = typeof sdk.chat.messages.$listener;
-    type ResolvedSocket = ChatListener extends Listener<any, any, infer S, any> ? S : never;
-    type ResolvedResponse = ChatListener extends Listener<infer R, any, any, any> ? R : never;
-    type ResolvedTopic = ChatListener extends Listener<any, infer T, any, any> ? T : never;
+    type ResolvedSocket = ChatListener extends Listener<any, any, infer S, any, any> ? S : never;
+    type ResolvedResponse = ChatListener extends Listener<infer R, any, any, any, any> ? R : never;
+    type ResolvedTopic = ChatListener extends Listener<any, infer T, any, any, any> ? T : never;
 
     expectTypeOf<ResolvedSocket>().toEqualTypeOf<typeof socket>();
     expectTypeOf<ResolvedResponse>().toEqualTypeOf<ChatMessage>();
@@ -233,8 +234,8 @@ describe("createSocketSdk - produces a fully resolved SDK type", () => {
     const sdk = createSocketSdk<typeof socket, Schema>(socket);
 
     type RoomListener = typeof sdk.chat.$roomId.$listener;
-    type ResolvedSocket = RoomListener extends Listener<any, any, infer S, any> ? S : never;
-    type ResolvedTopic = RoomListener extends Listener<any, infer T, any, any> ? T : never;
+    type ResolvedSocket = RoomListener extends Listener<any, any, infer S, any, any> ? S : never;
+    type ResolvedTopic = RoomListener extends Listener<any, infer T, any, any, any> ? T : never;
 
     expectTypeOf<ResolvedSocket>().toEqualTypeOf<typeof socket>();
     expectTypeOf<ResolvedTopic>().toEqualTypeOf<"chat/:roomId">();
@@ -298,6 +299,29 @@ describe("$configure - dot-path callback narrowing", () => {
       "chat/messages": { options: { buffered: true } },
     });
 
+    expect(true).toBe(true);
+  });
+});
+
+describe("ListenerModel - delivered type", () => {
+  it("should default delivered to response", () => {
+    type L = ListenerModel<{ response: ChatMessage; topic: "chat/messages" }>;
+    type Delivered = L extends Listener<any, any, any, any, infer D> ? D : never;
+    expectTypeOf<Delivered>().toEqualTypeOf<ChatMessage>();
+    expect(true).toBe(true);
+  });
+
+  it("should keep an explicit delivered type through InjectSocket", () => {
+    type Schema = {
+      trades: {
+        $listener: ListenerModel<{ response: ChatMessage; topic: "trades"; delivered: ChatMessage[] }>;
+      };
+    };
+    type Injected = InjectSocket<Schema, TestSocket>;
+    type Delivered = Injected["trades"]["$listener"] extends Listener<any, any, any, any, infer D> ? D : never;
+    type Response = Injected["trades"]["$listener"] extends Listener<infer R, any, any, any, any> ? R : never;
+    expectTypeOf<Delivered>().toEqualTypeOf<ChatMessage[]>();
+    expectTypeOf<Response>().toEqualTypeOf<ChatMessage>();
     expect(true).toBe(true);
   });
 });

@@ -19,10 +19,16 @@ export type ExtractEmitterHasParamsType<E> = E extends Emitter<any, any, any, an
 
 // Listener
 
-export type ExtractListenerResponseType<T> = T extends Listener<infer R, any, any, any> ? R : never;
-export type ExtractListenerTopicType<E> = E extends Listener<any, infer T, any, any> ? T : never;
-export type ExtractListenerSocketType<E> = E extends Listener<any, any, infer A, any> ? A : never;
-export type ExtractListenerHasParamsType<E> = E extends Listener<any, any, any, infer P> ? P : never;
+/** Raw message type of a listener - what arrives on the wire, before any `delivery` strategy. */
+export type ExtractListenerResponseType<T> = T extends Listener<infer R, any, any, any, any> ? R : never;
+export type ExtractListenerTopicType<E> = E extends Listener<any, infer T, any, any, any> ? T : never;
+export type ExtractListenerSocketType<E> = E extends Listener<any, any, infer A, any, any> ? A : never;
+export type ExtractListenerHasParamsType<E> = E extends Listener<any, any, any, infer P, any> ? P : never;
+/**
+ * What `listen` callbacks receive. Equals {@link ExtractListenerResponseType} unless the listener has a
+ * `delivery` strategy (e.g. `batch` delivers `Response[]`).
+ */
+export type ExtractListenerDeliveredType<T> = T extends Listener<any, any, any, any, infer D> ? D : never;
 
 // Socket
 

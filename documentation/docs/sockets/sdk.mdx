@@ -107,6 +107,26 @@ solve opposite problems. Picking the right one is the difference between strict 
 | **Omitted fields default to** | Strict, non-`any` (`unknown`, `undefined`, `string`, `false`). | `any` — on purpose, so any concrete `Listener` / `Emitter` satisfies the constraint. |
 | **Why those defaults?** | Absence means "**there is no payload / no params**". The type should reject mismatches. | Absence means "**I don't care about that field**". The type should accept anything. |
 
+:::info `delivered` field
+
+`ListenerModel` also accepts an optional `delivered` field - the type `listen` callbacks receive. It defaults to
+`response` and only needs to be set when a `delivery` strategy changes the shape, because runtime defaults cannot
+change schema types:
+
+```ts
+type Schema = {
+  trades: {
+    $listener: ListenerModel<{ response: Trade; topic: "trades"; delivered: Trade[] }>;
+  };
+};
+
+const configured = sdk.$configure({
+  trades: { delivery: { strategy: "batch", interval: 100 } },
+});
+```
+
+:::
+
 ```ts
 // MODEL — defining the chat/messages topic exactly:
 //   response is { text, user }
@@ -224,6 +244,7 @@ const configured = sdk.$configure({
 | Key | Type | Description |
 |-----|------|-------------|
 | `options` | `Record<string, unknown>` | Adapter-specific options passed to `setOptions` |
+| `delivery` | `ListenerDeliveryType` | Delivery strategy passed to `setDelivery` on listeners (`latest` / `batch` preset or a custom strategy). Ignored for emitters. |
 
 ### Application Order
 

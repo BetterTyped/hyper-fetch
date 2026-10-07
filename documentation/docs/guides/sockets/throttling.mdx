@@ -1,0 +1,276 @@
+---
+sidebar_position: 3
+title: Socket Throttling & Batching Guide
+sidebar_label: Throttling & Batching
+---
+
+# Throttling & Batching
+
+Some socket streams are fast. A price ticker can push hundreds of updates per second, a trade feed thousands. Every one
+of those messages reaches every `listen` callback, and in React every one of them is a re-render. Most of that work is
+wasted: the screen refreshes 60 times a second, and nobody reads 500 intermediate prices.
+
+Hyper Fetch solves this at the listener level with the **`delivery`** option. You declare *how* messages should reach
+your callbacks, and everything built on top of the listener - `listen()`, `useListener`, the SDK - follows along
+without any changes.
+
+---
+
+:::secondary What you'll learn
+
+1.  Why high-frequency streams need **delivery control** and where it happens in the pipeline.
+2.  How to **sample** state-like data with the `latest` strategy.
+3.  How to **batch** event-like data with the `batch` strategy so nothing is lost.
+4.  How to **choose** between the two, and the semantics you should know.
+5.  How to write a **custom strategy** when the presets are not enough.
+6.  How to **switch delivery at runtime**.
+
+:::
+
+## Where delivery happens
+
+Without `delivery`, a message goes: socket → adapter → your callback. With `delivery`, each `listen()` call gets its
+own small controller sitting right before your callback:
+
+```
+socket ──▶ adapter ──▶ [ delivery controller ] ──▶ your callback
+                        push()      deliver()
+```
+
+- `push` receives every raw message.
+- The strategy decides **if and when** to call `deliver`, which is your callback.
+- When you unsubscribe, the controller is disposed: timers are cleared and pending messages are dropped.
+
+Because this lives inside the listener, nothing else has to know about it. The raw stream is still available for
+tooling through `socket.events.onListenerEvent`, which is never throttled.
+
+---
+
+## Latest: sampling state-like data
+
+Use `latest` when only the newest value matters - prices, cursor positions, progress, presence. The first message of an
+idle period is delivered immediately, then at most **one message per `interval`**, always the most recent one.
+Everything in between is dropped on purpose.
+
+```ts
+// highlight-start
+// 16ms ≈ one animation frame - the UI cannot show updates faster than that anyway.
+// highlight-end
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+
+onPrice.listen(({ data }) => {
+  // `data` is a single Price - the newest one in the last 16ms window
+  render(data);
+});
+```
+
+Timeline for `interval: 100` with messages **A B C** at 0 / 20 / 40 ms and **D** at 300 ms:
+
+```
+t=0    A arrives  → delivered immediately, 100ms window opens
+t=20   B arrives  → pending
+t=40   C arrives  → pending (B is dropped)
+t=100  window closes → C delivered, next window opens
+t=200  window closes → nothing pending → idle
+t=300  D arrives  → delivered immediately (idle, so it leads again)
+```
+
+Set `leading: false` if you prefer to wait a full interval before the first delivery:
+
+```ts
+delivery: { strategy: "latest", interval: 100, leading: false }
+```
+
+---
+
+## Batch: collecting event-like data
+
+Use `batch` when **every message matters** - trades, chat messages, log lines, notifications. The first message opens a
+window of `interval` milliseconds; when it closes, every collected message is delivered **at once as an array**, in
+arrival order. Nothing is dropped.
+
+```ts
+export const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  // highlight-start
+  // `maxSize` is a safety valve: a burst of 500 trades is delivered right away instead of growing the buffer.
+  // highlight-end
+  delivery: { strategy: "batch", interval: 100, maxSize: 500 },
+});
+
+onTrade.listen(({ data }) => {
+  // highlight-next-line
+  // `data` is Trade[] - TypeScript infers the array type from the "batch" strategy
+  appendRows(data);
+});
+```
+
+Timeline for `interval: 100`:
+
+```
+t=0    A arrives  → buffer [A], 100ms window opens
+t=20   B arrives  → buffer [A, B]
+t=40   C arrives  → buffer [A, B, C]
+t=100  window closes → [A, B, C] delivered
+t=300  D arrives  → buffer [D], window opens
+t=400  window closes → [D] delivered
+```
+
+Empty batches are never delivered.
+
+---
+
+## Choosing a strategy
+
+| | `latest` | `batch` |
+| --- | --- | --- |
+| **Data is…** | state - the newest value replaces the old one | events - each one must be processed |
+| **Losing intermediate messages** | Expected | Never |
+| **Callback receives** | `Response` | `Response[]` |
+| **Typical interval** | 16-100 ms (render rate) | 50-500 ms (processing rate) |
+| **Examples** | prices, positions, progress, presence | trades, chat, logs, notifications |
+
+If neither fits exactly, write a [custom strategy](#custom-strategies).
+
+---
+
+## Semantics you should know
+
+- **`extra` is the last message's `extra`.** For the WebSocket adapter `extra` is the raw `MessageEvent`. A batch
+  delivers the `extra` of its final message; keeping hundreds of them would be pure memory cost. If you need per-item
+  metadata, use a custom strategy.
+- **Nothing fires after unsubscribe.** Calling the function returned by `listen()` disposes the controller and drops
+  pending messages. This keeps React safe: an unmounted component never receives a late update.
+- **Each `listen()` call is independent.** Two subscriptions on the same listener each get their own timers and
+  buffers, even with the same callback.
+- **`delivery` travels with the listener.** `setParams`, `setOptions` and `clone` keep it. `setDelivery` returns a new
+  listener, like every other setter - see
+  [Methods Return Clones](/docs/sockets/listener#methods).
+- **Zero cost when unused.** Without `delivery`, your callback is registered directly - no wrapper, no timers.
+- **Interceptors run first.** `socket.onMessage` modifiers run per raw message, before delivery.
+
+---
+
+## Custom strategies
+
+A strategy is a factory called once per `listen()`. It receives `deliver` (your callback) and returns an object with
+`push` (input) and `dispose` (cleanup). That is the whole contract: one input, one output, one cleanup.
+
+Declare the output type once with `createDeliveryStrategy<Input, Output>` - TypeScript cannot infer it from how you
+call `deliver`, the same way it cannot infer the wire type in `createListener<Response>()`.
+
+### Example: debounce (deliver after silence)
+
+```ts
+import { createDeliveryStrategy } from "@hyper-fetch/sockets";
+
+export const settle = createDeliveryStrategy<Tick>(({ deliver }) => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let last: { data: Tick; extra: any } | undefined;
+
+  return {
+    push: (message) => {
+      last = message;
+      clearTimeout(timer);
+      // highlight-next-line
+      timer = setTimeout(() => {
+        if (last) deliver(last);
+        last = undefined;
+      }, 50);
+    },
+    dispose: () => {
+      clearTimeout(timer);
+      last = undefined;
+    },
+  };
+});
+
+const onTick = socket.createListener<Tick>()({ topic: "ticks", delivery: settle });
+```
+
+### Example: aggregate into a summary
+
+```ts
+type Summary = { count: number; max: number };
+
+export const summarize = createDeliveryStrategy<Trade, Summary>(({ deliver }) => {
+  let count = 0;
+  let max = -Infinity;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  return {
+    push: ({ data, extra }) => {
+      count += 1;
+      max = Math.max(max, data.price);
+      timer ??= setTimeout(() => {
+        timer = undefined;
+        deliver({ data: { count, max }, extra });
+        count = 0;
+        max = -Infinity;
+      }, 1000);
+    },
+    dispose: () => clearTimeout(timer),
+  };
+});
+
+const onTradeSummary = socket.createListener<Trade>()({ topic: "trades", delivery: summarize });
+
+onTradeSummary.listen(({ data }) => {
+  // highlight-next-line
+  // data: Summary
+  console.log(`${data.count} trades, max ${data.max}`);
+});
+```
+
+The built-in presets are implemented with exactly this contract. Their factories, `createLatestDeliveryStrategy` and
+`createBatchDeliveryStrategy`, are exported so you can compose them inside your own strategies.
+
+:::info Define strategies at module level
+
+Strategy functions are compared by identity. Define them once next to your listeners, not inline in a component, or
+React will re-subscribe on every render. Preset objects can be written inline - they are compared by value.
+
+:::
+
+---
+
+## Switching delivery at runtime
+
+`setDelivery` returns a clone with the new strategy and the matching callback type. Pass `undefined` to go back to
+immediate delivery.
+
+```ts
+const live = onPrice.setDelivery({ strategy: "latest", interval: 16 }); // 60 fps
+const relaxed = onPrice.setDelivery({ strategy: "latest", interval: 1000 }); // 1 fps
+const everything = onPrice.setDelivery(undefined); // every message
+```
+
+---
+
+:::success Congratulations!
+
+You can now keep high-frequency streams fast for the server and cheap for the client.
+
+- You know **where** delivery happens and why it keeps the rest of the API unchanged.
+- You can **sample** with `latest` and **batch** with `batch`, and you know which to pick.
+- You understand the **semantics**: last `extra`, nothing after unsubscribe, independent subscriptions.
+- You can write a **custom strategy** with `push`, `deliver` and `dispose`.
+
+:::
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="The full Listener reference, including the delivery option and setDelivery."
+  to="/docs/sockets/listener#delivery-strategies"
+/>
+
+<LinkCard
+  type="docs"
+  title="React - Throttling & Batching"
+  description="Using delivery strategies with the useListener hook."
+  to="/docs/guides/react/sockets/throttling"
+/>

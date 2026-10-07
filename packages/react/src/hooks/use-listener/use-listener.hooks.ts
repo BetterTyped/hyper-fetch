@@ -1,5 +1,6 @@
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import type { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import type { ListenerInstance, ExtractListenerDeliveredType } from "@hyper-fetch/sockets";
+import { getDeliveryKey } from "@hyper-fetch/sockets";
 import { useSocketState } from "helpers";
 import type { UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
@@ -13,7 +14,10 @@ export const useListener = <ListenerType extends ListenerInstance>(
 ) => {
   const { config: globalConfig } = useProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
-  const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState<
+    ExtractListenerDeliveredType<ListenerType>,
+    ListenerType["socket"]
+  >(listener.socket, { dependencyTracking });
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
 
   /**
@@ -21,7 +25,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
    */
 
   const onEventCallback = useRef<
-    null | ((response: { data: ExtractListenerResponseType<ListenerType>; extra: Record<string, any> }) => void)
+    null | ((response: { data: ExtractListenerDeliveredType<ListenerType>; extra: Record<string, any> }) => void)
   >(null);
 
   /**
@@ -56,7 +60,8 @@ export const useListener = <ListenerType extends ListenerInstance>(
     () => {
       listen();
     },
-    [listener.params, JSON.stringify(listener.options)],
+    // Topic already contains resolved params. Delivery presets compare by value, custom strategies by identity.
+    [listener.topic, JSON.stringify(listener.options), getDeliveryKey(listener.delivery)],
     true,
   );
 
