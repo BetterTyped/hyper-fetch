@@ -55,7 +55,8 @@ describe("useSubmit [ Queue ]", () => {
         expect(spy).toHaveBeenCalledTimes(4);
       });
       it("should start in loading mode when request in queue is ongoing", async () => {
-        mockRequest(request);
+        // Keep the request in flight long enough for the second hook to mount while it is still ongoing.
+        mockRequest(request, { delay: 500 });
         const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {
@@ -67,7 +68,7 @@ describe("useSubmit [ Queue ]", () => {
         await testLoading(true, response);
       });
       it("should not start in loading mode when queue is paused", async () => {
-        mockRequest(request);
+        mockRequest(request, { delay: 500 });
         const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {

@@ -3,7 +3,7 @@ import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -74,7 +74,11 @@ describe("useFetch [ refetch ]", () => {
     });
     renderUseFetch(request, { revalidate: false });
 
-    await waitForRender(50);
+    // Wait for the request to finish instead of sleeping a fixed time - the mock delay can exceed it under load.
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    await sleep(50);
     expect(spy).toHaveBeenCalledTimes(1);
   });
   it("should allow to refetch on mount", async () => {
