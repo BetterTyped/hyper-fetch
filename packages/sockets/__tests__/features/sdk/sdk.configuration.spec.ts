@@ -107,6 +107,66 @@ describe("Socket SDK [ Configuration ]", () => {
     });
   });
 
+  describe("delivery defaults", () => {
+    it("should apply delivery via plain object to listeners only", () => {
+      const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
+      const configured = sdk.$configure({
+        "*": { delivery: { strategy: "batch", interval: 100 } },
+      });
+
+      expect(configured.chat.messages.$listener.delivery).toStrictEqual({ strategy: "batch", interval: 100 });
+      expect(configured.notifications.$listener.delivery).toStrictEqual({ strategy: "batch", interval: 100 });
+      expect((configured.chat.messages.$emitter as any).delivery).toBeUndefined();
+    });
+
+    it("should apply delivery together with options", () => {
+      const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
+      const configured = sdk.$configure({
+        "chat/messages": { options: { fast: true }, delivery: { strategy: "latest", interval: 16 } },
+      });
+
+      const listener = configured.chat.messages.$listener;
+      expect(listener.options).toStrictEqual({ fast: true });
+      expect(listener.delivery).toStrictEqual({ strategy: "latest", interval: 16 });
+      expect(configured.notifications.$listener.delivery).toBeUndefined();
+    });
+  });
+
+  describe("delivery via function configuration", () => {
+    it("should allow setDelivery inside a function configuration", () => {
+      const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
+      const configured = sdk.$configure({
+        "chat.messages.$listener": (instance) =>
+          "setDelivery" in instance ? instance.setDelivery({ strategy: "latest", interval: 16 }) : instance,
+      });
+      expect(configured.chat.messages.$listener.delivery).toStrictEqual({ strategy: "latest", interval: 16 });
+      expect(configured.chat.rooms.$listener.delivery).toBeUndefined();
+    });
+
+    it("should apply delivery on a topic prefix", () => {
+      const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
+      const configured = sdk.$configure({
+        "chat/*": { delivery: { strategy: "batch", interval: 50 } },
+      });
+      expect(configured.chat.messages.$listener.delivery).toStrictEqual({ strategy: "batch", interval: 50 });
+      expect(configured.chat.rooms.$listener.delivery).toStrictEqual({ strategy: "batch", interval: 50 });
+      expect(configured.notifications.$listener.delivery).toBeUndefined();
+    });
+
+    it("should keep listeners working after SDK delivery configuration", () => {
+      const sdk = createSocketSdk<TestSocket, TestSchema>(socket);
+      const configured = sdk.$configure({
+        "*": { delivery: { strategy: "batch", interval: 100 } },
+      });
+      const listener = configured.notifications.$listener;
+      const spy = vi.fn();
+      const stop = listener.listen(spy);
+      expect(socket.adapter.listeners.get(listener.topic)?.size).toBe(1);
+      stop();
+      expect(socket.adapter.listeners.get(listener.topic)?.size).toBe(0);
+    });
+  });
+
   describe("topic group matching", () => {
     it("should apply config to an exact topic", () => {
       const sdk = createSocketSdk<TestSocket, TestSchema>(socket);

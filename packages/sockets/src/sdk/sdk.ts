@@ -1,10 +1,13 @@
+import type { ListenerDeliveryType } from "delivery";
 import type { Emitter, EmitterInstance } from "emitter";
-import type { Listener, ListenerInstance } from "listener";
+import { Listener } from "listener";
+import type { ListenerInstance } from "listener";
 import type { SocketInstance } from "socket";
 import type {
   ExtractListenerResponseType,
   ExtractListenerTopicType,
   ExtractListenerHasParamsType,
+  ExtractListenerDeliveredType,
   ExtractEmitterPayloadType,
   ExtractEmitterTopicType,
   ExtractEmitterHasPayloadType,
@@ -32,7 +35,8 @@ export type InjectSocket<T, S extends SocketInstance, Depth extends unknown[] = 
         ExtractListenerResponseType<T>,
         ExtractListenerTopicType<T> extends string ? ExtractListenerTopicType<T> : string,
         S,
-        ExtractListenerHasParamsType<T> extends boolean ? ExtractListenerHasParamsType<T> : false
+        ExtractListenerHasParamsType<T> extends boolean ? ExtractListenerHasParamsType<T> : false,
+        ExtractListenerDeliveredType<T>
       >
     : T extends EmitterInstance
       ? Emitter<
@@ -99,7 +103,10 @@ type SocketSdkConfigurationKeys<Schema extends RecursiveSocketSchemaType> =
   | ExtractSocketSdkPaths<Schema>;
 
 export type SocketSdkDefaults = {
+  /** Adapter-specific options applied with `setOptions` to listeners and emitters. */
   options?: Record<string, unknown>;
+  /** Delivery strategy applied with `setDelivery` to listeners. Ignored for emitters. */
+  delivery?: ListenerDeliveryType;
 };
 
 export type SocketSdkConfigurationValue = SocketSdkDefaults | ((instance: SocketSdkLeaf) => SocketSdkLeaf);
@@ -142,8 +149,12 @@ const isTopicGroup = (key: string): boolean => {
 };
 
 const topicMatchesPattern = (topic: string, pattern: string): boolean => {
-  if (pattern === "*") {return true;}
-  if (pattern === topic) {return true;}
+  if (pattern === "*") {
+    return true;
+  }
+  if (pattern === topic) {
+    return true;
+  }
   if (pattern.endsWith("/*")) {
     const prefix = pattern.slice(0, -1);
     return topic.startsWith(prefix) || topic === prefix.slice(0, -1);
@@ -153,7 +164,12 @@ const topicMatchesPattern = (topic: string, pattern: string): boolean => {
 
 const applySocketObjectDefaults = (instance: SocketSdkLeaf, config: SocketSdkDefaults): SocketSdkLeaf => {
   let result = instance;
-  if (config.options !== undefined) {result = result.setOptions(config.options);}
+  if (config.options !== undefined) {
+    result = result.setOptions(config.options);
+  }
+  if (config.delivery !== undefined && result instanceof Listener) {
+    result = result.setDelivery(config.delivery);
+  }
   return result;
 };
 
@@ -168,7 +184,9 @@ const applySocketDefaults = ({
   sdkPath: string;
   defaults?: Partial<Record<string, SocketSdkConfigurationValue>>;
 }): SocketSdkLeaf => {
-  if (!defaults) {return instance;}
+  if (!defaults) {
+    return instance;
+  }
 
   let result = instance;
   const entries = Object.entries(defaults);
@@ -179,7 +197,9 @@ const applySocketDefaults = ({
 
   for (let i = 0; i < entries.length; i += 1) {
     const [key, value] = entries[i];
-    if (!value) {continue;}
+    if (!value) {
+      continue;
+    }
     const entry: [string, SocketSdkConfigurationValue] = [key, value];
     if (entry[0] === "*") {
       globalEntries.push(entry);

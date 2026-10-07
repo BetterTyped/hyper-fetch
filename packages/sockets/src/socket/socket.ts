@@ -3,6 +3,7 @@ import { LoggerManager, AppManager, Time } from "@hyper-fetch/core";
 import type { SocketAdapterInstance } from "adapter";
 import type { WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
 import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
+import type { ListenerDeliveryType, ResolveDeliveredType } from "delivery";
 import type { EmitterInstance, EmitterOptionsType } from "emitter";
 import { Emitter } from "emitter";
 import EventEmitter from "events";
@@ -238,8 +239,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @returns
    */
   createListener = <Response>() => {
-    return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, Adapter>) => {
-      return new Listener<Response, Endpoint, Socket<Adapter>>(this, options);
+    return <Topic extends string, Delivery extends ListenerDeliveryType<Response, Adapter> | undefined = undefined>(
+      options: ListenerOptionsType<Topic, Adapter, Response, Delivery>,
+    ) => {
+      return new Listener<Response, Topic, Socket<Adapter>, false, ResolveDeliveredType<Response, Delivery>>(
+        this,
+        options,
+      );
     };
   };
 
