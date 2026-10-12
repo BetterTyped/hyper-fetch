@@ -1,0 +1,263 @@
+/*
+ * The Hype Stack card. Its picture is three apps built on Hype Stack, framed like a print. Under it: a small lit
+ * label, a headline that ends on the name in its colour, the price, and a button the full width of the card.
+ * Every rule is written against the card's own classes with the page's root in front, because the site's own
+ * stylesheet colours every link in `main`.
+ */
+html body .hs-ad {
+  --hs: oklch(0.68 0.2 50);
+  --hs-bg: #0d0d10;
+  --hs-ink: #ffffff;
+  --hs-dim: #a3a3ad;
+  --hs-line: rgb(255 255 255 / 0.14);
+  display: grid;
+  padding: 8px 8px 14px;
+  border: 1px solid var(--hs-line);
+  border-radius: 18px;
+  background: var(--hs-bg);
+  box-shadow: 0 26px 60px -34px color-mix(in oklch, var(--hs) 75%, transparent);
+  color: var(--hs-ink);
+  font-family: inherit;
+  line-height: 1.4;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s,
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html[data-theme="light"] body .hs-ad {
+  --hs-bg: #ffffff;
+  --hs-ink: #0a0a0a;
+  --hs-dim: #5e5e66;
+  --hs-line: rgb(0 0 0 / 0.14);
+}
+html body .hs-ad:hover {
+  border-color: color-mix(in oklch, var(--hs) 60%, var(--hs-line));
+  box-shadow: 0 30px 64px -30px color-mix(in oklch, var(--hs) 90%, transparent);
+  color: var(--hs-ink);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+html body .hs-ad > :not(.hs-ad-art) {
+  margin-inline: 10px;
+}
+html body .hs-ad .hs-ad-art {
+  position: relative;
+  display: block;
+  aspect-ratio: 9 / 5;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #0a0c13;
+}
+html body .hs-ad .hs-ad-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+html body .hs-ad .hs-ad-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html body .hs-ad:hover .hs-ad-art img {
+  transform: scale(1.07);
+}
+html body .hs-ad .hs-ad-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--hs);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html body .hs-ad .hs-ad-label svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  fill: var(--hs);
+}
+html body .hs-ad strong {
+  margin-top: 8px;
+  color: var(--hs-ink);
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+html body .hs-ad strong b {
+  display: block;
+  color: var(--hs);
+  font-weight: inherit;
+}
+html body .hs-ad .hs-ad-text {
+  margin-top: 8px;
+  color: var(--hs-dim);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+html body .hs-ad .hs-ad-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--hs-dim);
+  font-size: 13px;
+}
+html body .hs-ad .hs-ad-price b {
+  color: var(--hs-ink);
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+html body .hs-ad .hs-ad-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--hs) 88%, #fff),
+    var(--hs)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 10px 22px -10px var(--hs);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.14);
+  transition: filter 0.2s;
+}
+html body .hs-ad:hover .hs-ad-go {
+  filter: brightness(1.07);
+}
+html body .hs-ad .hs-ad-go i {
+  font-style: normal;
+  transition: transform 0.2s;
+}
+html body .hs-ad:hover .hs-ad-go i {
+  transform: translateX(3px);
+}
+
+/* In the sidebar the card stays at the bottom of the window while the menu scrolls behind it. */
+.hs-ad-dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 28px 12px 14px 16px;
+  /* The page's own dark, so the menu fades out under the card instead of running into it. */
+  background: linear-gradient(transparent, #1c1c1d 26px);
+}
+/* On a short window the picture steps aside, so the menu keeps most of the sidebar. */
+@media (max-height: 820px) {
+  html body .hs-ad-dock .hs-ad .hs-ad-art {
+    display: none;
+  }
+  html body .hs-ad-dock .hs-ad {
+    padding-top: 14px;
+  }
+}
+
+/* The card in the corner of the window, on pages with no sidebar and on screens too narrow to show one. */
+.hs-ad-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 190;
+  width: 280px;
+  border-radius: 18px;
+  box-shadow: 0 30px 70px -20px rgb(0 0 0 / 0.75);
+  animation: hs-ad-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}
+@keyframes hs-ad-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+.hs-ad-close {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+}
+.hs-ad-close svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+/* With the sidebar on screen the card is already in it, so the one in the corner steps aside. */
+@media (min-width: 997px) {
+  body:has(.hs-ad-dock) .hs-ad-float {
+    display: none;
+  }
+}
+/* On a phone the card is a strip along the bottom: the label, the headline and the way in. */
+@media (max-width: 560px) {
+  .hs-ad-float {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    width: auto;
+  }
+  html body .hs-ad-float .hs-ad {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2px 12px;
+    padding: 10px 10px 10px 4px;
+  }
+  html body .hs-ad-float .hs-ad .hs-ad-art,
+  html body .hs-ad-float .hs-ad .hs-ad-text,
+  html body .hs-ad-float .hs-ad .hs-ad-price {
+    display: none;
+  }
+  html body .hs-ad-float .hs-ad strong {
+    grid-column: 1;
+    margin-top: 0;
+    font-size: 15px;
+  }
+  html body .hs-ad-float .hs-ad strong b {
+    display: inline;
+  }
+  html body .hs-ad-float .hs-ad .hs-ad-go {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    font-size: 0;
+  }
+  html body .hs-ad-float .hs-ad .hs-ad-go i {
+    font-size: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-ad-float {
+    animation: none;
+  }
+}
