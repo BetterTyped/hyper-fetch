@@ -8,7 +8,6 @@ import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { modules } from "@site/src/modules";
 
 import { SidebarMenu } from "../../../components/sidebar-menu/sidebar-menu";
-import { HypeStackCard } from "../../../components/hype-stack-card/hype-stack-card";
 
 const DocSidebarDesktop = ({ path, sidebar, onCollapse }) => {
   const {
@@ -32,7 +31,6 @@ const DocSidebarDesktop = ({ path, sidebar, onCollapse }) => {
         <Content path={path} sidebar={filteredSidebar} />
         {hideable && <CollapseButton onClick={onCollapse} />}
       </div>
-      <HypeStackCard />
     </div>
   );
 };

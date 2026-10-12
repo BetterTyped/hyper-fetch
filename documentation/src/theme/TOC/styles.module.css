@@ -23,7 +23,19 @@
 
 .tableOfContents {
   overflow-y: auto;
-  max-height: calc(100vh - 420px);
+  /* What is left of the window after the buttons above, the Hype Stack card and the sponsors below. */
+  max-height: max(132px, calc(100vh - 420px - 292px));
+}
+
+/* A shrunk card, or one without its picture on a short window, gives the room back to the headings. */
+.tocContent:has(:global(.hs-ad-rail[data-small])) .tableOfContents {
+  max-height: max(132px, calc(100vh - 420px - 96px));
+}
+
+@media (max-height: 880px) {
+  .tocContent:not(:has(:global(.hs-ad-rail[data-small]))) .tableOfContents {
+    max-height: max(132px, calc(100vh - 420px - 172px));
+  }
 }
 
 .tableOfContents a {
@@ -122,7 +134,13 @@
   padding: 7px 16px;
   border: 0;
   border-radius: 10px;
-  background: linear-gradient(160deg, #bf4b8e 0%, #ea4aaa 40%, #f472b6 70%, #c9508e 100%);
+  background: linear-gradient(
+    160deg,
+    #bf4b8e 0%,
+    #ea4aaa 40%,
+    #f472b6 70%,
+    #c9508e 100%
+  );
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.02em;
@@ -142,7 +160,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    transparent 50%
+  );
   pointer-events: none;
 }
 
