@@ -47,6 +47,8 @@ You can pass adapter-specific options via the `adapterOptions` constructor optio
 | `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
 | `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
 | `pongTimeout` | `number` | — | Timeout (ms) to wait for a pong response. |
+| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming frame into a listener event. Return `null` to ignore the frame. |
+| `encode` | `({ topic, payload }) => string \| ArrayBufferLike \| Blob \| ArrayBufferView` | `JSON.stringify({ topic, data })` | Turns an emitted message (and the heartbeat) into the frame passed to `websocket.send`. |
 
 ```tsx
 const socket = createSocketClient({
@@ -56,6 +58,28 @@ const socket = createSocketClient({
     protocols: ["v1"],
     heartbeat: true,
     heartbeatMessage: "ping",
+  },
+});
+```
+
+#### Custom message format
+
+By default every frame is a JSON `{ topic, data }` object. When your server speaks a different format - for example
+`{ type, payload }` - map it with the `decode` and `encode` options instead of writing a custom adapter. Frames decoded
+to `null` (pings, unknown messages) are ignored, and errors thrown by either function are reported through `onError`.
+
+```tsx
+const socket = createSocketClient({
+  url: "wss://example.com/ws",
+  adapterOptions: {
+    // highlight-start
+    decode: (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "pong") return null;
+      return { topic: message.type, data: message.payload };
+    },
+    encode: ({ topic, payload }) => JSON.stringify({ type: topic, payload }),
+    // highlight-end
   },
 });
 ```
@@ -115,6 +139,7 @@ const socket = createSocketClient({
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
 | `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
+| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message into a listener event. Return `null` to ignore the message. |
 
 ```tsx
 const socket = createSocketClient({

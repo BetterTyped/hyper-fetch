@@ -1,4 +1,6 @@
 import { LoggerManager } from "@hyper-fetch/core";
+import { createWebsocketMockingServer, waitForConnection } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/dom";
 import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
 import { Socket } from "socket";
 
@@ -20,6 +22,44 @@ describe("Socket [ Methods ]", () => {
     socket.adapter.setQueryParamsMapper(method);
     const queryParams = socket.adapter.unstable_queryParamsMapper({ test: 1 });
     expect(queryParams).toBe("testing");
+  });
+
+  it("should allow to set url without touching the live connection", async () => {
+    const socket = new Socket({ url: "ws://localhost:1234", adapterOptions: { autoConnect: false } });
+    const reconnectSpy = vi.spyOn(socket.adapter, "reconnect");
+
+    expect(socket.setUrl("ws://localhost:4321")).toBe(socket);
+    expect(socket.url).toBe("ws://localhost:4321");
+    expect(reconnectSpy).not.toHaveBeenCalled();
+  });
+
+  it("should connect to the new url on reconnect and keep listeners", async () => {
+    // startServer() cleans every mocked server, so the second one is created only after the first started
+    const first = createWebsocketMockingServer("ws://localhost:1234");
+    first.startServer();
+    const second = createWebsocketMockingServer("ws://localhost:4321");
+
+    const socket = new Socket({ url: "ws://localhost:1234" });
+    const listener = socket.createListener<{ value: number }>()({ topic: "topic" });
+    const spy = vi.fn();
+    listener.listen(({ data }) => spy(data));
+    await waitForConnection(socket);
+    await first.getServer().connected;
+
+    socket.setUrl("ws://localhost:4321");
+    await socket.reconnect();
+    await second.getServer().connected;
+    await waitForConnection(socket);
+
+    second.emitListenerEvent(listener, { value: 2 });
+
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith({ value: 2 });
+    });
+
+    await socket.disconnect();
+    first.stopServer();
+    second.stopServer();
   });
 
   it("should allow to activate debug", async () => {

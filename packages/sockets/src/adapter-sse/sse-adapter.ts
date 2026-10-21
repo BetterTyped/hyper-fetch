@@ -7,7 +7,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
-import type { SSEAdapterOptionsType } from "./sse-adapter.types";
+import type { SSEAdapterOptionsType, SSEDecodedMessageType } from "./sse-adapter.types";
 import { getServerSentEventsAdapter } from "./sse-adapter.utils";
 
 /**
@@ -60,6 +60,23 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             ? socket.adapter.adapterOptions?.autoConnect
             : true;
 
+        /** Maps an incoming message to the listener event, reporting decoder failures instead of throwing */
+        const decodeMessage = (
+          event: MessageEvent<SocketData>,
+          decode: SSEAdapterOptionsType["decode"],
+        ): SSEDecodedMessageType | null => {
+          try {
+            if (decode) {
+              return decode(event);
+            }
+            const { topic, data } = parseMessageEvent(event);
+            return { topic, data };
+          } catch (error) {
+            onError({ error: error as Error });
+            return null;
+          }
+        };
+
         const connect = async (): Promise<boolean> => {
           const connection = await onConnect();
           if (!connection) {
@@ -97,10 +114,12 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             onError({ error: new Error(error) });
           });
 
+          const { decode } = connection.adapterOptions || {};
           eventSource.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
-            const { topic, data, event } = parseMessageEvent(newEvent);
-
-            onEvent({ topic, data, extra: event });
+            const message = decodeMessage(newEvent, decode);
+            if (message) {
+              onEvent({ topic: message.topic, data: message.data, extra: newEvent });
+            }
           });
 
           return new Promise((resolve) => {
