@@ -92,6 +92,16 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   /**
+   * Set the url used by the next connection attempts - e.g. when switching tenants, regions or environments at runtime.
+   * Call `reconnect()` to apply it to a live connection, or use `onConnect` to resolve it per attempt.
+   * Listeners stay registered, so they keep receiving events after reconnecting.
+   */
+  setUrl = (url: string) => {
+    this.url = url;
+    return this;
+  };
+
+  /**
    * Set the default query params used by the next connection attempts.
    * Call `reconnect()` to apply them to a live connection, or use `onConnect` to resolve them per attempt.
    */

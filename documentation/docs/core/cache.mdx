@@ -299,6 +299,8 @@ client.cache.invalidate(getNote.setParams({ noteId: 1 }).cacheKey);
 client.cache.invalidate("CUSTOM_CACHE_KEY");
 // OR via RegExp
 client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
+// OR everything - when called without arguments
+client.cache.invalidate();
 ```
 
 ---

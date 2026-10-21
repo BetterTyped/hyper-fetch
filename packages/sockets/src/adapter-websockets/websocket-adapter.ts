@@ -8,7 +8,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
-import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
+import type { WebsocketAdapterOptionsType, WebsocketDecodedMessageType } from "./websocket-adapter.types";
 import { getWebsocketAdapter } from "./websocket-adapter.utils";
 
 /**
@@ -120,10 +120,13 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
-            const { topic, data, event } = parseMessageEvent(newEvent);
-
-            onEvent({ topic, data, extra: event });
+            // Any frame proves the connection is alive, even the ones ignored by the decoder
             onHeartbeat();
+
+            const message = decodeMessage(newEvent);
+            if (message) {
+              onEvent({ topic: message.topic, data: message.data, extra: newEvent });
+            }
           });
 
           return new Promise((resolve) => {
@@ -209,12 +212,34 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           clearTimeout(pongTimer);
         };
 
+        /** Maps an incoming frame to the listener event, reporting decoder failures instead of throwing */
+        const decodeMessage = (event: MessageEvent<SocketData>): WebsocketDecodedMessageType | null => {
+          try {
+            if (options?.decode) {
+              return options.decode(event);
+            }
+            const { topic, data } = parseMessageEvent(event);
+            return { topic, data };
+          } catch (error) {
+            onError({ error: error as Error });
+            return null;
+          }
+        };
+
         const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">) => {
           if (!websocket) {
             return false;
           }
-          websocket!.send(JSON.stringify({ topic, data: payload }));
-          return true;
+          try {
+            const frame = options?.encode
+              ? options.encode({ topic, payload })
+              : JSON.stringify({ topic, data: payload });
+            websocket.send(frame);
+            return true;
+          } catch (error) {
+            onError({ error: error as Error });
+            return false;
+          }
         };
 
         const onHeartbeat = () => {

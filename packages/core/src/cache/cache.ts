@@ -195,9 +195,10 @@ export class Cache<Adapter extends AdapterInstance> {
   /**
    * Invalidate cache by cacheKey or partial matching with RegExp
    * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
-   * @param key - cacheKey or Request instance or RegExp for partial matching
+   * Called without arguments it invalidates every cached element.
+   * @param cacheKeys - cacheKey or Request instance or RegExp for partial matching (defaults to all elements)
    */
-  invalidate = (cacheKeys: string | RegExp | RequestInstance | (string | RegExp | RequestInstance)[]) => {
+  invalidate = (cacheKeys: string | RegExp | RequestInstance | (string | RegExp | RequestInstance)[] = /.*/) => {
     this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { cacheKeys } });
 
     const onInvalidate = (key: string | RegExp | RequestInstance) => {
@@ -285,7 +286,7 @@ export class Cache<Adapter extends AdapterInstance> {
    */
   getAllKeys = async () => {
     const keys = await this.lazyStorage?.keys();
-    const asyncKeys = [...keys || []];
+    const asyncKeys = [...(keys || [])];
     const syncKeys = [...this.storage.keys()];
 
     return [...new Set([...asyncKeys, ...syncKeys])];

@@ -43,7 +43,7 @@ export class Client<
   GlobalErrorType extends ClientErrorType = Error,
   Adapter extends AdapterInstance = HttpAdapterType,
 > {
-  readonly url: string;
+  url: string;
   readonly mode: ClientMode;
   public debug: boolean;
 
@@ -102,6 +102,38 @@ export class Client<
     this.fetchDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
     this.submitDispatcher.initialize(this as unknown as ClientInstance<{ adapter: Adapter }>);
   }
+
+  /**
+   * Set the base url used by the next requests - e.g. when switching tenants, regions or environments at runtime.
+   * Cache keys don't include the base url, so data cached for the previous url stays in place unless you pass
+   * `invalidate: true`. Pass `abort: true` to cancel the requests that are still in progress for the previous url.
+   * @param url new base url
+   * @param options.abort abort all ongoing requests
+   * @param options.invalidate invalidate the cache (and requests aborted by `abort`), so active consumers refetch
+   */
+  setUrl = (url: string, options: { abort?: boolean; invalidate?: boolean } = {}): Client<GlobalErrorType, Adapter> => {
+    if (url === this.url) {
+      return this;
+    }
+
+    const { abort = false, invalidate = false } = options;
+    const runningRequests = this.fetchDispatcher.getAllRunningRequests().map(({ request }) => request);
+
+    this.url = url;
+
+    if (abort) {
+      this.requestManager.abortAll();
+    }
+    if (invalidate) {
+      this.cache.invalidate();
+      // Aborted requests never land in the cache, so the full invalidation above would not notify their consumers
+      if (abort && runningRequests.length > 0) {
+        this.cache.invalidate(runningRequests);
+      }
+    }
+
+    return this;
+  };
 
   /**
    * This method enables the logger usage and display the logs in console
@@ -409,7 +441,9 @@ export class Client<
     options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
   ) => {
     hydrationData?.forEach((item) => {
-      if (!item) {return;}
+      if (!item) {
+        return;
+      }
 
       const { cacheKey, scope, response, ...fallbackOptions } = item;
       const defaults = {

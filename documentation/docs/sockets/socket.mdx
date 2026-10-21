@@ -125,6 +125,20 @@ attempt, so you never have to keep the socket in sync with your application stat
 
 ---
 
+### Changing the URL
+
+`setUrl` replaces the URL used by the **next** connection attempt - just like `setQueryParams`, call `reconnect()` to
+apply it to a live connection. Listeners stay registered, so they keep receiving events from the new server.
+
+```tsx
+export const socket = createSocketClient({ url: "wss://eu.example.com/ws" });
+
+socket.setUrl("wss://us.example.com/ws");
+socket.reconnect();
+```
+
+---
+
 ### Authentication
 
 To exchange authenticated events, set up the `queryParams` parameter with authentication parameter or resolve the
