@@ -427,6 +427,30 @@ Available removal methods:
 
 ---
 
+10. ### Changing the base URL
+
+Use `setUrl` to point the client at a different server at runtime - for example when switching tenants, regions or
+environments. Every request sent afterwards uses the new base URL.
+
+```tsx
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://eu.example.com" });
+
+// highlight-next-line
+client.setUrl("https://us.example.com", { abort: true, invalidate: true });
+```
+
+Cache keys don't include the base URL, so data cached for the previous server stays in place by default. Pass the
+options when the data of both servers should not mix:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `abort` | `false` | Abort all requests that are still in progress for the previous URL. |
+| `invalidate` | `false` | Invalidate the whole cache (and the requests aborted by `abort`), so mounted hooks refetch from the new URL. |
+
+---
+
 6. ### Hydration
 
 We can hydrate the client with the data from the server. This is a powerful feature that allows us to pass the data from

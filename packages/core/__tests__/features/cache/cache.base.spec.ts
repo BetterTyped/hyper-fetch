@@ -109,6 +109,22 @@ describe("Cache [ Base ]", () => {
       unmount();
     });
 
+    it("should invalidate every element when called without arguments", async () => {
+      const trigger = vi.fn();
+      const unmount = cache.events.onInvalidate(trigger);
+
+      cache.set(request.setCacheKey("1"), { ...response, ...details });
+      cache.set(request.setCacheKey("2"), { ...response, ...details });
+      cache.invalidate();
+
+      expect(cache.get("1")?.staleTime).toBe(0);
+      expect(cache.get("2")?.staleTime).toBe(0);
+      expect(trigger).toHaveBeenCalledTimes(2);
+      expect(trigger).toHaveBeenCalledWith("1");
+      expect(trigger).toHaveBeenCalledWith("2");
+      unmount();
+    });
+
     it("should not add to cache when useCache is set to false", async () => {
       const trigger = vi.fn();
       const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
