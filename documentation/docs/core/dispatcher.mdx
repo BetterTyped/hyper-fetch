@@ -504,4 +504,18 @@ const queueMonitor = new Plugin({ name: "queue-monitor" })
 client.addPlugin(queueMonitor);
 ```
 
+To observe the requests that are currently **in flight**, subscribe to the running requests events on the dispatcher.
+They fire whenever a request starts or stops running - finished, canceled or cleared:
+
+```ts
+const unmount = client.fetchDispatcher.events.onRunningRequestsChange(({ queryKey, runningRequests }) => {
+  console.log(`${queryKey} has ${runningRequests.length} running requests`);
+});
+
+// Or for a single queue
+client.fetchDispatcher.events.onRunningRequestsChangeByKey(getUsers.queryKey, console.log);
+```
+
+In React, the [`useIsFetching` and `useIsSubmitting`](/docs/react/hooks/use-is-fetching) hooks build on these events.
+
 ---

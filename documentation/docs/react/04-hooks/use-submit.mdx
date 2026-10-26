@@ -317,6 +317,19 @@ function CreateUserForm() {
 
 ---
 
+## Selecting Data
+
+The `select` option picks the part of the response kept in the hook's `data`. The promise returned by `submit()` and
+the event handlers like `onSubmitSuccess` still receive the full response.
+
+```tsx title="Submit selector"
+const { submit, data: userName } = useSubmit(login, {
+  select: (response) => response.user.name,
+});
+```
+
+---
+
 ## Options
 
 Customize the behavior of `useSubmit` by passing an options object as the second argument.

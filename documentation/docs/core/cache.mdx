@@ -90,6 +90,8 @@ const client = createClient({
 - **Event-driven**: Emits events on cache changes for real-time updates.
 - **Persistence**: Easily enable persistent cache across sessions.
 - **Fine-grained control**: Read, write, update, delete, and invalidate cache entries with simple methods.
+- **Structural sharing**: New data is merged with the previous entry - deeply equal parts keep their object references,
+  so an identical response keeps the same `data` reference. Disable it with `request.setStructuralSharing(false)`.
 - **Integration**: Works seamlessly with the Client and Request systems.
 
 ---

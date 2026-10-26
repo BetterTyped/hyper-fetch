@@ -245,10 +245,51 @@ function App() {
 
 :::info React 18+ Required
 
-Suspense mode requires React 18 or later. You can combine it with `<ErrorBoundary>` components to handle error states
-declaratively.
+Suspense mode requires React 18 or later. You can combine it with `<ErrorBoundary>` components and the
+[`throwOnError`](#error-boundaries) option to handle error states declaratively.
 
 :::
+
+---
+
+## Error Boundaries
+
+Set `throwOnError: true` to throw the request error to the closest React
+[Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) instead of
+returning it in the `error` field. The error is thrown only once the request settles - attempts that will be retried,
+canceled requests and offline (re-queued) requests never reach the boundary.
+
+```tsx title="Throwing errors to the boundary"
+import { ErrorBoundary } from "react-error-boundary";
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersList() {
+  // highlight-next-line
+  const { data } = useFetch(getUsers, { suspense: true, throwOnError: true });
+
+  return <Table data={data} />;
+}
+
+function App() {
+  return (
+    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <button onClick={resetErrorBoundary}>Retry</button>}>
+      <Suspense fallback={<p>Loading users...</p>}>
+        <UsersList />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+Errors are not stored in the cache, so resetting the boundary remounts the component and fetches the data again. Pass a
+function to decide per error - for example handle validation errors in the component and throw all the others:
+
+```tsx
+const { data, error } = useFetch(getUsers, {
+  throwOnError: (error) => error.code !== "VALIDATION_ERROR",
+});
+```
 
 ---
 
@@ -310,6 +351,62 @@ function UsersList() {
 
 When `dependencyTracking` is set to `false`, the component re-renders on every state change, regardless of which fields
 are used. This can be useful for debugging or when you need to ensure the component always has the latest state.
+
+---
+
+## Selecting Data
+
+Many components often need only a small part of the same response. The `select` option picks (or transforms) the data
+the component uses, while the request and its cache stay shared between all the hooks. The component re-renders only
+when **the selected value** changes - updates of the other parts of the response are skipped.
+
+```tsx title="Subscribing to a part of the response"
+const useSymbol = (id: string) => {
+  // highlight-next-line
+  return useFetch(getSymbols, { select: (symbols) => symbols[id] });
+};
+
+const useSymbolPrice = (id: string) => {
+  // highlight-next-line
+  return useFetch(getSymbols, { select: (symbols) => symbols[id]?.price });
+};
+
+function Price({ id }: { id: string }) {
+  // Re-renders only when this symbol's price changes, even though all symbols are fetched and cached together
+  const { data: price } = useSymbolPrice(id);
+  return <span>{price}</span>;
+}
+```
+
+- The selector receives the response data and runs only when there is data - `data` stays `null` otherwise.
+- The selector can close over props. When it changes between renders (e.g. a new `id`), it is applied to the current
+  data right away, without waiting for a new response.
+- Inline selectors are fine - the result is [structurally shared](#structural-sharing), so a recreated but equal object
+  keeps its previous reference.
+- `data` and `setData` use the selected type. Event handlers like `onSuccess` and the cache keep the full response.
+- An error thrown by the selector is passed to the closest Error Boundary.
+
+---
+
+## Structural Sharing
+
+Every response saved to the cache is merged with the previous one: all the parts that are deeply equal keep their
+previous object references. When the same data comes back from a refetch, `data` keeps the exact same reference, and
+when only a part changed, the untouched branches are reused. Thanks to this `useMemo`, `useEffect` and `React.memo`
+dependencies stay stable without any extra work. The same is applied to the `select` results inside the hook.
+
+```tsx
+const { data } = useFetch(getUsers);
+
+useEffect(() => {
+  // Runs only when the users data really changed - not on every refetch
+  syncUsers(data);
+}, [data]);
+```
+
+Structural sharing works on plain objects and arrays - class instances, dates, maps etc. are compared by reference. You
+can disable it per request with `request.setStructuralSharing(false)` (or the `structuralSharing` request option), and
+for the selected data with the `structuralSharing: false` hook option.
 
 ---
 
@@ -378,6 +475,9 @@ const { ... } = useFetch(request, {
 | `bounceType` | `"debounce"` | Bounce strategy: `"debounce"` or `"throttle"` |
 | `bounceTime` | `400` | Bounce delay in ms |
 | `deepCompare` | `true` | Deep compare options for memoization |
+| `select` | `undefined` | Pick or transform the part of the data used by the component |
+| `structuralSharing` | `true` | Keep references of the unchanged parts of the selected data |
+| `throwOnError` | `false` | Throw settled request errors to the closest Error Boundary |
 
 :::info Refetch restarts the refresh timer
 
