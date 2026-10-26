@@ -132,6 +132,25 @@ function UsersCache() {
 
 ---
 
+## Selecting Data
+
+Use the `select` option to subscribe to a part of the cached data. The hook re-renders only when the selected value
+changes, and the result keeps its reference while it stays deeply equal (structural sharing). See
+[useFetch - Selecting Data](/docs/react/hooks/use-fetch#selecting-data) for details.
+
+```tsx title="Cache selector"
+function TodosCounter() {
+  // Re-renders only when the number of done todos changes
+  const { data: doneCount } = useCache(getTodos, {
+    select: (todos) => todos.filter((todo) => todo.done).length,
+  });
+
+  return <span>{doneCount}</span>;
+}
+```
+
+---
+
 ## Options
 
 Configuration options for this hook provided as a second parameter.

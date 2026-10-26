@@ -9,7 +9,7 @@ import type {
   ExtractAdapterExtraType,
   ResponseType,
 } from "@hyper-fetch/core";
-import { scopeKey } from "@hyper-fetch/core";
+import { replaceEqualDeep, scopeKey } from "@hyper-fetch/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { isEqual } from "utils";
 
@@ -18,6 +18,7 @@ import type {
   UseTrackedStateType,
   UseTrackedStateProps,
   UseTrackedStateReturn,
+  UseTrackedStateResponseDetails,
 } from "./use-tracked-state.types";
 import {
   getInitialState,
@@ -35,7 +36,7 @@ import {
  * @param dependencies
  * @internal
  */
-export const useTrackedState = <T extends RequestInstance>({
+export const useTrackedState = <T extends RequestInstance, TData = ExtractResponseType<T>>({
   request,
   dispatcher,
   initialResponse,
@@ -44,14 +45,63 @@ export const useTrackedState = <T extends RequestInstance>({
   keepPreviousData = "auto",
   disabled,
   revalidate,
-}: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
+  select,
+  structuralSharing = true,
+}: UseTrackedStateProps<T, TData>): UseTrackedStateReturn<T, TData> => {
   const { client, cacheKey, queryKey, staleTime, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState({ initialResponse, dispatcher, request, disabled }));
-  const renderKeys = useRef<(keyof UseTrackedStateType<T>)[]>([]);
+  const state = useRef<UseTrackedStateType<T, TData>>(null as unknown as UseTrackedStateType<T, TData>);
+  const renderKeys = useRef<(keyof UseTrackedStateType<T, TData>)[]>([]);
   const isProcessingData = useRef("");
   const previousCacheKey = useRef(cacheKey);
+
+  // ******************
+  // Data selection
+  // ******************
+
+  const selectRef = useRef(select);
+  selectRef.current = select;
+  const appliedSelect = useRef(select);
+  // Response data before applying the selector - allows to re-run it when the selector changes
+  const rawData = useRef<ExtractResponseType<T> | null>(null);
+  // Data set with the setData action has the selected shape and should not get re-selected
+  const isLocalData = useRef(false);
+  const selectError = useRef<{ error: unknown } | null>(null);
+  const responseDetails = useRef<UseTrackedStateResponseDetails | null>(null);
+
+  const selectData = (data: ExtractResponseType<T> | null, previousData: TData | null = null): TData | null => {
+    if (!selectRef.current || data === null || data === undefined) {
+      return data as TData | null;
+    }
+    const selected = selectRef.current(data);
+    return structuralSharing ? replaceEqualDeep(previousData, selected) : selected;
+  };
+
+  const getSelectedState = (newState: UseTrackedStateType<T>): UseTrackedStateType<T, TData> => {
+    rawData.current = newState.data;
+    isLocalData.current = false;
+    responseDetails.current = null;
+    appliedSelect.current = selectRef.current;
+    return { ...newState, data: selectData(newState.data, state.current?.data) };
+  };
+
+  if (!state.current) {
+    state.current = getSelectedState(getInitialState({ initialResponse, dispatcher, request, disabled }));
+  }
+
+  // Selector failed while processing incoming data - surface it to the closest error boundary
+  if (selectError.current) {
+    const { error } = selectError.current;
+    selectError.current = null;
+    throw error;
+  }
+
+  // Selector changed (e.g. it closes over a new prop) - re-run it against the latest response data
+  if (appliedSelect.current !== select && !isLocalData.current) {
+    appliedSelect.current = select;
+    state.current.data = selectData(rawData.current, state.current.data);
+  }
 
   // ******************
   // useSyncExternalStore
@@ -89,12 +139,12 @@ export const useTrackedState = <T extends RequestInstance>({
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: (keyof UseTrackedStateType)[]) => {
+  const renderKeyTrigger = (keys: (keyof UseTrackedStateType<T, TData>)[]) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
     if (shouldRerender) {emitChange();}
   };
 
-  const setRenderKey = (renderKey: keyof UseTrackedStateType) => {
+  const setRenderKey = (renderKey: keyof UseTrackedStateType<T, TData>) => {
     if (!renderKeys.current.includes(renderKey)) {
       renderKeys.current.push(renderKey);
     }
@@ -119,8 +169,8 @@ export const useTrackedState = <T extends RequestInstance>({
       if (shouldClear && !cacheState) {
         // Reset state to initial values when no cached data exists for the new key
         const resetState = getInitialState({ initialResponse, dispatcher, request, disabled, revalidate });
-        state.current = resetState;
-        renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T>)[]);
+        state.current = getSelectedState(resetState);
+        renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T, TData>)[]);
       } else if (cacheState) {
         state.current.loading = getIsInitiallyLoading({
           queryKey: scopeKey(request.queryKey, request.scope),
@@ -162,6 +212,9 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const handleCompare = (firstValue: unknown, secondValue: unknown) => {
+    if (Object.is(firstValue, secondValue)) {
+      return true;
+    }
     if (typeof deepCompare === "function") {
       return deepCompare(firstValue, secondValue);
     }
@@ -174,8 +227,27 @@ export const useTrackedState = <T extends RequestInstance>({
   const handleCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
-    const newStateValues: UseTrackedStateType<T> = {
-      data: cacheData.data,
+    rawData.current = cacheData.data;
+    isLocalData.current = false;
+    appliedSelect.current = selectRef.current;
+    responseDetails.current = {
+      willRetry: !!cacheData.willRetry,
+      isCanceled: !!cacheData.isCanceled,
+      isOffline: !!cacheData.isOffline,
+    };
+
+    let data: TData | null;
+    try {
+      data = selectData(cacheData.data, state.current.data);
+    } catch (error) {
+      // Never throw inside of the cache events - rethrow it on render instead
+      selectError.current = { error };
+      emitChange();
+      return;
+    }
+
+    const newStateValues: UseTrackedStateType<T, TData> = {
+      data,
       error: cacheData.error,
       status: cacheData.status,
       success: cacheData.success,
@@ -186,18 +258,17 @@ export const useTrackedState = <T extends RequestInstance>({
       loading: dispatcher.hasRunningRequests(queryKey),
     };
 
-    const changedKeys = Object.keys(newStateValues).filter((key) => {
-      const keyValue = key as keyof UseTrackedStateType<T>;
-      const firstValue = state.current[keyValue];
-      const secondValue = newStateValues[keyValue];
+    const nextState: UseTrackedStateType<T, TData> = { ...state.current };
+    const changedKeys = (Object.keys(newStateValues) as (keyof UseTrackedStateType<T, TData>)[]).filter((key) => {
+      const isEqualValue = handleCompare(state.current[key], newStateValues[key]);
+      // Equal values keep their previous reference, so they stay stable between renders
+      if (!isEqualValue) {
+        (nextState as Record<string, unknown>)[key] = newStateValues[key];
+      }
+      return !isEqualValue;
+    });
 
-      return !handleCompare(firstValue, secondValue);
-    }) as unknown as (keyof UseTrackedStateType<T>)[];
-
-    state.current = {
-      ...state.current,
-      ...newStateValues,
-    };
+    state.current = nextState;
 
     renderKeyTrigger(changedKeys);
   };
@@ -253,8 +324,9 @@ export const useTrackedState = <T extends RequestInstance>({
   // Actions
   // ******************
 
-  const actions: UseTrackedStateActions<T> = {
+  const actions: UseTrackedStateActions<T, TData> = {
     setData: (data) => {
+      isLocalData.current = true;
       state.current.data = data instanceof Function ? data(state.current.data || null) : data;
       renderKeyTrigger(["data"]);
     },
@@ -313,6 +385,9 @@ export const useTrackedState = <T extends RequestInstance>({
       renderKeyTrigger(["requestTimestamp"]);
     },
     clearState: () => {
+      rawData.current = null;
+      isLocalData.current = false;
+      responseDetails.current = null;
       state.current = {
         data: null,
         error: null,
@@ -323,10 +398,21 @@ export const useTrackedState = <T extends RequestInstance>({
         retries: 0,
         responseTimestamp: null,
         requestTimestamp: null,
-      } as UseTrackedStateType<T>;
-      renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T>)[]);
+      } as UseTrackedStateType<T, TData>;
+      renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T, TData>)[]);
     },
   };
 
-  return [state.current, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }];
+  return [
+    state.current,
+    actions,
+    {
+      setRenderKey,
+      setCacheData,
+      getStaleStatus,
+      getIsDataProcessing,
+      selectData: (data) => selectData(data, state.current.data),
+      getResponseDetails: () => responseDetails.current,
+    },
+  ];
 };

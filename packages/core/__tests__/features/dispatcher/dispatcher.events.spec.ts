@@ -306,4 +306,56 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("When running requests change", () => {
+    it("should emit running requests change when request starts and finishes", async () => {
+      const spy = vi.fn();
+      const keySpy = vi.fn();
+      const unmount = dispatcher.events.onRunningRequestsChange(spy);
+      const unmountKey = dispatcher.events.onRunningRequestsChangeByKey(request.queryKey, keySpy);
+
+      dispatcher.add(request);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy.mock.calls[0][0].queryKey).toBe(request.queryKey);
+      expect(spy.mock.calls[0][0].runningRequests).toHaveLength(1);
+
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(2);
+      });
+      expect(spy.mock.calls[1][0].runningRequests).toHaveLength(0);
+      expect(keySpy).toHaveBeenCalledTimes(2);
+
+      unmount();
+      unmountKey();
+    });
+
+    it("should emit running requests change on cancel and clear", async () => {
+      const spy = vi.fn();
+      const unmount = dispatcher.events.onRunningRequestsChange(spy);
+      const otherRequest = request.setQueryKey("other");
+      mockRequest(request, { delay: 100 });
+      mockRequest(otherRequest, { delay: 100 });
+
+      const requestId = dispatcher.add(request);
+      dispatcher.add(otherRequest);
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(2);
+      expect(spy).toHaveBeenCalledTimes(2);
+
+      dispatcher.cancelRunningRequest(request.queryKey, requestId);
+      expect(spy).toHaveBeenCalledTimes(3);
+      expect(spy.mock.calls[2][0].runningRequests).toHaveLength(0);
+
+      dispatcher.clear();
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(0);
+      expect(spy.mock.calls.at(-1)?.[0]).toStrictEqual({ queryKey: otherRequest.queryKey, runningRequests: [] });
+
+      // No change - no event
+      const calls = spy.mock.calls.length;
+      dispatcher.deleteRunningRequests(request.queryKey);
+      expect(spy).toHaveBeenCalledTimes(calls);
+
+      unmount();
+    });
+  });
 });

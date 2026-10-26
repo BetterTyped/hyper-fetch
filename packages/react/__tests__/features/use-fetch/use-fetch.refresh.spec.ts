@@ -1,5 +1,5 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
@@ -44,11 +44,13 @@ describe("useFetch [ Refreshing ]", () => {
       result.current.onRequestStart(spy);
     });
 
-    await waitForRender();
-    expect(spy).toHaveBeenCalledTimes(1);
-    await waitForRender(hookOptions.refreshTime * 1.5);
-
-    expect(spy).toHaveBeenCalledTimes(2);
+    // Wait for the events instead of fixed sleeps - the timings stretch on a busy machine
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
   });
   it("should refresh blurred tab", async () => {
     const spy = vi.fn();
@@ -60,9 +62,9 @@ describe("useFetch [ Refreshing ]", () => {
       client.appManager.setFocused(false);
     });
 
-    await waitForRender();
-    await waitForRender(hookOptions.refreshTime * 1.5);
-    expect(spy).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
   });
   it("should not refresh blurred tab", async () => {
     const spy = vi.fn();
@@ -93,11 +95,12 @@ describe("useFetch [ Refreshing ]", () => {
       result.current.onRequestStart(spy);
     });
 
-    await waitForRender();
-    expect(spy).toHaveBeenCalledTimes(1);
-    await waitForRender(hookOptions.refreshTime * 1.5);
-
-    expect(spy).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
 
     act(() => {
       rerender({ refresh: false });

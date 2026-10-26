@@ -45,11 +45,11 @@ describe("useRequestEvents [ Base ]", () => {
     });
 
     it("should not change loading state during cache processing", async () => {
+      const spy = vi.fn();
       const { result, rerender } = renderUseRequestEvents(request, {
+        actions: { setLoading: spy },
         getIsDataProcessing: () => false,
       });
-
-      const spy = vi.spyOn(request.client.fetchDispatcher, "hasRunningRequests");
 
       act(() => {
         result.current[1].addCacheDataListener(request);

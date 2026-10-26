@@ -68,4 +68,4 @@ export type CacheSetState<CacheData> = CacheData | ((previousData: CacheData | n
 export type RequestCacheType<R extends RequestInstance> = Pick<
   R,
   "cacheKey" | "cache" | "staleTime" | "cacheTime" | "scope"
->;
+> & { structuralSharing?: boolean };

@@ -202,6 +202,54 @@ describe("Cache [ Base ]", () => {
     });
   });
 
+  describe("When structural sharing is used", () => {
+    it("should keep the data reference for deeply equal responses", async () => {
+      const spy = vi.fn();
+      cache.events.onDataByKey(request.cacheKey, spy);
+
+      cache.set(request, { ...response, ...details, data: { list: [{ id: 1 }], meta: { page: 1 } } });
+      const first = cache.get<any, any>(request.cacheKey)?.data;
+      cache.set(request, { ...response, ...details, data: { list: [{ id: 1 }], meta: { page: 1 } } });
+      const second = cache.get<any, any>(request.cacheKey)?.data;
+
+      expect(second).toBe(first);
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy.mock.calls[1][0].data).toBe(first);
+    });
+
+    it("should reuse unchanged parts of the data", async () => {
+      cache.set(request, { ...response, ...details, data: { list: [{ id: 1 }], meta: { page: 1 } } });
+      const first = cache.get<any, any>(request.cacheKey)?.data;
+      cache.set(request, { ...response, ...details, data: { list: [{ id: 1 }], meta: { page: 2 } } });
+      const second = cache.get<any, any>(request.cacheKey)?.data;
+
+      expect(second).not.toBe(first);
+      expect(second.list).toBe(first.list);
+      expect(second.meta).toStrictEqual({ page: 2 });
+    });
+
+    it("should share references for cache updates", async () => {
+      cache.set(request, { ...response, ...details, data: { list: [{ id: 1 }], meta: { page: 1 } } });
+      const first = cache.get<any, any>(request.cacheKey)?.data;
+      cache.update(request, (prev) => ({ ...prev, data: { ...prev?.data, meta: { page: 3 } } }));
+      const second = cache.get<any, any>(request.cacheKey)?.data;
+
+      expect(second.list).toBe(first.list);
+      expect(second.meta).toStrictEqual({ page: 3 });
+    });
+
+    it("should allow to disable structural sharing", async () => {
+      const disabledRequest = request.setStructuralSharing(false);
+      const data = { list: [{ id: 1 }] };
+      const newData = { list: [{ id: 1 }] };
+
+      cache.set(disabledRequest, { ...response, ...details, data });
+      cache.set(disabledRequest, { ...response, ...details, data: newData });
+
+      expect(cache.get<any, any>(request.cacheKey)?.data).toBe(newData);
+    });
+  });
+
   describe("When CacheStore gets cleared before triggering cache actions", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = vi.fn();

@@ -200,6 +200,35 @@ define them at module level, or the hook will re-subscribe on every render. See 
 
 ---
 
+## Selecting Data
+
+When many components listen to the same topic but need only a part of each message, use the `select` option. The
+`data` value updates only when the selected value changes - messages that don't affect it don't re-render the
+component. The selected result is structurally shared, so an equal object recreated by the selector keeps its previous
+reference.
+
+```tsx title="Subscribing to a single symbol"
+const useSymbolPrice = (id: string) => {
+  // highlight-next-line
+  return useListener(onPrices, { select: (prices) => prices[id]?.price });
+};
+
+function Price({ id }: { id: string }) {
+  // Re-renders only when this symbol's price changes
+  const { data: price } = useSymbolPrice(id);
+  return <span>{price}</span>;
+}
+```
+
+- `onEvent` still receives the full message.
+- Without `select`, every message updates `data`, even when it is equal to the previous one - messages are events.
+- The selector can close over props - when it changes (e.g. a new `id`), it is applied to the last message right away.
+- An error thrown by the selector is passed to the closest Error Boundary.
+- Read only the fields you render - the hook re-renders only for the accessed values (`dependencyTracking`, enabled by
+  default), so reading `timestamp` or `extra` makes the component re-render on every message again.
+
+---
+
 ## Options
 
 Configuration options for `useListener` must be provided as the second parameter.

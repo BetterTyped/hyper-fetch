@@ -242,6 +242,27 @@ describe("Sockets hooks [ StrictMode ]", () => {
 
       expect(spy).not.toHaveBeenCalled();
     });
+    it("should select the message data", async () => {
+      const listener = createListener();
+      const view = renderHook(() => useListener(listener, { select: (message) => message.name }), {
+        wrapper: StrictMode,
+      });
+      act(() => {
+        view.result.current.onEvent(spy);
+      });
+      await waitFor(() => {
+        expect(view.result.current.connected).toBeTrue();
+      });
+      // Read data like a rendering component would - dependency tracking subscribes to the accessed values
+      expect(view.result.current.data).toBeNull();
+
+      emitListenerEvent(listener, { name: "Maciej", age: 99 });
+
+      await waitFor(() => {
+        expect(view.result.current.data).toBe("Maciej");
+      });
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("given useEmitter is rendered in StrictMode", () => {

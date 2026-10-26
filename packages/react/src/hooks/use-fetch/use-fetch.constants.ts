@@ -2,7 +2,7 @@ import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 import { Time } from "@hyper-fetch/core";
 import type { UseFetchOptionsType } from "hooks/use-fetch";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse">> & {
+type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialResponse" | "select">> & {
   initialResponse: null;
 };
 
@@ -25,4 +25,6 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   bounceTime: 400,
   bounceTimeout: 400,
   deepCompare: true,
+  structuralSharing: true,
+  throwOnError: false,
 };

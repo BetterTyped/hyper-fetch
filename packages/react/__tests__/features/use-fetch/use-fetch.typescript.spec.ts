@@ -1,6 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { expectType, expectNotType, expectFunctionParametersType } from "@hyper-fetch/testing";
 import type { UseFetchReturnType } from "hooks/use-fetch";
+import { useFetch } from "hooks/use-fetch";
 
 const client = new Client({
   url: "http://localhost:3000",
@@ -176,6 +177,46 @@ describe("useFetch [Types]", () => {
       const bounce = {} as GetUsersReturn["bounce"];
       expectType<boolean>().assert(bounce.active);
       expectType<() => void>().assert(bounce.reset);
+    });
+  });
+
+  describe("select", () => {
+    it("should infer the selected data type", () => {
+      const useSelected = () => useFetch(getUsers, { select: (users) => users.map((user) => user.name) });
+      const data = null as unknown as ReturnType<typeof useSelected>["data"];
+      const setData = null as unknown as ReturnType<typeof useSelected>["setData"];
+      expectType<string[] | null>().assert(data);
+      expectNotType<{ id: string; name: string }[] | null>().assert(data);
+      expectFunctionParametersType(setData).assert([["name"]]);
+    });
+
+    it("should type selector argument as the response", () => {
+      const useSelected = () =>
+        useFetch(getUser, {
+          select: (user) => {
+            expectType<{ id: string; name: string; email: string }>().assert(user);
+            return user.email;
+          },
+        });
+      const data = null as unknown as ReturnType<typeof useSelected>["data"];
+      expectType<string | null>().assert(data);
+    });
+
+    it("should keep the response type without selector", () => {
+      const useDefault = () => useFetch(getUsers, { structuralSharing: false });
+      const data = null as unknown as ReturnType<typeof useDefault>["data"];
+      expectType<{ id: string; name: string }[] | null>().assert(data);
+    });
+
+    it("should type throwOnError predicate with the request error", () => {
+      const useThrowing = () =>
+        useFetch(getUserWithError, {
+          throwOnError: (error) => {
+            expectType<{ code: number; message: string; details: string[] } | Error>().assert(error);
+            return true;
+          },
+        });
+      expectType<() => unknown>().assert(useThrowing);
     });
   });
 });

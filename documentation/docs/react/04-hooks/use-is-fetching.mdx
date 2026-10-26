@@ -1,0 +1,65 @@
+---
+sidebar_position: 8
+title: React hooks - useIsFetching
+sidebar_label: useIsFetching
+---
+
+# useIsFetching
+
+[Read the API Reference »](/api/react/Hooks/useIsFetching.mdx)
+
+**`useIsFetching`** returns the number of requests currently running in the fetch dispatcher of a
+[`Client`](/core/client.mdx) - the ones triggered by `useFetch`, `useCache` or `client.fetchDispatcher`.
+**`useIsSubmitting`** does the same for the submit dispatcher (`useSubmit`).
+
+---
+
+:::tip Purpose
+
+1. Global loading and saving indicators
+2. Counting the in-flight requests of a part of the app
+
+:::
+
+---
+
+## Usage
+
+```tsx title="Global loading indicator"
+import { useIsFetching, useIsSubmitting } from "@hyper-fetch/react";
+import { client } from "./api/client";
+
+function GlobalSpinner() {
+  const fetching = useIsFetching(client);
+  const submitting = useIsSubmitting(client);
+
+  if (!fetching && !submitting) return null;
+  return <Spinner label={submitting ? "Saving..." : "Loading..."} />;
+}
+```
+
+---
+
+## Filtering
+
+Count only the requests you are interested in with the `queryKey` (exact string or RegExp) or a `predicate`.
+
+```tsx
+// Requests of one query
+const usersFetching = useIsFetching(client, { queryKey: getUsers.queryKey });
+
+// Requests matching a pattern
+const adminFetching = useIsFetching(client, { queryKey: /admin/ });
+
+// Any custom condition
+const uploading = useIsSubmitting(client, { predicate: (request) => request.endpoint.startsWith("/files") });
+```
+
+The count includes only the requests that are being sent at the moment - queued requests waiting for their turn and
+requests waiting for the network to come back are not counted. The hooks re-render only when the count changes.
+
+---
+
+## Options
+
+(@import react UseIsFetchingOptionsType type=returns)

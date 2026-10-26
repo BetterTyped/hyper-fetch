@@ -259,6 +259,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const keys = this.getQueuesKeys();
     keys.forEach((queryKey) => this.cancelRunningRequests(queryKey));
 
+    [...this.runningRequests.keys()].forEach((queryKey) => this.setRunningRequests(queryKey, []));
     this.runningRequests.clear();
     this.storage.clear();
     this.client.triggerPlugins("onDispatcherCleared", { dispatcher: this });
@@ -328,13 +329,25 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
+   * Single place for changing the running requests - notifies about the change
+   */
+  private setRunningRequests = (queryKey: string, runningRequests: RunningRequestValueType[]) => {
+    const previousRequests = this.getRunningRequests(queryKey);
+    this.runningRequests.set(queryKey, runningRequests);
+    if (
+      previousRequests.length !== runningRequests.length ||
+      previousRequests.some((req, i) => req !== runningRequests[i])
+    ) {
+      this.events.emitRunningRequestsChanged({ queryKey, runningRequests });
+    }
+  };
+
+  /**
    * Add request to the running requests list
    */
   addRunningRequest = (queryKey: string, requestId: string, request: RequestInstance): RunningRequestValueType => {
     const newRunningRequest = { requestId, request, timestamp: Date.now() };
-    const runningRequests = this.getRunningRequests(queryKey);
-    runningRequests.push(newRunningRequest);
-    this.runningRequests.set(queryKey, runningRequests);
+    this.setRunningRequests(queryKey, [...this.getRunningRequests(queryKey), newRunningRequest]);
     return newRunningRequest;
   };
 
@@ -376,14 +389,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       return true;
     });
 
-    this.runningRequests.set(queryKey, requests);
+    this.setRunningRequests(queryKey, requests);
   };
 
   /**
    * Delete all started requests, but do NOT clear it from queue and do NOT cancel them
    */
   deleteRunningRequests = (queryKey: string) => {
-    this.runningRequests.set(queryKey, []);
+    this.setRunningRequests(queryKey, []);
   };
 
   /**
@@ -391,7 +404,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    */
   deleteRunningRequest = (queryKey: string, requestId: string) => {
     const runningRequests = this.getRunningRequests(queryKey);
-    this.runningRequests.set(
+    this.setRunningRequests(
       queryKey,
       runningRequests.filter((req) => req.requestId !== requestId),
     );

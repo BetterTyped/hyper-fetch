@@ -54,3 +54,8 @@ export type RunningRequestValueType = {
   request: RequestInstance;
   timestamp: number;
 };
+
+export type RunningRequestsChangeType = {
+  queryKey: string;
+  runningRequests: RunningRequestValueType[];
+};

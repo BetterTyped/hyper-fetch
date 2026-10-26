@@ -5,6 +5,8 @@ import type {
   ExtractAdapterStatusType,
   ExtractAdapterType,
   ExtractAdapterExtraType,
+  ExtractErrorType,
+  ExtractResponseType,
 } from "@hyper-fetch/core";
 import { scopeKey } from "@hyper-fetch/core";
 import { useRequestEvents, useTrackedState } from "helpers";
@@ -25,10 +27,10 @@ const suspenseResultMap = new Map<string, { data: any; error: any; status: any; 
  * @param options Hook options
  * @returns
  */
-export const useFetch = <R extends RequestInstance>(
+export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseType<R>>(
   request: R,
-  options?: UseFetchOptionsType<R>,
-): UseFetchReturnType<R> => {
+  options?: UseFetchOptionsType<R, TSelected>,
+): UseFetchReturnType<R, TSelected> => {
   // Build the configuration options
   const { config: globalConfig } = useProvider();
   const {
@@ -50,6 +52,8 @@ export const useFetch = <R extends RequestInstance>(
     bounceTime,
     bounceTimeout,
     deepCompare,
+    structuralSharing,
+    throwOnError,
   } = {
     ...useFetchDefaultOptions,
     ...globalConfig.useFetchConfig,
@@ -72,7 +76,11 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<R>({
+  const [
+    state,
+    actions,
+    { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing, selectData, getResponseDetails },
+  ] = useTrackedState<R, TSelected>({
     logger,
     request: request as unknown as R,
     dispatcher,
@@ -82,6 +90,8 @@ export const useFetch = <R extends RequestInstance>(
     keepPreviousData,
     disabled,
     revalidate,
+    select: options?.select,
+    structuralSharing,
   });
 
   /**
@@ -273,7 +283,7 @@ export const useFetch = <R extends RequestInstance>(
     const suspenseResult = suspenseResultMap.get(cacheKey);
     if (suspenseResult) {
       suspenseResultMap.delete(cacheKey);
-      if (suspenseResult.data !== null) {state.data = suspenseResult.data;}
+      if (suspenseResult.data !== null) {state.data = selectData(suspenseResult.data);}
       if (suspenseResult.error !== null) {state.error = suspenseResult.error;}
       if (suspenseResult.status !== null) {state.status = suspenseResult.status;}
       if (suspenseResult.extra !== null) {state.extra = suspenseResult.extra;}
@@ -324,6 +334,28 @@ export const useFetch = <R extends RequestInstance>(
     }
   }
 
+  // ******************
+  // Error boundary
+  // ******************
+  if (throwOnError) {
+    // The error has to be observed to rerender (and throw) even if the component does not read it
+    setRenderKey("error");
+    setRenderKey("loading");
+    setRenderKey("success");
+
+    const details = getResponseDetails();
+    // Errors of retried, canceled or offline (re-queued) requests are not final
+    const isSettled = !state.loading && !details?.willRetry && !details?.isCanceled && !details?.isOffline;
+    const hasError = !state.success && state.error !== null && state.error !== undefined;
+
+    if (isSettled && hasError) {
+      const error = state.error as ExtractErrorType<R>;
+      if (typeof throwOnError === "function" ? throwOnError(error) : throwOnError) {
+        throw error;
+      }
+    }
+  }
+
   const trackedKeys = [
     "data",
     "error",
@@ -354,5 +386,5 @@ export const useFetch = <R extends RequestInstance>(
     },
     trackedKeys,
     setRenderKey,
-  ) as UseFetchReturnType<R>;
+  ) as UseFetchReturnType<R, TSelected>;
 };

@@ -1,5 +1,5 @@
 import { useDidUpdate } from "@better-hooks/lifecycle";
-import type { RequestInstance } from "@hyper-fetch/core";
+import type { ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
 import { getRequestDispatcher } from "@hyper-fetch/core";
 import { useRequestEvents, useTrackedState } from "helpers";
 import type { UseCacheOptionsType, UseCacheReturnType } from "hooks/use-cache";
@@ -9,10 +9,10 @@ import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
 /** Subscribe to cache updates for a given request without triggering network activity. */
-export const useCache = <T extends RequestInstance>(
+export const useCache = <T extends RequestInstance, TSelected = ExtractResponseType<T>>(
   request: T,
-  options?: UseCacheOptionsType<T>,
-): UseCacheReturnType<T> => {
+  options?: UseCacheOptionsType<T, TSelected>,
+): UseCacheReturnType<T, TSelected> => {
   const { cacheKey, client } = request;
 
   const { cache, loggerManager } = client;
@@ -22,7 +22,7 @@ export const useCache = <T extends RequestInstance>(
 
   // Build the configuration options
   const { config: globalConfig } = useProvider();
-  const { dependencyTracking, initialResponse, deepCompare } = {
+  const { dependencyTracking, initialResponse, deepCompare, structuralSharing } = {
     ...useCacheDefaultOptions,
     ...globalConfig.useCacheConfig,
     ...options,
@@ -31,13 +31,15 @@ export const useCache = <T extends RequestInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<T, TSelected>({
     logger,
     request,
     dispatcher,
     initialResponse,
     deepCompare,
     dependencyTracking,
+    select: options?.select,
+    structuralSharing,
   });
 
   /**
@@ -103,5 +105,5 @@ export const useCache = <T extends RequestInstance>(
     },
     trackedKeys,
     setRenderKey,
-  ) as UseCacheReturnType<T>;
+  ) as UseCacheReturnType<T, TSelected>;
 };

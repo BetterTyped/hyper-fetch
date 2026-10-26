@@ -185,5 +185,7 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
-  return [state.current, actions, callbacks, { setRenderKey }] as const;
+  const getState = () => state.current;
+
+  return [state.current, actions, callbacks, { setRenderKey, getState, rerender: emitChange }] as const;
 };

@@ -6,6 +6,9 @@ import { useFetch } from "hooks/use-fetch";
 export const renderUseFetch = <T extends RequestInstance>(request: T, options?: UseFetchOptionsType<T>) => {
   return renderHook((rerenderOptions: UseFetchOptionsType<RequestInstance> & { request?: RequestInstance }) => {
     const { request: req, ...rest } = rerenderOptions || {};
-    return useFetch(req || request, { dependencyTracking: false, ...options, ...rest } as UseFetchOptionsType<T>);
+    return useFetch(
+      (req || request) as T,
+      { dependencyTracking: false, ...options, ...rest } as UseFetchOptionsType<T>,
+    );
   });
 };

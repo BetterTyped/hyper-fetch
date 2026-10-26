@@ -7,6 +7,7 @@ import {
   expectNotFunctionParametersType,
 } from "@hyper-fetch/testing";
 import type { UseSubmitReturnType } from "hooks/use-submit";
+import { useSubmit } from "hooks/use-submit";
 
 const client = new Client({
   url: "http://localhost:3000",
@@ -319,6 +320,19 @@ describe("useSubmit [Types]", () => {
       });
       type Ctx = ExtractMutationContextType<typeof withTypedPayload>;
       expectType<{ saved: { name?: string | undefined } }>().assert({} as Ctx);
+    });
+  });
+
+  describe("select", () => {
+    it("should infer the selected data type", () => {
+      const request = client.createRequest<{ response: { id: string; token: string }; payload: { name: string } }>()({
+        method: "POST",
+        endpoint: "/users",
+      });
+      const useSelected = () => useSubmit(request, { select: (value) => value.token });
+      const data = null as unknown as ReturnType<typeof useSelected>["data"];
+      expectType<string | null>().assert(data);
+      expectNotType<{ id: string; token: string } | null>().assert(data);
     });
   });
 });

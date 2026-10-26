@@ -198,6 +198,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   updatedQueryKey: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
+  structuralSharing: boolean;
   scope: string | null;
   isMockerEnabled: boolean;
   hasMock: boolean;
@@ -290,6 +291,11 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    * Time of pooling for the deduplication to be active (default 10ms)
    */
   deduplicateTime?: number;
+  /**
+   * Keep references of the unchanged parts of the response data when saving it to cache (default true).
+   * Deeply equal responses keep the previous data reference, which limits rerenders and recalculations.
+   */
+  structuralSharing?: boolean;
 };
 
 export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;

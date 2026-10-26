@@ -7,12 +7,16 @@ import type { UseQueueOptionsType } from "hooks/use-queue";
 import type { UseSubmitOptionsType } from "hooks/use-submit";
 import type React from "react";
 
+// Omit applied to every union member - keeps the bounce options discriminated union intact
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
 export type ProviderOptionsType = {
-  useFetchConfig?: Partial<UseFetchOptionsType<RequestInstance>>;
-  useSubmitConfig?: Partial<UseSubmitOptionsType<RequestInstance>>;
-  useCacheConfig?: Partial<UseCacheOptionsType<RequestInstance>>;
+  // Selectors are component specific, they cannot be configured globally
+  useFetchConfig?: Partial<DistributiveOmit<UseFetchOptionsType<RequestInstance>, "select">>;
+  useSubmitConfig?: Partial<DistributiveOmit<UseSubmitOptionsType<RequestInstance>, "select">>;
+  useCacheConfig?: Partial<Omit<UseCacheOptionsType<RequestInstance>, "select">>;
   useQueueConfig?: Partial<UseQueueOptionsType>;
-  useListener?: Partial<UseListenerOptionsType>;
+  useListener?: Partial<Omit<UseListenerOptionsType, "select">>;
   useEmitter?: Partial<UseEmitterOptionsType>;
 };
 

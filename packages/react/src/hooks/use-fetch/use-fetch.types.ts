@@ -1,5 +1,16 @@
-import type { RequestInstance, NullableType, ExtractAdapterResolvedType } from "@hyper-fetch/core";
-import type { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import type {
+  RequestInstance,
+  NullableType,
+  ExtractAdapterResolvedType,
+  ExtractErrorType,
+  ExtractResponseType,
+} from "@hyper-fetch/core";
+import type {
+  UseRequestEventsActionsType,
+  UseTrackedStateActions,
+  UseTrackedStateSelect,
+  UseTrackedStateType,
+} from "helpers";
 import type { isEqual } from "utils";
 
 // export type UseFetchCastRequest<R extends RequestInstance> = ExtendRequest<
@@ -13,7 +24,7 @@ import type { isEqual } from "utils";
 
 // export type UseFetchRequest<R extends RequestInstance> = R extends UseFetchCastRequest<R> ? R : UseFetchCastRequest<R>;
 
-export type UseFetchOptionsType<R extends RequestInstance> = {
+export type UseFetchOptionsType<R extends RequestInstance, TSelected = ExtractResponseType<R>> = {
   /**
    * Enable React Suspense mode. When true, the hook throws a Promise while loading,
    * which is caught by the nearest Suspense boundary. The component re-renders
@@ -81,6 +92,20 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
   deepCompare?: boolean | typeof isEqual;
+  /**
+   * Pick or transform the part of the response data used by the component.
+   * The hook rerenders only when the selected value changes, while the cache stays shared with other hooks.
+   */
+  select?: UseTrackedStateSelect<R, TSelected>;
+  /**
+   * Keep references of the unchanged parts of the selected data between updates (default true).
+   */
+  structuralSharing?: boolean;
+  /**
+   * Throw the request error to the closest React Error Boundary once the request settles with an error.
+   * Pass a function to decide per error.
+   */
+  throwOnError?: boolean | ((error: ExtractErrorType<R>) => boolean);
 } & (
   | {
       /**
@@ -112,8 +137,11 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
     }
 );
 
-export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<R> &
-  UseTrackedStateActions<R> &
+export type UseFetchReturnType<R extends RequestInstance, TSelected = ExtractResponseType<R>> = UseTrackedStateType<
+  R,
+  TSelected
+> &
+  UseTrackedStateActions<R, TSelected> &
   UseRequestEventsActionsType<R> & {
     /**
      * Data related to current state of the bounce usage
