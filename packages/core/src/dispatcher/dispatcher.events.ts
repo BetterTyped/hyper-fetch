@@ -1,4 +1,4 @@
-import type { QueueDataType } from "dispatcher";
+import type { QueueDataType, RunningRequestsChangeType } from "dispatcher";
 import {
   getDispatcherChangeKey,
   getDispatcherChangeByKey,
@@ -6,6 +6,8 @@ import {
   getDispatcherStatusByKey,
   getDispatcherDrainedKey,
   getDispatcherDrainedByKey,
+  getDispatcherRunningKey,
+  getDispatcherRunningByKey,
 } from "dispatcher";
 import type EventEmitter from "events";
 import type { RequestInstance } from "request";
@@ -31,6 +33,10 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
   ): void => {
     emitter.emit(getDispatcherChangeKey(), values, isTriggeredExternally);
     emitter.emit(getDispatcherChangeByKey(values.queryKey), values, isTriggeredExternally);
+  },
+  emitRunningRequestsChanged: (values: RunningRequestsChangeType, isTriggeredExternally?: boolean): void => {
+    emitter.emit(getDispatcherRunningKey(), values, isTriggeredExternally);
+    emitter.emit(getDispatcherRunningByKey(values.queryKey), values, isTriggeredExternally);
   },
   /**
    * When queue becomes empty
@@ -102,5 +108,27 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
   ): VoidFunction => {
     emitter.on(getDispatcherChangeByKey(queryKey), callback);
     return () => emitter.removeListener(getDispatcherChangeByKey(queryKey), callback);
+  },
+  /**
+   * When requests start or stop running (sent, finished, canceled or cleared)
+   * @param callback
+   * @returns
+   */
+  onRunningRequestsChange: (callback: (values: RunningRequestsChangeType) => void): VoidFunction => {
+    emitter.on(getDispatcherRunningKey(), callback);
+    return () => emitter.removeListener(getDispatcherRunningKey(), callback);
+  },
+  /**
+   * When requests start or stop running (sent, finished, canceled or cleared) for given queryKey
+   * @param queryKey
+   * @param callback
+   * @returns
+   */
+  onRunningRequestsChangeByKey: (
+    queryKey: string,
+    callback: (values: RunningRequestsChangeType) => void,
+  ): VoidFunction => {
+    emitter.on(getDispatcherRunningByKey(queryKey), callback);
+    return () => emitter.removeListener(getDispatcherRunningByKey(queryKey), callback);
   },
 });

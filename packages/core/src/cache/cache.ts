@@ -7,7 +7,7 @@ import type {
   CacheSetState,
   RequestCacheType,
 } from "cache";
-import { getCacheData, getCacheEvents } from "cache";
+import { getCacheData, getCacheEvents, replaceEqualDeep } from "cache";
 import type { ClientInstance } from "client";
 import type { ResponseDetailsType, LoggerMethods } from "managers";
 import type { RequestInstance } from "request";
@@ -85,6 +85,11 @@ export class Cache<Adapter extends AdapterInstance> {
     // We need to check it against cache and return last valid data we have
     const processedResponse = typeof response === "function" ? response(previousCacheData || null) : response;
     const data = getCacheData(previousCacheData, processedResponse);
+
+    // Keep references of the unchanged data parts, so deeply equal responses don't produce new objects
+    if (request.structuralSharing !== false && previousCacheData) {
+      data.data = replaceEqualDeep(previousCacheData.data, data.data);
+    }
 
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
       ...data,

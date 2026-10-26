@@ -22,6 +22,12 @@ export const getDispatcherChangeKey = (): string => {
 export const getDispatcherChangeByKey = (key: string): string => {
   return `${key}-change-event`;
 };
+export const getDispatcherRunningKey = (): string => {
+  return `running-event`;
+};
+export const getDispatcherRunningByKey = (key: string): string => {
+  return `${key}-running-event`;
+};
 
 // Requesting
 

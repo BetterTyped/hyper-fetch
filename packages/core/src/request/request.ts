@@ -98,6 +98,7 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number | null;
+  structuralSharing: boolean;
   scope: string | null;
 
   /**
@@ -190,6 +191,7 @@ export class Request<
       queryKey,
       deduplicate = false,
       deduplicateTime = null,
+      structuralSharing = true,
     } = configuration;
     this.endpoint = initialRequestConfiguration?.endpoint ?? endpoint;
     this.headers = initialRequestConfiguration?.headers ?? headers;
@@ -213,6 +215,7 @@ export class Request<
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
+    this.structuralSharing = initialRequestConfiguration?.structuralSharing ?? structuralSharing;
     this.scope = initialRequestConfiguration?.scope ?? null;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
@@ -365,6 +368,11 @@ export class Request<
     return this.clone({ deduplicateTime });
   };
 
+  /** Enable or disable structural sharing - keeping references of unchanged parts of the response data in cache. */
+  public setStructuralSharing = (structuralSharing: boolean) => {
+    return this.clone({ structuralSharing });
+  };
+
   /** Mark the request as used (prevents automatic refetching in hooks). */
   public setUsed = (used: boolean) => {
     return this.clone({ used });
@@ -506,6 +514,7 @@ export class Request<
       updatedQueryKey: this.updatedQueryKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
+      structuralSharing: this.structuralSharing,
       scope: this.scope,
       isMockerEnabled: this.isMockerEnabled,
       hasMock: !!this.unstable_mock,

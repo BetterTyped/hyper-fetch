@@ -115,6 +115,13 @@ describe("Request [ Setters ]", () => {
     const updatedRequest = request.setDeduplicateTime(1000);
     expect(updatedRequest.deduplicateTime).toBe(1000);
   });
+  it("should allow for setting structural sharing", async () => {
+    expect(request.structuralSharing).toBeTrue();
+    const updatedRequest = request.setStructuralSharing(false);
+    expect(updatedRequest.structuralSharing).toBeFalse();
+    expect(updatedRequest.clone().structuralSharing).toBeFalse();
+    expect(updatedRequest.toJSON().structuralSharing).toBeFalse();
+  });
   it("should allow for setting used", async () => {
     expect(request.used).toBeFalse();
     const updatedRequest = request.setUsed(true);

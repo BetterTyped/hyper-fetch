@@ -64,6 +64,7 @@ export type SdkRequestDefaults = {
   offline?: boolean;
   deduplicate?: boolean;
   deduplicateTime?: number | null;
+  structuralSharing?: boolean;
 };
 
 /**
@@ -174,6 +175,9 @@ const applyObjectDefaults = (request: RequestInstance, config: SdkRequestDefault
   if (config.deduplicate !== undefined) {result = result.setDeduplicate(config.deduplicate);}
   if (config.deduplicateTime !== undefined && config.deduplicateTime !== null) {
     result = result.setDeduplicateTime(config.deduplicateTime);
+  }
+  if (config.structuralSharing !== undefined) {
+    result = result.setStructuralSharing(config.structuralSharing);
   }
   return result;
 };
