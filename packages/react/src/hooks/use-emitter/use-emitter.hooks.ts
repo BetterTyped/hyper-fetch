@@ -12,7 +12,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
   options?: UseEmitterOptionsType,
 ) => {
   const { config: globalConfig } = useProvider();
-  const { dependencyTracking } = { ...globalConfig.useEmitter, ...options };
+  const { dependencyTracking = true } = { ...globalConfig.useEmitter, ...options };
 
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, { dependencyTracking });
 

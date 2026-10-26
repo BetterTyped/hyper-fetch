@@ -2,7 +2,7 @@ import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import type { UseSubmitOptionsType } from "./use-submit.types";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<RequestInstance>, "initialResponse">> & {
+type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<RequestInstance>, "initialResponse" | "select">> & {
   initialResponse: null;
 };
 
@@ -14,4 +14,5 @@ export const useSubmitDefaultOptions: DefaultOptionsType = {
   bounceType: "debounce",
   bounceTime: 400,
   deepCompare: true,
+  structuralSharing: true,
 };

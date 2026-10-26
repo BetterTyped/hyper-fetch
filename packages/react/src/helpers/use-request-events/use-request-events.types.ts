@@ -26,7 +26,7 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
   request: T;
   dispatcher: Dispatcher<ExtractAdapterType<T>>;
   logger: LoggerMethods;
-  actions: UseTrackedStateActions<T>;
+  actions: Pick<UseTrackedStateActions<T, unknown>, "setLoading">;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
   getIsDataProcessing: (cacheKey: string) => boolean;
 };

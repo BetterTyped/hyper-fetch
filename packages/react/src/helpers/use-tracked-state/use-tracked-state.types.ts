@@ -9,12 +9,13 @@ import type {
   ExtractAdapterExtraType,
   ExtractAdapterResolvedType,
   NullableType,
+  ResponseDetailsType,
   CacheSetState,
   LoggerMethods,
 } from "@hyper-fetch/core";
 import type { isEqual } from "utils";
 
-export type UseTrackedStateProps<T extends RequestInstance> = {
+export type UseTrackedStateProps<T extends RequestInstance, TData = ExtractResponseType<T>> = {
   request: T;
   logger: LoggerMethods;
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
@@ -24,24 +25,40 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   keepPreviousData?: "auto" | "preserve" | "clean";
   disabled?: boolean;
   revalidate?: boolean;
+  select?: UseTrackedStateSelect<T, TData>;
+  structuralSharing?: boolean;
 };
 
-export type UseTrackedStateReturn<T extends RequestInstance> = [
-  UseTrackedStateType<T>,
-  UseTrackedStateActions<T>,
+/**
+ * Selector picking (or transforming) the part of the response data used by the component
+ */
+export type UseTrackedStateSelect<T extends RequestInstance, TData = ExtractResponseType<T>> = (
+  data: ExtractResponseType<T>,
+) => TData;
+
+export type UseTrackedStateReturn<T extends RequestInstance, TData = ExtractResponseType<T>> = [
+  UseTrackedStateType<T, TData>,
+  UseTrackedStateActions<T, TData>,
   {
-    setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void;
+    setRenderKey: (renderKey: keyof UseTrackedStateType<T, TData>) => void;
     setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
     getStaleStatus: () => boolean;
     getIsDataProcessing: (cacheKey: string) => boolean;
+    selectData: (data: ExtractResponseType<T> | null) => TData | null;
+    /**
+     * Details of the last response received from the cache - null when the state did not come from a response
+     */
+    getResponseDetails: () => UseTrackedStateResponseDetails | null;
   },
 ];
 
-export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
+export type UseTrackedStateResponseDetails = Pick<ResponseDetailsType, "willRetry" | "isCanceled" | "isOffline">;
+
+export type UseTrackedStateType<T extends RequestInstance = RequestInstance, TData = ExtractResponseType<T>> = {
   /**
    * Request response data
    */
-  data: null | ExtractResponseType<T>;
+  data: null | TData;
   /**
    * Request response error
    */
@@ -76,12 +93,13 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   requestTimestamp: null | Date;
 };
 
-export type UseTrackedStateActions<T extends RequestInstance> = {
+export type UseTrackedStateActions<T extends RequestInstance, TData = ExtractResponseType<T>> = {
   /**
    * Action to set custom data. We can do it locally(inside hook state).
+   * When `select` is used it receives the selected data shape.
    * If you need to update cache data use client.cache.update(). method.
    */
-  setData: (data: CacheSetState<ExtractResponseType<T> | null>) => void;
+  setData: (data: CacheSetState<TData | null>) => void;
   /**
    * Action to set custom error. We can do it locally(inside hook state).
    * If you need to update cache data use client.cache.update() method.

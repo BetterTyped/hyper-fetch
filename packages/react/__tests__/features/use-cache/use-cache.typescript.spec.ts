@@ -1,6 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { expectType, expectNotType, expectFunctionParametersType } from "@hyper-fetch/testing";
 import type { UseCacheReturnType } from "hooks/use-cache";
+import { useCache } from "hooks/use-cache";
 
 const client = new Client({
   url: "http://localhost:3000",
@@ -105,6 +106,15 @@ describe("useCache [Types]", () => {
     it("should allow invalidate with a regex", () => {
       const invalidate = (() => null) as unknown as GetUsersReturn["invalidate"];
       expectFunctionParametersType(invalidate).assert([/users/]);
+    });
+  });
+
+  describe("select", () => {
+    it("should infer the selected data type", () => {
+      const useSelected = () => useCache(getUsers, { select: (users) => users.length });
+      const data = null as unknown as ReturnType<typeof useSelected>["data"];
+      expectType<number | null>().assert(data);
+      expectNotType<{ id: string; name: string }[] | null>().assert(data);
     });
   });
 });

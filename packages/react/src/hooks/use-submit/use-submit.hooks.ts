@@ -25,13 +25,13 @@ import { createTrackedProxy, getBounceData } from "utils";
  * @param options
  * @returns
  */
-export const useSubmit = <RequestType extends RequestInstance>(
+export const useSubmit = <RequestType extends RequestInstance, TSelected = ExtractResponseType<RequestType>>(
   request: RequestType,
-  options?: UseSubmitOptionsType<RequestType>,
-): UseSubmitReturnType<RequestType> => {
+  options?: UseSubmitOptionsType<RequestType, TSelected>,
+): UseSubmitReturnType<RequestType, TSelected> => {
   // Build the configuration options
   const { config: globalConfig } = useProvider();
-  const mergedOptions: UseSubmitOptionsType<RequestType> = useMemo(
+  const mergedOptions: UseSubmitOptionsType<RequestType, TSelected> = useMemo(
     () => ({
       ...useSubmitDefaultOptions,
       ...globalConfig.useSubmitConfig,
@@ -40,7 +40,16 @@ export const useSubmit = <RequestType extends RequestInstance>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [globalConfig.useSubmitConfig, JSON.stringify(options), options?.deepCompare],
   );
-  const { disabled, dependencyTracking, initialResponse, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
+  const {
+    disabled,
+    dependencyTracking,
+    initialResponse,
+    bounce,
+    bounceType,
+    bounceTime,
+    deepCompare,
+    structuralSharing,
+  } = mergedOptions;
 
   /**
    * Because of the dynamic cacheKey / queryKey signing within the request we need to store it's latest instance
@@ -71,13 +80,19 @@ export const useSubmit = <RequestType extends RequestInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<RequestType>({
+  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<
+    RequestType,
+    TSelected
+  >({
     logger,
     request,
     dispatcher,
     initialResponse,
     deepCompare: deepCompare as boolean,
     dependencyTracking: dependencyTracking as boolean,
+    // Read directly from options - functions are not part of the memoized options key
+    select: options?.select,
+    structuralSharing,
   });
 
   /**
@@ -239,5 +254,5 @@ export const useSubmit = <RequestType extends RequestInstance>(
     },
     trackedKeys,
     setSubmitRenderKey,
-  ) as UseSubmitReturnType<RequestType>;
+  ) as UseSubmitReturnType<RequestType, TSelected>;
 };

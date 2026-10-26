@@ -1,4 +1,10 @@
-import type { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
+import type {
+  ExtractAdapterResolvedType,
+  ExtractResponseType,
+  NullableType,
+  RequestInstance,
+  RequestSendType,
+} from "@hyper-fetch/core";
 import type {
   OnProgressCallbackType,
   OnStartCallbackType,
@@ -7,10 +13,11 @@ import type {
   OnFinishedCallbackType,
   UseTrackedStateType,
   UseTrackedStateActions,
+  UseTrackedStateSelect,
 } from "helpers";
 import type { isEqual } from "utils";
 
-export type UseSubmitOptionsType<T extends RequestInstance> = {
+export type UseSubmitOptionsType<T extends RequestInstance, TSelected = ExtractResponseType<T>> = {
   /**
    * Disable submitting
    */
@@ -31,6 +38,15 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
   deepCompare?: boolean | typeof isEqual;
+  /**
+   * Pick or transform the part of the response data used by the component.
+   * Callbacks like `onSubmitSuccess` still receive the full response.
+   */
+  select?: UseTrackedStateSelect<T, TSelected>;
+  /**
+   * Keep references of the unchanged parts of the selected data between updates (default true).
+   */
+  structuralSharing?: boolean;
 } & (
   | {
       /**
@@ -58,11 +74,11 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
     }
 );
 
-export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
-  UseTrackedStateType<RequestType>,
-  "loading"
-> &
-  UseTrackedStateActions<RequestType> & {
+export type UseSubmitReturnType<
+  RequestType extends RequestInstance,
+  TSelected = ExtractResponseType<RequestType>,
+> = Omit<UseTrackedStateType<RequestType, TSelected>, "loading"> &
+  UseTrackedStateActions<RequestType, TSelected> & {
     /**
      * Callback which allows to cancel ongoing requests from given queryKey.
      */

@@ -6,6 +6,7 @@ export * from "./hooks/use-stream";
 export * from "./hooks/use-listener";
 export * from "./hooks/use-emitter";
 export * from "./hooks/use-app-manager";
+export * from "./hooks/use-is-fetching";
 export * from "./helpers";
 export * from "./provider";
 export * from "./utils";
