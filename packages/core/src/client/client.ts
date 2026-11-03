@@ -28,6 +28,7 @@ import type {
   HydrateDataType,
   HydrationOptions,
   ExtractAdapterDefaultQueryParamsType,
+  ExtractAdapterRequestOptionsType,
 } from "types";
 import { getUniqueRequestId } from "utils";
 
@@ -505,7 +506,7 @@ export class Client<
       AdapterOptions extends ExtractAdapterOptionsType<Adapter>,
       MethodType extends ExtractAdapterMethodType<Adapter>,
     >(
-      params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
+      params: RequestOptionsType<EndpointType, AdapterOptions, MethodType> & ExtractAdapterRequestOptionsType<Adapter>,
     ) => {
       type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", EndpointType>;
 

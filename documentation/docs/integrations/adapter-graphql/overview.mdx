@@ -136,6 +136,63 @@ This will pass the `name` variable to the `AddUser` mutation.
 
 ---
 
+## URL path per operation
+
+By default, `endpoint` holds the GraphQL document and every operation goes to `client.url`. When gateways, WAF/CDN
+rules, APM or access logs group the traffic by URL, pass the document separately with the `document` option. The
+`endpoint` then becomes a URL path appended to `client.url`, the same way as in the `HttpAdapter`.
+
+```ts
+const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
+  endpoint: "/User", // URL path, supports params like "/tenant/:tenantId/User"
+  document: gql`
+    query User($id: ID!) {
+      user(id: $id) {
+        username
+      }
+    }
+  `, // string | DocumentNode, sent as `query`
+});
+
+await getUser.send({ payload: { id: 1 } });
+// POST {client.url}/User
+// body: { query, variables: { id: 1 } }
+```
+
+- Without `document` nothing changes: `endpoint` is the document and the URL is `client.url`.
+- The cache, query and abort keys contain the operation name from `document` and the path from `endpoint`, so the same
+  operation sent to two paths is not shared in the cache.
+- Devtools display the operation name from `document`.
+- Variables are typed with the `payload` generic, the same as without the `document` option.
+
+---
+
+## Query params
+
+Query params are appended to the URL, with or without the `document` option. This lets access logs and APM filter
+requests without parsing the body.
+
+```ts
+await getUser.setQueryParams({ source: "app", build: "1.2.3" }).send({ payload: { id: 1 } });
+// POST {client.url}/User?source=app&build=1.2.3
+// body: { query, variables: { id: 1 } }
+```
+
+For the `GET` method they are merged with `query` and `variables` in the query string. If a key collides, `query` and
+`variables` take precedence.
+
+They go through the query params mapper of the adapter, so you can change the format with the mapper config or replace
+the mapper. It can return a query string or an object.
+
+```ts
+import { stringifyDefaultOptions } from "@hyper-fetch/core";
+
+// The config replaces the defaults, so spread them to keep the encoding
+const adapter = GraphqlAdapter().setQueryParamsMapperConfig({ ...stringifyDefaultOptions, arrayFormat: "comma" });
+```
+
+---
+
 ## Next Steps
 
 Now that you have a basic understanding of the GraphQL adapter, you can explore more advanced topics:

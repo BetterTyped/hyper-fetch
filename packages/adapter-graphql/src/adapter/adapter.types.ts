@@ -1,4 +1,4 @@
-import type { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
+import type { Adapter, DefaultMapperType, EmptyTypes, QueryParamsType, stringifyQueryParams } from "@hyper-fetch/core";
 import type { DocumentNode } from "graphql/language/ast";
 
 export enum GraphqlMethod {
@@ -14,15 +14,27 @@ export type FetchGraphqlAdapterOptionsType = Omit<RequestInit, "method" | "heade
   timeout?: number;
 };
 
+export type GraphqlRequestOptionsType = {
+  /**
+   * GraphQL document sent as `query`. When it is set, `endpoint` becomes a URL path appended to `client.url`,
+   * the same way as in the HttpAdapter. When it is omitted, `endpoint` holds the document and the URL is `client.url`.
+   */
+  document?: GraphQlEndpointType;
+};
+
 export type GraphqlAdapterType = Adapter<
   FetchGraphqlAdapterOptionsType,
   GraphqlMethod,
   number,
   GraphQlExtraType,
   QueryParamsType | string,
-  undefined,
+  QueryParamsType | string | undefined,
   GraphQlEndpointType,
-  (endpoint: GraphQlEndpointType) => string
+  (endpoint: GraphQlEndpointType) => string,
+  typeof stringifyQueryParams,
+  DefaultMapperType,
+  DefaultMapperType,
+  GraphqlRequestOptionsType
 >;
 
 // Extract

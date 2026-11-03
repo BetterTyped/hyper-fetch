@@ -21,7 +21,7 @@ import type { getAdapterBindings } from "./adapter.bindings";
  * Base Adapter
  */
 
-export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any, any>;
+export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any, any, any>;
 
 export type AdapterGenericType<
   AdapterOptions,
@@ -35,6 +35,7 @@ export type AdapterGenericType<
   QueryParamsMapperType extends QueryParamsMapper<QueryParams> | DefaultMapperType = DefaultMapperType,
   HeaderMapperType extends HeaderMappingType | DefaultMapperType = DefaultMapperType,
   PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
+  RequestOptions extends Record<string, any> = {},
 > = {
   adapterOptions: AdapterOptions;
   methodType: MethodType;
@@ -47,10 +48,12 @@ export type AdapterGenericType<
   queryParamsMapperType?: QueryParamsMapperType;
   headerMapperType?: HeaderMapperType;
   payloadMapperType?: PayloadMapperType;
+  /** Additional fields accepted by `createRequest` on clients using this adapter */
+  requestOptions?: RequestOptions;
 };
 
 export type DeclareAdapterType<
-  Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any, any>,
+  Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any, any, any, any>,
 > = Adapter<
   TypeWithDefaults<Properties, "adapterOptions", any>,
   TypeWithDefaults<Properties, "methodType", any>,
@@ -62,7 +65,8 @@ export type DeclareAdapterType<
   TypeWithDefaults<Properties, "endpointMapperType", DefaultMapperType>,
   TypeWithDefaults<Properties, "queryParamsMapperType", DefaultMapperType>,
   TypeWithDefaults<Properties, "headerMapperType", DefaultMapperType>,
-  NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>
+  NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>,
+  TypeWithDefaults<Properties, "requestOptions", {}>
 >;
 
 export type AdapterFetcherType<Adapter extends AdapterInstance> = (

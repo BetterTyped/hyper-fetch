@@ -18,6 +18,7 @@ export type GraphQLServerOptions = {
 export const createE2EGraphQLServer = (options: GraphQLServerOptions) => {
   let server: http.Server | null = null;
   let port = 0;
+  let lastRequestUrl = "";
 
   const schema: GraphQLSchema = buildSchema(options.typeDefs);
   const rootValue = options.resolvers;
@@ -33,6 +34,7 @@ export const createE2EGraphQLServer = (options: GraphQLServerOptions) => {
   };
 
   const handleRequest = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    lastRequestUrl = req.url || "";
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -131,5 +133,7 @@ export const createE2EGraphQLServer = (options: GraphQLServerOptions) => {
 
   const getUrl = () => `http://127.0.0.1:${port}`;
 
-  return { startServer, stopServer, getUrl };
+  const getLastRequestUrl = () => lastRequestUrl;
+
+  return { startServer, stopServer, getUrl, getLastRequestUrl };
 };

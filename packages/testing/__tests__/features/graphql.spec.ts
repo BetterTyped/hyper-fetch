@@ -78,6 +78,63 @@ describe("Graphql Mocking [ Base ]", () => {
     });
   });
 
+  it("should mock a request using the document option", async () => {
+    const operation = client.createRequest<{ response: GetUserQueryResponse }>()({
+      endpoint: "/User",
+      document: getUserQuery,
+    });
+    const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+
+    const { data, error, status } = await operation.setQueryParams({ source: "app" }).send();
+
+    expect(expected.data).toStrictEqual(data);
+    expect(status).toBe(200);
+    expect(error).toBe(null);
+  });
+
+  it("should mock a request using a string document", async () => {
+    const operation = client.createRequest<{ response: GetUserQueryResponse }>()({
+      endpoint: "/User",
+      document: getUserQueryString,
+    });
+    const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+
+    const { data, error } = await operation.send();
+
+    expect(expected.data).toStrictEqual(data);
+    expect(error).toBe(null);
+  });
+
+  it("should mock a mutation using the document option", async () => {
+    const operation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+      endpoint: "/Login",
+      document: loginMutation,
+    });
+    const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+
+    const { data, error } = await operation.send({ payload: { username: "Kacper", password: "Kacper1234" } });
+
+    expect(expected.data).toStrictEqual(data);
+    expect(error).toBe(null);
+  });
+
+  it("should match only the path of the document request", async () => {
+    const operation = client.createRequest<{ response: GetUserQueryResponse }>()({
+      endpoint: "/User",
+      document: getUserQuery,
+    });
+    const other = client.createRequest<{ response: GetUserQueryResponse }>()({
+      endpoint: "/Other",
+      document: getUserQuery,
+    });
+    mockRequest(operation, { data: { username: "user", firstName: "User" } });
+    const expected = mockRequest(other, { data: { username: "other", firstName: "Other" } });
+
+    const { data } = await other.send();
+
+    expect(expected.data).toStrictEqual(data);
+  });
+
   it("should mock the error status", async () => {
     const expected = mockRequest(request, { status: 400, error: [{ message: "Some Error" }] });
 

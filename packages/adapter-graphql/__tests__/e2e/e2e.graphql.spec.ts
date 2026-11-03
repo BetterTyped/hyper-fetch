@@ -76,7 +76,7 @@ type GqlResponse<T> = { response: T; error: { message: string }[] };
 
 // ─── Server Setup ────────────────────────────────────────────────────
 
-const { startServer, stopServer } = createE2EGraphQLServer({ typeDefs, resolvers });
+const { startServer, stopServer, getLastRequestUrl } = createE2EGraphQLServer({ typeDefs, resolvers });
 
 let baseUrl: string;
 
@@ -482,5 +482,66 @@ describe("E2E GraphQL [ Multiple Operations ]", () => {
     expect(result2.error).toBeNull();
     expect(result1.data!.user.username).toBe("john");
     expect(result2.data!.user.username).toBe("jane");
+  });
+});
+
+describe("E2E GraphQL [ Document and query params ]", () => {
+  const USER_QUERY = "query User($id: ID!) { user(id: $id) { id username } }";
+  type UserResponse = GqlResponse<{ user: { id: string; username: string } }> & {
+    payload: { id: string };
+  };
+
+  it("should send POST to the path with query params and the variables in the body", async () => {
+    const client = new Client({ url: `${baseUrl}/graphql` }).setAdapter(GraphqlAdapter());
+    const request = client.createRequest<UserResponse>()({ endpoint: "/User", document: USER_QUERY });
+
+    const { data, error } = await request
+      .setQueryParams({ source: "app", build: "1.2.3" })
+      .send({ payload: { id: "1" } });
+
+    expect(error).toBeNull();
+    expect(data).toStrictEqual({ user: { id: "1", username: "john" } });
+    expect(getLastRequestUrl()).toBe("/graphql/User?source=app&build=1.2.3");
+  });
+
+  it("should send GET to the path with everything in the query string", async () => {
+    const client = new Client({ url: `${baseUrl}/graphql` }).setAdapter(GraphqlAdapter());
+    const request = client.createRequest<UserResponse>()({
+      endpoint: "/User",
+      document: USER_QUERY,
+      method: GraphqlMethod.GET,
+    });
+
+    const { data, error } = await request
+      .setQueryParams({ source: "app", query: "ignored", variables: "ignored" })
+      .send({ payload: { id: "2" } });
+
+    expect(error).toBeNull();
+    expect(data).toStrictEqual({ user: { id: "2", username: "jane" } });
+
+    const { pathname, searchParams } = new URL(getLastRequestUrl(), baseUrl);
+    expect(pathname).toBe("/graphql/User");
+    expect(searchParams.get("source")).toBe("app");
+    expect(searchParams.getAll("query")).toStrictEqual([USER_QUERY]);
+    expect(searchParams.getAll("variables")).toStrictEqual([JSON.stringify({ id: "2" })]);
+  });
+
+  it("should keep the client url when document is omitted", async () => {
+    const client = new Client({ url: `${baseUrl}/graphql` }).setAdapter(GraphqlAdapter());
+    const request = client.createRequest<UserResponse>()({ endpoint: USER_QUERY });
+
+    const { data } = await request.send({ payload: { id: "1" } } as any);
+
+    expect(data).toStrictEqual({ user: { id: "1", username: "john" } });
+    expect(getLastRequestUrl()).toBe("/graphql");
+  });
+
+  it("should apply query params when document is omitted", async () => {
+    const client = new Client({ url: `${baseUrl}/graphql` }).setAdapter(GraphqlAdapter());
+    const request = client.createRequest<UserResponse>()({ endpoint: USER_QUERY });
+
+    await request.setQueryParams({ source: "app" }).send({ payload: { id: "1" } } as any);
+
+    expect(getLastRequestUrl()).toBe("/graphql?source=app");
   });
 });
