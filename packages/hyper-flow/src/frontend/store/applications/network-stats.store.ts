@@ -206,13 +206,7 @@ export const useNetworkStatsStore = create<{
           draft.applications[application] = getNetworkInitialState();
         }
 
-        const globalEndpointAndMethod = getEndpointAndMethod(
-          // api/users/:id
-          data.request.requestOptions.endpoint,
-          data.request.method,
-          data.client,
-          data.request.requestOptions,
-        );
+        const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);
 
         draft.applications[application].networkStats = getNetworkStats(
           draft.applications[application].networkStats,
