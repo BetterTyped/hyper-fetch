@@ -1,5 +1,5 @@
-import type { QueryParamsType } from "@hyper-fetch/core";
-import { parseResponse, getErrorMessage, Adapter, stringifyKey } from "@hyper-fetch/core";
+import type { DefaultMapperType, QueryParamsType } from "@hyper-fetch/core";
+import { parseResponse, getErrorMessage, Adapter, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
 
 import { gqlExtra, defaultTimeout } from "./adapter.constants";
 import type {
@@ -7,9 +7,10 @@ import type {
   GraphQlExtraType,
   GraphQlEndpointType,
   FetchGraphqlAdapterOptionsType,
+  GraphqlRequestOptionsType,
 } from "./adapter.types";
 import { GraphqlMethod } from "./adapter.types";
-import { getRequestValues, gqlEndpointMapper, gqlEndpointNameMapper } from "./adapter.utils";
+import { getRequestValues, gqlEndpointMapper, gqlEndpointNameMapper, gqlRequestNameMapper } from "./adapter.utils";
 
 export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
@@ -18,8 +19,13 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
     number,
     GraphQlExtraType,
     QueryParamsType | string,
-    undefined,
-    GraphQlEndpointType
+    QueryParamsType | string | undefined,
+    GraphQlEndpointType,
+    DefaultMapperType,
+    DefaultMapperType,
+    DefaultMapperType,
+    DefaultMapperType,
+    GraphqlRequestOptionsType
   >({
     name: "graphql",
     defaultMethod: GraphqlMethod.POST,
@@ -29,21 +35,25 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
   })
     .onInitialize(({ client }) => {
       client.setCacheKeyMapper((request) => {
-        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+        return `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
       });
       client.setQueryKeyMapper((request) => {
-        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+        return `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
       });
       client.setAbortKeyMapper((request) => {
-        return `${request.method}_${gqlEndpointNameMapper(request.endpoint)}-${request.cancelable}`;
+        return `${request.method}_${gqlRequestNameMapper(request)}-${request.cancelable}`;
       });
     })
     .setInternalErrorMapping((error) => [error])
-    .setDevtoolsEndpointGetter(gqlEndpointNameMapper)
+    .setDevtoolsEndpointGetter((endpoint, requestOptions) =>
+      gqlEndpointNameMapper(requestOptions?.document ?? endpoint),
+    )
     .setEndpointMapper(gqlEndpointMapper)
+    .setQueryParamsMapper(stringifyQueryParams)
     .setFetcher(
       async ({
         request,
+        queryParams,
         adapterOptions,
         headers,
         onError,
@@ -59,7 +69,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         onRequestProgress,
         onSuccess,
       }) => {
-        const { fullUrl, payload } = getRequestValues(request);
+        const { fullUrl, payload } = getRequestValues(request, queryParams);
 
         const controller = getAbortController();
         const { timeout: timeoutMs = defaultTimeout, ...restOptions } = adapterOptions || {};

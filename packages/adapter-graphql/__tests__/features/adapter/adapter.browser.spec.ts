@@ -256,4 +256,107 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     global.fetch = originalFetch;
   });
+
+  describe("when using the document option", () => {
+    const getFetchUrl = (spy: { mock: { calls: unknown[][] } }) => String(spy.mock.calls[0][0]);
+
+    it("should send the request to the path of the operation", async () => {
+      const operation = client.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/User",
+        document: getUserQuery,
+      });
+      const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+      const spy = vi.spyOn(globalThis, "fetch");
+
+      const { data, error, status } = await operation.setQueryParams({ source: "app", build: "1.2.3" }).send();
+
+      expect(expected.data).toStrictEqual(data);
+      expect(error).toBe(null);
+      expect(status).toBe(200);
+      expect(getFetchUrl(spy)).toBe("https://shared-base-url/graphql/User?source=app&build=1.2.3");
+    });
+
+    it("should not reach the handler of a different path", async () => {
+      const operation = client.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/User",
+        document: getUserQuery,
+      });
+      const other = client.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/Other",
+        document: getUserQuery,
+      });
+      mockRequest(other, { data: { username: "other", firstName: "Other" } });
+      const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+
+      const { data } = await operation.send();
+
+      expect(data).toStrictEqual(expected.data);
+    });
+
+    it("should send mutations", async () => {
+      const operation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
+        endpoint: "/Login",
+        document: loginMutation,
+      });
+      const expected = mockRequest(operation, { data: { username: "prc", firstName: "Maciej" } });
+
+      const { data, error } = await operation.send({ payload: { username: "Kacper", password: "Kacper1234" } });
+
+      expect(expected.data).toStrictEqual(data);
+      expect(error).toBe(null);
+    });
+
+    it("should run parallel requests against different paths without changing the client url", async () => {
+      const first = client.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/First",
+        document: getUserQuery,
+      });
+      const second = client.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/Second",
+        document: getUserQuery,
+      });
+      const firstExpected = mockRequest(first, { data: { username: "first", firstName: "First" } });
+      const secondExpected = mockRequest(second, { data: { username: "second", firstName: "Second" } });
+
+      const [firstResponse, secondResponse] = await Promise.all([first.send(), second.send()]);
+
+      expect(firstResponse.data).toStrictEqual(firstExpected.data);
+      expect(secondResponse.data).toStrictEqual(secondExpected.data);
+      expect(client.url).toBe("https://shared-base-url/graphql");
+    });
+
+    it("should not share the cache between paths", async () => {
+      const cacheClient = new Client({ url: "https://shared-base-url/graphql", mode: "client" }).setAdapter(
+        GraphqlAdapter(),
+      );
+      const first = cacheClient.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/First",
+        document: getUserQuery,
+      });
+      const second = cacheClient.createRequest<{ response: GetUserQueryResponse }>()({
+        endpoint: "/Second",
+        document: getUserQuery,
+      });
+      const firstExpected = mockRequest(first, { data: { username: "first", firstName: "First" } });
+      const secondExpected = mockRequest(second, { data: { username: "second", firstName: "Second" } });
+
+      await first.send();
+      await second.send();
+
+      expect(first.read()?.data).toStrictEqual(firstExpected.data);
+      expect(second.read()?.data).toStrictEqual(secondExpected.data);
+    });
+  });
+
+  describe("when using query params without the document option", () => {
+    it("should append them to the client url", async () => {
+      const expected = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
+      const spy = vi.spyOn(globalThis, "fetch");
+
+      const { data } = await request.setQueryParams({ source: "app" }).send();
+
+      expect(expected.data).toStrictEqual(data);
+      expect(String(spy.mock.calls[0][0])).toBe("https://shared-base-url/graphql?source=app");
+    });
+  });
 });
