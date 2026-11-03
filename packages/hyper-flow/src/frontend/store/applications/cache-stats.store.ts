@@ -152,6 +152,7 @@ export const useCacheStatsStore = create<Store>((set) => ({
           data.request.requestOptions.endpoint,
           data.request.method,
           data.client,
+          data.request.requestOptions,
         );
         if (!draft.applications[application]) {
           draft.applications[application] = {

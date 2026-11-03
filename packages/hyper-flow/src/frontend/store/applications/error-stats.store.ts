@@ -77,6 +77,7 @@ export const useErrorStatsStore = create<ErrorStatsStore>((set) => ({
           data.request.requestOptions.endpoint,
           data.request.method,
           data.client,
+          data.request.requestOptions,
         );
 
         const element = draft.applications[application].endpointErrorStats.get(globalEndpointAndMethod);

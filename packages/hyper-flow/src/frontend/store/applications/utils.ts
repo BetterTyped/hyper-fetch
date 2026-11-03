@@ -1,8 +1,13 @@
 import type { ClientInstance } from "@hyper-fetch/core";
 import { stringifyValue } from "@hyper-fetch/core";
 
-export const getEndpointAndMethod = (endpointString: string, method: string, client: ClientInstance) => {
-  const endpoint = client.adapter.unstable_devtoolsEndpointGetter(endpointString);
+export const getEndpointAndMethod = (
+  endpointString: string,
+  method: string,
+  client: ClientInstance,
+  requestOptions?: Record<string, any>,
+) => {
+  const endpoint = client.adapter.unstable_devtoolsEndpointGetter(endpointString, requestOptions);
   return `${method}-${endpoint}`;
 };
 

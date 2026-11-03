@@ -211,6 +211,7 @@ export const useNetworkStatsStore = create<{
           data.request.requestOptions.endpoint,
           data.request.method,
           data.client,
+          data.request.requestOptions,
         );
 
         draft.applications[application].networkStats = getNetworkStats(
