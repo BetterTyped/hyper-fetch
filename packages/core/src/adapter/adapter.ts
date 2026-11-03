@@ -39,6 +39,7 @@ export class Adapter<
   QueryParamsMapperType extends QueryParamsMapper<QueryParams> | DefaultMapperType = DefaultMapperType,
   HeaderMapperType extends HeaderMappingType | DefaultMapperType = DefaultMapperType,
   PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
+  RequestOptions extends Record<string, any> = {},
 > {
   /** Fetching function */
   public unstable_fetcher: AdapterFetcherType<
@@ -53,7 +54,8 @@ export class Adapter<
       EndpointMapperType,
       QueryParamsMapperType,
       HeaderMapperType,
-      PayloadMapperType
+      PayloadMapperType,
+      RequestOptions
     >
   >;
 
@@ -79,6 +81,12 @@ export class Adapter<
   public unstable_headerMapperConfig: Parameters<HeaderMapperType>[1];
   public unstable_payloadMapperConfig: Parameters<PayloadMapperType>[1];
   public unstable_endpointMapperConfig: Parameters<EndpointMapperType>[1];
+
+  /**
+   * Type-only carrier of the additional `createRequest` fields declared by this adapter.
+   * It has no runtime value - adapters read those fields from `request.requestOptions`.
+   */
+  public unstable_requestOptionsType?: RequestOptions = undefined;
 
   constructor(
     public options: {
@@ -147,7 +155,8 @@ export class Adapter<
             EndpointMapperType,
             QueryParamsMapperType,
             HeaderMapperType,
-            PayloadMapperType
+            PayloadMapperType,
+            RequestOptions
           >
         >;
       }
@@ -161,7 +170,9 @@ export class Adapter<
    * Get formatted endpoint name of the request.
    * Helpful in displaying long endpoints like in case of graphql schemas etc.
    */
-  public unstable_devtoolsEndpointGetter: (endpoint: string) => string = (endpoint) => endpoint;
+  public unstable_devtoolsEndpointGetter: (endpoint: string, requestOptions?: Record<string, any>) => string = (
+    endpoint,
+  ) => endpoint;
 
   /**
    * ********************
@@ -182,7 +193,7 @@ export class Adapter<
   };
 
   /** Set a function that formats the endpoint string for display in devtools. */
-  setDevtoolsEndpointGetter = (callback: (endpoint: string) => string) => {
+  setDevtoolsEndpointGetter = (callback: (endpoint: string, requestOptions?: Record<string, any>) => string) => {
     this.unstable_devtoolsEndpointGetter = callback;
     return this;
   };
@@ -217,7 +228,8 @@ export class Adapter<
               EndpointMapperType,
               QueryParamsMapperType,
               HeaderMapperType,
-              PayloadMapperType
+              PayloadMapperType,
+              RequestOptions
             >
           >;
         }
@@ -251,7 +263,8 @@ export class Adapter<
       EndpointMapperType,
       QueryParamsMapperType,
       NewMapper,
-      PayloadMapperType
+      PayloadMapperType,
+      RequestOptions
     >;
   };
 
@@ -275,7 +288,8 @@ export class Adapter<
       EndpointMapperType,
       QueryParamsMapperType,
       HeaderMapperType,
-      NewMapper
+      NewMapper,
+      RequestOptions
     >;
   };
 
@@ -299,7 +313,8 @@ export class Adapter<
       NewEndpointMapper,
       QueryParamsMapperType,
       HeaderMapperType,
-      PayloadMapperType
+      PayloadMapperType,
+      RequestOptions
     >;
   };
 
@@ -325,7 +340,8 @@ export class Adapter<
       EndpointMapperType,
       NewQueryParamsMapper,
       HeaderMapperType,
-      PayloadMapperType
+      PayloadMapperType,
+      RequestOptions
     >;
   };
 
@@ -381,7 +397,8 @@ export class Adapter<
         EndpointMapperType,
         QueryParamsMapperType,
         HeaderMapperType,
-        PayloadMapperType
+        PayloadMapperType,
+        RequestOptions
       >
     >,
   ) {
@@ -408,7 +425,8 @@ export class Adapter<
             EndpointMapperType,
             QueryParamsMapperType,
             HeaderMapperType,
-            PayloadMapperType
+            PayloadMapperType,
+            RequestOptions
           >
         >;
       }
@@ -445,7 +463,8 @@ export class Adapter<
             EndpointMapperType,
             QueryParamsMapperType,
             HeaderMapperType,
-            PayloadMapperType
+            PayloadMapperType,
+            RequestOptions
           >
         >({
           request,
@@ -470,7 +489,8 @@ export class Adapter<
               EndpointMapperType,
               QueryParamsMapperType,
               HeaderMapperType,
-              PayloadMapperType
+              PayloadMapperType,
+              RequestOptions
             >
           >(bindings);
         }
