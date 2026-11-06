@@ -1,3 +1,4 @@
+import type { AppManager } from "@hyper-fetch/core";
 import type { SocketAdapterInstance } from "adapter";
 import type { EmitterInstance } from "emitter";
 import type { Socket } from "socket";
@@ -12,6 +13,10 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   adapter?: (() => Adapter) | Adapter;
   adapterOptions?: ExtractAdapterOptionsType<Adapter>;
   queryParams?: ExtractAdapterQueryParamsType<Adapter>;
+  /**
+   * Custom app manager initialization prop - e.g. to track the network state in React Native or Node.js
+   */
+  appManager?: () => AppManager;
 };
 
 /**

@@ -248,6 +248,35 @@ function Component() {
 
 ---
 
+## Offline handling
+
+Every socket tracks the network state with its own `AppManager` (`socket.appManager`). In the browser it starts from
+`navigator.onLine` and listens to the window `online` / `offline` events:
+
+- While offline, connection attempts are skipped.
+- When the browser comes back online, a socket with `autoConnect` enabled connects again on its own.
+
+In environments without these browser events, like React Native or Node.js, pass your own app manager with the
+`appManager` option. Return a cleanup function from `onlineEvent` so that `socket.appManager.unmount()` can remove the
+listener.
+
+```ts
+import { AppManager } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+// import NetInfo from "@react-native-community/netinfo";
+
+const socket = new Socket({
+  url: "ws://localhost:8080",
+  appManager: () =>
+    new AppManager({
+      initiallyOnline: async () => Boolean((await NetInfo.fetch()).isConnected),
+      onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(Boolean(state.isConnected))),
+    }),
+});
+```
+
+---
+
 :::success Congratulations!
 
 You now know how to manage socket connections in Hyper-fetch.
@@ -257,5 +286,6 @@ You now know how to manage socket connections in Hyper-fetch.
 - You can **prepare every connection attempt** with the `onConnect` interceptor.
 - You can monitor the **connection lifecycle** with callbacks.
 - You can create robust **retry strategies** for network resilience.
+- You can **react to the network state** and plug in your own `AppManager`.
 
 :::

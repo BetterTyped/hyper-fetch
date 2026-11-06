@@ -419,6 +419,7 @@ export class Client<
     this.fetchDispatcher.emitter.removeAllListeners();
     this.submitDispatcher.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
+    this.appManager.unmount();
 
     this.cache = cache?.() || new Cache();
     this.appManager = appManager?.() || new AppManager();

@@ -16,6 +16,19 @@ export const hasDocument = () => {
   }
 };
 
+/**
+ * Reads the current network state from the browser. Falls back to `true` when it is unknown - e.g. in Node.js or
+ * React Native, where `navigator.onLine` is not available.
+ */
+export const isNavigatorOnline = () => {
+  try {
+    return typeof navigator.onLine === "boolean" ? navigator.onLine : true;
+  } catch {
+    /* istanbul ignore next */
+    return true;
+  }
+};
+
 export const onWindowEvent = <K extends keyof WindowEventMap>(
   key: K,
   listener: (this: Window, ev: WindowEventMap[K]) => any,

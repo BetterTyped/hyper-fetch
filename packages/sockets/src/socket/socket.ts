@@ -47,19 +47,23 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   // Config
   adapter: Adapter;
   loggerManager = new LoggerManager();
-  appManager = new AppManager();
+  appManager: AppManager;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Socket");
 
   constructor(public options: SocketOptionsType<Adapter>) {
-    const { url, adapter, reconnect, reconnectTime, queryParams } = this.options;
+    const { url, adapter, reconnect, reconnectTime, queryParams, appManager } = this.options;
     this.emitter?.setMaxListeners(1000);
     this.url = url;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 5;
     this.autoConnect = true;
+
+    // App manager must be initialized before the adapter - it may connect right away and checks the network state
+    this.appManager = appManager?.() || new AppManager();
+    this.appManager.initialize();
 
     // Adapter must be initialized at the end
     const instanceOfAdapter = typeof adapter === "function" ? adapter() : adapter;

@@ -19,6 +19,8 @@ export class AppManager {
   isOnline: boolean;
   isFocused: boolean;
 
+  private unmountCallbacks: VoidFunction[] = [];
+
   constructor(public options?: AppManagerOptionsType) {
     this.emitter?.setMaxListeners(1000);
     const {
@@ -32,29 +34,61 @@ export class AppManager {
     this.isBrowser = hasDocument();
   }
 
+  /**
+   * Subscribes to the environment focus and network changes. Calling it again replaces the previous subscriptions,
+   * so the listeners are never registered twice.
+   */
   initialize = () => {
     const { focusEvent = appManagerInitialOptions.focusEvent, onlineEvent = appManagerInitialOptions.onlineEvent } =
       this.options || appManagerInitialOptions;
 
-    focusEvent(this.setFocused);
-    onlineEvent(this.setOnline);
+    this.unmount();
+
+    [focusEvent(this.setFocused), onlineEvent(this.setOnline)].forEach((unmount) => {
+      if (typeof unmount === "function") {
+        this.unmountCallbacks.push(unmount);
+      }
+    });
+  };
+
+  /**
+   * Removes the environment listeners registered by `initialize()`. Listeners added with `events` are kept.
+   */
+  unmount = () => {
+    const callbacks = this.unmountCallbacks;
+    this.unmountCallbacks = [];
+    callbacks.forEach((unmount) => unmount());
   };
 
   private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {
-    if (typeof initValue === "function") {
-      this.isFocused = false;
-      this.isFocused = await initValue();
-    } else {
+    if (typeof initValue !== "function") {
       this.isFocused = initValue;
+      return;
+    }
+
+    // Synchronous getters apply right away, so there is no moment with a wrong value
+    const value = initValue();
+    if (typeof value === "boolean") {
+      this.isFocused = value;
+    } else {
+      this.isFocused = false;
+      this.isFocused = await value;
     }
   };
 
   private setInitialOnline = async (initValue: Exclude<AppManagerOptionsType["initiallyOnline"], undefined>) => {
-    if (typeof initValue === "function") {
-      this.isOnline = false;
-      this.isOnline = await initValue();
-    } else {
+    if (typeof initValue !== "function") {
       this.isOnline = initValue;
+      return;
+    }
+
+    // Synchronous getters apply right away, so there is no moment with a wrong value
+    const value = initValue();
+    if (typeof value === "boolean") {
+      this.isOnline = value;
+    } else {
+      this.isOnline = false;
+      this.isOnline = await value;
     }
   };
 

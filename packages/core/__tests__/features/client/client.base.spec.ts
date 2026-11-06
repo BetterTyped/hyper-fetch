@@ -91,6 +91,20 @@ describe("Client [ Base ]", () => {
       client.clear();
       expect(spy).toHaveBeenCalledTimes(2);
     });
+    it("should remove the window listeners of the previous appManager", async () => {
+      const client = new Client({ url: "shared-base-url" });
+      const previousAppManager = client.appManager;
+
+      client.clear();
+      window.dispatchEvent(new Event("offline"));
+
+      expect(previousAppManager.isOnline).toBeTrue();
+      expect(client.appManager.isOnline).toBeFalse();
+
+      window.dispatchEvent(new Event("online"));
+      expect(client.appManager.isOnline).toBeTrue();
+      client.appManager.unmount();
+    });
     it("should assign new cache", async () => {
       const spy = vi.fn();
       const cache = new Cache();

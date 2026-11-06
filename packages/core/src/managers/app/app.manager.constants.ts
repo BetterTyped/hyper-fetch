@@ -1,7 +1,7 @@
 import type { AppManagerOptionsType } from "managers";
 import type { RequiredKeys } from "types";
 
-import { onWindowEvent, onDocumentEvent } from "./app.manager.utils";
+import { onWindowEvent, onDocumentEvent, isNavigatorOnline } from "./app.manager.utils";
 
 export enum AppEvents {
   FOCUS = "focus",
@@ -12,14 +12,25 @@ export enum AppEvents {
 
 export const appManagerInitialOptions: RequiredKeys<AppManagerOptionsType> = {
   initiallyFocused: true,
-  initiallyOnline: true,
+  initiallyOnline: isNavigatorOnline,
   focusEvent: (setFocused) => {
-    onDocumentEvent("visibilitychange", () => setFocused(true));
-    onWindowEvent("focus", () => setFocused(true));
-    onWindowEvent("blur", () => setFocused(false));
+    const unmountVisibility = onDocumentEvent("visibilitychange", () => setFocused(true));
+    const unmountFocus = onWindowEvent("focus", () => setFocused(true));
+    const unmountBlur = onWindowEvent("blur", () => setFocused(false));
+
+    return () => {
+      unmountVisibility();
+      unmountFocus();
+      unmountBlur();
+    };
   },
   onlineEvent: (setOnline) => {
-    onWindowEvent("online", () => setOnline(true));
-    onWindowEvent("offline", () => setOnline(false));
+    const unmountOnline = onWindowEvent("online", () => setOnline(true));
+    const unmountOffline = onWindowEvent("offline", () => setOnline(false));
+
+    return () => {
+      unmountOnline();
+      unmountOffline();
+    };
   },
 };
