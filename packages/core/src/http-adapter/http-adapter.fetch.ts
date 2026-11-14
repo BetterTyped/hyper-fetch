@@ -38,6 +38,9 @@ export const getAdapter = () =>
     .setFetcher(
       async ({
         request,
+        url,
+        endpoint,
+        queryParams,
         adapterOptions,
         headers,
         payload,
@@ -54,9 +57,8 @@ export const getAdapter = () =>
         onRequestProgress,
         onSuccess,
       }) => {
-        const { method, client, endpoint, queryParams } = request;
-        const queryString = queryParams ? stringifyQueryParams(queryParams) : "";
-        const fullUrl = `${client.url}${endpoint}${queryString}`;
+        const { method } = request;
+        const fullUrl = `${url}${endpoint}${queryParams}`;
 
         const controller = getAbortController();
         const { timeout: timeoutMs = defaultTimeout, streaming = false, ...restOptions } = adapterOptions || {};

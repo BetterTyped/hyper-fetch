@@ -146,6 +146,61 @@ describe("Client [ Utils ]", () => {
       expect(stringifyQueryParams(null, options)).toBe("");
       expect(stringifyQueryParams(undefined, options)).toBe("");
     });
+    it("should use default options when none are passed", async () => {
+      expect(stringifyQueryParams({ tags: ["a b", "c&d"], q: "x&y=1", nil: null, empty: "" })).toBe(
+        "?tags[]=a%20b&tags[]=c%26d&q=x%26y%3D1",
+      );
+    });
+    it("should merge partial options with the defaults", async () => {
+      expect(
+        stringifyQueryParams({ tags: ["a b", "c&d"], q: "x&y=1", nil: null, empty: "" }, { arrayFormat: "comma" }),
+      ).toBe("?tags=a%20b,c%26d&q=x%26y%3D1");
+      expect(stringifyQueryParams({ value: "(a)" }, { arrayFormat: "comma" })).toBe("?value=%28a%29");
+      expect(stringifyQueryParams({ tags: [null, "", "a"] }, { arrayFormat: "index" })).toBe("?tags[0]=a");
+    });
+    it("should allow partial options to override the defaults", async () => {
+      expect(stringifyQueryParams({ q: "a b", nil: null }, { encode: false, skipNull: false })).toBe("?q=a b&nil=null");
+    });
+    it("should merge partial adapter mapper config with the defaults", async () => {
+      const newClient = new Client({ url: "shared-base-url" });
+      newClient.adapter.setQueryParamsMapperConfig({ arrayFormat: "comma" });
+      expect(newClient.adapter.unstable_queryParamsMapper({ tags: ["a b", "c&d"], q: "x&y=1", nil: null })).toBe(
+        "?tags=a%20b,c%26d&q=x%26y%3D1",
+      );
+    });
+    it("should serialize dates and objects inside arrays like scalar values", async () => {
+      const date = new Date(Date.UTC(2024, 0, 2));
+      expect(stringifyQueryParams({ from: date, f: { id: 1 } })).toBe(
+        "?from=2024-01-02T00%3A00%3A00.000Z&f=%7B%22id%22%3A1%7D",
+      );
+      expect(stringifyQueryParams({ from: [date], f: [{ id: 1 }] })).toBe(
+        "?from[]=2024-01-02T00%3A00%3A00.000Z&f[]=%7B%22id%22%3A1%7D",
+      );
+      expect(stringifyQueryParams({ from: [date, date] }, { arrayFormat: "comma" })).toBe(
+        "?from=2024-01-02T00%3A00%3A00.000Z,2024-01-02T00%3A00%3A00.000Z",
+      );
+    });
+    it("should apply custom date and object parsers to array items", async () => {
+      const date = new Date(Date.UTC(2024, 0, 2));
+      const parsers = {
+        dateParser: (value: unknown) => (value as Date).toISOString().slice(0, 10),
+        objectParser: (value: unknown) => `id-${(value as { id: number }).id}`,
+      };
+      expect(stringifyQueryParams({ from: [date], f: [{ id: 1 }, { id: 2 }] }, parsers)).toBe(
+        "?from[]=2024-01-02&f[]=id-1&f[]=id-2",
+      );
+      expect(stringifyQueryParams({ from: date, f: { id: 1 } }, parsers)).toBe("?from=2024-01-02&f=id-1");
+    });
+    it("should use the pipe separator by default for separator array formats", async () => {
+      expect(stringifyDefaultOptions.arraySeparator).toBe("|");
+      expect(stringifyQueryParams({ a: [1, 2] }, { ...stringifyDefaultOptions, arrayFormat: "separator" })).toBe(
+        "?a=1|2",
+      );
+      expect(
+        stringifyQueryParams({ a: [1, 2] }, { ...stringifyDefaultOptions, arrayFormat: "bracket-separator" }),
+      ).toBe("?a[]=1|2");
+      expect(stringifyQueryParams({ a: [1, 2] }, { arrayFormat: "separator" })).toBe("?a=1|2");
+    });
   });
 
   describe("When using headerMapper", () => {

@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import type { QueryParamsType } from "adapter";
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
 import { HttpAdapter } from "http-adapter";
@@ -40,6 +41,38 @@ describe("Http Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "15" } });
+  });
+
+  it("should build the request url from the adapter-mapped query params", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    client.adapter.setQueryParamsMapperConfig({ arrayFormat: "comma" });
+    const queryRequest = client
+      .createRequest<{ response: any; queryParams: QueryParamsType }>()({ endpoint: "/shared-endpoint" })
+      .setQueryParams({ tags: ["a b", "c&d"], q: "x&y=1", nil: null });
+    mockRequest(queryRequest, { data: { response: [] } });
+
+    const { status } = await client.adapter.fetch(queryRequest, requestId);
+
+    expect(status).toBe(200);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(String(fetchSpy.mock.calls[0][0])).toBe(
+      "https://shared-base-url/shared-endpoint?tags=a%20b,c%26d&q=x%26y%3D1",
+    );
+    fetchSpy.mockRestore();
+  });
+
+  it("should build the request url with a custom query params mapper", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    client.adapter.setQueryParamsMapper(() => "?custom=1");
+    const queryRequest = client
+      .createRequest<{ response: any; queryParams: QueryParamsType }>()({ endpoint: "/shared-endpoint" })
+      .setQueryParams({ ignored: true });
+    mockRequest(queryRequest, { data: { response: [] } });
+
+    await client.adapter.fetch(queryRequest, requestId);
+
+    expect(String(fetchSpy.mock.calls[0][0])).toBe("https://shared-base-url/shared-endpoint?custom=1");
+    fetchSpy.mockRestore();
   });
 
   it("should make a request and return error data with status", async () => {

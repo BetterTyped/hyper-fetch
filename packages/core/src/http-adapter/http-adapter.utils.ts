@@ -85,6 +85,18 @@ const encodeValue = (
   return value;
 };
 
+const parseValue = (value: QueryParamValuesType, options: QueryStringifyOptionsType): string => {
+  if (value instanceof Date) {
+    return options.dateParser?.(value) || value.toISOString();
+  }
+
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return options.objectParser?.(value) || JSON.stringify(value);
+  }
+
+  return String(value);
+};
+
 const encodeParams = (key: string, value: QueryParamType, options: QueryStringifyOptionsType) => {
   const shouldSkip = !isValidValue(options)(value);
 
@@ -92,53 +104,42 @@ const encodeParams = (key: string, value: QueryParamType, options: QueryStringif
     return "";
   }
 
-  const parsedValue = () => {
-    if (value instanceof Date) {
-      return options.dateParser?.(value) || value.toISOString();
-    }
-
-    if (typeof value === "object" && !Array.isArray(value)) {
-      return options.objectParser?.(value) || JSON.stringify(value);
-    }
-
-    return String(value);
-  };
-
-  return `${encodeValue(key, options)}=${encodeValue(parsedValue(), options)}`;
+  return `${encodeValue(key, options)}=${encodeValue(parseValue(value as QueryParamValuesType, options), options)}`;
 };
 
 const encodeArray = (key: string, array: QueryParamValuesType[], options: QueryStringifyOptionsType): string => {
   const { arrayFormat, arraySeparator } = options;
+  const separator = arraySeparator || "|";
+  const encodedKey = encodeValue(key, options);
 
   return array
     .filter(isValidValue(options))
     .reduce<string[]>((acc, value, index) => {
+      const encodedValue = encodeValue(parseValue(value, options), options);
+
       switch (arrayFormat) {
         case "index": {
-          const keyValue = `${encodeValue(key, options)}[${encodeValue(String(index), options)}]=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
+          acc.push(`${encodedKey}[${encodeValue(String(index), options)}]=${encodedValue}`);
           break;
         }
         case "bracket": {
-          const keyValue = `${encodeValue(key, options)}[]=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
+          acc.push(`${encodedKey}[]=${encodedValue}`);
           break;
         }
         case "comma": {
-          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(",")];
+          const keyValue = (acc.length === 0 && `${encodedKey}=`) || "";
+          return [[...acc, `${keyValue}${encodedValue}`].join(",")];
         }
         case "separator": {
-          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
+          const keyValue = (acc.length === 0 && `${encodedKey}=`) || "";
+          return [[...acc, `${keyValue}${encodedValue}`].join(separator)];
         }
         case "bracket-separator": {
-          const keyValue = (acc.length === 0 && `${encodeValue(key, options)}[]=`) || "";
-          return [[...acc, `${keyValue}${encodeValue(String(value), options)}`].join(arraySeparator || "|")];
+          const keyValue = (acc.length === 0 && `${encodedKey}[]=`) || "";
+          return [[...acc, `${keyValue}${encodedValue}`].join(separator)];
         }
         default: {
-          const keyValue = `${encodeValue(key, options)}=`;
-          acc.push(`${keyValue}${encodeValue(String(value), options)}`);
+          acc.push(`${encodedKey}=${encodedValue}`);
         }
       }
 
@@ -149,8 +150,11 @@ const encodeArray = (key: string, array: QueryParamValuesType[], options: QueryS
 
 export const stringifyQueryParams = (
   queryParams: QueryParamsType | string | EmptyTypes,
-  options: QueryStringifyOptionsType = stringifyDefaultOptions,
+  options?: QueryStringifyOptionsType,
 ): string => {
+  // Merge with defaults so a partial config (e.g. `{ arrayFormat: "comma" }`) keeps encoding and skipping enabled
+  const config: QueryStringifyOptionsType = { ...stringifyDefaultOptions, ...options };
+
   if (!queryParams || Object.keys(queryParams).length === 0) {
     return "";
   }
@@ -163,10 +167,10 @@ export const stringifyQueryParams = (
   const stringified = Object.entries(queryParams)
     .map(([key, value]): string => {
       if (Array.isArray(value)) {
-        return encodeArray(key, value, options);
+        return encodeArray(key, value, config);
       }
 
-      return encodeParams(key, value, options);
+      return encodeParams(key, value, config);
     })
     .filter(Boolean)
     .join("&");

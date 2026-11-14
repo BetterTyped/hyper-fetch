@@ -104,17 +104,20 @@ const response = searchRequest.send({
 ## Customizing Query Param Format
 
 By default, Hyper-Fetch stringifies query parameters using standard conventions. However, some APIs may require a
-different format. You can easily customize this behavior using `setQueryParamsConfig` on the client's adapter instance.
+different format. You can easily customize this behavior using `setQueryParamsMapperConfig` on the client's adapter instance.
 
 This configuration is applied globally to all requests made with that client.
+
+The config is merged with `stringifyDefaultOptions`, so you only need to pass the options you want to change - encoding
+and `null`/empty-string skipping stay enabled unless you turn them off explicitly.
 
 Here are some of the available options:
 
 - `arrayFormat`: Controls how arrays are formatted (e.g., `bracket`, `comma`, `index`).
 - `skipNull`: If `true`, parameters with `null` values are excluded.
 - `skipEmptyString`: If `true`, parameters with empty string values are excluded.
-- `dateParser`: A function to serialize `Date` objects.
-- `objectParser`: A function to serialize `object` values.
+- `dateParser`: A function to serialize `Date` objects (also applied to `Date` items inside arrays).
+- `objectParser`: A function to serialize `object` values (also applied to object items inside arrays).
 
 ### Custom Array Format
 
@@ -123,7 +126,7 @@ For example, if your backend expects comma-separated array values (`?tags=one,tw
 
 ```ts
 // 1. Set the array format on the adapter
-client.adapter.setQueryParamsConfig({ arrayFormat: "comma" });
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "comma" });
 
 const searchByTags = client.createRequest<{ queryParams: { tags: string[] } }>()({
   endpoint: "/articles",
@@ -147,7 +150,7 @@ If your API requires dates to be sent as `YYYY-MM-DD`, you can provide a custom 
 import { format } from "date-fns";
 
 // 1. Provide a custom date parser
-client.adapter.setQueryParamsConfig({
+client.adapter.setQueryParamsMapperConfig({
   dateParser: (date) => format(date, "yyyy-MM-dd"),
 });
 
@@ -168,7 +171,7 @@ logic, such as converting an object to a stringified tuple.
 
 ```ts
 // 1. Provide a custom object parser
-client.adapter.setQueryParamsConfig({
+client.adapter.setQueryParamsMapperConfig({
   objectParser: (obj) => `[${obj.value},${obj.id}]`,
 });
 
