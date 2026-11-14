@@ -115,6 +115,7 @@
       "@hyper-fetch/firebase-admin": "workspace:*",
       "@hyper-fetch/axios": "workspace:*",
       "@hyper-fetch/graphql": "workspace:*",
+      "@hyper-fetch/ai": "workspace:*",
       "@hyper-fetch/plugin-devtools": "workspace:*",
       "@hyper-fetch/testing": "workspace:*",
       "@swc/core": "^1.15.30"
