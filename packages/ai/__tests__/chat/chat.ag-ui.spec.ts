@@ -93,7 +93,7 @@ describe("Chat [ AG-UI protocol ]", () => {
         description: "Ask the user",
         parameters: { type: "object", properties: { question: { type: "string" } } },
       },
-      { name: "getTime", parameters: { type: "object", properties: {} } },
+      { name: "getTime", description: "", parameters: { type: "object", properties: {} } },
     ]);
   });
 
@@ -153,8 +153,70 @@ describe("Chat [ AG-UI protocol ]", () => {
 
     expect(chat.messages.map((message) => message.id).slice(0, 2)).toEqual(["old-user", "old-answer"]);
     expect(chat.messages).toHaveLength(3);
-    // The snapshot replaced the history, so streaming continues into a fresh assistant message
-    expect(chat.messages[2].parts).toEqual([{ type: "text", id: "new", text: "fresh", state: "done" }]);
+    // The answer being streamed is kept after the snapshot's history
+    expect(chat.messages[2].parts).toEqual([
+      { type: "step-start" },
+      { type: "text", id: "new", text: "fresh", state: "done" },
+    ]);
+  });
+
+  it("should keep client state when a snapshot repeats the streamed answer", async () => {
+    const { request, calls } = createMockedEndpoint([
+      agui([
+        { type: "RUN_STARTED", threadId: "t", runId: "r1" },
+        { type: "TEXT_MESSAGE_START", messageId: "srv-msg", role: "assistant" },
+        { type: "TEXT_MESSAGE_CONTENT", messageId: "srv-msg", delta: "Checking" },
+        { type: "TEXT_MESSAGE_END", messageId: "srv-msg" },
+        { type: "TOOL_CALL_START", toolCallId: "c1", toolCallName: "confirm", parentMessageId: "srv-msg" },
+        { type: "TOOL_CALL_ARGS", toolCallId: "c1", delta: '{"question":"Go?"}' },
+        { type: "TOOL_CALL_END", toolCallId: "c1" },
+        {
+          type: "MESSAGES_SNAPSHOT",
+          messages: [
+            { id: "server-user-id", role: "user", content: "Start" },
+            {
+              id: "srv-msg",
+              role: "assistant",
+              content: "Checking",
+              toolCalls: [
+                { id: "c1", type: "function", function: { name: "confirm", arguments: '{"question":"Go?"}' } },
+              ],
+            },
+          ],
+        },
+        {
+          type: "RUN_FINISHED",
+          threadId: "t",
+          runId: "r1",
+          outcome: {
+            type: "interrupt",
+            interrupts: [{ id: "client_tool_c1", reason: "tanstack:client_tool_execution", toolCallId: "c1" }],
+          },
+        },
+      ]),
+      agui(aguiTextAnswer("Done")),
+    ]);
+    const chat = new Chat<AgentChat>({
+      request,
+      protocol: tanstackAIProtocol(),
+      tools: { confirm: { execute: async () => ({ confirmed: true }) } },
+      sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    });
+
+    await chat.sendMessage("Start");
+    await vi.waitFor(() => expect(calls).toHaveLength(2));
+    await vi.waitFor(() => expect(chat.status).toBe("ready"));
+
+    expect(chat.messages).toHaveLength(2);
+    expect(chat.messages[0]).toMatchObject({ id: "server-user-id", role: "user" });
+    expect(chat.messages[1].parts.find((part) => part.type === "tool")).toMatchObject({
+      state: "output-available",
+      output: { confirmed: true },
+      interruptId: "client_tool_c1",
+    });
+    expect(calls[1].payload.resume).toEqual([
+      { interruptId: "client_tool_c1", status: "resolved", payload: { confirmed: true } },
+    ]);
   });
 
   it("should expose generic interrupts and send their answers with the next run", async () => {

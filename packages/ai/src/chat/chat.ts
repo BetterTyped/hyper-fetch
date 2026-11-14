@@ -32,7 +32,7 @@ import type {
   ChatTypes,
   ChatUsageType,
 } from "./chat.types";
-import { isTerminalToolState } from "./chat.utils";
+import { isTerminalToolState, reconcileMessagesSnapshot } from "./chat.utils";
 
 type ActiveRequestType = {
   runId: string;
@@ -378,11 +378,11 @@ export class Chat<T extends ChatTypes = ChatTypes, R extends RequestInstance = R
     return Object.entries(tools)
       .filter((entry): entry is [string, ChatClientToolType<unknown, unknown>] => !!entry[1])
       .map(([name, tool]) => {
-        const parameters = tool.parameters ?? getJSONSchema(tool.inputSchema);
+        // AG-UI requires both fields (TanStack AI rejects tools without a description)
         return {
           name,
-          ...(tool.description !== undefined && { description: tool.description }),
-          ...(parameters !== undefined && { parameters }),
+          description: tool.description ?? "",
+          parameters: tool.parameters ?? getJSONSchema(tool.inputSchema) ?? { type: "object", properties: {} },
         };
       });
   }
@@ -550,14 +550,16 @@ export class Chat<T extends ChatTypes = ChatTypes, R extends RequestInstance = R
           return;
         }
         case "messages-snapshot": {
-          const messages = event.messages as ChatMessageType<T>[];
-          const index = messages.findIndex((message) => message.id === building.builder.message.id);
-          if (index === -1) {
-            building.builder = new ChatMessageBuilder({ id: this.generateId(), role: "assistant", parts: [] });
-            messageIndex = -1;
-          } else {
-            building.builder = new ChatMessageBuilder(messages[index] as ChatMessageType);
+          const messages = reconcileMessagesSnapshot(event.messages as ChatMessageType<T>[], this.snapshot.messages);
+          const { id } = building.builder.message;
+          const index = messages.findIndex((message) => message.id === id);
+          if (index !== -1) {
+            building.builder.rebase(messages[index] as ChatMessageType);
             messageIndex = index;
+          } else if (messageIndex !== -1) {
+            // The snapshot doesn't contain the answer being streamed yet - keep it after the history
+            messageIndex = messages.length;
+            messages.push(building.builder.message as ChatMessageType<T>);
           }
           this.update({ messages });
           return;

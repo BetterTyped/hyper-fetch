@@ -573,13 +573,13 @@ importers:
     devDependencies:
       '@tanstack/ai':
         specifier: 1.4.0
-        version: 1.4.0(@opentelemetry/api@1.9.1)(zod@3.25.76)
+        version: 1.4.0(@opentelemetry/api@1.9.1)(zod@4.4.1)
       ai:
         specifier: 7.0.173
-        version: 7.0.173(zod@3.25.76)
+        version: 7.0.173(zod@4.4.1)
       zod:
-        specifier: ^3.25.0
-        version: 3.25.76
+        specifier: ^4.4.1
+        version: 4.4.1
 
   packages/cli:
     dependencies:
@@ -18604,24 +18604,24 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@ag-ui/core@1.0.0(zod@3.25.76)':
+  '@ag-ui/core@1.0.0(zod@4.4.1)':
     optionalDependencies:
-      zod: 3.25.76
+      zod: 4.4.1
 
-  '@ai-sdk/gateway@4.0.146(zod@3.25.76)':
+  '@ai-sdk/gateway@4.0.146(zod@4.4.1)':
     dependencies:
       '@ai-sdk/provider': 4.0.38
-      '@ai-sdk/provider-utils': 5.0.81(zod@3.25.76)
+      '@ai-sdk/provider-utils': 5.0.81(zod@4.4.1)
       '@vercel/oidc': 3.2.0
-      zod: 3.25.76
+      zod: 4.4.1
 
-  '@ai-sdk/provider-utils@5.0.81(zod@3.25.76)':
+  '@ai-sdk/provider-utils@5.0.81(zod@4.4.1)':
     dependencies:
       '@ai-sdk/provider': 4.0.38
       '@standard-schema/spec': 1.1.0
       '@workflow/serde': 4.1.0
       eventsource-parser: 3.0.8
-      zod: 3.25.76
+      zod: 4.4.1
 
   '@ai-sdk/provider@4.0.38':
     dependencies:
@@ -27410,9 +27410,9 @@ snapshots:
 
   '@tanstack/ai-utils@1.1.0': {}
 
-  '@tanstack/ai@1.4.0(@opentelemetry/api@1.9.1)(zod@3.25.76)':
+  '@tanstack/ai@1.4.0(@opentelemetry/api@1.9.1)(zod@4.4.1)':
     dependencies:
-      '@ag-ui/core': 1.0.0(zod@3.25.76)
+      '@ag-ui/core': 1.0.0(zod@4.4.1)
       '@cfworker/json-schema': 4.1.6
       '@standard-schema/spec': 1.1.0
       '@tanstack/ai-event-client': 1.0.1
@@ -28529,12 +28529,12 @@ snapshots:
       clean-stack: 5.3.0
       indent-string: 5.0.0
 
-  ai@7.0.173(zod@3.25.76):
+  ai@7.0.173(zod@4.4.1):
     dependencies:
-      '@ai-sdk/gateway': 4.0.146(zod@3.25.76)
+      '@ai-sdk/gateway': 4.0.146(zod@4.4.1)
       '@ai-sdk/provider': 4.0.38
-      '@ai-sdk/provider-utils': 5.0.81(zod@3.25.76)
-      zod: 3.25.76
+      '@ai-sdk/provider-utils': 5.0.81(zod@4.4.1)
+      zod: 4.4.1
 
   airbnb-prop-types@2.16.0(react@19.2.5):
     dependencies:

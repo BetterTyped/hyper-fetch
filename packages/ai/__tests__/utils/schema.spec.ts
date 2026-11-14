@@ -45,8 +45,16 @@ describe("Standard Schema helpers", () => {
       },
     };
     expect(getJSONSchema(withJsonSchema)).toBe(jsonSchema);
-    expect(getJSONSchema(schema)).toBeUndefined();
     expect(getJSONSchema(undefined)).toBeUndefined();
+    expect(getJSONSchema({ "~standard": { version: 1, vendor: "x", validate: () => ({ value: 1 }) } })).toBeUndefined();
+  });
+
+  it("should convert Zod 4 schemas to JSON Schema", () => {
+    expect(getJSONSchema(schema)).toMatchObject({
+      type: "object",
+      properties: { name: { type: "string" }, age: { type: "integer" } },
+      required: ["name", "age"],
+    });
   });
 
   it("should not throw when JSON Schema conversion fails", () => {

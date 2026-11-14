@@ -41,6 +41,12 @@ export class ChatMessageBuilder {
     this.stepStartIndex = message.parts.length;
   }
 
+  /** Continue building on another version of the message (e.g. reconciled with a snapshot), keeping stream state. */
+  rebase(message: ChatMessageType) {
+    this.message = message;
+    this.stepStartIndex = Math.min(this.stepStartIndex, message.parts.length);
+  }
+
   private setParts(parts: ChatPartType[]) {
     this.message = { ...this.message, parts };
   }

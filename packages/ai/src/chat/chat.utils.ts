@@ -4,6 +4,68 @@ export const isTerminalToolState = (part: ChatToolPartType) =>
   part.state === "output-available" || part.state === "output-error" || part.state === "output-denied";
 
 /* -------------------------------------------------------------------------------------------------
+ * Messages snapshots
+ * -----------------------------------------------------------------------------------------------*/
+
+const getPartKeys = (message: ChatMessageType<any>): Set<string> =>
+  new Set(
+    message.parts.flatMap((part) => {
+      if (part.type === "tool") {
+        return [`tool:${part.toolCallId}`];
+      }
+      if (part.type === "text" || part.type === "reasoning") {
+        return [`${part.type}:${part.id}`];
+      }
+      return [];
+    }),
+  );
+
+/** Take finished tool results from the snapshot, keep everything else the client already has. */
+const mergeSnapshotMessage = <M extends ChatMessageType<any>>(current: M, snapshot: M): M => {
+  const snapshotTools = new Map(
+    snapshot.parts
+      .filter((part): part is ChatToolPartType => part.type === "tool")
+      .map((part) => [part.toolCallId, part] as const),
+  );
+  let changed = false;
+  const parts = current.parts.map((part) => {
+    if (part.type !== "tool") {
+      return part;
+    }
+    const fromSnapshot = snapshotTools.get(part.toolCallId);
+    if (!fromSnapshot || isTerminalToolState(part) || !isTerminalToolState(fromSnapshot)) {
+      return part;
+    }
+    changed = true;
+    return { ...fromSnapshot, ...(part.interruptId !== undefined && { interruptId: part.interruptId }) };
+  });
+  return changed ? ({ ...current, parts } as M) : current;
+};
+
+/**
+ * Reconcile a full history sent by the backend (AG-UI `MESSAGES_SNAPSHOT`) with the client's messages. The snapshot
+ * decides which messages exist and their order, but messages the client already has - matched by id, or for assistant
+ * messages by a shared tool call or text id - keep their client state (ids, client tool results, interrupt bindings).
+ */
+export const reconcileMessagesSnapshot = <M extends ChatMessageType<any>>(snapshot: M[], current: M[]): M[] => {
+  const used = new Set<M>();
+  return snapshot.map((message) => {
+    let match = current.find((item) => !used.has(item) && item.id === message.id);
+    if (!match && message.role === "assistant") {
+      const keys = getPartKeys(message);
+      match = current.find(
+        (item) => !used.has(item) && item.role === "assistant" && [...getPartKeys(item)].some((key) => keys.has(key)),
+      );
+    }
+    if (!match) {
+      return message;
+    }
+    used.add(match);
+    return mergeSnapshotMessage(match, message);
+  });
+};
+
+/* -------------------------------------------------------------------------------------------------
  * Helpers for `sendAutomaticallyWhen`
  * -----------------------------------------------------------------------------------------------*/
 

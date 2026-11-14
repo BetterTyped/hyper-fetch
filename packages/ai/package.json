@@ -64,7 +64,7 @@
   "devDependencies": {
     "@tanstack/ai": "1.4.0",
     "ai": "7.0.173",
-    "zod": "^3.25.0"
+    "zod": "^4.4.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

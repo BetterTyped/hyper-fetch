@@ -8,8 +8,9 @@ export type ChatRequestTriggerType = "submit-message" | "regenerate-message" | "
 /** A client-side tool, described to backends that accept tool definitions from the client (AG-UI). */
 export type ChatClientToolDefinitionType = {
   name: string;
-  description?: string;
-  parameters?: JSONSchemaType;
+  description: string;
+  /** JSON Schema of the tool input */
+  parameters: JSONSchemaType;
 };
 
 /** An answer to a backend interrupt (AG-UI `RunAgentInput.resume`). */
