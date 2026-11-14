@@ -15,7 +15,12 @@ export type MockerConfigType = {
   totalUploaded?: number;
   /** total number of 'bytes' to be downloaded. */
   totalDownloaded?: number;
+  /** Delay before each streamed chunk (in milliseconds) when the mock returns `chunks`. Defaults to 0. */
+  chunkTime?: number;
 };
+
+/** Body chunks emitted one by one as response-chunk events, like a real streamed response (e.g. SSE or LLM tokens). */
+export type MockChunksType = (string | Uint8Array)[];
 
 /** Shape of a mocked response returned from the mocker. Must include either `data` (success) or `error` (failure). */
 export type MockResponseType<Response, Error, AdapterType extends AdapterInstance> = PartialBy<
@@ -26,9 +31,20 @@ export type MockResponseType<Response, Error, AdapterType extends AdapterInstanc
     | {
         data: Response;
         error?: Error;
+        chunks?: MockChunksType;
       }
     | {
         data?: Response;
         error: Error;
+        chunks?: MockChunksType;
+      }
+    | {
+        /**
+         * Stream these chunks before resolving. When `data` is omitted, the joined chunk text becomes the
+         * response data (parsed as JSON when possible).
+         */
+        chunks: MockChunksType;
+        data?: Response;
+        error?: Error;
       }
   );

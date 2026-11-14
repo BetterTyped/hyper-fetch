@@ -18,10 +18,16 @@ export const scopeKey = (key: string, scope: string | null): string => {
 
 export const stringifyKey = (value: unknown): string => {
   try {
-    if (typeof value === "string") {return value;}
-    if (value === undefined || value === null) {return "";}
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value === undefined || value === null) {
+      return "";
+    }
     const data = JSON.stringify(value);
-    if (typeof data !== "string") {throw new TypeError();}
+    if (typeof data !== "string") {
+      throw new TypeError();
+    }
     return data;
   } catch {
     return "";
@@ -29,7 +35,9 @@ export const stringifyKey = (value: unknown): string => {
 };
 
 export const getProgressValue = ({ loaded, total }: ProgressEventType): number => {
-  if (!loaded || !total) {return 0;}
+  if (!loaded || !total) {
+    return 0;
+  }
   return Number(((loaded * 100) / total).toFixed(0));
 };
 
@@ -203,6 +211,12 @@ export const sendRequest = async <Request extends RequestInstance>(
       $hooks.__emit("onDownloadProgress", enriched);
     });
 
+    const unmountChunk = requestManager.events.onResponseChunkById<Request>(requestId, (data) => {
+      const enriched = { ...data, mutationContext };
+      options?.onResponseChunk?.(enriched);
+      $hooks.__emit("onResponseChunk", enriched);
+    });
+
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
       const { details, response } = values;
@@ -217,10 +231,14 @@ export const sendRequest = async <Request extends RequestInstance>(
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
-        if (!success && isOfflineStatus) {return;}
+        if (!success && isOfflineStatus) {
+          return;
+        }
 
         // When request is in retry mode we need to listen for retries end
-        if (!success && willRetry) {return;}
+        if (!success && willRetry) {
+          return;
+        }
 
         // Only now the request is done - while it waits for a retry or for the network it can still be removed
         isResolved = true;
@@ -303,6 +321,7 @@ export const sendRequest = async <Request extends RequestInstance>(
       unmountResponseStart();
       unmountUpload();
       unmountDownload();
+      unmountChunk();
       unmountResponse();
       unmountRemoveQueueElement();
     }

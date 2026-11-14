@@ -2,6 +2,19 @@ import type { getAdapterBindings, AdapterInstance } from "adapter";
 import { RequestProcessingError } from "adapter";
 import type { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
+const joinChunks = (chunks: (string | Uint8Array)[]): unknown => {
+  const decoder = new TextDecoder();
+  const text =
+    chunks.map((chunk) => (typeof chunk === "string" ? chunk : decoder.decode(chunk, { stream: true }))).join("") +
+    decoder.decode();
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 export const mocker = async <T extends AdapterInstance>({
   request,
   requestId,
@@ -11,6 +24,7 @@ export const mocker = async <T extends AdapterInstance>({
   onRequestEnd,
   createAbortListener,
   onResponseProgress,
+  onResponseChunk,
   onRequestProgress,
   onResponseStart,
   onBeforeRequest,
@@ -30,10 +44,17 @@ export const mocker = async <T extends AdapterInstance>({
     totalUploaded = 1000,
     totalDownloaded = 1000,
     timeout,
+    chunkTime = 0,
   } = request.unstable_mock.config;
   const result = await request.unstable_mock.fn({ request, requestId });
 
-  const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
+  const { error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
+  const { chunks } = result as { chunks?: (string | Uint8Array)[] };
+  let { data } = result as { data?: unknown };
+
+  if (chunks && data === undefined) {
+    data = joinChunks(chunks);
+  }
 
   createAbortListener({
     status: adapter.systemErrorStatus,
@@ -101,6 +122,23 @@ export const mocker = async <T extends AdapterInstance>({
   }
   if (!thrown) {
     await progress(responseTime, totalDownloaded, onResponseProgress);
+  }
+  if (chunks) {
+    for (const chunk of chunks) {
+      if (thrown) {
+        break;
+      }
+      if (chunkTime > 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolveChunk) => {
+          setTimeout(resolveChunk, chunkTime);
+        });
+      }
+      if (thrown) {
+        break;
+      }
+      onResponseChunk(chunk);
+    }
   }
   clearTimeout(timeoutId);
   // An abort or a timeout was already reported when it happened

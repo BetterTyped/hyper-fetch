@@ -25,9 +25,12 @@ export type FetchAdapterOptionsType = Omit<RequestInit, "method" | "headers" | "
    */
   timeout?: number;
   /**
-   * When true, the response `data` will be a `ReadableStream<Uint8Array>` instead of parsed JSON/text.
-   * This enables streaming consumption of the response body (e.g., for SSE, large file downloads,
-   * or real-time text generation from LLMs).
+   * When true, every chunk of the response body is emitted as it arrives - through the `onResponseChunk`
+   * send option, the request's `$hooks.onResponseChunk`, `requestManager.events.onResponseChunk*` and the
+   * `onResponseChunk` plugin method. Use it for SSE, NDJSON, LLM token streams or large downloads.
+   *
+   * The request still resolves only once the whole body has been read: `data` is the full body, parsed the
+   * same way as a non-streaming response, and success/error/finished fire after the last chunk.
    */
   streaming?: boolean;
 };

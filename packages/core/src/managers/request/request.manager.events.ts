@@ -9,6 +9,7 @@ import type {
   RequestResponseEventType,
   RequestRemovedEventType,
   RequestDeduplicatedEventType,
+  RequestResponseChunkEventType,
 } from "managers";
 import {
   getRequestStarByQueryKey,
@@ -40,6 +41,9 @@ import {
   getRequestDeduplicatedByIdKey,
   getRequestDeduplicatedByCacheKey,
   getRequestDeduplicatedByQueryKey,
+  getResponseChunkKey,
+  getResponseChunkByIdKey,
+  getResponseChunkByQueryKey,
 } from "managers";
 import type { RequestInstance } from "request";
 import type { ExtendRequest } from "types";
@@ -90,6 +94,13 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getDownloadProgressKey(), data, isTriggeredExternally);
     emitter.emit(getDownloadProgressByIdKey(data.requestId), data, isTriggeredExternally);
     emitter.emit(getDownloadProgressByQueryKey(data.request.queryKey), data, isTriggeredExternally);
+  },
+
+  /** Emit every chunk of a streamed response body */
+  emitResponseChunk: (data: RequestResponseChunkEventType<RequestInstance>, isTriggeredExternally = false): void => {
+    emitter.emit(getResponseChunkKey(), data, isTriggeredExternally);
+    emitter.emit(getResponseChunkByIdKey(data.requestId), data, isTriggeredExternally);
+    emitter.emit(getResponseChunkByQueryKey(data.request.queryKey), data, isTriggeredExternally);
   },
 
   /** Emit when a response is received */
@@ -257,6 +268,28 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   ): VoidFunction => {
     emitter.on(getDownloadProgressByIdKey(requestId), callback);
     return () => emitter.removeListener(getDownloadProgressByIdKey(requestId), callback);
+  },
+
+  // Response chunks
+  onResponseChunk: <T extends RequestInstance = RequestInstance>(
+    callback: (data: RequestResponseChunkEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getResponseChunkKey(), callback);
+    return () => emitter.removeListener(getResponseChunkKey(), callback);
+  },
+  onResponseChunkByQueue: <T extends RequestInstance = RequestInstance>(
+    queryKey: string,
+    callback: (data: RequestResponseChunkEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getResponseChunkByQueryKey(queryKey), callback);
+    return () => emitter.removeListener(getResponseChunkByQueryKey(queryKey), callback);
+  },
+  onResponseChunkById: <T extends RequestInstance = RequestInstance>(
+    requestId: string,
+    callback: (data: RequestResponseChunkEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getResponseChunkByIdKey(requestId), callback);
+    return () => emitter.removeListener(getResponseChunkByIdKey(requestId), callback);
   },
 
   // Response

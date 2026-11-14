@@ -29,3 +29,6 @@ export const getRequestDeduplicatedKey = () => `request-deduplicated-any`;
 export const getRequestDeduplicatedByQueryKey = (queryKey: string) => `${queryKey}-query-request-deduplicated`;
 export const getRequestDeduplicatedByCacheKey = (cacheKey: string) => `${cacheKey}-cache-request-deduplicated`;
 export const getRequestDeduplicatedByIdKey = (id: string) => `${id}-request-deduplicated-by-id`;
+export const getResponseChunkKey = () => `response-chunk-any`;
+export const getResponseChunkByQueryKey = (queryKey: string) => `${queryKey}-response-chunk`;
+export const getResponseChunkByIdKey = (id: string) => `${id}-response-chunk-by-id`;

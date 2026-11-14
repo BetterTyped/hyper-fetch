@@ -1,4 +1,9 @@
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseChunkEventType,
+  RequestResponseEventType,
+} from "managers";
 
 import type { RequestInstance } from "./request.types";
 
@@ -8,6 +13,7 @@ type HookName =
   | "onResponseStart"
   | "onUploadProgress"
   | "onDownloadProgress"
+  | "onResponseChunk"
   | "onResponse"
   | "onRemove";
 
@@ -17,6 +23,7 @@ export interface RequestHooks<R extends RequestInstance> {
   onResponseStart: (cb: (eventData: RequestEventType<R>) => void) => () => void;
   onUploadProgress: (cb: (eventData: RequestProgressEventType<R>) => void) => () => void;
   onDownloadProgress: (cb: (eventData: RequestProgressEventType<R>) => void) => () => void;
+  onResponseChunk: (cb: (eventData: RequestResponseChunkEventType<R>) => void) => () => void;
   onResponse: (cb: (eventData: RequestResponseEventType<R>) => void) => () => void;
   onRemove: (cb: (eventData: RequestEventType<R>) => void) => () => void;
   /** @internal Invoke all registered listeners for a given hook */
@@ -31,6 +38,7 @@ const HOOK_NAMES: HookName[] = [
   "onResponseStart",
   "onUploadProgress",
   "onDownloadProgress",
+  "onResponseChunk",
   "onResponse",
   "onRemove",
 ];
@@ -44,13 +52,14 @@ export function createRequestHooks<R extends RequestInstance>(
     onResponseStart: [],
     onUploadProgress: [],
     onDownloadProgress: [],
+    onResponseChunk: [],
     onResponse: [],
     onRemove: [],
   };
 
   if (initial) {
     HOOK_NAMES.forEach((name) => {
-      listeners[name] = [...initial[name]];
+      listeners[name] = [...(initial[name] ?? [])];
     });
   }
 
@@ -59,7 +68,9 @@ export function createRequestHooks<R extends RequestInstance>(
       listeners[name].push(cb);
       return () => {
         const idx = listeners[name].indexOf(cb);
-        if (idx !== -1) {listeners[name].splice(idx, 1);}
+        if (idx !== -1) {
+          listeners[name].splice(idx, 1);
+        }
       };
     };
   };
@@ -70,6 +81,7 @@ export function createRequestHooks<R extends RequestInstance>(
     onResponseStart: subscribe("onResponseStart"),
     onUploadProgress: subscribe("onUploadProgress"),
     onDownloadProgress: subscribe("onDownloadProgress"),
+    onResponseChunk: subscribe("onResponseChunk"),
     onResponse: subscribe("onResponse"),
     onRemove: subscribe("onRemove"),
     __emit(name: HookName, data: any) {

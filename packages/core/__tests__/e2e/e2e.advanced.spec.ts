@@ -73,7 +73,7 @@ beforeAll(async () => {
   // File Download
   const fileContent = Buffer.from("Hello, this is a test file content!");
   route("GET", "/download/test.txt", fileDownloadHandler(fileContent, "test.txt", "text/plain"));
-  const binaryContent = Buffer.alloc(1024, 0xAB);
+  const binaryContent = Buffer.alloc(1024, 0xab);
   route("GET", "/download/binary.bin", fileDownloadHandler(binaryContent, "binary.bin"));
 
   // Concurrent
@@ -269,7 +269,7 @@ describe("E2E [ Streaming ]", () => {
     expect(lastLoaded).toBeGreaterThan(0);
   });
 
-  it("should return ReadableStream when streaming option is enabled", async () => {
+  it("should emit chunks and resolve with the full body when streaming option is enabled", async () => {
     const client = new Client({ url: baseUrl });
     const request = client
       .createRequest<{ response: any }>()({
@@ -278,26 +278,17 @@ describe("E2E [ Streaming ]", () => {
       })
       .setOptions({ streaming: true });
 
-    const { data, error, status } = await request.send();
+    const texts: string[] = [];
+    const { data, error, status } = await request.send({
+      onResponseChunk: ({ text }) => {
+        texts.push(text);
+      },
+    });
 
     expect(error).toBeNull();
     expect(status).toBe(200);
-    expect(data).toBeDefined();
-    expect(typeof (data as any).getReader).toBe("function");
-
-    const reader = (data as any as ReadableStream<Uint8Array>).getReader();
-    const chunks: string[] = [];
-    const decoder = new TextDecoder();
-
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      // eslint-disable-next-line no-await-in-loop
-      const { done, value } = await reader.read();
-      if (done) {break;}
-      chunks.push(decoder.decode(value, { stream: true }));
-    }
-
-    expect(chunks.join("")).toBe("chunk1chunk2chunk3");
+    expect(data).toBe("chunk1chunk2chunk3");
+    expect(texts.join("")).toBe("chunk1chunk2chunk3");
   });
 });
 

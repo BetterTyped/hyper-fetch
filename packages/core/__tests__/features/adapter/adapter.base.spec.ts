@@ -241,7 +241,9 @@ describe("Adapter [ Base ]", () => {
     });
 
     it("should throw error if fetcher is not set", async () => {
-      const newAdapter = new Adapter({
+      // Typed as AdapterInstance: inferring the full literal adapter generics through setAdapter + createRequest
+      // is deep enough to hit TS2589 under tsgo's parallel checker, depending on how files are partitioned
+      const newAdapter: AdapterInstance = new Adapter({
         name: "test-adapter",
         defaultMethod: HttpMethods.GET,
         defaultExtra: {},

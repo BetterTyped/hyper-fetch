@@ -1,6 +1,11 @@
 import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import type { ClientInstance } from "client";
-import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type {
+  RequestEventType,
+  RequestProgressEventType,
+  RequestResponseChunkEventType,
+  RequestResponseEventType,
+} from "managers";
 /* eslint-disable @typescript-eslint/no-shadow */
 import type {
   NullableKeys,
@@ -391,6 +396,8 @@ export type RequestSendActionsType<Request extends RequestInstance> = {
   onResponseStart?: (eventData: RequestEventType<Request>) => void;
   onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
   onDownloadProgress?: (eventData: RequestProgressEventType<Request>) => void;
+  /** Called for every chunk of a streamed response body (requires adapter option `streaming: true`) */
+  onResponseChunk?: (eventData: RequestResponseChunkEventType<Request>) => void;
   onResponse?: (eventData: RequestResponseEventType<Request>) => void;
   onRemove?: (eventData: RequestEventType<Request>) => void;
 };

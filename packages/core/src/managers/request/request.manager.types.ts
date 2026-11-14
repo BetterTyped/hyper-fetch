@@ -17,6 +17,21 @@ export type RequestEventType<T extends RequestInstance> = {
   mutationContext?: OptimisticCallbackResult<any>;
 };
 
+/**
+ * Emitted for every chunk of a streamed response body (adapter option `streaming: true`).
+ * Chunks arrive before the request resolves - `onResponse`/`onSuccess` fire only once the body has been fully read.
+ */
+export type RequestResponseChunkEventType<T extends RequestInstance> = RequestEventType<T> & {
+  /** Raw bytes of this chunk */
+  chunk: Uint8Array;
+  /** This chunk decoded as UTF-8 (multi-byte characters split across chunks are handled) */
+  text: string;
+  /** Zero-based position of the chunk within the current response */
+  index: number;
+  /** Total bytes received so far, including this chunk */
+  loaded: number;
+};
+
 export type RequestRemovedEventType<T extends RequestInstance> = {
   request: T;
   requestId: string;

@@ -232,6 +232,57 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     return progressTimestamp;
   };
 
+  // Streaming
+
+  let chunkIndex = 0;
+  let chunkLoaded = 0;
+  let chunkDecoder: TextDecoder | null = null;
+  let chunkEncoder: TextEncoder | null = null;
+
+  /**
+   * Report one chunk of a streamed response body. Call it for every chunk, before `onResponseEnd` and
+   * `onSuccess`/`onError` - the request resolves only once the whole body has been read.
+   */
+  const onResponseChunk = (value: Uint8Array | string) => {
+    if (!responseStartTimestamp) {
+      responseStartTimestamp = Date.now();
+    }
+
+    let chunk: Uint8Array;
+    let text: string;
+
+    if (typeof value === "string") {
+      chunkEncoder = chunkEncoder || new TextEncoder();
+      chunk = chunkEncoder.encode(value);
+      text = value;
+    } else {
+      chunkDecoder = chunkDecoder || new TextDecoder();
+      chunk = value;
+      text = chunkDecoder.decode(value, { stream: true });
+    }
+
+    chunkLoaded += chunk.byteLength;
+    const index = chunkIndex;
+    chunkIndex += 1;
+
+    const event = { requestId, request, chunk, text, index, loaded: chunkLoaded };
+    requestManager.events.emitResponseChunk(event);
+    client.triggerPlugins("onResponseChunk", event);
+
+    logger.debug({
+      title: `Response chunk`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+        index,
+        loaded: chunkLoaded,
+      },
+    });
+
+    return Date.now();
+  };
+
   const onResponseEnd = () => {
     if (!responseStartTimestamp) {
       responseStartTimestamp = Date.now();
@@ -428,6 +479,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     onRequestEnd,
     onResponseStart,
     onResponseProgress,
+    onResponseChunk,
     onResponseEnd,
     onSuccess,
     onAbortError,

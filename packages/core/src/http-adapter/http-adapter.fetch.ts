@@ -51,6 +51,7 @@ export const getAdapter = () =>
         createAbortListener,
         getAbortController,
         onResponseProgress,
+        onResponseChunk,
         onResponseStart,
         onBeforeRequest,
         onRequestStart,
@@ -105,7 +106,9 @@ export const getAdapter = () =>
 
           const response = await fetch(fullUrl, init);
 
-          if (timeoutId) {clearTimeout(timeoutId);}
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
 
           onResponseStart();
 
@@ -116,61 +119,63 @@ export const getAdapter = () =>
           const extra: HttpAdapterExtraType = { headers: responseHeaders };
           const { status } = response;
 
-          if (streaming && response.body) {
-            onResponseEnd();
-            unmountListener();
+          // The body is always read chunk by chunk so progress can be reported. With `streaming: true` every
+          // chunk is also emitted as a response-chunk event. Either way the request resolves (response end,
+          // success or error) only after the whole body has been read, so plugins, devtools, cache and retries
+          // all see the real end of the response.
+          const shouldEmitChunks = streaming && response.ok;
+          let body: string;
 
-            if (response.ok) {
-              onSuccess({ data: response.body as any, status, extra });
-            } else {
-              const errorBody = await response.text();
-              const error = parseErrorResponse(errorBody);
-              onError({ error, status, extra });
+          if (response.body && typeof response.body.getReader === "function") {
+            const reader = response.body.getReader();
+            const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
+            let receivedLength = 0;
+            const chunks: Uint8Array[] = [];
+
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+              // eslint-disable-next-line no-await-in-loop
+              const { done, value } = await reader.read();
+              if (done) {
+                break;
+              }
+              chunks.push(value);
+              receivedLength += value.length;
+              onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
+              if (shouldEmitChunks) {
+                onResponseChunk(value);
+              }
             }
+
+            const allChunks = new Uint8Array(receivedLength);
+            let position = 0;
+            // eslint-disable-next-line no-restricted-syntax
+            for (const chunk of chunks) {
+              allChunks.set(chunk, position);
+              position += chunk.length;
+            }
+            body = new TextDecoder().decode(allChunks);
           } else {
-            let body: string;
-
-            if (response.body && typeof response.body.getReader === "function") {
-              const reader = response.body.getReader();
-              const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
-              let receivedLength = 0;
-              const chunks: Uint8Array[] = [];
-
-              // eslint-disable-next-line no-constant-condition
-              while (true) {
-                // eslint-disable-next-line no-await-in-loop
-                const { done, value } = await reader.read();
-                if (done) {break;}
-                chunks.push(value);
-                receivedLength += value.length;
-                onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
-              }
-
-              const allChunks = new Uint8Array(receivedLength);
-              let position = 0;
-              // eslint-disable-next-line no-restricted-syntax
-              for (const chunk of chunks) {
-                allChunks.set(chunk, position);
-                position += chunk.length;
-              }
-              body = new TextDecoder().decode(allChunks);
-            } else {
-              body = await response.text();
-            }
-
-            onResponseEnd();
-            unmountListener();
-
-            if (response.ok) {
-              const data = parseResponse(body);
-              onSuccess({ data, status, extra });
-            } else {
-              const error = parseErrorResponse(body);
-              onError({ error, status, extra });
+            body = await response.text();
+            if (shouldEmitChunks && body) {
+              onResponseChunk(body);
             }
           }
+
+          onResponseEnd();
+          unmountListener();
+
+          if (response.ok) {
+            const data = parseResponse(body);
+            onSuccess({ data, status, extra });
+          } else {
+            const error = parseErrorResponse(body);
+            onError({ error, status, extra });
+          }
         } catch (error: any) {
-          if (timeoutId) {clearTimeout(timeoutId);}
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
           unmountListener();
 
           if (controller?.signal?.aborted) {

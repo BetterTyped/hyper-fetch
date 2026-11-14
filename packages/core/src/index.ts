@@ -12,5 +12,6 @@ export * from "./constants/http.constants";
 export * from "./managers";
 export * from "./dispatcher";
 export * from "./mocker";
+export * from "./stream";
 export * from "./types";
 export * from "./utils";

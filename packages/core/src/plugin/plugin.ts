@@ -66,6 +66,14 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     return this;
   };
   /**
+   * Callback that will be executed for every chunk of a streamed response body (adapter option `streaming: true`)
+   */
+  onResponseChunk = (callback: PluginMethods<Client>["onResponseChunk"]) => {
+    this.pluginMethods.onResponseChunk = callback;
+    return this;
+  };
+
+  /**
    * Callback that will be executed when request gets triggered
    */
   onRequestTrigger = (callback: PluginMethods<Client>["onRequestTrigger"]) => {

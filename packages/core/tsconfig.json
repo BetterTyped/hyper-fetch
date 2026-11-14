@@ -23,6 +23,8 @@
       "plugin/*": ["./src/plugin/*"],
       "request": ["./src/request"],
       "request/*": ["./src/request/*"],
+      "stream": ["./src/stream"],
+      "stream/*": ["./src/stream/*"],
       "sdk": ["./src/sdk"],
       "sdk/*": ["./src/sdk/*"],
       "types": ["./src/types"],

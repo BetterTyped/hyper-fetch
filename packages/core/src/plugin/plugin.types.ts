@@ -48,6 +48,15 @@ export type PluginMethods<Client extends ClientInstance> = {
   onRequestCreate?: (data: { request: PluginRequest<Client> }) => void;
   onRequestTrigger?: (data: { request: PluginRequest<Client> }) => void;
   onRequestStart?: (data: { request: PluginRequest<Client> }) => void;
+  /** Called for every chunk of a streamed response body (adapter option `streaming: true`) */
+  onResponseChunk?: (data: {
+    request: PluginRequest<Client>;
+    requestId: string;
+    chunk: Uint8Array;
+    text: string;
+    index: number;
+    loaded: number;
+  }) => void;
   onRequestSuccess?: (data: {
     response: ResponseSuccessType<
       ExtractResponseType<PluginRequest<Client>>,
