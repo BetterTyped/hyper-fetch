@@ -1,96 +1,55 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { AbortError, Client } from "@hyper-fetch/core";
+import type { ServerSentEventType } from "@hyper-fetch/core";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { useStream } from "hooks/use-stream";
+import { StrictMode, createElement } from "react";
+import type { ReactNode } from "react";
 
-import { client } from "../../utils";
-
-const createStreamRequest = () => {
-  return client.createRequest<{ response: any }>()({
-    endpoint: "/stream-endpoint" as any,
-    method: "GET",
-  });
-};
-
-const createReadableStream = (chunks: string[]) => {
-  const encoder = new TextEncoder();
-  let index = 0;
-
-  return new ReadableStream<Uint8Array>({
-    pull(controller) {
-      if (index < chunks.length) {
-        controller.enqueue(encoder.encode(chunks[index]));
-        index += 1;
-      } else {
-        controller.close();
-      }
-    },
-  });
-};
-
-const createFailingReadableStream = (errorMessage: string) => {
-  return new ReadableStream<Uint8Array>({
-    start(controller) {
-      controller.error(new Error(errorMessage));
-    },
-  });
-};
-
-const renderUseStream = (request: any, options?: { autoStart?: boolean }) => {
-  return renderHook(() => useStream(request, options));
-};
+const fast = { requestTime: 0, responseTime: 0 };
 
 describe("useStream [ Base ]", () => {
-  let request = createStreamRequest();
+  let client = new Client({ url: "http://stream-test" });
+
+  const createRequest = () => client.createRequest<{ response: any }>()({ endpoint: "/stream", method: "POST" });
 
   beforeEach(() => {
-    vi.resetModules();
-    client.clear();
-    request = createStreamRequest();
+    client = new Client({ url: "http://stream-test" });
   });
 
   describe("when hook is initialized", () => {
-    it("should have initial state", () => {
-      const { result } = renderUseStream(request);
+    it("should have initial state and not send anything", () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a"], status: 200 }), fast);
+      const spy = vi.spyOn(client.submitDispatcher, "add");
+      const { result } = renderHook(() => useStream(request));
 
-      expect(result.current.text).toBe("");
-      expect(result.current.chunks).toEqual([]);
-      expect(result.current.streaming).toBe(false);
-      expect(result.current.done).toBe(false);
-      expect(result.current.error).toBe(null);
-      expect(result.current.extra).toBe(null);
-      expect(result.current.status).toBe(null);
-      expect(typeof result.current.start).toBe("function");
-      expect(typeof result.current.abort).toBe("function");
-      expect(typeof result.current.reset).toBe("function");
+      expect(result.current).toMatchObject({
+        text: "",
+        chunks: [],
+        events: [],
+        data: null,
+        streaming: false,
+        done: false,
+        aborted: false,
+        error: null,
+        extra: null,
+        status: null,
+      });
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 
-  describe("when start is called with a ReadableStream response", () => {
-    it("should stream text chunks and set done when complete", async () => {
-      const chunks = ["Hello ", "World", "!"];
-      const stream = createReadableStream(chunks);
+  describe("when start is called", () => {
+    it("should accumulate text and chunks and finish with data", async () => {
+      const request = createRequest().setMock(
+        async () => ({ chunks: ["Hello ", "World", "!"], status: 200, extra: { headers: { a: "1" } } }),
+        fast,
+      );
+      const { result } = renderHook(() => useStream(request));
 
-      const sendMock = vi.fn().mockResolvedValue({
-        data: stream,
-        error: null,
-        status: 200,
-        extra: { headers: {} },
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({
-          send: sendMock,
-        }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
+      act(() => {
         result.current.start();
       });
+      expect(result.current.streaming).toBe(true);
 
       await waitFor(() => {
         expect(result.current.done).toBe(true);
@@ -98,384 +57,368 @@ describe("useStream [ Base ]", () => {
 
       expect(result.current.text).toBe("Hello World!");
       expect(result.current.chunks).toHaveLength(3);
+      expect(ArrayBuffer.isView(result.current.chunks[0])).toBe(true);
+      expect(result.current.data).toBe("Hello World!");
       expect(result.current.streaming).toBe(false);
       expect(result.current.status).toBe(200);
-      expect(result.current.extra).toEqual({ headers: {} });
+      expect(result.current.extra).toEqual({ headers: { a: "1" } });
       expect(result.current.error).toBe(null);
     });
 
-    it("should set streaming to true while consuming", async () => {
-      let resolvePull: (() => void) | null = null;
-      const pullPromise = new Promise<void>((r) => {
-        resolvePull = r;
+    it("should re-render with partial text while streaming", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["one ", "two ", "three"], status: 200 }), {
+        ...fast,
+        chunkTime: 10,
       });
-
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream<Uint8Array>({
-        async pull(controller) {
-          controller.enqueue(encoder.encode("data"));
-          await pullPromise;
-          controller.close();
-        },
+      const seen: string[] = [];
+      const { result } = renderHook(() => {
+        const stream = useStream(request);
+        seen.push(stream.text);
+        return stream;
       });
-
-      const sendMock = vi.fn().mockResolvedValue({
-        data: stream,
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
 
       act(() => {
         result.current.start();
       });
+      await waitFor(() => expect(result.current.done).toBe(true));
 
-      await waitFor(() => {
-        expect(result.current.streaming).toBe(true);
-      });
+      expect(seen).toContain("one ");
+      expect(seen).toContain("one two ");
+      expect(seen.at(-1)).toBe("one two three");
+    });
 
-      await act(async () => {
-        resolvePull!();
-      });
+    it("should append chunks in place instead of copying the array for every chunk", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b", "c"], status: 200 }), fast);
+      const { result } = renderHook(() => useStream(request));
 
-      await waitFor(() => {
-        expect(result.current.streaming).toBe(false);
-        expect(result.current.done).toBe(true);
+      act(() => {
+        result.current.start();
       });
+      const chunksRef = result.current.chunks;
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(result.current.chunks).toBe(chunksRef);
+      expect(chunksRef).toHaveLength(3);
+    });
+
+    it("should send the request with the streaming option without mutating the original request", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a"], status: 200 }), fast);
+      const options: unknown[] = [];
+      const unmount = client.requestManager.events.onRequestStart(({ request: sent }) => {
+        options.push(sent.options);
+      });
+      const { result } = renderHook(() => useStream(request));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+      unmount();
+
+      expect(options).toEqual([expect.objectContaining({ streaming: true })]);
+      expect(request.options).toBeUndefined();
+    });
+
+    it("should ignore start while already streaming", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b"], status: 200 }), { ...fast, chunkTime: 10 });
+      const spy = vi.spyOn(client.submitDispatcher, "add");
+      const { result } = renderHook(() => useStream(request));
+
+      act(() => {
+        result.current.start();
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(result.current.text).toBe("ab");
+    });
+
+    it("should call onChunk for every chunk", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["x", "y"], status: 200 }), fast);
+      const onChunk = vi.fn();
+      const { result } = renderHook(() => useStream(request, { onChunk }));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(onChunk.mock.calls.map(([{ text, index }]) => [text, index])).toEqual([
+        ["x", 0],
+        ["y", 1],
+      ]);
+    });
+
+    it("should fall back to the resolved data when the adapter does not emit chunks", async () => {
+      const request = createRequest().setMock(() => ({ data: { whole: true }, status: 200 }), fast);
+      const { result } = renderHook(() => useStream(request));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(result.current.text).toBe(JSON.stringify({ whole: true }));
+      expect(result.current.data).toEqual({ whole: true });
     });
   });
 
-  describe("when start is called and response has an error", () => {
+  describe("when the format option is used", () => {
+    it("should parse server-sent events split across chunks", async () => {
+      const request = createRequest().setMock(
+        () => ({ chunks: ["event: delta\nda", 'ta: {"t":"Hi"}\n', "\ndata: [DONE]\n\n"], status: 200 }),
+        fast,
+      );
+      const onEvent = vi.fn();
+      const { result } = renderHook(() => useStream(request, { format: "sse", onEvent }));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      const expected: ServerSentEventType[] = [
+        { event: "delta", data: '{"t":"Hi"}', id: "" },
+        { event: "message", data: "[DONE]", id: "" },
+      ];
+      expect(result.current.events).toEqual(expected);
+      expect(onEvent).toHaveBeenCalledTimes(2);
+    });
+
+    it("should parse NDJSON with typed values", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ['{"n":1}\n{"n"', ":2}\n"], status: 200 }), fast);
+      const { result } = renderHook(() =>
+        useStream<typeof request, "ndjson", { n: number }>(request, { format: "ndjson" }),
+      );
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      const values: number[] = result.current.events.map(({ n }) => n);
+      expect(values).toEqual([1, 2]);
+    });
+
+    it("should flush a trailing NDJSON line without a newline at the end", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ['{"n":1}\n{"n":2}'], status: 200 }), fast);
+      const { result } = renderHook(() => useStream(request, { format: "ndjson" }));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(result.current.events).toEqual([{ n: 1 }, { n: 2 }]);
+    });
+
+    it("should fail and stop the stream on invalid NDJSON", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["not json\n", '{"n":2}\n'], status: 200 }), {
+        ...fast,
+        chunkTime: 10,
+      });
+      const { result } = renderHook(() => useStream(request, { format: "ndjson" }));
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.error).toBeInstanceOf(Error));
+
+      expect((result.current.error as Error).message).toContain("Invalid NDJSON line");
+      expect(result.current.streaming).toBe(false);
+      expect(result.current.done).toBe(false);
+    });
+  });
+
+  describe("when the response is an error", () => {
     it("should set error state", async () => {
-      const errorData = { message: "Server error" };
+      const request = client
+        .createRequest<{ response: string; error: { message: string } }>()({ endpoint: "/stream", method: "POST" })
+        .setMock(() => ({ error: { message: "bad" }, status: 400 }), fast);
+      const { result } = renderHook(() => useStream(request));
 
-      const sendMock = vi.fn().mockResolvedValue({
-        data: null,
-        error: errorData,
-        status: 500,
-        extra: { headers: {} },
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
+      act(() => {
         result.current.start();
       });
+      await waitFor(() => expect(result.current.error).toEqual({ message: "bad" }));
 
-      await waitFor(() => {
-        expect(result.current.error).toEqual(errorData);
-      });
-
+      expect(result.current.status).toBe(400);
       expect(result.current.streaming).toBe(false);
-      expect(result.current.status).toBe(500);
-      expect(result.current.extra).toEqual({ headers: {} });
-    });
-  });
-
-  describe("when response data is a plain string (non-stream fallback)", () => {
-    it("should set text directly from the string data", async () => {
-      const sendMock = vi.fn().mockResolvedValue({
-        data: "plain text response",
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
-        result.current.start();
-      });
-
-      await waitFor(() => {
-        expect(result.current.done).toBe(true);
-      });
-
-      expect(result.current.text).toBe("plain text response");
-      expect(result.current.streaming).toBe(false);
-    });
-  });
-
-  describe("when response data is a non-string value (JSON.stringify fallback)", () => {
-    it("should JSON.stringify the data", async () => {
-      const objectData = { key: "value", num: 42 };
-
-      const sendMock = vi.fn().mockResolvedValue({
-        data: objectData,
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
-        result.current.start();
-      });
-
-      await waitFor(() => {
-        expect(result.current.done).toBe(true);
-      });
-
-      expect(result.current.text).toBe(JSON.stringify(objectData));
-      expect(result.current.streaming).toBe(false);
-    });
-  });
-
-  describe("when stream reader throws an error", () => {
-    it("should set error state from the reader exception", async () => {
-      const stream = createFailingReadableStream("Stream read error");
-
-      const sendMock = vi.fn().mockResolvedValue({
-        data: stream,
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
-        result.current.start();
-      });
-
-      await waitFor(() => {
-        expect(result.current.error).toBeTruthy();
-      });
-
-      expect(result.current.streaming).toBe(false);
+      expect(result.current.done).toBe(false);
     });
   });
 
   describe("when abort is called", () => {
-    it("should stop streaming", async () => {
-      let resolvePull: (() => void) | null = null;
-      const pullPromise = new Promise<void>((r) => {
-        resolvePull = r;
+    it("should abort the underlying request and stop receiving chunks", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b", "c", "d"], status: 200 }), {
+        ...fast,
+        chunkTime: 5,
       });
-
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream<Uint8Array>({
-        async pull(controller) {
-          controller.enqueue(encoder.encode("chunk"));
-          await pullPromise;
-          controller.close();
-        },
+      const aborts = vi.fn();
+      const unmount = client.requestManager.events.onAbort(aborts);
+      const settled = vi.fn();
+      const unmountResponse = client.requestManager.events.onResponse(settled);
+      const controls: { abort?: () => void } = {};
+      const { result } = renderHook(() => {
+        const stream = useStream(request, { onChunk: ({ index }) => index === 0 && controls.abort?.() });
+        controls.abort = stream.abort;
+        return stream;
       });
-
-      const abortSpy = vi.fn();
-
-      const sendMock = vi.fn().mockResolvedValue({
-        data: stream,
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: {
-          ...request.client,
-          requestManager: {
-            ...request.client.requestManager,
-            abortByKey: abortSpy,
-          },
-        },
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
 
       act(() => {
         result.current.start();
       });
+      await waitFor(() => expect(settled).toHaveBeenCalled());
+      unmount();
+      unmountResponse();
 
-      await waitFor(() => {
-        expect(result.current.streaming).toBe(true);
+      expect(aborts).toHaveBeenCalledTimes(1);
+      expect(result.current.text).toBe("a");
+      expect(result.current.streaming).toBe(false);
+      expect(result.current.aborted).toBe(true);
+      expect(result.current.done).toBe(false);
+      expect(result.current.error).toBe(null);
+    });
+
+    it("should only abort its own request, not other requests sharing the abort key", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b", "c"], status: 200 }), {
+        ...fast,
+        chunkTime: 5,
       });
+      const other = createRequest().setMock(() => ({ data: "other", status: 200 }), {
+        requestTime: 30,
+        responseTime: 30,
+      });
+      const controls: { abort?: () => void } = {};
+      const { result } = renderHook(() => {
+        const stream = useStream(request, { onChunk: ({ index }) => index === 0 && controls.abort?.() });
+        controls.abort = stream.abort;
+        return stream;
+      });
+
+      const otherResponse = other.send();
+      act(() => {
+        result.current.start();
+      });
+
+      const { data, error } = await otherResponse;
+      expect(result.current.aborted).toBe(true);
+      expect(error).toBe(null);
+      expect(data).toBe("other");
+    });
+
+    it("should do nothing when not streaming", () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a"], status: 200 }), fast);
+      const aborts = vi.fn();
+      const unmount = client.requestManager.events.onAbort(aborts);
+      const { result } = renderHook(() => useStream(request));
 
       act(() => {
         result.current.abort();
       });
+      unmount();
 
-      expect(result.current.streaming).toBe(false);
-      expect(abortSpy).toHaveBeenCalled();
-
-      await act(async () => {
-        resolvePull!();
-      });
+      expect(aborts).not.toHaveBeenCalled();
+      expect(result.current.aborted).toBe(false);
     });
   });
 
   describe("when reset is called", () => {
-    it("should reset all state to initial values", async () => {
-      const sendMock = vi.fn().mockResolvedValue({
-        data: "some data",
-        error: null,
-        status: 200,
-        extra: { headers: {} },
+    it("should abort the stream, ignore late chunks and allow a fresh start", async () => {
+      let call = 0;
+      const request = createRequest().setMock(
+        () => {
+          call += 1;
+          return { chunks: call === 1 ? ["old-1", "old-2", "old-3"] : ["new"], status: 200 };
+        },
+        { ...fast, chunkTime: 5 },
+      );
+      const aborted = vi.fn();
+      const unmount = client.requestManager.events.onAbort(aborted);
+      const controls: { reset?: () => void } = {};
+      const { result } = renderHook(() => {
+        const stream = useStream(request, { onChunk: ({ text }) => text === "old-1" && controls.reset?.() });
+        controls.reset = stream.reset;
+        return stream;
       });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
-
-      await act(async () => {
-        result.current.start();
-      });
-
-      await waitFor(() => {
-        expect(result.current.done).toBe(true);
-      });
-
-      expect(result.current.text).toBe("some data");
 
       act(() => {
-        result.current.reset();
+        result.current.start();
       });
+      await waitFor(() => expect(aborted).toHaveBeenCalled());
+      unmount();
+      expect(result.current).toMatchObject({ text: "", chunks: [], streaming: false, done: false, aborted: false });
 
-      expect(result.current.text).toBe("");
-      expect(result.current.chunks).toEqual([]);
-      expect(result.current.streaming).toBe(false);
-      expect(result.current.done).toBe(false);
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(result.current.done).toBe(true));
+
+      expect(result.current.text).toBe("new");
       expect(result.current.error).toBe(null);
-      expect(result.current.extra).toBe(null);
-      expect(result.current.status).toBe(null);
+    });
+  });
+
+  describe("when the component unmounts", () => {
+    it("should abort the ongoing stream", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b", "c"], status: 200 }), {
+        ...fast,
+        chunkTime: 5,
+      });
+      const aborts = vi.fn();
+      const unmountListener = client.requestManager.events.onAbort(aborts);
+      const controls: { unmount?: () => void } = {};
+      const { result, unmount } = renderHook(() =>
+        useStream(request, { onChunk: ({ index }) => index === 0 && controls.unmount?.() }),
+      );
+      controls.unmount = unmount;
+
+      act(() => {
+        result.current.start();
+      });
+      await waitFor(() => expect(aborts).toHaveBeenCalledTimes(1));
+      unmountListener();
     });
   });
 
   describe("when autoStart is true", () => {
     it("should start streaming automatically on mount", async () => {
-      const sendMock = vi.fn().mockResolvedValue({
-        data: "auto-started",
-        error: null,
-        status: 200,
-        extra: null,
+      const request = createRequest().setMock(() => ({ chunks: ["auto"], status: 200 }), fast);
+      const { result } = renderHook(() => useStream(request, { autoStart: true }));
+
+      await waitFor(() => expect(result.current.done).toBe(true));
+      expect(result.current.text).toBe("auto");
+    });
+
+    it("should finish the stream under StrictMode double mounting", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["strict ", "mode"], status: 200 }), {
+        ...fast,
+        chunkTime: 5,
       });
+      const wrapper = ({ children }: { children: ReactNode }) => createElement(StrictMode, null, children);
+      const { result } = renderHook(() => useStream(request, { autoStart: true }), { wrapper });
 
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest, { autoStart: true });
-
-      await waitFor(() => {
-        expect(result.current.done).toBe(true);
-      });
-
-      expect(result.current.text).toBe("auto-started");
-      expect(sendMock).toHaveBeenCalled();
+      await waitFor(() => expect(result.current.done).toBe(true));
+      expect(result.current.text).toBe("strict mode");
     });
   });
 
-  describe("when start is called while already streaming", () => {
-    it("should not start a second stream", async () => {
-      let resolvePull: (() => void) | null = null;
-      const pullPromise = new Promise<void>((r) => {
-        resolvePull = r;
-      });
-
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream<Uint8Array>({
-        async pull(controller) {
-          controller.enqueue(encoder.encode("data"));
-          await pullPromise;
-          controller.close();
-        },
-      });
-
-      const sendMock = vi.fn().mockResolvedValue({
-        data: stream,
-        error: null,
-        status: 200,
-        extra: null,
-      });
-
-      const mockRequest = {
-        ...request,
-        setOptions: vi.fn().mockReturnValue({ send: sendMock }),
-        client: request.client,
-        abortKey: request.abortKey,
-        scope: request.scope,
-      };
-
-      const { result } = renderUseStream(mockRequest);
+  describe("when the request is aborted from outside", () => {
+    it("should expose the abort error", async () => {
+      const request = createRequest().setMock(() => ({ chunks: ["a", "b"], status: 200 }), { ...fast, chunkTime: 5 });
+      const { result } = renderHook(() =>
+        useStream(request, { onChunk: ({ index }) => index === 0 && client.requestManager.abortAll() }),
+      );
 
       act(() => {
         result.current.start();
       });
 
-      await waitFor(() => {
-        expect(result.current.streaming).toBe(true);
-      });
-
-      act(() => {
-        result.current.start();
-      });
-
-      expect(sendMock).toHaveBeenCalledTimes(1);
-
-      await act(async () => {
-        resolvePull!();
-      });
-
-      await waitFor(() => {
-        expect(result.current.done).toBe(true);
-      });
+      await waitFor(() => expect(result.current.error).toBeInstanceOf(AbortError));
+      expect(result.current.text).toBe("a");
+      expect(result.current.streaming).toBe(false);
+      expect(result.current.aborted).toBe(false);
     });
   });
 });

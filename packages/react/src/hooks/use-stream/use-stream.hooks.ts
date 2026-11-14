@@ -1,24 +1,42 @@
-import type { RequestInstance, ExtractAdapterExtraType, ExtractAdapterType, ExtractErrorType } from "@hyper-fetch/core";
-import { scopeKey } from "@hyper-fetch/core";
+import type {
+  RequestInstance,
+  ExtractAdapterExtraType,
+  ExtractAdapterType,
+  ExtractErrorType,
+  ExtractResponseType,
+  StreamParserType,
+} from "@hyper-fetch/core";
+import { createNDJSONParser, createSSEParser, scopeKey } from "@hyper-fetch/core";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
-import type { UseStreamOptionsType, UseStreamReturnType } from "./use-stream.types";
+import type {
+  UseStreamEventType,
+  UseStreamFormatType,
+  UseStreamOptionsType,
+  UseStreamReturnType,
+} from "./use-stream.types";
 
-type StreamState<T extends RequestInstance> = {
+type StreamState<T extends RequestInstance, Event> = {
   text: string;
   chunks: Uint8Array[];
+  events: Event[];
+  data: ExtractResponseType<T> | null;
   streaming: boolean;
   done: boolean;
+  aborted: boolean;
   error: ExtractErrorType<T> | null;
   extra: ExtractAdapterExtraType<ExtractAdapterType<T>> | null;
   status: number | null;
 };
 
-const getInitialState = <T extends RequestInstance>(): StreamState<T> => ({
+const getInitialState = <T extends RequestInstance, Event>(): StreamState<T, Event> => ({
   text: "",
   chunks: [],
+  events: [],
+  data: null,
   streaming: false,
   done: false,
+  aborted: false,
   error: null,
   extra: null,
   status: null,
@@ -26,29 +44,38 @@ const getInitialState = <T extends RequestInstance>(): StreamState<T> => ({
 
 /**
  * Hook for consuming streaming responses chunk-by-chunk.
- * Works with any request that uses the fetch adapter's `streaming: true` option.
+ * Works with any request whose adapter supports the `streaming: true` option (e.g. the default fetch adapter).
  *
- * Provides both accumulated `text` (for LLM/SSE use cases) and raw `chunks`
- * (for binary streaming / file downloads).
+ * Provides accumulated `text` (for LLM/SSE use cases), raw `chunks` (for binary streaming / file downloads) and,
+ * with the `format` option, parsed SSE or NDJSON `events`.
  */
-export const useStream = <T extends RequestInstance>(
+export const useStream = <
+  T extends RequestInstance,
+  Format extends UseStreamFormatType = "text",
+  NDJSONValue = unknown,
+>(
   request: T,
-  options?: UseStreamOptionsType,
-): UseStreamReturnType<T> => {
+  options?: UseStreamOptionsType<Format, NDJSONValue>,
+): UseStreamReturnType<T, Format, NDJSONValue> => {
+  type Event = UseStreamEventType<Format, NDJSONValue>;
   const { autoStart = false } = options || {};
 
-  const state = useRef<StreamState<T>>(getInitialState<T>());
-  const abortRef = useRef<(() => void) | null>(null);
-  const startedRef = useRef(false);
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
-  // useSyncExternalStore for re-renders
+  const state = useRef<StreamState<T, Event>>(getInitialState<T, Event>());
+  const startedRef = useRef(false);
+  // Every start/reset begins a new session; callbacks from older sessions are ignored
+  const sessionRef = useRef(0);
+  const activeRef = useRef<{ session: number; requestId: string | null; abortKey: string } | null>(null);
+
   const versionRef = useRef(0);
-  const listenerRef = useRef<(() => void) | null>(null);
+  const listenersRef = useRef(new Set<() => void>());
 
   const subscribe = useCallback((listener: () => void) => {
-    listenerRef.current = listener;
+    listenersRef.current.add(listener);
     return () => {
-      listenerRef.current = null;
+      listenersRef.current.delete(listener);
     };
   }, []);
 
@@ -56,91 +83,153 @@ export const useStream = <T extends RequestInstance>(
 
   useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  const emitChange = () => {
+  const emitChange = useCallback(() => {
     versionRef.current += 1;
-    listenerRef.current?.();
-  };
+    listenersRef.current.forEach((listener) => listener());
+  }, []);
 
-  const consumeStream = async (stream: ReadableStream<Uint8Array>) => {
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
+  const abortActive = useCallback(() => {
+    const active = activeRef.current;
+    activeRef.current = null;
+    if (active?.requestId) {
+      request.client.requestManager.abortByRequestId(active.abortKey, active.requestId);
+    }
+  }, [request]);
 
-    try {
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        // eslint-disable-next-line no-await-in-loop
-        const { done, value } = await reader.read();
-        if (done) {break;}
+  const start = useCallback(() => {
+    if (state.current.streaming) {
+      return;
+    }
 
-        state.current.chunks = [...state.current.chunks, value];
-        state.current.text += decoder.decode(value, { stream: true });
-        emitChange();
-      }
+    sessionRef.current += 1;
+    const session = sessionRef.current;
+    const isCurrent = () => sessionRef.current === session;
 
-      state.current.streaming = false;
-      state.current.done = true;
-      emitChange();
-    } catch (error) {
+    state.current = { ...getInitialState<T, Event>(), streaming: true };
+    emitChange();
+
+    const format = optionsRef.current?.format ?? "text";
+    const onParsedEvent = (event: Event) => {
+      state.current.events.push(event);
+      optionsRef.current?.onEvent?.(event);
+    };
+    let parser: StreamParserType | null = null;
+    if (format === "sse") {
+      parser = createSSEParser({ onEvent: (event) => onParsedEvent(event as Event) });
+    } else if (format === "ndjson") {
+      parser = createNDJSONParser({ onValue: (value) => onParsedEvent(value as Event) });
+    }
+
+    const streamingRequest = request.setOptions({ ...request.options, streaming: true });
+    const abortKey = scopeKey(streamingRequest.abortKey, streamingRequest.scope);
+    activeRef.current = { session, requestId: null, abortKey };
+
+    // Set when the hook itself ended the stream (parse error) - the request's later abort result is ignored
+    let settled = false;
+    const finishWithError = (error: unknown) => {
       state.current.streaming = false;
       state.current.error = error as ExtractErrorType<T>;
       emitChange();
-    }
-  };
-
-  const start = useCallback(() => {
-    if (state.current.streaming) {return;}
-
-    state.current = {
-      ...getInitialState<T>(),
-      streaming: true,
     };
-    emitChange();
 
-    const streamingRequest = request.setOptions({ streaming: true } as any);
+    streamingRequest
+      .send({
+        onBeforeSent: ({ requestId }) => {
+          if (activeRef.current?.session === session) {
+            activeRef.current.requestId = requestId;
+          } else {
+            // Aborted or reset before the request was even queued
+            request.client.requestManager.abortByRequestId(abortKey, requestId);
+          }
+        },
+        onRequestStart: () => {
+          // A retried request streams again from the beginning
+          if (!isCurrent() || settled || state.current.chunks.length === 0) {
+            return;
+          }
+          state.current.text = "";
+          state.current.chunks.length = 0;
+          state.current.events.length = 0;
+          parser?.reset();
+          emitChange();
+        },
+        onResponseChunk: ({ chunk, text, index }) => {
+          if (!isCurrent() || settled || state.current.aborted) {
+            return;
+          }
+          state.current.chunks.push(chunk);
+          state.current.text += text;
+          optionsRef.current?.onChunk?.({ chunk, text, index });
+          try {
+            parser?.feed(text);
+          } catch (error) {
+            settled = true;
+            finishWithError(error);
+            abortActive();
+            return;
+          }
+          emitChange();
+        },
+      } as Parameters<T["send"]>[0])
+      .then((response) => {
+        if (!isCurrent() || settled) {
+          return;
+        }
+        if (activeRef.current?.session === session) {
+          activeRef.current = null;
+        }
 
-    streamingRequest.send().then((response) => {
-      const { data, error, status, extra } = response;
+        const { data, error, status, extra } = response;
+        state.current.status = status as number | null;
+        state.current.extra = extra as ExtractAdapterExtraType<ExtractAdapterType<T>> | null;
 
-      state.current.status = status as number | null;
-      state.current.extra = extra as ExtractAdapterExtraType<ExtractAdapterType<T>> | null;
+        if (state.current.aborted) {
+          state.current.streaming = false;
+          emitChange();
+          return;
+        }
 
-      if (error) {
+        if (error) {
+          finishWithError(error);
+          return;
+        }
+
+        try {
+          parser?.flush();
+        } catch (parseError) {
+          finishWithError(parseError);
+          return;
+        }
+
+        // Adapters that don't emit chunks still resolve with the whole body
+        if (state.current.chunks.length === 0 && data !== null && data !== undefined) {
+          state.current.text = typeof data === "string" ? data : JSON.stringify(data);
+        }
+
+        state.current.data = data as ExtractResponseType<T>;
         state.current.streaming = false;
-        state.current.error = error;
-        emitChange();
-        return;
-      }
-
-      if (data && typeof (data as any).getReader === "function") {
-        consumeStream(data as unknown as ReadableStream<Uint8Array>);
-      } else {
-        state.current.streaming = false;
-        state.current.text = typeof data === "string" ? data : JSON.stringify(data);
         state.current.done = true;
         emitChange();
-      }
-    });
-
-    abortRef.current = () => {
-      request.client.requestManager.abortByKey(scopeKey(request.abortKey, request.scope));
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request]);
+      });
+  }, [request, emitChange, abortActive]);
 
   const abort = useCallback(() => {
-    abortRef.current?.();
+    if (!state.current.streaming) {
+      return;
+    }
+    state.current.aborted = true;
     state.current.streaming = false;
+    abortActive();
     emitChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [abortActive, emitChange]);
 
   const reset = useCallback(() => {
-    abortRef.current?.();
-    state.current = getInitialState<T>();
+    sessionRef.current += 1;
+    abortActive();
+    state.current = getInitialState<T, Event>();
     startedRef.current = false;
     emitChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [abortActive, emitChange]);
 
   useEffect(() => {
     if (autoStart && !startedRef.current) {
@@ -149,11 +238,25 @@ export const useStream = <T extends RequestInstance>(
     }
   }, [autoStart, start]);
 
+  // Close the connection when the component unmounts. Under StrictMode the effects re-run right after,
+  // so leave the state ready for autoStart to start a fresh stream.
+  useEffect(() => {
+    return () => {
+      sessionRef.current += 1;
+      abortActive();
+      startedRef.current = false;
+      state.current.streaming = false;
+    };
+  }, [abortActive]);
+
   return {
     text: state.current.text,
     chunks: state.current.chunks,
+    events: state.current.events,
+    data: state.current.data,
     streaming: state.current.streaming,
     done: state.current.done,
+    aborted: state.current.aborted,
     error: state.current.error,
     extra: state.current.extra,
     status: state.current.status,

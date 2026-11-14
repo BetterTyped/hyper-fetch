@@ -50,10 +50,37 @@ function AiChat() {
 
 :::info Streaming in Core
 
-For the stream to work, the fetch adapter must return a `ReadableStream`. This happens automatically when the request
-is sent with `streaming: true` — the `useStream` hook handles this for you.
+The hook sends the request with the adapter's `streaming: true` option and listens to its response chunks, so the
+request goes through the regular lifecycle - plugins, devtools and retries work as usual. See
+[adapter streaming](/docs/core/adapter#streaming).
 
 :::
+
+---
+
+## Parsing Server-Sent Events and NDJSON
+
+Set `format` to `"sse"` or `"ndjson"` to get parsed `events` next to the raw `text`. Unlike `EventSource`, this works
+for `POST` requests, which is how most AI backends stream.
+
+```tsx title="Parsing SSE"
+function Events() {
+  const { events, start } = useStream(chatRequest, {
+    format: "sse",
+    onEvent: ({ event, data }) => console.log(event, data),
+  });
+
+  return <ul>{events.map((event, index) => <li key={index}>{event.data}</li>)}</ul>;
+}
+```
+
+For NDJSON you can type the parsed lines with the third generic:
+
+```tsx
+const { events } = useStream<typeof logsRequest, "ndjson", { level: string; message: string }>(logsRequest, {
+  format: "ndjson",
+});
+```
 
 ---
 
@@ -112,13 +139,17 @@ function StreamWithReset() {
 
 ## Non-stream Response Handling
 
-If the server returns a response that is **not** a `ReadableStream` (i.e., the response body has no `getReader`
-method), the hook gracefully falls back to non-streaming behavior. The response data is converted to a string via
-`JSON.stringify` and set as the `text` value. The `chunks` array will remain empty, and `done` will be set to `true`
-immediately.
+If the adapter does not emit chunks (for example a mocked request returning plain `data`, or an adapter without
+streaming support), the hook falls back to the resolved response: `text` is set from the data (`JSON.stringify` for
+non-string values), `chunks` stays empty and `done` becomes `true` once the request resolves.
 
-This means `useStream` is safe to use even when the server might return a regular JSON response instead of a stream -
-the hook adapts without errors.
+---
+
+## Performance
+
+`chunks` and `events` are appended in place, so long streams don't copy the array on every chunk. Read them during
+render, but don't use their identity as a `useMemo`/`useEffect` dependency - use `text`, `chunks.length` or
+`events.length` instead.
 
 ---
 
@@ -127,6 +158,9 @@ the hook adapts without errors.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoStart` | `boolean` | `false` | When `true`, the stream starts automatically on mount. |
+| `format` | `"text" \| "sse" \| "ndjson"` | `"text"` | Parse the stream into `events`. |
+| `onEvent` | `(event) => void` | - | Called for every parsed event. |
+| `onChunk` | `({ chunk, text, index }) => void` | - | Called for every raw chunk. |
 
 ---
 
@@ -136,14 +170,17 @@ the hook adapts without errors.
 |----------|------|-------------|
 | `text` | `string` | Accumulated text from all stream chunks decoded as UTF-8. |
 | `chunks` | `Uint8Array[]` | Raw binary chunks received from the stream. |
+| `events` | `ServerSentEventType[] \| unknown[]` | Parsed events when `format` is `"sse"` or `"ndjson"`. |
+| `data` | `Response \| null` | Full parsed response once the stream is done. |
 | `streaming` | `boolean` | Whether the stream is currently being consumed. |
 | `done` | `boolean` | Whether the stream has finished (all chunks consumed). |
-| `error` | `Error \| null` | Error from the request or stream consumption. |
+| `aborted` | `boolean` | Whether the stream was stopped with `abort()`. |
+| `error` | `Error \| null` | Error from the request or stream parsing. |
 | `extra` | `object \| null` | Response extra metadata (headers, etc.). |
 | `status` | `number \| null` | HTTP status code from the response. |
 | `start` | `() => void` | Start consuming the stream. |
-| `abort` | `() => void` | Abort the ongoing stream. |
-| `reset` | `() => void` | Reset state to initial values, allowing a fresh stream. |
+| `abort` | `() => void` | Abort the ongoing stream and close the connection. |
+| `reset` | `() => void` | Abort any ongoing stream and reset state, allowing a fresh stream. |
 
 ---
 

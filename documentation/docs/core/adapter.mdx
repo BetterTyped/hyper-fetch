@@ -206,34 +206,73 @@ client.adapter.setDevtoolsEndpointGetter((endpoint) => endpoint.toUpperCase());
 
 6. ### Streaming
 
-The default HTTP adapter supports **response streaming** via the native `ReadableStream` API. When a request is
-configured with `streaming: true`, the adapter returns the raw `response.body` stream instead of buffering the entire
-response. This is used internally by the [`useStream`](/docs/react/hooks/use-stream) hook.
+The default HTTP adapter supports **response streaming**. When a request is configured with `streaming: true`, every
+chunk of the response body is emitted as soon as it arrives, while the request itself stays a normal part of the
+lifecycle: it resolves only once the whole body has been read, with `data` parsed the same way as a non-streaming
+response. Success, error and finished plugin hooks, cache writes, retries and devtools all see the real end of the
+response.
 
 ```ts title="Streaming a response"
-const streamRequest = client.createRequest()({
-  endpoint: "/api/chat/completions",
-  method: "POST",
-  options: { streaming: true },
+import { createSSEParser } from "@hyper-fetch/core";
+
+const streamRequest = client
+  .createRequest<{ response: string; payload: { prompt: string } }>()({
+    endpoint: "/api/chat",
+    method: "POST",
+  })
+  .setOptions({ streaming: true });
+
+// SSE parsing works for POST requests too, unlike EventSource
+const parser = createSSEParser({
+  onEvent: ({ event, data }) => console.log(event, data),
 });
 
-const { data } = await streamRequest.send();
+const { data, error } = await streamRequest.send({
+  payload: { prompt: "Hello!" },
+  onResponseChunk: ({ text, chunk, index, loaded }) => parser.feed(text),
+});
+parser.flush();
 
-// data is a ReadableStream<Uint8Array>
-const reader = data.getReader();
-const decoder = new TextDecoder();
-
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  console.log(decoder.decode(value, { stream: true }));
-}
+// data is the whole body, available once the stream has ended
 ```
+
+Chunks are available in several places, so pick the one that fits:
+
+| Where | API |
+| --- | --- |
+| Send options | `request.send({ onResponseChunk })` |
+| Request hooks | `request.$hooks.onResponseChunk(callback)` |
+| Request manager | `client.requestManager.events.onResponseChunk` / `onResponseChunkById` / `onResponseChunkByQueue` |
+| Plugins | `new Plugin({ name }).onResponseChunk(callback)` |
+
+Each chunk event contains the raw bytes (`chunk`), the decoded `text` (multi-byte characters split between chunks are
+handled), its `index` and the total bytes `loaded` so far. A retried request streams again from the beginning, so reset
+your parser in `onRequestStart` when retries are enabled.
+
+The core package also ships incremental parsers for the most common streaming formats: `createSSEParser` /
+`parseSSE` for Server-Sent Events and `createNDJSONParser` / `parseNDJSON` for newline-delimited JSON.
+
+:::caution Changed behavior
+
+Before chunk events existed, `streaming: true` resolved the request immediately with the raw `ReadableStream` as
+`data`. If you read `data.getReader()`, switch to `onResponseChunk`.
+
+:::
+
+:::tip Mocking streams
+
+The mocker can stream too: return `chunks` from `setMock` and optionally set `chunkTime` to delay each chunk.
+
+```ts
+request.setMock(() => ({ chunks: ["data: Hel", "lo\n\n"], status: 200 }), { chunkTime: 50 });
+```
+
+:::
 
 :::tip React Integration
 
-For React apps, use the [`useStream`](/docs/react/hooks/use-stream) hook instead of manually consuming the stream.
-It handles chunk accumulation, lifecycle management, and reactive re-renders automatically.
+For React apps, use the [`useStream`](/docs/react/hooks/use-stream) hook instead of handling chunks manually. It
+handles chunk accumulation, SSE/NDJSON parsing, lifecycle management, and reactive re-renders automatically.
 
 :::
 
