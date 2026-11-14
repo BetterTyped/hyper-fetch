@@ -1,0 +1,85 @@
+---
+sidebar_position: 4
+title: AI Protocols
+sidebar_label: Protocols
+---
+
+> A protocol turns the chat state into a request body and the streamed response into normalized events. Pick the one
+> your backend speaks.
+
+---
+
+## Vercel AI SDK
+
+```ts
+import { aiSDKProtocol, aiSDKTextProtocol } from "@hyper-fetch/ai";
+
+useChat({ request, protocol: aiSDKProtocol() });
+```
+
+Sends the same body as AI SDK's default chat transport - `{ id, messages, trigger, messageId, ...body }` with messages
+in the `UIMessage` format - and reads the UI message stream of AI SDK 5, 6 and 7. Use `prepareBody` to change the body,
+like AI SDK's `prepareSendMessagesRequest`.
+
+`aiSDKTextProtocol()` reads plain text streams. Persisted AI SDK messages can be loaded with `fromAISDKMessages` and
+converted back with `toAISDKMessages`.
+
+---
+
+## TanStack AI
+
+```ts
+import { tanstackAIProtocol } from "@hyper-fetch/ai";
+
+useChat({ id: threadId, request, protocol: tanstackAIProtocol() });
+```
+
+Posts an AG-UI `RunAgentInput` (TanStack reads extra fields from `forwardedProps`, which is where the chat `body` goes)
+with the `X-Run-Id` header. SSE (`toServerSentEventsResponse`) and NDJSON (`toHttpResponse`, including durable
+envelopes) are detected automatically. Tool approvals and client tools are answered with `resume` entries on the next
+request.
+
+---
+
+## AG-UI
+
+```ts
+import { aguiProtocol } from "@hyper-fetch/ai";
+
+useChat({
+  request,
+  protocol: aguiProtocol({ context: () => [{ description: "User timezone", value: "Europe/Warsaw" }] }),
+  tools: { confirm: { description: "Ask the user", parameters: confirmJsonSchema, execute: confirm } },
+});
+```
+
+Works with any AG-UI 1.0 agent. Client tools are sent as `tools` (with JSON Schema from `parameters`, or from the
+`inputSchema` when it supports Standard JSON Schema), the shared state as `state`, and answered interrupts as `resume`.
+`STATE_SNAPSHOT` / `STATE_DELTA` keep `state` in sync. `MESSAGES_SNAPSHOT` decides which messages exist, but messages
+the client already has (matched by id or by a shared tool call) keep their client state, like results of client tools
+that already ran. `CUSTOM` events arrive in `onData` and other events in `onEvent`.
+
+Client tools are always described with a `description` (empty by default) and `parameters` (an empty object schema by
+default), as AG-UI requires.
+
+---
+
+## Custom protocols
+
+A protocol is a plain object:
+
+```ts
+import type { ChatProtocolType } from "@hyper-fetch/ai";
+import { createNDJSONParser } from "@hyper-fetch/core";
+
+const myProtocol: ChatProtocolType = {
+  name: "my-backend",
+  prepareRequest: ({ messages, body }) => ({ payload: { history: messages, ...body } }),
+  createDecoder: (emit) =>
+    createNDJSONParser<{ token: string }>({
+      onValue: ({ token }) => emit({ type: "text-delta", id: "answer", delta: token }),
+    }),
+};
+```
+
+See `ChatStreamEventType` for every event a decoder can emit.

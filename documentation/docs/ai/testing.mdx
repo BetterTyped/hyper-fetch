@@ -1,0 +1,29 @@
+---
+sidebar_position: 7
+title: AI Testing
+sidebar_label: Testing
+---
+
+> Mock AI responses without a model or a network.
+
+The HyperFetch mocker streams `chunks` through the same lifecycle as a real response, and the AI package ships encoders
+that produce the exact bytes each backend sends:
+
+```ts
+import { aiSDKTextAnswer, encodeAISDKStream, encodeAGUIStream, aguiTextAnswer } from "@hyper-fetch/ai";
+
+chatRequest.setMock(() => ({ chunks: encodeAISDKStream(aiSDKTextAnswer("Hello!")), status: 200 }), { chunkTime: 20 });
+
+agentRequest.setMock(() => ({
+  chunks: encodeAGUIStream([
+    { type: "RUN_STARTED", threadId: "t", runId: "r" },
+    { type: "TOOL_CALL_START", toolCallId: "c1", toolCallName: "search" },
+    { type: "TOOL_CALL_ARGS", toolCallId: "c1", delta: '{"query":"cats"}' },
+    { type: "TOOL_CALL_END", toolCallId: "c1" },
+    { type: "RUN_FINISHED", threadId: "t", runId: "r" },
+  ]),
+  status: 200,
+}));
+```
+
+Real networks split streams anywhere - use `splitIntoChunks(encoded, size)` to make sure your UI handles it.

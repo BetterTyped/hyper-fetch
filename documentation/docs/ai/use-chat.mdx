@@ -1,0 +1,121 @@
+---
+sidebar_position: 5
+title: AI - useChat
+sidebar_label: useChat
+---
+
+> Chat state, sending, tools, approvals and streaming - for any supported backend.
+
+---
+
+## Usage
+
+```tsx
+const { messages, status, error, sendMessage, stop, regenerate } = useChat<MyChat>({
+  request: chatRequest,
+  protocol: aiSDKProtocol(),
+});
+```
+
+`status` is `ready`, `submitted` (waiting for the first event), `streaming` or `error`. `sendMessage` accepts a string or
+`{ text, parts, metadata }`; calls while a request is running are ignored. `regenerate()` replaces the last answer.
+`stop()` aborts the request and keeps the partial answer.
+
+---
+
+## Client tools
+
+Tools without a server-side `execute` are run by the client:
+
+```tsx
+import { lastAssistantMessageIsCompleteWithToolCalls } from "@hyper-fetch/ai";
+
+useChat<MyChat>({
+  request,
+  protocol: aiSDKProtocol(),
+  tools: {
+    getLocation: { execute: async () => ({ city: await detectCity() }) },
+  },
+  // Send the results back automatically
+  sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+});
+```
+
+Or answer manually, e.g. from a confirmation dialog:
+
+```tsx
+useChat<MyChat>({
+  request,
+  protocol: aiSDKProtocol(),
+  onToolCall: ({ toolName, toolCallId, input }) => {
+    if (toolName === "askConfirmation") openDialog(toolCallId, input.question);
+  },
+});
+
+addToolResult({ tool: "askConfirmation", toolCallId, output: { confirmed: true } });
+```
+
+`onToolCall` runs for every tool call, including server-executed ones - check `toolName`. Automatic requests stop after
+`maxAutomaticSends` (20) in a row without a user action.
+
+---
+
+## Approvals and interrupts
+
+```tsx
+if (part.type === "tool" && part.state === "approval-requested") {
+  return (
+    <>
+      <button onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: true })}>Approve</button>
+      <button onClick={() => addToolApprovalResponse({ id: part.approval.id, approved: false, reason: "No" })}>Deny</button>
+    </>
+  );
+}
+```
+
+With AI SDK, continue with `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses` or
+`sendMessage()`. With TanStack AI and AG-UI, the answers are sent as `resume` entries on the next request.
+
+Interrupts that aren't tied to a tool are listed in `interrupts`; answer them with
+`resolveInterrupt({ interruptId, payload })` and call `sendMessage()`.
+
+---
+
+## Data parts, metadata and state
+
+```tsx
+useChat<MyChat>({
+  request,
+  protocol: aiSDKProtocol(),
+  onData: (data) => {
+    if (data.name === "notification") toast(data.data); // transient parts are not stored in messages
+  },
+});
+```
+
+Data parts with an `id` are updated in place. Message `metadata` is merged from the stream. With AG-UI, `state` holds
+the shared agent state and `setState` changes what is sent with the next request.
+
+---
+
+## Options
+
+| Option | Description |
+| --- | --- |
+| `request` | HyperFetch request for the chat endpoint |
+| `protocol` | Backend protocol |
+| `id` | Chat id (AI SDK `id`, AG-UI `threadId`); a new id creates a new chat |
+| `messages`, `state` | Initial messages and agent state |
+| `body` | Extra body fields, object or function |
+| `tools` | Client tools: `description`, `inputSchema`, `parameters`, `execute` |
+| `onToolCall`, `onData`, `onEvent`, `onFinish`, `onError` | Callbacks |
+| `sendAutomaticallyWhen`, `maxAutomaticSends` | Automatic follow-up requests |
+| `metadataSchema`, `dataSchemas` | Runtime validation |
+| `resumeRequest`, `resume` | Reconnect to a running stream (AI SDK) |
+| `throttleMs` | Limit re-renders while streaming |
+| `chat` | Share an existing `Chat` store between components |
+
+## Return values
+
+`id`, `messages`, `status`, `error`, `state`, `interrupts`, `usage`, `chat`, `sendMessage`, `regenerate`, `stop`,
+`resumeStream`, `setMessages`, `setState`, `clearError`, `addToolResult`, `addToolApprovalResponse`, `resolveInterrupt`.

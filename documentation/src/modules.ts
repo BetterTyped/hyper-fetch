@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { ComponentType, SVGProps } from "react";
-import { Book, LucideProps } from "lucide-react";
+import { Book, Bot, LucideProps } from "lucide-react";
 
 import { isBrowser } from "./utils/is-browser";
 
@@ -149,6 +149,27 @@ export const modules: Section[] = [
     category: "Framework",
     package: "react",
     // isPro: true,
+  },
+  {
+    label: "AI",
+    description:
+      "Provider-agnostic, end-to-end typed AI chat for your frontend. Works with AI SDK, TanStack AI and AG-UI backends.",
+    dir: "ai",
+    isPackage: true,
+    paths: ["ai"],
+    img: Bot,
+    text: "drop-shadow-sm !text-fuchsia-500 dark:!text-fuchsia-400",
+    textAction:
+      "focus:!text-fuchsia-500 focus:dark:!text-fuchsia-400 active:!text-fuchsia-600 active:dark:!text-fuchsia-300",
+    textHover: "hover:!text-fuchsia-500 hover:dark:!text-fuchsia-400",
+    icon: "group-hover:shadow-fuchsia-200 dark:group-hover:bg-fuchsia-500 bg-fuchsia-400 dark:bg-fuchsia-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-fuchsia-200 dark:group-hover:bg-fuchsia-500 group-hover:bg-fuchsia-400 group-hover:dark:bg-fuchsia-500 !bg-opacity-40",
+    border: "border-fuchsia-500 dark:border-fuchsia-400",
+    borderHover: "hover:border-fuchsia-500 hover:dark:border-fuchsia-400",
+    category: "Framework",
+    package: "ai",
+    isNew: true,
   },
   {
     label: "CLI",

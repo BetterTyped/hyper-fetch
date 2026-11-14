@@ -1,0 +1,115 @@
+---
+sidebar_position: 3
+title: AI Type Safety
+sidebar_label: Type Safety
+---
+
+> One `ChatTypes` definition types every message part, tool call, tool result, data part, metadata and agent state. Derive
+> it from your backend so a change on the server breaks the frontend build, not production.
+
+---
+
+## Chat types
+
+```ts
+type MyChat = {
+  metadata: { model: string };
+  data: { weather: { city: string; status: "loading" | "done" } };
+  tools: {
+    getWeather: { input: { city: string }; output: { temperature: number } };
+    askConfirmation: { input: { question: string }; output: { confirmed: boolean } };
+  };
+  state: { step: "plan" | "act" };
+};
+
+const { messages, addToolResult } = useChat<MyChat>({ request, protocol: aiSDKProtocol() });
+```
+
+Every key is optional. Without types, tools, data and metadata are `unknown`.
+
+---
+
+## From the Vercel AI SDK
+
+Export your `UIMessage` type from the server and import it as a type - nothing from the server is bundled.
+
+```ts title="server/chat.ts"
+import { tool, type InferUITools, type UIMessage } from "ai";
+
+export const tools = {
+  getWeather: tool({ inputSchema: z.object({ city: z.string() }), execute: async ({ city }) => ({ temperature: 21 }) }),
+};
+
+export type ChatMessage = UIMessage<{ model: string }, { weather: { city: string } }, InferUITools<typeof tools>>;
+```
+
+```ts title="client/chat.tsx"
+import type { InferAISDKChatTypes } from "@hyper-fetch/ai";
+import type { ChatMessage } from "../server/chat";
+
+const chat = useChat<InferAISDKChatTypes<ChatMessage>>({ request, protocol: aiSDKProtocol() });
+```
+
+---
+
+## From tool definitions (AI SDK, TanStack AI)
+
+`InferChatTools` reads tool sets (`Record<name, tool>`) and tool arrays (`[toolDefinition(...)]`). It takes inputs from
+`execute` or `inputSchema` and outputs from `outputSchema` or what `execute` returns. Any Standard Schema works (Zod,
+Valibot, ArkType, ...).
+
+```ts
+import type { InferChatTools } from "@hyper-fetch/ai";
+import type { tools } from "../server/tools";
+
+type MyChat = { tools: InferChatTools<typeof tools> };
+```
+
+---
+
+## Narrowing parts
+
+Tool parts are discriminated by `toolName` and `state`:
+
+```tsx
+message.parts.map((part) => {
+  if (part.type === "tool" && part.toolName === "getWeather") {
+    switch (part.state) {
+      case "input-streaming":
+        return <Spinner city={part.input?.city} />; // DeepPartial<{ city: string }>
+      case "output-available":
+        return <Weather temperature={part.output.temperature} />; // { temperature: number }
+      case "output-error":
+        return <Error text={part.errorText} />;
+    }
+  }
+  if (part.type === "data" && part.name === "weather") {
+    return <WeatherStatus status={part.data.status} />;
+  }
+});
+```
+
+Callbacks are typed the same way:
+
+```ts
+addToolResult({ tool: "askConfirmation", toolCallId, output: { confirmed: true } }); // ✅
+addToolResult({ tool: "askConfirmation", toolCallId, output: "yes" }); // ❌ type error
+```
+
+---
+
+## Runtime validation
+
+Types describe what the server should send. To also check it at runtime, pass Standard Schemas:
+
+```ts
+useChat<MyChat>({
+  request,
+  protocol: aiSDKProtocol(),
+  metadataSchema: z.object({ model: z.string() }),
+  dataSchemas: { weather: z.object({ city: z.string(), status: z.enum(["loading", "done"]) }) },
+  tools: { askConfirmation: { inputSchema: z.object({ question: z.string() }), execute: confirm } },
+});
+```
+
+Invalid values put the chat into the `error` status with a `SchemaValidationError`.

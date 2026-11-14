@@ -1,0 +1,42 @@
+---
+sidebar_position: 6
+title: AI - useObject
+sidebar_label: useObject
+---
+
+> Stream structured output and render it while it is generated.
+
+```tsx
+import { useObject } from "@hyper-fetch/ai/react";
+import { z } from "zod";
+
+const recipeSchema = z.object({ title: z.string(), steps: z.array(z.string()) });
+
+const recipeRequest = client.createRequest<{ response: string; payload: { dish: string } }>()({
+  endpoint: "/api/recipe",
+  method: "POST",
+});
+
+function Recipe() {
+  const { object, submit, isLoading, error, stop } = useObject({ request: recipeRequest, schema: recipeSchema });
+
+  return (
+    <>
+      <button onClick={() => submit({ dish: "pancakes" })}>Generate</button>
+      <h2>{object?.title}</h2>
+      <ol>{object?.steps?.map((step, index) => <li key={index}>{step}</li>)}</ol>
+    </>
+  );
+}
+```
+
+`object` is a `DeepPartial` of the schema output while streaming and the validated object once done. `submit` takes the
+request's payload type. A new `submit` aborts the previous one.
+
+## Protocols
+
+- `textObjectProtocol()` (default) - a plain text stream of JSON, as consumed by AI SDK's `useObject`
+  (`streamText({ output: Output.object(...) })` with `createTextStreamResponse`).
+- `aguiObjectProtocol()` - TanStack AI structured output over AG-UI events.
+
+The input is posted as-is; use `prepareBody` on the protocol to change it.

@@ -1,0 +1,116 @@
+---
+sidebar_position: 2
+title: AI Quick Start
+sidebar_label: Quick Start
+---
+
+> Connect a React chat UI to an existing AI backend.
+
+:::secondary What you'll learn
+
+- How to install `@hyper-fetch/ai`
+- How to create a chat request
+- How to render a streaming chat with `useChat`
+
+:::
+
+---
+
+## Installation
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/ai
+```
+
+The React hooks live in `@hyper-fetch/ai/react` and need `react` 18 or newer.
+
+---
+
+## 1. Your backend
+
+Any supported backend works. For example, with the Vercel AI SDK:
+
+```ts title="app/api/chat/route.ts (server)"
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { openai } from "@ai-sdk/openai";
+
+export async function POST(req: Request) {
+  const { messages }: { messages: UIMessage[] } = await req.json();
+  const result = streamText({ model: openai("gpt-5"), messages: await convertToModelMessages(messages) });
+  return result.toUIMessageStreamResponse();
+}
+```
+
+---
+
+## 2. A request for the chat endpoint
+
+The chat sends its messages through a regular HyperFetch request, so it gets your client's base URL, auth and plugins.
+
+```ts title="api/chat.ts"
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "http://localhost:3000" });
+
+export const chatRequest = client.createRequest<{ response: string; payload: unknown }>()({
+  endpoint: "/api/chat",
+  method: "POST",
+});
+```
+
+---
+
+## 3. The chat UI
+
+```tsx title="Chat.tsx"
+import { aiSDKProtocol } from "@hyper-fetch/ai";
+import { useChat } from "@hyper-fetch/ai/react";
+import { useState } from "react";
+
+import { chatRequest } from "./api/chat";
+
+export function Chat() {
+  const [input, setInput] = useState("");
+  const { messages, status, sendMessage, stop } = useChat({ request: chatRequest, protocol: aiSDKProtocol() });
+
+  return (
+    <div>
+      {messages.map((message) => (
+        <div key={message.id}>
+          <b>{message.role}:</b>
+          {message.parts.map((part, index) => (part.type === "text" ? <span key={index}>{part.text}</span> : null))}
+        </div>
+      ))}
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          sendMessage(input);
+          setInput("");
+        }}
+      >
+        <input value={input} onChange={(event) => setInput(event.target.value)} />
+        {status === "streaming" ? <button type="button" onClick={stop}>Stop</button> : <button type="submit">Send</button>}
+      </form>
+    </div>
+  );
+}
+```
+
+Switching the backend later only changes the protocol: `tanstackAIProtocol()` for TanStack AI or `aguiProtocol()` for an
+AG-UI agent.
+
+---
+
+## Without React
+
+`useChat` is a thin wrapper around the framework-agnostic `Chat` store:
+
+```ts
+import { aiSDKProtocol, Chat } from "@hyper-fetch/ai";
+
+const chat = new Chat({ request: chatRequest, protocol: aiSDKProtocol() });
+chat.subscribe(() => render(chat.getSnapshot()));
+
+await chat.sendMessage("Hello!");
+```
