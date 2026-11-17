@@ -170,6 +170,9 @@ export const sendRequest = async <Request extends RequestInstance>(
 
   return new Promise<RequestResponseType<Request>>((resolve) => {
     let isResolved = false;
+    // Responses whose async mapper is still running, and a removal that arrived in the meantime
+    let pendingMappings = 0;
+    let postponedRemoval: VoidFunction | null = null;
     const requestId = dispatcher.add(request);
     const { $hooks } = request;
     const beforeSentData = { requestId, request, mutationContext };
@@ -203,7 +206,6 @@ export const sendRequest = async <Request extends RequestInstance>(
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
       const { details, response } = values;
-      isResolved = true;
       const enrichedValues = { ...values, mutationContext };
 
       const mapping = request.unstable_responseMapper?.(
@@ -220,6 +222,8 @@ export const sendRequest = async <Request extends RequestInstance>(
         // When request is in retry mode we need to listen for retries end
         if (!success && willRetry) {return;}
 
+        // Only now the request is done - while it waits for a retry or for the network it can still be removed
+        isResolved = true;
         options?.onResponse?.(enrichedValues);
         $hooks.__emit("onResponse", enrichedValues);
         resolve(data);
@@ -232,10 +236,23 @@ export const sendRequest = async <Request extends RequestInstance>(
       // Create async await ONLY when we make a promise mapper
       if (mapping instanceof Promise) {
         (async () => {
-          const responseData = await mapping;
+          pendingMappings += 1;
+          let responseData: Awaited<typeof mapping>;
+          try {
+            responseData = await mapping;
+          } finally {
+            pendingMappings -= 1;
+          }
 
           const { success } = responseData;
           handleResponse(success, responseData as ResponseType<any, any, ExtractAdapterType<Request>>);
+
+          // Removed while the mapper was running and still not done (it waits for a retry or for the network)
+          if (!isResolved && pendingMappings === 0 && postponedRemoval) {
+            const handleRemoval = postponedRemoval;
+            postponedRemoval = null;
+            handleRemoval();
+          }
         })();
       }
       // For sync mapping operations we should not use async actions
@@ -248,7 +265,7 @@ export const sendRequest = async <Request extends RequestInstance>(
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (data) => {
-      if (!isResolved) {
+      const handleRemoval = () => {
         const enriched = { ...data, mutationContext };
         options?.onRemove?.(enriched);
         $hooks.__emit("onRemove", enriched);
@@ -265,7 +282,20 @@ export const sendRequest = async <Request extends RequestInstance>(
         // Unmount Listeners
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         umountAll();
+      };
+
+      if (isResolved) {
+        return;
       }
+
+      // The dispatcher removes a finished request right after emitting its response. With an async response
+      // mapper that response is not handled yet, so the removal has to wait for the mapper instead of winning.
+      if (pendingMappings > 0) {
+        postponedRemoval = handleRemoval;
+        return;
+      }
+
+      handleRemoval();
     });
 
     function umountAll() {

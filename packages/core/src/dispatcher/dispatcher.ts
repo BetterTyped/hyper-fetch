@@ -682,6 +682,11 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
       // Perform retry once request is failed
       setTimeout(() => {
+        // Removed while waiting (aborted, deleted or the queue was cleared) - there is nothing left to retry
+        const isQueued = this.getQueue(queryKey).requests.some((item) => item.requestId === requestId);
+        if (!isQueued) {
+          return;
+        }
         this.logger.warning({
           title: "Error response, performing retry",
           type: "request",
