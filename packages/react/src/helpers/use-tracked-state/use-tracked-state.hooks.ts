@@ -10,6 +10,7 @@ import type {
   ResponseType,
 } from "@hyper-fetch/core";
 import { replaceEqualDeep, scopeKey } from "@hyper-fetch/core";
+import { useHydration } from "hydrate/hydrate";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { isEqual } from "utils";
 
@@ -50,6 +51,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
 }: UseTrackedStateProps<T, TData>): UseTrackedStateReturn<T, TData> => {
   const { client, cacheKey, queryKey, staleTime, unstable_responseMapper } = request;
   const { cache } = client;
+  const hydration = useHydration();
 
   const state = useRef<UseTrackedStateType<T, TData>>(null as unknown as UseTrackedStateType<T, TData>);
   const renderKeys = useRef<(keyof UseTrackedStateType<T, TData>)[]>([]);
@@ -87,7 +89,10 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   };
 
   if (!state.current) {
-    state.current = getSelectedState(getInitialState({ initialResponse, dispatcher, request, disabled }));
+    const hydratedEntry = hydration?.get(client, scopeKey(cacheKey, request.scope));
+    state.current = getSelectedState(
+      getInitialState({ initialResponse, dispatcher, request, disabled, hydratedEntry }),
+    );
   }
 
   // Selector failed while processing incoming data - surface it to the closest error boundary

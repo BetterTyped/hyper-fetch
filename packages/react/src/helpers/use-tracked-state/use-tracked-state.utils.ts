@@ -16,6 +16,8 @@ import type {
 import { scopeKey } from "@hyper-fetch/core";
 import type { UseTrackedStateType } from "helpers";
 import { initialState } from "helpers";
+import type { HydratedEntry } from "hydrate/hydrate.types";
+import { pickInitialCacheData } from "hydrate/hydrate.utils";
 
 /**
  * Extracts the "identity" portion of a cache key (method + endpoint with resolved params),
@@ -135,17 +137,23 @@ export const getInitialState = <T extends RequestInstance>({
   request,
   disabled,
   revalidate,
+  hydratedEntry,
 }: {
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   dispatcher: Dispatcher<ExtractAdapterType<T>>;
   request: T;
   disabled?: boolean; // useFetch only
   revalidate?: boolean; // useFetch only
+  /** Data from the closest `Hydrate` that was not written to the cache yet */
+  hydratedEntry?: NullableType<HydratedEntry>;
 }): UseTrackedStateType<T> => {
   const { client, cacheKey, unstable_responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
+  const cacheData = pickInitialCacheData(
+    cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope)),
+    hydratedEntry,
+  );
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
   const initialLoading = getIsInitiallyLoading({
