@@ -165,7 +165,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       previousCacheKey.current = cacheKey;
 
       // Get cache state
-      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
       // Determine whether to clear state based on keepPreviousData mode
@@ -260,7 +260,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       retries: cacheData.retries,
       responseTimestamp: new Date(cacheData.responseTimestamp),
       requestTimestamp: new Date(cacheData.requestTimestamp),
-      loading: dispatcher.hasRunningRequests(queryKey),
+      loading: dispatcher.hasRunningRequests(scopeKey(queryKey, request.scope)),
     };
 
     const nextState: UseTrackedStateType<T, TData> = { ...state.current };
