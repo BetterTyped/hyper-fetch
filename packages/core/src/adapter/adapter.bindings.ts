@@ -78,7 +78,11 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     payload = await unstable_payloadMapper(payload);
   }
 
-  const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
+  // Defaults from `adapter.setAdapterDefaults()`, overridden by the options of the request
+  const adapterDefaults = client.adapter.unstable_getAdapterDefaults?.(request as any);
+  const adapterOptions = (adapterDefaults ? { ...adapterDefaults, ...request.options } : request.options) as
+    | ExtractAdapterOptionsType<T>
+    | undefined;
   const startTime = Date.now();
   onStartTime(startTime);
 
