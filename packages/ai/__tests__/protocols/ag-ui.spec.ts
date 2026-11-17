@@ -393,7 +393,8 @@ describe("AG-UI protocol", () => {
             ],
           },
           { id: "c1-result", role: "tool", toolCallId: "c1", content: '{"temp":3}' },
-          { id: "c2-result", role: "tool", toolCallId: "c2", content: "", error: "down" },
+          // The model reads the content, so the error is in both places (like TanStack AI's own client sends it)
+          { id: "c2-result", role: "tool", toolCallId: "c2", content: '{"error":"down"}', error: "down" },
           { id: "a-1", role: "assistant", content: "It is 3 degrees" },
         ],
         tools: [{ name: "confirm", description: "Ask the user", parameters: { type: "object" } }],
@@ -467,7 +468,7 @@ describe("AG-UI protocol", () => {
         id: "c-result",
         role: "tool",
         toolCallId: "c",
-        content: "",
+        content: '{"error":"Tool execution was denied"}',
         error: "Tool execution was denied",
       });
     });

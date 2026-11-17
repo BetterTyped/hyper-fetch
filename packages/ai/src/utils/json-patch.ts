@@ -21,7 +21,8 @@ const parsePointer = (pointer: string, operation: JSONPatchOperationType): strin
   if (pointer === "") {
     return [];
   }
-  if (!pointer.startsWith("/")) {
+  // Operations come from the wire - a missing or non-string pointer must fail like any other invalid patch
+  if (typeof pointer !== "string" || !pointer.startsWith("/")) {
     throw new JSONPatchError(`Invalid JSON pointer "${pointer}"`, operation);
   }
   return pointer
@@ -42,7 +43,10 @@ const deepEqual = (a: unknown, b: unknown): boolean => {
   }
   if (isPlainObject(a) && isPlainObject(b)) {
     const keys = Object.keys(a);
-    return keys.length === Object.keys(b).length && keys.every((key) => key in b && deepEqual(a[key], b[key]));
+    // Own members only - `key in b` would also find `__proto__`, `constructor` and other inherited names
+    return (
+      keys.length === Object.keys(b).length && keys.every((key) => Object.hasOwn(b, key) && deepEqual(a[key], b[key]))
+    );
   }
   return false;
 };
@@ -136,11 +140,25 @@ const update = (
   }
   if (action.kind === "remove") {
     delete copy[segment];
+  } else if (segment === "__proto__") {
+    // Assigning `copy.__proto__` would replace the prototype instead of creating the member, like JSON.parse does
+    Object.defineProperty(copy, segment, { value: action.value, writable: true, enumerable: true, configurable: true });
   } else {
     copy[segment] = action.value;
   }
   return copy;
 };
+
+/** RFC 6902: `add`, `replace` and `test` operations MUST contain a "value" member. */
+const getOperationValue = (operation: Extract<JSONPatchOperationType, { value: unknown }>): unknown => {
+  if (!("value" in operation)) {
+    throw new JSONPatchError('Missing "value"', operation);
+  }
+  return operation.value;
+};
+
+const isProperPrefix = (prefix: string[], path: string[]) =>
+  prefix.length < path.length && prefix.every((segment, index) => segment === path[index]);
 
 /**
  * Apply RFC 6902 JSON Patch operations without mutating the input. Unchanged branches keep their identity, so React
@@ -153,7 +171,8 @@ export const applyJSONPatch = <T = unknown>(document: unknown, operations: reado
     switch (operation.op) {
       case "add":
       case "replace": {
-        result = update(result, path, { operation, action: { kind: operation.op, value: operation.value } });
+        const value = getOperationValue(operation);
+        result = update(result, path, { operation, action: { kind: operation.op, value } });
         break;
       }
       case "remove": {
@@ -162,6 +181,11 @@ export const applyJSONPatch = <T = unknown>(document: unknown, operations: reado
       }
       case "move": {
         const from = parsePointer(operation.from, operation);
+        if (isProperPrefix(from, path)) {
+          // RFC 6902 4.4. Without this check, removing an array element first would shift its sibling into the
+          // target location and the value would silently end up inside that sibling.
+          throw new JSONPatchError("Cannot move a value into one of its children", operation);
+        }
         const value = getValue(result, from, operation);
         result = update(result, from, { operation, action: { kind: "remove" } });
         result = update(result, path, { operation, action: { kind: "add", value } });
@@ -173,7 +197,7 @@ export const applyJSONPatch = <T = unknown>(document: unknown, operations: reado
         break;
       }
       case "test": {
-        if (!deepEqual(getValue(result, path, operation), operation.value)) {
+        if (!deepEqual(getValue(result, path, operation), getOperationValue(operation))) {
           throw new JSONPatchError("Test failed", operation);
         }
         break;

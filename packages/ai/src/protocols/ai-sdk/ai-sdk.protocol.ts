@@ -36,8 +36,15 @@ const optional = <K extends string>(key: K, value: unknown, type: "string" | "bo
   // eslint-disable-next-line valid-typeof
   typeof value === type ? ({ [key]: value } as Record<K, never>) : {};
 
+/** AI SDK ignores `null` message metadata, so it is not an update */
+const hasMetadata = (chunk: Chunk) => chunk.messageMetadata !== undefined && chunk.messageMetadata !== null;
+
 /** Map one AI SDK UI message stream chunk (v5-v7) to normalized events. */
 export const mapAISDKChunk = (chunk: Chunk): ChatStreamEventType[] => {
+  if (!chunk || typeof chunk !== "object") {
+    // Not a chunk at all (e.g. a bare `null` or a number on the wire)
+    return [{ type: "raw", protocol: "ai-sdk", value: chunk }];
+  }
   const str = (key: string) => String(chunk[key] ?? "");
   switch (chunk.type) {
     case "start": {
@@ -45,7 +52,7 @@ export const mapAISDKChunk = (chunk: Chunk): ChatStreamEventType[] => {
         {
           type: "message-start",
           ...optional("messageId", chunk.messageId, "string"),
-          ...(chunk.messageMetadata !== undefined && { metadata: chunk.messageMetadata }),
+          ...(hasMetadata(chunk) && { metadata: chunk.messageMetadata }),
         },
       ];
     }
@@ -175,12 +182,12 @@ export const mapAISDKChunk = (chunk: Chunk): ChatStreamEventType[] => {
         {
           type: "finish",
           ...(finishReason && { finishReason }),
-          ...(chunk.messageMetadata !== undefined && { metadata: chunk.messageMetadata }),
+          ...(hasMetadata(chunk) && { metadata: chunk.messageMetadata }),
         },
       ];
     }
     case "message-metadata": {
-      return [{ type: "message-metadata", metadata: chunk.messageMetadata }];
+      return [{ type: "message-metadata", metadata: hasMetadata(chunk) ? chunk.messageMetadata : undefined }];
     }
     case "error": {
       return [{ type: "error", errorText: str("errorText") || "An error occurred." }];
@@ -252,6 +259,7 @@ export const aiSDKTextProtocol = (options: AISDKProtocolOptionsType = {}): ChatP
   prepareRequest: aiSDKProtocol(options).prepareRequest,
   createDecoder: (emit): StreamParserType => {
     let started = false;
+    let ended = false;
     const textId = "text-1";
     const start = () => {
       if (started) {
@@ -271,15 +279,17 @@ export const aiSDKTextProtocol = (options: AISDKProtocolOptionsType = {}): ChatP
         emit({ type: "text-delta", id: textId, delta: text });
       },
       flush: () => {
-        if (!started) {
+        if (!started || ended) {
           return;
         }
+        ended = true;
         emit({ type: "text-end", id: textId });
         emit({ type: "step-finish" });
         emit({ type: "finish", finishReason: "stop" });
       },
       reset: () => {
         started = false;
+        ended = false;
       },
     };
   },

@@ -26,6 +26,10 @@ export const encodeAGUIStream = (
  * not either.
  */
 export const splitIntoChunks = (pieces: string[], size: number): string[] => {
+  if (!Number.isInteger(size) || size < 1) {
+    // Anything else would never advance through the text
+    throw new RangeError(`splitIntoChunks: size must be a positive integer, received ${size}`);
+  }
   const text = pieces.join("");
   const result: string[] = [];
   for (let i = 0; i < text.length; i += size) {

@@ -12,16 +12,46 @@ import type {
 
 type AnyToolPart = ChatToolPartType & Record<string, unknown>;
 
+/** A tool part without what its previous state left behind: the streamed raw input and an earlier result. */
+const withoutResult = (part: AnyToolPart): Record<string, unknown> => {
+  const {
+    rawInput: _rawInput,
+    output: _output,
+    errorText: _errorText,
+    preliminary: _preliminary,
+    ...rest
+  } = part as AnyToolPart & { rawInput?: string; output?: unknown; errorText?: string; preliminary?: boolean };
+  return rest;
+};
+
 const isObject = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 
-/** Shallow-merge object metadata, replace anything else. */
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+const mergeObjects = (current: Record<string, unknown>, next: Record<string, unknown>): Record<string, unknown> => {
+  const result = { ...current };
+  Object.keys(next).forEach((key) => {
+    const value = next[key];
+    if (value === undefined || UNSAFE_KEYS.has(key)) {
+      return;
+    }
+    const previous = result[key];
+    result[key] = isObject(previous) && isObject(value) ? mergeObjects(previous, value) : value;
+  });
+  return result;
+};
+
+/**
+ * Merge message metadata like AI SDK does: objects are merged deeply (arrays and other values are replaced), a
+ * missing (`undefined` or `null`) update keeps the current metadata, anything else replaces it.
+ */
 export const mergeMetadata = (current: unknown, next: unknown): unknown => {
-  if (next === undefined) {
+  if (next === undefined || next === null) {
     return current;
   }
   if (isObject(current) && isObject(next)) {
-    return { ...current, ...next };
+    return mergeObjects(current, next);
   }
   return next;
 };
@@ -34,6 +64,7 @@ export class ChatMessageBuilder {
   message: ChatMessageType;
 
   private rawToolInputs = new Map<string, string>();
+  /** Index of the first part of the current step - what `step-reset` drops */
   private stepStartIndex = 0;
 
   constructor(message: ChatMessageType) {
@@ -65,6 +96,23 @@ export class ChatMessageBuilder {
     return this.findIndex((part) => part.type === "tool" && part.toolCallId === toolCallId);
   }
 
+  /**
+   * The tool call that input events (`tool-input-*`) for this id belong to: one of the current step, or one of an
+   * earlier step that still waits for its result. A finished call of an earlier step is never reopened - some
+   * providers reuse tool call ids in every step, and AI SDK treats those as separate calls.
+   */
+  private findOpenTool(toolCallId: string): number {
+    const index = this.findTool(toolCallId);
+    if (index === -1) {
+      return -1;
+    }
+    const { parts } = this.message;
+    const isCurrentStep = !parts.slice(index + 1).some((part) => part.type === "step-start");
+    const { state } = parts[index] as ChatToolPartType;
+    const isFinished = state === "output-available" || state === "output-error" || state === "output-denied";
+    return isCurrentStep || !isFinished ? index : -1;
+  }
+
   private replacePart(index: number, part: ChatPartType) {
     const parts = [...this.message.parts];
     parts[index] = part;
@@ -76,7 +124,10 @@ export class ChatMessageBuilder {
   }
 
   private updateTool(toolCallId: string, update: (part: AnyToolPart) => Record<string, unknown>): boolean {
-    const index = this.findTool(toolCallId);
+    return this.updateToolAt(this.findTool(toolCallId), update);
+  }
+
+  private updateToolAt(index: number, update: (part: AnyToolPart) => Record<string, unknown>): boolean {
     if (index === -1) {
       return false;
     }
@@ -85,9 +136,22 @@ export class ChatMessageBuilder {
     return true;
   }
 
-  private appendText(type: "text" | "reasoning", id: string, delta: string) {
+  /**
+   * The text or reasoning part that is still streaming for this id. Ids are only unique while a part is open -
+   * providers reuse them in every step (e.g. "0") - so a finished part with the same id is never continued.
+   */
+  private findStreaming(type: "text" | "reasoning", id: string): number {
     const index = this.findIndex((part) => part.type === type && part.id === id);
     if (index === -1) {
+      return -1;
+    }
+    return (this.message.parts[index] as ChatTextPartType | ChatReasoningPartType).state === "streaming" ? index : -1;
+  }
+
+  private appendText(type: "text" | "reasoning", id: string, delta: string) {
+    const index = this.findStreaming(type, id);
+    if (index === -1) {
+      // A delta without a start (or after the part was dropped by a step reset) opens a new part
       this.pushPart({ type, id, text: delta, state: "streaming" });
       return;
     }
@@ -96,14 +160,11 @@ export class ChatMessageBuilder {
   }
 
   private endText(type: "text" | "reasoning", id: string): boolean {
-    const index = this.findIndex((part) => part.type === type && part.id === id);
+    const index = this.findStreaming(type, id);
     if (index === -1) {
       return false;
     }
     const part = this.message.parts[index] as ChatTextPartType | ChatReasoningPartType;
-    if (part.state === "done") {
-      return false;
-    }
     this.replacePart(index, { ...part, state: "done" });
     return true;
   }
@@ -127,19 +188,23 @@ export class ChatMessageBuilder {
       }
       case "message-metadata":
       case "finish": {
-        if (event.metadata === undefined) {
+        const metadata = mergeMetadata(this.message.metadata, event.metadata);
+        if (metadata === this.message.metadata) {
           return false;
         }
-        this.message = { ...this.message, metadata: mergeMetadata(this.message.metadata, event.metadata) };
+        this.message = { ...this.message, metadata };
         return true;
       }
       case "step-start": {
-        this.stepStartIndex = this.message.parts.length;
         this.pushPart({ type: "step-start" });
+        // The step boundary itself survives a reset - only what the step produced is dropped
+        this.stepStartIndex = this.message.parts.length;
         return true;
       }
       case "step-reset": {
-        if (this.message.parts.length === this.stepStartIndex) {
+        // Half-streamed tool inputs of the dropped step must not leak into the retried one
+        this.rawToolInputs.clear();
+        if (this.message.parts.length <= this.stepStartIndex) {
           return false;
         }
         this.setParts(this.message.parts.slice(0, this.stepStartIndex));
@@ -148,9 +213,7 @@ export class ChatMessageBuilder {
       case "text-start":
       case "reasoning-start": {
         const type = event.type === "text-start" ? "text" : "reasoning";
-        if (this.findIndex((part) => part.type === type && part.id === event.id) !== -1) {
-          return false;
-        }
+        // A start always opens a new part, even when the id was used before (providers reuse ids in every step)
         this.pushPart({ type, id: event.id, text: "", state: "streaming" });
         return true;
       }
@@ -169,7 +232,7 @@ export class ChatMessageBuilder {
         return this.endText("reasoning", event.id);
       }
       case "tool-input-start": {
-        if (this.findTool(event.toolCallId) !== -1) {
+        if (this.findOpenTool(event.toolCallId) !== -1) {
           return false;
         }
         this.rawToolInputs.set(event.toolCallId, "");
@@ -188,9 +251,11 @@ export class ChatMessageBuilder {
       case "tool-input-delta": {
         const raw = (this.rawToolInputs.get(event.toolCallId) ?? "") + event.delta;
         this.rawToolInputs.set(event.toolCallId, raw);
-        return this.updateTool(event.toolCallId, (part) =>
-          part.state === "input-streaming" ? { ...part, rawInput: raw, input: parsePartialJSON(raw).value } : part,
-        );
+        const index = this.findOpenTool(event.toolCallId);
+        if (index === -1 || (this.message.parts[index] as ChatToolPartType).state !== "input-streaming") {
+          return false;
+        }
+        return this.updateToolAt(index, (part) => ({ ...part, rawInput: raw, input: parsePartialJSON(raw).value }));
       }
       case "tool-input-available": {
         this.rawToolInputs.delete(event.toolCallId);
@@ -204,10 +269,10 @@ export class ChatMessageBuilder {
           ...(event.dynamic !== undefined && { dynamic: event.dynamic }),
           ...(event.title !== undefined && { title: event.title }),
         };
-        const updated = this.updateTool(event.toolCallId, (part) => {
-          const { rawInput: _rawInput, ...rest } = part as AnyToolPart & { rawInput?: string };
-          return { ...rest, ...next };
-        });
+        const updated = this.updateToolAt(this.findOpenTool(event.toolCallId), (part) => ({
+          ...withoutResult(part),
+          ...next,
+        }));
         if (!updated) {
           this.pushPart(next as ChatPartType);
         }
@@ -223,7 +288,10 @@ export class ChatMessageBuilder {
           input: event.input,
           errorText: event.errorText,
         };
-        const updated = this.updateTool(event.toolCallId, (part) => ({ ...part, ...next }));
+        const updated = this.updateToolAt(this.findOpenTool(event.toolCallId), (part) => ({
+          ...withoutResult(part),
+          ...next,
+        }));
         if (!updated) {
           this.pushPart(next as ChatPartType);
         }
@@ -259,31 +327,26 @@ export class ChatMessageBuilder {
         return true;
       }
       case "tool-output-available": {
+        return this.updateTool(event.toolCallId, (part) => ({
+          ...withoutResult(part),
+          state: "output-available",
+          output: event.output,
+          ...(event.preliminary && { preliminary: true }),
+        }));
+      }
+      case "tool-output-error": {
         return this.updateTool(event.toolCallId, (part) => {
+          // A preliminary output is replaced by the error - AI SDK rejects error parts that still carry an output
           const {
-            errorText: _errorText,
-            rawInput: _rawInput,
+            output: _output,
             preliminary: _preliminary,
             ...rest
           } = part as AnyToolPart & {
-            errorText?: string;
-            rawInput?: string;
+            output?: unknown;
             preliminary?: boolean;
           };
-          return {
-            ...rest,
-            state: "output-available",
-            output: event.output,
-            ...(event.preliminary && { preliminary: true }),
-          };
+          return { ...rest, state: "output-error", errorText: event.errorText };
         });
-      }
-      case "tool-output-error": {
-        return this.updateTool(event.toolCallId, (part) => ({
-          ...part,
-          state: "output-error",
-          errorText: event.errorText,
-        }));
       }
       case "tool-output-denied": {
         return this.updateTool(event.toolCallId, (part) => ({

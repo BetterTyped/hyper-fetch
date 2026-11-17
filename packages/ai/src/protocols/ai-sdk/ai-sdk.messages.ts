@@ -16,6 +16,7 @@ const toAISDKApproval = (approval: Record<string, unknown> | undefined) => {
   }
   return {
     id: approval.id,
+    ...(approval.reason !== undefined && { requestReason: approval.reason }),
     ...(approval.approved !== undefined && { approved: approval.approved }),
     ...(approval.responseReason !== undefined && { reason: approval.responseReason }),
   };

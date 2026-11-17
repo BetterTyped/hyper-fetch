@@ -34,6 +34,8 @@ type AGUIDecoderStateType = {
   openReasoning: string | null;
   openToolCall: string | null;
   started: boolean;
+  /** A run finished - whatever the backend sends next (TanStack AI's next agent loop iteration) is a new step */
+  finished: boolean;
 };
 
 const str = (value: unknown) => (typeof value === "string" ? value : "");
@@ -71,9 +73,20 @@ const sumUsage = (usage: unknown): ChatUsageType | undefined => {
   return total;
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === "object" && !Array.isArray(value);
+
 const getTanstackMetadata = (event: AGUIEventType) => {
   const metadata = event.metadata as { tanstack?: Record<string, unknown> } | undefined;
-  return metadata?.tanstack;
+  return isRecord(metadata) && isRecord(metadata.tanstack) ? metadata.tanstack : undefined;
+};
+
+/** Error message of a failed tool result - TanStack AI sends `{"error": "..."}` as the result content. */
+const getToolErrorText = (output: unknown): string => {
+  if (isRecord(output) && typeof output.error === "string") {
+    return output.error;
+  }
+  return typeof output === "string" && output ? output : "Tool execution failed";
 };
 
 /**
@@ -87,18 +100,24 @@ export const createAGUIEventMapper = () => {
     openReasoning: null,
     openToolCall: null,
     started: false,
+    finished: false,
   };
 
   const out: ChatStreamEventType[] = [];
 
   const ensureStarted = () => {
-    if (state.started) {
+    // Every AG-UI run is one step of the assistant message, like a model call in AI SDK
+    if (!state.started) {
+      state.started = true;
+      out.push({ type: "message-start" });
+      out.push({ type: "step-start" });
       return;
     }
-    state.started = true;
-    // Every AG-UI run is one step of the assistant message, like a model call in AI SDK
-    out.push({ type: "message-start" });
-    out.push({ type: "step-start" });
+    if (state.finished) {
+      // Content after `RUN_FINISHED` - the next run (or the next TanStack AI agent loop iteration) of this response
+      state.finished = false;
+      out.push({ type: "step-start" });
+    }
   };
 
   const closeText = () => {
@@ -135,15 +154,19 @@ export const createAGUIEventMapper = () => {
     out.push({ type: "tool-input-delta", toolCallId, delta });
   };
 
-  const endToolCall = (toolCallId: string, parsedArgs?: unknown) => {
+  const endToolCall = (toolCallId: string, final: { input?: unknown; args?: string } = {}) => {
     const call = state.toolCalls.get(toolCallId);
     if (!call || call.ended) {
       return;
     }
     call.ended = true;
-    if (parsedArgs !== undefined) {
-      out.push({ type: "tool-input-available", toolCallId, toolName: call.name, input: parsedArgs });
+    if (final.input !== undefined) {
+      out.push({ type: "tool-input-available", toolCallId, toolName: call.name, input: final.input });
       return;
+    }
+    if (final.args !== undefined) {
+      // The complete arguments sent with the end event win over the streamed ones
+      call.args = final.args;
     }
     if (!call.args.trim()) {
       out.push({ type: "tool-input-available", toolCallId, toolName: call.name, input: {} });
@@ -174,6 +197,15 @@ export const createAGUIEventMapper = () => {
     closeText();
     closeReasoning();
     closeToolCallChunk();
+  };
+
+  /** A finished run has no tool call still streaming its arguments - end the ones the backend forgot to end. */
+  const endOpenToolCalls = () => {
+    state.toolCalls.forEach((call, toolCallId) => {
+      if (!call.ended) {
+        endToolCall(toolCallId);
+      }
+    });
   };
 
   const handleInterrupts = (interrupts: unknown) => {
@@ -211,6 +243,11 @@ export const createAGUIEventMapper = () => {
 
   const map = (event: AGUIEventType): ChatStreamEventType[] => {
     out.length = 0;
+
+    if (!isRecord(event)) {
+      // Not an event at all (e.g. a bare `null` or a number on the wire)
+      return [{ type: "raw", protocol: "ag-ui", value: event }];
+    }
 
     switch (event.type) {
       case "RUN_STARTED": {
@@ -305,8 +342,12 @@ export const createAGUIEventMapper = () => {
       }
       case "TOOL_CALL_END": {
         const toolCallId = str(event.toolCallId);
-        const args = getTanstackMetadata(event)?.args;
-        endToolCall(toolCallId, args !== undefined && typeof args === "object" ? args : undefined);
+        // TanStack AI repeats the final arguments on the end event: `args` is the raw JSON, `input` the parsed value.
+        // Adapters that don't stream arguments (provider-executed tools) send them only here.
+        const tanstack = getTanstackMetadata(event);
+        const input = [event.input, tanstack?.input, event.args, tanstack?.args].find(isRecord);
+        const args = [event.args, tanstack?.args].find((value) => typeof value === "string");
+        endToolCall(toolCallId, { ...(input !== undefined && { input }), ...(args !== undefined && { args }) });
         if (state.openToolCall === toolCallId) {
           state.openToolCall = null;
         }
@@ -329,7 +370,17 @@ export const createAGUIEventMapper = () => {
         const toolCallId = str(event.toolCallId);
         closeToolCallChunk();
         endToolCall(toolCallId);
-        out.push({ type: "tool-output-available", toolCallId, output: parseToolContent(event.content) });
+        const output = parseToolContent(event.content);
+        // TanStack AI marks failed, cancelled and denied tool calls in the metadata of the result
+        const tanstack = getTanstackMetadata(event);
+        const outcome = tanstack?.toolResultOutcome;
+        if (outcome === "denied") {
+          out.push({ type: "tool-output-denied", toolCallId });
+        } else if (event.state === "output-error" || tanstack?.state === "output-error" || outcome === "cancelled") {
+          out.push({ type: "tool-output-error", toolCallId, errorText: getToolErrorText(output) });
+        } else {
+          out.push({ type: "tool-output-available", toolCallId, output });
+        }
         break;
       }
       case "STATE_SNAPSHOT": {
@@ -372,6 +423,8 @@ export const createAGUIEventMapper = () => {
       }
       case "RUN_FINISHED": {
         closeAll();
+        endOpenToolCalls();
+        state.finished = state.started;
         const usage = sumUsage(event.usage);
         if (usage) {
           out.push({ type: "usage", usage });
@@ -380,7 +433,7 @@ export const createAGUIEventMapper = () => {
         if (outcome?.type === "interrupt") {
           handleInterrupts(outcome.interrupts);
         }
-        const tanstackReason = getTanstackMetadata(event)?.finishReason;
+        const tanstackReason = event.finishReason ?? getTanstackMetadata(event)?.finishReason;
         let finishReason: ChatFinishReasonType = "stop";
         if (typeof tanstackReason === "string") {
           finishReason = TANSTACK_FINISH_REASONS[tanstackReason] ?? "other";
@@ -422,6 +475,7 @@ export const createAGUIEventMapper = () => {
     state.openReasoning = null;
     state.openToolCall = null;
     state.started = false;
+    state.finished = false;
   };
 
   return { map, end, reset };

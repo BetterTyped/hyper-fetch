@@ -9,7 +9,7 @@ export class SchemaValidationError extends Error {
     const details = issues
       .map((issue) => {
         const path = issue.path
-          ?.map((segment) => (typeof segment === "object" ? String(segment.key) : String(segment)))
+          ?.map((segment) => (typeof segment === "object" && segment !== null ? String(segment.key) : String(segment)))
           .join(".");
         return path ? `${path}: ${issue.message}` : issue.message;
       })
@@ -53,12 +53,13 @@ export const validateSchema = async <Schema extends StandardSchemaV1>(
  */
 export const getJSONSchema = (schema: unknown): JSONSchemaType | undefined => {
   const source = schema as Partial<StandardJSONSchemaSourceType> | undefined;
-  const input = source?.["~standard"]?.jsonSchema?.input;
-  if (typeof input !== "function") {
+  const converter = source?.["~standard"]?.jsonSchema;
+  if (typeof converter?.input !== "function") {
     return undefined;
   }
   try {
-    return input({ target: "draft-2020-12" });
+    // Called as a method - a converter implemented with `this` must not lose it
+    return converter.input({ target: "draft-2020-12" });
   } catch {
     return undefined;
   }

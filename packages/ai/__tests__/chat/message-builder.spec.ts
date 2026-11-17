@@ -151,6 +151,8 @@ describe("ChatMessageBuilder", () => {
       { type: "text", id: "a", text: "kept", state: "streaming" },
       { type: "source", sourceType: "url", sourceId: "s1", url: "https://a.com", title: "A" },
       { type: "file", url: "data:image/png;base64,AA", mediaType: "image/png" },
+      // The step boundary stays, like in AI SDK - only what the step produced is dropped
+      { type: "step-start" },
     ]);
   });
 

@@ -77,15 +77,18 @@ export const toAGUIMessages = (messages: ChatMessageType<any>[]): AGUIMessageTyp
       return;
     }
 
-    // Every step of an assistant message becomes one AG-UI assistant message followed by its tool results
+    // Every step of an assistant message becomes one AG-UI assistant message followed by its tool results. Text that
+    // comes after a tool call starts another one, so the backend reads everything in the order it happened.
     const steps: ChatPartType[][] = [[]];
     message.parts.forEach((part) => {
-      if (part.type === "step-start") {
-        if (steps[steps.length - 1].length > 0) {
-          steps.push([]);
-        }
-      } else {
-        steps[steps.length - 1].push(part);
+      let current = steps[steps.length - 1];
+      const isAfterToolCall = part.type === "text" && current.some((item) => item.type === "tool");
+      if ((part.type === "step-start" || isAfterToolCall) && current.length > 0) {
+        current = [];
+        steps.push(current);
+      }
+      if (part.type !== "step-start") {
+        current.push(part);
       }
     });
 
@@ -116,21 +119,15 @@ export const toAGUIMessages = (messages: ChatMessageType<any>[]): AGUIMessageTyp
             toolCallId: tool.toolCallId,
             content: stringify(tool.output),
           });
-        } else if (tool.state === "output-error") {
+        } else if (tool.state === "output-error" || tool.state === "output-denied") {
+          // The error is also the content - that is what the model reads, and what TanStack AI sends for failed tools
+          const error = tool.state === "output-error" ? tool.errorText : "Tool execution was denied";
           result.push({
             id: `${tool.toolCallId}-result`,
             role: "tool",
             toolCallId: tool.toolCallId,
-            content: "",
-            error: tool.errorText,
-          });
-        } else if (tool.state === "output-denied") {
-          result.push({
-            id: `${tool.toolCallId}-result`,
-            role: "tool",
-            toolCallId: tool.toolCallId,
-            content: "",
-            error: "Tool execution was denied",
+            content: JSON.stringify({ error }),
+            error,
           });
         }
       });
