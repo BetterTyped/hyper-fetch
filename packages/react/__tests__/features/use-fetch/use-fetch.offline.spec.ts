@@ -72,7 +72,8 @@ describe("useFetch [ Offline ]", () => {
   });
   describe("when request offline attribute is set to true", () => {
     it("should not emit offline error until request is finished", async () => {
-      const mock = mockRequest(request);
+      // The connection drops while the request is in flight - the default 20ms delay can elapse under load
+      const mock = mockRequest(request, { delay: 500 });
       const response = renderUseFetch(request);
       await waitForRender();
       act(() => {
@@ -87,7 +88,8 @@ describe("useFetch [ Offline ]", () => {
   });
   describe("when request offline attribute is set to false", () => {
     it("should emit offline error until request is finished", async () => {
-      const mock = mockRequest(request, { status: 400 });
+      // The connection drops while the request is in flight - the default 20ms delay can elapse under load
+      const mock = mockRequest(request, { status: 400, delay: 500 });
       const response = renderUseFetch(request.setOffline(false));
       await waitForRender();
       act(() => {
