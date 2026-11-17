@@ -6,7 +6,7 @@ import type {
   ExtractResponseType,
   StreamParserType,
 } from "@hyper-fetch/core";
-import { createNDJSONParser, createSSEParser, scopeKey } from "@hyper-fetch/core";
+import { createNDJSONParser, createSSEParser, getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 import type {
@@ -27,6 +27,23 @@ type StreamState<T extends RequestInstance, Event> = {
   error: ExtractErrorType<T> | null;
   extra: ExtractAdapterExtraType<ExtractAdapterType<T>> | null;
   status: number | null;
+};
+
+/**
+ * Stop one sent request, whatever it is doing. A running request is aborted, which closes its connection.
+ * A request that waits - for a retry, for the network to come back or for its turn in a queue - has nothing to
+ * abort, so it is removed from the dispatcher to make sure it is never sent later.
+ */
+const cancelRequest = (request: RequestInstance, requestId: string) => {
+  const [dispatcher] = getRequestDispatcher(request);
+  const queryKey = scopeKey(request.queryKey, request.scope);
+  const abortKey = scopeKey(request.abortKey, request.scope);
+
+  if (dispatcher.hasRunningRequest(queryKey, requestId)) {
+    request.client.requestManager.abortByRequestId(abortKey, requestId);
+  } else {
+    dispatcher.delete(queryKey, requestId, abortKey);
+  }
 };
 
 const getInitialState = <T extends RequestInstance, Event>(): StreamState<T, Event> => ({
@@ -62,12 +79,16 @@ export const useStream = <
 
   const optionsRef = useRef(options);
   optionsRef.current = options;
+  // Requests are often created during render (`useStream(request.setParams(...))`), so their identity can't
+  // drive the callbacks or effects - a running stream has to survive re-renders. `start()` uses the latest one.
+  const requestRef = useRef(request);
+  requestRef.current = request;
 
   const state = useRef<StreamState<T, Event>>(getInitialState<T, Event>());
   const startedRef = useRef(false);
   // Every start/reset begins a new session; callbacks from older sessions are ignored
   const sessionRef = useRef(0);
-  const activeRef = useRef<{ session: number; requestId: string | null; abortKey: string } | null>(null);
+  const activeRef = useRef<{ session: number; requestId: string | null; request: RequestInstance } | null>(null);
 
   const versionRef = useRef(0);
   const listenersRef = useRef(new Set<() => void>());
@@ -92,9 +113,9 @@ export const useStream = <
     const active = activeRef.current;
     activeRef.current = null;
     if (active?.requestId) {
-      request.client.requestManager.abortByRequestId(active.abortKey, active.requestId);
+      cancelRequest(active.request, active.requestId);
     }
-  }, [request]);
+  }, []);
 
   const start = useCallback(() => {
     if (state.current.streaming) {
@@ -120,9 +141,13 @@ export const useStream = <
       parser = createNDJSONParser({ onValue: (value) => onParsedEvent(value as Event) });
     }
 
-    const streamingRequest = request.setOptions({ ...request.options, streaming: true });
-    const abortKey = scopeKey(streamingRequest.abortKey, streamingRequest.scope);
-    activeRef.current = { session, requestId: null, abortKey };
+    const latestRequest = requestRef.current;
+    // Every stream needs a request of its own: joining a running (deduplicated) request would miss the chunks
+    // that were already delivered, and would share the fate of a stream another hook or mount has aborted.
+    const streamingRequest = latestRequest
+      .setOptions({ ...latestRequest.options, streaming: true })
+      .setDeduplicate(false);
+    activeRef.current = { session, requestId: null, request: streamingRequest };
 
     // Set when the hook itself ended the stream (parse error) - the request's later abort result is ignored
     let settled = false;
@@ -139,7 +164,7 @@ export const useStream = <
             activeRef.current.requestId = requestId;
           } else {
             // Aborted or reset before the request was even queued
-            request.client.requestManager.abortByRequestId(abortKey, requestId);
+            cancelRequest(streamingRequest, requestId);
           }
         },
         onRequestStart: () => {
@@ -211,7 +236,7 @@ export const useStream = <
         state.current.done = true;
         emitChange();
       });
-  }, [request, emitChange, abortActive]);
+  }, [emitChange, abortActive]);
 
   const abort = useCallback(() => {
     if (!state.current.streaming) {
