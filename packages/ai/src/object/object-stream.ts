@@ -1,11 +1,11 @@
-import type { ExtractErrorType, RequestInstance } from "@hyper-fetch/core";
-import { scopeKey } from "@hyper-fetch/core";
+import type { ExtractErrorType, RequestInstance, StreamParserType } from "@hyper-fetch/core";
 
 import type { SchemaValidationError } from "../schema/standard-schema";
 import { validateSchema } from "../schema/standard-schema";
 import type { StandardSchemaV1 } from "../schema/standard-schema.types";
 import { generateId } from "../utils/id";
 import { parsePartialJSON } from "../utils/partial-json";
+import { cancelRequest } from "../utils/request";
 import type { DeepPartial } from "../utils/types";
 import { textObjectProtocol } from "./object.protocols";
 import type { ObjectProtocolType } from "./object.types";
@@ -60,10 +60,11 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
   private active: {
     runId: string;
     requestId: string | null;
-    abortKey: string;
     request: RequestInstance;
     aborted: boolean;
   } | null = null;
+  /** The latest submit - an older one must not write its result over it */
+  private latest: object | null = null;
 
   constructor(options: ObjectStreamOptionsType<Output, R>) {
     this.options = options;
@@ -88,6 +89,7 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
     this.listeners.forEach((listener) => listener());
   }
 
+  /** Abort the current request - also one that is still waiting for the network or for a retry. */
   stop = () => {
     const { active } = this;
     if (!active) {
@@ -95,12 +97,13 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
     }
     active.aborted = true;
     if (active.requestId) {
-      active.request.client.requestManager.abortByRequestId(active.abortKey, active.requestId);
+      cancelRequest(active.request, active.requestId);
     }
   };
 
   clear = () => {
     this.stop();
+    this.latest = null;
     this.update({ object: undefined, text: "", status: "ready", error: undefined });
   };
 
@@ -117,69 +120,104 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
 
     this.update({ object: undefined, text: "", status: "submitted", error: undefined });
 
-    const decoder = protocol.createDecoder((event) => {
-      if (this.active?.runId !== runId || this.active.aborted) {
-        return;
-      }
-      if (event.type === "text-delta") {
-        text += event.delta;
-        const { value, state } = parsePartialJSON<DeepPartial<Output>>(text);
-        const patch: Partial<ObjectStreamSnapshotType<Output, R>> = { text, status: "streaming" };
-        if ((state === "successful-parse" || state === "repaired-parse") && !isEqual(value, this.snapshot.object)) {
-          patch.object = value;
-        }
-        this.update(patch);
-      } else if (event.type === "object") {
-        received.complete = { value: event.object };
-      } else {
-        streamError = new ObjectStreamError(event.errorText);
-      }
-    });
-
-    const prepared = protocol.prepareRequest(input, { runId });
-    let request: RequestInstance = this.options.request;
-    request = request.setOptions({ ...request.options, streaming: true });
-    if (prepared.headers) {
-      request = request.setHeaders({ ...(request.headers as Record<string, string> | undefined), ...prepared.headers });
-    }
-
     const active = {
       runId,
       requestId: null as string | null,
-      abortKey: scopeKey(request.abortKey, request.scope),
-      request,
+      request: this.options.request as RequestInstance,
       aborted: false,
     };
     this.active = active;
+    this.latest = active;
 
-    const response = await request.send({
-      payload: prepared.payload,
-      onBeforeSent: ({ requestId }: { requestId: string }) => {
-        active.requestId = requestId;
-        if (active.aborted) {
-          request.client.requestManager.abortByRequestId(active.abortKey, requestId);
-        }
-      },
-      onRequestStart: () => {
-        decoder.reset();
-        text = "";
-      },
-      onResponseChunk: ({ text: chunk }: { text: string }) => {
-        if (active.aborted) {
+    let decoder: StreamParserType | null = null;
+    let responseError: unknown;
+    let failed = false;
+
+    try {
+      const streamDecoder = protocol.createDecoder((event) => {
+        if (this.active !== active || active.aborted) {
           return;
         }
-        try {
-          decoder.feed(chunk);
-        } catch (error) {
-          streamError = error as Error;
-          this.stop();
+        if (event.type === "text-delta") {
+          text += event.delta;
+          const { value, state } = parsePartialJSON<DeepPartial<Output>>(text);
+          const patch: Partial<ObjectStreamSnapshotType<Output, R>> = { text, status: "streaming" };
+          if ((state === "successful-parse" || state === "repaired-parse") && !isEqual(value, this.snapshot.object)) {
+            patch.object = value;
+          }
+          this.update(patch);
+        } else if (event.type === "object") {
+          received.complete = { value: event.object };
+        } else {
+          streamError = new ObjectStreamError(event.errorText);
         }
-      },
-    } as never);
+      });
+      decoder = streamDecoder;
+
+      const prepared = protocol.prepareRequest(input, { runId });
+      let request: RequestInstance = this.options.request;
+      request = request.setOptions({ ...request.options, streaming: true });
+      if (prepared.headers) {
+        request = request.setHeaders({
+          ...(request.headers as Record<string, string> | undefined),
+          ...prepared.headers,
+        });
+      }
+      active.request = request;
+
+      let attempts = 0;
+      const response = await request.send({
+        payload: prepared.payload,
+        onBeforeSent: ({ requestId }: { requestId: string }) => {
+          active.requestId = requestId;
+          // stop() called before the request id was known
+          if (active.aborted) {
+            cancelRequest(request, requestId);
+          }
+        },
+        onRequestStart: () => {
+          attempts += 1;
+          streamDecoder.reset();
+          if (attempts === 1 || this.active !== active || active.aborted) {
+            return;
+          }
+          // Retried requests stream again from the beginning - drop everything the failed attempt produced
+          text = "";
+          received.complete = null;
+          streamError = undefined;
+          this.update({ object: undefined, text: "", status: "submitted" });
+        },
+        onResponseChunk: ({ text: chunk }: { text: string }) => {
+          if (active.aborted) {
+            return;
+          }
+          try {
+            streamDecoder.feed(chunk);
+          } catch (error) {
+            streamError = error as Error;
+            this.stop();
+          }
+        },
+      } as never);
+      responseError = response.error;
+    } catch (error) {
+      // Building or sending the request threw (e.g. `prepareBody`) - end with that error instead of staying busy
+      failed = true;
+      streamError = streamError ?? (error as Error);
+    }
 
     if (this.active !== active) {
-      // Superseded by another submit or cleared
+      // Superseded by another submit
       return;
+    }
+
+    // Flush while the run is still active - events of a finished run are ignored
+    if (decoder && !failed && !active.aborted && !streamError && !responseError) {
+      try {
+        decoder.flush();
+      } catch (error) {
+        streamError = error as Error;
+      }
     }
     this.active = null;
 
@@ -190,11 +228,10 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
     }
 
     let error: ObjectStreamErrorType<R> | undefined =
-      streamError ?? (response.error as ObjectStreamErrorType<R> | null) ?? undefined;
+      streamError ?? (responseError as ObjectStreamErrorType<R> | null) ?? undefined;
     let object: Output | undefined;
 
     if (!error) {
-      decoder.flush();
       const parsed = received.complete
         ? { value: received.complete.value, state: "successful-parse" as const }
         : parsePartialJSON(text);
@@ -202,11 +239,20 @@ export class ObjectStream<Output, R extends RequestInstance = RequestInstance> {
       if (parsed.state !== "successful-parse") {
         error = new ObjectStreamError("The streamed text is not complete JSON");
       } else {
-        const validation = await validateSchema(this.options.schema, parsed.value, "Streamed object");
-        if (validation.success) {
-          object = validation.value as Output;
-        } else {
-          error = validation.error;
+        try {
+          const validation = await validateSchema(this.options.schema, parsed.value, "Streamed object");
+          if (validation.success) {
+            object = validation.value as Output;
+          } else {
+            error = validation.error;
+          }
+        } catch (validationError) {
+          // A schema that throws instead of returning issues
+          error = validationError as Error;
+        }
+        if (this.latest !== active) {
+          // Submitted again or cleared while an async schema was validating
+          return;
         }
       }
     }

@@ -90,9 +90,17 @@ export const useChat = <T extends ChatTypes = ChatTypes, R extends RequestInstan
 
   const resumeRef = useRef(resume);
   useEffect(() => {
-    if (resumeRef.current) {
-      chat.resumeStream().catch(() => {});
-    }
+    // Deferred so the mount that StrictMode throws away never starts a request - otherwise it would be aborted on
+    // the simulated unmount and still keep the chat busy when the real mount tries to resume
+    let shouldResume = resumeRef.current === true;
+    queueMicrotask(() => {
+      if (shouldResume) {
+        chat.resumeStream().catch(() => {});
+      }
+    });
+    return () => {
+      shouldResume = false;
+    };
   }, [chat]);
 
   // Stop streaming when the component that owns the chat unmounts

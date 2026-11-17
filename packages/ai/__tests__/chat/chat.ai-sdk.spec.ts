@@ -2,6 +2,7 @@ import type { ChatMessageType, ChatStreamEventType } from "@hyper-fetch/ai";
 import {
   aiSDKProtocol,
   aiSDKTextAnswer,
+  aiSDKTextProtocol,
   Chat,
   ChatStreamError,
   lastAssistantMessageIsCompleteWithApprovalResponses,
@@ -10,7 +11,7 @@ import {
 } from "@hyper-fetch/ai";
 import { z } from "zod";
 
-import { aiSDK, createMockedEndpoint } from "./chat.utils";
+import { aiSDK, createMockedEndpoint, unterminated } from "./chat.utils";
 
 type WeatherChat = {
   metadata: { model: string };
@@ -498,6 +499,177 @@ describe("Chat [ AI SDK protocol ]", () => {
     expect(textOf(chat.messages[1])).toBe("Fresh answer");
   });
 
+  it("should not let a stream error from a failed attempt fail the retried answer", async () => {
+    const { request, calls } = createMockedEndpoint([
+      {
+        error: { message: "dropped" },
+        status: 500,
+        chunks: encodeChunks([{ type: "start" }, { type: "error", errorText: "boom" }]),
+      },
+      aiSDK(aiSDKTextAnswer("Fresh answer")),
+    ]);
+    const onError = vi.fn();
+    const onFinish = vi.fn();
+    const chat = new Chat({
+      request: request.setRetry(1).setRetryTime(0),
+      protocol: aiSDKProtocol(),
+      onError,
+      onFinish,
+    });
+
+    await chat.sendMessage("go");
+
+    expect(calls).toHaveLength(2);
+    expect(chat.status).toBe("ready");
+    expect(chat.error).toBeUndefined();
+    expect(onError).not.toHaveBeenCalled();
+    expect(onFinish).toHaveBeenCalledTimes(1);
+    expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({ isError: false, finishReason: "stop" }));
+    expect(textOf(chat.messages[1])).toBe("Fresh answer");
+  });
+
+  it("should keep the last event when the stream ends without a final blank line", async () => {
+    const chunks = unterminated(
+      encodeChunks([
+        { type: "start" },
+        { type: "start-step" },
+        { type: "text-start", id: "t1" },
+        { type: "text-delta", id: "t1", delta: "Hello" },
+        { type: "text-delta", id: "t1", delta: " world" },
+      ]),
+    );
+    const { request } = createMockedEndpoint([{ chunks }]);
+    const chat = new Chat({ request, protocol: aiSDKProtocol() });
+
+    await chat.sendMessage("go");
+
+    expect(chat.status).toBe("ready");
+    expect(textOf(chat.messages[1])).toBe("Hello world");
+  });
+
+  it("should report the finish reason when the finish event is not terminated", async () => {
+    const chunks = unterminated(encodeChunks(aiSDKTextAnswer("Hello world")));
+    const { request } = createMockedEndpoint([{ chunks }]);
+    const onFinish = vi.fn();
+    const chat = new Chat({ request, protocol: aiSDKProtocol(), onFinish });
+
+    await chat.sendMessage("go");
+
+    expect(onFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ finishReason: "stop", isError: false, isAbort: false }),
+    );
+  });
+
+  it("should run a client tool whose call is the last, unterminated event", async () => {
+    const chunks = unterminated(
+      encodeChunks([
+        { type: "start" },
+        { type: "start-step" },
+        { type: "tool-input-available", toolCallId: "call-1", toolName: "getWeather", input: { city: "Oslo" } },
+      ]),
+    );
+    const { request, calls } = createMockedEndpoint([{ chunks }, aiSDK(aiSDKTextAnswer("It is 7 degrees"))]);
+    const execute = vi.fn(async () => ({ temperature: 7 }));
+    const chat = new Chat<WeatherChat>({
+      request,
+      protocol: aiSDKProtocol(),
+      tools: { getWeather: { execute } },
+      sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    });
+
+    await chat.sendMessage("Weather?");
+    await vi.waitFor(() => expect(calls).toHaveLength(2));
+    await vi.waitFor(() => expect(chat.status).toBe("ready"));
+
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledWith({ city: "Oslo" }, { toolCallId: "call-1" });
+    expect(textOf(chat.messages[1])).toBe("It is 7 degrees");
+  });
+
+  it("should finish a plain text stream with its closing events", async () => {
+    const { request } = createMockedEndpoint([{ chunks: ["Hel", "lo"] }]);
+    const events: ChatStreamEventType[] = [];
+    const onFinish = vi.fn();
+    const chat = new Chat({
+      request,
+      protocol: aiSDKTextProtocol(),
+      onFinish,
+      onEvent: (event) => events.push(event),
+    });
+
+    await chat.sendMessage("hi");
+
+    expect(textOf(chat.messages[1])).toBe("Hello");
+    expect(events.slice(-3)).toEqual([
+      { type: "text-end", id: "text-1" },
+      { type: "step-finish" },
+      { type: "finish", finishReason: "stop" },
+    ]);
+    expect(onFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ finishReason: "stop", isError: false, isAbort: false }),
+    );
+  });
+
+  it("should fail the request instead of staying busy when the body can't be built", async () => {
+    const { request, calls } = createMockedEndpoint([aiSDK(aiSDKTextAnswer("Recovered"))]);
+    const failure = new Error("No session");
+    let shouldFail = true;
+    const onError = vi.fn();
+    const onFinish = vi.fn();
+    const chat = new Chat({
+      request,
+      protocol: aiSDKProtocol(),
+      body: () => {
+        if (shouldFail) {
+          throw failure;
+        }
+        return {};
+      },
+      onError,
+      onFinish,
+    });
+
+    await chat.sendMessage("Hi");
+
+    expect(calls).toHaveLength(0);
+    expect(chat.status).toBe("error");
+    expect(chat.error).toBe(failure);
+    expect(chat.messages).toHaveLength(1);
+    expect(onError).toHaveBeenCalledWith(failure);
+    expect(onFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ isError: true, isAbort: false, message: undefined }),
+    );
+
+    shouldFail = false;
+    await chat.sendMessage();
+
+    expect(calls).toHaveLength(1);
+    expect(chat.status).toBe("ready");
+    expect(chat.error).toBeUndefined();
+    expect(textOf(chat.messages[1])).toBe("Recovered");
+  });
+
+  it("should fail the request when the protocol can't prepare it", async () => {
+    const { request, calls } = createMockedEndpoint([aiSDK(aiSDKTextAnswer("unused"))]);
+    const chat = new Chat({
+      request,
+      protocol: aiSDKProtocol({
+        prepareBody: () => {
+          throw new Error("Bad body");
+        },
+      }),
+    });
+
+    await chat.sendMessage("Hi");
+
+    expect(calls).toHaveLength(0);
+    expect(chat.status).toBe("error");
+    expect((chat.error as Error).message).toBe("Bad body");
+
+    chat.clearError();
+    expect(chat.status).toBe("ready");
+  });
+
   it("should resume a running stream with the resume request", async () => {
     const { request } = createMockedEndpoint([aiSDK([])]);
     const resume = createMockedEndpoint([aiSDK(aiSDKTextAnswer("Resumed"))]);
@@ -533,6 +705,6 @@ describe("Chat [ AI SDK protocol ]", () => {
   });
 });
 
-function encodeChunks(chunks: { type: string }[]) {
+function encodeChunks(chunks: { type: string; [key: string]: unknown }[]) {
   return chunks.map((chunk) => `data: ${JSON.stringify(chunk)}\n\n`);
 }

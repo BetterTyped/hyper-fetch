@@ -49,3 +49,16 @@ export const createMockedEndpoint = (
 };
 
 export const aiSDK = (chunks: AISDKStreamChunkType[]) => ({ chunks: encodeAISDKStream(chunks) });
+
+/** Drop the line ending of the last chunk - like a server that closes the stream without terminating the last event. */
+export const unterminated = (chunks: string[]) =>
+  chunks.map((chunk, index) => (index === chunks.length - 1 ? chunk.trimEnd() : chunk));
+
+/** A promise resolved from the outside, to hold a tool or a callback until the test decides to continue. */
+export const deferred = <T = void>() => {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+};

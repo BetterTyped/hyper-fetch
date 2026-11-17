@@ -9,7 +9,7 @@ import {
   tanstackAIProtocol,
 } from "@hyper-fetch/ai";
 
-import { createMockedEndpoint } from "./chat.utils";
+import { createMockedEndpoint, unterminated } from "./chat.utils";
 
 const agui = (events: AGUIStreamEventType[], framing: "sse" | "ndjson" = "sse") => ({
   chunks: encodeAGUIStream(events, { framing }),
@@ -450,5 +450,88 @@ describe("Chat [ TanStack AI protocol ]", () => {
         metadata: { tanstack: { state: "output-error" } },
       },
     ]);
+  });
+
+  it("should keep the last NDJSON event when the stream ends without a newline", async () => {
+    const chunks = unterminated(
+      encodeAGUIStream(
+        [
+          { type: "RUN_STARTED", threadId: "thread-1", runId: "r" },
+          ...aguiTextAnswer("Done").slice(1, -1),
+          { type: "RUN_FINISHED", threadId: "thread-1", runId: "r", usage: [{ inputTokens: 4, outputTokens: 1 }] },
+        ],
+        { framing: "ndjson" },
+      ),
+    );
+    const { request } = createMockedEndpoint([{ chunks }]);
+    const onFinish = vi.fn();
+    const chat = new Chat<AgentChat>({ request, protocol: aguiProtocol(), onFinish });
+
+    await chat.sendMessage("Go");
+
+    expect(chat.status).toBe("ready");
+    expect(chat.getSnapshot().usage).toEqual({ inputTokens: 4, outputTokens: 1 });
+    expect(onFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ finishReason: "stop", usage: { inputTokens: 4, outputTokens: 1 } }),
+    );
+  });
+
+  it("should roll the shared state back when the request retries", async () => {
+    const { request, calls } = createMockedEndpoint([
+      {
+        error: { message: "dropped" },
+        status: 500,
+        chunks: encodeAGUIStream([
+          { type: "RUN_STARTED", threadId: "thread-1", runId: "r" },
+          { type: "STATE_DELTA", delta: [{ op: "add", path: "/todos/-", value: "write tests" }] },
+          { type: "STATE_DELTA", delta: [{ op: "replace", path: "/step", value: "broken" }] },
+        ]),
+      },
+      agui([
+        { type: "RUN_STARTED", threadId: "thread-1", runId: "r" },
+        { type: "STATE_DELTA", delta: [{ op: "add", path: "/todos/-", value: "write tests" }] },
+        ...aguiTextAnswer("Planned").slice(1),
+      ]),
+    ]);
+    const chat = new Chat<AgentChat>({
+      request: request.setRetry(1).setRetryTime(0),
+      protocol: aguiProtocol(),
+      state: { todos: [], step: "plan" },
+    });
+
+    await chat.sendMessage("Plan");
+
+    expect(calls).toHaveLength(2);
+    expect(chat.status).toBe("ready");
+    expect(chat.state).toEqual({ todos: ["write tests"], step: "plan" });
+  });
+
+  it("should keep interrupt answers and the run chain when the request can't be built", async () => {
+    const { request, calls } = createMockedEndpoint([agui(aguiTextAnswer("Continued"))]);
+    let shouldFail = true;
+    const chat = new Chat<AgentChat>({
+      request,
+      protocol: aguiProtocol(),
+      body: () => {
+        if (shouldFail) {
+          throw new Error("No session");
+        }
+        return {};
+      },
+    });
+
+    chat.resolveInterrupt({ interruptId: "int-1", payload: { ok: true } });
+    await chat.sendMessage("Go on");
+
+    expect(calls).toHaveLength(0);
+    expect(chat.status).toBe("error");
+
+    shouldFail = false;
+    await chat.sendMessage();
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].payload.resume).toEqual([{ interruptId: "int-1", status: "resolved", payload: { ok: true } }]);
+    expect(calls[0].payload).not.toHaveProperty("parentRunId");
+    expect(chat.status).toBe("ready");
   });
 });

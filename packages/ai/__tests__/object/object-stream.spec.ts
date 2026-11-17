@@ -9,6 +9,8 @@ import {
 import { Client } from "@hyper-fetch/core";
 import { z } from "zod";
 
+import { unterminated } from "../chat/chat.utils";
+
 const fast = { requestTime: 0, responseTime: 0 };
 const schema = z.object({ title: z.string(), tags: z.array(z.string()) });
 
@@ -174,6 +176,35 @@ describe("ObjectStream", () => {
       const payload = calls[0].payload as { messages: { role: string; content: string }[]; runId: string };
       expect(payload.messages).toEqual([expect.objectContaining({ role: "user", content: '{"topic":"ai"}' })]);
       expect(calls[0].headers).toMatchObject({ "X-Run-Id": payload.runId });
+    });
+
+    it("should use the completed object when it is the last, unterminated NDJSON line", async () => {
+      const chunks = unterminated(encodeAGUIStream(events.slice(0, -1), { framing: "ndjson" }));
+      const { request } = createRequest(chunks);
+      const stream = new ObjectStream({ request, schema, protocol: aguiObjectProtocol() });
+
+      await stream.submit({ topic: "ai" });
+
+      expect(stream.getSnapshot()).toMatchObject({
+        object: { title: "TanStack", tags: ["ai", "final"] },
+        status: "ready",
+        error: undefined,
+      });
+    });
+
+    it("should fail instead of staying busy when the stream ends with a broken line", async () => {
+      const onError = vi.fn();
+      const onFinish = vi.fn();
+      const chunks = [...encodeAGUIStream(events.slice(0, 4), { framing: "ndjson" }), '{"type":"TEXT_MESS'];
+      const { request } = createRequest(chunks);
+      const stream = new ObjectStream({ request, schema, protocol: aguiObjectProtocol(), onError, onFinish });
+
+      await stream.submit({ topic: "ai" });
+
+      expect(stream.getSnapshot().status).toBe("error");
+      expect((stream.getSnapshot().error as Error).message).toContain("Invalid NDJSON line");
+      expect(onError).toHaveBeenCalledTimes(1);
+      expect(onFinish).toHaveBeenCalledWith({ object: undefined, error: stream.getSnapshot().error });
     });
 
     it("should report RUN_ERROR", async () => {

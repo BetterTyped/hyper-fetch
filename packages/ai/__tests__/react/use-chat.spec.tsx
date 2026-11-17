@@ -133,6 +133,41 @@ describe("useChat", () => {
     expect(result.current.messages[0].parts.find((part) => part.type === "text")).toMatchObject({ text: "resumed" });
   });
 
+  it("should resume a stream on mount under StrictMode", async () => {
+    const request = createRequest([encodeAISDKStream([])]);
+    const resumed = createRequest([encodeAISDKStream(aiSDKTextAnswer("resumed"))], { chunkTime: 1 });
+    const resumeRequest = vi.fn(() => resumed);
+    const { result } = renderHook(() => useChat({ request, resumeRequest, protocol: aiSDKProtocol(), resume: true }), {
+      wrapper: StrictMode,
+    });
+
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+
+    expect(result.current.messages[0].parts.find((part) => part.type === "text")).toMatchObject({ text: "resumed" });
+    // The mount StrictMode throws away must not send a request of its own
+    expect(resumeRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("should not resume when the component unmounts right after mounting", async () => {
+    const request = createRequest([encodeAISDKStream([])]);
+    const resumed = createRequest([encodeAISDKStream(aiSDKTextAnswer("resumed"))]);
+    const resumeRequest = vi.fn(() => resumed);
+    const { result, unmount } = renderHook(() =>
+      useChat({ request, resumeRequest, protocol: aiSDKProtocol(), resume: true }),
+    );
+    const { chat } = result.current;
+
+    unmount();
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(resumeRequest).not.toHaveBeenCalled();
+    expect(chat.status).toBe("ready");
+    expect(chat.messages).toEqual([]);
+  });
+
   it("should work under StrictMode", async () => {
     const request = createRequest([encodeAISDKStream(aiSDKTextAnswer("strict"))]);
     const { result } = renderHook(() => useChat({ request, protocol: aiSDKProtocol() }), { wrapper: StrictMode });
