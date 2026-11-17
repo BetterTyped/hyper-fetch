@@ -1,4 +1,4 @@
-import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
+import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, ProgressType, AdapterInstance } from "adapter";
 import { getErrorMessage, RequestProcessingError } from "adapter";
 import type { LoggerMethods } from "managers";
 import type { RequestInstance, ProgressEventType } from "request";
@@ -38,8 +38,12 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Progress
   let requestTotal = 1;
   let responseTotal = 1;
-  let previousRequestTotal = 0;
-  let previousResponseTotal = 0;
+  // Last emitted progress - an identical update is not emitted again
+  let previousRequestProgress: { total: number; loaded: number } | null = null;
+  let previousResponseProgress: { total: number; loaded: number } | null = null;
+
+  const isSameProgress = (previous: { total: number; loaded: number } | null, next: ProgressType) =>
+    !!previous && previous.total === next.total && previous.loaded === next.loaded;
 
   // Pre request modifications
   logger.debug({
@@ -89,7 +93,9 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Progress
 
   const getTotal = (previousTotal: number, progress?: ProgressDataType) => {
-    if (!progress) {return previousTotal;}
+    if (!progress) {
+      return previousTotal;
+    }
     const total = Number(progress.total || 0);
     const loaded = Number(progress.loaded || 0);
     return Math.max(total, loaded, previousTotal);
@@ -102,8 +108,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
-    if (previousRequestTotal !== 100) {
-      previousRequestTotal = progress.total;
+    if (!isSameProgress(previousRequestProgress, progress)) {
+      previousRequestProgress = { total: progress.total, loaded: progress.loaded };
       requestManager.events.emitUploadProgress({ ...progress, requestId, request });
     }
   };
@@ -115,8 +121,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
-    if (previousResponseTotal !== 100) {
-      previousResponseTotal = progress.total;
+    if (!isSameProgress(previousResponseProgress, progress)) {
+      previousResponseProgress = { total: progress.total, loaded: progress.loaded };
       requestManager.events.emitDownloadProgress({ ...progress, requestId, request });
     }
   };
