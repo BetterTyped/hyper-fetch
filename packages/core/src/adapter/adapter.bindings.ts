@@ -238,29 +238,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   let chunkLoaded = 0;
   let chunkDecoder: TextDecoder | null = null;
   let chunkEncoder: TextEncoder | null = null;
+  // Set by the abort listener - an aborted request must not report chunks anymore
+  let isAborted = false;
 
-  /**
-   * Report one chunk of a streamed response body. Call it for every chunk, before `onResponseEnd` and
-   * `onSuccess`/`onError` - the request resolves only once the whole body has been read.
-   */
-  const onResponseChunk = (value: Uint8Array | string) => {
-    if (!responseStartTimestamp) {
-      responseStartTimestamp = Date.now();
-    }
-
-    let chunk: Uint8Array;
-    let text: string;
-
-    if (typeof value === "string") {
-      chunkEncoder = chunkEncoder || new TextEncoder();
-      chunk = chunkEncoder.encode(value);
-      text = value;
-    } else {
-      chunkDecoder = chunkDecoder || new TextDecoder();
-      chunk = value;
-      text = chunkDecoder.decode(value, { stream: true });
-    }
-
+  const emitResponseChunk = (chunk: Uint8Array, text: string) => {
     chunkLoaded += chunk.byteLength;
     const index = chunkIndex;
     chunkIndex += 1;
@@ -279,6 +260,38 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
         loaded: chunkLoaded,
       },
     });
+  };
+
+  /**
+   * Text of the bytes the streaming decoder still holds back - the beginning of a multi-byte character whose
+   * remaining bytes did not arrive. Reading it resets the decoder.
+   */
+  const flushChunkDecoder = () => {
+    return chunkDecoder ? chunkDecoder.decode() : "";
+  };
+
+  /**
+   * Report one chunk of a streamed response body. Call it for every chunk, before `onResponseEnd` and
+   * `onSuccess`/`onError` - the request resolves only once the whole body has been read.
+   */
+  const onResponseChunk = (value: Uint8Array | string) => {
+    // The adapter may still hold a chunk it read right before the abort (e.g. aborted from a progress listener)
+    if (isAborted) {
+      return Date.now();
+    }
+
+    if (!responseStartTimestamp) {
+      responseStartTimestamp = Date.now();
+    }
+
+    if (typeof value === "string") {
+      chunkEncoder = chunkEncoder || new TextEncoder();
+      // A string can't complete a character left unfinished by the previous byte chunk
+      emitResponseChunk(chunkEncoder.encode(value), flushChunkDecoder() + value);
+    } else {
+      chunkDecoder = chunkDecoder || new TextDecoder();
+      emitResponseChunk(value, chunkDecoder.decode(value, { stream: true }));
+    }
 
     return Date.now();
   };
@@ -286,6 +299,13 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   const onResponseEnd = () => {
     if (!responseStartTimestamp) {
       responseStartTimestamp = Date.now();
+    }
+
+    // A body that ends in the middle of a multi-byte character still has bytes waiting in the decoder.
+    // Emit their text as a last chunk without bytes, so the joined chunk texts always equal the decoded body.
+    const pendingText = flushChunkDecoder();
+    if (pendingText && !isAborted) {
+      emitResponseChunk(new Uint8Array(0), pendingText);
     }
 
     const progressTimestamp = Date.now();
@@ -427,6 +447,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     }
 
     const abort = () => {
+      isAborted = true;
       onAbortError({ status, extra });
       onAbort();
       requestManager.events.emitAbort({ requestId, request });

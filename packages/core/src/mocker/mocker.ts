@@ -4,9 +4,12 @@ import type { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
 const joinChunks = (chunks: (string | Uint8Array)[]): unknown => {
   const decoder = new TextDecoder();
+  // Same decoding as the response-chunk events: a string can't complete a character left unfinished by the
+  // previous byte chunk, and whatever is still unfinished at the end is flushed.
   const text =
-    chunks.map((chunk) => (typeof chunk === "string" ? chunk : decoder.decode(chunk, { stream: true }))).join("") +
-    decoder.decode();
+    chunks
+      .map((chunk) => (typeof chunk === "string" ? decoder.decode() + chunk : decoder.decode(chunk, { stream: true })))
+      .join("") + decoder.decode();
 
   try {
     return JSON.parse(text);
@@ -52,7 +55,9 @@ export const mocker = async <T extends AdapterInstance>({
   const { chunks } = result as { chunks?: (string | Uint8Array)[] };
   let { data } = result as { data?: unknown };
 
-  if (chunks && data === undefined) {
+  // Only a successful mock gets its data from the chunks. A failed one (`success: false`) streams its chunks
+  // and then fails, like a response that breaks in the middle of the body.
+  if (chunks && data === undefined && success) {
     data = joinChunks(chunks);
   }
 
