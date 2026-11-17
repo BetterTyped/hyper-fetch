@@ -16,7 +16,6 @@ export const mocker = async <T extends AdapterInstance>({
   onBeforeRequest,
   onRequestStart,
   onSuccess,
-  onAbortError,
   adapter,
 }: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
   if (!request.unstable_mock) {
@@ -83,8 +82,9 @@ export const mocker = async <T extends AdapterInstance>({
       }, interval);
     });
 
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
   if (typeof timeout === "number") {
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       thrown = true;
       onTimeoutError({
         status: 0 as ExtractAdapterStatusType<T>,
@@ -102,12 +102,12 @@ export const mocker = async <T extends AdapterInstance>({
   if (!thrown) {
     await progress(responseTime, totalDownloaded, onResponseProgress);
   }
+  clearTimeout(timeoutId);
+  // An abort or a timeout was already reported when it happened
   if (thrown) {
-    onAbortError({
-      status: adapter.systemErrorStatus,
-      extra: adapter.systemErrorExtra,
-    });
-  } else if (success || (error && data)) {
+    return;
+  }
+  if (success || (error && data)) {
     onSuccess({
       data,
       error,
@@ -121,7 +121,5 @@ export const mocker = async <T extends AdapterInstance>({
       extra: extra as ExtractAdapterExtraType<T>,
     });
   }
-  if (!thrown) {
-    onResponseEnd();
-  }
+  onResponseEnd();
 };
