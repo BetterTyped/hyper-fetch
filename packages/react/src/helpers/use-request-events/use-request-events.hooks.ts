@@ -24,6 +24,7 @@ import type {
   UseRequestEventsLifecycleMap,
 } from "helpers";
 import { useRef } from "react";
+import { isSameScope } from "utils/scope.utils";
 
 /**
  * This is helper hook that handles main Hyper-Fetch event/data flow
@@ -83,6 +84,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   // Optimistic state
   // ******************
 
+  // Rollback and invalidation are settled by the core - here we only deliver the context to the callbacks
   const optimisticResultsRef = useRef<Map<string, OptimisticCallbackResult<any>>>(new Map());
 
   // ******************
@@ -94,37 +96,24 @@ export const useRequestEvents = <R extends RequestInstance>({
     const { isOffline, isCanceled, willRetry } = values.details;
     const opt = optimisticResultsRef.current.get(values.requestId);
     const paramsWithContext = { ...values, mutationContext: opt?.context } as any;
+    const isOfflineError = request.offline && isOffline && !success;
 
-    if (request.offline && isOffline && !success) {
+    if (isOfflineError) {
       logger.debug({ title: "Performing offline error callback", type: "system", extra: values });
       onOfflineErrorCallback.current?.(paramsWithContext);
     } else if (isCanceled) {
       logger.debug({ title: "Performing abort callback", type: "system", extra: values });
-      try {
-        opt?.rollback?.();
-      } catch {
-        // rollback threw — onAbort still fires
-      }
       onAbortCallback.current?.(paramsWithContext);
     } else if (success) {
       logger.debug({ title: "Performing success callback", type: "system", extra: values });
-      if (opt?.invalidate) {
-        opt.invalidate.forEach((req) => cache.invalidate(req));
-      }
       onSuccessCallback.current?.(paramsWithContext);
     } else {
       logger.debug({ title: "Performing error callback", type: "system", extra: values });
-      if (!willRetry) {
-        try {
-          opt?.rollback?.();
-        } catch {
-          // rollback threw — onError still fires
-        }
-      }
       onErrorCallback.current?.(paramsWithContext);
     }
     onFinishedCallback.current?.(paramsWithContext);
-    if (!willRetry) {
+    // Retried and offline requests respond again, their callbacks still need the context
+    if (!willRetry && (!isOfflineError || isCanceled)) {
       optimisticResultsRef.current.delete(values.requestId);
     }
   };
@@ -134,12 +123,19 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const handleGetLoadingEvent = (req: R) => {
-    return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
+    return ({ loading, request: eventRequest }: RequestLoadingEventType<RequestInstance>) => {
+      // Loading events are emitted by the logical queryKey - skip requests of other scopes
+      if (!isSameScope(eventRequest.scope, req.scope)) {
+        return;
+      }
+
       const isProcessing = getIsDataProcessing(req.cacheKey);
 
       // When we process the cache data, we don't want to change the loading state during it
       // This prevents the UI from flickering with { data: null, loading: false }
-      if (isProcessing) {return;}
+      if (isProcessing) {
+        return;
+      }
 
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
       if (loading || canDisableLoading) {
@@ -186,15 +182,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   };
 
   const handleRemove = ({ requestId }: RequestEventType<R>) => {
-    const opt = optimisticResultsRef.current.get(requestId);
-    if (opt) {
-      try {
-        opt.rollback?.();
-      } catch {
-        // swallow — queue removal rollback failure
-      }
-      optimisticResultsRef.current.delete(requestId);
-    }
+    optimisticResultsRef.current.delete(requestId);
     removeLifecycleListener(requestId);
   };
 
@@ -209,15 +197,18 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(
-      scopeKey(req.queryKey, req.scope),
-      handleGetLoadingEvent(req),
-    );
+    // Core emits these events by the logical keys; the handlers skip events of other scopes
+    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
       ExtractAdapterType<R>
-    >(req.cacheKey, setCacheData);
+    >(req.cacheKey, (cacheData) => {
+      if (!isSameScope(cacheData.scope, req.scope)) {
+        return;
+      }
+      setCacheData(cacheData);
+    });
 
     const unmount = () => {
       loadingUnmount();
