@@ -1,111 +1,79 @@
 ---
-description: Commit message conventions for Nx Release and auto-closing GitHub issues
+description: Commit message format, which commit types publish to npm, and how to reference issues
 alwaysApply: true
 ---
 
 # Commit conventions
 
-This project uses **Nx Release** (`scripts/release.mjs`) with **conventional commits**
-(`@commitlint/config-conventional`). Every public package is released under one shared version. Every commit message
-must follow the format below so releases are automated and issues are auto-closed when the PR merges.
+Releases are automated by **Nx Release** (`scripts/release.mjs`), and messages are checked by commitlint
+(`@commitlint/config-conventional`). **The commit type decides whether npm gets a new version.**
 
 ## Format
 
 ```
-<type>(<scope>): <subject>
+<type>(<scope>): <gitmoji> <subject>
 
 <body>
 
 <footer>
 ```
 
-### Types (from `release` in `nx.json`)
+- Subject is imperative and lowercase: `fix(react): 🐛 keep data while revalidating`.
+- Header and body lines stay within 100 characters.
+- Explain why in the body when the reason is not obvious from the subject.
 
-A commit only counts when it changes files inside a released package.
+## Types and release impact
 
-| Type                | Release  | When to use                  |
-| ------------------- | -------- | ---------------------------- |
-| `feat`              | minor    | New feature / capability     |
-| `fix`               | patch    | Bug fix                      |
-| `perf`              | patch    | Performance improvement      |
-| `revert`            | patch    | Reverting an earlier commit  |
-| `refactor`          | **none** | Code change, same behavior   |
-| `test`              | **none** | Adding / updating tests only |
-| `docs`              | **none** | Documentation only           |
-| `chore`, `ci`       | **none** | Build, CI, tooling           |
+| Type       | Gitmoji | Release   | Use for                                 |
+| ---------- | ------- | --------- | --------------------------------------- |
+| `feat`     | 🎸      | **minor** | New capability in a published package   |
+| `fix`      | 🐛      | **patch** | Bug fix in a published package          |
+| `perf`     | ⚡️      | **patch** | Performance improvement                 |
+| `revert`   | ⏪      | **patch** | Reverting an earlier commit             |
+| `docs`     | ✏️      | none      | Documentation, READMEs and agent rules  |
+| `test`     | 💍      | none      | Tests only                              |
+| `refactor` | 💡      | none      | Behavior-preserving restructuring       |
+| `style`    | 💄      | none      | Formatting and visual changes           |
+| `chore`    | 🤖      | none      | Tooling, dependencies and housekeeping  |
+| `ci`       | 🎡      | none      | CI configuration                        |
 
-### Documentation changes — use `docs`, not `fix`
+A `!` after the type or a `BREAKING CHANGE:` footer publishes a **major** version, whatever the type. Never write that
+phrase in a commit body unless the change is breaking.
 
-Changes inside the `documentation/` directory (docs site code, MDX files, doc components, etc.) must use the `docs`
-type, even when fixing a bug in documentation code. Using `fix` would trigger a patch release and bump package versions,
-which is wrong for doc-only changes. Reserve `fix` for bugs in published library packages.
+Releases are repo-wide. One `fix` in any released package publishes every package at the same version. A commit only
+counts when it changes files inside a released package.
 
-### BREAKING CHANGE
+### Choosing the type
 
-Append `!` after type or add `BREAKING CHANGE:` in the footer → **major** release.
+- Anything inside `documentation/` is `docs`, even when it fixes a bug in the docs site code.
+- Fixing a flaky test is `test`, because users receive nothing new.
+- Use `fix` or `feat` only when the published output of a package changes for users.
+- A push to `main` also releases any earlier unreleased `feat` or `fix` commits, so a `docs` merge is only release-free
+  when nothing is pending. Check before merging:
 
-## Issue references — auto-close on merge
-
-GitHub resolves issues listed with
-[closing keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
-in the commit body or footer. **Every bug-fix commit must reference all related issue numbers** (primary + duplicates
-from `docs/bugs/*.md`) so they auto-close when the commit reaches the default branch.
-
-### Rules
-
-1. **Footer** — Use `Closes #NNN` (or `Fixes #NNN`) for the primary issue. Add every deduped issue on the same line or
-   subsequent lines:
-
-   ```
-   fix(pan): stop velocity from being disabled at scale <= 1
-
-   The velocity calculation guard rejected all scales not strictly greater
-   than 1, preventing inertia at the default zoom level.
-
-   Closes #363
-   Closes #433
-   ```
-
-2. **Multiple issues in one commit** — List each on its own `Closes` line. Do **not** comma-separate them
-   (`Closes #1, #2` only closes #1 on some parsers).
-
-3. **Feature requests** — Use `Closes` when the commit fully implements the request. Use `Ref #NNN` (no closing keyword)
-   when partially addressed.
-
-4. **Regression test commits** — Reference the issue but do **not** close it (the fix commit closes it):
-
-   ```
-   test(pan): add regression for velocity at scale <= 1
-
-   Ref #363
-   ```
-
-5. **Scope** — Use the library area: `pan`, `zoom`, `pinch`, `bounds`, `controls`, `animation`, `css`, `build`, `api`,
-   `minimap`.
-
-## Examples
-
-```
-fix(zoom): fire onZoom callbacks from programmatic zoomIn/zoomOut
-
-Programmatic methods now emit the same callback sequence as user-driven
-gestures.
-
-Closes #369
-Closes #259
-Closes #305
+```bash
+git log --no-merges --format='%h %s' "$(git describe --tags --abbrev=0 origin/main)..origin/main"
 ```
 
-```
-feat(controls): add directional pan buttons to Controls component
+## Scopes
 
-Closes #527
-Closes #326
-```
+Use the package or area: `core`, `react`, `sockets`, `axios`, `graphql`, `firebase`, `firebase-admin`, `cli`, `testing`,
+`devtools`, `eslint`, `hyper-flow`, `cache`, `build`, `ci`. Omit the scope when a change spans the repo.
+
+## Issue references
+
+Reference every related issue so it closes when the commit reaches the default branch.
+
+1. Put each issue on its own footer line. `Closes #1, #2` is not parsed reliably.
+2. Use `Closes #NNN` when the commit fully resolves the issue, and `Ref #NNN` when it only partly addresses it.
+3. Regression test commits use `Ref #NNN`. The fix commit closes the issue.
 
 ```
-fix(build): include src/ in published package for source maps
+fix(core): 🐛 keep reporting progress for transfers of 100 bytes
 
-Closes #529
-Closes #542
+The progress calculation treated a completed small transfer as finished before the last event
+was emitted.
+
+Closes #363
+Closes #433
 ```

@@ -1,0 +1,74 @@
+---
+description: How to design HyperFetch library code - public API principles, deep modules, error flow and self-review smells
+globs: packages/*/src/**/*.ts,packages/*/src/**/*.tsx
+alwaysApply: false
+---
+
+# Library design
+
+## Public API principles
+
+Check every proposal against these before writing it.
+
+- **Stay agnostic.** Hooks and classes expose state and actions. They do not know about the DOM, scroll position or a UI
+  framework's layout.
+- **Explicit over inferred.** When inference can be wrong, let the user state the intent. Optimistic rollback is written
+  by hand and run by core, not diffed by the library.
+- **Reuse existing building blocks.** Extend `createSdk`, adapters and plugins before adding a parallel API.
+- **Keep options where they are used.** Configuration for one hook belongs on that hook, not on the request or client.
+- **Callbacks take one destructured object**: `({ data, response, request }) => {}`. New fields stay non-breaking.
+- **Flexible at the edges.** When a real use case needs variation, offer presets plus a custom strategy as the escape
+  hatch rather than a closed list of modes.
+- **Types are API.** A change that narrows a public type is breaking, even when runtime behavior is the same.
+
+Changes to the dispatcher, request lifecycle or cache touch every package. They need a strong reason and tests at the
+package level and in the dependents.
+
+## Deep modules
+
+Prefer a lot of behavior behind a small interface.
+
+- Fewer functions with real behavior beat many thin pass-through helpers.
+- **Deletion test**: if deleting a helper only inlines one line at each call site, delete it. If deleting it scatters
+  real complexity across callers, it earns its place.
+
+## No speculative generality
+
+- No parameters, options, generics or hooks without a use case that exists today.
+- No abstraction until two real call sites want it.
+- Do not scaffold empty folders or files for later.
+
+## Errors
+
+- Requests report failure through the response. Do not make `send()` reject, and do not add a new throwing path to the
+  request lifecycle.
+- Never swallow an error. A `catch` that only logs is wrong.
+- A `catch` is justified when it converts the failure into a response, cleans up and rethrows, or keeps an optional
+  capability such as persistent storage from taking down the request.
+- Every listener, timer and subscription a module starts must have a matching cleanup.
+
+## Module layout
+
+Follow the existing shape of a module:
+
+```txt
+packages/core/src/cache/
+  cache.ts            # implementation
+  cache.types.ts      # types
+  cache.utils.ts      # pure helpers
+  cache.events.ts     # event emitters
+  index.ts            # barrel
+```
+
+React hooks add `<hook>.hooks.ts` and `<hook>.constants.ts` for default options. Create a file only when it has content.
+
+## Self-review smells
+
+Scan your diff before finishing. Each is a judgement call, but be able to explain any that remain.
+
+- **Mysterious name**: the name does not say what it does. If no honest name comes, the design is murky.
+- **Duplicated logic**: the same shape in several places, especially across adapters.
+- **Data clumps**: the same fields traveling together through signatures.
+- **Primitive obsession**: a raw string standing in for a domain concept.
+- **Middle man**: a function that only delegates onward.
+- **Leak**: a subscription, timer or abort controller without cleanup.

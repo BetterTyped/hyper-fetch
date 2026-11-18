@@ -1,0 +1,33 @@
+---
+description: Bug-fixing discipline - build a failing reproduction before hypothesizing and ship every fix with a regression test. Apply whenever diagnosing or fixing a bug, failure or regression.
+alwaysApply: false
+---
+
+# Debugging discipline
+
+## Feedback loop first
+
+Before forming a theory about the cause, **build a reproduction that fails on this bug**, at the nearest seam:
+
+| Bug lives in            | Reproduce with                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| Core request lifecycle  | A spec using `createHttpMockingServer` from `@hyper-fetch/testing`                 |
+| React hooks             | A `renderHook` spec, wrapped in `StrictMode` when mounting order may matter        |
+| Sockets                 | A spec using `createWebsocketMockingServer` or `createSseMockingServer`            |
+| Public types            | A `*.types.spec.ts` assertion with `expectTypeOf` or `@ts-expect-error`            |
+| Build or packaging      | A command with known-bad output, run against the built `dist/`                     |
+
+A fix without a failing loop is a guess. If a reproduction is not possible, say so, list what was tried and ask for what
+is missing (logs, payloads, versions) instead of continuing on a hypothesis.
+
+## Fix against the loop
+
+- Test one hypothesis at a time. Do not spread speculative changes across files.
+- Fix the cause, not the symptom. Keep the assertion that exposed the bug.
+- The fix is done when the loop is green **and** the surrounding package suite still passes.
+- Search for the same pattern in sibling modules. Adapters and hooks often share a bug.
+
+## Every fix ships with a regression test
+
+The reproduction stays in the codebase. If a bug escaped, the suite had a hole, and the fix is incomplete until that hole
+is closed. For intermittent failures use the `fix-flaky-tests` skill.

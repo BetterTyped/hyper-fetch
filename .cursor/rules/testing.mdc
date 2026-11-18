@@ -1,18 +1,92 @@
 ---
-description: Testing conventions -- no as any, proper typing
-globs: "**/__tests__/**/*.ts"
+description: Testing conventions for HyperFetch packages - real code at the network boundary, determinism, type tests and what every change must cover
+globs: packages/*/__tests__/**/*.ts,packages/*/__tests__/**/*.tsx
 alwaysApply: false
 ---
 
-# Testing Conventions
+# Testing
+
+## Test real code
+
+The boundary is the network. Clients, requests, dispatchers, caches and hooks all run for real, and
+`@hyper-fetch/testing` answers at the transport level.
+
+```ts
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+describe("Request [ Sending ]", () => {
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest<{ response: { id: number } }>()({ endpoint: "/users" });
+
+  beforeAll(() => startServer());
+
+  beforeEach(() => {
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest<{ response: { id: number } }>()({ endpoint: "/users" });
+    resetMocks();
+  });
+
+  afterAll(() => stopServer());
+
+  it("should resolve with the error response", async () => {
+    mockRequest(request, { status: 400, error: { message: "Invalid" } });
+
+    const { data, error, success } = await request.send();
+
+    expect(data).toBeNull();
+    expect(error).toStrictEqual({ message: "Invalid" });
+    expect(success).toBeFalse();
+  });
+});
+```
+
+- **`vi.mock` is a last resort**, for things with no local equivalent such as interactive CLI prompts. Never mock
+  internal modules of the package under test.
+- Use `vi.fn()` for callbacks and `vi.spyOn` to observe calls. Assert behavior first and calls second.
+- Use `createWebsocketMockingServer` and `createSseMockingServer` for realtime, with `waitForConnection(socket)` before
+  emitting.
+
+## What a change must cover
+
+| Change                 | Required tests                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| Bug fix                | A regression test that failed before the fix                                     |
+| New option or method   | Default behavior, each option value, and how it combines with existing options   |
+| Public type            | `expectTypeOf` assertions and `@ts-expect-error` for inputs that must be rejected |
+| React hook             | Mount, update, unmount, re-subscribe, and `StrictMode`                           |
+| Async lifecycle        | Success, error, abort, retry and offline paths that apply                        |
+| Cross-package behavior | A spec in the dependent package as well                                          |
+
+Do not write tests that only prove a component renders, mirror the implementation line by line, or test a third-party
+library. Each test should catch a realistic regression.
+
+If behavior could be tested and you chose not to, say so and ask before finishing.
+
+## Determinism
+
+- Never rely on the default mock delay. Pass an explicit `delay` when a test needs a request to stay in flight.
+- Prefer `waitFor` over `sleep`, and fake timers over long real waits.
+- Create fixtures in `beforeEach`. Stop servers, restore timers and clear clients so nothing leaks between tests.
+- No `it.skip`, `it.only`, retries or raised timeouts. Use the `fix-flaky-tests` skill and prove new async specs with
+  repeated runs.
+
+## Conventions
+
+- Specs live in `__tests__/features/<area>/<area>.<topic>.spec.ts` and shared helpers in `__tests__/shared` or
+  `__tests__/utils`.
+- Vitest globals are enabled. Import from `vitest` only for types such as `Mock`, and for `expectTypeOf`.
+- `jest-extended` matchers are available, for example `toBeFalse()`.
+- Requests never reject, so assert on the resolved response instead of using `try/catch`.
 
 ## No `as any` in tests
 
-Tests must be fully type-safe. Using `as any` hides type errors that the tests should be catching.
+Tests must be fully type-safe. `as any` hides the type errors they should be catching.
 
-- Type function parameters explicitly instead of relying on inference through `as any`
-- If a type doesn't fit, fix the source types -- don't silence the error in tests
-- Use typed helper variables when callback parameter types can't be inferred from context
+- Type function parameters explicitly instead of relying on inference through `as any`.
+- If a type does not fit, fix the source types rather than silencing the error in the test.
+- Use typed helper variables when callback parameter types cannot be inferred from context.
 
 ```typescript
 // BAD
@@ -25,7 +99,7 @@ const configured = sdk.$configure({
   "users.$get": (request: RequestInstance) => request.setRetry(5),
 });
 
-// GOOD -- typed helper when inference is limited
+// GOOD: typed helper when inference is limited
 const configureFn: SocketSdkConfigurationValue = (instance) => instance.setOptions({ custom: true });
 const configured = sdk.$configure({ "*": configureFn });
 ```
