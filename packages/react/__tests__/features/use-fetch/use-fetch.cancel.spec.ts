@@ -31,7 +31,8 @@ describe("useFetch [ Cancel ]", () => {
   describe("given request is cancelable", () => {
     describe("when aborting request", () => {
       it("should allow to cancel the ongoing request", async () => {
-        mockRequest(request, { delay: 40 });
+        // Long enough to still be in flight when it gets aborted, also on a busy machine
+        mockRequest(request, { delay: 2000 });
         const response = renderUseFetch(request);
 
         await waitForRender();
@@ -44,7 +45,7 @@ describe("useFetch [ Cancel ]", () => {
       });
 
       it("should allow to cancel deduplicated request", async () => {
-        mockRequest(request, { delay: 100 });
+        mockRequest(request, { delay: 2000 });
         const response = renderUseFetch(request);
         await waitForRender();
         const dedupeResponse = renderUseFetch(request);

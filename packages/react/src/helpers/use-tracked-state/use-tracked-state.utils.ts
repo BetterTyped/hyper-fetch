@@ -13,7 +13,7 @@ import type {
   ExtractAdapterStatusType,
   ResponseType,
 } from "@hyper-fetch/core";
-import { scopeKey } from "@hyper-fetch/core";
+import { runResponseMapper, scopeKey } from "@hyper-fetch/core";
 import type { UseTrackedStateType } from "helpers";
 import { initialState } from "helpers";
 import type { HydratedEntry } from "hydrate/hydrate.types";
@@ -168,7 +168,7 @@ export const getInitialState = <T extends RequestInstance>({
   /** Data from the closest `Hydrate` that was not written to the cache yet */
   hydratedEntry?: NullableType<HydratedEntry>;
 }): UseTrackedStateType<T> => {
-  const { client, cacheKey, unstable_responseMapper } = request;
+  const { client, cacheKey } = request;
   const { cache } = client;
 
   const cacheData = pickInitialCacheData(
@@ -186,9 +186,8 @@ export const getInitialState = <T extends RequestInstance>({
   });
 
   if (cacheState) {
-    const mappedData = unstable_responseMapper
-      ? unstable_responseMapper(cacheState as ResponseType<any, any, ExtractAdapterType<T>>)
-      : cacheState;
+    const mappedData =
+      runResponseMapper(request, cacheState as ResponseType<any, any, ExtractAdapterType<T>>) || cacheState;
     if (mappedData instanceof Promise) {
       // For the async mapper we cannot return async values
       // So we have return the initial state instead

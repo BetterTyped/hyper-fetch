@@ -14,7 +14,6 @@
     "package:app": "pnpm electron-forge package",
     "make:app": "pnpm electron-forge make",
     "publish:app": "pnpm update:version && pnpm electron-forge publish",
-    "release": "pnpm semantic-release --extends ./release.config.js -t 'v${version}'",
     "lint": "oxlint .",
     "format": "oxfmt --write .",
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",

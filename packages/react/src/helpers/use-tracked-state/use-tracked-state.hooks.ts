@@ -9,7 +9,7 @@ import type {
   ExtractAdapterExtraType,
   ResponseType,
 } from "@hyper-fetch/core";
-import { replaceEqualDeep, scopeKey } from "@hyper-fetch/core";
+import { replaceEqualDeep, runResponseMapper, scopeKey } from "@hyper-fetch/core";
 import { useHydration } from "hydrate/hydrate";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { isEqual } from "utils";
@@ -50,7 +50,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   select,
   structuralSharing = true,
 }: UseTrackedStateProps<T, TData>): UseTrackedStateReturn<T, TData> => {
-  const { client, cacheKey, queryKey, staleTime, unstable_responseMapper } = request;
+  const { client, cacheKey, queryKey, staleTime } = request;
   const { cache } = client;
   // Cache storage and dispatcher queues are keyed with the scope of the request
   const scopedCacheKey = scopeKey(cacheKey, request.scope);
@@ -330,9 +330,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
     setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: true });
-    const data = unstable_responseMapper
-      ? unstable_responseMapper(cacheData as ResponseType<any, any, ExtractAdapterType<T>>)
-      : cacheData;
+    const data = runResponseMapper(request, cacheData as ResponseType<any, any, ExtractAdapterType<T>>) || cacheData;
 
     if (data instanceof Promise) {
       return (async () => {

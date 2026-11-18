@@ -15,9 +15,10 @@
     "lint": "nx run-many --target=lint --parallel=3 --skip-nx-cache --projects='packages/*'",
     "format": "nx run-many --target=format --parallel=3 --skip-nx-cache --projects='packages/*'",
     "typecheck": "nx run-many --target=typecheck --parallel=2 --skip-nx-cache --projects='packages/*'",
-    "release": "nx run-many --target=release --parallel=1 --skip-nx-cache --projects='packages/*'",
+    "release": "node ./scripts/release.mjs",
     "nx:upgrade": "npx nx migrate latest",
-    "update-version": "node ./scripts/update-package-version.js"
+    "update-version": "node ./scripts/update-package-version.js",
+    "test:release": "node --test scripts/release.test.mjs"
   },
   "dependencies": {
     "@nx/js": "22.6.5",
@@ -65,7 +66,6 @@
     "react-countdown": "^2.3.2",
     "react-dom": "19.2.5",
     "react-test-renderer": "18.2.0",
-    "semantic-release": "^25.0.2",
     "terminal-link": "^3.0.0",
     "typescript": "5.9.3",
     "undici": "6.19.0",

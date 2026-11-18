@@ -139,14 +139,35 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
 };
 
 /**
- * Response mappers are allowed to throw (for example to validate the data) - the thrown value becomes the error
- * of the response instead of breaking the request lifecycle.
+ * Runs the response mapper of the request. Mapper is user code running in the middle of the response handling,
+ * so its failure is logged and ends up as a failed response carrying the thrown value as the `error`.
+ * Failures are always delivered through a promise, so sync and async mappers fail the same way.
+ * @internal
+ * @param request request with the optional response mapper
+ * @param response response to be mapped
+ * @returns mapped response, promise of it for async and failed mappers, `undefined` when there is no mapper
  */
-const getMapperErrorResponse = <Request extends RequestInstance>(
+export const runResponseMapper = <Request extends RequestInstance>(
+  request: Request,
   response: ResponseType<any, any, AdapterInstance>,
-  error: unknown,
-): RequestResponseType<Request> => {
-  return { ...response, data: null, error, success: false } as RequestResponseType<Request>;
+): MappedResponse => {
+  const getFailedResponse = (error: unknown) => {
+    request.client.logger.error({
+      title: "Response mapper failed",
+      type: "system",
+      extra: { error, request, response },
+    });
+
+    return { ...response, data: null, error, success: false } as ResponseType<any, any, AdapterInstance>;
+  };
+
+  try {
+    const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+
+    return mapping instanceof Promise ? mapping.catch(getFailedResponse) : mapping;
+  } catch (error) {
+    return Promise.resolve(getFailedResponse(error));
+  }
 };
 
 /**
@@ -167,15 +188,13 @@ export const mapResponseForSend = async <Request extends RequestInstance>(
   request: Request,
   response: ResponseType<any, any, AdapterInstance>,
 ): Promise<RequestResponseType<Request>> => {
-  try {
-    const mapping = await request.unstable_responseMapper?.(
-      response as ResponseType<any, any, ExtractAdapterType<Request>>,
-    );
+  const mapping = runResponseMapper(request, response);
 
-    return (mapping || response) as RequestResponseType<Request>;
-  } catch (error) {
-    return getMapperErrorResponse<Request>(response, error);
+  if (mapping instanceof Promise) {
+    return (await mapping) as RequestResponseType<Request>;
   }
+
+  return (mapping || response) as RequestResponseType<Request>;
 };
 
 /**
@@ -272,18 +291,7 @@ export const sendRequest = async <Request extends RequestInstance>(
     const mappings = new WeakMap<RequestResponseEventType<Request>, MappedResponse>();
     const getMapping = (values: RequestResponseEventType<Request>) => {
       if (!mappings.has(values)) {
-        let mapping: MappedResponse;
-        try {
-          mapping = request.unstable_responseMapper?.(
-            values.response as ResponseType<any, any, ExtractAdapterType<Request>>,
-          );
-          if (mapping instanceof Promise) {
-            mapping = mapping.catch((error) => getMapperErrorResponse<Request>(values.response, error));
-          }
-        } catch (error) {
-          mapping = getMapperErrorResponse<Request>(values.response, error);
-        }
-        mappings.set(values, mapping);
+        mappings.set(values, runResponseMapper(request, values.response));
       }
       return mappings.get(values);
     };

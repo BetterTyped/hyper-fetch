@@ -11,7 +11,7 @@ import type {
   ResponseType,
   OptimisticCallbackResult,
 } from "@hyper-fetch/core";
-import { scopeKey } from "@hyper-fetch/core";
+import { runResponseMapper, scopeKey } from "@hyper-fetch/core";
 import type {
   OnErrorCallbackType,
   OnStartCallbackType,
@@ -189,11 +189,8 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { unstable_responseMapper } = req;
-      const data = unstable_responseMapper
-        ? unstable_responseMapper(values.response as ResponseType<any, any, ExtractAdapterType<R>>)
-        : values.response;
+      // The mapper of the listened request - it can differ from the request of the current render
+      const data = runResponseMapper(req, values.response);
 
       if (data instanceof Promise) {
         return (async () => {

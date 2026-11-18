@@ -223,7 +223,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
   private emitRemovedItems = (items: ResolvedQueueItemType[], answeredIds: string[]) => {
     items.forEach((item) => {
-      this.clearRetryTimer(item.requestId);
+      this.cancelRetry(item.requestId);
 
       if (!answeredIds.includes(item.requestId)) {
         this.client.requestManager.events.emitRemove({
@@ -233,11 +233,6 @@ export class Dispatcher<Adapter extends AdapterInstance> {
         });
       }
     });
-  };
-
-  private clearRetryTimer = (requestId: string) => {
-    clearTimeout(this.retryTimers.get(requestId));
-    this.retryTimers.delete(requestId);
   };
 
   /**
@@ -320,6 +315,19 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     this.storage.clear();
     removed.forEach(({ items, answeredIds }) => this.emitRemovedItems(items, answeredIds));
     this.client.triggerPlugins("onDispatcherCleared", { dispatcher: this });
+  };
+
+  /**
+   * Drop the scheduled retry of the request
+   */
+  private cancelRetry = (requestId: string) => {
+    const timer = this.retryTimers.get(requestId);
+    if (timer === undefined) {
+      return false;
+    }
+
+    clearTimeout(timer);
+    return this.retryTimers.delete(requestId);
   };
 
   // *********************************************************************
@@ -573,7 +581,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queryKey, queue);
-    this.clearRetryTimer(requestId);
+    this.cancelRetry(requestId);
 
     // Clean controllers
     if (this.hasRunningRequest(queryKey, requestId)) {
@@ -794,16 +802,28 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       // The attempts are counted on the queued item - whatever sends it next (the timer below, a new request
       // flushing the queue, the network coming back, the queue being started) continues from this number
       this.setQueueItemRetries(queryKey, requestId, retries);
+      // Only the latest failure schedules the retry
+      this.cancelRetry(requestId);
       // Perform retry once request is failed
-      const timer = setTimeout(async () => {
+      const retryTimer = setTimeout(async () => {
         this.retryTimers.delete(requestId);
-        const queue = this.getQueue(queryKey);
-        const queueItem = queue.requests.find((item) => item.requestId === requestId);
-        // Removed while waiting (aborted, deleted or the queue was cleared) - there is nothing left to retry
-        // Paused or stopped while waiting - it will be sent again when the queue or the request gets started
-        if (!queueItem || queue.stopped || queueItem.stopped) {
+        const queueItem = this.getRequest(queryKey, requestId);
+
+        // Dispatcher methods cancel this timer, so the item was taken directly from the storage and nobody announced it
+        if (!queueItem) {
+          this.logger.debug({
+            title: "Request no longer in queue, skipping retry",
+            type: "request",
+            extra: { response, requestDetails, request, requestId },
+          });
+          requestManager.events.emitRemove({ requestId, request, resolved: storageItem.resolved });
           return;
         }
+        // Stopped while waiting - it will be sent again when the request gets started
+        if (queueItem.stopped) {
+          return;
+        }
+
         this.logger.warning({
           title: "Error response, performing retry",
           type: "request",
@@ -816,7 +836,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
         // Let the queue go on when it was held by this request
         this.flushQueue(queryKey);
       }, retryTime || 0);
-      this.retryTimers.set(requestId, timer);
+      this.retryTimers.set(requestId, retryTimer);
     } else {
       if (request.retry) {
         this.logger.error({

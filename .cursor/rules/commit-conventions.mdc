@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Commit conventions
 
-Releases are automated by **semantic-release** with its default rules, and messages are checked by commitlint
+Releases are automated by **Nx Release** (`scripts/release.mjs`), and messages are checked by commitlint
 (`@commitlint/config-conventional`). **The commit type decides whether npm gets a new version.**
 
 ## Format
@@ -40,7 +40,8 @@ Releases are automated by **semantic-release** with its default rules, and messa
 A `!` after the type or a `BREAKING CHANGE:` footer publishes a **major** version, whatever the type. Never write that
 phrase in a commit body unless the change is breaking.
 
-Releases are repo-wide. One `fix` in any package publishes every package at the same version.
+Releases are repo-wide. One `fix` in any released package publishes every package at the same version. A commit only
+counts when it changes files inside a released package.
 
 ### Choosing the type
 
@@ -61,7 +62,7 @@ Use the package or area: `core`, `react`, `sockets`, `axios`, `graphql`, `fireba
 
 ## Issue references
 
-Reference every related issue so it closes when the release is published.
+Reference every related issue so it closes when the commit reaches the default branch.
 
 1. Put each issue on its own footer line. `Closes #1, #2` is not parsed reliably.
 2. Use `Closes #NNN` when the commit fully resolves the issue, and `Ref #NNN` when it only partly addresses it.

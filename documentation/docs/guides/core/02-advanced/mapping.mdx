@@ -109,6 +109,29 @@ export const getUser = client
   });
 ```
 
+### Failing Mappers
+
+When a response mapper throws or its promise rejects, the request ends with a failed response. `send()` still resolves,
+`success` is `false`, `data` is `null` and `error` holds the value thrown by the mapper. The failure is reported through
+the client logger, hooks call their error callbacks, and an optimistic update rolls back with the `error` reason.
+
+```typescript
+const getUser = client
+  .createRequest<{ response: UserModel }>()({
+    method: "GET",
+    endpoint: "/users/:userId",
+  })
+  .setResponseMapper(async (response) => {
+    if (!isUserModel(response.data)) {
+      throw new Error("Invalid user");
+    }
+    return response;
+  });
+
+const { success, error } = await getUser.send({ params: { userId: 1 } });
+// success: false, error: Error("Invalid user")
+```
+
 ---
 
 ## Request Mapping
