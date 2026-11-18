@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: true
+description: How applications should use HyperFetch - clients, requests, responses, cache and adapters. Use when writing examples, guides or sample apps.
+globs: examples/**/*.ts,examples/**/*.tsx,documentation/docs/**/*.mdx
+alwaysApply: false
 ---
 
 # Hyper Fetch Best Practices
@@ -270,10 +270,57 @@ configure any new adapter.
 #### Example (with axios adapter):
 
 ```typescript
-import { Client } from "@hyper-fetch/core";
-import { AdapterAxios } from "@hyper-fetch/adapter-axios";
+import { createClient } from "@hyper-fetch/core";
+import { AxiosAdapter } from "@hyper-fetch/axios";
 
-export const client = new Client({
-  baseUrl: "https://api.example.com",
-}).setAdapter(AdapterAxios());
+export const client = createClient({
+  url: "https://api.example.com",
+}).setAdapter(AxiosAdapter);
+```
+
+## 6. Handling Responses
+
+`send()` resolves for network failures, timeouts, aborts and 4xx or 5xx responses. The response is the error channel.
+
+- **Never wrap a request in `try/catch`.** It only hides bugs in the surrounding code.
+- **Branch on the result** instead of throwing `response.error` again.
+- **Use `throwOnError` on `useFetch`** when an Error Boundary should handle the failure.
+
+```ts
+// BAD: send() does not reject, and the typed error is lost
+try {
+  const result = await request.send();
+  if (result.error) throw new Error("Could not save");
+} catch {
+  toast.error("Could not save");
+}
+
+// GOOD
+const { data, error } = await request.send();
+
+if (error || !data) {
+  toast.error("Could not save");
+  return;
+}
+```
+
+## 7. Lists and Search
+
+- **Dependencies**: put every input that shapes the request in both the request and `dependencies`.
+- **Debouncing**: use `bounce: true` with `bounceTime` for inputs that change while typing.
+- **Previous data**: `keepPreviousData` accepts `"auto"`, `"preserve"` or `"clean"`. Use `"clean"` when stale results must
+  not show under a new query.
+- **Invalidation**: `client.cache.invalidate()` accepts a cache key, a RegExp, a request or an array of them.
+
+## 8. Mocking with the SDK
+
+`setMock` belongs to one request instance, and every SDK property access creates a new instance. Keep a reference to the
+request that the code under test uses.
+
+```ts
+const getUsers = sdk.users.$get;
+
+getUsers.setMock(() => ({ data: [], status: 200 }));
+
+await getUsers.send();
 ```

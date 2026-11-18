@@ -1,6 +1,11 @@
 ---
 name: fix-flaky-tests
-description: Find, reproduce, root-cause and permanently fix flaky (intermittently failing) tests in the hyper-fetch monorepo. Use proactively whenever a test fails once and passes on re-run, when CI is red and then green without code changes, when a `waitFor` times out around 1000ms, when a test depends on sleeps or default mock delays, or when a user says "flaky", "intermittent", "timeout", "works locally", "fix flake". Also use after adding new async tests to prove they are deterministic before committing.
+description:
+  Find, reproduce, root-cause and permanently fix flaky (intermittently failing) tests in the hyper-fetch monorepo. Use
+  proactively whenever a test fails once and passes on re-run, when CI is red and then green without code changes, when
+  a `waitFor` times out around 1000ms, when a test depends on sleeps or default mock delays, or when a user says
+  "flaky", "intermittent", "timeout", "works locally", "fix flake". Also use after adding new async tests to prove they
+  are deterministic before committing.
 ---
 
 # Fix Flaky Tests
@@ -20,9 +25,10 @@ widening a timeout, or marking it skipped. Find the dependency and remove it.
    rate. Add `--shuffle` to also randomize test order (`--sequence.shuffle`). A 0/10 result after a fix is the minimum
    bar; prefer 20 runs for timing-related fixes.
 
-2. **Confirm it is pre-existing or new.** If the failing test is unrelated to the current change, check it on `main`
-   with `git stash push -u` → run → `git stash pop`. Pre-existing flakes still get fixed in the same branch (small,
-   separate commit) - leaving them costs everyone time.
+2. **Confirm it is pre-existing or new.** If the failing test is unrelated to the current change, run it on `main` in a
+   separate checkout: `git worktree add .claude/worktrees/flake-check origin/main`. Never stash, because the stash is
+   shared between worktrees. Pre-existing flakes still get fixed in the same branch (small, separate commit) - leaving
+   them costs everyone time.
 
 3. **Read the failure, not the test name.** The message tells you the class of flake:
    - `waitFor` / `testLoading` timing out around `1000ms` → the awaited state was already gone or never reached (race).
@@ -35,26 +41,27 @@ widening a timeout, or marking it skipped. Find the dependency and remove it.
 
 5. **Verify**: repeat-run the spec (10-20x), run the package suite once, run `pnpm typecheck` in the package.
 
-6. **Commit with the cause in the message**, e.g. `test(react): make useSubmit queue spec deterministic - mock resolved
-   before second hook mounted`.
+6. **Commit with the cause in the message**, e.g.
+   `test(react): make useSubmit queue spec deterministic - mock resolved before second hook mounted`.
 
 ## Root causes and fixes in this repo
 
-| Symptom | Root cause | Fix |
-| --- | --- | --- |
-| Second hook/instance expected to see an in-flight request but sees finished | `mockRequest(request)` default delay is **20ms** (`packages/testing/src/http/http.mock.ts`) - request finishes before the next render/mount | Pass an explicit `delay` (e.g. `{ delay: 500 }`) so the window is wide enough; never rely on the default |
-| Assertion right after an async emit | Treating async delivery as sync | Wrap in `await waitFor(() => ...)`; for sockets use `waitForConnection(socket)` before emitting |
-| Test uses `await sleep(n)` and asserts a count | Real-timer race | Use `vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })` + `vi.advanceTimersByTime`, or `waitFor`. Keep `Date`/promises real so mock servers still connect |
-| Fake timers break connection setup | mock-socket / msw use timers to connect | Connect with real timers first (`await waitForConnection`), then switch to fake timers inside the test or `beforeEach` |
-| Passes alone, fails in suite | Leaked state: `client` cache/dispatchers, socket listeners, servers, spies | Reset in `beforeEach` (`client.clear()`, `vi.resetAllMocks()`), stop servers in `afterEach/afterAll`, `vi.useRealTimers()` in `afterEach` |
-| Random test fails each run | Shared module-level fixture mutated by tests | Create fixtures inside `beforeEach`; use unique topics/keys (`getUniqueRequestId`) |
-| Only fails on CI | Slower machine amplifies a race | Same fixes as above; never just raise `testTimeout` |
-| Timer-based delivery (throttle/batch/debounce) asserts after unsubscribe | Pending timer fires after cleanup | Assert nothing is delivered after dispose; ensure the implementation clears timers on unsubscribe |
+| Symptom                                                                     | Root cause                                                                                                                                  | Fix                                                                                                                                                                  |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Second hook/instance expected to see an in-flight request but sees finished | `mockRequest(request)` default delay is **20ms** (`packages/testing/src/http/http.mock.ts`) - request finishes before the next render/mount | Pass an explicit `delay` (e.g. `{ delay: 500 }`) so the window is wide enough; never rely on the default                                                             |
+| Assertion right after an async emit                                         | Treating async delivery as sync                                                                                                             | Wrap in `await waitFor(() => ...)`; for sockets use `waitForConnection(socket)` before emitting                                                                      |
+| Test uses `await sleep(n)` and asserts a count                              | Real-timer race                                                                                                                             | Use `vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })` + `vi.advanceTimersByTime`, or `waitFor`. Keep `Date`/promises real so mock servers still connect |
+| Fake timers break connection setup                                          | mock-socket / msw use timers to connect                                                                                                     | Connect with real timers first (`await waitForConnection`), then switch to fake timers inside the test or `beforeEach`                                               |
+| Passes alone, fails in suite                                                | Leaked state: `client` cache/dispatchers, socket listeners, servers, spies                                                                  | Reset in `beforeEach` (`client.clear()`, `vi.resetAllMocks()`), stop servers in `afterEach/afterAll`, `vi.useRealTimers()` in `afterEach`                            |
+| Random test fails each run                                                  | Shared module-level fixture mutated by tests                                                                                                | Create fixtures inside `beforeEach`; use unique topics/keys (`getUniqueRequestId`)                                                                                   |
+| Only fails on CI                                                            | Slower machine amplifies a race                                                                                                             | Same fixes as above; never just raise `testTimeout`                                                                                                                  |
+| Timer-based delivery (throttle/batch/debounce) asserts after unsubscribe    | Pending timer fires after cleanup                                                                                                           | Assert nothing is delivered after dispose; ensure the implementation clears timers on unsubscribe                                                                    |
 
 ## Rules
 
 - A flake found while working on something else is still fixed, in its own small commit. Do not leave `it.skip`.
-- The fix must make the test deterministic, not merely rarer. If you cannot explain *why* it failed, you have not fixed it.
+- The fix must make the test deterministic, not merely rarer. If you cannot explain _why_ it failed, you have not fixed
+  it.
 - Prefer controlling time (fake timers, explicit mock delays) over waiting longer.
 - Prefer `waitFor` over `sleep`. Prefer asserting on events over asserting on elapsed time.
 - When you touch a flaky spec, also scan its sibling specs for the same pattern (same helper, same default delay) and

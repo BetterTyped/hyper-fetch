@@ -66,3 +66,7 @@ ui-debug.log
 
 
 storybook-static
+
+# Claude Code
+.claude/worktrees
+.claude/settings.local.json
