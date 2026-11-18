@@ -431,15 +431,27 @@ export type OptimisticCallbackArgs<Req extends RequestInstance> = {
   payload: ExtractPayloadType<Req>;
 };
 
-export type OptimisticCallbackResult<Ctx> = {
+/**
+ * Describes why the optimistic change has to be reverted.
+ * - `error` - the request failed and it will not be retried or postponed anymore
+ * - `abort` - the request was aborted, `response` holds the abort error
+ * - `removed` - the request was removed from the dispatcher queue, there is no response to read
+ */
+export type OptimisticRollbackArgs<Req extends RequestInstance> =
+  | { reason: "error" | "abort"; response: RequestResponseType<Req>; request: Req }
+  | { reason: "removed"; response?: undefined; request: Req };
+
+export type OptimisticCallbackResult<Ctx, Req extends RequestInstance = RequestInstance> = {
   context?: Ctx;
-  rollback?: () => void;
+  /** Runs once when the request settles without success, also outside of any framework */
+  rollback?: (args: OptimisticRollbackArgs<Req>) => void;
+  /** Requests invalidated in the cache once the request succeeds */
   invalidate?: RequestInstance[];
 };
 
 export type OptimisticCallback<Req extends RequestInstance, Ctx = undefined> = (
   args: OptimisticCallbackArgs<Req>,
-) => OptimisticCallbackResult<Ctx> | Promise<OptimisticCallbackResult<Ctx>>;
+) => OptimisticCallbackResult<Ctx, Req> | Promise<OptimisticCallbackResult<Ctx, Req>>;
 
 // Mappers
 
