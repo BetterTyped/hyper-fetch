@@ -1,13 +1,13 @@
 ---
-description: Commit message conventions for semantic-release and auto-closing GitHub issues
+description: Commit message conventions for Nx Release and auto-closing GitHub issues
 alwaysApply: true
 ---
 
 # Commit conventions
 
-This project uses **semantic-release** (`@semantic-release/github`) with **conventional commits**
-(`@commitlint/config-conventional`). Every commit message must follow the format below so releases are automated and
-issues are auto-closed when the PR merges.
+This project uses **Nx Release** (`scripts/release.mjs`) with **conventional commits**
+(`@commitlint/config-conventional`). Every public package is released under one shared version. Every commit message
+must follow the format below so releases are automated and issues are auto-closed when the PR merges.
 
 ## Format
 
@@ -19,19 +19,20 @@ issues are auto-closed when the PR merges.
 <footer>
 ```
 
-### Types (from `.releaserc.json`)
+### Types (from `release` in `nx.json`)
 
-| Type                          | Release  | When to use                  |
-| ----------------------------- | -------- | ---------------------------- |
-| `fix`                         | patch    | Bug fix                      |
-| `feat`                        | minor    | New feature / capability     |
-| `refactor(core-*)`            | minor    | Core module refactor         |
-| `perf`                        | patch    | Performance improvement      |
-| `test`                        | patch    | Adding / updating tests only |
-| `docs`                        | patch    | Documentation only           |
-| `chore`                       | patch    | Build, CI, tooling           |
-| `*` (anything else)           | patch    | Catch-all                    |
-| Any with `(no-release)` scope | **none** | Explicitly skip release      |
+A commit only counts when it changes files inside a released package.
+
+| Type                | Release  | When to use                  |
+| ------------------- | -------- | ---------------------------- |
+| `feat`              | minor    | New feature / capability     |
+| `fix`               | patch    | Bug fix                      |
+| `perf`              | patch    | Performance improvement      |
+| `revert`            | patch    | Reverting an earlier commit  |
+| `refactor`          | **none** | Code change, same behavior   |
+| `test`              | **none** | Adding / updating tests only |
+| `docs`              | **none** | Documentation only           |
+| `chore`, `ci`       | **none** | Build, CI, tooling           |
 
 ### Documentation changes — use `docs`, not `fix`
 
@@ -45,10 +46,10 @@ Append `!` after type or add `BREAKING CHANGE:` in the footer → **major** rele
 
 ## Issue references — auto-close on merge
 
-`@semantic-release/github` resolves issues listed with
-[GitHub closing keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+GitHub resolves issues listed with
+[closing keywords](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
 in the commit body or footer. **Every bug-fix commit must reference all related issue numbers** (primary + duplicates
-from `docs/bugs/*.md`) so they auto-close when the release publishes.
+from `docs/bugs/*.md`) so they auto-close when the commit reaches the default branch.
 
 ### Rules
 
