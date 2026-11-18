@@ -18,10 +18,16 @@ export const scopeKey = (key: string, scope: string | null): string => {
 
 export const stringifyKey = (value: unknown): string => {
   try {
-    if (typeof value === "string") {return value;}
-    if (value === undefined || value === null) {return "";}
+    if (typeof value === "string") {
+      return value;
+    }
+    if (value === undefined || value === null) {
+      return "";
+    }
     const data = JSON.stringify(value);
-    if (typeof data !== "string") {throw new TypeError();}
+    if (typeof data !== "string") {
+      throw new TypeError();
+    }
     return data;
   } catch {
     return "";
@@ -29,7 +35,9 @@ export const stringifyKey = (value: unknown): string => {
 };
 
 export const getProgressValue = ({ loaded, total }: ProgressEventType): number => {
-  if (!loaded || !total) {return 0;}
+  if (!loaded || !total) {
+    return 0;
+  }
   return Number(((loaded * 100) / total).toFixed(0));
 };
 
@@ -123,17 +131,44 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
+/**
+ * Response mappers are allowed to throw (for example to validate the data) - the thrown value becomes the error
+ * of the response instead of breaking the request lifecycle.
+ */
+const getMapperErrorResponse = <Request extends RequestInstance>(
+  response: ResponseType<any, any, AdapterInstance>,
+  error: unknown,
+): RequestResponseType<Request> => {
+  return { ...response, data: null, error, success: false } as RequestResponseType<Request>;
+};
+
+/**
+ * Callbacks passed to `send()` and to the `$hooks` belong to the user. When one of them throws, the lifecycle of
+ * the request (and of the queue behind it) has to go on, so the error is reported outside of it.
+ */
+const runCallback = (callback: VoidFunction) => {
+  try {
+    callback();
+  } catch (error) {
+    setTimeout(() => {
+      throw error;
+    });
+  }
+};
+
 export const mapResponseForSend = async <Request extends RequestInstance>(
   request: Request,
   response: ResponseType<any, any, AdapterInstance>,
 ): Promise<RequestResponseType<Request>> => {
-  const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+  try {
+    const mapping = await request.unstable_responseMapper?.(
+      response as ResponseType<any, any, ExtractAdapterType<Request>>,
+    );
 
-  if (mapping instanceof Promise) {
-    return (await mapping) as RequestResponseType<Request>;
+    return (mapping || response) as RequestResponseType<Request>;
+  } catch (error) {
+    return getMapperErrorResponse<Request>(response, error);
   }
-
-  return (mapping || response) as RequestResponseType<Request>;
 };
 
 export const sendRequest = async <Request extends RequestInstance>(
@@ -174,33 +209,34 @@ export const sendRequest = async <Request extends RequestInstance>(
     let pendingMappings = 0;
     let postponedRemoval: VoidFunction | null = null;
     const requestId = dispatcher.add(request);
+    const queryKey = scopeKey(request.queryKey, request.scope);
     const { $hooks } = request;
     const beforeSentData = { requestId, request, mutationContext };
-    options?.onBeforeSent?.(beforeSentData);
-    $hooks.__emit("onBeforeSent", beforeSentData);
+    runCallback(() => options?.onBeforeSent?.(beforeSentData));
+    runCallback(() => $hooks.__emit("onBeforeSent", beforeSentData));
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onRequestStart?.(enriched);
-      $hooks.__emit("onRequestStart", enriched);
+      runCallback(() => options?.onRequestStart?.(enriched));
+      runCallback(() => $hooks.__emit("onRequestStart", enriched));
     });
 
     const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onResponseStart?.(enriched);
-      $hooks.__emit("onResponseStart", enriched);
+      runCallback(() => options?.onResponseStart?.(enriched));
+      runCallback(() => $hooks.__emit("onResponseStart", enriched));
     });
 
     const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onUploadProgress?.(enriched);
-      $hooks.__emit("onUploadProgress", enriched);
+      runCallback(() => options?.onUploadProgress?.(enriched));
+      runCallback(() => $hooks.__emit("onUploadProgress", enriched));
     });
 
     const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onDownloadProgress?.(enriched);
-      $hooks.__emit("onDownloadProgress", enriched);
+      runCallback(() => options?.onDownloadProgress?.(enriched));
+      runCallback(() => $hooks.__emit("onDownloadProgress", enriched));
     });
 
     // When resolved
@@ -208,24 +244,35 @@ export const sendRequest = async <Request extends RequestInstance>(
       const { details, response } = values;
       const enrichedValues = { ...values, mutationContext };
 
-      const mapping = request.unstable_responseMapper?.(
-        response as ResponseType<any, any, ExtractAdapterType<Request>>,
-      );
+      type MappedResponse = ResponseType<any, any, any>;
+      let mapping: MappedResponse | Promise<MappedResponse> | undefined;
+      try {
+        mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+      } catch (error) {
+        mapping = getMapperErrorResponse<Request>(response, error);
+      }
 
       const isOfflineStatus = request.offline && details.isOffline;
       const { willRetry } = details;
+      // A request waiting for the network or for its retry is sent again only when it is still in the queue.
+      // One that was taken out of it while running (cleared queue) has just given its last response.
+      const isQueued = !!dispatcher.getRequest(queryKey, requestId);
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
-        if (!success && isOfflineStatus) {return;}
+        if (!success && isOfflineStatus && isQueued) {
+          return;
+        }
 
         // When request is in retry mode we need to listen for retries end
-        if (!success && willRetry) {return;}
+        if (!success && willRetry && isQueued) {
+          return;
+        }
 
         // Only now the request is done - while it waits for a retry or for the network it can still be removed
         isResolved = true;
-        options?.onResponse?.(enrichedValues);
-        $hooks.__emit("onResponse", enrichedValues);
+        runCallback(() => options?.onResponse?.(enrichedValues));
+        runCallback(() => $hooks.__emit("onResponse", enrichedValues));
         resolve(data);
 
         // Unmount Listeners
@@ -237,15 +284,17 @@ export const sendRequest = async <Request extends RequestInstance>(
       if (mapping instanceof Promise) {
         (async () => {
           pendingMappings += 1;
-          let responseData: Awaited<typeof mapping>;
+          let responseData: MappedResponse;
           try {
             responseData = await mapping;
+          } catch (error) {
+            responseData = getMapperErrorResponse<Request>(response, error);
           } finally {
             pendingMappings -= 1;
           }
 
           const { success } = responseData;
-          handleResponse(success, responseData as ResponseType<any, any, ExtractAdapterType<Request>>);
+          handleResponse(success, responseData);
 
           // Removed while the mapper was running and still not done (it waits for a retry or for the network)
           if (!isResolved && pendingMappings === 0 && postponedRemoval) {
@@ -259,7 +308,7 @@ export const sendRequest = async <Request extends RequestInstance>(
       else {
         const data = mapping || response;
         const { success } = data;
-        handleResponse(success, data as ResponseType<any, any, ExtractAdapterType<Request>>);
+        handleResponse(success, data);
       }
     });
 
@@ -267,8 +316,8 @@ export const sendRequest = async <Request extends RequestInstance>(
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (data) => {
       const handleRemoval = () => {
         const enriched = { ...data, mutationContext };
-        options?.onRemove?.(enriched);
-        $hooks.__emit("onRemove", enriched);
+        runCallback(() => options?.onRemove?.(enriched));
+        runCallback(() => $hooks.__emit("onRemove", enriched));
         resolve({
           data: null,
           status: null,

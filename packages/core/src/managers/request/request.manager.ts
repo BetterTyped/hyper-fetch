@@ -34,7 +34,13 @@ export class RequestManager {
   };
 
   removeAbortController = (abortKey: string, requestId: string) => {
-    this.abortControllers.get(abortKey)?.delete(requestId);
+    const abortGroup = this.abortControllers.get(abortKey);
+    abortGroup?.delete(requestId);
+
+    // Do not keep an empty group for every abortKey (and every scope) that was ever used
+    if (abortGroup?.size === 0) {
+      this.abortControllers.delete(abortKey);
+    }
   };
 
   // Aborting

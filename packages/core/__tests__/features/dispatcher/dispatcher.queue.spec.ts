@@ -115,10 +115,12 @@ describe("Dispatcher [ Queue ]", () => {
         dispatcher.add(request);
       }, 20);
 
-      await sleep(100);
+      // Wait for the responses themselves - a fixed sleep is too short on a busy machine
+      await waitFor(() => {
+        expect(spy2).toHaveBeenCalledTimes(3);
+      });
 
       expect(spy1).toHaveBeenCalledTimes(3);
-      expect(spy2).toHaveBeenCalledTimes(3);
     });
   });
   describe("When using dispatcher performRequest method", () => {

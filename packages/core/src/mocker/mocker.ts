@@ -33,7 +33,10 @@ export const mocker = async <T extends AdapterInstance>({
   } = request.unstable_mock.config;
   const result = await request.unstable_mock.fn({ request, requestId });
 
-  const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
+  const { data, error, status, extra = request.client.adapter.defaultExtra } = result;
+  // Without the `success` flag, a mock with nothing but an error is a failed response
+  const hasData = data !== undefined && data !== null;
+  const { success = !error || hasData } = result;
 
   createAbortListener({
     status: adapter.systemErrorStatus,
@@ -63,9 +66,11 @@ export const mocker = async <T extends AdapterInstance>({
       const chunkSize = Math.ceil(totalSize / intervals);
       let currentlyLoaded = 0;
       const timer = setInterval(function handleProgressInterval() {
+        // Aborted or timed out - nothing more is transferred
         if (thrown) {
           resolveProgress(true);
           clearInterval(timer);
+          return;
         }
 
         const currentTime = Math.min(totalTime, Date.now() - dataStart);

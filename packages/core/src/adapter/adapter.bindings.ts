@@ -267,11 +267,24 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       requestTimestamp: startTime,
       responseTimestamp: Date.now(),
     };
-    response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
-    response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
+    try {
+      response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
+      response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
 
-    client.triggerPlugins("onRequestSuccess", { response, request });
-    client.triggerPlugins("onRequestFinished", { response, request });
+      client.triggerPlugins("onRequestSuccess", { response, request });
+      client.triggerPlugins("onRequestFinished", { response, request });
+    } catch (interceptorError) {
+      // A throwing interceptor or plugin fails the request, it must not leave it without any response
+      response = {
+        data: null,
+        error: internalErrorMapping(interceptorError as ReturnType<typeof getErrorMessage>),
+        success: false,
+        status,
+        extra,
+        requestTimestamp: startTime,
+        responseTimestamp: Date.now(),
+      } as unknown as typeof response;
+    }
 
     resolve(response);
 
@@ -471,11 +484,16 @@ export function getAdapterOnError<T extends AdapterInstance>({
       responseTimestamp: Date.now(),
     };
 
-    response = (await client.unstable_modifyResponse(response, request)) as typeof response;
-    response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
+    try {
+      response = (await client.unstable_modifyResponse(response, request)) as typeof response;
+      response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
 
-    client.triggerPlugins("onRequestError", { response, request });
-    client.triggerPlugins("onRequestFinished", { response, request });
+      client.triggerPlugins("onRequestError", { response, request });
+      client.triggerPlugins("onRequestFinished", { response, request });
+    } catch (interceptorError) {
+      // A throwing interceptor or plugin replaces the error, it must not leave the request without any response
+      response = { ...response, data: null, error: interceptorError, success: false };
+    }
 
     resolve(response);
 
