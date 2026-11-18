@@ -18,6 +18,11 @@ describe("Socket Adapter [ Connection ]", () => {
     socket = createSocket(socketOptions);
   });
 
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
+
   afterAll(() => {
     stopServer();
   });
@@ -55,16 +60,19 @@ describe("Socket Adapter [ Connection ]", () => {
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
+    // The socket from beforeEach has to finish connecting before the clock is replaced
+    await waitForConnection(socket);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+
     const spy = vi.fn();
     const newUrl = "ws://test";
     socket = createSocket({ url: newUrl, reconnectTime: 1 });
     socket.events.onReconnecting(spy);
-    await socket.adapter.connect();
 
-    await waitFor(() => {
-      return !!socket.adapter.reconnectionAttempts;
-    });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(spy).toHaveBeenCalledTimes(0);
 
+    await vi.advanceTimersByTimeAsync(1);
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });
