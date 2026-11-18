@@ -10,9 +10,8 @@ const createDeferred = <T = void>() => {
 };
 
 /**
- * The dispatcher removes a request from its queue right after emitting the response. A request is only "done" for
- * `send()` once its response was handled - with an async response mapper that happens later, so the removal
- * must neither win over a finished response nor get lost for a request that still waits for a retry.
+ * The dispatcher removes a request from its queue right after emitting the response. That removal must neither win
+ * over a finished response whose async mapper is still running, nor get lost for a request that waits for a retry.
  */
 describe("Request [ Async response mapper and removal ]", () => {
   const fast = { requestTime: 0, responseTime: 0 };
@@ -78,34 +77,31 @@ describe("Request [ Async response mapper and removal ]", () => {
     const onRemove = vi.fn();
     const onResponse = vi.fn();
     let requestId = "";
-    let resolved = false;
 
-    const response = request
-      .send({
-        onBeforeSent: (event) => {
-          requestId = event.requestId;
-        },
-        onRemove,
-        onResponse,
-      })
-      .then((result) => {
-        resolved = true;
-        return result;
-      });
+    const response = request.send({
+      onBeforeSent: (event) => {
+        requestId = event.requestId;
+      },
+      onRemove,
+      onResponse,
+    });
     await mapperStarted.promise;
     client.submitDispatcher.delete(request.queryKey, requestId, request.abortKey);
 
-    // The removal waits for the mapper, which decides whether the response was the final one
-    expect(onRemove).not.toHaveBeenCalled();
-    expect(resolved).toBe(false);
-
-    mapperGate.resolve();
+    // The removal ends the request right away, without waiting for the mapper that is still running
     const { data, error, success, status } = await response;
 
     expect(success).toBe(false);
     expect(data).toBeNull();
     expect(status).toBeNull();
     expect(error).toBeInstanceOf(DeletedError);
+    expect(onRemove).toHaveBeenCalledTimes(1);
+
+    // The mapper finishing later changes nothing
+    mapperGate.resolve();
+    await mapperGate.promise;
+    await Promise.resolve();
+
     expect(onRemove).toHaveBeenCalledTimes(1);
     expect(onResponse).not.toHaveBeenCalled();
   });

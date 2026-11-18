@@ -1,6 +1,8 @@
+import { Client } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useFetch } from "hooks/use-fetch";
+import { HttpResponse, delay, http } from "msw";
 /// <reference types="vitest/globals" />
 import type { ReactNode } from "react";
 import { Suspense, StrictMode, Component, useState } from "react";
@@ -501,5 +503,226 @@ describe("useFetch [ Suspense ]", () => {
         expect(screen.getByTestId("normal-data").textContent).toContain(JSON.stringify(mock));
       });
     });
+  });
+});
+
+describe("useFetch [ Suspense - isolation ]", () => {
+  const { server, startServer: start, stopServer: stop, resetMocks: reset } = createHttpMockingServer();
+
+  beforeAll(() => start());
+  afterEach(() => reset());
+  afterAll(() => stop());
+
+  type Echo = { from: string };
+
+  // Echoes who asked: the host for clients, the x-scope header for scopes. The second one answers later.
+  const mockEcho = () => {
+    server.use(
+      http.get(/\/users\/1$/, async ({ request: req }) => {
+        const from = req.headers.get("x-scope") ?? new URL(req.url).host;
+        await delay(from === "b" || from.startsWith("b.") ? 300 : 10);
+        return HttpResponse.json({ from });
+      }),
+    );
+  };
+
+  const createUserRequest = (c: Client) => c.createRequest<{ response: Echo }>()({ endpoint: "/users/1" });
+
+  // Every value a view rendered - a view must never show data of another client or scope, even briefly
+  let rendered: Record<string, (string | undefined)[]> = {};
+  beforeEach(() => {
+    rendered = {};
+  });
+
+  const View = ({ request, testId }: { request: any; testId: string }) => {
+    const { data } = useFetch(request, { suspense: true, dependencyTracking: false });
+    const from = (data as Echo | null)?.from;
+    rendered[testId] = [...(rendered[testId] ?? []), from];
+    return <div data-testid={testId}>{from}</div>;
+  };
+
+  it("should not share suspense results between clients with the same cache key", async () => {
+    mockEcho();
+    const clientA = new Client({ url: "http://a.test" });
+    const clientB = new Client({ url: "http://b.test" });
+    const requestA = createUserRequest(clientA);
+    const requestB = createUserRequest(clientB);
+    expect(requestA.cacheKey).toBe(requestB.cacheKey);
+
+    render(
+      <>
+        <Suspense fallback={<div data-testid="fallback-b" />}>
+          <View request={requestB} testId="b" />
+        </Suspense>
+        <Suspense fallback={<div data-testid="fallback-a" />}>
+          <View request={requestA} testId="a" />
+        </Suspense>
+      </>,
+    );
+
+    // The fast client must not wait for the slow one
+    await waitFor(() => expect(screen.getByTestId("a")).toHaveTextContent("a.test"), { interval: 5 });
+    expect(screen.getByTestId("fallback-b")).toBeInTheDocument();
+
+    await waitFor(() => expect(screen.getByTestId("b")).toHaveTextContent("b.test"));
+    expect(rendered.a.every((value) => value === "a.test")).toBe(true);
+    expect(rendered.b.every((value) => value === "b.test")).toBe(true);
+  });
+
+  it("should not share suspense results between scopes with the same cache key", async () => {
+    mockEcho();
+    const testClient = new Client({ url: "http://scopes.test" });
+    const scopeA = createUserRequest(testClient).setScope("a").setHeaders({ "x-scope": "a" });
+    const scopeB = createUserRequest(testClient).setScope("b").setHeaders({ "x-scope": "b" });
+
+    render(
+      <Suspense fallback={<div data-testid="fallback" />}>
+        <View request={scopeB} testId="b" />
+        <View request={scopeA} testId="a" />
+      </Suspense>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("a")).toHaveTextContent(/^a$/);
+      expect(screen.getByTestId("b")).toHaveTextContent(/^b$/);
+    });
+    expect(rendered.a.every((value) => value === "a")).toBe(true);
+    expect(rendered.b.every((value) => value === "b")).toBe(true);
+  });
+
+  it("should send one request per scope", async () => {
+    mockEcho();
+    const testClient = new Client({ url: "http://scopes.test" });
+    const spy = vi.spyOn(testClient.fetchDispatcher, "add");
+    const scopeA = createUserRequest(testClient).setScope("a").setHeaders({ "x-scope": "a" });
+    const scopeB = createUserRequest(testClient).setScope("b").setHeaders({ "x-scope": "b" });
+
+    render(
+      <Suspense fallback={<div data-testid="fallback" />}>
+        <View request={scopeA} testId="a" />
+        <View request={scopeB} testId="b" />
+      </Suspense>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("b")).toHaveTextContent(/^b$/));
+    const scopes = spy.mock.calls.map(([added]) => added.scope);
+    expect(scopes.filter((scope) => scope === "a")).toHaveLength(1);
+    expect(scopes.filter((scope) => scope === "b")).toHaveLength(1);
+  });
+});
+
+describe("useFetch [ Suspense - requests ]", () => {
+  const { startServer: start, stopServer: stop, resetMocks: reset, mockRequest: mock } = createHttpMockingServer();
+
+  beforeAll(() => start());
+  afterEach(() => reset());
+  afterAll(() => stop());
+
+  const View = ({ request, options = {} }: { request: any; options?: Record<string, unknown> }) => {
+    const { data, error, loading } = useFetch(request, { suspense: true, dependencyTracking: false, ...options });
+    return (
+      <div data-testid="view" data-loading={String(loading)}>
+        {error ? "error" : JSON.stringify(data)}
+      </div>
+    );
+  };
+
+  it("should send a single request for a suspended component", async () => {
+    const testClient = new Client({ url: "http://single.test" });
+    const request = testClient.createRequest<{ response: any }>()({ endpoint: "/single" });
+    const data = mock(request, { data: { value: 1 } });
+    const spy = vi.spyOn(testClient.fetchDispatcher, "add");
+
+    render(
+      <Suspense fallback={<div data-testid="fallback" />}>
+        <View request={request} />
+      </Suspense>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("view")).toHaveTextContent(JSON.stringify(data)));
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("view")).toHaveAttribute("data-loading", "false");
+  });
+
+  it("should settle loading after an error response without refetching", async () => {
+    const testClient = new Client({ url: "http://error.test" });
+    const request = testClient.createRequest<{ response: any }>()({ endpoint: "/error" });
+    mock(request, { status: 400 });
+    const spy = vi.spyOn(testClient.fetchDispatcher, "add");
+
+    render(
+      <Suspense fallback={<div data-testid="fallback" />}>
+        <View request={request} />
+      </Suspense>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("view")).toHaveTextContent("error"));
+    expect(screen.getByTestId("view")).toHaveAttribute("data-loading", "false");
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("should still revalidate on mount when the cached data is older than the suspense guard", async () => {
+    const testClient = new Client({ url: "http://stale.test" });
+    const request = testClient.createRequest<{ response: any }>()({ endpoint: "/stale" });
+    const fresh = mock(request, { data: { value: "fresh" } });
+    const old = Date.now() - 5000;
+    testClient.cache.set(request, {
+      data: { value: "cached" },
+      error: null,
+      status: 200,
+      success: true,
+      extra: null,
+      requestTimestamp: old,
+      responseTimestamp: old,
+      retries: 0,
+      isCanceled: false,
+      isOffline: false,
+      willRetry: false,
+      addedTimestamp: old,
+      triggerTimestamp: old,
+    } as any);
+
+    render(
+      <Suspense fallback={<div data-testid="fallback" />}>
+        <View request={request} />
+      </Suspense>,
+    );
+
+    expect(screen.getByTestId("view")).toHaveTextContent("cached");
+    await waitFor(() => expect(screen.getByTestId("view")).toHaveTextContent(JSON.stringify(fresh)));
+  });
+});
+
+describe("useFetch [ Suspense - offline ]", () => {
+  it("should not queue duplicates when a suspended component re-renders while offline", async () => {
+    const testClient = new Client({ url: "http://offline.test" });
+    testClient.appManager.setOnline(false);
+    const request = testClient.createRequest<{ response: any }>()({ endpoint: "/offline" });
+    const spy = vi.spyOn(testClient.fetchDispatcher, "add");
+
+    const View = () => {
+      const { data } = useFetch(request, { suspense: true, dependencyTracking: false });
+      return <div>{JSON.stringify(data)}</div>;
+    };
+    const App = ({ tick }: { tick: number }) => (
+      <div data-tick={tick}>
+        <Suspense fallback={<div data-testid="fallback" />}>
+          <View />
+        </Suspense>
+      </div>
+    );
+
+    const view = render(<App tick={0} />);
+    view.rerender(<App tick={1} />);
+    view.rerender(<App tick={2} />);
+
+    expect(screen.getByTestId("fallback")).toBeInTheDocument();
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(testClient.fetchDispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
   });
 });

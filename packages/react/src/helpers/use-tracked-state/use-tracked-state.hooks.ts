@@ -10,6 +10,7 @@ import type {
   ResponseType,
 } from "@hyper-fetch/core";
 import { replaceEqualDeep, scopeKey } from "@hyper-fetch/core";
+import { useHydration } from "hydrate/hydrate";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { isEqual } from "utils";
 
@@ -55,6 +56,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   const scopedCacheKey = scopeKey(cacheKey, request.scope);
   const scopedQueryKey = scopeKey(queryKey, request.scope);
   const identity = getRequestIdentity(request);
+  const hydration = useHydration();
 
   const state = useRef<UseTrackedStateType<T, TData>>(null as unknown as UseTrackedStateType<T, TData>);
   const renderKeys = useRef<(keyof UseTrackedStateType<T, TData>)[]>([]);
@@ -95,7 +97,10 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   };
 
   if (!state.current) {
-    state.current = getSelectedState(getInitialState({ initialResponse, dispatcher, request, disabled }));
+    const hydratedEntry = hydration?.get(client, scopeKey(cacheKey, request.scope));
+    state.current = getSelectedState(
+      getInitialState({ initialResponse, dispatcher, request, disabled, hydratedEntry }),
+    );
   }
   // Request key changed - the state is switched during the render, so the data of the previous key
   // is never returned for the new one (unless it is kept on purpose with keepPreviousData)
@@ -113,7 +118,10 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
     isFreshState.current = hasCacheData || shouldClear;
 
     if (isFreshState.current) {
-      state.current = getSelectedState(getInitialState({ initialResponse, dispatcher, request, disabled, revalidate }));
+      const hydratedEntry = hydration?.get(client, scopedCacheKey);
+      state.current = getSelectedState(
+        getInitialState({ initialResponse, dispatcher, request, disabled, revalidate, hydratedEntry }),
+      );
     }
     // Otherwise the previous state stays until the response of the new key arrives (#126)
   }

@@ -2,15 +2,22 @@ import { getErrorMessage } from "adapter";
 import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType } from "adapter";
 import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
+import type { RequestResponseEventType } from "managers";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
 
 import type {
   OptimisticCallbackResult,
+  OptimisticRollbackArgs,
   ProgressEventType,
   RequestInstance,
   RequestJSON,
   RequestSendOptionsType,
 } from "./request.types";
+
+type MappedResponse =
+  | ResponseType<any, any, AdapterInstance>
+  | Promise<ResponseType<any, any, AdapterInstance>>
+  | undefined;
 
 export const scopeKey = (key: string, scope: string | null): string => {
   return scope ? `${scope}__${key}` : key;
@@ -171,6 +178,43 @@ export const mapResponseForSend = async <Request extends RequestInstance>(
   }
 };
 
+/**
+ * Rollback is user code running in the middle of the response handling, its failure can't affect the request
+ */
+const rollbackOptimistic = (
+  optimistic: OptimisticCallbackResult<any>,
+  args: OptimisticRollbackArgs<RequestInstance>,
+): void => {
+  const logFailure = (error: unknown) => {
+    args.request.client.logger.error({
+      title: "Optimistic rollback failed",
+      type: "system",
+      extra: { error, reason: args.reason, request: args.request },
+    });
+  };
+
+  try {
+    // Async rollback is not awaited, but its rejection can't stay unhandled
+    Promise.resolve(optimistic.rollback?.(args)).catch(logFailure);
+  } catch (error) {
+    logFailure(error);
+  }
+};
+
+const invalidateOptimistic = (optimistic: OptimisticCallbackResult<any>, request: RequestInstance): void => {
+  optimistic.invalidate?.forEach((target) => {
+    try {
+      request.client.cache.invalidate(target);
+    } catch (error) {
+      request.client.logger.error({
+        title: "Optimistic invalidation failed",
+        type: "system",
+        extra: { error, target, request },
+      });
+    }
+  });
+};
+
 export const sendRequest = async <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
@@ -204,13 +248,76 @@ export const sendRequest = async <Request extends RequestInstance>(
   }
 
   return new Promise<RequestResponseType<Request>>((resolve) => {
+    // The dispatcher is done with the request - removal from the queue that follows is not a separate outcome
     let isResolved = false;
-    // Responses whose async mapper is still running, and a removal that arrived in the meantime
-    let pendingMappings = 0;
-    let postponedRemoval: VoidFunction | null = null;
+    let isDelivered = false;
+    let isSettled = false;
     const requestId = dispatcher.add(request);
     const queryKey = scopeKey(request.queryKey, request.scope);
     const { $hooks } = request;
+
+    // Failed attempts stay in the dispatcher queue when they are going to be sent again
+    const getWillBeResent = ({ response, details }: RequestResponseEventType<Request>) => {
+      if (response.success || details.isCanceled) {
+        return false;
+      }
+      // One that was taken out of the queue while it was running (cleared queue) has just given its last response
+      if (!dispatcher.getRequest(queryKey, requestId)) {
+        return false;
+      }
+      return details.willRetry || (request.offline && details.isOffline);
+    };
+
+    // Settlement and delivery read the same event - the mapper has to run only once per response
+    const mappings = new WeakMap<RequestResponseEventType<Request>, MappedResponse>();
+    const getMapping = (values: RequestResponseEventType<Request>) => {
+      if (!mappings.has(values)) {
+        let mapping: MappedResponse;
+        try {
+          mapping = request.unstable_responseMapper?.(
+            values.response as ResponseType<any, any, ExtractAdapterType<Request>>,
+          );
+          if (mapping instanceof Promise) {
+            mapping = mapping.catch((error) => getMapperErrorResponse<Request>(values.response, error));
+          }
+        } catch (error) {
+          mapping = getMapperErrorResponse<Request>(values.response, error);
+        }
+        mappings.set(values, mapping);
+      }
+      return mappings.get(values);
+    };
+
+    // Attached ahead of `onBeforeSent`, so listeners added there already observe the settled cache
+    const unmountSettlement = mutationContext
+      ? requestManager.events.onResponseById<Request>(requestId, (values) => {
+          const optimistic = mutationContext as OptimisticCallbackResult<any>;
+          const willBeResent = getWillBeResent(values);
+
+          const settle = (response: ResponseType<any, any, AdapterInstance>) => {
+            if (isSettled || (!response.success && willBeResent)) {
+              return;
+            }
+            isSettled = true;
+
+            if (values.details.isCanceled) {
+              rollbackOptimistic(optimistic, { reason: "abort", response, request });
+            } else if (response.success) {
+              invalidateOptimistic(optimistic, request);
+            } else {
+              rollbackOptimistic(optimistic, { reason: "error", response, request });
+            }
+          };
+
+          const mapping = getMapping(values);
+          if (mapping instanceof Promise) {
+            mapping.then(settle);
+          } else {
+            settle(mapping || values.response);
+          }
+        })
+      : undefined;
+
     const beforeSentData = { requestId, request, mutationContext };
     runCallback(() => options?.onBeforeSent?.(beforeSentData));
     runCallback(() => $hooks.__emit("onBeforeSent", beforeSentData));
@@ -241,36 +348,20 @@ export const sendRequest = async <Request extends RequestInstance>(
 
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
-      const { details, response } = values;
+      const { response } = values;
+      const willBeResent = getWillBeResent(values);
+      isResolved = !willBeResent;
       const enrichedValues = { ...values, mutationContext };
 
-      type MappedResponse = ResponseType<any, any, any>;
-      let mapping: MappedResponse | Promise<MappedResponse> | undefined;
-      try {
-        mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
-      } catch (error) {
-        mapping = getMapperErrorResponse<Request>(response, error);
-      }
-
-      const isOfflineStatus = request.offline && details.isOffline;
-      const { willRetry } = details;
-      // A request waiting for the network or for its retry is sent again only when it is still in the queue.
-      // One that was taken out of it while running (cleared queue) has just given its last response.
-      const isQueued = !!dispatcher.getRequest(queryKey, requestId);
+      const mapping = getMapping(values);
 
       const handleResponse = (success: boolean, data: ResponseType<any, any, ExtractAdapterType<Request>>) => {
-        // When going offline we can't handle the request as it will be postponed to later resolve
-        if (!success && isOfflineStatus && isQueued) {
+        // Retries and offline postponing end with another response we need to listen for
+        if (isDelivered || (!success && willBeResent)) {
           return;
         }
+        isDelivered = true;
 
-        // When request is in retry mode we need to listen for retries end
-        if (!success && willRetry && isQueued) {
-          return;
-        }
-
-        // Only now the request is done - while it waits for a retry or for the network it can still be removed
-        isResolved = true;
         runCallback(() => options?.onResponse?.(enrichedValues));
         runCallback(() => $hooks.__emit("onResponse", enrichedValues));
         resolve(data);
@@ -283,25 +374,10 @@ export const sendRequest = async <Request extends RequestInstance>(
       // Create async await ONLY when we make a promise mapper
       if (mapping instanceof Promise) {
         (async () => {
-          pendingMappings += 1;
-          let responseData: MappedResponse;
-          try {
-            responseData = await mapping;
-          } catch (error) {
-            responseData = getMapperErrorResponse<Request>(response, error);
-          } finally {
-            pendingMappings -= 1;
-          }
+          const responseData = await mapping;
 
           const { success } = responseData;
-          handleResponse(success, responseData);
-
-          // Removed while the mapper was running and still not done (it waits for a retry or for the network)
-          if (!isResolved && pendingMappings === 0 && postponedRemoval) {
-            const handleRemoval = postponedRemoval;
-            postponedRemoval = null;
-            handleRemoval();
-          }
+          handleResponse(success, responseData as ResponseType<any, any, ExtractAdapterType<Request>>);
         })();
       }
       // For sync mapping operations we should not use async actions
@@ -314,7 +390,15 @@ export const sendRequest = async <Request extends RequestInstance>(
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (data) => {
-      const handleRemoval = () => {
+      if (!isResolved) {
+        isResolved = true;
+        isDelivered = true;
+
+        if (mutationContext && !isSettled) {
+          isSettled = true;
+          rollbackOptimistic(mutationContext, { reason: "removed", request });
+        }
+
         const enriched = { ...data, mutationContext };
         runCallback(() => options?.onRemove?.(enriched));
         runCallback(() => $hooks.__emit("onRemove", enriched));
@@ -331,23 +415,11 @@ export const sendRequest = async <Request extends RequestInstance>(
         // Unmount Listeners
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         umountAll();
-      };
-
-      if (isResolved) {
-        return;
       }
-
-      // The dispatcher removes a finished request right after emitting its response. With an async response
-      // mapper that response is not handled yet, so the removal has to wait for the mapper instead of winning.
-      if (pendingMappings > 0) {
-        postponedRemoval = handleRemoval;
-        return;
-      }
-
-      handleRemoval();
     });
 
     function umountAll() {
+      unmountSettlement?.();
       unmountRequestStart();
       unmountResponseStart();
       unmountUpload();

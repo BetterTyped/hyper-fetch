@@ -49,7 +49,8 @@ describe("useFetch [ Concurrency ]", () => {
         expect(spyTwo).toHaveBeenCalledTimes(1);
       });
       it("should start in loading mode when request is already handled by the queue", async () => {
-        mockRequest(request);
+        // The request must still be running after waitForRender - the default 20ms delay can elapse under load
+        mockRequest(request, { delay: 500 });
         act(() => {
           client.fetchDispatcher.add(request);
         });

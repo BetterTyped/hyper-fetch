@@ -298,10 +298,10 @@ export class Request<
 
   /**
    * Configure optimistic update behavior for this request.
-   * The callback runs before the request is sent (in React's `useSubmit`) and receives
-   * the request, client, and payload. Return `context` (available in submit callbacks),
-   * `rollback` (called automatically on failure/abort), and `invalidate` (cache keys
-   * invalidated on success).
+   * The callback runs before the request is sent and receives the request, client, and payload.
+   * Return `context` (available in lifecycle callbacks), `rollback` (called automatically once on
+   * failure, abort or queue removal), and `invalidate` (requests invalidated on success).
+   * Both run for every way of sending the request, not only inside of framework hooks.
    */
   public setOptimistic = <Ctx>(callback: OptimisticCallback<this, Ctx>) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();

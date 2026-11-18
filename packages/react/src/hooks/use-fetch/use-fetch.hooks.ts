@@ -16,6 +16,7 @@ import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
 import { useCallback, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
+import { isSameScope } from "utils/scope.utils";
 
 type SuspenseEntry = { promise: Promise<void>; resolve: () => void; cleanup: () => void };
 type SuspenseResult = Pick<
@@ -432,7 +433,7 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
 
         const unsubscribe = cache.events.onDataByKey(cacheKey, (cacheData: CacheValueType<any, any>) => {
           // Events of the same cache key are shared between the scopes
-          if ((cacheData.scope ?? null) !== (request.scope ?? null)) {
+          if (!isSameScope(cacheData.scope, request.scope)) {
             return;
           }
 
@@ -458,7 +459,9 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
 
       // Ensure the request is dispatched before suspending —
       // effects never run when a component suspends.
-      if (!dispatcher.hasRunningRequests(scopedQueryKey)) {
+      // React may render a suspended component again before the queued request starts running,
+      // so a queued request counts as dispatched too.
+      if (!dispatcher.hasRunningRequests(scopedQueryKey) && !dispatcher.getIsActiveQueue(scopedQueryKey)) {
         dispatcher.add(request as unknown as R);
       }
 

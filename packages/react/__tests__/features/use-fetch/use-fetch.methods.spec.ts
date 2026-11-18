@@ -159,7 +159,12 @@ describe("useFetch [ Methods ]", () => {
         const spy7 = vi.fn();
         const spy8 = vi.fn();
 
-        const errorMock = mockRequest(request, { status: 400 });
+        let successMock = mockRequest(request, { status: 400 });
+        // Swapped on the response event, polling for the error state can lose the race with the retry timer
+        const unmountListener = client.requestManager.events.onResponse(() => {
+          unmountListener();
+          successMock = mockRequest(request);
+        });
         const response = renderUseFetch(request.setRetry(1).setRetryTime(100));
 
         act(() => {
@@ -173,8 +178,9 @@ describe("useFetch [ Methods ]", () => {
           response.result.current.onOfflineError(spy8);
         });
 
-        await testErrorState(errorMock, response);
-        const successMock = mockRequest(request);
+        await waitFor(() => {
+          expect(spy5).toHaveBeenCalledTimes(1);
+        });
         await testSuccessState(successMock, response);
 
         expect(spy1).toHaveBeenCalledTimes(2);
