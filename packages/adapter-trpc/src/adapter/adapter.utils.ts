@@ -37,7 +37,7 @@ export const getTrpcRequestKey = (request: RequestInstance, transformer?: TrpcTr
   return `${request.method}_${procedure}-${input}-${stringifyKey(request.queryParams)}`;
 };
 
-/** The input is not a part of this key, so `cancelable` requests cancel the previous calls with a different input */
+/** The input is not a part of this key, so `request.abort()` stops every running call of the procedure */
 export const getTrpcAbortKey = (request: RequestInstance): string => {
   return `${request.method}_${trpcEndpointMapper(request.endpoint)}-${request.cancelable}`;
 };

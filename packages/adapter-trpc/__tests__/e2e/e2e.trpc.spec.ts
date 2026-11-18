@@ -83,6 +83,38 @@ describe("Trpc Adapter [ E2E ]", () => {
       expect(response.data).toBe(42);
     });
 
+    it("should send a zero input", async () => {
+      const response = await client
+        .createRequest<{ response: number; payload: number }>()({ endpoint: "double" })
+        .setPayload(0)
+        .send();
+
+      expect(response.data).toBe(0);
+      expect(response.success).toBe(true);
+      expect(appServer.requests[0].url).toBe("/double?input=0");
+    });
+
+    it.each([
+      { endpoint: "double", input: 0, output: 0 },
+      { endpoint: "negate", input: true, output: false },
+    ])("should keep the $output output of $endpoint in the cache", async ({ endpoint, input, output }) => {
+      const request = client.createRequest<{ response: unknown; payload: unknown }>()({ endpoint }).setPayload(input);
+
+      const response = await request.send();
+
+      expect(response.data).toBe(output);
+      expect(client.cache.get(request.cacheKey)?.data).toBe(output);
+    });
+
+    it("should send a false input", async () => {
+      const response = await client
+        .createRequest<{ response: boolean; payload: boolean }>()({ endpoint: "negate" })
+        .send({ payload: false });
+
+      expect(response.data).toBe(true);
+      expect(appServer.requests[0].url).toBe("/negate?input=false");
+    });
+
     it("should keep the responses of different inputs in separate cache entries", async () => {
       const request = client.createRequest<{ response: { name: string }; payload: { id: number } }>()({
         endpoint: "user.byId",
@@ -137,6 +169,16 @@ describe("Trpc Adapter [ E2E ]", () => {
         .send();
 
       expect(response.data).toBe("JACK");
+    });
+
+    it("should send an empty string input", async () => {
+      const response = await client
+        .createRequest<{ response: string; payload: string }>()({ endpoint: "rename", method: "MUTATION" })
+        .setPayload("")
+        .send();
+
+      expect(response.data).toBe("");
+      expect(response.success).toBe(true);
     });
 
     it("should call a mutation without an input and without a result", async () => {

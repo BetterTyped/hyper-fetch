@@ -101,8 +101,7 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
         onRequestProgress,
         onSuccess,
       }) => {
-        const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, ...restOptions } = adapterOptions || {};
+        const { timeout: timeoutMs = defaultTimeout, ...restOptions } = adapterOptions ?? {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -114,7 +113,10 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
           extra: trpcExtra,
         });
 
-        if (timeoutMs > 0 && controller) {
+        // The listener above throws when the controller is missing
+        const controller = getAbortController() as AbortController;
+
+        if (timeoutMs > 0) {
           timeoutId = setTimeout(() => {
             timedOut = true;
             unmountListener();
@@ -133,7 +135,7 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
             ...restOptions,
             method: isMutation ? "POST" : "GET",
             headers: headers as Record<string, string>,
-            signal: controller?.signal,
+            signal: controller.signal,
           };
 
           if (isMutation && input !== undefined) {
@@ -159,9 +161,7 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
 
           const body = await readBody(response, onResponseProgress);
 
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
+          clearTimeout(timeoutId);
 
           onResponseEnd();
           unmountListener();
@@ -174,12 +174,10 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
             onError({ error: result.error, status, extra });
           }
         } catch (error: any) {
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
+          clearTimeout(timeoutId);
           unmountListener();
 
-          if (controller?.signal?.aborted) {
+          if (controller.signal.aborted) {
             if (timedOut) {
               onTimeoutError({ status: 0, extra: trpcExtra });
             }

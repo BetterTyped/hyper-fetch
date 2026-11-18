@@ -104,9 +104,16 @@ const createUser = client.createRequest<{ response: User; payload: { name: strin
 
 ## Cache keys
 
-The adapter adds the input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached separately. The abort
-key does not contain the input, so a `cancelable` request cancels the previous call of the procedure even when the input
-has changed.
+The adapter adds the input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached, deduplicated and
+queued separately. The abort key does not contain the input, so `request.abort()` stops every running call of the
+procedure.
+
+A `cancelable` request replaces the running call with the same query key, which means the same input. To cancel the
+previous call when the input changes, for example in a search field, share the query key between the inputs.
+
+```ts
+const search = api.user.search.$query.setCancelable(true).setDeduplicate(false).setQueryKey("user-search");
+```
 
 ---
 
@@ -172,7 +179,5 @@ Query params are appended to the URL. The `input` and `batch` keys are reserved 
 ## Limitations
 
 - Subscriptions and request batching are not supported. Subscription procedures are left out of `TrpcSchema`.
-- `setPayload` currently ignores the inputs `0`, `false` and `""`. Procedures that accept them should take an object
-  instead, for example `{ value: 0 }`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path for those.

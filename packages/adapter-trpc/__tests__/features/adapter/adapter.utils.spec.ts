@@ -13,6 +13,7 @@ import {
 } from "../../../src/adapter";
 
 const superjson = { serialize, deserialize };
+const noInput = undefined;
 
 describe("Trpc Adapter [ Utils ]", () => {
   const createTestClient = (url = "http://localhost:3000/trpc") => createClient({ url }).setAdapter(TrpcAdapter());
@@ -31,7 +32,7 @@ describe("Trpc Adapter [ Utils ]", () => {
 
   describe("when encoding the input", () => {
     it("should return undefined when there is no input", () => {
-      expect(getTrpcInput(undefined)).toBeUndefined();
+      expect(getTrpcInput(noInput)).toBeUndefined();
     });
 
     it.each([
@@ -72,6 +73,14 @@ describe("Trpc Adapter [ Utils ]", () => {
       const number = getRequest("user.byId").setPayload(1);
 
       expect(text.cacheKey).not.toBe(number.cacheKey);
+    });
+
+    it("should not mix a falsy input with a missing input", () => {
+      const missing = getRequest("user.byId");
+
+      expect(getRequest("user.byId").setPayload(0).cacheKey).not.toBe(missing.cacheKey);
+      expect(getRequest("user.byId").setPayload(false).cacheKey).not.toBe(missing.cacheKey);
+      expect(getRequest("user.byId").setPayload("").cacheKey).not.toBe(missing.cacheKey);
     });
 
     it("should share the keys between the SDK path and the procedure path", () => {
@@ -160,7 +169,7 @@ describe("Trpc Adapter [ Utils ]", () => {
     });
 
     it("should skip the input when there is none", () => {
-      expect(getTrpcUrl(getQuery(), "", undefined)).toBe("http://localhost:3000/trpc/user.byId");
+      expect(getTrpcUrl(getQuery(), "", noInput)).toBe("http://localhost:3000/trpc/user.byId");
     });
 
     it("should not put the mutation input in the url", () => {
@@ -170,9 +179,7 @@ describe("Trpc Adapter [ Utils ]", () => {
     });
 
     it("should handle a trailing slash and a query string in the client url", () => {
-      expect(getTrpcUrl(getQuery("http://localhost:3000/trpc/"), "", undefined)).toBe(
-        "http://localhost:3000/trpc/user.byId",
-      );
+      expect(getTrpcUrl(getQuery("http://localhost:3000/trpc/"), "", noInput)).toBe("http://localhost:3000/trpc/user.byId");
       expect(getTrpcUrl(getQuery("http://localhost:3000/trpc?token=1"), "", "1")).toBe(
         "http://localhost:3000/trpc/user.byId?token=1&input=1",
       );

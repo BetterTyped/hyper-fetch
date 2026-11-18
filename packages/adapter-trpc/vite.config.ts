@@ -23,6 +23,7 @@ export default defineConfig({
   test: {
     alias: {
       "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
+      "@hyper-fetch/react": path.resolve(__dirname, "../react/src/index.ts"),
       "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
       "@hyper-fetch/testing": path.resolve(__dirname, "../testing/src/index.ts"),
     },
@@ -30,6 +31,7 @@ export default defineConfig({
       exclude: ["**/*.spec.*", "**/types.*", "**/constants.*", "**/index.ts"],
       include: ["src/**/*.{ts,tsx}"],
       provider: "v8",
+      thresholds: { 100: true },
     },
     environment: "node",
     globals: true,

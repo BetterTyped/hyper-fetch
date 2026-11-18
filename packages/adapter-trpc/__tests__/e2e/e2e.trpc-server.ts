@@ -46,6 +46,7 @@ export const createAppRouter = (getGate: () => Gate) => {
   return t.router({
     health: t.procedure.query(() => "ok" as const),
     double: t.procedure.input((value) => value as number).query(({ input }) => input * 2),
+    negate: t.procedure.input((value) => value as boolean).query(({ input }) => !input),
     createdAt: t.procedure.query(() => new Date("2024-01-01T00:00:00.000Z")),
     noop: t.procedure.mutation(() => {}),
     rename: t.procedure.input((value) => value as string).mutation(({ input }) => input.toUpperCase()),
@@ -110,14 +111,15 @@ export type TransformerRouter = ReturnType<typeof createTransformerRouter>;
 /**
  * Real tRPC server listening on a random local port.
  */
-export const createE2ETrpcServer = (router: AnyTRPCRouter) => {
+export const createE2ETrpcServer = (router: AnyTRPCRouter, options: { basePath?: string } = {}) => {
   const requests: RecordedRequest[] = [];
 
   const server = createHTTPServer({
     router,
+    basePath: options.basePath,
     createContext: ({ req }) => {
       requests.push({ method: req.method, url: req.url, contentType: req.headers["content-type"] });
-      return {};
+      return { authorization: req.headers.authorization, url: req.url };
     },
   });
 
