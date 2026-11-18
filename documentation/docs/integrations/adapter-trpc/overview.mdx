@@ -1,0 +1,178 @@
+---
+sidebar_position: 1
+title: tRPC Adapter
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/adapter-trpc/Functions/TrpcAdapter.mdx)
+
+> The Hyper Fetch tRPC Adapter connects Hyper Fetch to a tRPC server, so procedures get caching, queueing, offline
+> support and React hooks, with types inferred from your router.
+
+:::tip Purpose
+
+1. **Call tRPC procedures** with the same request API you use for REST and GraphQL.
+2. **Infer types from your router** through the regular `createSdk`.
+3. **Cache every input separately**, without writing query keys by hand.
+4. **Support transformers** such as `superjson`.
+
+:::
+
+---
+
+## Installation
+
+Install the adapter next to the core package. `@trpc/server` is only needed for the `TrpcSchema` type, and your project
+that imports the `AppRouter` type usually has it already.
+
+```bash
+npm install @hyper-fetch/core @hyper-fetch/trpc
+```
+
+---
+
+## Getting Started
+
+Point the client at the URL where your tRPC handler is mounted, and describe the router with `TrpcSchema`.
+
+```ts
+import { createClient, createSdk } from "@hyper-fetch/core";
+import { TrpcAdapter } from "@hyper-fetch/trpc";
+import type { TrpcSchema } from "@hyper-fetch/trpc";
+
+import type { AppRouter } from "./server";
+
+const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(TrpcAdapter());
+
+const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
+
+const { data, error } = await api.user.byId.$query.setPayload({ id: 1 }).send();
+```
+
+`camelCaseToKebabCase: false` keeps procedure names as they are written in the router (`byId`, not `by-id`).
+
+---
+
+## Queries
+
+Queries are available under `$query`. The procedure input is the request payload.
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+const { data, loading } = useFetch(api.user.byId.$query.setPayload({ id: 1 }));
+```
+
+They are sent as `GET {url}/user.byId?input={"id":1}`, with the input URL-encoded. Like `GET` requests in the
+`HttpAdapter`, identical queries running at the same time are deduplicated by default.
+
+---
+
+## Mutations
+
+Mutations are available under `$mutation` and are sent as `POST {url}/user.create` with a JSON body.
+
+```tsx
+import { useSubmit } from "@hyper-fetch/react";
+
+const { submit } = useSubmit(api.user.create.$mutation);
+
+await submit({ payload: { name: "John" } });
+```
+
+---
+
+## Requests without the SDK
+
+The SDK is optional. `QUERY` and `MUTATION` are the methods of this adapter, and the endpoint is the procedure path.
+
+```ts
+const getUser = client.createRequest<{ response: User; payload: { id: number } }>()({
+  endpoint: "user.byId",
+  method: "QUERY",
+});
+
+const createUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+  endpoint: "user.create",
+  method: "MUTATION",
+});
+```
+
+`QUERY` is the default method. The paths `user.byId` and `/user/byId` point to the same procedure and share the cache.
+
+---
+
+## Cache keys
+
+The adapter adds the input to the cache and query keys, so `{ id: 1 }` and `{ id: 2 }` are cached separately. The abort
+key does not contain the input, so a `cancelable` request cancels the previous call of the procedure even when the input
+has changed.
+
+---
+
+## Errors
+
+Failed procedures resolve with the error sent by the server and the HTTP status of the response.
+
+```ts
+const { error, status, extra } = await api.user.byId.$query.setPayload({ id: 999 }).send();
+
+status; // 404
+error?.message; // "User not found"
+error?.code; // -32004
+error?.data.code; // "NOT_FOUND"
+error?.data.httpStatus; // 404
+extra?.headers; // response headers
+```
+
+With `TrpcSchema` the error type follows the router, including a custom `errorFormatter`. For requests created by hand,
+use the exported `TrpcErrorType`.
+
+A response that did not come from a procedure, such as an HTML error page from a proxy, resolves with an `UnexpectedError`
+and the status of that response.
+
+---
+
+## Transformers
+
+Pass the same transformer that the server uses in `initTRPC.create()`. It handles the input, the output and the errors.
+
+```ts
+import superjson from "superjson";
+
+const client = createClient({ url: "http://localhost:3000/trpc" }).setAdapter(
+  TrpcAdapter({ transformer: superjson }),
+);
+
+const { data } = await api.event.byDate.$query.setPayload({ date: new Date() }).send();
+
+data?.createdAt; // Date
+```
+
+Any object with `serialize` and `deserialize` methods works. When the server uses separate transformers for each
+direction, pass `{ serialize: input.serialize, deserialize: output.deserialize }`.
+
+---
+
+## Options
+
+Request options are passed to `fetch`, with an additional `timeout` in milliseconds (5 seconds by default).
+
+```ts
+const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "user.me",
+  options: { credentials: "include", timeout: 10000 },
+});
+```
+
+Query params are appended to the URL. The `input` and `batch` keys are reserved for the tRPC format and are skipped.
+
+---
+
+## Limitations
+
+- Subscriptions and request batching are not supported. Subscription procedures are left out of `TrpcSchema`.
+- `setPayload` currently ignores the inputs `0`, `false` and `""`. Procedures that accept them should take an object
+  instead, for example `{ value: 0 }`.
+- The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
+  the procedure path for those.

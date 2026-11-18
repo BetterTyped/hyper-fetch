@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book } from "lucide-react";
+import { Book, Network } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -121,6 +121,24 @@ export const integrations: Section[] = [
     featured: true,
     category: "Adapter",
     package: "graphql",
+  },
+  {
+    label: "tRPC",
+    description: "Call tRPC procedures with types inferred from your router, with caching and React hooks included.",
+    dir: "adapter-trpc",
+    isPackage: true,
+    paths: ["adapter-trpc"],
+    img: Network,
+    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
+    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
+    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
+    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
+    border: "border-blue-500 dark:border-blue-400",
+    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
+    category: "Adapter",
+    package: "trpc",
   },
   {
     label: "Firebase",

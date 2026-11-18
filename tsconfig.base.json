@@ -14,6 +14,9 @@
       "path": "./packages/adapter-graphql"
     },
     {
+      "path": "./packages/adapter-trpc"
+    },
+    {
       "path": "./packages/codegen-openapi"
     },
     {
