@@ -2,6 +2,7 @@ import type { RequestInstance } from "@hyper-fetch/core";
 import type { UseCacheOptionsType } from "hooks/use-cache";
 import type { UseEmitterOptionsType } from "hooks/use-emitter";
 import type { UseFetchOptionsType } from "hooks/use-fetch";
+import type { UseInfiniteFetchConfigType } from "hooks/use-infinite-fetch";
 import type { UseListenerOptionsType } from "hooks/use-listener";
 import type { UseQueueOptionsType } from "hooks/use-queue";
 import type { UseSubmitOptionsType } from "hooks/use-submit";
@@ -13,6 +14,8 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
 export type ProviderOptionsType = {
   // Selectors are component specific, they cannot be configured globally
   useFetchConfig?: Partial<DistributiveOmit<UseFetchOptionsType<RequestInstance>, "select">>;
+  // Pagination describes a single request, it is always passed to the hook
+  useInfiniteFetchConfig?: UseInfiniteFetchConfigType;
   useSubmitConfig?: Partial<DistributiveOmit<UseSubmitOptionsType<RequestInstance>, "select">>;
   useCacheConfig?: Partial<Omit<UseCacheOptionsType<RequestInstance>, "select">>;
   useQueueConfig?: Partial<UseQueueOptionsType>;

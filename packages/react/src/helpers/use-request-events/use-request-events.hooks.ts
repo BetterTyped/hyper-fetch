@@ -1,4 +1,4 @@
-import { useWillUnmount } from "@better-hooks/lifecycle";
+import { useIsMounted, useWillUnmount } from "@better-hooks/lifecycle";
 import type {
   ExtractErrorType,
   ExtractResponseType,
@@ -68,6 +68,8 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const lifecycleEvents = useRef<UseRequestEventsLifecycleMap>(new Map());
   const dataEvents = useRef<UseRequestEventsDataMap | null>(null);
+  // Sending can outlive the component - the unmount cleanup never sees listeners attached after it ran
+  const isMounted = useIsMounted();
 
   const removeLifecycleListener = (requestId: string) => {
     const event = lifecycleEvents.current.get(requestId);
@@ -223,6 +225,10 @@ export const useRequestEvents = <R extends RequestInstance>({
   };
 
   const addCacheDataListener = (req: R) => {
+    if (!isMounted.current) {
+      return () => undefined;
+    }
+
     // Data handlers
     // Core emits these events by the logical keys; the handlers skip events of other scopes
     const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
@@ -253,6 +259,10 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const addLifecycleListeners = (req: R, requestId?: string, optimisticResult?: OptimisticCallbackResult<any>) => {
+    if (!isMounted.current) {
+      return () => undefined;
+    }
+
     /**
      * useFetch handles requesting by general keys
      * This makes it possible to deduplicate requests from different places and share data
