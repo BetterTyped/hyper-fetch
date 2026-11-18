@@ -27,6 +27,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
+  private retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private logger: LoggerMethods;
   private client: ClientInstance<{ adapter: Adapter }>;
@@ -203,6 +204,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     this.events.emitQueueChanged(newQueue);
     this.events.emitDrained(newQueue);
 
+    this.removeWaitingRetries(queue);
+
     return newQueue;
   };
 
@@ -257,12 +260,39 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    */
   clear = () => {
     const keys = this.getQueuesKeys();
+    const queues = keys.map((queryKey) => this.getQueue(queryKey));
     keys.forEach((queryKey) => this.cancelRunningRequests(queryKey));
 
     [...this.runningRequests.keys()].forEach((queryKey) => this.setRunningRequests(queryKey, []));
     this.runningRequests.clear();
     this.storage.clear();
+    queues.forEach((queue) => this.removeWaitingRetries(queue));
     this.client.triggerPlugins("onDispatcherCleared", { dispatcher: this });
+  };
+
+  /**
+   * Drop the scheduled retry of the request
+   */
+  private cancelRetry = (requestId: string) => {
+    const timer = this.retryTimers.get(requestId);
+    if (timer === undefined) {
+      return false;
+    }
+
+    clearTimeout(timer);
+    return this.retryTimers.delete(requestId);
+  };
+
+  /**
+   * Clearing does not announce removed items. Requests waiting for a retry have no attempt left to end with,
+   * so without this event their listeners would never be notified.
+   */
+  private removeWaitingRetries = (queue: ResolvedQueueDataType) => {
+    queue.requests.forEach(({ requestId, request, resolved }) => {
+      if (this.cancelRetry(requestId)) {
+        this.client.requestManager.events.emitRemove({ requestId, request, resolved });
+      }
+    });
   };
 
   // *********************************************************************
@@ -506,6 +536,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
     if (!queueItem) {return;}
 
+    this.cancelRetry(requestId);
+
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queryKey, queue);
 
@@ -680,8 +712,23 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // On retry
     if (willRetry) {
       this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
+      // Flushing the queue during the wait sends the request earlier - only the latest failure schedules the retry
+      this.cancelRetry(requestId);
       // Perform retry once request is failed
-      setTimeout(() => {
+      const retryTimer = setTimeout(() => {
+        this.retryTimers.delete(requestId);
+
+        // Dispatcher methods cancel this timer, so the item was taken directly from the storage and nobody announced it
+        if (!this.getRequest(queryKey, requestId)) {
+          this.logger.debug({
+            title: "Request no longer in queue, skipping retry",
+            type: "request",
+            extra: { response, requestDetails, request, requestId },
+          });
+          requestManager.events.emitRemove({ requestId, request, resolved: storageItem.resolved });
+          return;
+        }
+
         this.logger.warning({
           title: "Error response, performing retry",
           type: "request",
@@ -692,6 +739,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
           retries: storageItem.retries + 1,
         });
       }, retryTime || 0);
+      this.retryTimers.set(requestId, retryTimer);
     } else {
       if (request.retry) {
         this.logger.error({
