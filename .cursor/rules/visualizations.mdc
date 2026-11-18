@@ -1,7 +1,7 @@
 ---
 description: Guidelines for when and how to create visual diagrams and graphs in documentation and blog posts
-globs: 
-alwaysApply: true
+globs: documentation/**/*.mdx
+alwaysApply: false
 ---
 
 # Visualization Rules
