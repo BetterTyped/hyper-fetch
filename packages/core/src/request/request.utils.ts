@@ -138,11 +138,43 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
+/**
+ * Runs the response mapper of the request. Mapper is user code running in the middle of the response handling,
+ * so its failure is logged and ends up as a failed response carrying the thrown value as the `error`.
+ * Failures are always delivered through a promise, so sync and async mappers fail the same way.
+ * @internal
+ * @param request request with the optional response mapper
+ * @param response response to be mapped
+ * @returns mapped response, promise of it for async and failed mappers, `undefined` when there is no mapper
+ */
+export const runResponseMapper = <Request extends RequestInstance>(
+  request: Request,
+  response: ResponseType<any, any, AdapterInstance>,
+): MappedResponse => {
+  const getFailedResponse = (error: unknown) => {
+    request.client.logger.error({
+      title: "Response mapper failed",
+      type: "system",
+      extra: { error, request, response },
+    });
+
+    return { ...response, data: null, error, success: false } as ResponseType<any, any, AdapterInstance>;
+  };
+
+  try {
+    const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+
+    return mapping instanceof Promise ? mapping.catch(getFailedResponse) : mapping;
+  } catch (error) {
+    return Promise.resolve(getFailedResponse(error));
+  }
+};
+
 export const mapResponseForSend = async <Request extends RequestInstance>(
   request: Request,
   response: ResponseType<any, any, AdapterInstance>,
 ): Promise<RequestResponseType<Request>> => {
-  const mapping = request.unstable_responseMapper?.(response as ResponseType<any, any, ExtractAdapterType<Request>>);
+  const mapping = runResponseMapper(request, response);
 
   if (mapping instanceof Promise) {
     return (await mapping) as RequestResponseType<Request>;
@@ -240,10 +272,7 @@ export const sendRequest = async <Request extends RequestInstance>(
     const mappings = new WeakMap<RequestResponseEventType<Request>, MappedResponse>();
     const getMapping = (values: RequestResponseEventType<Request>) => {
       if (!mappings.has(values)) {
-        mappings.set(
-          values,
-          request.unstable_responseMapper?.(values.response as ResponseType<any, any, ExtractAdapterType<Request>>),
-        );
+        mappings.set(values, runResponseMapper(request, values.response));
       }
       return mappings.get(values);
     };
