@@ -21,14 +21,16 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    */
   emitInvalidation: (cacheKey: string, isTriggeredExternally = false): void => {
     emitter.emit(getInvalidateKey(), cacheKey, isTriggeredExternally);
-    emitter.emit(getInvalidateByKey(cacheKey), isTriggeredExternally);
+    // Key goes as the event data, so the external trigger flag stays at its place for the emit observers
+    emitter.emit(getInvalidateByKey(cacheKey), cacheKey, isTriggeredExternally);
   },
   /**
    * Delete of cache values
    */
   emitDelete: (cacheKey: string, isTriggeredExternally = false): void => {
     emitter.emit(getDeleteKey(), cacheKey, isTriggeredExternally);
-    emitter.emit(getDeleteByKey(cacheKey), isTriggeredExternally);
+    // Key goes as the event data, so the external trigger flag stays at its place for the emit observers
+    emitter.emit(getDeleteByKey(cacheKey), cacheKey, isTriggeredExternally);
   },
   /**
    * Cache data listener for all keys

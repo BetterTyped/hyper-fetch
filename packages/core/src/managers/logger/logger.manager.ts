@@ -1,6 +1,6 @@
 import type { ClientInstance } from "client";
 import EventEmitter from "events";
-import type { LogLevel, LoggerOptionsType, LoggerType, LoggerMethods } from "managers";
+import type { LogLevel, LoggerArgs, LoggerOptionsType, LoggerType, LoggerMethods } from "managers";
 import { logger, logLevelOrder } from "managers";
 
 /**
@@ -35,19 +35,32 @@ export class LoggerManager {
   initialize = (client: Pick<ClientInstance, "debug">, module: string): LoggerMethods => {
     this.client = client;
 
+    // Modules keep their logger methods for the whole lifetime. When they come from the logger manager of the client,
+    // the logs have to follow the manager currently assigned to it - otherwise `client.setLogger()` would affect
+    // only the modules initialized later.
+    const getClientManager = () => (client as Partial<Pick<ClientInstance, "loggerManager">>).loggerManager;
+    const isClientManager = getClientManager() === this;
+
+    const log: LoggerType = (data) => {
+      const clientManager = getClientManager();
+      const manager = isClientManager && clientManager instanceof LoggerManager ? clientManager : this;
+      manager.log(data, client);
+    };
+
     return {
-      error: (data) => this.log({ ...data, level: "error", module }),
-      warning: (data) => this.log({ ...data, level: "warning", module }),
-      info: (data) => this.log({ ...data, level: "info", module }),
-      debug: (data) => this.log({ ...data, level: "debug", module }),
+      error: (data) => log({ ...data, level: "error", module }),
+      warning: (data) => log({ ...data, level: "warning", module }),
+      info: (data) => log({ ...data, level: "info", module }),
+      debug: (data) => log({ ...data, level: "debug", module }),
     };
   };
 
-  private log: LoggerType = (data) => {
-    if (!this.client.debug) {
+  private log = (data: LoggerArgs, client: Pick<ClientInstance, "debug"> = this.client) => {
+    if (!client.debug) {
       return;
     }
-    if (logLevelOrder.indexOf(this.level) <= logLevelOrder.indexOf(data.level)) {
+    // Level is the least severe type of the logs to show - logs of this level and the more severe ones are printed
+    if (logLevelOrder.indexOf(this.level) < logLevelOrder.indexOf(data.level)) {
       return;
     }
     if (this.modules && !this.modules.includes(data.module)) {

@@ -3,6 +3,16 @@ import type { RequiredKeys } from "types";
 
 import { onWindowEvent, onDocumentEvent, isNavigatorOnline } from "./app.manager.utils";
 
+/** Document is visible unless the browser reports it as hidden - when the state is unknown we assume it is visible */
+const isDocumentVisible = () => {
+  try {
+    return window.document.visibilityState !== "hidden";
+  } catch {
+    /* istanbul ignore next */
+    return true;
+  }
+};
+
 export enum AppEvents {
   FOCUS = "focus",
   BLUR = "blur",
@@ -14,7 +24,8 @@ export const appManagerInitialOptions: RequiredKeys<AppManagerOptionsType> = {
   initiallyFocused: true,
   initiallyOnline: isNavigatorOnline,
   focusEvent: (setFocused) => {
-    const unmountVisibility = onDocumentEvent("visibilitychange", () => setFocused(true));
+    // Visibility changes in both directions - hidden document means the application lost the focus
+    const unmountVisibility = onDocumentEvent("visibilitychange", () => setFocused(isDocumentVisible()));
     const unmountFocus = onWindowEvent("focus", () => setFocused(true));
     const unmountBlur = onWindowEvent("blur", () => setFocused(false));
 
