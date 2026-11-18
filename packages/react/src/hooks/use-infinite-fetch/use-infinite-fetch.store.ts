@@ -208,14 +208,8 @@ export class InfiniteStore {
 
   /** Stores created while rendering are removed when the component never mounts */
   scheduleUnusedCheck = () => {
-    if (this.unusedTimer) {
-      clearTimeout(this.unusedTimer);
-    }
     this.unusedTimer = setTimeout(() => {
       this.unusedTimer = null;
-      if (this.listeners.size > 0) {
-        return;
-      }
       if (this.running || this.queue.length > 0) {
         this.scheduleUnusedCheck();
       } else {
@@ -253,11 +247,10 @@ export class InfiniteStore {
   };
 
   private schedule = (kind: OperationKind) => {
-    let resolve: (value: any) => void = () => null;
-    const promise = new Promise<any>((resolver) => {
-      resolve = resolver;
+    const operation = { kind, cancelled: false } as Operation;
+    operation.promise = new Promise<any>((resolve) => {
+      operation.resolve = resolve;
     });
-    const operation: Operation = { kind, cancelled: false, promise, resolve };
 
     if (kind === "initial") {
       this.settled = false;
@@ -265,7 +258,7 @@ export class InfiniteStore {
     this.queue.push(operation);
     this.pump();
     this.publish();
-    return promise;
+    return operation.promise;
   };
 
   private pump = async () => {
@@ -278,12 +271,14 @@ export class InfiniteStore {
     }
 
     this.running = operation;
+    const previousPages = this.pages;
     let response = null;
     try {
       response = await this.perform(operation);
     } catch (error) {
-      this.result = { error, status: null, extra: null, success: false };
+      this.setFailure(error);
     }
+    this.keepValidPages(previousPages);
     this.running = null;
     this.refetchedKeys.clear();
 
@@ -389,9 +384,6 @@ export class InfiniteStore {
 
   private performRefetch = async (operation: Operation) => {
     const current = this.pages;
-    if (current.length === 0) {
-      return this.performInitial(operation);
-    }
     current.forEach((page) => this.refetchedKeys.add(page.storageKey));
 
     return getPaginationMode(this.options.pagination) === "cursor"
@@ -606,6 +598,23 @@ export class InfiniteStore {
     });
   };
 
+  private setFailure = (error: unknown) => {
+    this.result = { error, status: null, extra: null, success: false };
+  };
+
+  /**
+   * Pagination callbacks read the data of every page. When one of them throws, the page that caused it is not
+   * used and the error is reported instead of breaking the list.
+   */
+  private keepValidPages = (previousPages: InfinitePage[]) => {
+    try {
+      this.createSnapshot();
+    } catch (error) {
+      this.pages = previousPages;
+      this.setFailure(error);
+    }
+  };
+
   private setResult = (response: any) => {
     this.result = {
       error: response.success ? null : response.error,
@@ -675,11 +684,13 @@ export class InfiniteStore {
       return;
     }
 
+    const previousPages = this.pages;
     this.pages = this.pages.map((item, itemIndex) => {
       return itemIndex === index
         ? { ...item, data: mapped.data, responseTimestamp: Number(value.responseTimestamp) }
         : item;
     });
+    this.keepValidPages(previousPages);
     this.publish();
   };
 

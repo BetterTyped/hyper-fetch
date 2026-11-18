@@ -49,19 +49,21 @@ const waitForResponse = (request: RequestInstance, requestId: string, cancellers
 const sendPage = async ({ request, force, cancellers }: LoadPageOptions) => {
   const { fetchDispatcher } = request.client;
   const pageRequest = force ? request.setDeduplicate(false) : request;
-  let cancel: VoidFunction = () => null;
+  let sentRequestId = "";
+
+  const cancel = () => {
+    fetchDispatcher.delete(
+      scopeKey(request.queryKey, request.scope),
+      sentRequestId,
+      scopeKey(request.abortKey, request.scope),
+    );
+  };
+  cancellers.add(cancel);
 
   const response = await (pageRequest as RequestInstance).send({
     dispatcherType: "fetch",
     onBeforeSent: ({ requestId }: { requestId: string }) => {
-      cancel = () => {
-        fetchDispatcher.delete(
-          scopeKey(request.queryKey, request.scope),
-          requestId,
-          scopeKey(request.abortKey, request.scope),
-        );
-      };
-      cancellers.add(cancel);
+      sentRequestId = requestId;
     },
   } as any);
 
