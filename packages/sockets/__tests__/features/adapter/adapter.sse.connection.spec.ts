@@ -1,5 +1,4 @@
-import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
-import { waitFor } from "@testing-library/dom";
+import { createSseMockingServer } from "@hyper-fetch/testing";
 import { ServerSentEventsAdapter } from "adapter-sse";
 
 import { createSocket } from "../../utils/socket.utils";
@@ -10,39 +9,53 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 const { startServer } = createSseMockingServer();
 
-describe("Socket SSE [ Connection ]", () => {
-  let socket: ReturnType<typeof createSocket>;
+/** Opens the mocked connection, `startServer` waits for a timer so the clock has to move for it to finish */
+const openConnection = async (start: () => Promise<void>) => {
+  const opened = start();
+  await vi.advanceTimersByTimeAsync(0);
+  await opened;
+};
 
-  beforeEach(async () => {
-    socket?.emitter.removeAllListeners();
-    socket = createSocket(socketOptions);
+describe("Socket SSE [ Connection ]", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    // A socket that never opened reschedules its reconnection forever. Dropping the timer stops it from
+    // replacing the EventSource registered for the shared url while the next test is running.
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it("should auto connect", async () => {
     const spy = vi.fn();
+    const socket = createSocket(socketOptions);
     socket.events.onConnected(spy);
 
-    startServer();
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-    });
+    await openConnection(startServer);
+
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should prevent initial connection", async () => {
     const spy = vi.fn();
-    socket = createSocket({ adapterOptions: { autoConnect: false } });
-    socket.events.onConnected(spy);
-    startServer();
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(0);
-    });
+    const url = "ws://localhost:2346";
+    const { getSource } = createSseMockingServer(url);
+    const socket = createSocket({ ...socketOptions, url, adapterOptions: { autoConnect: false } });
+    socket.events.onConnecting(spy);
+
+    await vi.advanceTimersByTimeAsync(10);
+
+    expect(spy).toHaveBeenCalledTimes(0);
+    expect(getSource()).toBeUndefined();
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
-    const spy = vi.fn();
-    const spy2 = vi.fn();
-    const spy3 = vi.fn();
+    const onReconnecting = vi.fn();
+    const onConnected = vi.fn();
+    const onConnecting = vi.fn();
     const url = "ws://localhost:2345";
     const { startServer: startNewServer } = createSseMockingServer(url);
     const newSocket = createSocket({
@@ -51,17 +64,30 @@ describe("Socket SSE [ Connection ]", () => {
       reconnectTime: 30,
       adapterOptions: { autoConnect: false },
     });
-    newSocket.events.onReconnecting(spy);
-    newSocket.events.onConnected(spy2);
-    newSocket.events.onConnecting(spy3);
-    newSocket.adapter.connect();
-    await sleep(40);
-    startNewServer();
+    newSocket.events.onReconnecting(onReconnecting);
+    newSocket.events.onConnected(onConnected);
+    newSocket.events.onConnecting(onConnecting);
 
-    await waitFor(() => {
-      expect(spy3).toHaveBeenCalledTimes(4);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledTimes(1);
-    });
+    newSocket.adapter.connect();
+    await vi.advanceTimersByTimeAsync(29);
+
+    expect(onConnecting).toHaveBeenCalledTimes(1);
+    expect(onReconnecting).toHaveBeenCalledTimes(0);
+
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(onConnecting).toHaveBeenCalledTimes(3);
+    expect(onReconnecting).toHaveBeenCalledTimes(1);
+
+    await openConnection(startNewServer);
+
+    expect(onConnecting).toHaveBeenCalledTimes(4);
+    expect(onReconnecting).toHaveBeenCalledTimes(1);
+    expect(onConnected).toHaveBeenCalledTimes(1);
+
+    // The open connection cancelled the timeout of the attempt that succeeded
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(onReconnecting).toHaveBeenCalledTimes(1);
   });
 });
