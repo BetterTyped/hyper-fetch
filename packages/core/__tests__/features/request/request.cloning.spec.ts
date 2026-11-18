@@ -43,4 +43,32 @@ describe("Request [ Cloning ]", () => {
       expect(clone.cacheKey).toBe("test");
     });
   });
+
+  describe("When cloning request with a falsy payload", () => {
+    const createPayloadRequest = () =>
+      client.createRequest<{ payload: number | boolean | string | null }>()({ endpoint: "/users", method: "POST" });
+
+    it.each([[0], [false], [""], [null]])("should set the %j payload", (payload) => {
+      expect(createPayloadRequest().setPayload(payload).payload).toBe(payload);
+    });
+
+    it.each([[0], [false], [""], [null]])("should keep the %j payload in the next clones", (payload) => {
+      const clone = createPayloadRequest().setPayload(payload).setHeaders({ "x-test": "1" }).clone();
+
+      expect(clone.payload).toBe(payload);
+    });
+
+    it.each([[0], [false], [""], [null]])("should replace the previous payload with %j", (payload) => {
+      expect(createPayloadRequest().setPayload("previous").setPayload(payload).payload).toBe(payload);
+    });
+
+    it.each([[0], [false], [""], [null]])("should pass the %j payload through the clone options", (payload) => {
+      expect(createPayloadRequest().clone({ payload }).payload).toBe(payload);
+    });
+
+    it("should keep the payload when the clone does not change it", () => {
+      expect(createPayloadRequest().setPayload("previous").clone({}).payload).toBe("previous");
+      expect(createPayloadRequest().setPayload("previous").clone({ payload: undefined }).payload).toBe("previous");
+    });
+  });
 });

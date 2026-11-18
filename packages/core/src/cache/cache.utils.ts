@@ -9,7 +9,8 @@ export const getCacheData = <T extends RequestInstance>(
   const { data, success } = response;
 
   const previousData = !success && previousResponse ? previousResponse.data : null;
-  const computedData = data || previousData;
+  // Falsy values like 0, false or "" are valid responses
+  const computedData = data ?? previousData;
 
   return { ...response, data: computedData };
 };

@@ -553,7 +553,8 @@ export class Request<
       queryKey: this.updatedQueryKey ? configuration?.queryKey || this.queryKey : undefined,
       endpoint: this.paramsMapper(configuration?.params || this.params),
       queryParams: configuration?.queryParams || this.queryParams,
-      payload: configuration?.payload || this.payload,
+      // Falsy values like 0, false, "" or null are valid payloads
+      payload: configuration?.payload === undefined ? this.payload : configuration.payload,
       params: (configuration?.params || this.params) as
         | EmptyTypes
         | (Endpoint extends string ? ExtractUrlParams<Endpoint> : never),
