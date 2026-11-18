@@ -1,7 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
-import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
+import { client, createRequest, renderUseSubmit } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -37,7 +37,13 @@ describe("useSubmit [ Retry ]", () => {
         response.result.current.submit();
       });
 
-      await waitForRender(150);
+      // Wait for the outcome instead of a fixed time - once the request left the queue, no retry can follow
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+      await waitFor(() => {
+        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
+      });
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -53,7 +59,13 @@ describe("useSubmit [ Retry ]", () => {
         response.result.current.submit();
       });
 
-      await waitForRender(150);
+      // Wait for the outcome instead of a fixed time - the retries can take longer on a busy machine
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(2);
+      });
+      await waitFor(() => {
+        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
+      });
 
       expect(spy).toHaveBeenCalledTimes(2);
     });
@@ -67,7 +79,13 @@ describe("useSubmit [ Retry ]", () => {
         response.result.current.submit();
       });
 
-      await waitForRender(150);
+      // Wait for the outcome instead of a fixed time - the retries can take longer on a busy machine
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(3);
+      });
+      await waitFor(() => {
+        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
+      });
 
       expect(spy).toHaveBeenCalledTimes(3);
     });

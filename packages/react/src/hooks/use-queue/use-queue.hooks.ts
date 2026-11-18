@@ -1,4 +1,10 @@
-import type { RequestInstance, ResolvedQueueItemType, QueueDataType, QueueItemType } from "@hyper-fetch/core";
+import type {
+  ProgressType,
+  RequestInstance,
+  ResolvedQueueItemType,
+  QueueDataType,
+  QueueItemType,
+} from "@hyper-fetch/core";
 import { Request, getRequestDispatcher, scopeKey } from "@hyper-fetch/core";
 import type { UseQueueOptionsType, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useQueueDefaultOptions } from "hooks/use-queue";
@@ -13,6 +19,15 @@ const canUpdate = (
   }
   return true;
 };
+
+const getInitialProgress = (): ProgressType => ({
+  progress: 0,
+  timeLeft: 0,
+  sizeLeft: 0,
+  total: 0,
+  loaded: 0,
+  startTimestamp: 0,
+});
 
 /**
  * This hook allows you to monitor and control dispatcher request queues for a given request,
@@ -40,9 +55,6 @@ export const useQueue = <Request extends RequestInstance>(
 
   const [dispatcher] = getRequestDispatcher(request, dispatcherType);
 
-  const [stopped, setStopped] = useState(false);
-  const [requests, setRequests] = useState<QueueRequest<Request>[]>([]);
-
   // ******************
   // Mapping
   // ******************
@@ -50,45 +62,54 @@ export const useQueue = <Request extends RequestInstance>(
   const createRequestsArray = useCallback(
     (
       queueElements: ResolvedQueueItemType<Request>[],
-      prevRequests?: QueueRequest<Request>[],
+      prevRequests: QueueRequest<Request>[] = [],
     ): QueueRequest<Request>[] => {
-      const newRequests = queueElements
-        // Keep only unique requests
-        .filter((el) => !prevRequests?.some((prevEl) => prevEl.requestId === el.requestId))
-        .map<QueueRequest<Request>>((req) => ({
-          failed: false,
-          canceled: false,
-          removed: false,
-          success: false,
-          ...req,
-          downloading: {
-            progress: 0,
-            timeLeft: 0,
-            sizeLeft: 0,
-            total: 0,
-            loaded: 0,
-            startTimestamp: 0,
-          },
-          uploading: {
-            progress: 0,
-            timeLeft: 0,
-            sizeLeft: 0,
-            total: 0,
-            loaded: 0,
-            startTimestamp: 0,
-          },
-          stopRequest: () => dispatcher.stopRequest(queryKey, req.requestId),
-          startRequest: () => dispatcher.startRequest(queryKey, req.requestId),
-          deleteRequest: () => dispatcher.delete(queryKey, req.requestId, abortKey),
-        }));
+      const previous = new Map(prevRequests.map((el) => [el.requestId, el]));
 
-      if (keepFinishedRequests && prevRequests) {
-        return [...prevRequests, ...newRequests];
+      // The list mirrors the dispatcher queue - requests we already track keep their local state
+      // (progress and result flags) and get the latest queue values (stopped, retries, resolved)
+      const current = new Map(
+        queueElements.map((req) => {
+          const tracked = previous.get(req.requestId);
+          const item: QueueRequest<Request> = tracked
+            ? { ...tracked, ...req }
+            : {
+                failed: false,
+                canceled: false,
+                removed: false,
+                success: false,
+                ...req,
+                downloading: getInitialProgress(),
+                uploading: getInitialProgress(),
+                stopRequest: () => dispatcher.stopRequest(queryKey, req.requestId),
+                startRequest: () => dispatcher.startRequest(queryKey, req.requestId),
+                deleteRequest: () => dispatcher.delete(queryKey, req.requestId, abortKey),
+              };
+          return [req.requestId, item];
+        }),
+      );
+
+      if (!keepFinishedRequests) {
+        return [...current.values()];
       }
 
-      return newRequests;
+      // Requests that left the queue keep their place, new ones are added at the end
+      const kept = prevRequests.map((el) => current.get(el.requestId) || el);
+      const added = [...current.values()].filter((el) => !previous.has(el.requestId));
+
+      return [...kept, ...added];
     },
     [abortKey, dispatcher, queryKey, keepFinishedRequests],
+  );
+
+  // ******************
+  // State
+  // ******************
+
+  // Read the queue right away, so the first render already shows its real state
+  const [stopped, setStopped] = useState(() => dispatcher.getQueue<Request>(queryKey).stopped);
+  const [requests, setRequests] = useState<QueueRequest<Request>[]>(() =>
+    createRequestsArray(dispatcher.getQueue<Request>(queryKey).requests),
   );
 
   const mergePayloadType = useCallback((requestId: string, data: Partial<QueueRequest<Request>>) => {
@@ -101,10 +122,6 @@ export const useQueue = <Request extends RequestInstance>(
       }),
     );
   }, []);
-
-  // ******************
-  // State
-  // ******************
 
   const getInitialState = () => {
     const requestQueue = dispatcher.getQueue<Request>(queryKey);
@@ -141,15 +158,31 @@ export const useQueue = <Request extends RequestInstance>(
     const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queryKey, updateQueueState);
     const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queryKey, updateQueueState);
 
-    const unmountFailed = requestManager.events.onResponse(({ requestId, response }) => {
-      if (!response.success) {
-        setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, failed: true } : el)));
-      } else {
-        setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, success: true } : el)));
-      }
+    const unmountResponse = requestManager.events.onResponse(({ requestId, response, details }) => {
+      setRequests((prev) =>
+        prev.map((el) => {
+          if (el.requestId !== requestId) {
+            return el;
+          }
+          if (response.success) {
+            return { ...el, success: true };
+          }
+          // The request is not done yet when it will be sent again - after the retry time,
+          // once the queue gets started again or when the network connection is back
+          const isRepeated =
+            !!details?.willRetry || !!details?.isCanceled || (!!details?.isOffline && !!el.request.offline);
+          return isRepeated ? el : { ...el, failed: true };
+        }),
+      );
     });
     const unmountCanceled = requestManager.events.onAbort(({ requestId }) => {
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, canceled: true } : el)));
+    });
+    // Canceled request can be sent again - for example after starting the stopped queue
+    const unmountStarted = requestManager.events.onRequestStart(({ requestId }) => {
+      setRequests((prev) =>
+        prev.map((el) => (el.requestId === requestId && el.canceled ? { ...el, canceled: false } : el)),
+      );
     });
 
     const unmountRemoved = requestManager.events.onRemove(({ requestId }) => {
@@ -175,8 +208,9 @@ export const useQueue = <Request extends RequestInstance>(
       unmountChange();
       unmountDownload();
       unmountUpload();
-      unmountFailed();
+      unmountResponse();
       unmountCanceled();
+      unmountStarted();
       unmountRemoved();
     };
 
@@ -189,17 +223,8 @@ export const useQueue = <Request extends RequestInstance>(
 
   useEffect(getInitialState, [createRequestsArray, dispatcher, queryKey]);
 
-  useEffect(mountEvents, [
-    stopped,
-    requests,
-    setRequests,
-    setStopped,
-    queryKey,
-    dispatcher.events,
-    requestManager.events,
-    updateQueueState,
-    mergePayloadType,
-  ]);
+  // The handlers only use state updaters, so there is no need to subscribe again when the state changes
+  useEffect(mountEvents, [queryKey, dispatcher.events, requestManager.events, updateQueueState, mergePayloadType]);
 
   return {
     stopped,
