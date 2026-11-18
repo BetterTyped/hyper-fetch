@@ -49,11 +49,28 @@ export const AxiosAdapter = new Adapter<
       onBeforeRequest();
 
       const controller = getAbortController();
-      const unmountListener = () =>
-        createAbortListener({
-          status: 0,
-          extra: { headers: {} },
-        });
+      // Reports the abort itself, so the request resolves with the abort error (and is never retried)
+      const unmountListener = createAbortListener({
+        status: 0,
+        extra: { headers: {} },
+      });
+
+      if (controller?.signal.aborted) {
+        unmountListener();
+        return;
+      }
+
+      // The upload is over and the response has started once: with the first downloaded bytes, or with the
+      // response itself when it has no body
+      let hasResponseStarted = false;
+      const startResponse = () => {
+        if (hasResponseStarted) {
+          return;
+        }
+        hasResponseStarted = true;
+        onRequestEnd();
+        onResponseStart();
+      };
 
       onRequestStart();
       axios({
@@ -67,20 +84,27 @@ export const AxiosAdapter = new Adapter<
           onRequestProgress(progressEvent);
         },
         onDownloadProgress: (progressEvent) => {
-          onRequestEnd();
-          onResponseStart();
+          startResponse();
           onResponseProgress(progressEvent);
         },
       })
         .then((response) => {
-          onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers } });
+          startResponse();
           onResponseEnd();
+          onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers } });
         })
         .catch((error) => {
+          // The abort listener already resolved the request
+          if (controller?.signal.aborted) {
+            return;
+          }
+          if (error.response) {
+            startResponse();
+          }
           onError({
             error,
             status: error.response?.status || adapter.systemErrorStatus,
-            extra: { headers: error.response?.headers },
+            extra: { headers: error.response?.headers ?? {} },
           });
         })
         .finally(() => {
