@@ -9,7 +9,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ Connection ]", () => {
-  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
   let socket: ReturnType<typeof createSocket>;
 
   beforeEach(async () => {
@@ -41,17 +41,38 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should reconnect when going online", async () => {
     const spy = vi.fn();
+    const disconnectedSpy = vi.fn();
     await waitForConnection(socket);
+    socket.events.onDisconnected(disconnectedSpy);
+
+    // The network goes down and takes the connection with it
     socket.appManager.setOnline(false);
-    socket.onDisconnected(() => {
-      socket.adapter.connected = false;
-      socket.events.onConnected(spy);
-      socket.appManager.setOnline(true);
+    getServer().close({ code: 1006, reason: "Network lost", wasClean: false });
+    await waitFor(() => {
+      expect(disconnectedSpy).toHaveBeenCalledTimes(1);
     });
-    await socket.disconnect();
+
+    startServer();
+    socket.events.onConnected(spy);
+    socket.appManager.setOnline(true);
+
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should stay disconnected when going online after a manual disconnect", async () => {
+    const connectingSpy = vi.fn();
+    await waitForConnection(socket);
+    await socket.disconnect();
+    socket.events.onConnecting(connectingSpy);
+
+    socket.appManager.setOnline(false);
+    socket.appManager.setOnline(true);
+
+    expect(connectingSpy).not.toHaveBeenCalled();
+    expect(socket.adapter.connecting).toBe(false);
+    expect(socket.adapter.connected).toBe(false);
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
@@ -59,12 +80,13 @@ describe("Socket Adapter [ Connection ]", () => {
     const newUrl = "ws://test";
     socket = createSocket({ url: newUrl, reconnectTime: 1 });
     socket.events.onReconnecting(spy);
-    await socket.adapter.connect();
 
+    // Nothing listens on this url, so the attempt never opens and the connection timeout starts over
     await waitFor(() => {
-      return !!socket.adapter.reconnectionAttempts;
+      expect(spy).toHaveBeenCalled();
     });
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenNthCalledWith(1, { attempts: 0 });
+    await socket.disconnect();
   });
 });

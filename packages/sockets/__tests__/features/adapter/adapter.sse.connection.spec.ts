@@ -1,4 +1,4 @@
-import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
+import { createSseMockingServer } from "@hyper-fetch/testing";
 import { waitFor } from "@testing-library/dom";
 import { ServerSentEventsAdapter } from "adapter-sse";
 
@@ -54,14 +54,21 @@ describe("Socket SSE [ Connection ]", () => {
     newSocket.events.onReconnecting(spy);
     newSocket.events.onConnected(spy2);
     newSocket.events.onConnecting(spy3);
-    newSocket.adapter.connect();
-    await sleep(40);
-    startNewServer();
+    // Fake timers make "exactly one connection timeout passed" independent of the machine load
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      newSocket.adapter.connect();
+      await vi.advanceTimersByTimeAsync(30);
+      const opening = startNewServer();
+      await vi.advanceTimersByTimeAsync(0);
+      await opening;
+    } finally {
+      vi.useRealTimers();
+    }
 
-    await waitFor(() => {
-      expect(spy3).toHaveBeenCalledTimes(4);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledTimes(1);
-    });
+    expect(spy3).toHaveBeenCalledTimes(4);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    await newSocket.disconnect();
   });
 });
