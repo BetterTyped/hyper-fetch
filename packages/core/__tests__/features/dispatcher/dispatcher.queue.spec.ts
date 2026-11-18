@@ -115,10 +115,11 @@ describe("Dispatcher [ Queue ]", () => {
         dispatcher.add(request);
       }, 20);
 
-      await sleep(100);
+      await waitFor(() => {
+        expect(spy2).toHaveBeenCalledTimes(3);
+      });
 
       expect(spy1).toHaveBeenCalledTimes(3);
-      expect(spy2).toHaveBeenCalledTimes(3);
     });
   });
   describe("When using dispatcher performRequest method", () => {
