@@ -501,6 +501,14 @@ function UserProfile() {
 }
 ```
 
+:::tip React
+
+In React, render the [`Hydrate`](/react/06-hydrate.mdx) component instead of calling `client.hydrate()` during render.
+It also renders the data during server rendering, writes it before the hooks mount, never replaces newer cache data with
+an older snapshot, and works with several clients.
+
+:::
+
 ---
 
 ## TypeScript

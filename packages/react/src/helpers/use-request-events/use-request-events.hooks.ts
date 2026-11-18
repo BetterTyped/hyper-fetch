@@ -24,6 +24,7 @@ import type {
   UseRequestEventsLifecycleMap,
 } from "helpers";
 import { useRef } from "react";
+import { isSameScope } from "utils/scope.utils";
 
 /**
  * This is helper hook that handles main Hyper-Fetch event/data flow
@@ -134,7 +135,12 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const handleGetLoadingEvent = (req: R) => {
-    return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
+    return ({ loading, request: eventRequest }: RequestLoadingEventType<RequestInstance>) => {
+      // Loading events are emitted by the logical queryKey - skip requests of other scopes
+      if (!isSameScope(eventRequest.scope, req.scope)) {
+        return;
+      }
+
       const isProcessing = getIsDataProcessing(req.cacheKey);
 
       // When we process the cache data, we don't want to change the loading state during it
@@ -209,15 +215,18 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(
-      scopeKey(req.queryKey, req.scope),
-      handleGetLoadingEvent(req),
-    );
+    // Core emits these events by the logical keys; the handlers skip events of other scopes
+    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
       ExtractAdapterType<R>
-    >(req.cacheKey, setCacheData);
+    >(req.cacheKey, (cacheData) => {
+      if (!isSameScope(cacheData.scope, req.scope)) {
+        return;
+      }
+      setCacheData(cacheData);
+    });
 
     const unmount = () => {
       loadingUnmount();
