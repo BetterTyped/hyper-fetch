@@ -1,0 +1,94 @@
+# HyperFetch
+
+Type-safe data-exchange framework for HTTP, GraphQL, Firebase and realtime transports. This is a public library: every
+exported type and behavior is a promise to its users.
+
+Domain vocabulary lives in [CONTEXT.md](CONTEXT.md). Use those terms exactly, and add new concepts there in the same
+change.
+
+## Packages
+
+pnpm workspaces and Nx. Packages resolve each other through `dist/`, so build a package before typechecking its
+dependents.
+
+| Directory                         | Published as                   | Nx project        |
+| --------------------------------- | ------------------------------ | ----------------- |
+| `packages/core`                   | `@hyper-fetch/core`            | `core`            |
+| `packages/sockets`                | `@hyper-fetch/sockets`         | `sockets`         |
+| `packages/react`                  | `@hyper-fetch/react`           | `react`           |
+| `packages/adapter-axios`          | `@hyper-fetch/axios`           | `axios`           |
+| `packages/adapter-graphql`        | `@hyper-fetch/graphql`         | `graphql`         |
+| `packages/adapter-firebase`       | `@hyper-fetch/firebase`        | `firebase`        |
+| `packages/adapter-firebase-admin` | `@hyper-fetch/firebase-admin`  | `firebase-admin`  |
+| `packages/plugin-devtools`        | `@hyper-fetch/plugin-devtools` | `plugin-devtools` |
+| `packages/plugin-eslint`          | `eslint-plugin-hyper-fetch`    | `plugin-eslint`   |
+| `packages/cli`                    | `@hyper-fetch/cli`             | `cli`             |
+| `packages/testing`                | `@hyper-fetch/testing`         | `testing`         |
+| `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
+
+`documentation/` is the docs site. `examples/` holds sample apps.
+
+## Verification
+
+Work is finished when everything the branch affects is green. Run this from the repo root:
+
+```bash
+pnpm exec nx affected -t build lint typecheck --base=origin/main --exclude='documentation,shop,react-app,next-app,next-app-router'
+```
+
+```bash
+pnpm exec nx affected -t test --parallel=1 --base=origin/main --exclude='firebase,firebase-admin,documentation,shop,react-app,next-app,next-app-router'
+```
+
+While iterating, stay inside one package:
+
+```bash
+pnpm exec vitest run __tests__/features/cache/cache.base.spec.ts
+```
+
+- Fix every error you introduced before reporting the work as complete. Never report a check you did not run.
+- `pnpm format` rewrites unrelated files. Revert those instead of committing them.
+- Changes limited to Markdown, MDX or agent rules need no package checks.
+
+## Non-negotiables
+
+1. **Every bug fix ships with a regression test** that was seen failing first.
+2. **Never make a test pass by retrying, skipping or widening a timeout.** Find the cause.
+3. **No new `as any`, no dynamic imports** in `packages/*/src`.
+4. **Requests report failure through the response.** `send()` resolves, it does not reject.
+5. **Exported API changes update TSDoc and documentation in the same change.**
+6. **The commit type decides the release.** `feat`, `fix`, `perf` and `revert` publish every package to npm. Read
+   `.cursor/rules/commit-conventions.mdc` before committing.
+7. **Never hand-edit `dist/`** or other build output.
+
+## Rules by area
+
+Read the matching rule before changing an area.
+
+| Working on                            | Rule in `.cursor/rules/`                                                     |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| Any code in `packages/*/src`          | `library-design.mdc`, `typescript.mdc`                                       |
+| Hooks in `packages/react/src`         | `react.mdc`                                                                  |
+| Specs in `packages/*/__tests__`       | `testing.mdc`                                                                |
+| A bug, failure or regression          | `debugging.mdc`                                                              |
+| Commits and releases                  | `commit-conventions.mdc`                                                     |
+| Symbols used by `(@import …)` in docs | `import-tsdoc.mdc`                                                           |
+| Consumer-facing examples              | `hyper-fetch.mdc`, `hyper-fetch-react.mdc`                                   |
+| Pages in `documentation/docs`         | `documentation.mdc`, `guides.mdc`, `visualizations.mdc`                      |
+| Posts in `documentation/blog`         | `blog-posts.mdc`, `tutorials.mdc`                                            |
+| Landing page and docs UI              | `landing-page.mdc`, `landing-copy-style.mdc`, `branding.mdc`, `tailwind.mdc` |
+| READMEs                               | `readme-conventions.mdc`                                                     |
+
+## Skills
+
+Workflows in `.claude/skills/`:
+
+- `fix-bug`: reproduce a bug with a failing test, fix it, keep the test.
+- `fix-flaky-tests`: root-cause intermittent failures and prove the fix by repeated runs.
+- `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.
+
+## Decisions
+
+Architecture decisions that are hard to reverse or cross-cutting are recorded in `docs/adr/NNNN-<slug>.md` as context,
+decision and consequences. Read the ADRs for an area before restructuring it. If a recorded decision looks wrong, raise
+it instead of refactoring around it. Create the folder when the first ADR is needed.

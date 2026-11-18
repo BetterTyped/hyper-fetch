@@ -1,6 +1,6 @@
 ---
-description: 
-globs: *.tsx
+description: How applications should consume HyperFetch in React. Use when writing examples, guides or sample apps, not when changing the @hyper-fetch/react package itself.
+globs: examples/**/*.tsx,documentation/docs/**/*.mdx
 alwaysApply: false
 ---
 
