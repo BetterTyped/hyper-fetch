@@ -8,7 +8,7 @@ import React, { Suspense } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 
-import { baseUrl, createListServer, failure, pageItems } from "../../utils/use-infinite-fetch.utils";
+import { baseUrl, createListServer, failure, pageItems, settleRequests } from "../../utils/use-infinite-fetch.utils";
 
 const { startServer, stopServer, resetMocks, mockList, calls, resetCalls } = createListServer();
 
@@ -57,7 +57,10 @@ describe("useInfiniteFetch [ Boundaries ]", () => {
     mockList("/posts", ({ query }) => pageItems(Number(query.page)));
   });
 
-  afterEach(() => resetMocks());
+  afterEach(async () => {
+    await settleRequests(client);
+    resetMocks();
+  });
 
   describe("suspense", () => {
     const List = () => {

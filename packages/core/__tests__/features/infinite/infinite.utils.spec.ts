@@ -20,6 +20,10 @@ describe("Infinite [ Utils ]", () => {
     endpoint: "/posts",
   }) as RequestInstance;
 
+  // Setting a custom key flags the request it was called on, so those tests cannot share one
+  const createRequest = () =>
+    client.createRequest<{ response: any; queryParams: any }>()({ endpoint: "/posts" }) as RequestInstance;
+
   const context = (pagination: PaginationConfig, data: any, param: unknown, target: RequestInstance = request) => ({
     request: target,
     pagination,
@@ -89,7 +93,7 @@ describe("Infinite [ Utils ]", () => {
     });
 
     it("should separate the keys of pages sharing a custom cache key", () => {
-      const target = request.setCacheKey("posts");
+      const target = createRequest().setCacheKey("posts");
 
       const first = getPageRequest(target, { page: "page" }, 1);
       const second = getPageRequest(target, { page: "page" }, 2);
@@ -223,6 +227,100 @@ describe("Infinite [ Utils ]", () => {
 
     it("should prefer the hasPrevious override", () => {
       expect(getHasPreviousPage(context({ page: "page", hasPrevious: () => false }, [], 3))).toBe(false);
+    });
+  });
+
+  describe("page size", () => {
+    it.each([0, -2, "many", null])("should ignore a limit of %s", (limit) => {
+      const target = request.setQueryParams({ limit });
+
+      expect(getNextPageParam(context({ offset: "o", limit: "limit" }, [1, 2, 3], 4, target))).toBe(7);
+      expect(getHasNextPage(context({ page: "page", limit: "limit" }, [1], 1, target))).toBe(true);
+    });
+
+    it("should go back by the size of the page without a limit", () => {
+      expect(getPreviousPageParam(context({ offset: "o" }, [1, 2], 6))).toBe(4);
+    });
+
+    it("should compare the total with the size of the page without a limit", () => {
+      const pagination = { page: "page", total: () => 4 };
+
+      expect(getHasNextPage(context(pagination, [1, 2], 1))).toBe(true);
+      expect(getHasNextPage(context(pagination, [1, 2], 2))).toBe(false);
+    });
+
+    it("should read the limit from the place of the paging field", () => {
+      const target = client.createRequest<{ response: any }>()({ endpoint: "/m/:page/:limit" }) as RequestInstance;
+      const page = target.setParams({ page: 1, limit: 2 } as any) as RequestInstance;
+
+      expect(getHasNextPage(context({ page: "page", limit: "limit", in: "params" }, [1], 1, page))).toBe(false);
+    });
+  });
+
+  describe("paging values", () => {
+    it.each([
+      [{ page: "page" }, { page: "x" }, 1],
+      [{ offset: "offset" }, { offset: "x" }, 0],
+    ])("should fall back to the start for an invalid value", (pagination, queryParams, expected) => {
+      expect(getInitialPageParam(request.setQueryParams(queryParams), pagination)).toBe(expected);
+    });
+
+    it("should start from the URL params and the payload", () => {
+      const inParams = client.createRequest<{ response: any }>()({ endpoint: "/m/:page" }) as RequestInstance;
+      const inPayload = client.createRequest<{ response: any; payload: any }>()({
+        endpoint: "/m",
+        method: "POST",
+      }) as RequestInstance;
+
+      expect(
+        getInitialPageParam(inParams.setParams({ page: 3 } as any) as RequestInstance, { page: "page", in: "params" }),
+      ).toBe(3);
+      expect(
+        getInitialPageParam(inPayload.setPayload({ page: 8 }) as RequestInstance, { page: "page", in: "payload" }),
+      ).toBe(8);
+    });
+
+    it("should prefer the cursor when modes are mixed at runtime", () => {
+      expect(getPaginationMode({ cursor: "c", next: "n", offset: "o", page: "p" })).toBe("cursor");
+      expect(getPaginationMode({ offset: "o", page: "p" })).toBe("offset");
+    });
+
+    it("should read cursors from functions", () => {
+      const pagination = { cursor: "c", next: () => "after", previous: () => "before" };
+
+      expect(getNextPageParam(context(pagination, {}, "x"))).toBe("after");
+      expect(getPreviousPageParam(context(pagination, {}, "x"))).toBe("before");
+    });
+
+    it("should pass the page details to callbacks", () => {
+      const next = vi.fn(() => "after");
+
+      getNextPageParam({ ...context({ cursor: "c", next }, { a: 1 }, "x"), pages: [{ b: 2 }] });
+
+      expect(next).toHaveBeenCalledWith({ data: { a: 1 }, param: "x", pages: [{ b: 2 }] });
+    });
+
+    it("should keep the query params of the request untouched", () => {
+      const target = request.setQueryParams({ search: "a" });
+
+      getPageRequest(target, { page: "page" }, 2);
+
+      expect(target.queryParams).toEqual({ search: "a" });
+    });
+
+    it("should give custom query keys of the pages their own value", () => {
+      const target = createRequest().setQueryKey("posts");
+
+      const first = getPageRequest(target, { page: "page" }, 1);
+      const second = getPageRequest(target, { page: "page" }, 2);
+
+      expect(first.queryKey).not.toBe(second.queryKey);
+    });
+
+    it("should not touch the generated keys of a custom query key sibling", () => {
+      const target = createRequest().setCacheKey("posts");
+
+      expect(getPageRequest(target, { page: "page" }, 1).queryKey).toBe(target.setQueryParams({ page: 1 }).queryKey);
     });
   });
 

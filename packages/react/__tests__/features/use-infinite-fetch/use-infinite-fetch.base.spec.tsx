@@ -4,7 +4,14 @@ import { useFetch } from "hooks/use-fetch";
 import { useInfiniteFetch } from "hooks/use-infinite-fetch";
 import React, { StrictMode } from "react";
 
-import { baseUrl, createDeferred, createListServer, failure, pageItems } from "../../utils/use-infinite-fetch.utils";
+import {
+  baseUrl,
+  createDeferred,
+  createListServer,
+  failure,
+  pageItems,
+  settleRequests,
+} from "../../utils/use-infinite-fetch.utils";
 
 const { startServer, stopServer, resetMocks, mockList, mockListPost, calls, resetCalls } = createListServer();
 
@@ -58,7 +65,10 @@ describe("useInfiniteFetch [ Base ]", () => {
     resetCalls();
   });
 
-  afterEach(() => resetMocks());
+  afterEach(async () => {
+    await settleRequests(client);
+    resetMocks();
+  });
 
   describe("page numbers", () => {
     it("should start from the first page and glue the next ones together", async () => {

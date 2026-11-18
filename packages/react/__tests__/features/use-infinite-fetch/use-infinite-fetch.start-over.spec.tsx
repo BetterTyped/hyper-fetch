@@ -2,7 +2,13 @@ import { Client } from "@hyper-fetch/core";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useInfiniteFetch } from "hooks/use-infinite-fetch";
 
-import { baseUrl, createDeferred, createListServer, pageItems } from "../../utils/use-infinite-fetch.utils";
+import {
+  baseUrl,
+  createDeferred,
+  createListServer,
+  pageItems,
+  settleRequests,
+} from "../../utils/use-infinite-fetch.utils";
 
 const { startServer, stopServer, resetMocks, mockList, calls, resetCalls } = createListServer();
 
@@ -43,7 +49,10 @@ describe("useInfiniteFetch [ Start over ]", () => {
     mockPosts();
   });
 
-  afterEach(() => resetMocks());
+  afterEach(async () => {
+    await settleRequests(client);
+    resetMocks();
+  });
 
   it.each<[string, Query, Query]>([
     ["a filter", { search: "a" }, { search: "b" }],

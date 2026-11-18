@@ -4,7 +4,14 @@ import { useFetch } from "hooks/use-fetch";
 import { useInfiniteFetch } from "hooks/use-infinite-fetch";
 import { useLayoutEffect } from "react";
 
-import { baseUrl, createDeferred, createListServer, failure, pageItems } from "../../utils/use-infinite-fetch.utils";
+import {
+  baseUrl,
+  createDeferred,
+  createListServer,
+  failure,
+  pageItems,
+  settleRequests,
+} from "../../utils/use-infinite-fetch.utils";
 
 const { startServer, stopServer, resetMocks, mockList, calls, resetCalls } = createListServer();
 
@@ -54,7 +61,10 @@ describe("useInfiniteFetch [ Refetch ]", () => {
     mockList("/posts", ({ query }) => pageItems(Number(query.page)));
   });
 
-  afterEach(() => resetMocks());
+  afterEach(async () => {
+    await settleRequests(client);
+    resetMocks();
+  });
 
   describe("page numbers", () => {
     it("should refetch all the pages at the same time", async () => {
