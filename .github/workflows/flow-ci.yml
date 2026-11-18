@@ -1,0 +1,85 @@
+name: HyperFlow CI
+
+# Runs only when HyperFlow itself changes. Changes in other packages never start this workflow, and
+# `workflow.yml` skips HyperFlow, so the two pipelines do not pay for each other.
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+      - alpha
+    paths:
+      - "packages/hyper-flow/**"
+      - ".github/workflows/flow-ci.yml"
+  pull_request:
+    branches:
+      - main
+      - beta
+      - alpha
+    paths:
+      - "packages/hyper-flow/**"
+      - ".github/workflows/flow-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hyper-flow-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify HyperFlow
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NX_DAEMON: "false"
+      # Packaging proves the app builds; signing and publishing stay in the manual HyperFlow Release.
+      HYPER_FLOW_UNSIGNED: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.21.1"
+          cache: "pnpm"
+      # Typecheck needs the sibling packages built. Their output only changes with their own sources,
+      # so a HyperFlow-only change restores it instead of rebuilding nine packages.
+      - name: Restore sibling builds
+        id: sibling-builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/*/dist
+            !packages/hyper-flow/dist
+          key:
+            hyper-flow-siblings-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'tsconfig.json', 'packages/*/src/**',
+            'packages/*/package.json', 'packages/*/tsconfig.json', 'packages/*/vite.config.*',
+            '!packages/hyper-flow/**') }}
+      - name: Restore Electron binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/electron
+          key: hyper-flow-electron-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            hyper-flow-electron-${{ runner.os }}-
+      - name: Install node_modules
+        run: pnpm install --frozen-lockfile
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+      - name: Lint
+        run: pnpm nx run hyper-flow:lint
+      - name: Build sibling packages
+        if: steps.sibling-builds.outputs.cache-hit != 'true'
+        run: pnpm nx run hyper-flow:build-deps --parallel=3
+      # Called directly because the Nx target would rebuild the siblings restored above.
+      - name: Typecheck
+        run: pnpm --filter hyper-flow run typecheck
+      - name: Test
+        run: pnpm nx run hyper-flow:test
+      - name: Package app
+        run: pnpm nx run hyper-flow:package:app

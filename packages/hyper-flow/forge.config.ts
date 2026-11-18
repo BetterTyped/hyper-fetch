@@ -29,7 +29,10 @@ function getEnv() {
 }
 
 // Options
-const env = getEnv();
+// CI packages the app only to prove it builds, so it runs without signing or publishing credentials.
+// Opt-in on purpose: a release with a missing secret must fail instead of shipping an unsigned app.
+const isUnsigned = process.env.HYPER_FLOW_UNSIGNED === "true";
+const env = isUnsigned ? null : getEnv();
 
 // Forge Configuration
 const config: ForgeConfig = {
@@ -38,17 +41,19 @@ const config: ForgeConfig = {
     executableName: appConfig.id,
     asar: true,
     icon: "./src/app/images/icon",
-    osxNotarize: {
-      appleId: env.APPLE_ID,
-      appleIdPassword: env.APPLE_PASSWORD,
-      teamId: env.APPLE_TEAM_ID,
-    },
-    osxSign: {
-      optionsForFile: () => ({
-        entitlements: "./src/env/macos/entitlements.mac.plist",
-      }),
-      identity: process.env.SIGN_ID,
-    },
+    ...(env && {
+      osxNotarize: {
+        appleId: env.APPLE_ID,
+        appleIdPassword: env.APPLE_PASSWORD,
+        teamId: env.APPLE_TEAM_ID,
+      },
+      osxSign: {
+        optionsForFile: () => ({
+          entitlements: "./src/env/macos/entitlements.mac.plist",
+        }),
+        identity: env.SIGN_ID,
+      },
+    }),
   },
   rebuildConfig: {},
   makers: [
@@ -93,22 +98,24 @@ const config: ForgeConfig = {
     // ZIP for auto-updater
     new MakerZIP(),
   ],
-  publishers: [
-    new PublisherGithub({
-      repository: {
-        owner: appConfig.repository.owner,
-        name: appConfig.repository.name,
-      },
-      authToken: env.GITHUB_TOKEN,
-      prerelease: false,
-      /**
-       * Notice that you have configured Forge to publish your release as a draft.
-       * This will allow you to see the release with its generated artifacts without actually publishing it to your end users.
-       * You can manually publish your releases via GitHub after writing release notes and double-checking that your distributables work.
-       */
-      draft: true,
-    }),
-  ],
+  publishers: env
+    ? [
+        new PublisherGithub({
+          repository: {
+            owner: appConfig.repository.owner,
+            name: appConfig.repository.name,
+          },
+          authToken: env.GITHUB_TOKEN,
+          prerelease: false,
+          /**
+           * Notice that you have configured Forge to publish your release as a draft.
+           * This will allow you to see the release with its generated artifacts without actually publishing it to your end users.
+           * You can manually publish your releases via GitHub after writing release notes and double-checking that your distributables work.
+           */
+          draft: true,
+        }),
+      ]
+    : [],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.

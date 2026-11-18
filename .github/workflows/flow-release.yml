@@ -1,14 +1,10 @@
 name: HyperFlow Release
 
-# Trigger: `workflow_dispatch` only (manual from Actions, or automation that calls the dispatch API).
-#
-# Integration with `workflow.yml`: that workflow’s `release` job sets job output `released` when semantic-release
-# creates a new tag (`true` / `false`). This workflow does not read `released` — callers must gate dispatch on it
-# in `workflow.yml` (e.g. a job with `if: needs.release.outputs.released == 'true'` before calling the dispatch API).
-# When extending triggers or inputs, thread / validate that `released` state explicitly; ensure `GITHUB_TOKEN`
-# workflow permissions allow dispatch where automation is used.
+# Trigger: `workflow_dispatch` only (manual from Actions). HyperFlow is not part of the release job in
+# `workflow.yml`, so a package release can neither fail on HyperFlow nor publish it by accident.
 
-# Pipeline: install deps → `pnpm build` → `hyper-flow:make:app` → `hyper-flow:publish:app`
+# Pipeline: version (semantic-release creates the `v*` tag) → install deps → `pnpm build` →
+# `hyper-flow:make:app` → `hyper-flow:publish:app`
 
 on:
   workflow_dispatch:
@@ -33,9 +29,40 @@ jobs:
             exit 1
           fi
 
+  version:
+    name: Version HyperFlow
+    needs: verify-branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.21.1"
+          cache: "pnpm"
+      - name: Install node_modules
+        run: pnpm install --frozen-lockfile
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+      # `publish:app` reads the app version from the newest `v*` tag, so it has to exist before the builds.
+      - name: Create release tag
+        run: pnpm nx run hyper-flow:release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
   publish_on_win:
     name: Publish HyperFlow on Windows
-    needs: verify-branch
+    needs: version
     runs-on: windows-latest
     timeout-minutes: 40
     steps:
@@ -98,7 +125,7 @@ jobs:
 
   publish_on_linux:
     name: Publish HyperFlow on Linux
-    needs: verify-branch
+    needs: version
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -161,7 +188,7 @@ jobs:
 
   publish_on_mac:
     name: Publish HyperFlow on Mac
-    needs: verify-branch
+    needs: version
     runs-on: macos-latest
     timeout-minutes: 40
     steps:

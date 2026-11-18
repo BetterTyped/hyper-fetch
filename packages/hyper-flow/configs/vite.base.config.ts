@@ -24,6 +24,19 @@ export const config: UserConfigFnObject = ({ mode }) => {
       }),
       tsconfigPaths({
         root: path.resolve(__dirname, "../"),
+        // Siblings are aliased to source below, so their own path mappings have to resolve here too.
+        projects: [
+          ".",
+          "../core",
+          "../adapter-axios",
+          "../adapter-firebase",
+          "../adapter-firebase-admin",
+          "../adapter-graphql",
+          "../plugin-devtools",
+          "../react",
+          "../sockets",
+          "../testing",
+        ],
       }),
       tanstackRouter({
         target: "react",
