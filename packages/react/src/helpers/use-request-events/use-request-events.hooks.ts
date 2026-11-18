@@ -39,9 +39,21 @@ export const useRequestEvents = <R extends RequestInstance>({
   setCacheData,
   getIsDataProcessing,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { unstable_responseMapper } = request;
   const { cache, requestManager } = request.client;
+
+  // Always points to the request from the latest render - handlers created once can use it safely
+  const requestRef = useRef(request);
+  requestRef.current = request;
+  const dispatcherRef = useRef(dispatcher);
+  dispatcherRef.current = dispatcher;
+
+  /**
+   * Events are emitted with the plain request keys, so requests from other scopes land on the same event names.
+   * Only the events of our scope can be handled.
+   */
+  const isSameScope = (req: R, scope: string | null | undefined) => {
+    return (scope ?? null) === (req.scope ?? null);
+  };
 
   // ******************
   // Callbacks
@@ -134,12 +146,18 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const handleGetLoadingEvent = (req: R) => {
-    return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
+    return ({ loading, request: eventRequest }: RequestLoadingEventType<RequestInstance>) => {
+      if (!isSameScope(req, eventRequest?.scope)) {
+        return;
+      }
+
       const isProcessing = getIsDataProcessing(req.cacheKey);
 
       // When we process the cache data, we don't want to change the loading state during it
       // This prevents the UI from flickering with { data: null, loading: false }
-      if (isProcessing) {return;}
+      if (isProcessing) {
+        return;
+      }
 
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
       if (loading || canDisableLoading) {
@@ -148,27 +166,49 @@ export const useRequestEvents = <R extends RequestInstance>({
     };
   };
 
-  const handleDownloadProgress = (data: RequestProgressEventType<RequestInstance>) => {
-    onDownloadProgressCallback.current?.(data);
+  const handleDownloadProgress = (req: R) => {
+    return (data: RequestProgressEventType<RequestInstance>) => {
+      if (!isSameScope(req, data.request?.scope)) {
+        return;
+      }
+      onDownloadProgressCallback.current?.(data);
+    };
   };
 
-  const handleUploadProgress = (data: RequestProgressEventType<RequestInstance>) => {
-    onUploadProgressCallback.current?.(data);
+  const handleUploadProgress = (req: R) => {
+    return (data: RequestProgressEventType<RequestInstance>) => {
+      if (!isSameScope(req, data.request?.scope)) {
+        return;
+      }
+      onUploadProgressCallback.current?.(data);
+    };
   };
 
-  const handleRequestStart = () => {
+  const handleRequestStart = (req: R) => {
     return (details: RequestEventType<R>) => {
+      if (!isSameScope(req, details.request?.scope)) {
+        return;
+      }
       onRequestStartCallback.current?.(details);
     };
   };
-  const handleResponseStart = () => {
+  const handleResponseStart = (req: R) => {
     return (details: RequestEventType<R>) => {
+      if (!isSameScope(req, details.request?.scope)) {
+        return;
+      }
       onResponseStartCallback.current?.(details);
     };
   };
 
-  const handleResponse = () => {
+  const handleResponse = (req: R) => {
     return (values: RequestResponseEventType<R>) => {
+      if (!isSameScope(req, values.request?.scope)) {
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { unstable_responseMapper } = req;
       const data = unstable_responseMapper
         ? unstable_responseMapper(values.response as ResponseType<any, any, ExtractAdapterType<R>>)
         : values.response;
@@ -181,7 +221,11 @@ export const useRequestEvents = <R extends RequestInstance>({
           });
         })();
       }
-      return handleResponseCallbacks(values);
+      // Callbacks receive the same (mapped) response as the hook state
+      return handleResponseCallbacks({
+        ...values,
+        response: (data || values.response) as ResponseType<any, any, ExtractAdapterType<R>>,
+      });
     };
   };
 
@@ -209,15 +253,17 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(
-      scopeKey(req.queryKey, req.scope),
-      handleGetLoadingEvent(req),
-    );
+    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
       ExtractAdapterType<R>
-    >(req.cacheKey, setCacheData);
+    >(req.cacheKey, (cacheData) => {
+      if (!isSameScope(req, cacheData.scope)) {
+        return;
+      }
+      setCacheData(cacheData);
+    });
 
     const unmount = () => {
       loadingUnmount();
@@ -244,11 +290,11 @@ export const useRequestEvents = <R extends RequestInstance>({
       // events to be triggered during lifecycle
       clearLifecycleListeners();
       const { queryKey, cacheKey } = req;
-      const requestStartUnmount = requestManager.events.onRequestStartByQueue(queryKey, handleRequestStart());
-      const responseStartUnmount = requestManager.events.onResponseStartByQueue(queryKey, handleResponseStart());
-      const uploadUnmount = requestManager.events.onUploadProgressByQueue(queryKey, handleUploadProgress);
-      const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queryKey, handleDownloadProgress);
-      const responseUnmount = requestManager.events.onResponseByCache(cacheKey, handleResponse());
+      const requestStartUnmount = requestManager.events.onRequestStartByQueue(queryKey, handleRequestStart(req));
+      const responseStartUnmount = requestManager.events.onResponseStartByQueue(queryKey, handleResponseStart(req));
+      const uploadUnmount = requestManager.events.onUploadProgressByQueue(queryKey, handleUploadProgress(req));
+      const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queryKey, handleDownloadProgress(req));
+      const responseUnmount = requestManager.events.onResponseByCache(cacheKey, handleResponse(req));
 
       const unmount = () => {
         downloadUnmount();
@@ -269,11 +315,11 @@ export const useRequestEvents = <R extends RequestInstance>({
       optimisticResultsRef.current.set(requestId, optimisticResult);
     }
     const requestRemove = requestManager.events.onRemoveById(requestId, handleRemove);
-    const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart());
-    const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart());
-    const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse());
-    const uploadUnmount = requestManager.events.onUploadProgressById(requestId, handleUploadProgress);
-    const downloadUnmount = requestManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
+    const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart(req));
+    const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart(req));
+    const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse(req));
+    const uploadUnmount = requestManager.events.onUploadProgressById(requestId, handleUploadProgress(req));
+    const downloadUnmount = requestManager.events.onDownloadProgressById(requestId, handleDownloadProgress(req));
 
     const unmount = () => {
       requestRemove();
@@ -294,13 +340,15 @@ export const useRequestEvents = <R extends RequestInstance>({
   // ******************
 
   const abort = () => {
-    const ak = scopeKey(request.abortKey, request.scope);
-    const requests = dispatcher.getAllRunningRequests();
+    const currentRequest = requestRef.current;
+    const currentDispatcher = dispatcherRef.current;
+    const ak = scopeKey(currentRequest.abortKey, currentRequest.scope);
+    const requests = currentDispatcher.getAllRunningRequests();
     requests.forEach((requestData) => {
       const reqAk = scopeKey(requestData.request.abortKey, requestData.request.scope);
       if (reqAk === ak) {
         const qk = scopeKey(requestData.request.queryKey, requestData.request.scope);
-        dispatcher.delete(qk, requestData.requestId, reqAk);
+        currentDispatcher.delete(qk, requestData.requestId, reqAk);
       }
     });
   };
@@ -318,8 +366,10 @@ export const useRequestEvents = <R extends RequestInstance>({
     clearCacheDataListener();
   });
 
-  return [
-    {
+  // Callbacks setters and abort work on refs only, so they are created once - their identity is stable between the renders
+  const callbacksRef = useRef<UseRequestEventsReturnType<R>[0] | null>(null);
+  if (!callbacksRef.current) {
+    callbacksRef.current = {
       abort,
       onSuccess: (callback: OnSuccessCallbackType<R>) => {
         onSuccessCallback.current = callback;
@@ -348,7 +398,11 @@ export const useRequestEvents = <R extends RequestInstance>({
       onUploadProgress: (callback: OnProgressCallbackType) => {
         onUploadProgressCallback.current = callback;
       },
-    },
+    };
+  }
+
+  return [
+    callbacksRef.current,
     {
       addCacheDataListener,
       clearCacheDataListener,

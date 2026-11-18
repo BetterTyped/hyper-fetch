@@ -8,6 +8,21 @@ import { useProvider } from "provider";
 import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
+/**
+ * Options passed as `undefined` (e.g. forwarded optional props) fall back to the defaults instead of overriding them
+ */
+const mergeOptions = <T extends object>(...sources: (object | undefined)[]): T => {
+  const merged: Record<string, unknown> = {};
+  sources.forEach((source) => {
+    Object.entries(source || {}).forEach(([key, value]) => {
+      if (value !== undefined) {
+        merged[key] = value;
+      }
+    });
+  });
+  return merged as T;
+};
+
 /** Subscribe to cache updates for a given request without triggering network activity. */
 export const useCache = <T extends RequestInstance, TSelected = ExtractResponseType<T>>(
   request: T,
@@ -22,11 +37,9 @@ export const useCache = <T extends RequestInstance, TSelected = ExtractResponseT
 
   // Build the configuration options
   const { config: globalConfig } = useProvider();
-  const { dependencyTracking, initialResponse, deepCompare, structuralSharing } = {
-    ...useCacheDefaultOptions,
-    ...globalConfig.useCacheConfig,
-    ...options,
-  };
+  const { dependencyTracking, initialResponse, deepCompare, structuralSharing } = mergeOptions<
+    typeof useCacheDefaultOptions & UseCacheOptionsType<T, TSelected>
+  >(useCacheDefaultOptions, globalConfig.useCacheConfig, options);
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
@@ -38,6 +51,8 @@ export const useCache = <T extends RequestInstance, TSelected = ExtractResponseT
     initialResponse,
     deepCompare,
     dependencyTracking,
+    // Cache observer shows the data of the given key only - nothing would replace the data kept from the previous key
+    keepPreviousData: "clean",
     select: options?.select,
     structuralSharing,
   });
