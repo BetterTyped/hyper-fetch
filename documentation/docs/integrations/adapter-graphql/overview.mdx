@@ -53,7 +53,7 @@ interface User {
 }
 
 // 3. Create a request
-const getUser = client.createRequest<User>()({
+const getUser = client.createRequest<{ response: User }>()({
   endpoint: gql`
     query GetUser {
       user {
@@ -81,7 +81,7 @@ import gql from "graphql-tag";
 
 const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
-const getUsers = client.createRequest<any[]>()({
+const getUsers = client.createRequest<{ response: any[] }>()({
   endpoint: gql`
     query GetUsers {
       users {
@@ -106,7 +106,7 @@ import gql from "graphql-tag";
 
 const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
 
-const addUser = client.createRequest<any>()({
+const addUser = client.createRequest<{ response: any }>()({
   endpoint: gql`
     mutation AddUser($name: String!) {
       addUser(name: $name) {
@@ -122,13 +122,11 @@ const addUser = client.createRequest<any>()({
 
 ## Variables
 
-You can pass variables to your queries and mutations using the `data` option in the `send` method.
+You can pass variables to your queries and mutations using the `payload` option in the `send` method.
 
 ```ts
 const { data, error } = await addUser.send({
-  data: {
-    variables: { name: "John Doe" },
-  },
+  payload: { name: "John Doe" },
 });
 ```
 

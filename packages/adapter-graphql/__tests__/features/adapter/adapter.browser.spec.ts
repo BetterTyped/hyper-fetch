@@ -188,7 +188,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error).toBe(networkError);
+    expect(error).toEqual([networkError]);
 
     global.fetch = originalFetch;
   });
