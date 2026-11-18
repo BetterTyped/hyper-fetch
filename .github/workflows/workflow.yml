@@ -11,6 +11,8 @@ on:
       - main
       - beta
       - alpha
+  # Run this from the Actions tab to finish a release that stopped halfway.
+  workflow_dispatch:
 
 jobs:
   prepare-environment:
@@ -73,6 +75,8 @@ jobs:
         run: pnpm typecheck
       - name: Test
         run: pnpm test --coverage
+      - name: Test release script
+        run: pnpm test:release
       - name: Send Report
         uses: qltysh/qlty-action/coverage@v1
         with:
@@ -92,14 +96,17 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/alpha' }}
     runs-on: ubuntu-latest
     needs: [tests]
-    # `released`: whether semantic-release created a new tag — downstream automation (e.g. HyperFlow dispatch)
+    # Releases of one branch run one at a time, and a running release is never cancelled.
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
+    # `released`: whether this run published anything — downstream automation (e.g. HyperFlow dispatch)
     # must gate on this; `flow-release.yml` does not re-check it (see comment block there).
     outputs:
-      released: ${{ steps.check_release.outputs.released }}
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
       id-token: write
     steps:
       - name: Checkout
@@ -124,30 +131,18 @@ jobs:
       - name: Install node_modules on cache miss
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile
-      - name: Build
-        run: pnpm build
-      - name: Get latest tag before release
-        id: pre_release_tag
-        run: echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT
-      # npm auth comes from trusted publishing (OIDC): the id-token permission above lets
-      # semantic-release exchange the Actions identity for a publish token. No NPM_TOKEN.
+      # Trusted publishing needs npm 11.5.1 or newer, and Node 22 ships with npm 10.
+      - name: Install npm
+        run: npm install --global npm@11.12.1
+      # npm auth comes from trusted publishing (OIDC): the id-token permission above lets npm
+      # exchange the Actions identity for a publish token. npm ties that trust to this workflow's
+      # file name, so the release job has to stay in workflow.yml.
       # Requires the registry to be https://registry.npmjs.org/ (the .org host, exactly).
-      - name: Publish
+      # NPM_BOOTSTRAP_TOKEN is only used for the first publish of a brand new package.
+      - name: Release
+        id: release
         run: pnpm release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-      - name: Get latest tag after release
-        id: post_release_tag
-        run: |
-          git fetch --tags
-          echo "tag=$(git describe --tags --abbrev=0 || echo 'none')" >> $GITHUB_OUTPUT
-      - name: Check if a new tag was created
-        id: check_release
-        run: |
-          if [[ "${{ steps.pre_release_tag.outputs.tag }}" == "${{ steps.post_release_tag.outputs.tag }}" ]]; then
-            echo "No new tag was created"
-            echo "released=false" >> $GITHUB_OUTPUT
-          else
-            echo "New tag ${{ steps.post_release_tag.outputs.tag }} was created"
-            echo "released=true" >> $GITHUB_OUTPUT
-          fi
+          GH_TOKEN: ${{ github.token }}
+          NPM_BOOTSTRAP_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+          NX_ISOLATE_PLUGINS: "false"

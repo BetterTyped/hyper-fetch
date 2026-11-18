@@ -18,8 +18,7 @@
     "lint": "oxlint .",
     "format": "oxfmt --write .",
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
-    "tests": "firebase emulators:exec 'npx vitest run'",
-    "release": "pnpm semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-admin-v${version}'"
+    "tests": "firebase emulators:exec 'npx vitest run'"
   },
   "publishConfig": {
     "access": "public",

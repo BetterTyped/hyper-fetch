@@ -2,8 +2,8 @@ name: HyperFlow Release
 
 # Trigger: `workflow_dispatch` only (manual from Actions, or automation that calls the dispatch API).
 #
-# Integration with `workflow.yml`: that workflow’s `release` job sets job output `released` when semantic-release
-# creates a new tag (`true` / `false`). This workflow does not read `released` — callers must gate dispatch on it
+# Integration with `workflow.yml`: that workflow’s `release` job sets job output `released` when `scripts/release.mjs`
+# publishes a version (`true` / `false`). This workflow does not read `released` — callers must gate dispatch on it
 # in `workflow.yml` (e.g. a job with `if: needs.release.outputs.released == 'true'` before calling the dispatch API).
 # When extending triggers or inputs, thread / validate that `released` state explicitly; ensure `GITHUB_TOKEN`
 # workflow permissions allow dispatch where automation is used.
