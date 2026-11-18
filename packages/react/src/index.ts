@@ -1,4 +1,5 @@
 export * from "./hooks/use-fetch";
+export * from "./hooks/use-infinite-fetch";
 export * from "./hooks/use-submit";
 export * from "./hooks/use-queue";
 export * from "./hooks/use-cache";
