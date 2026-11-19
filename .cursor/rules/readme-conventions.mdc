@@ -17,7 +17,7 @@ alwaysApply: false
 
 - Titles use emoji + human-friendly name: `# ⚡ Hyper Fetch`, NOT `# @hyper-fetch/core`
 - Each package has its own emoji (keep them consistent):
-  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🧪 testing
+  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🧪 testing, 🏯 hono
 - Subtitle goes in a centered `<p align="center"><b>...</b></p>` right after the title
 - READMEs must look visually appealing — emojis in section headers, bold key terms in capabilities
 
@@ -88,12 +88,13 @@ Key capabilities are the MOST IMPORTANT part of the README. They sell the packag
 - Opens with the banner (`.github/assets/readme.png`). It carries the tagline "From REST to realtime. Fully typed." and
   the logos of every supported backend, so the text below must not repeat it. Keep its alt text in sync
 - Under the banner: a links row, then the badge block
-- "Works with" logo grid right after the badges, linking each backend to its docs. Add a cell when a new adapter or
-  transport ships
+- "Why HyperFetch?" goes after Quick Start: a short intro, a "you usually combine" table, then grouped bullets
+- "Works with" logo grid right after "Why HyperFetch?", linking each backend to its docs. Add a cell when a new
+  adapter or transport ships
 - Keep code examples short and readable: one idea per block, no walls of chained setup calls
 - Two quick start paths: manual setup + CLI generation
-- "Why HyperFetch?" section with 4 benefit bullets
-- Packages table with version/downloads/size badges (markdown table, not HTML)
+- Packages table with package name (npm link) and one line on what it does. No per-row badges: GitHub caches them
+  and the size services are often down
 - Sponsor section preserved
 
 ## Formatting Rules
