@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "types": ["node"],
+    "paths": {
+      "adapter": ["./src/adapter"],
+      "adapter/*": ["./src/adapter/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "vite.config.ts", "__tests__"]
+}

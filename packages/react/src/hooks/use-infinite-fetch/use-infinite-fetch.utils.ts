@@ -1,4 +1,5 @@
 import type { ClientInstance, RequestInstance } from "@hyper-fetch/core";
+import { keyReplacer } from "utils/key.utils";
 
 import type { InfiniteStore } from "./use-infinite-fetch.store";
 import type { InfiniteSnapshot } from "./use-infinite-fetch.store.types";
@@ -8,8 +9,8 @@ import type { InfiniteSnapshot } from "./use-infinite-fetch.store.types";
  * or URL param starts a new list without anything having to be listed by hand.
  */
 export const getInfiniteKey = (request: RequestInstance, pagination: unknown, maxPages?: number) => {
-  return JSON.stringify([request.toJSON(), pagination, maxPages ?? null], (_key, value) => {
-    return typeof value === "function" ? value.toString() : value;
+  return JSON.stringify([request.toJSON(), pagination, maxPages ?? null], (key, value) => {
+    return typeof value === "function" ? value.toString() : keyReplacer(key, value);
   });
 };
 

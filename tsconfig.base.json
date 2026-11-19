@@ -14,10 +14,19 @@
       "path": "./packages/adapter-graphql"
     },
     {
+      "path": "./packages/adapter-orpc"
+    },
+    {
+      "path": "./packages/adapter-trpc"
+    },
+    {
       "path": "./packages/codegen-openapi"
     },
     {
       "path": "./packages/core"
+    },
+    {
+      "path": "./packages/hono"
     },
     {
       "path": "./packages/hyper-flow"

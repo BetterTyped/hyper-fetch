@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book } from "lucide-react";
+import { Book, Network, Orbit } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -11,6 +11,7 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
+const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
 // const StrapiIcon = isBrowser() ? require("../static/img/integration-strapi.svg").default : () => null;
 // const HasuraIcon = isBrowser() ? require("../static/img/integration-hasura.svg").default : () => null;
@@ -104,6 +105,25 @@ export const integrations: Section[] = [
     package: "axios",
   },
   {
+    label: "Hono",
+    description: "Call your Hono backend through a typed SDK built from your routes and validators, with no codegen.",
+    dir: "hono",
+    isPackage: true,
+    paths: ["hono"],
+    img: HonoIcon,
+    text: "drop-shadow-sm !text-orange-500 dark:!text-orange-400",
+    textAction:
+      "focus:!text-orange-500 focus:dark:!text-orange-400 active:!text-orange-600 active:dark:!text-orange-300",
+    textHover: "hover:!text-orange-500 hover:dark:!text-orange-400",
+    icon: "group-hover:shadow-orange-200 dark:group-hover:bg-orange-500 bg-orange-400 dark:bg-orange-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-orange-200 dark:group-hover:bg-orange-500 group-hover:bg-orange-400 group-hover:dark:bg-orange-500 !bg-opacity-40",
+    border: "border-orange-500 dark:border-orange-400",
+    borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
+    category: "Service",
+    package: "hono",
+  },
+  {
     label: "Graphql",
     description: "Integrate with any GraphQL API to fetch data with type-safety and efficiency using this adapter.",
     dir: "adapter-graphql",
@@ -121,6 +141,42 @@ export const integrations: Section[] = [
     featured: true,
     category: "Adapter",
     package: "graphql",
+  },
+  {
+    label: "oRPC",
+    description: "Call oRPC procedures with types inferred from your router, with caching and React hooks included.",
+    dir: "adapter-orpc",
+    isPackage: true,
+    paths: ["adapter-orpc"],
+    img: Orbit,
+    text: "drop-shadow-sm !text-teal-500 dark:!text-teal-400",
+    textAction: "focus:!text-teal-500 focus:dark:!text-teal-400 active:!text-teal-600 active:dark:!text-teal-300",
+    textHover: "hover:!text-teal-500 hover:dark:!text-teal-400",
+    icon: "group-hover:shadow-teal-200 dark:group-hover:bg-teal-500 bg-teal-400 dark:bg-teal-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-teal-200 dark:group-hover:bg-teal-500 group-hover:bg-teal-400 group-hover:dark:bg-teal-500 !bg-opacity-40",
+    border: "border-teal-500 dark:border-teal-400",
+    borderHover: "hover:border-teal-500 hover:dark:border-teal-400",
+    category: "Adapter",
+    package: "orpc",
+  },
+  {
+    label: "tRPC",
+    description: "Call tRPC procedures with types inferred from your router, with caching and React hooks included.",
+    dir: "adapter-trpc",
+    isPackage: true,
+    paths: ["adapter-trpc"],
+    img: Network,
+    text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
+    textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
+    textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
+    icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
+    border: "border-blue-500 dark:border-blue-400",
+    borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
+    category: "Adapter",
+    package: "trpc",
   },
   {
     label: "Firebase",

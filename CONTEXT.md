@@ -8,12 +8,16 @@ one line here in the same change.
 - **Client**: the central configuration object. Owns the adapter, cache, dispatchers and managers, and creates requests.
 - **Request**: an immutable description of one endpoint call. Setters return a clone, except the mock setters.
 - **SDK**: a typed proxy created with `createSdk(client)` that builds requests from property paths.
-- **Adapter**: the pluggable transport that performs a request, for example the HTTP, Axios, GraphQL or Firebase
+- **Adapter**: the pluggable transport that performs a request, for example the HTTP, Axios, GraphQL, oRPC or Firebase
   adapter.
+- **Procedure**: a typed remote function of an RPC router such as oRPC. Its path is the endpoint and its input is the
+  payload.
 - **Response**: the object `send()` resolves with: `data`, `error`, `status`, `success`, `extra`, `requestTimestamp` and
   `responseTimestamp`.
 - **Mapper**: a function that transforms a request before sending or a response after receiving.
 - **Mock**: a handler attached with `request.setMock()` that replaces the adapter for that request instance.
+- **SDK schema**: the nested type `createSdk` reads, with `$method` keys holding a `Request`. `HonoAppToHyperFetch` in
+  `@hyper-fetch/hono` derives one from a Hono app type.
 
 ## Execution
 

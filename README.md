@@ -67,6 +67,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
 | TanStack Query or SWR       | Cache, deduplication, retries and React hooks built in |
 | A socket client             | Typed `Socket` listeners and emitters                  |
 | OpenAPI codegen             | `npx @hyper-fetch/cli generate`                        |
+| A tRPC, oRPC or Hono client | `createSdk` typed from your router                     |
 | MSW and hand-written mocks  | `setMock()` and `@hyper-fetch/testing`                 |
 
 ### 🔮 Types you never write twice
@@ -74,6 +75,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
 - **Zero guesswork** - Params, payload, query params, response and error are typed on every request. No `any`
 - **URL params checked at compile time** - `/users/:userId` makes `userId` required. Typos fail the build
 - **Typed from your schema** - Point the CLI at OpenAPI and every endpoint becomes a typed request
+- **Typed from your server** - tRPC, oRPC and Hono routers type `createSdk` directly. No codegen step
 - **One request, every layer** - The type you declare once flows into `send()`, hooks, cache and devtools
 
 ### 💾 Server state handled for you
@@ -111,8 +113,8 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="./documentation/static/img/integration-rest.svg" width="40" height="40" alt="" /><br /><b>REST</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="./documentation/static/img/integration-openapi.svg" width="40" height="40" alt="" /><br /><b>OpenAPI</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview"><img src="./documentation/static/img/integration-graphql.svg" width="40" height="40" alt="" /><br /><b>GraphQL</b></a></td>
-    <td align="center" width="120"><img src="./documentation/static/img/integration-trpc.svg" width="40" height="40" alt="" /><br /><b>tRPC</b><br /><sub>coming soon</sub></td>
-    <td align="center" width="120"><img src="./documentation/static/img/integration-orpc.svg" width="40" height="40" alt="" /><br /><b>oRPC</b><br /><sub>coming soon</sub></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview"><img src="./documentation/static/img/integration-trpc.svg" width="40" height="40" alt="" /><br /><b>tRPC</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview"><img src="./documentation/static/img/integration-orpc.svg" width="40" height="40" alt="" /><br /><b>oRPC</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><img src="./documentation/static/img/integration-hono.svg" width="40" height="40" alt="" /><br /><b>Hono</b></a></td>
   </tr>
   <tr>
@@ -163,6 +165,9 @@ Every package ships at the same version.
 | [`@hyper-fetch/sockets`](https://www.npmjs.com/package/@hyper-fetch/sockets)                 | Typed WebSocket and Server-Sent Events listeners and emitters          |
 | [`@hyper-fetch/cli`](https://www.npmjs.com/package/@hyper-fetch/cli)                         | Generates a typed SDK from an OpenAPI schema                           |
 | [`@hyper-fetch/graphql`](https://www.npmjs.com/package/@hyper-fetch/graphql)                 | GraphQL queries and mutations with `gql` documents                     |
+| [`@hyper-fetch/trpc`](https://www.npmjs.com/package/@hyper-fetch/trpc)                       | tRPC procedures as typed requests, inferred from your router           |
+| [`@hyper-fetch/orpc`](https://www.npmjs.com/package/@hyper-fetch/orpc)                       | oRPC procedures as typed requests, inferred from your router           |
+| [`@hyper-fetch/hono`](https://www.npmjs.com/package/@hyper-fetch/hono)                       | A typed SDK from your Hono app type. Types only, no server code        |
 | [`@hyper-fetch/firebase`](https://www.npmjs.com/package/@hyper-fetch/firebase)               | Firestore and Realtime Database from the browser                       |
 | [`@hyper-fetch/firebase-admin`](https://www.npmjs.com/package/@hyper-fetch/firebase-admin)   | Firestore and Realtime Database from the server                        |
 | [`@hyper-fetch/axios`](https://www.npmjs.com/package/@hyper-fetch/axios)                     | Runs every request through Axios                                       |

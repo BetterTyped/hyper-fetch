@@ -1,0 +1,65 @@
+{
+  "name": "@hyper-fetch/hono",
+  "version": "0.0.0",
+  "description": "Turn a Hono app type into a fully typed Hyper Fetch SDK schema",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.ts"
+      },
+      "default": {
+        "require": "./dist/index.mjs",
+        "import": "./dist/index.mjs"
+      }
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "start": "pnpm build && npx run-when-changed --watch 'src/**/*.ts' --exec 'pnpm build'",
+    "build": "vite build",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
+    "tests": "pnpm lint-staged"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/hono"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "peerDependencies": {
+    "@hyper-fetch/core": "*",
+    "hono": ">=4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "vitest related --run --passWithNoTests"
+    ]
+  },
+  "keywords": [
+    "hono",
+    "sdk",
+    "rpc",
+    "type-safe",
+    "hyper fetch"
+  ],
+  "devDependencies": {
+    "@hono/node-server": "^2.1.9",
+    "hono": "^4.13.19"
+  }
+}

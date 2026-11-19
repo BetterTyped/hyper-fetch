@@ -84,6 +84,8 @@ jobs:
           files: |
             ${{github.workspace}}/packages/adapter-axios/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/adapter-graphql/coverage/lcov.info:lcov
+            ${{github.workspace}}/packages/adapter-orpc/coverage/lcov.info:lcov
+            ${{github.workspace}}/packages/adapter-trpc/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/cli/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/plugin-devtools/coverage/lcov.info:lcov

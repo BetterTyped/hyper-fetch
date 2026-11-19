@@ -29,6 +29,16 @@ describe("Adapter [ Utils ]", () => {
   });
 
   describe("When using getAdapterPayload util", () => {
+    it("should not create a body without a payload", () => {
+      expect(getAdapterPayload(undefined)).toBeUndefined();
+    });
+    it.each([
+      [0, "0"],
+      [false, "false"],
+      ["", '""'],
+    ])("should create a body for the %j payload", (payload, body) => {
+      expect(getAdapterPayload(payload)).toBe(body);
+    });
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
 

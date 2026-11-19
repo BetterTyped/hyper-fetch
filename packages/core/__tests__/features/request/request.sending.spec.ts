@@ -170,11 +170,12 @@ describe("Request [ Sending ]", () => {
     });
     it("should return error once request got removed", async () => {
       mockRequest(request, { delay: 10, status: 400 });
-      const requestExecution = request.send({});
-      await sleep(2);
-
-      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
-      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
+      // Removed once it is surely running - a fixed sleep could fire before the request started
+      const requestExecution = request.send({
+        onRequestStart: ({ requestId }) => {
+          client.fetchDispatcher.delete(request.queryKey, requestId, request.abortKey);
+        },
+      });
 
       const {
         responseTimestamp: _responseTimestamp,
@@ -192,11 +193,13 @@ describe("Request [ Sending ]", () => {
     it("should call remove error", async () => {
       const spy = vi.fn();
       mockRequest(request, { delay: 10, status: 400 });
-      const requestExecution = request.send({ onRemove: spy });
-      await sleep(2);
-
-      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
-      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
+      // Removed once it is surely running - a fixed sleep could fire before the request started
+      const requestExecution = request.send({
+        onRemove: spy,
+        onRequestStart: ({ requestId }) => {
+          client.fetchDispatcher.delete(request.queryKey, requestId, request.abortKey);
+        },
+      });
 
       await requestExecution;
       expect(spy).toHaveBeenCalledTimes(1);

@@ -3,9 +3,8 @@ import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType }
 import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { RequestResponseEventType } from "managers";
-import { optimistic } from "optimistic/optimistic";
-import type { OptimisticPendingType } from "optimistic/optimistic.settlement";
-import { applyOptimistic, getOptimisticResult, settleOptimistic } from "optimistic/optimistic.settlement";
+import type { OptimisticPendingType } from "optimistic";
+import { applyOptimistic, getOptimisticResult, optimistic, settleOptimistic } from "optimistic";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
 import { runUserCode } from "utils";
 

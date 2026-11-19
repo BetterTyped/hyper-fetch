@@ -7,6 +7,7 @@ import { useCacheDefaultOptions } from "hooks/use-cache";
 import { useProvider } from "provider";
 import { useRef } from "react";
 import { createTrackedProxy } from "utils";
+import { keyReplacer } from "utils/key.utils";
 
 /**
  * Options passed as `undefined` (e.g. forwarded optional props) fall back to the defaults instead of overriding them
@@ -33,7 +34,7 @@ export const useCache = <T extends RequestInstance, TSelected = ExtractResponseT
   const { cache, loggerManager } = client;
   const logger = useRef(loggerManager.initialize(client, "useCache")).current;
   const [dispatcher] = getRequestDispatcher(request);
-  const updateKey = JSON.stringify(request.toJSON());
+  const updateKey = JSON.stringify(request.toJSON(), keyReplacer);
 
   // Build the configuration options
   const { config: globalConfig } = useProvider();
