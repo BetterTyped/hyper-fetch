@@ -23,19 +23,19 @@
 
 <table align="center">
   <tr>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="./documentation/static/img/integration-rest.svg" width="40" height="40" alt="" /><br /><b>REST</b></a><br /><sub>core</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="./documentation/static/img/integration-openapi.svg" width="40" height="40" alt="" /><br /><b>OpenAPI</b></a><br /><sub>cli</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview"><img src="./documentation/static/img/integration-graphql.svg" width="40" height="40" alt="" /><br /><b>GraphQL</b></a><br /><sub>graphql</sub></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="./documentation/static/img/integration-rest.svg" width="40" height="40" alt="" /><br /><b>REST</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="./documentation/static/img/integration-openapi.svg" width="40" height="40" alt="" /><br /><b>OpenAPI</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview"><img src="./documentation/static/img/integration-graphql.svg" width="40" height="40" alt="" /><br /><b>GraphQL</b></a></td>
     <td align="center" width="120"><img src="./documentation/static/img/integration-trpc.svg" width="40" height="40" alt="" /><br /><b>tRPC</b><br /><sub>coming soon</sub></td>
     <td align="center" width="120"><img src="./documentation/static/img/integration-orpc.svg" width="40" height="40" alt="" /><br /><b>oRPC</b><br /><sub>coming soon</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="./documentation/static/img/integration-hono.svg" width="40" height="40" alt="" /><br /><b>Hono</b></a><br /><sub>core</sub></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="./documentation/static/img/integration-hono.svg" width="40" height="40" alt="" /><br /><b>Hono</b></a></td>
   </tr>
   <tr>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase</b></a><br /><sub>firebase</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase Admin</b></a><br /><sub>firebase-admin</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview"><img src="./documentation/static/img/integration-axios.svg" width="40" height="40" alt="" /><br /><b>Axios</b></a><br /><sub>axios</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/sockets/overview"><img src="./documentation/static/img/integration-sockets.svg" width="40" height="40" alt="" /><br /><b>Realtime</b></a><br /><sub>WebSockets, SSE</sub></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/react/overview"><img src="./documentation/static/img/integration-react.svg" width="40" height="40" alt="" /><br /><b>React</b></a><br /><sub>react</sub></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase Admin</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview"><img src="./documentation/static/img/integration-axios.svg" width="40" height="40" alt="" /><br /><b>Axios</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/sockets/overview"><img src="./documentation/static/img/integration-sockets.svg" width="40" height="40" alt="" /><br /><b>Sockets &amp; SSE</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/react/overview"><img src="./documentation/static/img/integration-react.svg" width="40" height="40" alt="" /><br /><b>React</b></a></td>
   </tr>
 </table>
 
