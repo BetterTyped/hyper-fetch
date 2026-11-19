@@ -1,12 +1,13 @@
 import type { RequestInstance } from "@hyper-fetch/core";
+import { keyReplacer } from "utils/key.utils";
 
 /**
  * Identity of a list. Everything describing the request takes part in it, so a changed filter, sort, page size
  * or URL param starts a new list without anything having to be listed by hand.
  */
 export const getInfiniteKey = (request: RequestInstance, pagination: unknown, maxPages?: number) => {
-  return JSON.stringify([request.toJSON(), pagination, maxPages ?? null], (_key, value) => {
-    return typeof value === "function" ? value.toString() : value;
+  return JSON.stringify([request.toJSON(), pagination, maxPages ?? null], (key, value) => {
+    return typeof value === "function" ? value.toString() : keyReplacer(key, value);
   });
 };
 

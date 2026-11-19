@@ -63,6 +63,16 @@ describe("useCache [ Base ]", () => {
       });
     });
   });
+  describe("given the payload holds a BigInt", () => {
+    it("should read the cache", async () => {
+      const bigintRequest = createRequest<{ test: number }, { total: bigint }>().setPayload({ total: 1n });
+      client.cache.set(bigintRequest, cacheData);
+
+      const response = renderUseCache(bigintRequest);
+
+      await testSuccessState(cacheData.data, response);
+    });
+  });
   describe("given cache is empty", () => {
     describe("when reading the state", () => {
       it("should return empty state", async () => {
