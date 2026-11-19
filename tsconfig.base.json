@@ -23,6 +23,9 @@
       "path": "./packages/core"
     },
     {
+      "path": "./packages/hono"
+    },
+    {
       "path": "./packages/hyper-flow"
     },
     {
