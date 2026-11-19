@@ -1,0 +1,81 @@
+name: Version docs
+
+# A major release replaces the docs in `documentation/docs`. When a pull request would release a
+# major, this freezes the docs of the outgoing major (`pnpm docs:version`) and commits them to the
+# pull request, so they reach main together with the breaking change. The release refuses a major
+# whose outgoing docs are not frozen.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: version-docs-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  version-docs:
+    name: Version docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      # The merge result has the commits and tags main will release from, so Nx reads the same bump.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.21.1"
+          cache: "pnpm"
+      - name: Install node_modules
+        run: pnpm install --frozen-lockfile
+      - name: Check for a major release
+        id: check
+        run: pnpm docs:version --check
+        env:
+          NX_ISOLATE_PLUGINS: "false"
+
+      # GITHUB_TOKEN cannot push to a fork, so the author adds the snapshot there.
+      - name: Ask a fork to version the docs
+        if: steps.check.outputs.major != '' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error::This pull request releases a major. Run \`pnpm docs:version --major ${{ steps.check.outputs.major }}\` and push the snapshot."
+          exit 1
+
+      - name: Version the outgoing docs
+        if: steps.check.outputs.major != '' && github.event.pull_request.head.repo.full_name == github.repository
+        run: pnpm docs:version --major ${{ steps.check.outputs.major }}
+      - name: Commit the snapshot to the pull request
+        if: steps.check.outputs.major != '' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          NAME: ${{ steps.check.outputs.name }}
+        run: |
+          snapshot="$RUNNER_TEMP/docs-snapshot"
+          mkdir -p "$snapshot/versioned_docs" "$snapshot/versioned_sidebars"
+          cp documentation/versions.json "$snapshot/"
+          cp -R "documentation/versioned_docs/version-$NAME" "$snapshot/versioned_docs/"
+          cp "documentation/versioned_sidebars/version-$NAME-sidebars.json" "$snapshot/versioned_sidebars/"
+
+          git checkout --force -B "$HEAD_REF" "origin/$HEAD_REF"
+          cp -R "$snapshot/." documentation/
+          git add documentation/versions.json "documentation/versioned_docs/version-$NAME" \
+            "documentation/versioned_sidebars/version-$NAME-sidebars.json"
+          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit -m "docs: ✏️ version the $NAME docs"
+          git push origin "HEAD:$HEAD_REF"
+
+      # A snapshot can use site components that changed since its tag, so the whole site has to build.
+      - name: Build the docs with the snapshot
+        if: steps.check.outputs.major != '' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+          pnpm build:docs

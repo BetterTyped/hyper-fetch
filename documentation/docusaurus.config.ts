@@ -9,25 +9,19 @@ import path from "path";
 
 import docsVersions from "./versions.json";
 
+/**
+ * `versions.json` lists the frozen majors, newest first. `pnpm docs:version` adds one before every major
+ * release, so the docs in `docs/` are always the major after the newest frozen one.
+ */
 const getVersions = () => {
-  const latestVersion = docsVersions[0] || "v7.0.0";
-  const latestMajor = latestVersion[1];
-  const currentVersion = Number(latestMajor) + 1;
-  const versions = { current: { label: `v${currentVersion}.0.0`, path: "" } };
+  const [newestFrozen = "v0.0.0"] = docsVersions;
+  const currentMajor = Number(/^v(\d+)\./.exec(newestFrozen)?.[1] ?? 0) + 1;
+  const versions: Record<string, { label?: string; path?: string; noIndex?: boolean }> = {
+    current: { label: `v${currentMajor}.0.0`, path: "" },
+  };
 
-  [...Array(docsVersions.length)].fill(0).forEach((_, index) => {
-    const version = Number(latestMajor) - index;
-
-    if (currentVersion === version) {
-      versions.current = {
-        label: `v${version}.0.0`,
-        path: "",
-      };
-    } else {
-      versions[`v${version}.0.0`] = {
-        noIndex: true,
-      };
-    }
+  docsVersions.forEach((version) => {
+    versions[version] = { noIndex: true };
   });
 
   return versions;

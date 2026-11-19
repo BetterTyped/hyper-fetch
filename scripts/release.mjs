@@ -70,6 +70,16 @@ export const latestTaggedVersion = (tags, channel) =>
     .sort(compareVersions)
     .at(-1)?.version;
 
+/** The name the docs of a major are frozen under in `documentation/versions.json`. */
+export const docsVersionName = (major) => `v${major}.0.0`;
+
+/** Nx only calculates the version, `writeVersion` writes it. */
+export const nextWorkspaceVersion = async ({ preid }) => {
+  const { releaseVersion } = createRequire(import.meta.url)("nx/release");
+  const { workspaceVersion } = await releaseVersion({ preid, dryRun: true, verbose: false });
+  return workspaceVersion ?? undefined;
+};
+
 /** Dependencies first, so a package is never on npm before the packages it needs. */
 export const sortByDependencies = (packages) => {
   const byName = new Map(packages.map((pkg) => [pkg.name, pkg]));
@@ -189,6 +199,20 @@ export const runRelease = async (io, { dryRun = false } = {}) => {
   if (latest && compareVersions(parseVersion(version), parseVersion(latest)) <= 0) {
     throw new Error(`Next version ${version} is not newer than the latest tag v${latest}.`);
   }
+  // A major replaces the docs in `documentation/docs`, so the outgoing major has to be frozen first.
+  // The `Version docs` workflow commits that snapshot to the pull request with the breaking change.
+  const outgoingMajor = latest ? parseVersion(latest).parts[0] : undefined;
+  if (
+    channel.preid === undefined &&
+    outgoingMajor !== undefined &&
+    parseVersion(version).parts[0] > outgoingMajor &&
+    !io.docsVersions().includes(docsVersionName(outgoingMajor))
+  ) {
+    throw new Error(
+      `v${version} replaces the v${outgoingMajor} docs, which are not versioned yet. Run ` +
+        `\`pnpm docs:version --major ${outgoingMajor}\` and merge the snapshot. Nothing was tagged or published.`,
+    );
+  }
 
   const packages = io.readPackages();
   const pending = planPublish(io, packages, version);
@@ -288,11 +312,8 @@ const realIo = {
   },
   // Nx only calculates the version. Writing it here keeps the `*` ranges between our packages as
   // they are, which Nx would otherwise rewrite or reject for prereleases.
-  nextVersion: async ({ preid }) => {
-    const { releaseVersion } = createRequire(import.meta.url)("nx/release");
-    const { workspaceVersion } = await releaseVersion({ preid, dryRun: true, verbose: false });
-    return workspaceVersion ?? undefined;
-  },
+  nextVersion: nextWorkspaceVersion,
+  docsVersions: () => readJson(join(ROOT, "documentation/versions.json")),
   pushTag: (version) => {
     const identity = ["-c", "user.name=github-actions[bot]"];
     identity.push("-c", "user.email=github-actions[bot]@users.noreply.github.com");
