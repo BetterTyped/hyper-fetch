@@ -1,10 +1,4 @@
-import type {
-  CacheValueType,
-  ClientInstance,
-  PaginationConfig,
-  PaginationPageContext,
-  RequestInstance,
-} from "@hyper-fetch/core";
+import type { CacheValueType, PaginationConfig, PaginationPageContext, RequestInstance } from "@hyper-fetch/core";
 import {
   getCachedPages,
   getHasNextPage,
@@ -33,21 +27,10 @@ import type {
   OperationKind,
 } from "./use-infinite-fetch.store.types";
 import type { InfinitePageEvent } from "./use-infinite-fetch.types";
-import { isSameSnapshot } from "./use-infinite-fetch.utils";
+import { getStores, isSameSnapshot } from "./use-infinite-fetch.utils";
 
 // Render and commit are separate steps, a store waits this long for the component that created it
 const unusedStoreTime = 1000;
-
-const stores = new WeakMap<ClientInstance, Map<string, InfiniteStore>>();
-
-const getStores = (client: ClientInstance) => {
-  let clientStores = stores.get(client);
-  if (!clientStores) {
-    clientStores = new Map();
-    stores.set(client, clientStores);
-  }
-  return clientStores;
-};
 
 /**
  * State of a single list. Hooks showing the same list share one store, so they stay in sync and never request
@@ -636,6 +619,9 @@ export class InfiniteStore {
   };
 
   private setResult = (response: any) => {
+    // Like the flags of TanStack Query, these describe the last fetch only - next and previous set theirs after this
+    this.nextPageError = false;
+    this.previousPageError = false;
     this.result = {
       error: response.success ? null : response.error,
       status: response.status,

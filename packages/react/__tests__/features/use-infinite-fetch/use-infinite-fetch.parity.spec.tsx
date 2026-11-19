@@ -497,51 +497,178 @@ describe("useInfiniteFetch [ Parity ]", () => {
       expect(renders).toBe(rendersAfterLoad);
     });
 
-    it("should keep the loaded pages when select throws", async () => {
-      const spy = vi.spyOn(console, "error").mockImplementation(() => null);
-      let pending: Promise<unknown> = Promise.resolve();
-
-      const Component = ({ limit }: { limit: number }) => {
-        const { items, fetchNextPage } = useInfiniteFetch(createPosts(), {
+    it("should report a throwing select through error, like a failed fetch", async () => {
+      const selectError = new Error("Too many posts");
+      let limit = 2;
+      const { result } = renderHook(() =>
+        useInfiniteFetch(createPosts(), {
           pagination,
+          dependencyTracking: false,
           select: ({ items: posts }) => {
             if (posts.length > limit) {
-              throw new Error("Too many posts");
+              throw selectError;
             }
             return posts.length;
           },
+        }),
+      );
+      await waitFor(() => expect(result.current.items).toBe(2));
+
+      await act(() => result.current.fetchNextPage());
+
+      // The last selected value stays, the error says why it is not updated
+      expect(result.current.items).toBe(2);
+      expect(result.current.error).toBe(selectError);
+      expect(result.current.success).toBe(false);
+      expect(result.current.pages).toHaveLength(2);
+
+      limit = 10;
+      await act(() => result.current.refetch());
+
+      expect(result.current.items).toBe(4);
+      expect(result.current.error).toBeNull();
+      expect(result.current.success).toBe(true);
+    });
+
+    it("should give no selected value when select throws on the first page", async () => {
+      const selectError = new Error("Invalid page");
+      const { result } = renderHook(() =>
+        useInfiniteFetch(createPosts(), {
+          pagination,
+          dependencyTracking: false,
+          select: (): number => {
+            throw selectError;
+          },
+        }),
+      );
+
+      await waitFor(() => expect(result.current.pages).toHaveLength(1));
+      expect(result.current.error).toBe(selectError);
+      expect(result.current.success).toBe(false);
+      expect(result.current.items).toBeNull();
+    });
+
+    it("should not throw a failing select to the Error Boundary", async () => {
+      const Component = () => {
+        const { items, error } = useInfiniteFetch(createPosts(), {
+          pagination,
+          select: (): string => {
+            throw new Error("Broken select");
+          },
         });
-        return (
-          <button
-            type="button"
-            onClick={() => {
-              pending = fetchNextPage();
-            }}
-          >
-            {items}
-          </button>
-        );
+        return <span>{error ? (error as Error).message : String(items)}</span>;
       };
 
-      const first = render(
+      render(
         <Boundary>
-          <Component limit={2} />
+          <Component />
         </Boundary>,
       );
-      await screen.findByText("2");
-      act(() => screen.getByRole("button").click());
-      await act(async () => {
-        await pending;
-      });
+
+      await screen.findByText("Broken select");
+      expect(screen.queryByText("boundary")).toBeNull();
+    });
+
+    it("should throw a failing select to the Error Boundary with throwOnError", async () => {
+      const spy = vi.spyOn(console, "error").mockImplementation(() => null);
+      const Component = () => {
+        const { items } = useInfiniteFetch(createPosts(), {
+          pagination,
+          throwOnError: true,
+          select: (): string => {
+            throw new Error("Broken select");
+          },
+        });
+        return <span>{String(items)}</span>;
+      };
+
+      render(
+        <Boundary>
+          <Component />
+        </Boundary>,
+      );
+
       await screen.findByText("boundary");
-      first.unmount();
-      resetCalls();
-
-      render(<Component limit={10} />);
-
-      await screen.findByText("4");
-      expect(calls).toHaveLength(0);
       spy.mockRestore();
+    });
+  });
+
+  describe("direction errors", () => {
+    const failPage = (failed: string) => {
+      mockList("/posts", ({ query }) => (query.page === failed ? failure() : pageItems(Number(query.page))));
+    };
+
+    it("should clear isFetchNextPageError after a successful refetch", async () => {
+      const { result } = await renderPosts();
+      failPage("2");
+      await act(() => result.current.fetchNextPage());
+      expect(result.current.isFetchNextPageError).toBe(true);
+
+      await act(() => result.current.refetch());
+
+      expect(result.current.isFetchNextPageError).toBe(false);
+      expect(result.current.error).toBeNull();
+    });
+
+    it("should clear isFetchPreviousPageError after a successful refetch", async () => {
+      mockList("/posts", ({ query }) => pageItems(Number(query.page)));
+      const { result } = renderHook(() =>
+        useInfiniteFetch(createPosts().setQueryParams({ page: 2 }), { pagination, dependencyTracking: false }),
+      );
+      await waitFor(() => expect(result.current.hasPreviousPage).toBe(true));
+      failPage("1");
+      await act(() => result.current.fetchPreviousPage());
+      expect(result.current.isFetchPreviousPageError).toBe(true);
+
+      await act(() => result.current.refetch());
+
+      expect(result.current.isFetchPreviousPageError).toBe(false);
+    });
+
+    it("should report only the direction of the last fetch", async () => {
+      mockList("/posts", ({ query }) => pageItems(Number(query.page)));
+      const { result } = renderHook(() =>
+        useInfiniteFetch(createPosts().setQueryParams({ page: 2 }), { pagination, dependencyTracking: false }),
+      );
+      await waitFor(() => expect(result.current.hasPreviousPage).toBe(true));
+      mockList("/posts", () => failure());
+
+      await act(() => result.current.fetchNextPage());
+      expect(result.current.isFetchNextPageError).toBe(true);
+
+      await act(() => result.current.fetchPreviousPage());
+
+      expect(result.current.isFetchPreviousPageError).toBe(true);
+      expect(result.current.isFetchNextPageError).toBe(false);
+    });
+
+    it("should clear the flag of the other direction after it loads a page", async () => {
+      mockList("/posts", ({ query }) => pageItems(Number(query.page)));
+      const { result } = renderHook(() =>
+        useInfiniteFetch(createPosts().setQueryParams({ page: 2 }), { pagination, dependencyTracking: false }),
+      );
+      await waitFor(() => expect(result.current.hasPreviousPage).toBe(true));
+      failPage("3");
+      await act(() => result.current.fetchNextPage());
+      expect(result.current.isFetchNextPageError).toBe(true);
+
+      await act(() => result.current.fetchPreviousPage());
+
+      expect(result.current.isFetchNextPageError).toBe(false);
+      expect(result.current.isFetchPreviousPageError).toBe(false);
+    });
+
+    it("should not set a direction flag when the refetch fails", async () => {
+      const { result } = await renderPosts();
+      failPage("2");
+      await act(() => result.current.fetchNextPage());
+      mockList("/posts", () => failure());
+
+      await act(() => result.current.refetch());
+
+      expect(result.current.error).not.toBeNull();
+      expect(result.current.isFetchNextPageError).toBe(false);
+      expect(result.current.isFetchPreviousPageError).toBe(false);
     });
   });
 

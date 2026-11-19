@@ -1,5 +1,6 @@
-import type { RequestInstance } from "@hyper-fetch/core";
+import type { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 
+import type { InfiniteStore } from "./use-infinite-fetch.store";
 import type { InfiniteSnapshot } from "./use-infinite-fetch.store.types";
 
 /**
@@ -50,4 +51,18 @@ export const getShouldKeepPreviousList = (
  */
 export const isSameSnapshot = (a: InfiniteSnapshot, b: InfiniteSnapshot) => {
   return (Object.keys(a) as (keyof InfiniteSnapshot)[]).every((key) => a[key] === b[key]);
+};
+
+const stores = new WeakMap<ClientInstance, Map<string, InfiniteStore>>();
+
+/**
+ * Stores of the lists shown with the client, by the key of the list
+ */
+export const getStores = (client: ClientInstance) => {
+  let clientStores = stores.get(client);
+  if (!clientStores) {
+    clientStores = new Map();
+    stores.set(client, clientStores);
+  }
+  return clientStores;
 };
