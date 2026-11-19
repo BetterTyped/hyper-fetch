@@ -17,7 +17,7 @@ alwaysApply: false
 
 - Titles use emoji + human-friendly name: `# ⚡ Hyper Fetch`, NOT `# @hyper-fetch/core`
 - Each package has its own emoji (keep them consistent):
-  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🧪 testing, 🏯 hono
+  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🐂 oxlint, 🧪 testing, 🏯 hono
 - Subtitle goes in a centered `<p align="center"><b>...</b></p>` right after the title
 - READMEs must look visually appealing — emojis in section headers, bold key terms in capabilities
 

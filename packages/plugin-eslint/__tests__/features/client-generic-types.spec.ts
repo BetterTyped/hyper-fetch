@@ -37,8 +37,29 @@ ruleTester.run("client-generics-types", clientGenericTypes, {
       `,
       options: [],
     },
+    {
+      code: `
+      import { createClient } from "@hyper-fetch/core";
+      const someClient = createClient<BaseClient & { error: ApiError }>();
+      `,
+      options: [],
+    },
   ],
   invalid: [
+    {
+      // imports are hoisted, a call above the import is still a HyperFetch client
+      code: `
+      const someClient = createClient<{eror: any}>();
+      import { createClient } from "@hyper-fetch/core";`,
+      errors: [{ messageId: "unexpectedGenerics", data: { items: "eror" } }],
+    },
+    {
+      // unknown key inside an intersection
+      code: `
+      import { createClient } from "@hyper-fetch/core";
+      const someClient = createClient<BaseClient & { eror: any }>();`,
+      errors: [{ messageId: "unexpectedGenerics", data: { items: "eror" } }],
+    },
     {
       // typo check
       code: `
