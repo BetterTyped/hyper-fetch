@@ -201,6 +201,76 @@ describe("useFetch [ Scope ]", () => {
 
       expect(calls).toHaveLength(2);
     });
+    it("should refetch after invalidation of the whole cache", async () => {
+      renderScoped("a");
+      await advance();
+      callOf("a").succeed({ owner: "a" });
+      await settle();
+
+      act(() => {
+        client.cache.invalidate();
+      });
+      await advance();
+
+      expect(calls).toHaveLength(2);
+    });
+    it("should not refetch when the request of another scope is invalidated", async () => {
+      renderScoped("a");
+      await advance();
+      callOf("a").succeed({ owner: "a" });
+      await settle();
+      setCacheResponse(request.setScope("b"), { owner: "b" });
+
+      act(() => {
+        client.cache.invalidate(request.setScope("b"));
+        client.cache.invalidate(`b__${request.cacheKey}`);
+      });
+      await advance();
+
+      expect(calls).toHaveLength(1);
+    });
+    it("should not refetch when the unscoped request is invalidated", async () => {
+      renderScoped("a");
+      await advance();
+      callOf("a").succeed({ owner: "a" });
+      await settle();
+
+      act(() => {
+        client.cache.invalidate(request);
+      });
+      await advance();
+
+      expect(calls).toHaveLength(1);
+    });
+    it("should not refetch when the entry of another scope is deleted", async () => {
+      renderScoped("a");
+      await advance();
+      callOf("a").succeed({ owner: "a" });
+      await settle();
+      setCacheResponse(request.setScope("b"), { owner: "b" });
+
+      act(() => {
+        client.cache.delete(`b__${request.cacheKey}`);
+      });
+      await advance();
+
+      expect(calls).toHaveLength(1);
+    });
+    it("should refetch every scope once when the whole cache is invalidated", async () => {
+      renderScoped("a");
+      renderScoped("b");
+      await advance();
+      callOf("a").succeed({ owner: "a" });
+      callOf("b").succeed({ owner: "b" });
+      await settle();
+
+      act(() => {
+        client.cache.invalidate();
+      });
+      await advance();
+
+      expect(calls.map((call) => call.request.scope)).toStrictEqual(["a", "b", "a", "b"]);
+    });
     it("should refetch after the scoped entry is deleted", async () => {
       renderScoped("a");
       await advance();

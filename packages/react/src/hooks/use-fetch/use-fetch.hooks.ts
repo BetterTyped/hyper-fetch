@@ -335,13 +335,15 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
       }
     });
 
-    const handleCacheChange = () => latest.current.fetch();
-    // Invalidation is emitted with the request cache key or - when matched with RegExp - with the storage key
+    // Invalidation and deletion are emitted by the request cache key, which is shared between the scopes.
+    // The event carries the key of the changed element - only our own one has to be fetched again.
+    const handleCacheChange = (changedKey: string) => {
+      if (changedKey === scopedCacheKey) {
+        latest.current.fetch();
+      }
+    };
     const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleCacheChange);
-    const scopedInvalidateUnmount =
-      scopedCacheKey === cacheKey ? null : cache.events.onInvalidateByKey(scopedCacheKey, handleCacheChange);
-    // Deletion is emitted with the storage key
-    const deletionUnmount = cache.events.onDeleteByKey(scopedCacheKey, handleCacheChange);
+    const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleCacheChange);
 
     const unmount = () => {
       clearCacheDataListener();
@@ -349,7 +351,6 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
       blurUnmount();
       onlineUnmount();
       invalidateUnmount();
-      scopedInvalidateUnmount?.();
       deletionUnmount();
     };
 

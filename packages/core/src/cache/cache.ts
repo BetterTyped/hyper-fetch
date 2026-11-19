@@ -200,6 +200,8 @@ export class Cache<Adapter extends AdapterInstance> {
     clearTimeout(this.garbageCollectors.get(cacheKey));
     this.garbageCollectors.delete(cacheKey);
 
+    // Listeners are subscribed with the cache key of the request, scoped elements are stored under another key
+    const listenersKey = this.storage.get(cacheKey)?.cacheKey ?? cacheKey;
     this.storage.delete(cacheKey);
     this.runLazyStorage("delete", cacheKey, (lazyStorage) => lazyStorage.delete(cacheKey));
 
@@ -208,7 +210,7 @@ export class Cache<Adapter extends AdapterInstance> {
       cacheKey,
     });
 
-    this.events.emitDelete(cacheKey);
+    this.events.emitDelete(cacheKey, false, listenersKey);
   };
 
   /**
@@ -233,7 +235,11 @@ export class Cache<Adapter extends AdapterInstance> {
           cacheKey: notifyCacheKey,
         });
 
-        this.events.emitInvalidation(notifyCacheKey);
+        // Listeners are subscribed with the cache key of the request, scoped elements are stored under another key.
+        // The key of the element goes as the event data, so they can tell the scopes apart.
+        const listenersKey =
+          notifyCacheKey === invalidateStorageKey ? (value?.cacheKey ?? notifyCacheKey) : notifyCacheKey;
+        this.events.emitInvalidation(invalidateStorageKey, false, listenersKey);
       };
 
       if (key instanceof Request) {
