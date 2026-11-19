@@ -177,6 +177,19 @@ describe("useSubmit [ Actions ]", () => {
       expect(result.current.requestTimestamp).toBeNull();
       expect(result.current.responseTimestamp).toBeNull();
     });
+    it("should reset extra to its initial value", async () => {
+      const { request, renderSubmitted } = setup();
+      const initial = renderHook(() => useSubmit(request, { dependencyTracking: false })).result.current.extra;
+      const { result } = await renderSubmitted();
+      expect(result.current.extra).not.toStrictEqual(initial);
+
+      act(() => {
+        result.current.clearState();
+      });
+
+      expect(initial).toStrictEqual({ headers: {} });
+      expect(result.current.extra).toStrictEqual(initial);
+    });
     it("should clear the result of a failed submit", async () => {
       const { renderSubmitted } = setup();
       const { result } = await renderSubmitted("error");

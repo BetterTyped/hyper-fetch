@@ -442,7 +442,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
           loading: false,
           status: null,
           success: false,
-          extra: null,
+          extra: client.adapter.defaultExtra,
           retries: 0,
           responseTimestamp: null,
           requestTimestamp: null,
