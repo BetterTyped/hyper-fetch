@@ -30,6 +30,10 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   private runningRequests = new Map<string, RunningRequestValueType[]>();
   /** Failed requests waiting for their next attempt, by requestId */
   private retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  /** Order in which the requests were sent - responses can come back in another one */
+  private sentCount = 0;
+  /** Cache element (by its storage key) to the order number of the request whose data it holds */
+  private cachedOrder = new Map<string, number>();
 
   private logger: LoggerMethods;
   private client: ClientInstance<{ adapter: Adapter }>;
@@ -312,6 +316,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
     [...this.runningRequests.keys()].forEach((queryKey) => this.setRunningRequests(queryKey, []));
     this.runningRequests.clear();
+    this.cachedOrder.clear();
     this.storage.clear();
     removed.forEach(({ items, answeredIds }) => this.emitRemovedItems(items, answeredIds));
     this.client.triggerPlugins("onDispatcherCleared", { dispatcher: this });
@@ -665,6 +670,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
     // Additionally keep the running request to possibly abort it later
     const runningRequest = this.addRunningRequest(queryKey, requestId, request);
+    this.sentCount += 1;
+    const sentOrder = this.sentCount;
 
     // Propagate the loading to all connected hooks
     requestManager.events.emitLoading({
@@ -739,8 +746,24 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       }),
     );
 
-    // Cache event to emit the data inside and store it
-    notify(() => cache.set(request, { ...response, ...requestDetails }));
+    // Requests of one cache key can answer in another order than they were sent. Once the data of a request is in
+    // the cache, a response of a request sent before it is outdated - it must not replace that data.
+    const storageKey = scopeKey(request.cacheKey, scope);
+    const isOutdated = (this.cachedOrder.get(storageKey) ?? 0) > sentOrder;
+
+    if (isOutdated) {
+      this.logger.debug({
+        title: "Response of a request sent before the cached one, skipping the cache",
+        type: "system",
+        extra: { requestId, request, response },
+      });
+    } else {
+      if (response.success) {
+        this.cachedOrder.set(storageKey, sentOrder);
+      }
+      // Cache event to emit the data inside and store it
+      notify(() => cache.set(request, { ...response, ...requestDetails }));
+    }
     this.logger.debug({
       title: "Dispatcher processing response",
       type: "system",
