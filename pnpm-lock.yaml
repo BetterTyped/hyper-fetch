@@ -986,6 +986,9 @@ importers:
       '@hyper-fetch/sockets':
         specifier: workspace:*
         version: link:../sockets
+      '@typescript-eslint/utils':
+        specifier: ^7.18.0
+        version: 7.18.0(eslint@8.57.0)(typescript@5.9.3)
       react:
         specifier: 19.2.5
         version: 19.2.5

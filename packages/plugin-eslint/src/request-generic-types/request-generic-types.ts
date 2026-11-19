@@ -29,9 +29,9 @@ export const requestGenericTypes = createRule({
     return {
       CallExpression(node) {
         if (
-          node.callee &&
-          "property" in node.callee &&
-          "name" in node.callee.property &&
+          node.callee.type === "MemberExpression" &&
+          !node.callee.computed &&
+          node.callee.property.type === "Identifier" &&
           node.callee.property.name === "createRequest"
         ) {
           const typeParameters = "typeParameters" in node ? node.typeParameters : undefined;
@@ -53,7 +53,7 @@ export const requestGenericTypes = createRule({
 
           const unexpectedGenericElements = getUnexpectedGenerics({
             typeParameters,
-            allowedGenerics: ["response", "queryParams", "error", "payload", "endpoint"],
+            allowedGenerics: ["response", "queryParams", "error", "payload", "endpoint", "params"],
           });
           const isEmpty = getEmptyGenerics({ typeParameters });
 

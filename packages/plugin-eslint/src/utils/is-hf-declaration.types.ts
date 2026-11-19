@@ -8,28 +8,26 @@ export const getIsHyperFetchDeclaration = () => {
 
   return {
     hooks: {
-      ImportDeclaration: (node: TSESTree.ImportDeclaration) => {
-        if (node.source.type !== "Literal" || typeof node.source.value !== "string") {
-          return;
-        }
-
-        if (!importsToLookFor.has(node.source.value)) {
-          return;
-        }
-
-        node.specifiers.forEach((specifier) => {
-          if (specifier.type === "ImportDefaultSpecifier" || specifier.type === "ImportNamespaceSpecifier") {
-            defaultImports.add(specifier.local.name);
-          }
-
-          if (specifier.type === "ImportSpecifier" && specifier.imported.name === "createClient") {
-            clientImports.add(specifier.local.name);
-          }
-        });
-      },
-      "Program:exit": () => {
+      // Imports are hoisted, so read them all before any call is visited.
+      Program: (program: TSESTree.Program) => {
         defaultImports.clear();
         clientImports.clear();
+
+        program.body.forEach((node) => {
+          if (node.type !== "ImportDeclaration" || !importsToLookFor.has(node.source.value)) {
+            return;
+          }
+
+          node.specifiers.forEach((specifier) => {
+            if (specifier.type === "ImportDefaultSpecifier" || specifier.type === "ImportNamespaceSpecifier") {
+              defaultImports.add(specifier.local.name);
+            }
+
+            if (specifier.type === "ImportSpecifier" && specifier.imported.name === "createClient") {
+              clientImports.add(specifier.local.name);
+            }
+          });
+        });
       },
     },
     isClientDeclaration: (node: TSESTree.CallExpression["callee"]) => {
@@ -42,6 +40,7 @@ export const getIsHyperFetchDeclaration = () => {
         node.type === "MemberExpression" &&
         node.object.type === "Identifier" &&
         defaultImports.has(node.object.name) &&
+        !node.computed &&
         node.property.type === "Identifier" &&
         node.property.name === "createClient";
 
