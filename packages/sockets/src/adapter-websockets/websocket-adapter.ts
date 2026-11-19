@@ -49,6 +49,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         onDisconnect,
         onListen,
         onEmit,
+        onEmitError,
         onConnected,
         onDisconnected,
         onError,
@@ -59,15 +60,26 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             ? socket.adapter.adapterOptions?.autoConnect
             : true;
 
+        // The transport in use. Events of any other instance (replaced or closed on purpose) are ignored.
         let websocket: ReturnType<typeof getWebsocketAdapter> | undefined;
         // Options of the current connection attempt (after onConnect interceptors)
         let options: WebsocketAdapterOptionsType | EmptyTypes = socket.adapter.adapterOptions;
+        // Connection attempt in progress - concurrent `connect()` calls join it
+        let pendingConnection: Promise<boolean> | undefined;
 
         let pingTimer: ReturnType<typeof setTimeout> | undefined;
         let pongTimer: ReturnType<typeof setTimeout> | undefined;
+        // Connection timeout while connecting, reconnection delay after the connection was lost
         let timeout: ReturnType<typeof setTimeout> | undefined;
 
-        const connect = async (): Promise<boolean> => {
+        const scheduleReconnect = () => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            reconnect();
+          }, socket.reconnectTime);
+        };
+
+        const openConnection = async (): Promise<boolean> => {
           const connection = await onConnect();
           if (!connection) {
             return socket.adapter.connected;
@@ -80,46 +92,50 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           options = connection.adapterOptions;
           const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
           const newWebsocket = createWebsocket(url, options);
-          websocket = newWebsocket;
+          websocket = newWebsocket ?? undefined;
 
           if (!newWebsocket) {
             return false;
           }
 
-          // Clear listeners
-          newWebsocket.clearListeners();
+          const isCurrent = () => websocket === newWebsocket;
 
-          // Reconnection timeout
-          timeout = setTimeout(() => {
-            reconnect();
-          }, socket.reconnectTime);
+          // Connection timeout - when the server does not answer in time, start over
+          scheduleReconnect();
 
           /**
            *  Mount listeners
            */
 
           newWebsocket.addEventListener("open", () => {
+            if (!isCurrent()) {
+              return;
+            }
             clearTimeout(timeout);
             onConnected();
             onHeartbeat();
           });
 
           newWebsocket.addEventListener("close", (event) => {
+            if (!isCurrent()) {
+              return;
+            }
             clearTimeout(timeout);
-            onDisconnected();
             clearTimers();
+            onDisconnected();
             const error = getSocketError(event);
             onError({ error: new Error(error) });
 
-            // If close was not by calling disconnect method, reconnect
+            // The connection was lost or closed by the server with an error - try to get it back
             if (event.code !== 1000) {
-              timeout = setTimeout(() => {
-                reconnect();
-              }, socket.reconnectTime);
+              scheduleReconnect();
             }
           });
 
           newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+            if (!isCurrent()) {
+              return;
+            }
             // Any frame proves the connection is alive, even the ones ignored by the decoder
             onHeartbeat();
 
@@ -159,40 +175,80 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
         };
 
-        const disconnect = async (): Promise<boolean> => {
-          // Manual disconnect cancels a scheduled automatic reconnect
+        const connect = (): Promise<boolean> => {
+          // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
+          if (socket.adapter.connecting && pendingConnection) {
+            return pendingConnection;
+          }
+
+          const connection = openConnection();
+          pendingConnection = connection;
+          const release = () => {
+            if (pendingConnection === connection) {
+              pendingConnection = undefined;
+            }
+          };
+          connection.then(release, release);
+
+          return connection;
+        };
+
+        /**
+         * Closes the transport and resets the connection state. From this point the closed transport is detached -
+         * whatever it reports later (close code, errors, late frames) does not reach the socket anymore,
+         * so closing on purpose is never treated as a lost connection.
+         */
+        const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
           clearTimeout(timeout);
+          clearTimers();
 
           const currentWebsocket = websocket;
-          const hasTransport = currentWebsocket && currentWebsocket.readyState !== WebSocket.CLOSED;
+          websocket = undefined;
 
-          if (!hasTransport) {
-            // Nothing to close - only a connection attempt may still be preparing (onConnect), cancel it
-            const wasConnecting = socket.adapter.connecting;
-            onDisconnect();
-            if (wasConnecting) {
-              onDisconnected();
-            }
+          const wasActive = socket.adapter.connected || socket.adapter.connecting;
+          onDisconnect();
+          if (!manual) {
+            // Closing the previous transport is a part of reconnecting - only `disconnect()` keeps the socket closed
+            socket.adapter.setForceClosed(false);
+          }
+          if (wasActive) {
+            onDisconnected();
+          }
+
+          if (!currentWebsocket || currentWebsocket.readyState === WebSocket.CLOSED) {
             return true;
           }
 
-          const promise = new Promise<boolean>((resolve) => {
+          return new Promise<boolean>((resolve) => {
             const resolveDisconnected = () => {
               resolve(true);
               currentWebsocket.removeEventListener("close", resolveDisconnected);
             };
             currentWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
+            currentWebsocket.close(1000);
           });
+        };
 
-          onDisconnect();
-          currentWebsocket.close(1000);
-          clearTimers();
-
-          return promise;
+        /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
+        const disconnect = (): Promise<boolean> => {
+          return closeConnection({ manual: true });
         };
 
         const reconnect = async () => {
-          await onReconnect({ disconnect, connect });
+          // Reconnecting is a request to be connected, also after a manual disconnect
+          socket.adapter.setForceClosed(false);
+
+          await onReconnect({
+            disconnect: () => closeConnection({ manual: false }),
+            connect: async () => {
+              // `disconnect()` called while the previous transport was closing wins over the reconnection
+              if (socket.adapter.forceClosed) {
+                socket.adapter.setReconnectionAttempts(0);
+                return false;
+              }
+              return connect();
+            },
+          });
         };
 
         /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
@@ -228,19 +284,19 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           }
         };
 
-        const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">) => {
+        /** Encodes and sends a message. Returns the error instead of throwing, so callers decide how to report it. */
+        const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">): Error | null => {
           if (!websocket) {
-            return false;
+            return new Error("Cannot send event when connection is not open");
           }
           try {
             const frame = options?.encode
               ? options.encode({ topic, payload })
               : JSON.stringify({ topic, data: payload });
             websocket.send(frame);
-            return true;
+            return null;
           } catch (error) {
-            onError({ error: error as Error });
-            return false;
+            return error instanceof Error ? error : new Error(String(error));
           }
         };
 
@@ -259,12 +315,32 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           }
           clearTimers();
           pingTimer = setTimeout(() => {
-            sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
+            const error = sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
+            if (error) {
+              onError({ error });
+            }
             pongTimer = setTimeout(() => {
-              // this should trigger reconnect
-              websocket?.close();
+              onHeartbeatTimeout();
             }, pongTimeout);
           }, pingTimeout);
+        };
+
+        /**
+         * The server did not answer the ping - the connection is dead. On a dead connection the closing handshake
+         * may take very long (or never finish), so the socket is marked as disconnected right away instead of
+         * waiting for the `close` event of the transport.
+         */
+        const onHeartbeatTimeout = () => {
+          const deadWebsocket = websocket;
+          if (!deadWebsocket) {
+            return;
+          }
+          websocket = undefined;
+          clearTimers();
+          deadWebsocket.close();
+          onDisconnected();
+          onError({ error: new Error("Heartbeat timeout - the server did not respond to the ping in time") });
+          scheduleReconnect();
         };
 
         const listen = (
@@ -280,7 +356,13 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             return;
           }
 
-          return sendEventMessage(mappedEmitter);
+          const error = sendEventMessage(mappedEmitter);
+          if (error) {
+            onEmitError({ emitter: mappedEmitter, error });
+            onError({ error });
+            return false;
+          }
+          return true;
         };
 
         // Initialize
@@ -289,7 +371,8 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         }
 
         socket.appManager.events.onOnline(() => {
-          if (autoConnect && !socket.adapter.connected) {
+          // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
+          if (autoConnect && !socket.adapter.connected && !socket.adapter.forceClosed) {
             connect();
           }
         });

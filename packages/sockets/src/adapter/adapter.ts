@@ -169,14 +169,15 @@ export class SocketAdapter<
     >;
   }): boolean => {
     const listenerGroup = this.listeners.get(topic);
-    if (listenerGroup) {
-      const unmount = listenerGroup.get(callback);
-      this.socket.events.emitListenerRemoveEvent({ topic });
-      listenerGroup.delete(callback);
-      unmount?.();
-      return true;
+    // Removing a callback that is not registered (anymore) is a no-op - the remove event fires once per listener
+    if (!listenerGroup?.has(callback)) {
+      return false;
     }
-    return false;
+    const unmount = listenerGroup.get(callback);
+    listenerGroup.delete(callback);
+    this.socket.events.emitListenerRemoveEvent({ topic });
+    unmount?.();
+    return true;
   };
 
   public triggerListeners = ({
@@ -191,10 +192,28 @@ export class SocketAdapter<
     >;
   }) => {
     const listenerGroup = this.listeners.get(topic);
-    if (listenerGroup) {
-      listenerGroup.forEach((_, action) => {
+    if (!listenerGroup?.size) {
+      return;
+    }
+
+    // Dispatch to the listeners registered when the message arrived: the ones added by a callback wait for the
+    // next message, the ones removed by a callback are skipped.
+    const callbacks = [...listenerGroup.keys()];
+    const errors: unknown[] = [];
+    callbacks.forEach((action) => {
+      if (!listenerGroup.has(action)) {
+        return;
+      }
+      try {
         action({ data, extra: extra as ExtractAdapterExtraType<this> });
-      });
+      } catch (error) {
+        // One failing callback must not starve the other listeners of the topic
+        errors.push(error);
+      }
+    });
+
+    if (errors.length > 0) {
+      throw errors[0];
     }
   };
 

@@ -68,7 +68,7 @@ describe("Axios Adapter [ Base ]", () => {
     expect(error).toBeInstanceOf(Error);
     expect(data).toStrictEqual(null);
     expect(status).toBe(0); // systemErrorStatus default
-    expect(extra?.headers).toBeUndefined();
+    expect(extra?.headers).toEqual({});
 
     // Restore original XMLHttpRequest
     global.XMLHttpRequest = originalXHR;

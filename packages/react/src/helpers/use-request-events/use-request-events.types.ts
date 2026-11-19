@@ -95,7 +95,7 @@ export type UseRequestEventsReturnType<T extends RequestInstance> = [
 export type CallbackParameters<Request extends RequestInstance, Resp> = {
   response: Resp;
   mutationContext: ExtractMutationContextType<Request> | undefined;
-} & Omit<RequestResponseEventType<Request>, "response">;
+} & Omit<RequestResponseEventType<Request>, "response" | "mutationContext">;
 
 export type OnSuccessCallbackType<Request extends RequestInstance> = (
   params: CallbackParameters<Request, ResponseSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>>,

@@ -45,6 +45,8 @@ export type UseInfiniteFetchOptionsType<
   maxPages?: number;
   /**
    * Transforms the list used by the component. The cache stays shared with other hooks.
+   * When it throws, the error is returned in `error` (or thrown with `throwOnError`) and `items` keeps
+   * the last selected value.
    */
   select?: (context: { items: PaginationItem<R, P>[]; pages: ExtractResponseType<R>[] }) => TSelected;
   /**
@@ -155,13 +157,13 @@ export type UseInfiniteFetchReturnType<
   isRefetching: boolean;
   isFetchingNextPage: boolean;
   isFetchingPreviousPage: boolean;
-  /** Last attempt of fetching the next page failed */
+  /** The last fetch of the list was a failed attempt of fetching the next page */
   isFetchNextPageError: boolean;
-  /** Last attempt of fetching the previous page failed */
+  /** The last fetch of the list was a failed attempt of fetching the previous page */
   isFetchPreviousPageError: boolean;
   /** The list on screen belongs to the previous request, the new one is still loading */
   isPreviousData: boolean;
-  /** Error of the last fetch */
+  /** Error of the last fetch, or the error thrown by `select` */
   error: ExtractErrorType<R> | null;
   /** Status of the last response */
   status: ExtractAdapterStatusType<ExtractAdapterType<R>> | null;

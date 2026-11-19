@@ -64,9 +64,10 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     connectionId += 1;
     const currentConnectionId = connectionId;
 
+    // The attempts counter is kept on purpose - it is reset only by a successful connection (onConnected)
+    // or a disconnect, so attempts that never open (e.g. a hanging handshake) still count towards the limit
     socket.adapter.setForceClosed(false);
     socket.adapter.setConnecting(true);
-    socket.adapter.setReconnectionAttempts(0);
     socket.events.emitConnecting({ connecting: true });
 
     const defaults: SocketConnectionType<T> = {
@@ -133,10 +134,6 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
         extra: { reconnectionAttempts: nextAttempts },
       });
       await connect();
-      // Restore only if the connection didn't succeed — onConnected resets to 0 on success
-      if (!adapter.connected) {
-        socket.adapter.setReconnectionAttempts(nextAttempts);
-      }
       return true;
     }
 
@@ -175,25 +172,40 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
 
   // Emitters
 
+  const onEmitError = <ErrorType extends Error>({ emitter, error }: { emitter: EmitterInstance; error: ErrorType }) => {
+    socket.events.emitEmitterError({ error, emitter });
+  };
+
+  /**
+   * Prepares an emitter for sending - maps the payload and runs the `onSend` interceptors.
+   * Returns `null` when the message cannot be sent; the reason is reported with the emitter error event
+   * (and to the `onError` callbacks when the payload mapper or an interceptor failed), it never rejects.
+   */
   const onEmit = async ({ emitter }: { emitter: EmitterInstance }): Promise<EmitterInstance | null> => {
     if (adapter.connecting || !adapter.connected) {
-      logger.error({ title: "Cannot emit event when connection is not open", type: "system", extra: {} });
+      const error = new Error("Cannot emit event when connection is not open");
+      logger.error({ title: error.message, type: "system", extra: {} });
+      onEmitError({ emitter, error });
       return null;
     }
 
-    // eslint-disable-next-line no-param-reassign
-    emitter.payload = emitter.unstable_payloadMapper
-      ? emitter.unstable_payloadMapper(emitter.payload)
-      : emitter.payload;
+    try {
+      // eslint-disable-next-line no-param-reassign
+      emitter.payload = emitter.unstable_payloadMapper
+        ? await emitter.unstable_payloadMapper(emitter.payload)
+        : emitter.payload;
 
-    const emitterInstance = await socket.unstable__modifySend(emitter);
-    socket.events.emitEmitterStartEvent({ emitter: emitterInstance });
+      const emitterInstance = await socket.unstable__modifySend(emitter);
+      socket.events.emitEmitterStartEvent({ emitter: emitterInstance });
 
-    return emitterInstance;
-  };
-
-  const onEmitError = <ErrorType extends Error>({ emitter, error }: { emitter: EmitterInstance; error: ErrorType }) => {
-    socket.events.emitEmitterError({ error, emitter });
+      return emitterInstance;
+    } catch (error) {
+      const emitError = error instanceof Error ? error : new Error(String(error));
+      logger.error({ title: "Cannot prepare event to emit", type: "system", extra: { error: emitError } });
+      onEmitError({ emitter, error: emitError });
+      onError({ error: emitError });
+      return null;
+    }
   };
 
   // Lifecycle
@@ -224,9 +236,21 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
   const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
     logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
-    const { data: modifiedData, extra: modifiedExtra } = socket.unstable__modifyResponse({ data, extra });
-    socket.adapter.triggerListeners({ topic, data: modifiedData, extra: modifiedExtra });
-    socket.events.emitListenerEvent({ topic, data: modifiedData, extra: modifiedExtra });
+    let message: { data: any; extra: ExtractAdapterExtraType<T> };
+    try {
+      message = socket.unstable__modifyResponse({ data, extra });
+    } catch (error) {
+      // A failing `onMessage` interceptor must not break the transport - skip the message and report it
+      onError({ error: error instanceof Error ? error : new Error(String(error)) });
+      return;
+    }
+
+    try {
+      socket.adapter.triggerListeners({ topic, data: message.data, extra: message.extra });
+    } finally {
+      // Devtools and global subscriptions receive the message even when a listener callback throws
+      socket.events.emitListenerEvent({ topic, data: message.data, extra: message.extra });
+    }
   };
 
   /** Maps query params to the format required by the adapter (defaults to the adapter's stored query params) */

@@ -115,7 +115,8 @@ const createJsonValue = (random: () => number, depth = 0): unknown => {
 };
 
 const random = createRandom(20_240_101);
-const generatedInputs = Array.from({ length: 150 }, (_, index) => [index, createJsonValue(random)] as const);
+// A null payload removes the payload in Hyper Fetch, so a top level null is covered by its own test
+const generatedInputs = Array.from({ length: 150 }, (_, index) => [index, createJsonValue(random) ?? 0] as const);
 
 const jsonInputs: [string, unknown][] = [
   ["zero", 0],
@@ -126,7 +127,6 @@ const jsonInputs: [string, unknown][] = [
   ["max safe integer", Number.MAX_SAFE_INTEGER],
   ["true", true],
   ["false", false],
-  ["null", null],
   ["empty string", ""],
   ["space", " "],
   ["text with spaces", "a b  c"],
@@ -173,7 +173,6 @@ const superjsonInputs: [string, unknown][] = [
   ["falsy number", 0],
   ["falsy boolean", false],
   ["falsy string", ""],
-  ["null", null],
 ];
 
 const errorCodes: [TRPC_ERROR_CODE_KEY, number, number][] = [
@@ -284,6 +283,13 @@ describe.each([
 
       expect(adapterCalls[0].url).toBe(officialCalls[0].url);
       expect(response.data).toStrictEqual(expected);
+    });
+    it("should send no input for a null payload, which removes the payload", async () => {
+      const expected = await createOfficialClient().echo.query();
+      const response = await callAdapter("echo", "QUERY", null);
+
+      expect(adapterCalls[0].url).toBe(officialCalls[0].url);
+      expect(response.data).toStrictEqual(expected ?? null);
     });
   });
 

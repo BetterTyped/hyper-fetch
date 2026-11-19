@@ -105,7 +105,11 @@ export const getAdapter = () =>
 
           const response = await fetch(fullUrl, init);
 
-          if (timeoutId) {clearTimeout(timeoutId);}
+          // The timeout covers the whole exchange - a body that stops arriving has to end with the timeout error.
+          // Only a streamed body is handed over to the user as soon as the headers arrive.
+          if (timeoutId && streaming && response.body) {
+            clearTimeout(timeoutId);
+          }
 
           onResponseStart();
 
@@ -140,7 +144,9 @@ export const getAdapter = () =>
               while (true) {
                 // eslint-disable-next-line no-await-in-loop
                 const { done, value } = await reader.read();
-                if (done) {break;}
+                if (done) {
+                  break;
+                }
                 chunks.push(value);
                 receivedLength += value.length;
                 onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
@@ -158,6 +164,10 @@ export const getAdapter = () =>
               body = await response.text();
             }
 
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+
             onResponseEnd();
             unmountListener();
 
@@ -170,7 +180,9 @@ export const getAdapter = () =>
             }
           }
         } catch (error: any) {
-          if (timeoutId) {clearTimeout(timeoutId);}
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
           unmountListener();
 
           if (controller?.signal?.aborted) {

@@ -20,6 +20,8 @@ export class AppManager {
   isFocused: boolean;
 
   private unmountCallbacks: VoidFunction[] = [];
+  private hasFocusUpdate = false;
+  private hasOnlineUpdate = false;
 
   constructor(public options?: AppManagerOptionsType) {
     this.emitter?.setMaxListeners(1000);
@@ -60,39 +62,56 @@ export class AppManager {
     callbacks.forEach((unmount) => unmount());
   };
 
-  private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {
-    if (typeof initValue !== "function") {
-      this.isFocused = initValue;
-      return;
-    }
-
-    // Synchronous getters apply right away, so there is no moment with a wrong value
-    const value = initValue();
-    if (typeof value === "boolean") {
-      this.isFocused = value;
-    } else {
-      this.isFocused = false;
-      this.isFocused = await value;
-    }
+  private setInitialFocus = (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {
+    this.isFocused = this.readInitialValue(initValue, (isFocused) => {
+      // The environment could report the state in the meantime - it is more recent than the initial value
+      if (!this.hasFocusUpdate && isFocused !== this.isFocused) {
+        this.setFocused(isFocused);
+      }
+    });
   };
 
-  private setInitialOnline = async (initValue: Exclude<AppManagerOptionsType["initiallyOnline"], undefined>) => {
+  private setInitialOnline = (initValue: Exclude<AppManagerOptionsType["initiallyOnline"], undefined>) => {
+    this.isOnline = this.readInitialValue(initValue, (isOnline) => {
+      // The environment could report the state in the meantime - it is more recent than the initial value
+      if (!this.hasOnlineUpdate && isOnline !== this.isOnline) {
+        this.setOnline(isOnline);
+      }
+    });
+  };
+
+  /**
+   * Reads the initial state from a value or a getter. Synchronous getters apply right away, so there is no moment
+   * with a wrong value. Asynchronous ones start with `false` and apply once resolved - the change is emitted like
+   * any other, so the modules waiting for the focus or the network get notified.
+   * A getter which throws or rejects leaves the state unknown, so it falls back to `true` - just like the defaults do.
+   */
+  private readInitialValue = (
+    initValue: boolean | (() => boolean | Promise<boolean>),
+    onResolved: (value: boolean) => void,
+  ): boolean => {
     if (typeof initValue !== "function") {
-      this.isOnline = initValue;
-      return;
+      return initValue;
     }
 
-    // Synchronous getters apply right away, so there is no moment with a wrong value
-    const value = initValue();
-    if (typeof value === "boolean") {
-      this.isOnline = value;
-    } else {
-      this.isOnline = false;
-      this.isOnline = await value;
+    try {
+      const value = initValue();
+      if (typeof value === "boolean") {
+        return value;
+      }
+
+      Promise.resolve(value).then(
+        (resolved) => onResolved(resolved),
+        () => onResolved(true),
+      );
+      return false;
+    } catch {
+      return true;
     }
   };
 
   setFocused = (isFocused: boolean) => {
+    this.hasFocusUpdate = true;
     this.isFocused = isFocused;
 
     if (isFocused) {
@@ -103,6 +122,7 @@ export class AppManager {
   };
 
   setOnline = (isOnline: boolean) => {
+    this.hasOnlineUpdate = true;
     this.isOnline = isOnline;
 
     if (isOnline) {

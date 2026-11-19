@@ -25,8 +25,18 @@ import { pickInitialCacheData } from "hydrate/hydrate.utils";
  */
 const getCacheKeyIdentity = (cacheKey: string): string => {
   const lastUnderscoreIndex = cacheKey.lastIndexOf("_");
-  if (lastUnderscoreIndex === -1) {return cacheKey;}
+  if (lastUnderscoreIndex === -1) {
+    return cacheKey;
+  }
   return cacheKey.substring(0, lastUnderscoreIndex);
+};
+
+/**
+ * Identity of the requested resource - method and endpoint with resolved params, without the query params.
+ * Two requests with the same identity ask for the same resource (e.g. another page or filter of one list).
+ */
+export const getRequestIdentity = (request: Pick<RequestInstance, "method" | "endpoint" | "scope">): string => {
+  return `${request.scope ?? ""}_${String(request.method)}_${String(request.endpoint)}`;
 };
 
 /**
@@ -35,16 +45,25 @@ const getCacheKeyIdentity = (cacheKey: string): string => {
  * - `"clean"` — always clear
  * - `"preserve"` — never clear
  * - `"auto"` — clear when the resource identity changed (URL params), preserve when only query params changed
+ *
+ * In the "auto" mode the identity is read from the cache keys, which is not reliable for custom cache keys
+ * and for query params containing underscores - compare the requests with `getRequestIdentity` when they are available.
  */
 export const getShouldClearState = (
   mode: "auto" | "preserve" | "clean",
   oldCacheKey: string,
   newCacheKey: string,
 ): boolean => {
-  if (oldCacheKey === newCacheKey) {return false;}
+  if (oldCacheKey === newCacheKey) {
+    return false;
+  }
 
-  if (mode === "clean") {return true;}
-  if (mode === "preserve") {return false;}
+  if (mode === "clean") {
+    return true;
+  }
+  if (mode === "preserve") {
+    return false;
+  }
 
   // "auto" — compare the identity part (method + endpoint with params)
   return getCacheKeyIdentity(oldCacheKey) !== getCacheKeyIdentity(newCacheKey);
@@ -68,7 +87,9 @@ export const getDetailsState = (
 };
 
 export const isStaleCacheData = (staleTime: number, staleTimestamp: NullableType<Date | number>) => {
-  if (!staleTimestamp) {return true;}
+  if (!staleTimestamp) {
+    return true;
+  }
   return Date.now() > +staleTimestamp + staleTime;
 };
 

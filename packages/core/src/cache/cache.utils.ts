@@ -9,7 +9,7 @@ export const getCacheData = <T extends RequestInstance>(
   const { data, success } = response;
 
   const previousData = !success && previousResponse ? previousResponse.data : null;
-  // Falsy values like 0, false or "" are valid responses
+  // Only missing data falls back to the previous one - falsy responses like `0`, `false` or `""` are valid data
   const computedData = data ?? previousData;
 
   return { ...response, data: computedData };
@@ -51,14 +51,15 @@ const isPlainArray = (value: unknown): value is unknown[] => {
 };
 
 /**
- * Structural sharing - returns `next` with every part that is deeply equal to `prev` replaced by the `prev` reference.
- * When both values are deeply equal the `prev` reference is returned, so consumers can rely on `===` checks.
- * Only plain objects and arrays are traversed, other values are compared with `Object.is`.
- * @param prev previous value
- * @param next incoming value
- * @returns `next` sharing unchanged references with `prev`
+ * Structures nested deeper than this are not compared - it keeps extremely deep data from overflowing the call stack.
  */
-export const replaceEqualDeep = <T>(prev: unknown, next: T): T => {
+const STRUCTURAL_SHARING_MAX_DEPTH = 500;
+
+/**
+ * @param ancestors containers of `next` that are being compared right now - their number is the current depth
+ * and meeting one of them again means a cycle
+ */
+const shareEqualParts = <T>(prev: unknown, next: T, ancestors: Set<unknown>): T => {
   if (Object.is(prev, next)) {
     return prev as T;
   }
@@ -67,6 +68,12 @@ export const replaceEqualDeep = <T>(prev: unknown, next: T): T => {
   if (!isArray && !(isPlainObject(prev) && isPlainObject(next))) {
     return next;
   }
+
+  // Circular and extremely deep structures are not traversed further
+  if (ancestors.size > STRUCTURAL_SHARING_MAX_DEPTH || ancestors.has(next)) {
+    return next;
+  }
+  ancestors.add(next);
 
   const prevItems = prev as Record<string, unknown>;
   const nextItems = next as Record<string, unknown>;
@@ -78,14 +85,29 @@ export const replaceEqualDeep = <T>(prev: unknown, next: T): T => {
   nextKeys.forEach((key) => {
     const prevValue = prevItems[key];
     const nextValue = nextItems[key];
-    const value = replaceEqualDeep(prevValue, nextValue);
+    const value = shareEqualParts(prevValue, nextValue, ancestors);
     copy[key] = value;
     // undefined values are equal only when the key existed before
     // eslint-disable-next-line prefer-object-has-own -- Object.hasOwn is not available in older runtimes
-    if (value === prevValue && (value !== undefined || Object.prototype.hasOwnProperty.call(prevItems, key))) {
+    if (Object.is(value, prevValue) && (value !== undefined || Object.prototype.hasOwnProperty.call(prevItems, key))) {
       equalItems += 1;
     }
   });
 
+  ancestors.delete(next);
+
   return (prevKeys.length === nextKeys.length && equalItems === prevKeys.length ? prev : copy) as T;
+};
+
+/**
+ * Structural sharing - returns `next` with every part that is deeply equal to `prev` replaced by the `prev` reference.
+ * When both values are deeply equal the `prev` reference is returned, so consumers can rely on `===` checks.
+ * Only plain objects and arrays are traversed, other values are compared with `Object.is`.
+ * Circular references and extremely deep structures are not traversed - such parts are taken from `next` as they are.
+ * @param prev previous value
+ * @param next incoming value
+ * @returns `next` sharing unchanged references with `prev`
+ */
+export const replaceEqualDeep = <T>(prev: unknown, next: T): T => {
+  return shareEqualParts(prev, next, new Set());
 };

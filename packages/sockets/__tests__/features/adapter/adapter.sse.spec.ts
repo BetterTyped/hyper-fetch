@@ -13,7 +13,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ SSE ]", () => {
-  const { startServer, emitError } = createSseMockingServer();
+  const { startServer, emitError, getSource } = createSseMockingServer();
   let socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
   let originalEventSource: typeof EventSource;
 
@@ -42,7 +42,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should throw error when emitting", async () => {
     await startServer();
 
-    await expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
+    expect(() => socket.adapter.emit({} as any)).toThrow("Cannot emit events in SSE adapter");
   });
 
   it("should reconnect when going online", async () => {
@@ -56,11 +56,11 @@ describe("Socket Adapter [ SSE ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
-    // Simulate going offline and disconnecting
+    // The network goes down and the stream fails for good
     socket.appManager.setOnline(false);
-    socket.adapter.disconnect();
+    getSource().readyState = 2;
+    emitError({ code: 1006, reason: "Network lost", wasClean: false });
 
-    // Wait for disconnect to complete
     await waitFor(() => {
       expect(socket.adapter.connected).toBe(false);
     });
@@ -74,6 +74,20 @@ describe("Socket Adapter [ SSE ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
       expect(socket.adapter.connected).toBe(true);
     });
+  });
+
+  it("should stay disconnected when going online after a manual disconnect", async () => {
+    const connectingSpy = vi.fn();
+    await startServer();
+    await socket.disconnect();
+    socket.events.onConnecting(connectingSpy);
+
+    socket.appManager.setOnline(false);
+    socket.appManager.setOnline(true);
+
+    expect(connectingSpy).not.toHaveBeenCalled();
+    expect(socket.adapter.connecting).toBe(false);
+    expect(socket.adapter.connected).toBe(false);
   });
 
   it("should not reconnect when connection is open", async () => {
@@ -278,7 +292,7 @@ describe("Socket Adapter [ SSE ]", () => {
     // Give time for any potential error events
     await sleep(10);
 
-    expect(errorSpy).toHaveBeenCalled();
+    expect(errorSpy).not.toHaveBeenCalled();
     expect(socket.adapter.connected).toBe(false);
   });
 

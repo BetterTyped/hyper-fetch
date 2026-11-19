@@ -179,5 +179,7 @@ Query params are appended to the URL. The `input` and `batch` keys are reserved 
 ## Limitations
 
 - Subscriptions and request batching are not supported. Subscription procedures are left out of `TrpcSchema`.
+- A `null` payload removes the payload, so the procedure receives no input. Procedures that need a `null` input
+  should take an object instead, for example `{ value: null }`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path for those.

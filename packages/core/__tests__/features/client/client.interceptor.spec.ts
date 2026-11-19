@@ -124,59 +124,68 @@ describe("Client [ Interceptor ]", () => {
   });
 
   describe("When interceptor returns undefined value", () => {
-    it("should throw onError method when request is not returned", async () => {
+    it("should end with the error response when onError interceptor does not return the response", async () => {
       client.onError(() => undefined as any);
 
-      await expect(
-        client.unstable_modifyErrorResponse(
-          {
-            data: null,
-            error: null,
-            status: 400,
-            success: false,
-            extra: xhrExtra,
-            requestTimestamp: Date.now(),
-            responseTimestamp: Date.now(),
-          },
-          request,
-        ),
-      ).rejects.toThrow();
+      const response = await client.unstable_modifyErrorResponse(
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        },
+        request,
+      );
+
+      expect(response.success).toBeFalse();
+      expect(response.data).toBeNull();
+      expect(response.status).toBe(0);
+      expect(response.error).toStrictEqual(new Error("Response modifier must return data"));
     });
-    it("should throw onSuccess method when request is not returned", async () => {
+    it("should end with the error response when onSuccess interceptor does not return the response", async () => {
       client.onSuccess(() => undefined as any);
 
-      await expect(
-        client.unstable_modifySuccessResponse(
-          {
-            data: null,
-            error: null,
-            status: 400,
-            success: false,
-            extra: xhrExtra,
-            requestTimestamp: Date.now(),
-            responseTimestamp: Date.now(),
-          },
-          request,
-        ),
-      ).rejects.toThrow();
+      const response = await client.unstable_modifySuccessResponse(
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        },
+        request,
+      );
+
+      expect(response.success).toBeFalse();
+      expect(response.data).toBeNull();
+      expect(response.status).toBe(0);
+      expect(response.error).toStrictEqual(new Error("Response modifier must return data"));
     });
-    it("should throw onResponse method when request is not returned", async () => {
+    it("should end with the error response when onResponse interceptor does not return the response", async () => {
       client.onResponse(() => undefined as any);
 
-      await expect(
-        client.unstable_modifyResponse(
-          {
-            data: null,
-            error: null,
-            status: 400,
-            success: false,
-            extra: xhrExtra,
-            requestTimestamp: Date.now(),
-            responseTimestamp: Date.now(),
-          },
-          request,
-        ),
-      ).rejects.toThrow();
+      const response = await client.unstable_modifyResponse(
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        },
+        request,
+      );
+
+      expect(response.success).toBeFalse();
+      expect(response.data).toBeNull();
+      expect(response.status).toBe(0);
+      expect(response.error).toStrictEqual(new Error("Response modifier must return data"));
     });
   });
   describe("When user wants to remove listeners", () => {
