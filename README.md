@@ -43,7 +43,7 @@ const getUsers = client.createRequest<{ response: { id: number; name: string }[]
 const { data, error, status } = await getUsers.send();
 ```
 
-### Or generate from OpenAPI
+### Generate from OpenAPI or backend types
 
 ```bash
 npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
