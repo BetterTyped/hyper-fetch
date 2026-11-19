@@ -10,6 +10,19 @@ page describes each rule, explains what it checks for, and provides examples of 
 
 ---
 
+## What the rules accept
+
+- **Type references** such as `createRequest<RequestType>()`. TypeScript already checks those against the constraint.
+- **Intersections** such as `createRequest<GqlResponse<User> & { payload: Input }>()`. Each object part is checked, and
+  references inside the intersection are trusted.
+- **Quoted keys** such as `{ "response": User }`, which count the same as `{ response: User }`.
+
+`client-generic-types` checks `createClient` imported from `@hyper-fetch/core` by name, alias or namespace, and allows
+the `error` key. `request-generic-types` allows `response`, `payload`, `error`, `queryParams`, `endpoint` and `params`,
+matching `RequestGenericType` in `@hyper-fetch/core`.
+
+---
+
 1. ## client-generic-types
 
 This rule ensures proper generic types are used when creating clients with Hyper Fetch. It extends TypeScript's

@@ -90,6 +90,7 @@ jobs:
             ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/plugin-devtools/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/plugin-eslint/coverage/lcov.info:lcov
+            ${{github.workspace}}/packages/plugin-oxlint/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/sockets/coverage/lcov.info:lcov
 

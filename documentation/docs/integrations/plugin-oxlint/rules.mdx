@@ -1,0 +1,87 @@
+---
+sidebar_position: 2
+title: Rules
+---
+
+# Rules
+
+The Oxlint plugin has two rules. Both check the first generic passed to a HyperFetch factory and report keys the factory
+does not know about. Every generic key is optional, so TypeScript accepts a typo like `rsponse` and your data quietly
+falls back to the default type.
+
+:::tip Purpose
+
+1.  **`client-generic-types`** checks `createClient<{ ... }>()` from `@hyper-fetch/core`.
+2.  **`request-generic-types`** checks `client.createRequest<{ ... }>()`.
+
+:::
+
+---
+
+## What both rules report
+
+- **Unexpected keys**: any key the factory does not accept. All unknown keys are listed in one report.
+- **Empty generic**: `<{}>`, which sets nothing.
+- **Not an object type**: a keyword, union or other type where an object is expected, such as `<string>`.
+
+What both rules accept:
+
+- **Type references** such as `createRequest<RequestType>()`. TypeScript already checks those against the constraint.
+- **Intersections** such as `createRequest<Base & { payload: Input }>()`. Each object part is checked, and references
+  inside the intersection are trusted.
+- **Quoted keys** such as `{ "response": User }`, which count the same as `{ response: User }`.
+
+---
+
+## client-generic-types
+
+Checks the generic of `createClient` when it is imported from `@hyper-fetch/core`. The import can be named, aliased or a
+namespace, and a `createClient` from any other library is ignored.
+
+Allowed keys: `error`.
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+// ❌ Unexpected generic type(s) found: eror
+const client = createClient<{ eror: ApiError }>({ url: "http://localhost:3000" });
+
+// ❌ Generic type provided to createClient is empty
+const client = createClient<{}>({ url: "http://localhost:3000" });
+
+// ❌ Generic type provided to createClient is not matching the expected object-like format
+const client = createClient<unknown>({ url: "http://localhost:3000" });
+
+// ✅
+const client = createClient<{ error: ApiError }>({ url: "http://localhost:3000" });
+```
+
+---
+
+## request-generic-types
+
+Checks the generic of every `.createRequest<...>()` call.
+
+Allowed keys: `response`, `payload`, `error`, `queryParams`, `endpoint` and `params`, matching `RequestGenericType` in
+`@hyper-fetch/core`.
+
+```ts
+// ❌ Unexpected generic type(s) found: rsponse, eror
+const getUser = client.createRequest<{ rsponse: User; eror: ApiError }>()({ endpoint: "/users/:id" });
+
+// ❌ Unexpected generic type(s) found: paylod
+const updateUser = client.createRequest<GqlResponse<User> & { paylod: UserInput }>()({ endpoint: updateUserMutation });
+
+// ✅
+const getUser = client.createRequest<{ response: User; params: { id: number } }>()({ endpoint: "/users/:id" });
+```
+
+---
+
+:::secondary Summary
+
+- Both rules report unknown keys, empty generics and generics that are not object types.
+- Type references are trusted, and intersections are checked part by part.
+- `createClient` is only checked when it comes from `@hyper-fetch/core`.
+
+:::

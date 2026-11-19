@@ -1002,6 +1002,9 @@ importers:
       '@hyper-fetch/sockets':
         specifier: workspace:*
         version: link:../sockets
+      '@typescript-eslint/utils':
+        specifier: ^7.18.0
+        version: 7.18.0(eslint@8.57.0)(typescript@5.9.3)
       react:
         specifier: 19.2.5
         version: 19.2.5
@@ -1021,6 +1024,16 @@ importers:
       path:
         specifier: 0.12.7
         version: 0.12.7
+
+  packages/plugin-oxlint:
+    dependencies:
+      '@oxlint/plugins':
+        specifier: 1.62.0
+        version: 1.62.0
+    devDependencies:
+      oxlint:
+        specifier: 1.62.0
+        version: 1.62.0
 
   packages/react:
     dependencies:
@@ -5143,6 +5156,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@oxlint/plugins@1.62.0':
+    resolution: {integrity: sha512-BgKRw631mImmxuGuRoWaRT8AvNSJCfJvR7lDzP1jR3sBAa7q8P/Ii+lcEOEFZsfcfpkXLyUKGEQLYXWqb60wvw==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   '@parcel/watcher-android-arm64@2.5.6':
     resolution: {integrity: sha512-YQxSS34tPF/6ZG7r/Ih9xy+kP/WwediEUsqmtf0cuCV5TPPKw/PQHRhueUo6JdeFJaqV3pyjm0GdYjZotbRt/A==}
@@ -24577,6 +24594,8 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.62.0':
     optional: true
+
+  '@oxlint/plugins@1.62.0': {}
 
   '@parcel/watcher-android-arm64@2.5.6':
     optional: true

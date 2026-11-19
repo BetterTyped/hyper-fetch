@@ -41,6 +41,9 @@
       "path": "./packages/plugin-eslint"
     },
     {
+      "path": "./packages/plugin-oxlint"
+    },
+    {
       "path": "./packages/react"
     },
     {

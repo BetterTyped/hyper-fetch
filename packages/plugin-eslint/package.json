@@ -18,6 +18,9 @@
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
     "tests": "pnpm lint-staged"
   },
+  "dependencies": {
+    "@typescript-eslint/utils": "^7.18.0"
+  },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
     "@hyper-fetch/sockets": "*",
@@ -51,7 +54,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
-    "directory": "packages/react"
+    "directory": "packages/plugin-eslint"
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
