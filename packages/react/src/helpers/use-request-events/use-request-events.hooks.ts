@@ -85,6 +85,7 @@ export const useRequestEvents = <R extends RequestInstance>({
       value.unmount();
     });
     events.clear();
+    pendingRequests.current.clear();
   };
 
   // ******************
@@ -95,6 +96,11 @@ export const useRequestEvents = <R extends RequestInstance>({
   const optimisticResultsRef = useRef<Map<string, OptimisticCallbackResult<any>>>(new Map());
   // Requests which already got their last response - their removal from the queue is only a cleanup
   const settledRequests = useRef(new Set<string>());
+  // Requests sent with their ids (useSubmit) which are submitted or in flight. The hook is loading as long as there
+  // are any - also between two queued requests and when the requests have different keys.
+  const pendingRequests = useRef(new Set<string>());
+  // Queue which the loading and data listeners follow - the one of the latest request
+  const listenedQueryKey = useRef<string | null>(null);
 
   // ******************
   // Response handlers
@@ -146,7 +152,10 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
 
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope));
+      const canDisableLoading =
+        !loading &&
+        !dispatcher.hasRunningRequests(scopeKey(req.queryKey, req.scope)) &&
+        pendingRequests.current.size === 0;
       if (loading || canDisableLoading) {
         actions.setLoading(loading);
       }
@@ -194,6 +203,9 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
 
+      // This attempt is over - a retried request becomes pending again when its next attempt starts
+      pendingRequests.current.delete(values.requestId);
+
       // Marked before the mapper runs - an async mapper answers after the dispatcher removed the request.
       // Failed attempts which are retried or kept for the connection to return respond once again.
       const { success } = values.response;
@@ -201,6 +213,14 @@ export const useRequestEvents = <R extends RequestInstance>({
       const willRespondAgain = !success && !isCanceled && (willRetry || (!!req.offline && isOffline));
       if (!willRespondAgain) {
         settledRequests.current.add(values.requestId);
+      }
+
+      // The loading listeners follow the queue of the latest request. A request sent earlier to another queue
+      // (other params) is not heard by them, so when it is the last one, it ends the loading state here.
+      const queryKey = scopeKey(req.queryKey, req.scope);
+      const isLastRequest = pendingRequests.current.size === 0 && !dispatcher.hasRunningRequests(queryKey);
+      if (isLastRequest && listenedQueryKey.current !== null && listenedQueryKey.current !== queryKey) {
+        actions.setLoading(dispatcher.hasRunningRequests(listenedQueryKey.current));
       }
 
       // The mapper of the listened request - it can differ from the request of the current render
@@ -253,6 +273,7 @@ export const useRequestEvents = <R extends RequestInstance>({
       });
     }
     settledRequests.current.delete(requestId);
+    pendingRequests.current.delete(requestId);
     optimisticResultsRef.current.delete(requestId);
     removeLifecycleListener(requestId);
   };
@@ -283,6 +304,10 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
       setCacheData(cacheData);
+      // Cache data brings the loading state of its own queue only - other requests of the hook can still be pending
+      if (pendingRequests.current.size > 0) {
+        actions.setLoading(true);
+      }
     });
 
     const unmount = () => {
@@ -292,6 +317,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
     clearCacheDataListener();
     dataEvents.current = { unmount };
+    listenedQueryKey.current = scopeKey(req.queryKey, req.scope);
 
     return unmount;
   };
@@ -338,8 +364,14 @@ export const useRequestEvents = <R extends RequestInstance>({
     if (optimisticResult) {
       optimisticResultsRef.current.set(requestId, optimisticResult);
     }
+    pendingRequests.current.add(requestId);
+    const onRequestStart = handleRequestStart(req);
     const requestRemove = requestManager.events.onRemoveById(requestId, handleRemove);
-    const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart(req));
+    const requestStartUnmount = requestManager.events.onRequestStartById<R>(requestId, (details) => {
+      // Every attempt, also a retry or one postponed until the connection returned
+      pendingRequests.current.add(requestId);
+      onRequestStart(details);
+    });
     const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart(req));
     const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse(req));
     const uploadUnmount = requestManager.events.onUploadProgressById(requestId, handleUploadProgress(req));
