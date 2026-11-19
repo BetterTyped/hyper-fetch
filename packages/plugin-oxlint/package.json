@@ -34,7 +34,6 @@
     "@oxlint/plugins": "1.62.0"
   },
   "peerDependencies": {
-    "@hyper-fetch/core": "*",
     "oxlint": ">=1.62.0"
   },
   "devDependencies": {

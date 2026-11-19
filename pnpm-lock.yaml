@@ -1011,9 +1011,6 @@ importers:
 
   packages/plugin-oxlint:
     dependencies:
-      '@hyper-fetch/core':
-        specifier: workspace:*
-        version: link:../core
       '@oxlint/plugins':
         specifier: 1.62.0
         version: 1.62.0
