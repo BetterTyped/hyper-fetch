@@ -199,7 +199,8 @@ describe("useSubmit [ Unmount ]", () => {
 
       it("should roll back once and fire no callback after abort", async () => {
         const setup = createSetup();
-        mockRequest(setup.mutation, { data: { ok: true }, delay: 100 });
+        // Two polling waitFors run before the abort, so the request has to stay in flight far longer than their 50ms
+        mockRequest(setup.mutation, { data: { ok: true }, delay: 1000 });
 
         const { requestId, callbacks, pending } = await submitAndUnmount(setup);
         await waitFor(() => {

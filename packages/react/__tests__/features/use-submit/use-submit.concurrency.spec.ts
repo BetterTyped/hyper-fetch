@@ -45,8 +45,8 @@ describe("useSubmit [ Concurrency ]", () => {
         await testSuccessState(mock, responseTwo);
       });
       it("should start in loading mode when another request is ongoing", async () => {
-        // The request has to outlive the render of the second hook, the default 20ms delay does not
-        mockRequest(request, { delay: 500 });
+        // The default 20ms mock can resolve during the render pause below, so keep the request in flight explicitly
+        mockRequest(request, { delay: 1000 });
         const responseOne = renderUseSubmit(request);
 
         act(() => {
