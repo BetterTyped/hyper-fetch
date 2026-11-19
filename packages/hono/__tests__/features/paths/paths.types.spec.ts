@@ -82,6 +82,36 @@ describe("HonoAppToHyperFetch [ Regex params ]", () => {
   });
 });
 
+describe("HonoAppToHyperFetch [ Methods ]", () => {
+  it("should expand an .all() route into every standard method", () => {
+    expectTypeOf<keyof Schema["echo"]>().toEqualTypeOf<
+      "$get" | "$post" | "$put" | "$delete" | "$options" | "$patch" | "$query"
+    >();
+    expectTypeOf<ExtractResponseType<Schema["echo"]["$post"]>>().toEqualTypeOf<{ method: string }>();
+    expectTypeOf<ExtractEndpointType<Schema["echo"]["$delete"]>>().toEqualTypeOf<"/echo">();
+    expect(true).toBe(true);
+  });
+
+  it("should not keep the $all key Hono stores .all() routes under", () => {
+    // @ts-expect-error - ALL is not an HTTP method a client can send
+    type AllKey = Schema["echo"]["$all"];
+
+    expectTypeOf<AllKey>().toBeAny();
+    expect(true).toBe(true);
+  });
+
+  it("should keep a method registered next to an .all() route on the same path", () => {
+    const app = new Hono()
+      .all("/hook", (c) => c.json({ any: true as const }))
+      .get("/hook", (c) => c.json({ read: true as const }));
+    type HookSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<ExtractResponseType<HookSchema["hook"]["$get"]>>().toEqualTypeOf<{ read: true }>();
+    expectTypeOf<ExtractResponseType<HookSchema["hook"]["$post"]>>().toEqualTypeOf<{ any: true }>();
+    expect(true).toBe(true);
+  });
+});
+
 describe("HonoAppToHyperFetch [ Path shapes ]", () => {
   it("should give a path registered without a leading slash the endpoint createSdk sends", () => {
     expectTypeOf<ExtractEndpointType<Schema["plain"]["$get"]>>().toEqualTypeOf<"/plain">();

@@ -75,6 +75,18 @@ describe("HonoAppToHyperFetch [ Paths against a Hono server ]", () => {
     expect(status).toBe(404);
   });
 
+  it("should send every standard method to an .all() route", async () => {
+    const sdk = createAppSdk();
+
+    const get = await sdk.echo.$get.send();
+    const post = await sdk.echo.$post.send();
+    const del = await sdk.echo.$delete.send();
+
+    expect(get.data).toStrictEqual({ method: "GET" });
+    expect(post.data).toStrictEqual({ method: "POST" });
+    expect(del.data).toStrictEqual({ method: "DELETE" });
+  });
+
   it("should send to a path registered without a leading slash", async () => {
     const sdk = createAppSdk();
     const request = sdk.plain.$get;

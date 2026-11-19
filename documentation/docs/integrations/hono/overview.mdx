@@ -101,7 +101,10 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 - Each path segment becomes a nested property.
 - `:param` segments become `$param` properties, and the param is typed on `setParams()`.
 - kebab-case segments become camelCase. `createSdk` turns them back into kebab-case when it builds the URL.
-- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys.
+- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys. `app.on()` adds one key per method
+  and one route per path.
+- An `.all()` route gets every standard method, `$get` to `$query`, as in Hono's own client. A method registered on
+  the same path keeps its own types.
 - The endpoint is the full Hono path, including `app.route()` and `basePath()` prefixes.
 - An optional `:param?` segment adds the route twice: without the param and under `$param` with it, because HyperFetch
   params are always required. A chain of optional params adds every prefix.

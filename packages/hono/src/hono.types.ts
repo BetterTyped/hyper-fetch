@@ -1,5 +1,6 @@
 import type { ClientInstance, Request } from "@hyper-fetch/core";
 import type { HonoBase } from "hono/hono-base";
+import type { METHODS } from "hono/router";
 
 type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -28,6 +29,17 @@ type ExtractQuery<T> = "query" extends keyof T ? T["query"] : undefined;
 
 /** Hono encodes methods as `$get`, `$post`, ... on every path entry of the schema. */
 type ExtractMethodKeys<T> = Extract<keyof T, `$${string}`>;
+
+type StandardMethodKey = `$${(typeof METHODS)[number]}`;
+
+/**
+ * Hono stores `.all()` routes under `$all`, and `ALL` is not a method a client can send. Like Hono's
+ * own client, the route gets every standard method instead. A method registered on the same path
+ * keeps its own handler.
+ */
+type ExpandAllMethod<Methods> = "$all" extends keyof Methods
+  ? Omit<Methods, "$all"> & { [M in Exclude<StandardMethodKey, keyof Methods>]: Methods["$all"] }
+  : Methods;
 
 /**
  * Turns the `{ $method: endpoint }` entry of a Hono path into Hyper Fetch `Request`s. The endpoint
@@ -125,7 +137,7 @@ type ConvertRoutes<Methods, Routes extends string[], Client extends ClientInstan
 type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInstance> = UnionToIntersection<
   {
     [Path in keyof Schema & string]: ConvertRoutes<
-      Schema[Path],
+      ExpandAllMethod<Schema[Path]>,
       ExpandOptionalParams<SplitPath<TrimStartSlash<StripPatterns<Path>>>>,
       Client
     >;
@@ -142,6 +154,7 @@ type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInst
  * Routes below an optional `:param?` segment appear both without and with the param, and regex
  * params like `:id{[0-9]+}` become plain `$id` properties. The endpoint is the one `createSdk`
  * sends the request to, so a trailing slash and the regex patterns of the Hono path are dropped.
+ * An `.all()` route gets every standard method, like in Hono's own client.
  *
  * Pass the type of the app returned by your route chain, including apps mounted with
  * `app.route()` and `basePath()`. Anything that is not a Hono app resolves to `{}`.
