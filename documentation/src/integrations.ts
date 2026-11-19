@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Server, Zap } from "lucide-react";
+import { Book, Zap } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -12,6 +12,7 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
 const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
+const ElysiaIcon = isBrowser() ? require("../static/img/integration-elysia.svg").default : () => null;
 const OrpcIcon = isBrowser() ? require("../static/img/integration-orpc.svg").default : () => null;
 const TrpcIcon = isBrowser() ? require("../static/img/integration-trpc.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
@@ -151,7 +152,7 @@ export const integrations: Section[] = [
     dir: "elysia",
     isPackage: true,
     paths: ["elysia"],
-    img: Server,
+    img: ElysiaIcon,
     text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
     textAction:
       "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",

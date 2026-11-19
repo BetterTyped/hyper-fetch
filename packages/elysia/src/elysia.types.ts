@@ -41,20 +41,65 @@ type SuccessStatus<Responses> = {
 type ErrorStatus<Responses> = Exclude<keyof Responses, SuccessStatus<Responses>>;
 
 /**
- * `fetch` resolves a 2xx status as a success, so only 2xx bodies are the response. A route without
- * a 2xx status gets `undefined`, because a `never` response breaks the `Extract*` helpers of core.
+ * Elysia types what the handler returns, while Hyper Fetch receives what was sent over HTTP. `Date`
+ * values arrive as ISO strings. Streams, generators, `Response` objects, files and `form()` bodies
+ * are not JSON, so their content is `unknown`.
  */
-type RouteResponse<Route extends ElysiaRoute> = [SuccessStatus<Route["response"]>] extends [never]
-  ? undefined
-  : Route["response"][SuccessStatus<Route["response"]>];
+type Serialized<T> = T extends Date
+  ? string
+  : T extends Response | Blob | FormData | ReadableStream | Generator | AsyncGenerator
+    ? unknown
+    : T extends object
+      ? { [K in keyof T]: Serialized<T[K]> }
+      : T;
+
+/**
+ * Elysia sends `null`, `undefined` and `void` as an empty body, and Hyper Fetch reads an empty body
+ * as `""`. Nested values are JSON, so a `null` field stays `null`.
+ */
+type ResponseBody<T> = T extends null | undefined | void ? "" : Serialized<T>;
+
+/**
+ * `fetch` resolves a 2xx status as a success, so only 2xx bodies are the response. A route that only
+ * returns other statuses gets `undefined`, because a `never` response breaks the `Extract*` helpers
+ * of core. Elysia leaves the status map empty both for a handler without a return value and for one
+ * that returns `any`, so the response of an empty map is `unknown`.
+ */
+type RouteResponse<Route extends ElysiaRoute> = [keyof Route["response"]] extends [never]
+  ? unknown
+  : [SuccessStatus<Route["response"]>] extends [never]
+    ? undefined
+    : ResponseBody<Route["response"][SuccessStatus<Route["response"]>]>;
 
 /** Bodies of every other status, including the `422` Elysia sends when a schema rejects the input. */
 type RouteError<Route extends ElysiaRoute> = [ErrorStatus<Route["response"]>] extends [never]
   ? undefined
-  : Route["response"][ErrorStatus<Route["response"]>];
+  : ResponseBody<Route["response"][ErrorStatus<Route["response"]>]>;
 
-/** Elysia types a route without a `body` or `query` schema as `unknown`. */
-type DefinedOrUndefined<T> = unknown extends T ? undefined : T;
+/**
+ * Elysia types a route without a `body` or `query` schema as `unknown`, and as `{}` when the route
+ * uses `status()`, a macro or the HEAD method. Neither has anything to send.
+ */
+type DefinedOrUndefined<T> = unknown extends T ? undefined : IsEmptyObject<T> extends true ? undefined : T;
+
+/** Only `{}` itself. Unions without common keys and objects with only optional keys keep their type. */
+type IsEmptyObject<T> = [T] extends [{}]
+  ? [{}] extends [T]
+    ? [keyof T] extends [never]
+      ? true
+      : false
+    : false
+  : false;
+
+/**
+ * A body with a `t.File()` or `t.Files()` field can only be sent as multipart form data, so the
+ * payload is a `FormData` that Hyper Fetch sends as it is.
+ */
+type RoutePayload<Body> = true extends {
+  [K in keyof Body]: Body[K] extends Blob | Blob[] | undefined ? true : false;
+}[keyof Body]
+  ? FormData
+  : DefinedOrUndefined<Body>;
 
 type Endpoint<Path extends string> = Path extends "" ? "/" : Path;
 
@@ -62,7 +107,7 @@ type ConvertMethods<Node, Path extends string, Client extends ClientInstance> = 
   [K in MethodKeys<Node> as `$${Lowercase<K>}`]: Node[K] extends ElysiaRoute
     ? Request<
         RouteResponse<Node[K]>,
-        DefinedOrUndefined<Node[K]["body"]>,
+        RoutePayload<Node[K]["body"]>,
         DefinedOrUndefined<Node[K]["query"]>,
         RouteError<Node[K]>,
         Endpoint<Path>,
@@ -151,9 +196,13 @@ type ConvertNode<
  * properties, `:param` segments become `$param` properties, and kebab-case segments become
  * camelCase.
  *
+ * Response and error types follow what arrives over HTTP: dates become strings, `null` becomes the
+ * empty body `""`, and streams, generators, `Response` objects and `form()` bodies are `unknown`. A
+ * body with file fields is typed as `FormData`.
+ *
  * Routes below an optional `:param?` segment appear both without and with the param. WebSocket
- * routes, `.all()` routes and wildcard `*` segments are left out. Anything that is not an Elysia
- * app resolves to `{}`.
+ * routes, `.all()` routes, wildcard `*` segments, mounted handlers and paths with ten or more
+ * segments are left out. Anything that is not an Elysia app resolves to `{}`.
  *
  * @typeParam App - The Elysia app type, usually `typeof app`.
  * @typeParam Client - The client the requests belong to. `createSdk` injects its own client, so

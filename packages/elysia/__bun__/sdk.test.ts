@@ -1,8 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import { createClient, createSdk } from "@hyper-fetch/core";
+import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 
-import type { ElysiaAppToHyperFetch } from "../src";
 import { app } from "../__tests__/utils/app";
+import type { ElysiaAppToHyperFetch } from "../src";
 
 type Schema = ElysiaAppToHyperFetch<typeof app>;
 

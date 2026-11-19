@@ -11,6 +11,7 @@ const backends: { name: string; src: string; to: string; scale?: number }[] = [
   { name: "tRPC", to: "/docs/integrations/adapter-trpc/overview", src: "/img/integration-trpc.svg", scale: 1.12 },
   { name: "oRPC", to: "/docs/integrations/adapter-orpc/overview", src: "/img/integration-orpc-dark.svg" },
   { name: "Hono", to: "/docs/integrations/hono/overview", src: "/img/integration-hono.svg" },
+  { name: "Elysia", to: "/docs/integrations/elysia/overview", src: "/img/integration-elysia.svg" },
   { name: "Firebase", to: "/docs/integrations/adapter-firebase/overview", src: "/img/integration-firebase.svg" },
   { name: "Axios", to: "/docs/integrations/adapter-axios/overview", src: "/img/integration-axios.svg" },
   { name: "WebSockets", to: "/docs/sockets/overview", src: "/img/integration-sockets.svg" },

@@ -112,6 +112,9 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 - **WebSocket routes** registered with `.ws()`. Use [`@hyper-fetch/sockets`](/docs/sockets/overview) for them.
 - **`.all()` routes**, because they do not map to a single HTTP method.
 - **Wildcard `*` segments**, because HyperFetch has no way to fill them.
+- **Handlers attached with `.mount()`**, because Elysia does not type them.
+- **Paths with ten or more segments**. Up to eight segments get the full request types and the SDK client. At nine,
+  `createSdk` stops injecting the client into the request.
 
 :::
 
@@ -125,7 +128,8 @@ Each route becomes a `Request` with these generics:
   gets `undefined`.
 - **Local error**: the union of the bodies of every other status, for example `status(404, { message })` and the `422`
   validation error of a route with a schema. It is `undefined` when every status is a success.
-- **Payload**: the route's `body` schema, or `undefined` without one.
+- **Payload**: the route's `body` schema, or `undefined` without one. A body with a `t.File()` or `t.Files()` field is
+  typed as `FormData`, because files can only be sent as multipart form data.
 - **Query params**: the route's `query` schema, or `undefined` without one.
 - **Endpoint**: the full Elysia path, which types `setParams()`.
 
@@ -145,6 +149,44 @@ if (error) {
 - `params` schemas such as `t.Numeric()`. Params are typed from the path, as strings or numbers.
 
 :::
+
+---
+
+## What arrives over HTTP
+
+Elysia types the value a handler returns, but the client receives that value after it went over HTTP. The response and
+error types follow what HyperFetch actually reads:
+
+| Handler returns                                                    | Typed as     | Why                                          |
+| ------------------------------------------------------------------ | ------------ | -------------------------------------------- |
+| A `Date`, also inside objects and arrays                           | `string`     | JSON sends dates as ISO strings              |
+| `null` or `undefined`                                              | `""`         | Elysia sends an empty body                   |
+| Nothing, or `any`                                                  | `unknown`    | Elysia types both the same way               |
+| A generator, `sse()`, a `ReadableStream`, a `Response` or `form()` | `unknown`    | The body is not JSON                         |
+| An error the handler throws                                        | global error | Elysia does not type it, the status is `500` |
+
+Read a streamed route with `setOptions({ streaming: true })` and parse the stream yourself.
+
+:::caution Array query params
+
+HyperFetch encodes arrays as `tags[]=a&tags[]=b` by default, which Elysia rejects with a `422`. Send repeated keys
+instead:
+
+```ts
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "none" });
+```
+
+:::
+
+To upload files, build the `FormData` yourself. HyperFetch sends it as it is:
+
+```ts
+const form = new FormData();
+form.append("title", "report");
+form.append("file", file);
+
+await sdk.upload.$post.setPayload(form).send();
+```
 
 ---
 
@@ -175,6 +217,7 @@ const { error } = await sdk.users.$get.send();
 - `ElysiaAppToHyperFetch<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
 - Paths, params, optional params, kebab-case segments, prefixes and groups all map to nested SDK properties.
 - 2xx bodies type the response, and every other status types the local error.
+- Response types follow the wire: dates are strings, empty bodies are `""`, and streams are `unknown`.
 - `body` and `query` schemas type the payload and query params of each request.
 - The package ships types only, so import it with `import type` on the frontend.
 

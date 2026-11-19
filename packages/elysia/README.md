@@ -41,7 +41,8 @@ schemas. It ships types only, so nothing from your server ends up in the client 
 - 🛂 **Schemas drive the inputs** - `body` and `query` schemas type `setPayload()` and `setQueryParams()`
 - 🚦 **Typed errors per status** - 2xx bodies type `data`, every other status, including `422` validation errors, types
   `error`
-- 🧩 **Plugins included** - `prefix`, `.group()` and `.use()` land in the endpoint and the nesting
+- 📡 **Types match the wire** - Dates arrive as strings, file bodies are `FormData`, and streams stay `unknown`
+- 🧩 **Plugins included** - `prefix`, `.group()`, `.guard()`, `.model()` and macros land in the endpoint and the types
 - 🪶 **Zero runtime** - A single type export, so it adds no code to your bundle
 - ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline and React hooks work on every route
 
