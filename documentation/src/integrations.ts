@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book } from "lucide-react";
+import { Book, Zap } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -66,6 +66,25 @@ export const integrations: Section[] = [
     featured: true,
     category: "Plugin",
     package: "plugin-eslint",
+  },
+  {
+    label: "Oxlint",
+    description:
+      "Run the HyperFetch lint rules on Oxlint, the Rust linter, with the same rule names as the ESLint plugin.",
+    dir: "plugin-oxlint",
+    isPackage: true,
+    paths: ["plugin-oxlint"],
+    img: Zap,
+    text: "drop-shadow-sm !text-sky-500 dark:!text-sky-400",
+    textAction: "focus:!text-sky-500 focus:dark:!text-sky-400 active:!text-sky-600 active:dark:!text-sky-300",
+    textHover: "hover:!text-sky-500 hover:dark:!text-sky-400",
+    icon: "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 bg-sky-400 dark:bg-sky-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
+    border: "border-sky-500 dark:border-sky-400",
+    borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
+    category: "Plugin",
+    package: "plugin-oxlint",
   },
   {
     label: "Devtools",

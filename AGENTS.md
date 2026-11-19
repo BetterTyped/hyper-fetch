@@ -24,6 +24,7 @@ dependents.
 | `packages/hono`                   | `@hyper-fetch/hono`            | `hono`            |
 | `packages/plugin-devtools`        | `@hyper-fetch/plugin-devtools` | `plugin-devtools` |
 | `packages/plugin-eslint`          | `eslint-plugin-hyper-fetch`    | `plugin-eslint`   |
+| `packages/plugin-oxlint`          | `oxlint-plugin-hyper-fetch`    | `plugin-oxlint`   |
 | `packages/cli`                    | `@hyper-fetch/cli`             | `cli`             |
 | `packages/testing`                | `@hyper-fetch/testing`         | `testing`         |
 | `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
