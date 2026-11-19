@@ -12,6 +12,7 @@ describe("useIsFetching [ Base ]", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     resetMocks();
   });
 
@@ -25,10 +26,13 @@ describe("useIsFetching [ Base ]", () => {
   });
 
   it("should count the running fetch requests", async () => {
+    // The mock delays run on a fake clock, so each request settles only when the test moves time past it.
+    // On real timers a stall can settle both requests before the single running one is ever observed.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     const usersRequest = createRequest({ endpoint: "/users" });
     const postsRequest = createRequest({ endpoint: "/posts" });
     mockRequest(usersRequest, { delay: 30 });
-    mockRequest(postsRequest, { delay: 60 });
+    mockRequest(postsRequest, { delay: 1000 });
 
     const { result } = renderHook(() => useIsFetching(client));
     expect(result.current).toBe(0);
@@ -37,14 +41,20 @@ describe("useIsFetching [ Base ]", () => {
       client.fetchDispatcher.add(usersRequest);
       client.fetchDispatcher.add(postsRequest);
     });
+    expect(result.current).toBe(2);
 
-    await waitFor(() => {
-      expect(result.current).toBe(2);
-    });
-    await waitFor(() => {
-      expect(result.current).toBe(1);
-    });
-    await waitFor(() => {
+    // Small clock steps per real-timer poll: the users response gets real ticks to settle long before
+    // the clock can reach the posts delay, wherever msw registers its delay timers
+    await vi.waitFor(
+      async () => {
+        await act(() => vi.advanceTimersByTimeAsync(5));
+        expect(result.current).toBe(1);
+      },
+      { interval: 5 },
+    );
+
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    await vi.waitFor(() => {
       expect(result.current).toBe(0);
     });
   });
