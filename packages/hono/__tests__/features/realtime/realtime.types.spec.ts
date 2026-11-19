@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { defineWebSocketHelper } from "hono/ws";
 import { expectTypeOf } from "vitest";
 
-import type { HonoWebSocketPath } from "../../../src";
+import type { HonoAppToHyperFetch, HonoWebSocketPath } from "../../../src";
 import type { ChatMessage, RealtimeApp } from "../../utils/realtime-server";
 
 describe("HonoWebSocketPath [ Types ]", () => {
@@ -56,6 +56,38 @@ describe("HonoWebSocketPath [ Types ]", () => {
     );
 
     expectTypeOf<HonoWebSocketPath<typeof live>>().toEqualTypeOf<"/live">();
+    expect(true).toBe(true);
+  });
+
+  it("should expand optional params and drop regex patterns like the HTTP schema", () => {
+    const upgradeWebSocket = defineWebSocketHelper(() => new Response());
+    const live = new Hono()
+      .get(
+        "/feeds/:feedId?",
+        upgradeWebSocket(() => ({})),
+      )
+      .get(
+        "/posts/:id{[0-9]+}/live",
+        upgradeWebSocket(() => ({})),
+      );
+
+    expectTypeOf<HonoWebSocketPath<typeof live>>().toEqualTypeOf<
+      "/feeds" | `/feeds/${string}` | `/posts/${string}/live`
+    >();
+    expect(true).toBe(true);
+  });
+
+  it("should leave a WebSocket route out of the HTTP schema but keep the other methods of its path", () => {
+    const upgradeWebSocket = defineWebSocketHelper(() => new Response());
+    const app = new Hono()
+      .get(
+        "/chat",
+        upgradeWebSocket(() => ({})),
+      )
+      .post("/chat", (c) => c.json({ sent: true }));
+
+    type Schema = HonoAppToHyperFetch<typeof app>;
+    expectTypeOf<keyof Schema["chat"]>().toEqualTypeOf<"$post">();
     expect(true).toBe(true);
   });
 

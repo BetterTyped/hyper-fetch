@@ -26,6 +26,11 @@ export default defineConfig({
       "@hyper-fetch/react": path.resolve(__dirname, "../react/src/index.ts"),
       "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
     },
+    coverage: {
+      include: ["src/**/*.ts"],
+      provider: "v8",
+      thresholds: { 100: true },
+    },
     environment: "node",
     globals: true,
     include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],

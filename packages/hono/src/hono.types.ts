@@ -1,5 +1,6 @@
 import type { ClientInstance, Request } from "@hyper-fetch/core";
 import type { HonoBase } from "hono/hono-base";
+import type { METHODS } from "hono/router";
 
 type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -8,7 +9,7 @@ type Prettify<T> = {
 type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends (arg: infer I) => void ? I : never;
 
 /* -------------------------------------------------------------------------------------------------
- * Hono schema -> flat record of requests
+ * Hono schema -> flat record of methods
  * -----------------------------------------------------------------------------------------------*/
 
 /**
@@ -29,6 +30,8 @@ type ExtractQuery<T> = "query" extends keyof T ? T["query"] : undefined;
 /** Hono encodes methods as `$get`, `$post`, ... on every path entry of the schema. */
 type ExtractMethodKeys<T> = Extract<keyof T, `$${string}`>;
 
+type StandardMethodKey = `$${(typeof METHODS)[number]}`;
+
 /** Hono marks the routes handled by `upgradeWebSocket()` with the `ws` output format. */
 type IsWebSocketEndpoint<T> = T extends { outputFormat: "ws" } ? true : false;
 
@@ -38,38 +41,87 @@ type ExtractHttpMethodKeys<T> = {
 }[ExtractMethodKeys<T>];
 
 /**
- * Turns every `path -> { $method: endpoint }` entry of a Hono schema into a Hyper Fetch `Request`.
- * The full Hono path is kept as the endpoint, so `:param` segments type `setParams()`.
- * WebSocket upgrades are not requests, so they are skipped, and so is a path left without an HTTP method.
+ * Hono stores `.all()` routes under `$all`, and `ALL` is not a method a client can send. Like Hono's
+ * own client, the route gets every standard method instead. A method registered on the same path
+ * keeps its own handler.
  */
-type ConvertToRequest<Schema extends Record<string, any>, Client extends ClientInstance> = {
-  [Path in keyof Schema as [ExtractHttpMethodKeys<Schema[Path]>] extends [never] ? never : Path]: {
-    [K in ExtractMethodKeys<Schema[Path]> as IsWebSocketEndpoint<Schema[Path][K]> extends true
-      ? never
-      : K extends `$${infer M extends string}`
-        ? `$${Lowercase<M>}`
-        : never]: Request<
-      ExtractOutput<Schema[Path][K]>,
-      ExtractJson<ExtractInput<Schema[Path][K]>>,
-      ExtractQuery<ExtractInput<Schema[Path][K]>>,
-      undefined,
-      Path extends string ? Path : never,
-      Client
-    >;
-  };
+type ExpandAllMethod<Methods> = "$all" extends keyof Methods
+  ? Omit<Methods, "$all"> & { [M in Exclude<StandardMethodKey, keyof Methods>]: Methods["$all"] }
+  : Methods;
+
+/**
+ * Turns the `{ $method: endpoint }` entry of a Hono path into Hyper Fetch `Request`s. The endpoint
+ * is the one `createSdk` builds from the accessors, so `:param` segments type `setParams()`.
+ * WebSocket upgrades are not requests, so they are skipped.
+ */
+type ConvertMethods<Methods, Endpoint extends string, Client extends ClientInstance> = {
+  [K in ExtractHttpMethodKeys<Methods> as K extends `$${infer M extends string}` ? `$${Lowercase<M>}` : never]: Request<
+    ExtractOutput<Methods[K]>,
+    ExtractJson<ExtractInput<Methods[K]>>,
+    ExtractQuery<ExtractInput<Methods[K]>>,
+    undefined,
+    Endpoint,
+    Client
+  >;
 };
 
 /* -------------------------------------------------------------------------------------------------
- * Flat record -> nested SDK schema
+ * Paths -> nested SDK schema
  * -----------------------------------------------------------------------------------------------*/
 
 type TrimStartSlash<S extends string> = S extends `/${infer R}` ? R : S;
+
+/** Skips a regex pattern up to its closing brace, counting the braces nested inside it. */
+type SkipPattern<S extends string, Depth extends unknown[] = []> = S extends `${infer Char}${infer Rest}`
+  ? Char extends "}"
+    ? Depth extends [unknown, ...infer Outer]
+      ? SkipPattern<Rest, Outer>
+      : Rest
+    : Char extends "{"
+      ? SkipPattern<Rest, [...Depth, unknown]>
+      : SkipPattern<Rest, Depth>
+  : S;
+
+/**
+ * Hono restricts a param with a regex, as in `/posts/:id{[0-9]+}`. The client fills the param by its
+ * name only, so the pattern is dropped from the path, even when it holds a slash or braces.
+ */
+type StripPatterns<S extends string> = S extends `${infer Head}{${infer Rest}`
+  ? `${Head}${StripPatterns<SkipPattern<Rest>>}`
+  : S;
 
 type SplitPath<S extends string> = S extends ""
   ? []
   : S extends `${infer Head}/${infer Tail}`
     ? [Head, ...SplitPath<Tail>]
     : [S];
+
+type JoinSegments<Segments extends string[]> = Segments extends [infer Head extends string]
+  ? Head
+  : Segments extends [infer Head extends string, ...infer Rest extends string[]]
+    ? `${Head}/${JoinSegments<Rest>}`
+    : "";
+
+/**
+ * `createSdk` joins the accessors with `/` behind a leading slash, so a Hono path without a leading
+ * slash, or with a trailing one, gets the endpoint the request is really sent to.
+ */
+type JoinPath<Segments extends string[]> = `/${JoinSegments<Segments>}`;
+
+type StripOptionalMarkers<Segments extends string[]> = {
+  [I in keyof Segments]: Segments[I] extends `:${infer Param}?` ? `:${Param}` : Segments[I];
+};
+
+/**
+ * Hono serves `/files/:id?` both at `/files` and at `/files/:id`, and a chain of trailing optional
+ * params at every prefix. Hyper Fetch params are always required, so each prefix is its own route.
+ */
+type ExpandOptionalParams<Segments extends string[]> = Segments extends [
+  ...infer Init extends string[],
+  `:${infer Param}?`,
+]
+  ? ExpandOptionalParams<Init> | [...StripOptionalMarkers<Init>, `:${Param}`]
+  : Segments;
 
 type CamelCase<S extends string> = S extends `${infer H}-${infer T}` ? `${H}${Capitalize<CamelCase<T>>}` : S;
 
@@ -86,12 +138,21 @@ type BuildNestedObject<Segments extends readonly string[], Value> = Segments ext
   ? { [K in NormalizeSegment<Head>]: BuildNestedObject<Rest, Value> }
   : Value;
 
-type NestFlatRecord<R extends Record<string, any>> = Prettify<
-  UnionToIntersection<
-    {
-      [P in keyof R & string]: BuildNestedObject<SplitPath<TrimStartSlash<P>>, R[P]>;
-    }[keyof R & string]
-  >
+/** Distributes over the routes one Hono path expands to. */
+type ConvertRoutes<Methods, Routes extends string[], Client extends ClientInstance> = Routes extends string[]
+  ? BuildNestedObject<Routes, Prettify<ConvertMethods<Methods, JoinPath<Routes>, Client>>>
+  : never;
+
+/** The routes one Hono path expands to - optional params give every prefix, regex patterns are dropped */
+type ExpandPath<Path extends string> = ExpandOptionalParams<SplitPath<TrimStartSlash<StripPatterns<Path>>>>;
+
+type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInstance> = UnionToIntersection<
+  {
+    // A path served only by a WebSocket upgrade has no request to send
+    [Path in keyof Schema & string]: [ExtractHttpMethodKeys<ExpandAllMethod<Schema[Path]>>] extends [never]
+      ? never
+      : ConvertRoutes<ExpandAllMethod<Schema[Path]>, ExpandPath<Path>, Client>;
+  }[keyof Schema & string]
 >;
 
 /**
@@ -100,6 +161,11 @@ type NestFlatRecord<R extends Record<string, any>> = Prettify<
  * Every route becomes a `Request` whose response, JSON payload, query params and endpoint come
  * from the Hono route definition and its validators. Path segments become nested properties,
  * `:param` segments become `$param` properties, and kebab-case segments become camelCase.
+ *
+ * Routes below an optional `:param?` segment appear both without and with the param, and regex
+ * params like `:id{[0-9]+}` become plain `$id` properties. The endpoint is the one `createSdk`
+ * sends the request to, so a trailing slash and the regex patterns of the Hono path are dropped.
+ * An `.all()` route gets every standard method, like in Hono's own client.
  *
  * Pass the type of the app returned by your route chain, including apps mounted with
  * `app.route()` and `basePath()`. Anything that is not a Hono app resolves to `{}`.
@@ -126,9 +192,7 @@ type NestFlatRecord<R extends Record<string, any>> = Prettify<
 export type HonoAppToHyperFetch<App, Client extends ClientInstance = ClientInstance> =
   // Match `HonoBase` with all four generics: `.route()` returns `HonoBase<E, S, BasePath, CurrentPath>`,
   // so matching against `Hono<E, S, BasePath>` fails to infer the schema and resolves to `{}`.
-  App extends HonoBase<any, infer S, any, any>
-    ? Prettify<NestFlatRecord<ConvertToRequest<MergeUnionToRecord<S>, Client>>>
-    : {};
+  App extends HonoBase<any, infer S, any, any> ? Prettify<ConvertSchema<MergeUnionToRecord<S>, Client>> : {};
 
 /* -------------------------------------------------------------------------------------------------
  * WebSocket routes
@@ -150,9 +214,17 @@ type WebSocketEndpoints<App> = ExtractWebSocketEndpoints<ExtractAppSchema<App>>;
 type ToSegmentPattern<Segment extends string> = Segment extends `:${string}` ? string : Segment;
 
 /** Replaces every `:param` segment with `string`, so a path with the params filled in matches it. */
-type ToPathPattern<Path extends string> = Path extends `${infer Head}/${infer Tail}`
-  ? `${ToSegmentPattern<Head>}/${ToPathPattern<Tail>}`
-  : ToSegmentPattern<Path>;
+type ToRoutePattern<Segments extends string[]> = `/${JoinSegments<{
+  [I in keyof Segments]: ToSegmentPattern<Segments[I]>;
+}>}`;
+
+/** Every address of a Hono path, with optional params and regex patterns handled like in the HTTP schema */
+type ToPathPattern<Path extends string> =
+  ExpandPath<Path> extends infer Routes extends string[]
+    ? Routes extends string[]
+      ? ToRoutePattern<Routes>
+      : never
+    : never;
 
 /**
  * Union of the paths a `Socket` can connect to on a Hono app: every route handled by `upgradeWebSocket()`,
