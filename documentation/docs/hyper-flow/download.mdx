@@ -4,49 +4,31 @@ title: Download
 sidebar_label: Download
 ---
 
+import { HyperFlowDownloads } from "@site/src/components";
+
 # Download
 
-HyperFlow is a cross-platform application available for macOS, Windows, and Linux. Below you can find the appropriate
-installation package for your operating system.
+HyperFlow runs on macOS, Windows and Linux. The button below picks the build for your system, and every other build of
+the newest version is listed under it.
 
-To download the latest version of HyperFlow, you have to visit releases page on our GitHub repository. There you can
-find all the available versions of HyperFlow with their respective download links.
-
-![Download](@site/static/img/previews/download.png)
+<HyperFlowDownloads />
 
 ---
 
-## macOS
+## Installing
 
-For macOS, we provide a `.dmg` file that allows for easy installation. We also offer a `.zip` archive for manual
-installation. HyperFlow is optimized for both Intel and Apple Silicon architectures.
+1. **macOS**: open the `.dmg` and drag HyperFlow to Applications. The `.zip` holds the same app without an installer.
+2. **Windows**: run the `.exe` installer. The `.zip` is a portable build that runs without installing.
+3. **Linux**: install the `.deb` on Debian or Ubuntu (`sudo apt install ./hyperflow_*.deb`) or the `.rpm` on Fedora
+   or RHEL (`sudo dnf install ./HyperFlow-*.rpm`). The `.zip` holds the app for other distributions.
 
-[Download HyperFlow.dmg](https://github.com/BetterTyped/hyper-fetch/releases?q=&expanded=true)
-
----
-
-## Windows
-
-For Windows, we offer a straightforward `.exe` installer that will guide you through the setup process.
-
-[Download HyperFlow.exe](https://github.com/BetterTyped/hyper-fetch/releases?q=&expanded=true)
-
----
-
-## Linux
-
-For Linux, we provide both `.deb` (for Debian/Ubuntu-based distributions) and `.rpm` (for Fedora/CentOS-based
-distributions) packages.
-
-[Download HyperFlow_amd64.deb](https://github.com/BetterTyped/hyper-fetch/releases?q=&expanded=true)
-
-[Download HyperFlow-x86_64.rpm](https://github.com/BetterTyped/hyper-fetch/releases?q=&expanded=true)
+Once it runs, [connect your application](/docs/hyper-flow/connecting) with the devtools plugin.
 
 ---
 
 :::caution Alpha Version
 
-Please be aware that HyperFlow is currently in an early development stage. You may encounter bugs or incomplete
-features. We appreciate your feedback to help us improve the application.
+HyperFlow is in an early stage of development, so you may run into bugs or missing features. Your feedback helps us
+improve it.
 
 :::
