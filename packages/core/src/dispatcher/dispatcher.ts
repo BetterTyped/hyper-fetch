@@ -30,6 +30,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   private runningRequests = new Map<string, RunningRequestValueType[]>();
   /** Failed requests waiting for their next attempt, by requestId */
   private retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  /** Requests which got their response and are still in the queue while their listeners run */
+  private answeredRequests = new Set<string>();
   /** Order in which the requests were sent - responses can come back in another one */
   private sentCount = 0;
   /** Cache element (by its storage key) to the order number of the request whose data it holds */
@@ -240,14 +242,18 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
-   * A request can be sent when it is not in flight, not held by `stopRequest`, not waiting for its retry
-   * and - for the requests kept for later with the `offline` option - when there is a connection
+   * A request can be sent when it is not in flight, not held by `stopRequest`, not waiting for its retry,
+   * not just answered and - for the requests kept for later with the `offline` option - when there is a connection
    */
   private canPerformRequest = (item: ResolvedQueueItemType, runningIds: Set<string>) => {
     const isWaitingForNetwork = !this.client.appManager.isOnline && item.request.offline;
 
     return (
-      !item.stopped && !isWaitingForNetwork && !this.retryTimers.has(item.requestId) && !runningIds.has(item.requestId)
+      !item.stopped &&
+      !isWaitingForNetwork &&
+      !this.retryTimers.has(item.requestId) &&
+      !this.answeredRequests.has(item.requestId) &&
+      !runningIds.has(item.requestId)
     );
   };
 
@@ -704,171 +710,187 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);
 
-    // A request removed from the queue while it was running (cleared queue) has nothing left to retry
-    const isQueued = !!this.getRequest(queryKey, requestId);
-    const canRetryResponse = !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus;
-    const willRetry = canRetryResponse && this.getShouldRetryOnError(request, response);
+    // The request is no longer running, but it stays in the queue until its response is handled below. Listeners
+    // of the response can add requests to this queue - flushing it must not send the answered request again.
+    this.answeredRequests.add(requestId);
+    try {
+      // A request removed from the queue while it was running (cleared queue) has nothing left to retry
+      const isQueued = !!this.getRequest(queryKey, requestId);
+      const canRetryResponse = !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus;
+      const willRetry = canRetryResponse && this.getShouldRetryOnError(request, response);
 
-    const requestDetails: ResponseDetailsType = {
-      isCanceled,
-      isOffline: isOfflineResponseStatus,
-      retries: storageItem.retries,
-      willRetry,
-      addedTimestamp: storageItem.timestamp,
-      triggerTimestamp: runningRequest.timestamp,
-      requestTimestamp: response.requestTimestamp,
-      responseTimestamp: response.responseTimestamp,
-    };
+      const requestDetails: ResponseDetailsType = {
+        isCanceled,
+        isOffline: isOfflineResponseStatus,
+        retries: storageItem.retries,
+        willRetry,
+        addedTimestamp: storageItem.timestamp,
+        triggerTimestamp: runningRequest.timestamp,
+        requestTimestamp: response.requestTimestamp,
+        responseTimestamp: response.responseTimestamp,
+      };
 
-    // A throwing listener must not leave the request in the queue forever (and block all the queued ones behind it)
-    const notify = (callback: VoidFunction) => {
-      try {
-        callback();
-      } catch (error) {
-        this.logger.error({ title: "Response listener failed", type: "system", extra: { error, request, requestId } });
-        setTimeout(() => {
-          throw error;
+      // A throwing listener must not leave the request in the queue forever (and block all the queued ones behind it)
+      const notify = (callback: VoidFunction) => {
+        try {
+          callback();
+        } catch (error) {
+          this.logger.error({
+            title: "Response listener failed",
+            type: "system",
+            extra: { error, request, requestId },
+          });
+          setTimeout(() => {
+            throw error;
+          });
+        }
+      };
+
+      // Global response emitter to handle request execution
+      notify(() => requestManager.events.emitResponse({ request, requestId, response, details: requestDetails }));
+
+      // Turn off loading
+      notify(() =>
+        requestManager.events.emitLoading({
+          request,
+          requestId,
+          loading: false,
+          isRetry: !!storageItem.retries,
+          isOffline,
+        }),
+      );
+
+      // Requests of one cache key can answer in another order than they were sent. Once the data of a request is in
+      // the cache, a response of a request sent before it is outdated - it must not replace that data.
+      const storageKey = scopeKey(request.cacheKey, scope);
+      const isOutdated = (this.cachedOrder.get(storageKey) ?? 0) > sentOrder;
+
+      if (isOutdated) {
+        this.logger.debug({
+          title: "Response of a request sent before the cached one, skipping the cache",
+          type: "system",
+          extra: { requestId, request, response },
         });
+      } else {
+        if (response.success) {
+          this.cachedOrder.set(storageKey, sentOrder);
+        }
+        // Cache event to emit the data inside and store it
+        notify(() => cache.set(request, { ...response, ...requestDetails }));
       }
-    };
-
-    // Global response emitter to handle request execution
-    notify(() => requestManager.events.emitResponse({ request, requestId, response, details: requestDetails }));
-
-    // Turn off loading
-    notify(() =>
-      requestManager.events.emitLoading({
-        request,
-        requestId,
-        loading: false,
-        isRetry: !!storageItem.retries,
-        isOffline,
-      }),
-    );
-
-    // Requests of one cache key can answer in another order than they were sent. Once the data of a request is in
-    // the cache, a response of a request sent before it is outdated - it must not replace that data.
-    const storageKey = scopeKey(request.cacheKey, scope);
-    const isOutdated = (this.cachedOrder.get(storageKey) ?? 0) > sentOrder;
-
-    if (isOutdated) {
       this.logger.debug({
-        title: "Response of a request sent before the cached one, skipping the cache",
+        title: "Dispatcher processing response",
         type: "system",
-        extra: { requestId, request, response },
+        extra: { requestId, request, response, details: requestDetails },
       });
-    } else {
-      if (response.success) {
-        this.cachedOrder.set(storageKey, sentOrder);
-      }
-      // Cache event to emit the data inside and store it
-      notify(() => cache.set(request, { ...response, ...requestDetails }));
-    }
-    this.logger.debug({
-      title: "Dispatcher processing response",
-      type: "system",
-      extra: { requestId, request, response, details: requestDetails },
-    });
 
-    // On cancelled
-    if (isCanceled) {
-      const queue = this.getQueue(queryKey);
-      const queueItem = queue.requests.find((req) => req.requestId === requestId);
+      // On cancelled
+      if (isCanceled) {
+        const queue = this.getQueue(queryKey);
+        const queueItem = queue.requests.find((req) => req.requestId === requestId);
 
-      // do not remove cancelled request as it may be result of manual queue pause
-      // if abort was done without stop action we can remove request
-      if (!queue.stopped && !queueItem?.stopped) {
-        this.logger.debug({ title: "Request paused", type: "system", extra: { response, requestDetails, request } });
-        return this.delete(queryKey, requestId, abortKey);
-      }
-      return this.logger.debug({
-        title: "Request canceled",
-        type: "system",
-        extra: { response, requestDetails, request },
-      });
-    }
-    // On offline
-    if (!response.success && isOfflineResponseStatus) {
-      // if we don't want to keep offline request - just delete them
-      if (!offline) {
-        this.logger.warning({
-          title: "Removing non-offline request",
+        // do not remove cancelled request as it may be result of manual queue pause
+        // if abort was done without stop action we can remove request
+        if (!queue.stopped && !queueItem?.stopped) {
+          this.logger.debug({ title: "Request paused", type: "system", extra: { response, requestDetails, request } });
+          return this.delete(queryKey, requestId, abortKey);
+        }
+        return this.logger.debug({
+          title: "Request canceled",
           type: "system",
           extra: { response, requestDetails, request },
         });
-        return this.delete(queryKey, requestId, abortKey);
       }
-      // do not remove request from store as we want to re-send it later
-      return this.logger.debug({
-        title: "Awaiting for network restoration",
-        type: "system",
-        extra: { response, requestDetails, request },
-      });
-    }
-    // On success
-    if (response.success) {
-      this.delete(queryKey, requestId, abortKey);
-      return this.logger.debug({
-        title: "Successful response, removing request from queue.",
-        type: "system",
-        extra: {
-          response,
-          requestDetails,
-          request,
-        },
-      });
-    }
-    // On retry
-    if (willRetry) {
-      this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
-      const retries = storageItem.retries + 1;
-      // The attempts are counted on the queued item - whatever sends it next (the timer below, a new request
-      // flushing the queue, the network coming back, the queue being started) continues from this number
-      this.setQueueItemRetries(queryKey, requestId, retries);
-      // Only the latest failure schedules the retry
-      this.cancelRetry(requestId);
-      // Perform retry once request is failed
-      const retryTimer = setTimeout(async () => {
-        this.retryTimers.delete(requestId);
-        const queueItem = this.getRequest(queryKey, requestId);
+      // On offline
+      if (!response.success && isOfflineResponseStatus) {
+        // if we don't want to keep offline request - just delete them
+        if (!offline) {
+          this.logger.warning({
+            title: "Removing non-offline request",
+            type: "system",
+            extra: { response, requestDetails, request },
+          });
+          return this.delete(queryKey, requestId, abortKey);
+        }
+        // do not remove request from store as we want to re-send it later
+        return this.logger.debug({
+          title: "Awaiting for network restoration",
+          type: "system",
+          extra: { response, requestDetails, request },
+        });
+      }
+      // On success
+      if (response.success) {
+        this.delete(queryKey, requestId, abortKey);
+        return this.logger.debug({
+          title: "Successful response, removing request from queue.",
+          type: "system",
+          extra: {
+            response,
+            requestDetails,
+            request,
+          },
+        });
+      }
+      // On retry
+      if (willRetry) {
+        this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
+        const retries = storageItem.retries + 1;
+        // The attempts are counted on the queued item - whatever sends it next (the timer below, a new request
+        // flushing the queue, the network coming back, the queue being started) continues from this number
+        this.setQueueItemRetries(queryKey, requestId, retries);
+        // Only the latest failure schedules the retry
+        this.cancelRetry(requestId);
+        // Perform retry once request is failed
+        const retryTimer = setTimeout(async () => {
+          this.retryTimers.delete(requestId);
+          const queueItem = this.getRequest(queryKey, requestId);
 
-        // Dispatcher methods cancel this timer, so the item was taken directly from the storage and nobody announced it
-        if (!queueItem) {
-          this.logger.debug({
-            title: "Request no longer in queue, skipping retry",
+          // Dispatcher methods cancel this timer, so the item was taken directly from the storage and nobody announced it
+          if (!queueItem) {
+            this.logger.debug({
+              title: "Request no longer in queue, skipping retry",
+              type: "request",
+              extra: { response, requestDetails, request, requestId },
+            });
+            requestManager.events.emitRemove({ requestId, request, resolved: storageItem.resolved });
+            return;
+          }
+          // Stopped while waiting - it will be sent again when the request gets started
+          if (queueItem.stopped) {
+            return;
+          }
+
+          this.logger.warning({
+            title: "Error response, performing retry",
             type: "request",
             extra: { response, requestDetails, request, requestId },
           });
-          requestManager.events.emitRemove({ requestId, request, resolved: storageItem.resolved });
-          return;
+          await this.performRequest({
+            ...storageItem,
+            retries,
+          });
+          // Let the queue go on when it was held by this request
+          this.flushQueue(queryKey);
+        }, retryTime || 0);
+        this.retryTimers.set(requestId, retryTimer);
+      } else {
+        if (request.retry) {
+          this.logger.error({
+            title: "All retries have been used. Removing request from queue.",
+            type: "request",
+            extra: { response, requestDetails, request, requestId },
+          });
         }
-        // Stopped while waiting - it will be sent again when the request gets started
-        if (queueItem.stopped) {
-          return;
-        }
-
-        this.logger.warning({
-          title: "Error response, performing retry",
-          type: "request",
-          extra: { response, requestDetails, request, requestId },
-        });
-        await this.performRequest({
-          ...storageItem,
-          retries,
-        });
-        // Let the queue go on when it was held by this request
-        this.flushQueue(queryKey);
-      }, retryTime || 0);
-      this.retryTimers.set(requestId, retryTimer);
-    } else {
-      if (request.retry) {
-        this.logger.error({
-          title: "All retries have been used. Removing request from queue.",
-          type: "request",
-          extra: { response, requestDetails, request, requestId },
-        });
+        this.delete(queryKey, requestId, abortKey);
       }
-      this.delete(queryKey, requestId, abortKey);
+    } finally {
+      this.answeredRequests.delete(requestId);
+      // A request which stays in the queue was skipped by the flushes made from its listeners - for example
+      // the one of the network coming back - so it gets its chance now
+      if (this.getRequest(queryKey, requestId)) {
+        this.flushQueue(queryKey);
+      }
     }
   };
 }
