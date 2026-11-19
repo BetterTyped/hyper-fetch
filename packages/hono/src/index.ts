@@ -1,1 +1,1 @@
-export type { HonoAppToHyperFetch } from "./hono.types";
+export type { HonoAppToHyperFetch, HonoWebSocketPath } from "./hono.types";
