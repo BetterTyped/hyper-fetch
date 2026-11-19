@@ -15,6 +15,8 @@ sidebar_label: Overview
 2. **Infer types from your router** through the regular `createSdk`.
 3. **Cache every input separately**, without writing query keys by hand.
 4. **Support transformers** such as `superjson`.
+5. **Listen to subscriptions** over WebSocket or Server-Sent Events with the
+   [socket adapters](/docs/integrations/adapter-trpc/subscriptions.mdx).
 
 :::
 
@@ -178,7 +180,9 @@ Query params are appended to the URL. The `input` and `batch` keys are reserved 
 
 ## Limitations
 
-- Subscriptions and request batching are not supported. Subscription procedures are left out of `TrpcSchema`.
+- Request batching is not supported.
+- Subscriptions are not requests, so they are left out of `TrpcSchema`. Listen to them with a `Socket` and the
+  [tRPC socket adapters](/docs/integrations/adapter-trpc/subscriptions.mdx).
 - A `null` payload removes the payload, so the procedure receives no input. Procedures that need a `null` input
   should take an object instead, for example `{ value: null }`.
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
