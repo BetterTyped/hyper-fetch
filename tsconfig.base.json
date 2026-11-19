@@ -26,6 +26,9 @@
       "path": "./packages/core"
     },
     {
+      "path": "./packages/elysia"
+    },
+    {
       "path": "./packages/hono"
     },
     {
