@@ -11,6 +11,7 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
+const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
 // const StrapiIcon = isBrowser() ? require("../static/img/integration-strapi.svg").default : () => null;
 // const HasuraIcon = isBrowser() ? require("../static/img/integration-hasura.svg").default : () => null;
@@ -102,6 +103,25 @@ export const integrations: Section[] = [
     borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
     category: "Adapter",
     package: "axios",
+  },
+  {
+    label: "Hono",
+    description: "Call your Hono backend through a typed SDK built from your routes and validators, with no codegen.",
+    dir: "hono",
+    isPackage: true,
+    paths: ["hono"],
+    img: HonoIcon,
+    text: "drop-shadow-sm !text-orange-500 dark:!text-orange-400",
+    textAction:
+      "focus:!text-orange-500 focus:dark:!text-orange-400 active:!text-orange-600 active:dark:!text-orange-300",
+    textHover: "hover:!text-orange-500 hover:dark:!text-orange-400",
+    icon: "group-hover:shadow-orange-200 dark:group-hover:bg-orange-500 bg-orange-400 dark:bg-orange-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-orange-200 dark:group-hover:bg-orange-500 group-hover:bg-orange-400 group-hover:dark:bg-orange-500 !bg-opacity-40",
+    border: "border-orange-500 dark:border-orange-400",
+    borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
+    category: "Service",
+    package: "hono",
   },
   {
     label: "Graphql",
