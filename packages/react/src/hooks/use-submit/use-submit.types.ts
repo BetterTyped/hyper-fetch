@@ -2,6 +2,7 @@ import type {
   ExtractAdapterResolvedType,
   ExtractResponseType,
   NullableType,
+  OptimisticSendOptionType,
   RequestInstance,
   RequestSendType,
 } from "@hyper-fetch/core";
@@ -47,6 +48,11 @@ export type UseSubmitOptionsType<T extends RequestInstance, TSelected = ExtractR
    * Keep references of the unchanged parts of the selected data between updates (default true).
    */
   structuralSharing?: boolean;
+  /**
+   * Optimistic update of every submit from this hook - `optimistic()` operations or a callback like the one of
+   * `setOptimistic`. Replaces the request's own optimistic callback; `submit({ optimistic })` replaces this one.
+   */
+  optimistic?: OptimisticSendOptionType<T>;
 } & (
   | {
       /**

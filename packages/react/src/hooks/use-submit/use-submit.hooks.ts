@@ -114,7 +114,10 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
   // ******************
 
   const handleSubmit: RequestSendType<RequestType> = (submitOptions?: RequestSendOptionsType<RequestType>) => {
-    const requestClone = request.clone(submitOptions as any) as unknown as RequestType;
+    const { optimistic: submitOptimistic, ...cloneOptions } = submitOptions || {};
+    const requestClone = request.clone(cloneOptions as any) as unknown as RequestType;
+    // Read directly from options - functions are not part of the memoized options key
+    const optimistic = submitOptimistic ?? options?.optimistic;
 
     if (disabled) {
       logger.warning({ title: `Cannot submit request`, type: "system", extra: { disabled, submitOptions } });
@@ -134,6 +137,7 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
       const configuration: RequestSendOptionsType<RequestType> = {
         dispatcherType: "submit",
         ...(submitOptions as RequestSendOptionsType<RequestType>),
+        optimistic,
         onBeforeSent: (data) => {
           addLifecycleListeners(requestClone, data.requestId, data.mutationContext);
           submitOptions?.onBeforeSent?.(data);
