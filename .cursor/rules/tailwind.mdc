@@ -1,11 +1,7 @@
 ---
-description: 
-globs: 
+description: Tailwind CSS and UI component best practices for the documentation site and HyperFlow
+globs: documentation/src/**/*.css,documentation/src/**/*.tsx,packages/hyper-flow/src/**/*.css,packages/hyper-flow/src/**/*.tsx
 alwaysApply: false
----
----
-description: Tailwind CSS and UI component best practices for modern web applications
-globs: **/*.css, **/*.tsx, **/*.jsx, tailwind.config.js, tailwind.config.ts
 ---
 
 # Tailwind CSS Best Practices

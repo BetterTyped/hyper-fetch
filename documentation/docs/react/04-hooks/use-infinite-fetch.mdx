@@ -1,0 +1,273 @@
+---
+sidebar_position: 3.5
+title: React hooks - useInfiniteFetch
+sidebar_label: useInfiniteFetch
+---
+
+# useInfiniteFetch
+
+The `useInfiniteFetch` hook loads a list page by page. You say which fields of the request do the paging, and the hook
+works out the page values, the end of the list and when to start over.
+
+Every page is a normal request under its normal cache key. Deduplication, invalidation, persistence, optimistic updates
+and [`Hydrate`](/react/06-hydrate.mdx) work per page, and nothing extra is stored in the cache.
+
+:::tip Purpose
+
+1. **Infinite lists** with page numbers, offsets or cursors
+2. **Typed pagination**: every key is checked against the request and its response
+3. **Automatic restart** when a filter, sort or URL param changes
+4. **Agnostic loading**: call `fetchNextPage` from a button, an observer, `onEndReached` or a virtualizer
+
+:::
+
+---
+
+## Quick Start
+
+```tsx
+import { useInfiniteFetch } from "@hyper-fetch/react";
+
+const getFeed = client.createRequest<{
+  response: { data: Post[]; nextCursor: string | null };
+  queryParams: { cursor?: string; topic?: string };
+}>()({ endpoint: "/feed" });
+
+function Feed({ topic }: { topic: string }) {
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
+    getFeed.setQueryParams({ topic }),
+    { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } },
+  );
+
+  if (loading) return <Spinner />;
+
+  return (
+    <>
+      {items.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+      {hasNextPage && (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          Load more
+        </button>
+      )}
+    </>
+  );
+}
+```
+
+Changing `topic` starts a new list. There are no keys to repeat and no pages to flatten.
+
+---
+
+## Pagination
+
+`pagination` is a hook option, so requests stay plain. Paging values live in the query params unless `in` says otherwise.
+
+```tsx
+// Page numbers: GET /posts?page=2
+useInfiniteFetch(getPosts, { pagination: { page: "page" } });
+
+// Page numbers with a known page size, so a short page ends the list without another request
+useInfiniteFetch(getPosts.setQueryParams({ limit: 20 }), { pagination: { page: "page", limit: "limit" } });
+
+// Offsets: GET /users?offset=40&limit=20
+useInfiniteFetch(getUsers.setQueryParams({ limit: 20 }), {
+  pagination: { offset: "offset", limit: "limit", items: "users", total: "total" },
+});
+
+// Cursors: GET /feed?cursor=abc
+useInfiniteFetch(getFeed, { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } });
+```
+
+| Option | Description |
+| --- | --- |
+| `page` | Numeric field holding the page number |
+| `offset` | Numeric field holding the number of skipped items, requires `limit` |
+| `limit` | Numeric field holding the page size |
+| `cursor` | Field holding the cursor, requires `next` |
+| `next` | Response field with the next cursor, or a function returning it |
+| `previous` | Response field with the previous cursor, or a function returning it |
+| `items` | Array field of the response, or a function. Not needed when the response is an array |
+| `total` | Number field with the size of the whole list, or a function |
+| `hasNext` | Function overriding the detection of the end of the list |
+| `hasPrevious` | Function overriding the detection of the start of the list |
+| `in` | Where the paging field is: `"queryParams"` (default), `"params"` or `"payload"` |
+
+Functions receive one object with the page `data`, its `param` and the `pages` loaded so far.
+
+```tsx
+useInfiniteFetch(getFeed, {
+  pagination: {
+    cursor: "cursor",
+    next: ({ data }) => data.nextCursor,
+    items: ({ data }) => data.data.filter(isVisible),
+  },
+});
+```
+
+To reuse a description, keep it next to the request:
+
+```ts
+import type { Pagination } from "@hyper-fetch/core";
+
+export const feedPagination = {
+  cursor: "cursor",
+  next: "nextCursor",
+  items: "data",
+} satisfies Pagination<typeof getFeed>;
+```
+
+### Where the list starts
+
+The list starts from the value already set on the request, otherwise from page `1`, offset `0` or no cursor. Starting in
+the middle works, and paging backwards is available from there:
+
+```tsx
+const { items, hasPreviousPage, fetchPreviousPage } = useInfiniteFetch(getPosts.setQueryParams({ page: 5 }), {
+  pagination: { page: "page" },
+});
+```
+
+A list starting at page `0` is treated as numbered from zero.
+
+### Where the list ends
+
+`hasNextPage` turns false when the cursor is empty, the `total` is reached, a page is empty, or a page is shorter than
+`limit`. `hasNext` overrides these rules, but it cannot continue a cursor list that has no next cursor.
+
+---
+
+## Starting over
+
+The request is the identity of the list, so nothing has to be listed by hand.
+
+| What changes | What happens |
+| --- | --- |
+| A filter, search, sort or page size | A new list starts from the first page |
+| A URL param or the request itself | A new list starts |
+| The paging field set by the parent | A new list starts at that page |
+| Back to a filter used earlier | Its loaded pages are restored from the cache and refreshed when stale |
+| `reset()` | The list drops to the starting page and fetches it again |
+
+Pages still loading for the old list are cancelled, so a late response never lands in the new one. A page that another
+mounted hook still needs keeps loading.
+
+While the first page of the new list loads, `keepPreviousData` decides what is on screen:
+
+| Value | Behavior |
+| --- | --- |
+| `"auto"` (default) | Keeps the previous list when only query params changed, clears it for another resource |
+| `"preserve"` | Always keeps the previous list |
+| `"clean"` | Always clears it |
+
+`isPreviousData` is true while the previous list is shown, so the UI can dim it.
+
+```tsx
+const { items, isPreviousData, onReset } = useInfiniteFetch(getPosts.setQueryParams({ search }), {
+  pagination: { page: "page" },
+  bounce: true,
+  bounceTime: 300,
+});
+
+onReset(() => window.scrollTo({ top: 0 }));
+```
+
+With `bounce`, only the settled value of a search box is fetched.
+
+---
+
+## Refetching
+
+`refetch()` loads every loaded page again. The old pages stay on screen and the list is swapped when the new ones arrive.
+
+- **Page numbers and offsets** refetch in parallel, because their values do not depend on other pages. A page that fails
+  keeps its old data.
+- **Cursors** refetch in order from the first page, following the fresh cursors. If a page of the chain fails, the list
+  stays as it was.
+
+The same refetch runs when a loaded page is invalidated or deleted, on `refresh`, and on `refetchOnFocus`,
+`refetchOnBlur` and `refetchOnReconnect`. Pages restored from the cache are refetched on mount once they are stale, or
+always with `revalidate: true`.
+
+A cache change on a loaded page, such as an optimistic update, updates that page in place.
+
+---
+
+## Options
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `pagination` | required | Which fields page through the request |
+| `uniqueBy` | | Drops repeated items, by a field name or `({ item }) => identity` |
+| `maxPages` | | Keeps only this many pages loaded. Dropped pages can be fetched again |
+| `select` | | `({ items, pages }) => result`, transforms what `items` returns |
+| `suspense` | `false` | Suspends until the first page arrives. Later pages never suspend |
+| `throwOnError` | `false` | Throws to the closest Error Boundary, or decides per error with a function |
+| `dependencies` | `[]` | Refetches the loaded pages when these values change |
+| `disabled` | `false` | Disables fetching |
+| `dependencyTracking` | `true` | Rerenders only for the values the component reads |
+| `revalidate` | `false` | Refetches restored pages on mount even when they are fresh |
+| `keepPreviousData` | `"auto"` | What is shown while a new list loads |
+| `refresh` | `false` | Refetches the loaded pages on an interval |
+| `refreshTime` | `Time.HOUR` | Refresh interval |
+| `refetchBlurred` | `true` | Keeps refreshing while the tab is not focused |
+| `refetchOnBlur` | `false` | Refetches when the user leaves the tab |
+| `refetchOnFocus` | `false` | Refetches when the user enters the tab |
+| `refetchOnReconnect` | `false` | Refetches when the network is restored |
+| `structuralSharing` | `true` | Keeps references of unchanged data between updates |
+| `bounce` | `false` | Bounces starting a new list |
+| `bounceType` | `"debounce"` | `"debounce"` or `"throttle"` |
+| `bounceTime` | `400` | How long new lists are bounced |
+| `bounceTimeout` | `400` | Throttle only: handling of the last bounce event |
+
+Defaults for every hook can be set with `useInfiniteFetchConfig` on the [`Provider`](/react/overview.mdx). `pagination`
+describes a single request, so it is always passed to the hook.
+
+---
+
+## Returns
+
+| Value | Description |
+| --- | --- |
+| `items` | Items of all the loaded pages, or the result of `select` |
+| `pages` | Response data of the loaded pages |
+| `pageParams` | Paging values of the loaded pages |
+| `total` | Size of the whole list, when `total` is declared |
+| `hasNextPage` / `hasPreviousPage` | Another page can be fetched in that direction |
+| `loading` | The first page is loading and there is nothing to show yet |
+| `isFetching` | Any page of this list is being fetched |
+| `isRefetching` | The loaded pages are being fetched again |
+| `isFetchingNextPage` / `isFetchingPreviousPage` | A page is loading in that direction |
+| `isFetchNextPageError` / `isFetchPreviousPageError` | The last attempt in that direction failed |
+| `isPreviousData` | The list on screen belongs to the previous request |
+| `error`, `status`, `extra`, `success` | Result of the last fetch |
+| `fetchNextPage` / `fetchPreviousPage` | Fetch a page. Calls made while it loads share one request |
+| `refetch` | Fetches the loaded pages again |
+| `reset` | Drops to the starting page and fetches it again |
+| `abort` | Cancels every page being fetched by this list |
+| `onSuccess` / `onError` / `onFinished` | Called for every page with `{ response, request, param }` |
+| `onReset` | Called when the list starts over |
+| `bounce` | State of the bounce used for new lists |
+
+---
+
+## Server rendering
+
+`fetchInfinite` fetches the first pages one after another, without touching the cache. Pass the result to
+[`Hydrate`](/react/06-hydrate.mdx):
+
+```tsx
+import { fetchInfinite } from "@hyper-fetch/core";
+
+const { dehydrated } = await fetchInfinite(getFeed.setQueryParams({ topic }), {
+  pagination: feedPagination,
+  pages: 2,
+});
+
+<Hydrate client={client} data={dehydrated}>
+  <Feed topic={topic} />
+</Hydrate>;
+```
+
+Both pages render on the server, and the browser does not request them again while they are fresh.

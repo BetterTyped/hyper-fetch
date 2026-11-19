@@ -9,7 +9,8 @@ import type {
   ExtractAdapterExtraType,
   ResponseType,
 } from "@hyper-fetch/core";
-import { replaceEqualDeep, scopeKey } from "@hyper-fetch/core";
+import { replaceEqualDeep, runResponseMapper, scopeKey } from "@hyper-fetch/core";
+import { useHydration } from "hydrate/hydrate";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 import { isEqual } from "utils";
 
@@ -48,8 +49,9 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   select,
   structuralSharing = true,
 }: UseTrackedStateProps<T, TData>): UseTrackedStateReturn<T, TData> => {
-  const { client, cacheKey, queryKey, staleTime, unstable_responseMapper } = request;
+  const { client, cacheKey, queryKey, staleTime } = request;
   const { cache } = client;
+  const hydration = useHydration();
 
   const state = useRef<UseTrackedStateType<T, TData>>(null as unknown as UseTrackedStateType<T, TData>);
   const renderKeys = useRef<(keyof UseTrackedStateType<T, TData>)[]>([]);
@@ -87,7 +89,10 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   };
 
   if (!state.current) {
-    state.current = getSelectedState(getInitialState({ initialResponse, dispatcher, request, disabled }));
+    const hydratedEntry = hydration?.get(client, scopeKey(cacheKey, request.scope));
+    state.current = getSelectedState(
+      getInitialState({ initialResponse, dispatcher, request, disabled, hydratedEntry }),
+    );
   }
 
   // Selector failed while processing incoming data - surface it to the closest error boundary
@@ -160,7 +165,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       previousCacheKey.current = cacheKey;
 
       // Get cache state
-      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
       // Determine whether to clear state based on keepPreviousData mode
@@ -255,7 +260,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       retries: cacheData.retries,
       responseTimestamp: new Date(cacheData.responseTimestamp),
       requestTimestamp: new Date(cacheData.requestTimestamp),
-      loading: dispatcher.hasRunningRequests(queryKey),
+      loading: dispatcher.hasRunningRequests(scopeKey(queryKey, request.scope)),
     };
 
     const nextState: UseTrackedStateType<T, TData> = { ...state.current };
@@ -297,9 +302,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
     setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: true });
-    const data = unstable_responseMapper
-      ? unstable_responseMapper(cacheData as ResponseType<any, any, ExtractAdapterType<T>>)
-      : cacheData;
+    const data = runResponseMapper(request, cacheData as ResponseType<any, any, ExtractAdapterType<T>>) || cacheData;
 
     if (data instanceof Promise) {
       return (async () => {

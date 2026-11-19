@@ -7,6 +7,7 @@ export * from "./adapter";
 export * from "./sdk";
 export * from "./http-adapter";
 export * from "./request";
+export * from "./infinite";
 export * from "./constants/time.constants";
 export * from "./constants/http.constants";
 export * from "./managers";

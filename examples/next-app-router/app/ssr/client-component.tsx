@@ -1,7 +1,7 @@
 "use client";
 
-import { ExtractAdapterResolvedType, RequestInstance } from "@hyper-fetch/core";
-import { useFetch } from "@hyper-fetch/react";
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import type { HydrateProps } from "@hyper-fetch/react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import StopIcon from "@mui/icons-material/Stop";
@@ -9,21 +9,25 @@ import { Stack, Button } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import React, { useState } from "react";
 
-import { getUser } from "../../api";
+import { client, getUser } from "../../api";
 import { Request } from "../../components/request";
 import { Viewer } from "../../components/viewer";
 
-export const ClientComponents: React.FC<{
-  fallback: Partial<ExtractAdapterResolvedType<RequestInstance>>;
-}> = (props) => {
+export const ClientComponents: React.FC<{ hydration: HydrateProps["data"] }> = ({ hydration }) => (
+  <Hydrate client={client} data={hydration}>
+    <HydratedUser />
+  </Hydrate>
+);
+
+const HydratedUser: React.FC = () => {
   const [dep, setDep] = useState(+new Date());
   const [disabled, setDisabled] = useState(true);
 
+  // Renders the server data on the first render - no loading state and no request while it is fresh
   const result = useFetch(getUser.setParams({ userId: 1 }), {
     disabled,
     dependencies: [dep],
     revalidate: false,
-    initialResponse: props.fallback as any,
   });
 
   const { refetch } = result;

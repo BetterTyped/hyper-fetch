@@ -62,5 +62,46 @@
   "parallel": 1,
   "defaultBase": "main",
   "neverConnectToCloud": true,
+  "release": {
+    "projects": ["packages/*", "!hyper-flow", "!testing"],
+    "projectsRelationship": "fixed",
+    "releaseTag": {
+      "pattern": "v{version}"
+    },
+    "conventionalCommits": {
+      "types": {
+        "perf": {
+          "semverBump": "patch"
+        },
+        "revert": {
+          "semverBump": "patch"
+        }
+      }
+    },
+    "version": {
+      "specifierSource": "conventional-commits",
+      "currentVersionResolver": "git-tag",
+      "versionActionsOptions": {
+        "skipLockFileUpdate": true
+      },
+      "preserveMatchingDependencyRanges": false,
+      "git": {
+        "commit": false,
+        "tag": false,
+        "push": false,
+        "stageChanges": false
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": false,
+      "git": {
+        "commit": false,
+        "tag": false,
+        "push": false,
+        "stageChanges": false
+      }
+    }
+  },
   "analytics": false
 }

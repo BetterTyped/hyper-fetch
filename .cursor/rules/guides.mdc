@@ -1,5 +1,5 @@
 ---
-description: 
+description: Rules and best practices for writing guides in the documentation
 globs: **/guides/**/*.mdx
 alwaysApply: false
 ---

@@ -8,6 +8,8 @@
     "paths": {
       "helpers": ["../src/helpers"],
       "helpers/*": ["../src/helpers/*"],
+      "hydrate": ["../src/hydrate"],
+      "hydrate/*": ["../src/hydrate/*"],
       "hooks": ["../src/hooks"],
       "hooks/*": ["../src/hooks/*"],
       "provider": ["../src/provider"],

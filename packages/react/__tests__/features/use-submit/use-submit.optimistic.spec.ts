@@ -312,6 +312,7 @@ describe("useSubmit [ Optimistic ]", () => {
     it("should not call rollback when retry succeeds after initial failure", async () => {
       const rollbackSpy = vi.fn();
       const successSpy = vi.fn();
+      const errorSpy = vi.fn();
 
       const optimisticRequest = request
         .setOptimistic(() => ({
@@ -321,18 +322,25 @@ describe("useSubmit [ Optimistic ]", () => {
         .setRetry(1)
         .setRetryTime(50);
 
-      const errorMock = mockRequest(optimisticRequest, { status: 400 });
+      let successMock = mockRequest(optimisticRequest, { status: 400 });
+      // Swapped on the response event, polling for the error state can lose the race with the retry timer
+      const unmountListener = client.requestManager.events.onResponse(() => {
+        unmountListener();
+        successMock = mockRequest(optimisticRequest);
+      });
       const response = renderUseSubmit(optimisticRequest);
 
       act(() => {
         response.result.current.onSubmitSuccess(successSpy);
+        response.result.current.onSubmitError(errorSpy);
         response.result.current.submit();
       });
 
-      await testErrorState(errorMock, response);
-      const successMock = mockRequest(optimisticRequest);
-
+      await waitFor(() => {
+        expect(successSpy).toHaveBeenCalledTimes(1);
+      });
       await testSuccessState(successMock, response);
+      expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(rollbackSpy).not.toHaveBeenCalled();
       expect(successSpy).toHaveBeenCalledTimes(1);
       expect(successSpy.mock.calls[0][0].mutationContext).toStrictEqual({ snapshot: "v1" });
