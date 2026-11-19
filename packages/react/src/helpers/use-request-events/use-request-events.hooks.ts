@@ -5,13 +5,14 @@ import type {
   RequestInstance,
   RequestEventType,
   RequestLoadingEventType,
+  RequestRemovedEventType,
   ExtractAdapterType,
   RequestProgressEventType,
   RequestResponseEventType,
   ResponseType,
   OptimisticCallbackResult,
 } from "@hyper-fetch/core";
-import { runResponseMapper, scopeKey } from "@hyper-fetch/core";
+import { getErrorMessage, runResponseMapper, scopeKey } from "@hyper-fetch/core";
 import type {
   OnErrorCallbackType,
   OnStartCallbackType,
@@ -92,6 +93,8 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   // Rollback and invalidation are settled by the core - here we only deliver the context to the callbacks
   const optimisticResultsRef = useRef<Map<string, OptimisticCallbackResult<any>>>(new Map());
+  // Requests which already got their last response - their removal from the queue is only a cleanup
+  const settledRequests = useRef(new Set<string>());
 
   // ******************
   // Response handlers
@@ -191,6 +194,15 @@ export const useRequestEvents = <R extends RequestInstance>({
         return;
       }
 
+      // Marked before the mapper runs - an async mapper answers after the dispatcher removed the request.
+      // Failed attempts which are retried or kept for the connection to return respond once again.
+      const { success } = values.response;
+      const { isCanceled, isOffline, willRetry } = values.details;
+      const willRespondAgain = !success && !isCanceled && (willRetry || (!!req.offline && isOffline));
+      if (!willRespondAgain) {
+        settledRequests.current.add(values.requestId);
+      }
+
       // The mapper of the listened request - it can differ from the request of the current render
       const data = runResponseMapper(req, values.response);
 
@@ -210,7 +222,37 @@ export const useRequestEvents = <R extends RequestInstance>({
     };
   };
 
-  const handleRemove = ({ requestId }: RequestEventType<R>) => {
+  const handleRemove = ({ requestId, request: removedRequest }: RequestRemovedEventType<R>) => {
+    // Removed before its last response - aborted with the hook, deleted or cleared from the queue. No response is
+    // going to reach the listeners anymore, so the removal is what ends the request: the abort callback runs with
+    // the same "deleted" response that `submit()` resolves with.
+    if (!settledRequests.current.has(requestId) && lifecycleEvents.current.has(requestId)) {
+      const timestamp = Date.now();
+      handleResponseCallbacks({
+        request: removedRequest,
+        requestId,
+        response: {
+          data: null,
+          error: getErrorMessage("deleted") as ExtractErrorType<R>,
+          status: null,
+          success: false,
+          extra: removedRequest.client.adapter.defaultExtra,
+          requestTimestamp: timestamp,
+          responseTimestamp: timestamp,
+        },
+        details: {
+          retries: 0,
+          isCanceled: true,
+          isOffline: false,
+          willRetry: false,
+          addedTimestamp: timestamp,
+          triggerTimestamp: timestamp,
+          requestTimestamp: timestamp,
+          responseTimestamp: timestamp,
+        },
+      });
+    }
+    settledRequests.current.delete(requestId);
     optimisticResultsRef.current.delete(requestId);
     removeLifecycleListener(requestId);
   };

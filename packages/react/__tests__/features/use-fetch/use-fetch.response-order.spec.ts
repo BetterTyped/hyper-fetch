@@ -63,7 +63,7 @@ describe("useFetch [ Response order ]", () => {
 
       calls[1].succeed({ value: "new" });
       await settle();
-      calls[0].fail({ message: "Too late" });
+      calls[0].fail(new Error("Too late"));
       await settle();
 
       expect(result.current.data).toStrictEqual({ value: "new" });
