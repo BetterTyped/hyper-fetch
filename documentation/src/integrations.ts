@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Network, Orbit } from "lucide-react";
+import { Book } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -11,7 +11,12 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
+// oxc icon, CC BY-NC-SA 4.0, see static/img/ATTRIBUTION.md
+const OxlintIcon = isBrowser() ? require("../static/img/integration-oxlint.svg").default : () => null;
 const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
+const ElysiaIcon = isBrowser() ? require("../static/img/integration-elysia.svg").default : () => null;
+const OrpcIcon = isBrowser() ? require("../static/img/integration-orpc.svg").default : () => null;
+const TrpcIcon = isBrowser() ? require("../static/img/integration-trpc.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
 // const StrapiIcon = isBrowser() ? require("../static/img/integration-strapi.svg").default : () => null;
 // const HasuraIcon = isBrowser() ? require("../static/img/integration-hasura.svg").default : () => null;
@@ -64,6 +69,25 @@ export const integrations: Section[] = [
     featured: true,
     category: "Plugin",
     package: "plugin-eslint",
+  },
+  {
+    label: "Oxlint",
+    description:
+      "Run the HyperFetch lint rules on Oxlint, the Rust linter, with the same rule names as the ESLint plugin.",
+    dir: "plugin-oxlint",
+    isPackage: true,
+    paths: ["plugin-oxlint"],
+    img: OxlintIcon,
+    text: "drop-shadow-sm !text-sky-500 dark:!text-sky-400",
+    textAction: "focus:!text-sky-500 focus:dark:!text-sky-400 active:!text-sky-600 active:dark:!text-sky-300",
+    textHover: "hover:!text-sky-500 hover:dark:!text-sky-400",
+    icon: "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 bg-sky-400 dark:bg-sky-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
+    border: "border-sky-500 dark:border-sky-400",
+    borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
+    category: "Plugin",
+    package: "plugin-oxlint",
   },
   {
     label: "Devtools",
@@ -124,6 +148,26 @@ export const integrations: Section[] = [
     package: "hono",
   },
   {
+    label: "Elysia",
+    description:
+      "Call your Elysia backend through a typed SDK with responses, errors and inputs read from your routes.",
+    dir: "elysia",
+    isPackage: true,
+    paths: ["elysia"],
+    img: ElysiaIcon,
+    text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
+    textAction:
+      "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
+    textHover: "hover:!text-violet-500 hover:dark:!text-violet-400",
+    icon: "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 bg-violet-400 dark:bg-violet-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 group-hover:bg-violet-400 group-hover:dark:bg-violet-500 !bg-opacity-40",
+    border: "border-violet-500 dark:border-violet-400",
+    borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
+    category: "Service",
+    package: "elysia",
+  },
+  {
     label: "Graphql",
     description: "Integrate with any GraphQL API to fetch data with type-safety and efficiency using this adapter.",
     dir: "adapter-graphql",
@@ -148,7 +192,7 @@ export const integrations: Section[] = [
     dir: "adapter-orpc",
     isPackage: true,
     paths: ["adapter-orpc"],
-    img: Orbit,
+    img: OrpcIcon,
     text: "drop-shadow-sm !text-teal-500 dark:!text-teal-400",
     textAction: "focus:!text-teal-500 focus:dark:!text-teal-400 active:!text-teal-600 active:dark:!text-teal-300",
     textHover: "hover:!text-teal-500 hover:dark:!text-teal-400",
@@ -166,7 +210,7 @@ export const integrations: Section[] = [
     dir: "adapter-trpc",
     isPackage: true,
     paths: ["adapter-trpc"],
-    img: Network,
+    img: TrpcIcon,
     text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
     textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
     textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",

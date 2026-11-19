@@ -26,6 +26,9 @@
       "path": "./packages/core"
     },
     {
+      "path": "./packages/elysia"
+    },
+    {
       "path": "./packages/hono"
     },
     {
@@ -36,6 +39,9 @@
     },
     {
       "path": "./packages/plugin-eslint"
+    },
+    {
+      "path": "./packages/plugin-oxlint"
     },
     {
       "path": "./packages/react"

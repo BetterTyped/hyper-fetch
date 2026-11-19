@@ -1,19 +1,21 @@
+import Link from "@docusaurus/Link";
 import { motion } from "motion/react";
 
 /*
  * The backends Hyper Fetch talks to, shown under the hero description. Each one is an adapter or a transport that
- * keeps the same createRequest() and send() calls.
+ * keeps the same createRequest() and send() calls, and each logo links to its docs.
  */
-const backends: { name: string; src: string; scale?: number }[] = [
-  { name: "OpenAPI", src: "/img/integration-openapi.svg", scale: 1.35 },
-  { name: "GraphQL", src: "/img/integration-graphql.svg" },
-  { name: "tRPC", src: "/img/integration-trpc.svg", scale: 1.12 },
-  { name: "oRPC", src: "/img/integration-orpc.svg" },
-  { name: "Hono", src: "/img/integration-hono.svg" },
-  { name: "Firebase", src: "/img/integration-firebase.svg" },
-  { name: "Axios", src: "/img/integration-axios.svg" },
-  { name: "WebSockets", src: "/img/integration-sockets.svg" },
-  { name: "React", src: "/img/integration-react.svg" },
+const backends: { name: string; src: string; to: string; scale?: number }[] = [
+  { name: "OpenAPI", to: "/docs/cli/commands/generate", src: "/img/integration-openapi.svg", scale: 1.35 },
+  { name: "GraphQL", to: "/docs/integrations/adapter-graphql/overview", src: "/img/integration-graphql.svg" },
+  { name: "tRPC", to: "/docs/integrations/adapter-trpc/overview", src: "/img/integration-trpc.svg", scale: 1.12 },
+  { name: "oRPC", to: "/docs/integrations/adapter-orpc/overview", src: "/img/integration-orpc-dark.svg" },
+  { name: "Hono", to: "/docs/integrations/hono/overview", src: "/img/integration-hono.svg" },
+  { name: "Elysia", to: "/docs/integrations/elysia/overview", src: "/img/integration-elysia.svg" },
+  { name: "Firebase", to: "/docs/integrations/adapter-firebase/overview", src: "/img/integration-firebase.svg" },
+  { name: "Axios", to: "/docs/integrations/adapter-axios/overview", src: "/img/integration-axios.svg" },
+  { name: "WebSockets", to: "/docs/sockets/overview", src: "/img/integration-sockets.svg" },
+  { name: "React", to: "/docs/react/overview", src: "/img/integration-react.svg" },
 ];
 
 export const Ecosystem = () => {
@@ -29,19 +31,25 @@ export const Ecosystem = () => {
             delay: 0.15 + index * 0.05,
             ease: "easeOut",
           }}
-          className="group flex flex-col items-center gap-2 w-[72px] md:w-[78px] !m-0"
+          className="!m-0"
         >
-          <span className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl border border-solid border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 group-hover:border-white/25 group-hover:bg-white/[0.07] group-hover:-translate-y-0.5">
-            <img
-              src={backend.src}
-              alt=""
-              className="w-6 h-6 md:w-7 md:h-7 object-contain"
-              style={backend.scale ? { transform: `scale(${backend.scale})` } : undefined}
-            />
-          </span>
-          <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors duration-200 whitespace-nowrap">
-            {backend.name}
-          </span>
+          <Link
+            to={backend.to}
+            aria-label={`${backend.name} integration docs`}
+            className="group flex flex-col items-center gap-2 w-[72px] md:w-[78px] rounded-2xl !no-underline outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/70"
+          >
+            <span className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl border border-solid border-white/10 bg-white/[0.03] backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 group-hover:border-white/25 group-hover:bg-white/[0.07] group-hover:-translate-y-0.5">
+              <img
+                src={backend.src}
+                alt=""
+                className="w-6 h-6 md:w-7 md:h-7 object-contain"
+                style={backend.scale ? { transform: `scale(${backend.scale})` } : undefined}
+              />
+            </span>
+            <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors duration-200 whitespace-nowrap">
+              {backend.name}
+            </span>
+          </Link>
         </motion.li>
       ))}
     </ul>

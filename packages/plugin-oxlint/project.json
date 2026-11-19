@@ -1,0 +1,9 @@
+{
+  "name": "plugin-oxlint",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "targets": {
+    "test": {
+      "dependsOn": ["build"]
+    }
+  }
+}
