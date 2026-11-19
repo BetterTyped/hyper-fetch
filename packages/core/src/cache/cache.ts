@@ -400,7 +400,7 @@ export class Cache<Adapter extends AdapterInstance> {
    * break the cache flow nor end up as unhandled promise rejections.
    */
   private runLazyStorage = async <Result>(
-    action: "get" | "set" | "delete",
+    action: "get" | "set" | "delete" | "clear",
     cacheKey: string,
     callback: (lazyStorage: CacheAsyncStorageType) => Promise<Result>,
   ): Promise<Result | undefined> => {
@@ -420,11 +420,22 @@ export class Cache<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Clear cache storages
+   * Clear cache storages - the memory and the lazy one. Data left in the lazy storage would be loaded back
+   * by the next read, for example for the next user after a logout.
    */
   clear = async (): Promise<void> => {
     this.garbageCollectors.forEach((timeout) => clearTimeout(timeout));
     this.garbageCollectors.clear();
     this.storage.clear();
+
+    await this.runLazyStorage("clear", "*", async (lazyStorage) => {
+      const keys = [...(await lazyStorage.keys())];
+      // One element that can't be removed must not keep the others in the storage
+      const results = await Promise.allSettled(keys.map((key) => lazyStorage.delete(key)));
+      const failed = results.find((result) => result.status === "rejected");
+      if (failed) {
+        throw failed.reason;
+      }
+    });
   };
 }
