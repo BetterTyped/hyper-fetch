@@ -40,6 +40,7 @@ types only, so nothing from your server ends up in the client bundle.
 - 🧭 **Paths become properties** - `/users/:userId/posts` is `sdk.users.$userId.posts.$get`, with typed `setParams()`
 - 🛂 **Validators drive the payload** - `json` and `query` validators type `setPayload()` and `setQueryParams()`
 - 🧩 **Mounted routers included** - `app.route()` and `basePath()` prefixes land in the endpoint and the nesting
+- 🧷 **Every path shape** - Optional `:id?` and regex `:id{[0-9]+}` params, `.all()` and `app.on()` get typed accessors
 - 🪶 **Zero runtime** - A single type export, so it adds no code to your bundle
 - ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline and React hooks work on every route
 

@@ -101,10 +101,10 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 - Each path segment becomes a nested property.
 - `:param` segments become `$param` properties, and the param is typed on `setParams()`.
 - kebab-case segments become camelCase. `createSdk` turns them back into kebab-case when it builds the URL.
-- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys. `app.on()` adds one key per method
-  and one route per path.
-- An `.all()` route gets every standard method, `$get` to `$query`, as in Hono's own client. A method registered on
-  the same path keeps its own types.
+- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys. `app.on()` adds one key per method and
+  one route per path.
+- An `.all()` route gets every standard method, `$get` to `$query`, as in Hono's own client. A method registered on the
+  same path keeps its own types.
 - The endpoint is the full Hono path, including `app.route()` and `basePath()` prefixes.
 - An optional `:param?` segment adds the route twice: without the param and under `$param` with it, because HyperFetch
   params are always required. A chain of optional params adds every prefix.
@@ -134,6 +134,34 @@ response type is the union of both bodies. At runtime a `404` still resolves thr
 and the body in `error`, as for every HyperFetch request.
 
 :::
+
+---
+
+## Query arrays
+
+HyperFetch sends arrays as `tags[]=a&tags[]=b` by default. Hono reads that as a key named `tags[]`, so
+`c.req.queries("tags")` and a `query` validator see no `tags`. Send repeated keys instead, which Hono reads as an array:
+
+```ts
+const client = createClient({ url: "https://api.example.com" });
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "none" });
+
+// GET /search?tags=a&tags=b
+await sdk.search.$get.setQueryParams({ tags: ["a", "b"] }).send();
+```
+
+---
+
+## Validators and responses to watch
+
+The schema follows Hono's types, and a few of them differ from what a HyperFetch request sends or receives:
+
+- **`form` validators** do not type the payload, so a form route is sent without a body and its validator reads an empty
+  form. Send `FormData` from a request created with `client.createRequest<{ payload: FormData }>()`.
+- **`header` and `cookie` validators** do not type the request. Set them with `setHeaders()`.
+- **`c.text()`** is typed as its literal text, but a text that is valid JSON, such as `"42"`, resolves parsed.
+- **`c.body(null)`** and other empty bodies are typed as `null` and resolve as `""`.
+- **`c.redirect()`** is typed as `undefined`. `fetch` follows the redirect, so the data is the body of the target.
 
 ---
 
