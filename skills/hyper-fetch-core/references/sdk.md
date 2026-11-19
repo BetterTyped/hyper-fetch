@@ -117,5 +117,6 @@ configure it with `$configure`. Regenerate instead of hand-editing generated fil
 ## Other SDK sources
 
 - `@hyper-fetch/hono` derives a schema from a Hono app type (`hyper-fetch-hono`).
+- `@hyper-fetch/elysia` derives a schema from an Elysia app type (`hyper-fetch-elysia`).
 - tRPC and oRPC adapters provide their own typed clients (`hyper-fetch-trpc`, `hyper-fetch-orpc`).
 - Socket SDKs live in `@hyper-fetch/sockets` (`hyper-fetch-sockets`).

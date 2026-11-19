@@ -25,7 +25,8 @@ cache, and always **resolves** with a **Response** object. Framework bindings (`
 Sibling skills: `hyper-fetch-react` (hooks: useFetch, useSubmit, useCache, Hydrate), `hyper-fetch-sockets` (realtime),
 `hyper-fetch-testing` (mocking server, test isolation), `hyper-fetch-cli` (SDK generated from OpenAPI),
 `hyper-fetch-axios`, `hyper-fetch-graphql`, `hyper-fetch-firebase`, `hyper-fetch-firebase-admin`, `hyper-fetch-trpc`,
-`hyper-fetch-orpc`, `hyper-fetch-hono`, `hyper-fetch-devtools`, `hyper-fetch-eslint`, `hyper-fetch-oxlint`.
+`hyper-fetch-orpc`, `hyper-fetch-hono`, `hyper-fetch-elysia`, `hyper-fetch-devtools`, `hyper-fetch-eslint`,
+`hyper-fetch-oxlint`.
 
 ## Install and set up
 
