@@ -1,0 +1,135 @@
+---
+title: Implementing Infinite Scroll
+sidebar_label: Infinite Scroll
+---
+
+# Infinite Scroll
+
+Infinite scroll loads a long list in small parts: as the user reaches the end, the next page is added to the list.
+[`useInfiniteFetch`](/react/04-hooks/use-infinite-fetch.mdx) handles the page values, the end of the list and restarting
+when filters change. Your component only decides when to load more.
+
+:::secondary What you'll learn
+
+1.  How to describe a paginated request with the **`pagination`** option.
+2.  How to build a **"Load More"** button.
+3.  How to load pages **automatically while scrolling**.
+4.  How **filters** restart the list.
+
+:::
+
+## Load More button
+
+Requests stay ordinary requests. The hook is told which field holds the page number.
+
+```tsx
+const getPosts = client.createRequest<{
+  response: Post[];
+  queryParams: { page?: number; limit?: number; search?: string };
+}>()({ endpoint: "/posts" });
+
+function PostList() {
+  const { items, loading, hasNextPage, isFetchingNextPage, fetchNextPage } = useInfiniteFetch(
+    getPosts.setQueryParams({ limit: 5 }),
+    { pagination: { page: "page", limit: "limit" } },
+  );
+
+  if (loading) return <p>Loading...</p>;
+
+  return (
+    <div>
+      <ul>
+        {items.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
+
+      {hasNextPage ? (
+        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+          {isFetchingNextPage ? "Loading..." : "Load More"}
+        </button>
+      ) : (
+        <p>You've reached the end!</p>
+      )}
+    </div>
+  );
+}
+```
+
+### How it works
+
+1.  The hook fetches the first page on mount. Each page is a normal request with its own cache key.
+2.  `items` holds the items of all the loaded pages, in order.
+3.  `fetchNextPage` requests the next page. Calling it again while the page loads does not send another request.
+4.  Declaring `limit` lets the hook end the list on a short page, without requesting an empty one.
+
+## Loading while scrolling
+
+The hook has no scroll logic, so it works with any trigger. Here an `IntersectionObserver` watches an element placed
+after the list:
+
+```tsx
+function PostList() {
+  const { items, hasNextPage, fetchNextPage } = useInfiniteFetch(getPosts, { pagination: { page: "page" } });
+  const endRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!endRef.current || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) fetchNextPage();
+    });
+    observer.observe(endRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, fetchNextPage]);
+
+  return (
+    <>
+      {items.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+      <div ref={endRef} />
+    </>
+  );
+}
+```
+
+In React Native, call `fetchNextPage` from the `onEndReached` prop of `FlatList`.
+
+## Filters
+
+Put the filter on the request. A changed value starts a new list, and going back to an earlier value restores its pages
+from the cache.
+
+```tsx
+function SearchPosts({ search }: { search: string }) {
+  const { items, isPreviousData } = useInfiniteFetch(getPosts.setQueryParams({ search }), {
+    pagination: { page: "page" },
+    bounce: true,
+    bounceTime: 300,
+  });
+
+  return (
+    <ul style={{ opacity: isPreviousData ? 0.5 : 1 }}>
+      {items.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+The previous results stay visible until the new ones arrive, and `bounce` waits for the user to stop typing.
+
+---
+
+:::success Congratulations!
+
+You've learned how to build an infinite scroll feature with Hyper-fetch!
+
+- You can describe paging with the **`pagination`** option.
+- You can load more data from a **button or while scrolling**.
+- You can **change filters** without managing pages by hand.
+
+:::

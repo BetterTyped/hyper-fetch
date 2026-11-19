@@ -1,0 +1,172 @@
+---
+sidebar_position: 1
+title: Hono
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/hono/Types/HonoAppToHyperFetch.mdx)
+
+`@hyper-fetch/hono` converts the type of a [Hono](https://hono.dev/) app into a schema for
+[`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, payloads, query
+params and URL params come from your Hono routes and validators. The package exports a single type and adds no code to
+your bundle.
+
+:::tip Purpose
+
+1. **One source of truth**: Hono route definitions type the frontend, with no codegen step and no hand-written schema.
+2. **Typed inputs**: `json` and `query` validators type `setPayload()` and `setQueryParams()`, and `:param` segments
+   type `setParams()`.
+3. **Readable access**: Paths become nested properties, so `GET /users/:userId` is `sdk.users.$userId.$get`.
+4. **Full HyperFetch features**: Every route is a regular `Request` with cache, retries, deduplication and React hooks.
+
+:::
+
+---
+
+## Installation
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/hono
+```
+
+`hono` is a peer dependency. Install the package where you export the schema type, usually the backend.
+
+---
+
+## Getting Started
+
+1. Chain your routes and export the schema type from the backend. Hono only types routes defined in one chain, the same
+   rule as its own RPC client.
+
+```ts title="backend/src/app.ts"
+import { Hono } from "hono";
+import { validator } from "hono/validator";
+import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+
+const users = new Hono()
+  .get("/", (c) => c.json([{ id: "1", name: "Ann" }]))
+  .get("/:userId", (c) => c.json({ id: c.req.param("userId"), name: "Ann" }))
+  .post(
+    "/",
+    validator("json", (value: { name: string }) => value),
+    (c) => c.json({ id: "2", name: c.req.valid("json").name }, 201),
+  );
+
+export const app = new Hono().route("/users", users);
+
+// highlight-next-line
+export type AppSchema = HonoAppToHyperFetch<typeof app>;
+```
+
+2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
+
+```ts title="frontend/src/api.ts"
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { AppSchema } from "@my-app/backend";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+// highlight-next-line
+export const sdk = createSdk<typeof client, AppSchema>(client);
+```
+
+3. Send requests. Types follow the Hono route definitions.
+
+```ts
+const { data } = await sdk.users.$get.send();
+
+const { data: user } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
+
+const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send();
+```
+
+---
+
+## How routes map to the SDK
+
+| Hono route                         | SDK accessor                   | Endpoint               |
+| ---------------------------------- | ------------------------------ | ---------------------- |
+| `app.get("/", ...)`                | `sdk.$get`                     | `/`                    |
+| `app.route("/users", users)` + `/` | `sdk.users.$get`               | `/users`               |
+| `.get("/:userId", ...)`            | `sdk.users.$userId.$get`       | `/users/:userId`       |
+| `.get("/:userId/posts", ...)`      | `sdk.users.$userId.posts.$get` | `/users/:userId/posts` |
+| `.get("/google-login", ...)`       | `sdk.auth.googleLogin.$get`    | `/auth/google-login`   |
+| `new Hono().basePath("/api")`      | `sdk.api.users.$get`           | `/api/users`           |
+
+:::note Mapping rules
+
+- Each path segment becomes a nested property.
+- `:param` segments become `$param` properties, and the param is typed on `setParams()`.
+- kebab-case segments become camelCase. `createSdk` turns them back into kebab-case when it builds the URL.
+- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys.
+- The endpoint is the full Hono path, including `app.route()` and `basePath()` prefixes.
+
+:::
+
+---
+
+## How request types are read
+
+Each route becomes a `Request` with these generics:
+
+- **Response**: the handler output, for example the value passed to `c.json()`.
+- **Payload**: the output type of the route's `json` validator, or `undefined` without one.
+- **Query params**: the input type of the route's `query` validator, or `undefined` without one.
+- **Endpoint**: the full Hono path, which types `setParams()`.
+
+:::caution Responses with several statuses
+
+When a handler returns different bodies per status, for example `c.json(user)` and `c.json({ message }, 404)`, the
+response type is the union of both bodies. At runtime a `404` still resolves through the response with `success: false`
+and the body in `error`, as for every HyperFetch request.
+
+:::
+
+---
+
+## Global errors
+
+`createSdk` injects your client into every request, so the client's global error type applies to every Hono route.
+
+```ts
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { AppSchema } from "@my-app/backend";
+
+type ApiError = { message: string; code: string };
+
+const client = createClient<{ error: ApiError }>({ url: "https://api.example.com" });
+const sdk = createSdk<typeof client, AppSchema>(client);
+
+const { error } = await sdk.users.$get.send();
+// error is typed with ApiError
+```
+
+---
+
+## Summary
+
+:::secondary What you learned
+
+- `HonoAppToHyperFetch<typeof app>` turns a chained Hono app into a schema for `createSdk`.
+- Paths, params, kebab-case segments, mounted routers and `basePath()` all map to nested SDK properties.
+- `json` and `query` validators type the payload and query params of each request.
+- The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+## Next Steps
+
+<LinkCard
+  type="docs"
+  title="SDK"
+  description="Learn how createSdk builds requests from a schema and how to configure defaults per endpoint."
+  to="/docs/core/sdk"
+/>
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Explore every setter and option available on the requests your Hono routes produce."
+  to="/docs/core/request"
+/>
