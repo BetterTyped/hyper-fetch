@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Network } from "lucide-react";
+import { Book, Network, Orbit } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -121,6 +121,24 @@ export const integrations: Section[] = [
     featured: true,
     category: "Adapter",
     package: "graphql",
+  },
+  {
+    label: "oRPC",
+    description: "Call oRPC procedures with types inferred from your router, with caching and React hooks included.",
+    dir: "adapter-orpc",
+    isPackage: true,
+    paths: ["adapter-orpc"],
+    img: Orbit,
+    text: "drop-shadow-sm !text-teal-500 dark:!text-teal-400",
+    textAction: "focus:!text-teal-500 focus:dark:!text-teal-400 active:!text-teal-600 active:dark:!text-teal-300",
+    textHover: "hover:!text-teal-500 hover:dark:!text-teal-400",
+    icon: "group-hover:shadow-teal-200 dark:group-hover:bg-teal-500 bg-teal-400 dark:bg-teal-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-teal-200 dark:group-hover:bg-teal-500 group-hover:bg-teal-400 group-hover:dark:bg-teal-500 !bg-opacity-40",
+    border: "border-teal-500 dark:border-teal-400",
+    borderHover: "hover:border-teal-500 hover:dark:border-teal-400",
+    category: "Adapter",
+    package: "orpc",
   },
   {
     label: "tRPC",

@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["custom-adapter.ts", "../../../../../global.d.ts"]
+}

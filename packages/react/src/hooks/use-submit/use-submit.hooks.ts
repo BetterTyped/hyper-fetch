@@ -151,7 +151,10 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
       return Promise.resolve(getNotSentResponse("Cannot submit request. Option 'disabled' is enabled"));
     }
 
-    const requestClone = request.clone(submitOptions as any) as unknown as RequestType;
+    const { optimistic: submitOptimistic, ...cloneOptions } = submitOptions || {};
+    const requestClone = request.clone(cloneOptions as any) as unknown as RequestType;
+    // Read directly from options - functions are not part of the memoized options key
+    const optimistic = submitOptimistic ?? options?.optimistic;
 
     const triggerRequest = () => {
       addCacheDataListener(requestClone);
@@ -159,6 +162,7 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
       const configuration: RequestSendOptionsType<RequestType> = {
         dispatcherType: "submit",
         ...(submitOptions as RequestSendOptionsType<RequestType>),
+        optimistic,
         onBeforeSent: (data) => {
           // Deduplicated submit joins the request which is already in flight and shares its id.
           // We keep a single set of listeners for it, so the callbacks fire once per response.

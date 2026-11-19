@@ -30,7 +30,22 @@ export type ExtractAdapterRequestOptionsType<T> =
       : RO
     : never;
 
-// Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
+type UnionToIntersection<Union> = (Union extends unknown ? (value: Union) => void : never) extends (
+  value: infer Intersection,
+) => void
+  ? Intersection
+  : never;
+
+/** `true` for a union of adapters. A single adapter type equals its own intersection, which is checked by identity. */
+type IsAdapterUnion<AdapterType> = [AdapterType] extends [UnionToIntersection<AdapterType>] ? false : true;
+
+/**
+ * Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
+ *
+ * A single adapter is returned as it is. Picking it with `Extract` would compare the whole `Adapter` class structurally,
+ * reaching through the client and request types - deep enough to hit the instantiation limit of tsgo in
+ * `createRequest()()` for custom adapters.
+ */
 export type ExtractUnionAdapter<
   AdapterType extends AdapterInstance,
   Values extends {
@@ -43,28 +58,30 @@ export type ExtractUnionAdapter<
     defaultQueryParams?: any;
   },
 > =
-  Extract<
-    AdapterType,
-    Adapter<
-      Values["options"],
-      Values["method"],
-      Values["status"],
-      Values["extra"],
-      Values["queryParams"],
-      Values["defaultQueryParams"],
-      Values["endpointType"]
-    >
-  > extends AdapterInstance
-    ? Extract<
-        AdapterType,
-        Adapter<
-          Values["options"],
-          Values["method"],
-          Values["status"],
-          Values["extra"],
-          Values["queryParams"],
-          Values["defaultQueryParams"],
-          Values["endpointType"]
+  IsAdapterUnion<AdapterType> extends false
+    ? AdapterType
+    : Extract<
+          AdapterType,
+          Adapter<
+            Values["options"],
+            Values["method"],
+            Values["status"],
+            Values["extra"],
+            Values["queryParams"],
+            Values["defaultQueryParams"],
+            Values["endpointType"]
+          >
+        > extends AdapterInstance
+      ? Extract<
+          AdapterType,
+          Adapter<
+            Values["options"],
+            Values["method"],
+            Values["status"],
+            Values["extra"],
+            Values["queryParams"],
+            Values["defaultQueryParams"],
+            Values["endpointType"]
+          >
         >
-      >
-    : never;
+      : never;

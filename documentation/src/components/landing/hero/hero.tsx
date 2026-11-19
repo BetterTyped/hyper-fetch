@@ -7,6 +7,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { useWindowSize } from "@site/src/hooks/use-window-size";
 
 import { Paths } from "./paths/paths";
+import { Ecosystem } from "./ecosystem";
 import { AnimatedShinyText } from "../../ui/animated-shiny-text";
 
 export const Hero = () => {
@@ -44,7 +45,7 @@ export const Hero = () => {
           as="h1"
           className="font-extrabold text-4xl md:text-6xl lg:text-[4.5rem] leading-[1.1] md:!leading-[1.3] mt-3 md:mb-4 mb-0 md:mt-6 max-w-[90vw] text-center"
         >
-          One SDK. Any API. <br />
+          From REST to realtime. <br />
           <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem]">
             Fully{" "}
             <span className="font-extrabold text-3xl md:text-5xl lg:text-[3.9rem] relative">
@@ -65,13 +66,13 @@ export const Hero = () => {
           size="none"
           className="mb-3 md:mb-8 text-lg md:text-lg lg:text-xl text-zinc-300 dark:text-[#ababab] text-center !leading-[1.28] w-[660px] max-w-[90vw]"
         >
-          The type-safe API layer for TypeScript apps. Connect to{" "}
-          <span className="text-black dark:text-white" style={{ fontSize: "inherit" }}>
-            REST, GraphQL, Firebase, WebSockets, SSE
-          </span>{" "}
-          . All with one consistent interface and the best type safety in the ecosystem.
+          Caching, retries, deduplication, offline replay and live subscriptions. All built in. Pick the adapter for
+          your backend and keep the same{" "}
+          <code className="!text-[0.85em] !bg-white/5 !border-white/10 !text-zinc-200">createRequest()</code>{" "}
+          everywhere.
         </Description>
-        <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center mb-8">
+        <Ecosystem />
+        <div className="flex gap-4 mt-8 md:mt-10 flex-col md:flex-row justify-center mb-8">
           <Link
             to="docs/getting-started"
             className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all"

@@ -115,6 +115,7 @@
       "@hyper-fetch/firebase-admin": "workspace:*",
       "@hyper-fetch/axios": "workspace:*",
       "@hyper-fetch/graphql": "workspace:*",
+      "@hyper-fetch/orpc": "workspace:*",
       "@hyper-fetch/trpc": "workspace:*",
       "@hyper-fetch/plugin-devtools": "workspace:*",
       "@hyper-fetch/testing": "workspace:*",

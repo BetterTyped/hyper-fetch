@@ -298,12 +298,20 @@ export class Request<
 
   /**
    * Configure optimistic update behavior for this request.
-   * The callback runs before the request is sent and receives the request, client, and payload.
-   * Return `context` (available in lifecycle callbacks), `rollback` (called automatically once on
-   * failure, abort or queue removal), and `invalidate` (requests invalidated on success).
-   * Both run for every way of sending the request, not only inside of framework hooks.
+   * The callback runs before the request is sent and receives `{ request, client, payload, params, queryParams,
+   * optimistic }`. A synchronous callback changes the cache within the `send()` call.
+   *
+   * Return an array of changes built with `optimistic()` - core applies them, runs their `.commit()` on success or
+   * `.rollback()` on final failure, abort or queue removal, and refreshes the targets after the last pending mutation
+   * on them. Or return an object with `updates`, `context` (available in lifecycle callbacks as `mutationContext`),
+   * `rollback` (called once on failure, abort or queue removal), `invalidate` (requests invalidated on success),
+   * `rollbackOnError` and `revalidate`.
+   * Everything runs for every way of sending the request, not only inside of framework hooks.
+   *
+   * @example
+   * toggleTodo.setOptimistic(({ params, payload }) => [optimistic(getTodos).patch(params.todoId, payload)]);
    */
-  public setOptimistic = <Ctx>(callback: OptimisticCallback<this, Ctx>) => {
+  public setOptimistic = <Ctx = undefined>(callback: OptimisticCallback<this, Ctx>) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
     cloned.optimistic = callback as OptimisticCallback<RequestInstance, any>;
     return cloned as unknown as Request<
@@ -727,7 +735,12 @@ export class Request<
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
-    const { dispatcherType: _dispatcherType, cachePolicy = "network-only", ...configuration } = options || {};
+    const {
+      dispatcherType: _dispatcherType,
+      cachePolicy = "network-only",
+      optimistic: _optimistic,
+      ...configuration
+    } = options || {};
 
     const request = this.clone(configuration) as unknown as this;
 

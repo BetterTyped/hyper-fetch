@@ -16,13 +16,13 @@ HyperFetch IS the SDK — the type-safe API layer for TypeScript apps.
 
 ## Positioning Statement
 
-> One SDK. Any API. Fully typed.
+> From REST to realtime. Fully typed.
 
 Use this exact tagline in hero sections, READMEs, and social. Do not paraphrase.
 
 ## Supporting Line
 
-> The type-safe API layer for TypeScript apps. Connect to REST, GraphQL, Firebase, WebSockets, SSE — all with one consistent interface and the best type safety in the ecosystem.
+> One typed client for REST, GraphQL, tRPC, oRPC, Firebase, WebSockets and SSE. Caching, retries, deduplication, offline replay and live subscriptions are built in. Swap the adapter and keep the same `createRequest()` everywhere.
 
 ## Three Pillars (always in this order)
 
@@ -33,7 +33,7 @@ Use this exact tagline in hero sections, READMEs, and social. Do not paraphrase.
 ## Messaging Hierarchy
 
 ### What to say first
-- Works with ANY API through one interface
+- Works with every backend through one interface. Name them (REST, GraphQL, tRPC, oRPC, Firebase, WebSockets, SSE) or show their logos instead of saying "any API"
 - Best type safety in the ecosystem
 - Works in every framework and environment
 
@@ -67,7 +67,7 @@ Show complexity in layers. Never dump everything at once.
 
 ## Words to use
 - "type-safe", "typed", "autocompletion"
-- "one interface", "universal", "any API"
+- "one interface", "every backend", "REST to realtime"
 - "zero guesswork", "no `any`"
 - "works everywhere"
 
