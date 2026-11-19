@@ -19,40 +19,6 @@
   <a href="https://twitter.com/maciej_pyrc"><img src="https://img.shields.io/twitter/follow/maciej_pyrc" alt="Follow on Twitter" /></a>
 </p>
 
-## ⚡ One request shape on every backend
-
-Pick the adapter for your backend. Everything after that is the same: `createRequest()`, `send()`, the React hooks,
-the cache, retries, deduplication and offline replay.
-
-```ts
-import { createClient } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "@hyper-fetch/graphql";
-import { FirebaseAdapter } from "@hyper-fetch/firebase";
-import { AxiosAdapter } from "@hyper-fetch/axios";
-
-const rest = createClient({ url: "https://api.example.com" });
-const graphql = createClient({ url: "https://api.example.com/graphql" }).setAdapter(GraphqlAdapter());
-const firestore = createClient({ url: "" }).setAdapter(FirebaseAdapter(getFirestore()));
-const axios = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
-
-// The request looks the same whichever client made it
-const getUser = rest.createRequest<{ response: User }>()({ endpoint: "/users/:userId" });
-
-// data, error and status are typed. send() never throws
-const { data, error, status } = await getUser.setParams({ userId: 1 }).send();
-```
-
-Realtime uses the same typed model, over WebSockets or Server-Sent Events:
-
-```ts
-import { Socket } from "@hyper-fetch/sockets";
-
-const socket = new Socket({ url: "wss://api.example.com" });
-const onMessage = socket.createListener<{ response: Message }>()({ endpoint: "chat-message" });
-
-onMessage.listen({ callback: ({ data }) => console.log(data.text) });
-```
-
 ## 🔌 Works with
 
 <table align="center">
@@ -76,26 +42,28 @@ onMessage.listen({ callback: ({ data }) => console.log(data.text) });
 ## 🚀 Quick Start
 
 ```bash
-npm install @hyper-fetch/core @hyper-fetch/react
+npm install @hyper-fetch/core
 ```
 
-### Define requests by hand
+### Define requests manually
 
 ```ts
 import { createClient } from "@hyper-fetch/core";
 
+// Create a client. It is the single entry point for all your API calls
 const client = createClient({ url: "https://api.example.com" });
 
-// The response type follows this request into send(), hooks and the cache
+// Define a typed request. The response shape is inferred everywhere from here
 const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
   endpoint: "/users",
   method: "GET",
 });
 
+// Send it. data, error and status are fully typed
 const { data, error, status } = await getUsers.send();
 ```
 
-### Or generate them from OpenAPI
+### Or generate from OpenAPI
 
 ```bash
 npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
@@ -104,16 +72,17 @@ npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
 ```ts
 import { sdk } from "./generated";
 
-// Every endpoint in your schema becomes a typed request
+// Every endpoint from your schema is available as a typed method
 const { data } = await sdk.users.list.send();
 ```
 
 ## Why HyperFetch?
 
-- 🔮 **Zero guesswork** - Types flow from your schema to the response. Full autocompletion and no `any`
-- 📡 **One model for every transport** - REST, GraphQL, Firebase, WebSockets and SSE share one request API
-- 💾 **Data management built in** - Caching, queuing, offline replay, retries and deduplication out of the box
-- ⚡ **Works everywhere** - React, Next.js, Remix, Astro, Node.js and Bun run the same code
+- 🔮 **Zero guesswork** - End-to-end TypeScript types from schema to response, full autocompletion, zero `any`
+- 📡 **One interface for everything** - REST, GraphQL, Firebase, WebSockets and SSE. Stop learning a new library for
+  each API
+- 💾 **Data management built in** - Caching, queuing, offline support, retries and deduplication out of the box
+- ⚡ **Works everywhere** - React, Next.js, Remix, Astro, Node.js and Bun. Same API, every environment
 
 ---
 
