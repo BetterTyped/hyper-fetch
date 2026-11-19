@@ -1,4 +1,5 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo, useRef, useState } from "react";
+import { isEqual } from "utils";
 
 import type { ProviderProps, ProviderValueType } from "./provider.types";
 
@@ -14,6 +15,13 @@ const ConfigContext = React.createContext<ProviderValueType>({
  */
 export const Provider = ({ children, config }: ProviderProps) => {
   const [currentConfig, setConfig] = useState(config || {});
+
+  // Follow the changes of the config prop - inline objects with the same values do not cause updates
+  const previousConfig = useRef(config);
+  if (!isEqual(previousConfig.current, config)) {
+    previousConfig.current = config;
+    setConfig(config || {});
+  }
 
   const value = useMemo(() => {
     const contextValue: ProviderValueType = { config: currentConfig, setConfig };

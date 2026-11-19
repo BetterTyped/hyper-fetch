@@ -36,7 +36,7 @@ interface User {
   };
 }
 
-const getUser = client.createRequest<User>()({
+const getUser = client.createRequest<{ response: User }>()({
   endpoint: gql`
     query GetUser {
       user {

@@ -2,7 +2,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
 import { testSuccessState, testErrorState } from "../../shared";
-import { client, createRequest, renderUseSubmit } from "../../utils";
+import { client, collectThrownErrors, createRequest, renderUseSubmit } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -122,6 +122,7 @@ describe("useSubmit [ Optimistic ]", () => {
     });
 
     it("should still fire onSubmitError when rollback throws", async () => {
+      const thrown = collectThrownErrors();
       const errorSpy = vi.fn();
       const optimisticRequest = request.setOptimistic(() => ({
         context: { val: true },
@@ -141,6 +142,9 @@ describe("useSubmit [ Optimistic ]", () => {
       await testErrorState(mock, response);
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy.mock.calls[0][0].mutationContext).toStrictEqual({ val: true });
+      await waitFor(() => {
+        expect(thrown).toStrictEqual([new Error("Rollback failed")]);
+      });
     });
   });
 

@@ -1,4 +1,3 @@
-import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import type {
   ExtractErrorType,
@@ -209,17 +208,39 @@ export const useInfiniteFetch = <
     }
 
     if (bounce && previous && previous !== store && !store.hasPages()) {
-      bounceFunction(() => store.start({ revalidate: latest.current.revalidate }));
+      bounceFunction(() => {
+        // The list could have been left for another one, or disabled, before the bounce settled
+        if (mountedStore.current === store && !latest.current.disabled) {
+          store.start({ revalidate: latest.current.revalidate });
+        }
+      });
     } else {
       store.start({ revalidate });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, disabled]);
 
-  useDidUpdate(() => {
-    if (!disabled) {
+  useEffect(() => {
+    if (disabled) {
+      return;
+    }
+    return store.enable();
+  }, [store, disabled]);
+
+  // Effects run again in StrictMode and when a hidden list is shown - only changed values are a reason to refetch
+  const usedDependencies = useRef(dependencies);
+
+  useEffect(() => {
+    const previous = usedDependencies.current;
+    usedDependencies.current = dependencies;
+
+    const hasChanged =
+      previous.length !== dependencies.length ||
+      previous.some((value, index) => !Object.is(value, dependencies[index]));
+    if (hasChanged && !disabled) {
       store.refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   useEffect(() => {
@@ -291,23 +312,6 @@ export const useInfiniteFetch = <
   }
 
   // ******************
-  // Error boundary
-  // ******************
-
-  if (throwOnError) {
-    usedKeys.add("error");
-    usedKeys.add("isFetching");
-
-    const error = snapshot.error as ExtractErrorType<R> | null;
-    const shouldThrow = typeof throwOnError === "function" ? !!error && throwOnError(error) : !!error;
-
-    if (shouldThrow && !snapshot.isFetching) {
-      store.evictSoon();
-      throw error;
-    }
-  }
-
-  // ******************
   // Items
   // ******************
 
@@ -323,11 +327,36 @@ export const useInfiniteFetch = <
 
   const selectedRef = useRef<unknown>(null);
   let items: unknown = uniqueItems;
+  let selectError: unknown = null;
 
   if (select) {
-    const selected = select({ items: uniqueItems as PaginationItem<R, P>[], pages: list.data as any[] });
-    items = structuralSharing ? replaceEqualDeep(selectedRef.current, selected) : selected;
-    selectedRef.current = items;
+    try {
+      const selected = select({ items: uniqueItems as PaginationItem<R, P>[], pages: list.data as any[] });
+      items = structuralSharing ? replaceEqualDeep(selectedRef.current, selected) : selected;
+      selectedRef.current = items;
+    } catch (error) {
+      // Like in TanStack Query, a failing select is the error of the list and the last selected value stays
+      selectError = error;
+      items = selectedRef.current;
+    }
+  }
+
+  const error = (selectError ?? snapshot.error) as ExtractErrorType<R> | null;
+
+  // ******************
+  // Error boundary
+  // ******************
+
+  if (throwOnError) {
+    usedKeys.add("error");
+    usedKeys.add("isFetching");
+
+    const shouldThrow = typeof throwOnError === "function" ? !!error && throwOnError(error) : !!error;
+
+    if (shouldThrow && !snapshot.isFetching) {
+      store.evictSoon();
+      throw error;
+    }
   }
 
   // ******************
@@ -376,10 +405,10 @@ export const useInfiniteFetch = <
       isFetchNextPageError: snapshot.isFetchNextPageError,
       isFetchPreviousPageError: snapshot.isFetchPreviousPageError,
       isPreviousData,
-      error: snapshot.error,
+      error,
       status: snapshot.status,
       extra: snapshot.extra,
-      success: snapshot.success,
+      success: !selectError && snapshot.success,
       bounce: getBounceData(bounceData),
       ...actions,
     },

@@ -5,6 +5,8 @@ import type { ListenType, ListenerConfigurationType, ListenerOptionsType } from 
 import type { SocketInstance } from "socket";
 import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
+import { mapTopicParams } from "../utils/topic.utils";
+
 /**
  * Represents a socket message listener bound to a specific topic. Use it to subscribe to
  * typed messages from WebSocket or Server-Sent Events connections via the socket adapter.
@@ -29,6 +31,8 @@ export class Listener<
   delivery?: ListenerDeliveryType<any, ExtractSocketAdapterType<Socket>> = undefined;
   /** Stored with an `any` response for the same covariance reason as `delivery`. */
   readonly listenerOptions: ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>>;
+  /** Topic as it was declared (e.g. `chat/:roomId`) - clones keep it, so params can be set again */
+  private topicTemplate: string;
 
   constructor(
     readonly socket: Socket,
@@ -37,6 +41,7 @@ export class Listener<
     this.listenerOptions = listenerOptions;
     const { topic, options, delivery, params } = listenerOptions as typeof listenerOptions & { params?: ParamsType };
     this.topic = topic;
+    this.topicTemplate = topic;
     this.options = options;
     this.params = params;
     this.delivery = delivery;
@@ -74,6 +79,7 @@ export class Listener<
       ...options,
       topic: this.paramsMapper(options?.params || this.params),
     });
+    newInstance.topicTemplate = this.topicTemplate;
 
     return newInstance;
   }
@@ -102,13 +108,6 @@ export class Listener<
   };
 
   private paramsMapper = (params: ParamsType | null | undefined): Topic => {
-    let topic = this.listenerOptions.topic as string;
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        topic = topic.replaceAll(new RegExp(`:${key}`, "g"), String(value));
-      });
-    }
-
-    return topic as Topic;
+    return mapTopicParams(this.topicTemplate, params) as Topic;
   };
 }

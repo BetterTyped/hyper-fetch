@@ -163,6 +163,12 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     return this;
   };
 
+  /** Called when a cache entry is invalidated */
+  onCacheItemInvalidate = (callback: PluginMethods<Client>["onCacheItemInvalidate"]) => {
+    this.pluginMethods.onCacheItemInvalidate = callback;
+    return this;
+  };
+
   /* -------------------------------------------------------------------------------------------------
    * Adapter lifecycle
    * -----------------------------------------------------------------------------------------------*/

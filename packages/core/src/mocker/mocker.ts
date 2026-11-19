@@ -16,7 +16,6 @@ export const mocker = async <T extends AdapterInstance>({
   onBeforeRequest,
   onRequestStart,
   onSuccess,
-  onAbortError,
   adapter,
 }: Awaited<ReturnType<typeof getAdapterBindings<T>>>) => {
   if (!request.unstable_mock) {
@@ -34,7 +33,10 @@ export const mocker = async <T extends AdapterInstance>({
   } = request.unstable_mock.config;
   const result = await request.unstable_mock.fn({ request, requestId });
 
-  const { data, error, status, success = true, extra = request.client.adapter.defaultExtra } = result;
+  const { data, error, status, extra = request.client.adapter.defaultExtra } = result;
+  // Without the `success` flag, a mock with nothing but an error is a failed response
+  const hasData = data !== undefined && data !== null;
+  const { success = !error || hasData } = result;
 
   createAbortListener({
     status: adapter.systemErrorStatus,
@@ -64,9 +66,11 @@ export const mocker = async <T extends AdapterInstance>({
       const chunkSize = Math.ceil(totalSize / intervals);
       let currentlyLoaded = 0;
       const timer = setInterval(function handleProgressInterval() {
+        // Aborted or timed out - nothing more is transferred
         if (thrown) {
           resolveProgress(true);
           clearInterval(timer);
+          return;
         }
 
         const currentTime = Math.min(totalTime, Date.now() - dataStart);
@@ -83,8 +87,9 @@ export const mocker = async <T extends AdapterInstance>({
       }, interval);
     });
 
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
   if (typeof timeout === "number") {
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       thrown = true;
       onTimeoutError({
         status: 0 as ExtractAdapterStatusType<T>,
@@ -102,12 +107,12 @@ export const mocker = async <T extends AdapterInstance>({
   if (!thrown) {
     await progress(responseTime, totalDownloaded, onResponseProgress);
   }
+  clearTimeout(timeoutId);
+  // An abort or a timeout was already reported when it happened
   if (thrown) {
-    onAbortError({
-      status: adapter.systemErrorStatus,
-      extra: adapter.systemErrorExtra,
-    });
-  } else if (success || (error && data)) {
+    return;
+  }
+  if (success || (error && data)) {
     onSuccess({
       data,
       error,
@@ -121,7 +126,5 @@ export const mocker = async <T extends AdapterInstance>({
       extra: extra as ExtractAdapterExtraType<T>,
     });
   }
-  if (!thrown) {
-    onResponseEnd();
-  }
+  onResponseEnd();
 };

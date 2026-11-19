@@ -1,5 +1,5 @@
 import type { DefaultMapperType, QueryParamsType } from "@hyper-fetch/core";
-import { parseResponse, getErrorMessage, Adapter, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
+import { parseResponse, getErrorMessage, Adapter, stringifyQueryParams } from "@hyper-fetch/core";
 
 import { gqlExtra, defaultTimeout } from "./adapter.constants";
 import type {
@@ -10,7 +10,13 @@ import type {
   GraphqlRequestOptionsType,
 } from "./adapter.types";
 import { GraphqlMethod } from "./adapter.types";
-import { getRequestValues, gqlEndpointMapper, gqlEndpointNameMapper, gqlRequestNameMapper } from "./adapter.utils";
+import {
+  getRequestValues,
+  gqlEndpointMapper,
+  gqlEndpointNameMapper,
+  gqlRequestKeyMapper,
+  gqlRequestNameMapper,
+} from "./adapter.utils";
 
 export const getGqlAdapter = (): GraphqlAdapterType =>
   new Adapter<
@@ -34,12 +40,8 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
     systemErrorExtra: gqlExtra,
   })
     .onInitialize(({ client }) => {
-      client.setCacheKeyMapper((request) => {
-        return `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
-      });
-      client.setQueryKeyMapper((request) => {
-        return `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
-      });
+      client.setCacheKeyMapper(gqlRequestKeyMapper);
+      client.setQueryKeyMapper(gqlRequestKeyMapper);
       client.setAbortKeyMapper((request) => {
         return `${request.method}_${gqlRequestNameMapper(request)}-${request.cancelable}`;
       });
@@ -163,7 +165,8 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
           const { status } = response;
           const parsed = parseResponse(body);
           const data = parsed?.data ?? null;
-          const errors = parsed?.errors || null;
+          // An empty `errors` list is not a failure
+          const errors = Array.isArray(parsed?.errors) && parsed.errors.length === 0 ? null : parsed?.errors || null;
           const extensions = parsed?.extensions || {};
           const failure = errors || status > 399 || status === 0;
 
@@ -189,7 +192,8 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
             return;
           }
 
-          onError({ error: error, status: 0, extra: gqlExtra });
+          // Errors are always a list, like the GraphQL `errors` and the abort and timeout errors
+          onError({ error: [error], status: 0, extra: gqlExtra });
         }
       },
     );

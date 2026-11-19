@@ -1,4 +1,4 @@
-import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
+import type { ResponseSuccessType, ResponseErrorType, ProgressDataType, ProgressType, AdapterInstance } from "adapter";
 import { getErrorMessage, RequestProcessingError } from "adapter";
 import type { LoggerMethods } from "managers";
 import type { RequestInstance, ProgressEventType } from "request";
@@ -38,8 +38,12 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Progress
   let requestTotal = 1;
   let responseTotal = 1;
-  let previousRequestTotal = 0;
-  let previousResponseTotal = 0;
+  // Last emitted progress - an identical update is not emitted again
+  let previousRequestProgress: { total: number; loaded: number } | null = null;
+  let previousResponseProgress: { total: number; loaded: number } | null = null;
+
+  const isSameProgress = (previous: { total: number; loaded: number } | null, next: ProgressType) =>
+    !!previous && previous.total === next.total && previous.loaded === next.loaded;
 
   // Pre request modifications
   logger.debug({
@@ -74,7 +78,11 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     payload = await unstable_payloadMapper(payload);
   }
 
-  const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
+  // Defaults from `adapter.setAdapterDefaults()`, overridden by the options of the request
+  const adapterDefaults = client.adapter.unstable_getAdapterDefaults?.(request as any);
+  const adapterOptions = (adapterDefaults ? { ...adapterDefaults, ...request.options } : request.options) as
+    | ExtractAdapterOptionsType<T>
+    | undefined;
   const startTime = Date.now();
   onStartTime(startTime);
 
@@ -89,7 +97,9 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Progress
 
   const getTotal = (previousTotal: number, progress?: ProgressDataType) => {
-    if (!progress) {return previousTotal;}
+    if (!progress) {
+      return previousTotal;
+    }
     const total = Number(progress.total || 0);
     const loaded = Number(progress.loaded || 0);
     return Math.max(total, loaded, previousTotal);
@@ -102,8 +112,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
-    if (previousRequestTotal !== 100) {
-      previousRequestTotal = progress.total;
+    if (!isSameProgress(previousRequestProgress, progress)) {
+      previousRequestProgress = { total: progress.total, loaded: progress.loaded };
       requestManager.events.emitUploadProgress({ ...progress, requestId, request });
     }
   };
@@ -115,8 +125,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
-    if (previousResponseTotal !== 100) {
-      previousResponseTotal = progress.total;
+    if (!isSameProgress(previousResponseProgress, progress)) {
+      previousResponseProgress = { total: progress.total, loaded: progress.loaded };
       requestManager.events.emitDownloadProgress({ ...progress, requestId, request });
     }
   };
@@ -257,11 +267,24 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       requestTimestamp: startTime,
       responseTimestamp: Date.now(),
     };
-    response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
-    response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
+    try {
+      response = (await request.client.unstable_modifyResponse?.(response, request)) as typeof data;
+      response = (await request.client.unstable_modifySuccessResponse?.(response, request)) as typeof data;
 
-    client.triggerPlugins("onRequestSuccess", { response, request });
-    client.triggerPlugins("onRequestFinished", { response, request });
+      client.triggerPlugins("onRequestSuccess", { response, request });
+      client.triggerPlugins("onRequestFinished", { response, request });
+    } catch (interceptorError) {
+      // A throwing interceptor or plugin fails the request, it must not leave it without any response
+      response = {
+        data: null,
+        error: internalErrorMapping(interceptorError as ReturnType<typeof getErrorMessage>),
+        success: false,
+        status,
+        extra,
+        requestTimestamp: startTime,
+        responseTimestamp: Date.now(),
+      } as unknown as typeof response;
+    }
 
     resolve(response);
 
@@ -461,11 +484,16 @@ export function getAdapterOnError<T extends AdapterInstance>({
       responseTimestamp: Date.now(),
     };
 
-    response = (await client.unstable_modifyResponse(response, request)) as typeof response;
-    response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
+    try {
+      response = (await client.unstable_modifyResponse(response, request)) as typeof response;
+      response = (await client.unstable_modifyErrorResponse(response, request)) as typeof response;
 
-    client.triggerPlugins("onRequestError", { response, request });
-    client.triggerPlugins("onRequestFinished", { response, request });
+      client.triggerPlugins("onRequestError", { response, request });
+      client.triggerPlugins("onRequestFinished", { response, request });
+    } catch (interceptorError) {
+      // A throwing interceptor or plugin replaces the error, it must not leave the request without any response
+      response = { ...response, data: null, error: interceptorError, success: false };
+    }
 
     resolve(response);
 

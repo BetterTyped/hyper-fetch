@@ -4,6 +4,7 @@ import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { RequestResponseEventType } from "managers";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
+import { runUserCode, throwOutsideLifecycle } from "utils";
 
 import type {
   OptimisticCallbackResult,
@@ -196,6 +197,7 @@ const rollbackOptimistic = (
       type: "system",
       extra: { error, reason: args.reason, request: args.request },
     });
+    throwOutsideLifecycle(error);
   };
 
   try {
@@ -216,6 +218,7 @@ const invalidateOptimistic = (optimistic: OptimisticCallbackResult<any>, request
         type: "system",
         extra: { error, target, request },
       });
+      throwOutsideLifecycle(error);
     }
   });
 };
@@ -258,11 +261,16 @@ export const sendRequest = async <Request extends RequestInstance>(
     let isDelivered = false;
     let isSettled = false;
     const requestId = dispatcher.add(request);
+    const queryKey = scopeKey(request.queryKey, request.scope);
     const { $hooks } = request;
 
     // Failed attempts stay in the dispatcher queue when they are going to be sent again
     const getWillBeResent = ({ response, details }: RequestResponseEventType<Request>) => {
       if (response.success || details.isCanceled) {
+        return false;
+      }
+      // One that was taken out of the queue while it was running (cleared queue) has just given its last response
+      if (!dispatcher.getRequest(queryKey, requestId)) {
         return false;
       }
       return details.willRetry || (request.offline && details.isOffline);
@@ -308,31 +316,31 @@ export const sendRequest = async <Request extends RequestInstance>(
       : undefined;
 
     const beforeSentData = { requestId, request, mutationContext };
-    options?.onBeforeSent?.(beforeSentData);
-    $hooks.__emit("onBeforeSent", beforeSentData);
+    runUserCode(() => options?.onBeforeSent?.(beforeSentData));
+    runUserCode(() => $hooks.__emit("onBeforeSent", beforeSentData));
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onRequestStart?.(enriched);
-      $hooks.__emit("onRequestStart", enriched);
+      runUserCode(() => options?.onRequestStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onRequestStart", enriched));
     });
 
     const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onResponseStart?.(enriched);
-      $hooks.__emit("onResponseStart", enriched);
+      runUserCode(() => options?.onResponseStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onResponseStart", enriched));
     });
 
     const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onUploadProgress?.(enriched);
-      $hooks.__emit("onUploadProgress", enriched);
+      runUserCode(() => options?.onUploadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onUploadProgress", enriched));
     });
 
     const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      options?.onDownloadProgress?.(enriched);
-      $hooks.__emit("onDownloadProgress", enriched);
+      runUserCode(() => options?.onDownloadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onDownloadProgress", enriched));
     });
 
     // When resolved
@@ -351,8 +359,8 @@ export const sendRequest = async <Request extends RequestInstance>(
         }
         isDelivered = true;
 
-        options?.onResponse?.(enrichedValues);
-        $hooks.__emit("onResponse", enrichedValues);
+        runUserCode(() => options?.onResponse?.(enrichedValues));
+        runUserCode(() => $hooks.__emit("onResponse", enrichedValues));
         resolve(data);
 
         // Unmount Listeners
@@ -373,7 +381,7 @@ export const sendRequest = async <Request extends RequestInstance>(
       else {
         const data = mapping || response;
         const { success } = data;
-        handleResponse(success, data as ResponseType<any, any, ExtractAdapterType<Request>>);
+        handleResponse(success, data);
       }
     });
 
@@ -389,8 +397,8 @@ export const sendRequest = async <Request extends RequestInstance>(
         }
 
         const enriched = { ...data, mutationContext };
-        options?.onRemove?.(enriched);
-        $hooks.__emit("onRemove", enriched);
+        runUserCode(() => options?.onRemove?.(enriched));
+        runUserCode(() => $hooks.__emit("onRemove", enriched));
         resolve({
           data: null,
           status: null,

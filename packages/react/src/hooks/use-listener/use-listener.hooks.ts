@@ -116,7 +116,8 @@ export const useListener = <
       listen();
     },
     // Topic already contains resolved params. Delivery presets compare by value, custom strategies by identity.
-    [listener.topic, JSON.stringify(listener.options), getDeliveryKey(listener.delivery)],
+    // The socket is a dependency too - the same topic on another socket is a different subscription.
+    [listener.socket, listener.topic, JSON.stringify(listener.options), getDeliveryKey(listener.delivery)],
     true,
   );
 

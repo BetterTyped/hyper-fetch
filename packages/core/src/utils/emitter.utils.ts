@@ -1,5 +1,7 @@
 import Emitter from "events";
 
+import { runUserCode } from "./error.utils";
+
 const getListenName = (event: string | symbol) => `listen_${String(event)}`;
 
 export class EventEmitter extends Emitter {
@@ -17,8 +19,13 @@ export class EventEmitter extends Emitter {
       params.push(isTriggeredExternally);
     }
 
-    this.emitCallbacks?.forEach((callback) => callback(...params));
-    return super.emit(...params);
+    this.emitCallbacks?.forEach((callback) => runUserCode(() => callback(...params)));
+
+    // Every listener gets the event - a throwing one can't keep it from the listeners added after it
+    const listeners = this.rawListeners(type);
+    listeners.forEach((listener) => runUserCode(() => listener.call(this, ...params.slice(1))));
+
+    return listeners.length > 0;
   }
 
   onEmit = (callback: (event: string, data: any, isTriggeredExternally?: true) => void) => {

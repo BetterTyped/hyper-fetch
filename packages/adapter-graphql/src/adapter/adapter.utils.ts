@@ -1,5 +1,5 @@
 import type { EmptyTypes, QueryParamsType, RequestInstance } from "@hyper-fetch/core";
-import { HttpMethods, stringifyQueryParams } from "@hyper-fetch/core";
+import { HttpMethods, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
 import type { DocumentNode, OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
@@ -135,4 +135,15 @@ export const gqlRequestNameMapper = (request: RequestInstance): string => {
   const name = gqlEndpointNameMapper(getGqlDocument(request));
 
   return hasDocumentOption(request) ? `${name}${request.requestOptions.endpoint}` : name;
+};
+
+/**
+ * Cache and query key of a request. The variables are a part of it: the same operation with other variables is
+ * another query, with its own cached data and its own place in the queue.
+ */
+export const gqlRequestKeyMapper = (request: RequestInstance): string => {
+  const key = `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+  const variables = stringifyKey(request.payload);
+
+  return variables ? `${key}-${variables}` : key;
 };

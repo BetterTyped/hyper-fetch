@@ -974,7 +974,7 @@ describe("Adapter [ Bindings ]", () => {
   });
 
   describe("when handling progress updates", () => {
-    it("should skip upload progress event when previousRequestTotal is 100", async () => {
+    it("should skip an upload progress event identical to the previous one", async () => {
       const { onRequestProgress } = await getAdapterBindings({
         request,
         requestId,
@@ -986,11 +986,10 @@ describe("Adapter [ Bindings ]", () => {
       const spy = vi.fn();
       const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
 
-      // First call to set previousRequestTotal to 100
       onRequestProgress({ total: 100, loaded: 100 });
       expect(spy).toHaveBeenCalledTimes(1);
 
-      // Second call should not emit event
+      // The same progress again is not emitted
       spy.mockClear();
       onRequestProgress({ total: 100, loaded: 100 });
       expect(spy).not.toHaveBeenCalled();
@@ -998,7 +997,7 @@ describe("Adapter [ Bindings ]", () => {
       unmount();
     });
 
-    it("should skip download progress event when previousResponseTotal is 100", async () => {
+    it("should skip a download progress event identical to the previous one", async () => {
       const { onResponseProgress } = await getAdapterBindings({
         request,
         requestId,
@@ -1010,11 +1009,10 @@ describe("Adapter [ Bindings ]", () => {
       const spy = vi.fn();
       const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
 
-      // First call to set previousResponseTotal to 100
       onResponseProgress({ total: 100, loaded: 100 });
       expect(spy).toHaveBeenCalledTimes(1);
 
-      // Second call should not emit event
+      // The same progress again is not emitted
       spy.mockClear();
       onResponseProgress({ total: 100, loaded: 100 });
       expect(spy).not.toHaveBeenCalled();

@@ -541,7 +541,7 @@ describe("useTrackedState [ Actions ]", () => {
       expect(result.current[0].loading).toBe(false);
       expect(result.current[0].status).toBe(null);
       expect(result.current[0].success).toBe(false);
-      expect(result.current[0].extra).toBe(null);
+      expect(result.current[0].extra).toStrictEqual(request.client.adapter.defaultExtra);
       expect(result.current[0].retries).toBe(0);
       expect(result.current[0].responseTimestamp).toBe(null);
       expect(result.current[0].requestTimestamp).toBe(null);

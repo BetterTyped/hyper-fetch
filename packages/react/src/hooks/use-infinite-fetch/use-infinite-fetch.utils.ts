@@ -1,5 +1,8 @@
-import type { RequestInstance } from "@hyper-fetch/core";
+import type { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 import { keyReplacer } from "utils/key.utils";
+
+import type { InfiniteStore } from "./use-infinite-fetch.store";
+import type { InfiniteSnapshot } from "./use-infinite-fetch.store.types";
 
 /**
  * Identity of a list. Everything describing the request takes part in it, so a changed filter, sort, page size
@@ -42,4 +45,25 @@ export const getShouldKeepPreviousList = (
     return previous.method === current.method && previous.endpoint === current.endpoint;
   }
   return mode === "preserve";
+};
+
+/**
+ * Tells whether nothing changed between two states of a list, so nobody has to be notified
+ */
+export const isSameSnapshot = (a: InfiniteSnapshot, b: InfiniteSnapshot) => {
+  return (Object.keys(a) as (keyof InfiniteSnapshot)[]).every((key) => a[key] === b[key]);
+};
+
+const stores = new WeakMap<ClientInstance, Map<string, InfiniteStore>>();
+
+/**
+ * Stores of the lists shown with the client, by the key of the list
+ */
+export const getStores = (client: ClientInstance) => {
+  let clientStores = stores.get(client);
+  if (!clientStores) {
+    clientStores = new Map();
+    stores.set(client, clientStores);
+  }
+  return clientStores;
 };

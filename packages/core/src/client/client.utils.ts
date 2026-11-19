@@ -29,9 +29,12 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   if (!request.requestOptions.disableRequestInterceptors) {
     // eslint-disable-next-line no-restricted-syntax
     for (const interceptor of interceptors) {
+      // Interceptors create a pipeline - each one receives the request returned by the previous one
       // eslint-disable-next-line no-await-in-loop
-      newRequest = (await interceptor(request)) as RequestInstance;
-      if (!newRequest) {throw new Error("Request modifier must return request");}
+      newRequest = (await interceptor(newRequest)) as RequestInstance;
+      if (!newRequest) {
+        throw new Error("Request modifier must return request");
+      }
     }
   }
   return newRequest;
@@ -46,9 +49,12 @@ export const interceptResponse = async <GlobalErrorType, Client extends ClientIn
   if (!request.requestOptions.disableResponseInterceptors) {
     // eslint-disable-next-line no-restricted-syntax
     for (const interceptor of interceptors) {
+      // Interceptors create a pipeline - each one receives the response returned by the previous one
       // eslint-disable-next-line no-await-in-loop
-      newResponse = await interceptor(response, request);
-      if (!newResponse) {throw new Error("Response modifier must return data");}
+      newResponse = await interceptor(newResponse, request);
+      if (!newResponse) {
+        throw new Error("Response modifier must return data");
+      }
     }
   }
   return newResponse;
