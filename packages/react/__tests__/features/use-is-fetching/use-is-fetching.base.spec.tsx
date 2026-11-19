@@ -30,7 +30,15 @@ describe("useIsFetching [ Base ]", () => {
     mockRequest(usersRequest, { delay: 30 });
     mockRequest(postsRequest, { delay: 60 });
 
-    const { result } = renderHook(() => useIsFetching(client));
+    // Every rendered value is kept - the short moments between the responses can't be missed by polling
+    const rendered: number[] = [];
+    const { result } = renderHook(() => {
+      const count = useIsFetching(client);
+      if (rendered.at(-1) !== count) {
+        rendered.push(count);
+      }
+      return count;
+    });
     expect(result.current).toBe(0);
 
     act(() => {
@@ -39,14 +47,10 @@ describe("useIsFetching [ Base ]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current).toBe(2);
+      expect(rendered.at(-1)).toBe(0);
+      expect(rendered.length).toBeGreaterThan(1);
     });
-    await waitFor(() => {
-      expect(result.current).toBe(1);
-    });
-    await waitFor(() => {
-      expect(result.current).toBe(0);
-    });
+    expect(rendered).toStrictEqual([0, 2, 1, 0]);
   });
 
   it("should filter the requests by query key and predicate", async () => {
