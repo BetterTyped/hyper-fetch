@@ -114,7 +114,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/cli/commands/generate"><img src="./documentation/static/img/integration-openapi.svg" width="40" height="40" alt="" /><br /><b>OpenAPI</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview"><img src="./documentation/static/img/integration-graphql.svg" width="40" height="40" alt="" /><br /><b>GraphQL</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview"><img src="./documentation/static/img/integration-trpc.svg" width="40" height="40" alt="" /><br /><b>tRPC</b></a></td>
-    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview"><img src="./documentation/static/img/integration-orpc.svg" width="40" height="40" alt="" /><br /><b>oRPC</b></a></td>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview"><picture><source media="(prefers-color-scheme: dark)" srcset="./documentation/static/img/integration-orpc-dark.svg" /><img src="./documentation/static/img/integration-orpc.svg" width="40" height="40" alt="" /></picture><br /><b>oRPC</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><img src="./documentation/static/img/integration-hono.svg" width="40" height="40" alt="" /><br /><b>Hono</b></a></td>
   </tr>
   <tr>
