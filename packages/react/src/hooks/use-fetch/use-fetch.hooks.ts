@@ -16,6 +16,7 @@ import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
 import { useCallback, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
+import { keyReplacer } from "utils/key.utils";
 import { isSameScope } from "utils/scope.utils";
 
 type SuspenseEntry = { promise: Promise<void>; resolve: () => void; cleanup: () => void };
@@ -101,7 +102,7 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     options,
   );
 
-  const updateKey = JSON.stringify(request.toJSON());
+  const updateKey = JSON.stringify(request.toJSON(), keyReplacer);
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const refreshDebounce = useDebounce({ delay: refreshTime });
