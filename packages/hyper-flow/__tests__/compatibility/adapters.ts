@@ -57,7 +57,8 @@ const restCase = (name: string, adapterName: string, setAdapter: (client: Client
     adapterName,
     createClient: () => setAdapter(createClient({ url })),
     createRead: (client, id) =>
-      client.createRequest<{ response: User }>()({ endpoint: "/users/:id" }).setParams({ id }),
+      // Route params can't be inferred through the generic ClientInstance
+      client.createRequest<{ response: User }>()({ endpoint: "/users/:id" }).setParams({ id } as never),
     createWrite: (client) =>
       client.createRequest<{ response: User; payload: { name: string } }>()({ endpoint: "/users", method: "POST" }),
     writePayload: { name: "" },

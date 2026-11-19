@@ -11,7 +11,7 @@ describe("Dispatcher [ Cancel detection ]", () => {
       name: "mapped",
       defaultMethod: "GET",
       defaultExtra: {},
-      systemErrorStatus: 0,
+      systemErrorStatus: 0 as number,
       systemErrorExtra: {},
     })
       .setInternalErrorMapping(mapping)
