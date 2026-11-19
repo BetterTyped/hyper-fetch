@@ -90,4 +90,27 @@ describe("Socket SSE [ Connection ]", () => {
 
     expect(onReconnecting).toHaveBeenCalledTimes(1);
   });
+
+  it("should not reconnect after disconnecting during a pending connection attempt", async () => {
+    const onReconnecting = vi.fn();
+    const onConnecting = vi.fn();
+    const url = "ws://localhost:2347";
+    const socket = createSocket({ ...socketOptions, url, adapterOptions: { autoConnect: false } });
+    socket.events.onReconnecting(onReconnecting);
+    socket.events.onConnecting(onConnecting);
+
+    socket.adapter.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    await socket.adapter.disconnect();
+
+    expect(onConnecting).toHaveBeenCalledTimes(2);
+    expect(socket.adapter.connecting).toBeFalse();
+
+    // Several reconnect intervals pass without the cancelled attempt coming back
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(onReconnecting).not.toHaveBeenCalled();
+    expect(onConnecting).toHaveBeenCalledTimes(2);
+    expect(socket.adapter.connecting).toBeFalse();
+  });
 });

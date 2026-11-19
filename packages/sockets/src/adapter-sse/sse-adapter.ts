@@ -54,6 +54,8 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         onEvent,
       }) => {
         let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
+        // Reconnects when the current attempt does not open in time, `disconnect` cancels it
+        let timeout: ReturnType<typeof setTimeout> | undefined;
 
         const autoConnect =
           typeof socket.adapter.adapterOptions?.autoConnect === "boolean"
@@ -83,6 +85,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             return socket.adapter.connected;
           }
 
+          clearTimeout(timeout);
           sse?.clearListeners();
           sse?.close();
 
@@ -95,7 +98,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           }
 
           // Reconnection timeout
-          const timeout = setTimeout(() => {
+          timeout = setTimeout(() => {
             reconnect();
           }, socket.reconnectTime);
 
@@ -146,6 +149,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         };
 
         const disconnect = async (): Promise<boolean> => {
+          // Manual disconnect cancels a pending attempt's automatic reconnect
+          clearTimeout(timeout);
+
           const currentSse = sse;
           const hasTransport = currentSse && currentSse.readyState !== EventSource.CLOSED;
 
