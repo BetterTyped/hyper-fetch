@@ -100,6 +100,44 @@ understand how to use it. This drastically reduces the learning curve and promot
 
 ---
 
+## Agent Skills
+
+HyperFetch ships agent skills: instructions that coding agents such as Claude Code, Cursor, Codex or OpenCode load when
+a task touches a HyperFetch package. Each package has its own skill with the patterns, defaults, type-safety rules and
+pitfalls taken from the source and tests.
+
+Install all of them with the [skills](https://skills.sh) CLI:
+
+```bash
+npx skills add BetterTyped/hyper-fetch/skills
+```
+
+Or pick the packages you use:
+
+```bash
+npx skills add BetterTyped/hyper-fetch/skills --skill hyper-fetch-core --skill hyper-fetch-react
+```
+
+| Skill                        | Package                           |
+| ---------------------------- | --------------------------------- |
+| `hyper-fetch-core`           | `@hyper-fetch/core`               |
+| `hyper-fetch-react`          | `@hyper-fetch/react`              |
+| `hyper-fetch-sockets`        | `@hyper-fetch/sockets`            |
+| `hyper-fetch-testing`        | Testing code that uses HyperFetch |
+| `hyper-fetch-axios`          | `@hyper-fetch/axios`              |
+| `hyper-fetch-graphql`        | `@hyper-fetch/graphql`            |
+| `hyper-fetch-firebase`       | `@hyper-fetch/firebase`           |
+| `hyper-fetch-firebase-admin` | `@hyper-fetch/firebase-admin`     |
+| `hyper-fetch-trpc`           | `@hyper-fetch/trpc`               |
+| `hyper-fetch-orpc`           | `@hyper-fetch/orpc`               |
+| `hyper-fetch-hono`           | `@hyper-fetch/hono`               |
+| `hyper-fetch-devtools`       | `@hyper-fetch/plugin-devtools`    |
+| `hyper-fetch-eslint`         | `eslint-plugin-hyper-fetch`       |
+| `hyper-fetch-oxlint`         | `oxlint-plugin-hyper-fetch`       |
+| `hyper-fetch-cli`            | `@hyper-fetch/cli`                |
+
+---
+
 :::secondary[Summary]
 
 - **Standardization**: Hyper Fetch provides a single, standardized interface for all types of APIs, which is ideal for
@@ -107,5 +145,6 @@ understand how to use it. This drastically reduces the learning curve and promot
 - **Type Safety**: The strong type-safety of Hyper Fetch guides AI in generating correct and reliable code.
 - **Predictability**: A consistent and predictable API reduces AI hallucinations and improves the accuracy of generated
   code.
+- **Agent skills**: `npx skills add BetterTyped/hyper-fetch/skills` gives coding agents one skill per package.
 
 :::

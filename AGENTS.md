@@ -90,6 +90,13 @@ Workflows in `.claude/skills/`:
 - `fix-flaky-tests`: root-cause intermittent failures and prove the fix by repeated runs.
 - `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.
 
+These are for working on this repo. Every `SKILL.md` outside `skills/` sets `metadata.internal: true` so the
+[skills](https://skills.sh) CLI never installs it for users.
+
+`skills/` holds the public skills, one per package, installed with `npx skills add BetterTyped/hyper-fetch/skills`.
+Their readers build apps with HyperFetch. Verify every API name, option, default and type claim in them against
+`packages/*/src`, and update the matching skill when a change alters public behavior or types.
+
 ## Decisions
 
 Architecture decisions that are hard to reverse or cross-cutting are recorded in `docs/adr/NNNN-<slug>.md` as context,
