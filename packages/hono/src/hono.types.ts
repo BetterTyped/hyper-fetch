@@ -50,6 +50,25 @@ type ConvertMethods<Methods, Endpoint extends string, Client extends ClientInsta
 
 type TrimStartSlash<S extends string> = S extends `/${infer R}` ? R : S;
 
+/** Skips a regex pattern up to its closing brace, counting the braces nested inside it. */
+type SkipPattern<S extends string, Depth extends unknown[] = []> = S extends `${infer Char}${infer Rest}`
+  ? Char extends "}"
+    ? Depth extends [unknown, ...infer Outer]
+      ? SkipPattern<Rest, Outer>
+      : Rest
+    : Char extends "{"
+      ? SkipPattern<Rest, [...Depth, unknown]>
+      : SkipPattern<Rest, Depth>
+  : S;
+
+/**
+ * Hono restricts a param with a regex, as in `/posts/:id{[0-9]+}`. The client fills the param by its
+ * name only, so the pattern is dropped from the path, even when it holds a slash or braces.
+ */
+type StripPatterns<S extends string> = S extends `${infer Head}{${infer Rest}`
+  ? `${Head}${StripPatterns<SkipPattern<Rest>>}`
+  : S;
+
 type SplitPath<S extends string> = S extends ""
   ? []
   : S extends `${infer Head}/${infer Tail}`
@@ -107,7 +126,7 @@ type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInst
   {
     [Path in keyof Schema & string]: ConvertRoutes<
       Schema[Path],
-      ExpandOptionalParams<SplitPath<TrimStartSlash<Path>>>,
+      ExpandOptionalParams<SplitPath<TrimStartSlash<StripPatterns<Path>>>>,
       Client
     >;
   }[keyof Schema & string]
@@ -120,8 +139,9 @@ type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInst
  * from the Hono route definition and its validators. Path segments become nested properties,
  * `:param` segments become `$param` properties, and kebab-case segments become camelCase.
  *
- * Routes below an optional `:param?` segment appear both without and with the param. The endpoint
- * is the one `createSdk` sends the request to, so a trailing slash of the Hono path is dropped.
+ * Routes below an optional `:param?` segment appear both without and with the param, and regex
+ * params like `:id{[0-9]+}` become plain `$id` properties. The endpoint is the one `createSdk`
+ * sends the request to, so a trailing slash and the regex patterns of the Hono path are dropped.
  *
  * Pass the type of the app returned by your route chain, including apps mounted with
  * `app.route()` and `basePath()`. Anything that is not a Hono app resolves to `{}`.

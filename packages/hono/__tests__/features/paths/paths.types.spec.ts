@@ -1,4 +1,5 @@
 import type { ExtractEndpointType, ExtractResponseType } from "@hyper-fetch/core";
+import { Hono } from "hono";
 import { expectTypeOf } from "vitest";
 
 import type { HonoAppToHyperFetch } from "../../../src";
@@ -43,6 +44,40 @@ describe("HonoAppToHyperFetch [ Optional params ]", () => {
     type OptionalKey = Schema["files"]["$fileId?"];
 
     expectTypeOf<OptionalKey>().toBeAny();
+    expect(true).toBe(true);
+  });
+});
+
+describe("HonoAppToHyperFetch [ Regex params ]", () => {
+  it("should drop the pattern from the key and the endpoint", () => {
+    expectTypeOf<keyof Schema["posts"]>().toEqualTypeOf<"$postId">();
+    expectTypeOf<ExtractEndpointType<Schema["posts"]["$postId"]["$get"]>>().toEqualTypeOf<"/posts/:postId">();
+    expect(true).toBe(true);
+  });
+
+  it("should drop a pattern that holds braces of its own", () => {
+    expectTypeOf<keyof Schema["archive"]>().toEqualTypeOf<"$year">();
+    expectTypeOf<
+      ExtractEndpointType<Schema["archive"]["$year"]["$slug"]["$get"]>
+    >().toEqualTypeOf<"/archive/:year/:slug">();
+    expect(true).toBe(true);
+  });
+
+  it("should drop a pattern that holds a slash", () => {
+    const app = new Hono().get("/docs/:path{.+/.+}/raw", (c) => c.json({ path: c.req.param("path") }));
+    type DocsSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<keyof DocsSchema["docs"]>().toEqualTypeOf<"$path">();
+    expectTypeOf<ExtractEndpointType<DocsSchema["docs"]["$path"]["raw"]["$get"]>>().toEqualTypeOf<"/docs/:path/raw">();
+    expect(true).toBe(true);
+  });
+
+  it("should split an optional regex param into two routes", () => {
+    const app = new Hono().get("/pages/:page{[0-9]+}?", (c) => c.json({ page: c.req.param("page") ?? "1" }));
+    type PagesSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<keyof PagesSchema["pages"]>().toEqualTypeOf<"$get" | "$page">();
+    expectTypeOf<ExtractEndpointType<PagesSchema["pages"]["$page"]["$get"]>>().toEqualTypeOf<"/pages/:page">();
     expect(true).toBe(true);
   });
 });

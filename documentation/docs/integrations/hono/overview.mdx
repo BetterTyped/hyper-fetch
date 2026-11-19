@@ -92,6 +92,7 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 | `.get("/:userId/posts", ...)`      | `sdk.users.$userId.posts.$get` | `/users/:userId/posts` |
 | `.get("/files/:fileId?", ...)`     | `sdk.files.$get`               | `/files`               |
 |                                    | `sdk.files.$fileId.$get`       | `/files/:fileId`       |
+| `.get("/posts/:postId{[0-9]+}")`   | `sdk.posts.$postId.$get`       | `/posts/:postId`       |
 | `.get("/google-login", ...)`       | `sdk.auth.googleLogin.$get`    | `/auth/google-login`   |
 | `new Hono().basePath("/api")`      | `sdk.api.users.$get`           | `/api/users`           |
 
@@ -104,6 +105,8 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 - The endpoint is the full Hono path, including `app.route()` and `basePath()` prefixes.
 - An optional `:param?` segment adds the route twice: without the param and under `$param` with it, because HyperFetch
   params are always required. A chain of optional params adds every prefix.
+- A regex param like `:postId{[0-9]+}` becomes `$postId`. The pattern is left out of the endpoint, and the server still
+  checks it, so a value it rejects resolves with a `404`.
 - The endpoint always starts with a slash and has no trailing slash, the same URL `createSdk` sends to. In Hono's
   default strict mode a route registered as `/users/` only answers on `/users/`, so drop the trailing slash or add the
   `appendTrailingSlash()` middleware.
