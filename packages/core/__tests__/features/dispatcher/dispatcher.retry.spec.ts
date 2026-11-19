@@ -202,18 +202,19 @@ describe("Dispatcher [ Retry ]", () => {
       expect(onSettled).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ success: true }));
     });
 
-    it("should keep a single retry timer when the queue is flushed during the wait", async () => {
+    it("should keep the retry time and the retry limit when the queue is flushed during the wait", async () => {
       const { queryKey } = await startRetryWait();
 
       dispatcher.start(queryKey);
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      // Flushing does not send the waiting request earlier - that would give it an attempt above its limit
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
       expect(vi.getTimerCount()).toBe(1);
 
       await vi.advanceTimersByTimeAsync(retryTime * 2);
 
-      expect(fetchSpy).toHaveBeenCalledTimes(3);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
       expect(dispatcher.getQueue(queryKey).requests).toHaveLength(0);
     });
   });

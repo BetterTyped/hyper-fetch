@@ -1,7 +1,7 @@
-import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import type {
-  ClientInstance,
+  CacheValueType,
   RequestInstance,
   ExtractAdapterStatusType,
   ExtractAdapterType,
@@ -14,28 +14,51 @@ import { useRequestEvents, useTrackedState } from "helpers";
 import type { UseFetchOptionsType, UseFetchReturnType } from "hooks/use-fetch";
 import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
 import { isSameScope } from "utils/scope.utils";
 
 type SuspenseEntry = { promise: Promise<void>; resolve: () => void; cleanup: () => void };
-type SuspenseResult = { data: any; error: any; status: any; extra: any; success: boolean };
+type SuspenseResult = Pick<
+  CacheValueType<any, any>,
+  "data" | "error" | "status" | "extra" | "success" | "retries" | "responseTimestamp" | "requestTimestamp"
+> & { receivedTimestamp: number };
 type SuspenseStore = { promises: Map<string, SuspenseEntry>; results: Map<string, SuspenseResult> };
 
-// Kept per client and keyed by the scoped cache key, so clients and scopes sharing a cache key never
-// wait on or receive each other's suspense results
-const suspenseStores = new WeakMap<ClientInstance, SuspenseStore>();
-
-// Data received this recently is not refetched when a suspended component mounts
-const suspenseFreshTime = 1000;
-
-const getSuspenseStore = (client: ClientInstance): SuspenseStore => {
-  let store = suspenseStores.get(client);
+/**
+ * Suspended components lose their state, so the pending promises and the responses that are not stored in the cache
+ * have to live outside of them. They are kept per cache instance - every client (and every cleared client)
+ * has its own store, so responses never leak between the clients.
+ */
+const suspenseStores = new WeakMap<object, SuspenseStore>();
+const getSuspenseStore = (cache: object): SuspenseStore => {
+  let store = suspenseStores.get(cache);
   if (!store) {
     store = { promises: new Map(), results: new Map() };
-    suspenseStores.set(client, store);
+    suspenseStores.set(cache, store);
   }
   return store;
+};
+
+/**
+ * Data received by the suspended component is not fetched again when it mounts right after.
+ * Responses waiting for the suspended component are dropped after this time - the component is gone.
+ */
+const suspenseFreshTime = 1000;
+
+/**
+ * Options passed as `undefined` (e.g. forwarded optional props) fall back to the defaults instead of overriding them
+ */
+const mergeOptions = <T extends object>(...sources: (object | undefined)[]): T => {
+  const merged: Record<string, unknown> = {};
+  sources.forEach((source) => {
+    Object.entries(source || {}).forEach(([key, value]) => {
+      if (value !== undefined) {
+        merged[key] = value;
+      }
+    });
+  });
+  return merged as T;
 };
 
 /**
@@ -72,11 +95,11 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     deepCompare,
     structuralSharing,
     throwOnError,
-  } = {
-    ...useFetchDefaultOptions,
-    ...globalConfig.useFetchConfig,
-    ...options,
-  };
+  } = mergeOptions<typeof useFetchDefaultOptions & UseFetchOptionsType<R, TSelected>>(
+    useFetchDefaultOptions,
+    globalConfig.useFetchConfig,
+    options,
+  );
 
   const updateKey = JSON.stringify(request.toJSON());
   const requestDebounce = useDebounce({ delay: bounceTime });
@@ -85,9 +108,12 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
 
   const { cacheKey, queryKey, client } = request;
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
+  // Cache storage and dispatcher queues are keyed with the scope of the request
+  const scopedCacheKey = scopeKey(cacheKey, request.scope);
+  const scopedQueryKey = scopeKey(queryKey, request.scope);
 
-  const ignoreReact18DoubleRender = useRef(true);
-  const resolvedBySuspense = useRef(false);
+  const fetchDependencies = useRef<unknown[] | null>(null);
+  const isSuspenseResolved = useRef(false);
   const logger = useRef(loggerManager.initialize(client, "useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
@@ -154,30 +180,65 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     }
 
     refreshDebounce.debounce(() => {
-      const isBlurred = !appManager.isFocused;
-
-      // If window tab is not active should we refresh the cache
-      const scopedQueryKey = scopeKey(request.queryKey, request.scope);
-      const isFetching = dispatcher.hasRunningRequests(scopedQueryKey);
-      const isQueued = dispatcher.getIsActiveQueue(scopedQueryKey);
-      const isActive = isFetching || isQueued;
-      const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
-      const canRefreshFocused = !isBlurred && !isActive;
-
-      if (canRefreshBlurred || canRefreshFocused) {
-        handleFetch();
-        logger.debug({ title: `Performing refresh request`, type: "system", extra: { request } });
-      }
-
-      // Start new refresh counter
-      handleRefresh();
+      // Timer outlives the render which started it - always use the latest options and request
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      latest.current.refresh();
     });
   }
 
-  const refetch = () => {
+  const performRefresh = () => {
+    const isBlurred = !appManager.isFocused;
+
+    // If window tab is not active should we refresh the cache
+    const isFetching = dispatcher.hasRunningRequests(scopedQueryKey);
+    const isQueued = dispatcher.getIsActiveQueue(scopedQueryKey);
+    const isActive = isFetching || isQueued;
+    const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
+    const canRefreshFocused = !isBlurred && !isActive;
+
+    if (canRefreshBlurred || canRefreshFocused) {
+      handleFetch();
+      logger.debug({ title: `Performing refresh request`, type: "system", extra: { request } });
+    }
+
+    // Start new refresh counter
+    handleRefresh();
+  };
+
+  const handleRefetch = () => {
     handleFetch({ force: true });
     handleRefresh();
   };
+
+  /**
+   * Events and timers are registered once and live longer than a single render.
+   * This ref gives them the handlers and options from the latest render.
+   */
+  const latest = useRef({
+    disabled,
+    refetchOnFocus,
+    refetchOnBlur,
+    refetchOnReconnect,
+    fetch: handleFetch,
+    refresh: performRefresh,
+    restartRefresh: handleRefresh,
+    refetch: handleRefetch,
+  });
+  latest.current = {
+    disabled,
+    refetchOnFocus,
+    refetchOnBlur,
+    refetchOnReconnect,
+    fetch: handleFetch,
+    refresh: performRefresh,
+    restartRefresh: handleRefresh,
+    refetch: handleRefetch,
+  };
+
+  // Stable identity - safe to use in the dependency arrays
+  const refetch = useCallback(() => {
+    latest.current.refetch();
+  }, []);
 
   // ******************
   // Fetching lifecycle
@@ -186,34 +247,21 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
   // This help us to check for currently running requests
   const getIsFetchingIdentity = () => {
     // We need to check if the queryKey have the same cacheKey elements ongoing
-    return dispatcher
-      .getRunningRequests(scopeKey(queryKey, request.scope))
-      .some((running) => running.request.cacheKey === cacheKey);
-  };
-
-  /**
-   * A suspended component mounts right after its own request resolved - fetching again on mount would
-   * duplicate that request. Data received within the last moment counts as fresh, like the minimal stale time
-   * applied by other suspense-enabled libraries.
-   */
-  const getHasJustResolvedSuspense = () => {
-    if (!suspense) {
-      return false;
-    }
-    if (resolvedBySuspense.current) {
-      return true;
-    }
-    const cacheData = cache.get(scopeKey(cacheKey, request.scope));
-    return !!cacheData && Date.now() - cacheData.responseTimestamp < suspenseFreshTime;
+    return dispatcher.getRunningRequests(scopedQueryKey).some((running) => running.request.cacheKey === cacheKey);
   };
 
   const initialFetchData = () => {
-    if (getHasJustResolvedSuspense()) {
-      return;
-    }
     const hasStaleData = getStaleStatus();
     const isFetching = getIsFetchingIdentity();
-    if ((revalidate || hasStaleData) && !isFetching) {
+    // Suspended component already waited for this response - do not ask for it again right after mounting
+    const cacheTimestamp = cache.get(scopedCacheKey)?.responseTimestamp;
+    const isFreshSuspenseData =
+      suspense &&
+      (isSuspenseResolved.current ||
+        (typeof cacheTimestamp === "number" && Date.now() - cacheTimestamp < suspenseFreshTime));
+    isSuspenseResolved.current = false;
+
+    if ((revalidate || hasStaleData) && !isFetching && !isFreshSuspenseData) {
       handleFetch();
     }
   };
@@ -221,23 +269,41 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
   const updateFetchData = () => {
     const hasStaleData = getStaleStatus();
     const shouldUpdate = !revalidate ? hasStaleData : true;
-    /**
-     * This is a hack to avoid double rendering in React 18
-     * It renders initial mount event and allow us to consume only hook updates
-     */
-    if (!ignoreReact18DoubleRender.current && shouldUpdate) {
+
+    if (shouldUpdate) {
       /**
-       * While debouncing we need to make sure that first request is not debounced when the cache is not available
-       * This way it will not wait for debouncing but fetch data right away
+       * Only the updates are bounced - the initial request is sent right away
        */
       if (bounce) {
         logger.debug({ title: `Bounce request with ${bounceType}`, type: "system", extra: { queryKey, request } });
-        bounceFunction(() => handleFetch());
+        // Bounced callback can run after the next renders - it has to use the latest request and options
+        bounceFunction(() => latest.current.fetch());
       } else {
         handleFetch();
       }
-    } else {
-      ignoreReact18DoubleRender.current = false;
+    }
+  };
+
+  /**
+   * Effects can run again without any change - on StrictMode remount or when the hidden <Activity> is revealed.
+   * We compare the dependencies with the ones already handled, to fetch once on mount and once per change.
+   */
+  const handleFetchLifecycle = () => {
+    const currentDependencies = [updateKey, disabled, ...dependencies];
+    const previousDependencies = fetchDependencies.current;
+    fetchDependencies.current = currentDependencies;
+
+    if (!previousDependencies) {
+      initialFetchData();
+      return;
+    }
+
+    const hasChanged =
+      previousDependencies.length !== currentDependencies.length ||
+      currentDependencies.some((dependency, index) => !Object.is(dependency, previousDependencies[index]));
+
+    if (hasChanged) {
+      updateFetchData();
     }
   };
 
@@ -249,27 +315,35 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     addCacheDataListener(request as unknown as R);
     addLifecycleListeners(request as unknown as R);
 
+    // Options can change without re-registering the listeners - they are read when the event happens
     const focusUnmount = appManager.events.onFocus(() => {
-      if (refetchOnFocus && !disabled) {
-        handleFetch();
-        handleRefresh();
+      if (latest.current.refetchOnFocus && !latest.current.disabled) {
+        latest.current.fetch();
+        latest.current.restartRefresh();
       }
     });
     const blurUnmount = appManager.events.onBlur(() => {
-      if (refetchOnBlur && !disabled) {
-        handleFetch();
-        handleRefresh();
+      if (latest.current.refetchOnBlur && !latest.current.disabled) {
+        latest.current.fetch();
+        latest.current.restartRefresh();
       }
     });
     const onlineUnmount = appManager.events.onOnline(() => {
-      if (refetchOnReconnect && !disabled) {
-        handleFetch();
-        handleRefresh();
+      if (latest.current.refetchOnReconnect && !latest.current.disabled) {
+        latest.current.fetch();
+        latest.current.restartRefresh();
       }
     });
 
-    const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleFetch);
-    const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleFetch);
+    // Invalidation and deletion are emitted by the request cache key, which is shared between the scopes.
+    // The event carries the key of the changed element - only our own one has to be fetched again.
+    const handleCacheChange = (changedKey: string) => {
+      if (changedKey === scopedCacheKey) {
+        latest.current.fetch();
+      }
+    };
+    const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleCacheChange);
+    const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleCacheChange);
 
     const unmount = () => {
       clearCacheDataListener();
@@ -295,39 +369,38 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
 
   /**
    * Initial fetch triggered once data is stale or we use the refetch strategy
+   * and the fetching logic for updates handling
    */
-  useDidMount(initialFetchData);
-
-  /**
-   * Fetching logic for updates handling
-   */
-  useDidUpdate(updateFetchData, [updateKey, disabled, ...dependencies], true);
+  useDidUpdate(handleFetchLifecycle, [updateKey, disabled, ...dependencies], true);
 
   /**
    * Refresh lifecycle handler
    */
   useDidUpdate(handleRefresh, [updateKey, ...dependencies, disabled, refresh, refreshTime], true);
 
-  /**
-   * Reset the ignore flag for React 18 strict mode
-   */
-  useWillUnmount(() => {
-    ignoreReact18DoubleRender.current = true;
-  });
-
   // ******************
   // Suspense
   // ******************
   if (suspense && !disabled) {
-    const { promises: suspensePromiseMap, results: suspenseResultMap } = getSuspenseStore(client);
-    const suspenseKey = scopeKey(cacheKey, request.scope);
+    const store = getSuspenseStore(cache);
 
     // Apply any cached suspense result (covers error responses that aren't stored in cache)
-    const suspenseResult = suspenseResultMap.get(suspenseKey);
+    const storedResult = store.results.get(scopedCacheKey);
+    // Nobody picked the response up in time (suspended component got unmounted) - it is outdated now
+    const suspenseResult =
+      storedResult && Date.now() - storedResult.receivedTimestamp <= suspenseFreshTime ? storedResult : null;
+    if (storedResult && !suspenseResult) {
+      store.results.delete(scopedCacheKey);
+    }
     if (suspenseResult) {
-      suspenseResultMap.delete(suspenseKey);
-      // Error responses are not cached, so the mount logic cannot see they just arrived
-      resolvedBySuspense.current = true;
+      // Result stays available until the end of the current render pass. React can render the component more than
+      // once before it mounts (StrictMode, retry after a thrown error) and other components can wait for the same response.
+      queueMicrotask(() => {
+        if (store.results.get(scopedCacheKey) === suspenseResult) {
+          store.results.delete(scopedCacheKey);
+        }
+      });
+      isSuspenseResolved.current = true;
       if (suspenseResult.data !== null) {
         state.data = selectData(suspenseResult.data);
       }
@@ -341,46 +414,54 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
         state.extra = suspenseResult.extra;
       }
       state.success = suspenseResult.success;
-      // The response has arrived - nothing is loading unless another request for this key is running
-      state.loading = dispatcher.hasRunningRequests(scopeKey(queryKey, request.scope));
+      state.loading = dispatcher.hasRunningRequests(scopedQueryKey);
+      state.retries = suspenseResult.retries ?? state.retries;
+      // Timestamps tell that the response was received - also when it came without any data
+      state.responseTimestamp = new Date(suspenseResult.responseTimestamp);
+      state.requestTimestamp = new Date(suspenseResult.requestTimestamp);
     }
 
-    const hasData = state.data !== null || state.error !== null;
+    // Response without data (like 204 No Content) is still a response - suspending on it would never end
+    const hasData = state.data !== null || state.error !== null || state.responseTimestamp !== null;
 
     if (!hasData) {
-      let entry = suspensePromiseMap.get(suspenseKey);
+      let entry = store.promises.get(scopedCacheKey);
       if (!entry) {
         let resolvePromise: () => void;
         const promise = new Promise<void>((r) => {
           resolvePromise = r;
         });
 
-        // Cache events are emitted by the logical cacheKey - skip data of other scopes
-        const unsubscribe = cache.events.onDataByKey(cacheKey, (cacheData: any) => {
+        const unsubscribe = cache.events.onDataByKey(cacheKey, (cacheData: CacheValueType<any, any>) => {
+          // Events of the same cache key are shared between the scopes
           if (!isSameScope(cacheData.scope, request.scope)) {
             return;
           }
-          suspenseResultMap.set(suspenseKey, {
+
+          store.results.set(scopedCacheKey, {
             data: cacheData.data ?? null,
             error: cacheData.error ?? null,
             status: cacheData.status ?? null,
             extra: cacheData.extra ?? null,
             success: cacheData.success ?? false,
+            retries: cacheData.retries ?? 0,
+            responseTimestamp: cacheData.responseTimestamp ?? Date.now(),
+            requestTimestamp: cacheData.requestTimestamp ?? Date.now(),
+            receivedTimestamp: Date.now(),
           });
           resolvePromise();
           unsubscribe();
-          suspensePromiseMap.delete(suspenseKey);
+          store.promises.delete(scopedCacheKey);
         });
 
         entry = { promise, resolve: resolvePromise!, cleanup: unsubscribe };
-        suspensePromiseMap.set(suspenseKey, entry);
+        store.promises.set(scopedCacheKey, entry);
       }
 
       // Ensure the request is dispatched before suspending —
       // effects never run when a component suspends.
       // React may render a suspended component again before the queued request starts running,
       // so a queued request counts as dispatched too.
-      const scopedQueryKey = scopeKey(queryKey, request.scope);
       if (!dispatcher.hasRunningRequests(scopedQueryKey) && !dispatcher.getIsActiveQueue(scopedQueryKey)) {
         dispatcher.add(request as unknown as R);
       }
@@ -389,10 +470,10 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     }
 
     // Data has arrived — clean up any leftover entry
-    const entry = suspensePromiseMap.get(suspenseKey);
+    const entry = store.promises.get(scopedCacheKey);
     if (entry) {
       entry.cleanup();
-      suspensePromiseMap.delete(suspenseKey);
+      store.promises.delete(scopedCacheKey);
     }
   }
 

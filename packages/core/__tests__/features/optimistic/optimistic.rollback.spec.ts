@@ -8,9 +8,12 @@ import type { OptimisticOperationRollbackArgs } from "optimistic";
 import type { RequestInstance } from "request";
 import { scopeKey } from "request";
 import type { Stats, Todo } from "../../utils/optimistic.utils";
+import { getThrownErrors } from "../../utils/fixtures.utils";
 import { createTodo, readCache, seedCache } from "../../utils/optimistic.utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
+type SendResult = { success: boolean; status: number | null };
 
 const INITIAL_TODOS = [createTodo(1), createTodo(2), createTodo(3)];
 
@@ -372,9 +375,13 @@ describe("Optimistic [ Rollback and commit ]", () => {
       ]);
       mockRequest(request, { data: createTodo(1) });
 
-      const response = await request.send({ payload: {} });
+      let response: SendResult | undefined;
+      const thrown = await getThrownErrors(async () => {
+        response = await request.send({ payload: {} });
+      });
 
-      expect(response.success).toBeTrue();
+      expect(response?.success).toBeTrue();
+      expect(thrown).toStrictEqual([new Error("Helper failed")]);
       expect(setup.todos()).toStrictEqual(INITIAL_TODOS);
       expect(setup.stats()?.total).toBe(4);
       expect(setup.logError).toHaveBeenCalledWith(expect.objectContaining({ title: "Optimistic update failed" }));
@@ -389,8 +396,9 @@ describe("Optimistic [ Rollback and commit ]", () => {
       }));
       mockRequest(request, { data: createTodo(1) });
 
-      await request.send({ payload: {} });
+      const thrown = await getThrownErrors(() => request.send({ payload: {} }));
 
+      expect(thrown).toStrictEqual([expect.any(TypeError)]);
       expect(setup.wasRefreshed(setup.getStats)).toBeTrue();
       expect(setup.wasRefreshed(setup.getTodos)).toBeFalse();
     });
@@ -402,9 +410,13 @@ describe("Optimistic [ Rollback and commit ]", () => {
         .setOptimistic(() => ({ updates: [{ fake: true } as never, optimistic(setup.getStats).increment("total", 1)] }));
       mockRequest(request, { data: createTodo(1) });
 
-      const response = await request.send({ payload: {} });
+      let response: SendResult | undefined;
+      const thrown = await getThrownErrors(async () => {
+        response = await request.send({ payload: {} });
+      });
 
-      expect(response.success).toBeTrue();
+      expect(response?.success).toBeTrue();
+      expect(thrown).toStrictEqual([expect.any(TypeError)]);
       expect(setup.stats()?.total).toBe(4);
       expect(setup.logError).toHaveBeenCalledWith(expect.objectContaining({ title: "Optimistic update failed" }));
     });
@@ -428,9 +440,13 @@ describe("Optimistic [ Rollback and commit ]", () => {
       }));
       mockRequest(request, { status: 500 });
 
-      const response = await request.send({ payload: {} });
+      let response: SendResult | undefined;
+      const thrown = await getThrownErrors(async () => {
+        response = await request.send({ payload: {} });
+      });
 
-      expect(response.status).toBe(500);
+      expect(response?.status).toBe(500);
+      expect(thrown).toStrictEqual([new Error("Rollback failed")]);
       expect(setup.todos()).toStrictEqual(INITIAL_TODOS);
       expect(objectRollback).toHaveBeenCalledTimes(1);
       expect(setup.logError).toHaveBeenCalledWith(expect.objectContaining({ title: "Optimistic rollback failed" }));
@@ -447,8 +463,9 @@ describe("Optimistic [ Rollback and commit ]", () => {
       ]);
       mockRequest(request, { status: 500 });
 
-      await request.send({ payload: {} });
+      const thrown = await getThrownErrors(() => request.send({ payload: {} }));
 
+      expect(thrown).toStrictEqual([expect.any(TypeError)]);
       expect(setup.todos()).toStrictEqual([INITIAL_TODOS[1], INITIAL_TODOS[2]]);
       expect(setup.logError).toHaveBeenCalledWith(expect.objectContaining({ title: "Optimistic rollback failed" }));
       expect(setup.wasRefreshed(setup.getTodos)).toBeTrue();
@@ -463,13 +480,16 @@ describe("Optimistic [ Rollback and commit ]", () => {
       ]);
       mockRequest(request, { status: 500 });
 
-      await request.send({ payload: {} });
-
-      await waitFor(() => {
-        expect(setup.logError).toHaveBeenCalledWith(
-          expect.objectContaining({ extra: expect.objectContaining({ error: new Error("Async failed") }) }),
-        );
+      const thrown = await getThrownErrors(async () => {
+        await request.send({ payload: {} });
+        await waitFor(() => {
+          expect(setup.logError).toHaveBeenCalledWith(
+            expect.objectContaining({ extra: expect.objectContaining({ error: new Error("Async failed") }) }),
+          );
+        });
       });
+
+      expect(thrown).toStrictEqual([expect.any(TypeError), new Error("Async failed")]);
     });
 
     it("should contain a throwing commit and refresh", async () => {
@@ -486,9 +506,13 @@ describe("Optimistic [ Rollback and commit ]", () => {
       }));
       mockRequest(request, { data: createTodo(1) });
 
-      const response = await request.send({ payload: {} });
+      let response: SendResult | undefined;
+      const thrown = await getThrownErrors(async () => {
+        response = await request.send({ payload: {} });
+      });
 
-      expect(response.success).toBeTrue();
+      expect(response?.success).toBeTrue();
+      expect(thrown).toStrictEqual([new Error("Commit failed")]);
       expect(setup.logError).toHaveBeenCalledWith(expect.objectContaining({ title: "Optimistic commit failed" }));
       expect(setup.wasRefreshed(setup.getTodos)).toBeTrue();
     });
@@ -663,10 +687,14 @@ describe("Optimistic [ Rollback and commit ]", () => {
 
     it("should roll back and report when the predicate throws", async () => {
       const setup = createSetup();
-      const { rollback } = await sendFailing(setup, () => {
-        throw new Error("Predicate failed");
+      let rollback: ReturnType<typeof vi.fn> | undefined;
+      const thrown = await getThrownErrors(async () => {
+        ({ rollback } = await sendFailing(setup, () => {
+          throw new Error("Predicate failed");
+        }));
       });
 
+      expect(thrown).toStrictEqual([new Error("Predicate failed")]);
       expect(rollback).toHaveBeenCalledTimes(1);
       expect(setup.logError).toHaveBeenCalledWith(
         expect.objectContaining({ title: "Optimistic rollbackOnError failed" }),

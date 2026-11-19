@@ -237,7 +237,7 @@ export class Request<
     return this.clone<HasPayload, P extends null ? false : true, HasQuery>({ params });
   };
 
-  /** Set the request body payload. */
+  /** Set the request body payload. Passing `null` removes the payload set before. */
   public setPayload = <P extends Payload>(payload: P) => {
     return this.clone<P extends null ? false : true, HasParams, HasQuery>({
       payload,
@@ -350,20 +350,17 @@ export class Request<
 
   /** Override the abort key used to cancel this request. */
   public setAbortKey = (abortKey: string) => {
-    this.updatedAbortKey = true;
-    return this.clone({ abortKey });
+    return this.clone({ abortKey, updatedAbortKey: true });
   };
 
   /** Override the cache key used to store/retrieve the response. */
   public setCacheKey = (cacheKey: string) => {
-    this.updatedCacheKey = true;
-    return this.clone({ cacheKey });
+    return this.clone({ cacheKey, updatedCacheKey: true });
   };
 
   /** Override the query key that identifies this request in the dispatcher queue. */
   public setQueryKey = (queryKey: string) => {
-    this.updatedQueryKey = true;
-    return this.clone({ queryKey });
+    return this.clone({ queryKey, updatedQueryKey: true });
   };
 
   /** Enable or disable request deduplication. When enabled, concurrent identical requests share a single response. */
@@ -476,14 +473,24 @@ export class Request<
   private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
     const { endpoint } = this.requestOptions;
 
-    let stringEndpoint = String(endpoint);
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        stringEndpoint = stringEndpoint.replaceAll(new RegExp(`:${key}`, "g"), String(value));
-      });
+    const stringEndpoint = String(endpoint);
+    const names = params ? Object.keys(params) : [];
+    if (!params || names.length === 0) {
+      return stringEndpoint as Endpoint;
     }
 
-    return stringEndpoint as Endpoint;
+    // Every `:` segment is replaced once, with the longest matching name. This way `:id` does not eat the beginning
+    // of `:idx`, and a value is never parsed again - neither as another param nor as a replacement pattern like `$&`.
+    const [start, ...segments] = stringEndpoint.split(":");
+    const mapped = segments.map((segment) => {
+      const name = names.reduce(
+        (longest, current) => (segment.startsWith(current) && current.length > longest.length ? current : longest),
+        "",
+      );
+      return name ? `${params[name]}${segment.slice(name.length)}` : `:${segment}`;
+    });
+
+    return [start, ...mapped].join("") as Endpoint;
   };
 
   /** Serialize the request configuration into a plain JSON object for persistence or transfer. */
@@ -556,12 +563,17 @@ export class Request<
       ...json,
       ...configuration,
       options: configuration?.options || this.options,
-      abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
-      cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
-      queryKey: this.updatedQueryKey ? configuration?.queryKey || this.queryKey : undefined,
+      // A key given by hand is kept by all the next clones, an auto-generated one is generated again
+      abortKey: configuration?.abortKey || (this.updatedAbortKey ? this.abortKey : undefined),
+      cacheKey: configuration?.cacheKey || (this.updatedCacheKey ? this.cacheKey : undefined),
+      queryKey: configuration?.queryKey || (this.updatedQueryKey ? this.queryKey : undefined),
+      updatedAbortKey: !!configuration?.abortKey || this.updatedAbortKey,
+      updatedCacheKey: !!configuration?.cacheKey || this.updatedCacheKey,
+      updatedQueryKey: !!configuration?.queryKey || this.updatedQueryKey,
       endpoint: this.paramsMapper(configuration?.params || this.params),
       queryParams: configuration?.queryParams || this.queryParams,
-      payload: configuration?.payload || this.payload,
+      // Falsy payloads like `0`, `false` or an empty string are valid values, `null` removes the payload
+      payload: configuration?.payload === null ? undefined : (configuration?.payload ?? this.payload),
       params: (configuration?.params || this.params) as
         | EmptyTypes
         | (Endpoint extends string ? ExtractUrlParams<Endpoint> : never),
@@ -708,11 +720,8 @@ export class Request<
     // Stop listening for aborting
     requestManager.removeAbortController(scopedAbortKey, requestId);
 
-    if (request.unstable_responseMapper) {
-      return request.unstable_responseMapper(response);
-    }
-
-    return response;
+    // A throwing response mapper gives the error response, the same way as in `send()`
+    return mapResponseForSend(request, response);
   };
 
   /**

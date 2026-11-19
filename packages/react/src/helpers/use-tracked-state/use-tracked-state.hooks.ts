@@ -24,6 +24,7 @@ import type {
 import {
   getInitialState,
   getIsInitiallyLoading,
+  getRequestIdentity,
   getShouldClearState,
   getValidCacheData,
   isStaleCacheData,
@@ -51,12 +52,19 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
 }: UseTrackedStateProps<T, TData>): UseTrackedStateReturn<T, TData> => {
   const { client, cacheKey, queryKey, staleTime } = request;
   const { cache } = client;
+  // Cache storage and dispatcher queues are keyed with the scope of the request
+  const scopedCacheKey = scopeKey(cacheKey, request.scope);
+  const scopedQueryKey = scopeKey(queryKey, request.scope);
+  const identity = getRequestIdentity(request);
   const hydration = useHydration();
 
   const state = useRef<UseTrackedStateType<T, TData>>(null as unknown as UseTrackedStateType<T, TData>);
   const renderKeys = useRef<(keyof UseTrackedStateType<T, TData>)[]>([]);
   const isProcessingData = useRef("");
-  const previousCacheKey = useRef(cacheKey);
+  const previousCacheKey = useRef(scopedCacheKey);
+  const previousIdentity = useRef(identity);
+  // State created from scratch can be filled with the initialResponse, the preserved one (keepPreviousData) can not
+  const isFreshState = useRef(true);
 
   // ******************
   // Data selection
@@ -93,6 +101,29 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
     state.current = getSelectedState(
       getInitialState({ initialResponse, dispatcher, request, disabled, hydratedEntry }),
     );
+  }
+  // Request key changed - the state is switched during the render, so the data of the previous key
+  // is never returned for the new one (unless it is kept on purpose with keepPreviousData)
+  else if (previousCacheKey.current !== scopedCacheKey) {
+    // "auto" mode keeps the state of the same resource (only its query params changed).
+    // Resources are compared by the requests, cache keys can't be parsed reliably.
+    const shouldClear =
+      keepPreviousData === "auto"
+        ? previousIdentity.current !== identity
+        : getShouldClearState(keepPreviousData, previousCacheKey.current, scopedCacheKey);
+    previousCacheKey.current = scopedCacheKey;
+    previousIdentity.current = identity;
+
+    const hasCacheData = !!cache.get(scopedCacheKey);
+    isFreshState.current = hasCacheData || shouldClear;
+
+    if (isFreshState.current) {
+      const hydratedEntry = hydration?.get(client, scopedCacheKey);
+      state.current = getSelectedState(
+        getInitialState({ initialResponse, dispatcher, request, disabled, revalidate, hydratedEntry }),
+      );
+    }
+    // Otherwise the previous state stays until the response of the new key arrives (#126)
   }
 
   // Selector failed while processing incoming data - surface it to the closest error boundary
@@ -136,8 +167,11 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   // ******************
 
   const getStaleStatus = (): boolean => {
-    const cacheData = cache.get(scopeKey(cacheKey, request.scope));
-    return !cacheData || isStaleCacheData(staleTime, cacheData?.responseTimestamp);
+    const cacheData = cache.get(scopedCacheKey);
+    // Invalidation marks the cache entry with the stale time of 0 - it has to be fetched again,
+    // also when no hook was mounted to refetch it at the moment of the invalidation
+    const isInvalidated = cacheData?.staleTime === 0;
+    return !cacheData || isInvalidated || isStaleCacheData(staleTime, cacheData?.responseTimestamp);
   };
 
   // ******************
@@ -146,7 +180,9 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
 
   const renderKeyTrigger = (keys: (keyof UseTrackedStateType<T, TData>)[]) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) {emitChange();}
+    if (shouldRerender) {
+      emitChange();
+    }
   };
 
   const setRenderKey = (renderKey: keyof UseTrackedStateType<T, TData>) => {
@@ -161,24 +197,16 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
 
   useDidUpdate(
     () => {
-      const oldKey = previousCacheKey.current;
-      previousCacheKey.current = cacheKey;
+      // The state of the key is already set during the render. Here we pick up the changes done to the cache
+      // between the render and the effect and the data that requires asynchronous mapping.
+      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopedCacheKey);
+      // Initial response is a placeholder for the empty state only - it never replaces the data kept from the previous key
+      const cacheState =
+        cacheData || (isFreshState.current ? getValidCacheData<T>(request, initialResponse, null) : null);
 
-      // Get cache state
-      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(scopeKey(cacheKey, request.scope));
-      const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
-
-      // Determine whether to clear state based on keepPreviousData mode
-      const shouldClear = getShouldClearState(keepPreviousData, oldKey, cacheKey);
-
-      if (shouldClear && !cacheState) {
-        // Reset state to initial values when no cached data exists for the new key
-        const resetState = getInitialState({ initialResponse, dispatcher, request, disabled, revalidate });
-        state.current = getSelectedState(resetState);
-        renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T, TData>)[]);
-      } else if (cacheState) {
+      if (cacheState) {
         state.current.loading = getIsInitiallyLoading({
-          queryKey: scopeKey(request.queryKey, request.scope),
+          queryKey: scopedQueryKey,
           dispatcher,
           disabled,
           revalidate,
@@ -190,7 +218,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       // When state is preserved and no cache exists (e.g. query param change in "auto" mode),
       // don't update loading on the ref — let the dispatcher's loading event handle it (#126)
     },
-    [cacheKey, queryKey],
+    [scopedCacheKey, scopedQueryKey],
     true,
   );
 
@@ -260,7 +288,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       retries: cacheData.retries,
       responseTimestamp: new Date(cacheData.responseTimestamp),
       requestTimestamp: new Date(cacheData.requestTimestamp),
-      loading: dispatcher.hasRunningRequests(scopeKey(queryKey, request.scope)),
+      loading: dispatcher.hasRunningRequests(scopedQueryKey),
     };
 
     const nextState: UseTrackedStateType<T, TData> = { ...state.current };
@@ -327,84 +355,103 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
   // Actions
   // ******************
 
-  const actions: UseTrackedStateActions<T, TData> = {
-    setData: (data) => {
-      isLocalData.current = true;
-      state.current.data = data instanceof Function ? data(state.current.data || null) : data;
-      renderKeyTrigger(["data"]);
-    },
-    setError: (error) => {
-      state.current.error = error instanceof Function ? error(state.current.error || null) : error;
-      renderKeyTrigger(["error"]);
-    },
-    setLoading: (loading) => {
-      const value = loading instanceof Function ? loading(state.current.loading) : loading;
-      if (value === state.current.loading) {return;}
-      state.current.loading = value;
-      renderKeyTrigger(["loading"]);
-    },
-    setStatus: (status) => {
-      const value = status instanceof Function ? status(state.current.status) : status;
-      if (value === state.current.status) {return;}
-      state.current.status = status instanceof Function ? status(state.current.status || null) : status;
-      renderKeyTrigger(["status"]);
-    },
-    setSuccess: (success) => {
-      const value = success instanceof Function ? success(state.current.success || false) : success;
-      if (value === state.current.success) {return;}
-      state.current.success = success instanceof Function ? success(state.current.success || false) : success;
-      renderKeyTrigger(["success"]);
-    },
-    setExtra: (extra) => {
-      const value = extra instanceof Function ? extra(state.current.extra) : extra;
-      if (value === state.current.extra) {return;}
-      state.current.extra = extra instanceof Function ? extra(state.current.extra) : extra;
-      renderKeyTrigger(["extra"]);
-    },
-    setRetries: (retries) => {
-      const value = retries instanceof Function ? retries(state.current.retries || 0) : retries;
-      if (value === state.current.retries) {return;}
-      state.current.retries = retries instanceof Function ? retries(state.current.retries || 0) : retries;
-      renderKeyTrigger(["retries"]);
-    },
-    setResponseTimestamp: (timestamp) => {
-      const value = timestamp instanceof Function ? timestamp(state.current.responseTimestamp) : timestamp;
-      if (value === state.current.responseTimestamp) {return;}
-      const getTimestamp = (prev: Date | null) => {
-        return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
-      };
+  // Actions work on refs only, so they are created once - their identity is stable between the renders
+  const actionsRef = useRef<UseTrackedStateActions<T, TData> | null>(null);
+  if (!actionsRef.current) {
+    actionsRef.current = {
+      setData: (data) => {
+        isLocalData.current = true;
+        state.current.data = data instanceof Function ? data(state.current.data ?? null) : data;
+        renderKeyTrigger(["data"]);
+      },
+      setError: (error) => {
+        state.current.error = error instanceof Function ? error(state.current.error ?? null) : error;
+        renderKeyTrigger(["error"]);
+      },
+      setLoading: (loading) => {
+        const value = loading instanceof Function ? loading(state.current.loading) : loading;
+        if (value === state.current.loading) {
+          return;
+        }
+        state.current.loading = value;
+        renderKeyTrigger(["loading"]);
+      },
+      setStatus: (status) => {
+        const value = status instanceof Function ? status(state.current.status ?? null) : status;
+        if (value === state.current.status) {
+          return;
+        }
+        state.current.status = value;
+        renderKeyTrigger(["status"]);
+      },
+      setSuccess: (success) => {
+        const value = success instanceof Function ? success(state.current.success || false) : success;
+        if (value === state.current.success) {
+          return;
+        }
+        state.current.success = value;
+        renderKeyTrigger(["success"]);
+      },
+      setExtra: (extra) => {
+        const value = extra instanceof Function ? extra(state.current.extra) : extra;
+        if (value === state.current.extra) {
+          return;
+        }
+        state.current.extra = value;
+        renderKeyTrigger(["extra"]);
+      },
+      setRetries: (retries) => {
+        const value = retries instanceof Function ? retries(state.current.retries || 0) : retries;
+        if (value === state.current.retries) {
+          return;
+        }
+        state.current.retries = value;
+        renderKeyTrigger(["retries"]);
+      },
+      setResponseTimestamp: (timestamp) => {
+        const value = timestamp instanceof Function ? timestamp(state.current.responseTimestamp) : timestamp;
+        if (value === state.current.responseTimestamp) {
+          return;
+        }
+        const getTimestamp = (prev: Date | null) => {
+          return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
+        };
 
-      state.current.responseTimestamp = getTimestamp(state.current.responseTimestamp);
-      renderKeyTrigger(["responseTimestamp"]);
-    },
-    setRequestTimestamp: (timestamp) => {
-      const value = timestamp instanceof Function ? timestamp(state.current.requestTimestamp) : timestamp;
-      if (value === state.current.requestTimestamp) {return;}
-      const getTimestamp = (prev: Date | null) => {
-        return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
-      };
+        state.current.responseTimestamp = getTimestamp(state.current.responseTimestamp);
+        renderKeyTrigger(["responseTimestamp"]);
+      },
+      setRequestTimestamp: (timestamp) => {
+        const value = timestamp instanceof Function ? timestamp(state.current.requestTimestamp) : timestamp;
+        if (value === state.current.requestTimestamp) {
+          return;
+        }
+        const getTimestamp = (prev: Date | null) => {
+          return timestamp instanceof Function ? timestamp(prev ? new Date(prev) : null) : timestamp;
+        };
 
-      state.current.requestTimestamp = getTimestamp(state.current.requestTimestamp);
-      renderKeyTrigger(["requestTimestamp"]);
-    },
-    clearState: () => {
-      rawData.current = null;
-      isLocalData.current = false;
-      responseDetails.current = null;
-      state.current = {
-        data: null,
-        error: null,
-        loading: false,
-        status: null,
-        success: false,
-        extra: null,
-        retries: 0,
-        responseTimestamp: null,
-        requestTimestamp: null,
-      } as UseTrackedStateType<T, TData>;
-      renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T, TData>)[]);
-    },
-  };
+        state.current.requestTimestamp = getTimestamp(state.current.requestTimestamp);
+        renderKeyTrigger(["requestTimestamp"]);
+      },
+      clearState: () => {
+        rawData.current = null;
+        isLocalData.current = false;
+        responseDetails.current = null;
+        state.current = {
+          data: null,
+          error: null,
+          loading: false,
+          status: null,
+          success: false,
+          extra: client.adapter.defaultExtra,
+          retries: 0,
+          responseTimestamp: null,
+          requestTimestamp: null,
+        } as UseTrackedStateType<T, TData>;
+        renderKeyTrigger(Object.keys(state.current) as (keyof UseTrackedStateType<T, TData>)[]);
+      },
+    };
+  }
+  const actions = actionsRef.current;
 
   return [
     state.current,

@@ -31,9 +31,47 @@ import type {
   ExtractAdapterDefaultQueryParamsType,
   ExtractAdapterRequestOptionsType,
 } from "types";
-import { getUniqueRequestId } from "utils";
+import { getUniqueRequestId, throwOutsideLifecycle } from "utils";
 
 import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
+
+/**
+ * Response interceptors run when the adapter is already done, so nothing else can handle their failure.
+ * A throwing or rejecting interceptor ends the request with the error response - the same way as failing request
+ * interceptors do - instead of leaving it pending forever.
+ */
+const interceptResponseSafely = async <GlobalErrorType, Adapter extends AdapterInstance>({
+  client,
+  interceptors,
+  response,
+  request,
+}: {
+  client: Client<any, Adapter>;
+  interceptors: ResponseInterceptorType<ClientInstance>[];
+  response: ResponseType<any, GlobalErrorType, Adapter>;
+  request: RequestInstance;
+}): Promise<ResponseType<any, GlobalErrorType, Adapter>> => {
+  try {
+    return (await interceptResponse<GlobalErrorType, ClientInstance>(
+      interceptors,
+      response as ResponseType<any, GlobalErrorType, AdapterInstance>,
+      request,
+    )) as ResponseType<any, GlobalErrorType, Adapter>;
+  } catch (error) {
+    const { adapter } = client;
+    client.logger.error({ title: "Response interceptor failed", type: "system", extra: { error, request } });
+
+    return {
+      data: null,
+      error: adapter.unstable_internalErrorMapping(error as Parameters<Adapter["unstable_internalErrorMapping"]>[0]),
+      status: adapter.systemErrorStatus,
+      success: false,
+      extra: adapter.systemErrorExtra,
+      requestTimestamp: response.requestTimestamp,
+      responseTimestamp: response.responseTimestamp,
+    };
+  }
+};
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -158,7 +196,7 @@ export class Client<
    */
   setLogger = (callback: (Client: ClientInstance) => LoggerManager): Client<GlobalErrorType, Adapter> => {
     this.loggerManager = callback(this);
-    this.loggerManager.initialize(this, "Client");
+    this.logger = this.loggerManager.initialize(this, "Client");
     return this;
   };
 
@@ -310,7 +348,17 @@ export class Client<
     }
 
     this.plugins.forEach((plugin) => {
-      plugin.trigger(key, data);
+      try {
+        plugin.trigger(key, data);
+      } catch (error) {
+        // Plugins only observe the lifecycle - a failing one can't break the requests, the cache or other plugins
+        this.logger.error({
+          title: `Plugin "${plugin.name}" failed`,
+          type: "system",
+          extra: { plugin: plugin.name, method: key, error },
+        });
+        throwOutsideLifecycle(error);
+      }
     });
 
     return this;
@@ -361,7 +409,13 @@ export class Client<
   unstable_modifyErrorResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
     request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onErrorCallbacks, response, request);
+  ) =>
+    interceptResponseSafely<GlobalErrorType, Adapter>({
+      client: this,
+      interceptors: this.unstable_onErrorCallbacks,
+      response,
+      request,
+    });
 
   /**
    * Private helper to run async on-success response processing
@@ -370,14 +424,25 @@ export class Client<
   unstable_modifySuccessResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
     request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onSuccessCallbacks, response, request);
+  ) =>
+    interceptResponseSafely<GlobalErrorType, Adapter>({
+      client: this,
+      interceptors: this.unstable_onSuccessCallbacks,
+      response,
+      request,
+    });
 
   /**
    * Private helper to run async response processing
    * @private
    */
   unstable_modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
-    interceptResponse<GlobalErrorType, ClientInstance>(this.unstable_onResponseCallbacks, response, request);
+    interceptResponseSafely<GlobalErrorType, Adapter>({
+      client: this,
+      interceptors: this.unstable_onResponseCallbacks,
+      response,
+      request,
+    });
 
   /**
    * Reconstruct a Request class instance from its serialized JSON form.
@@ -411,6 +476,18 @@ export class Client<
   clear = () => {
     const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
 
+    // Queued and ongoing requests are removed while their listeners still exist - it aborts the ongoing ones
+    // and resolves the pending `send()` promises, which otherwise would never settle
+    [this.fetchDispatcher, this.submitDispatcher].forEach((dispatcher) => {
+      dispatcher.getQueuesKeys().forEach((queryKey) => {
+        dispatcher.getQueue(queryKey).requests.forEach(({ request, requestId }) => {
+          dispatcher.delete(queryKey, requestId, scopeKey(request.abortKey, request.scope));
+        });
+      });
+    });
+    // Requests sent outside of the dispatchers
+    this.requestManager.abortAll();
+
     this.requestManager.abortControllers.clear();
     resetOptimisticState(this);
     this.fetchDispatcher.clear();
@@ -422,6 +499,8 @@ export class Client<
     this.submitDispatcher.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
     this.appManager.unmount();
+    // App manager can be shared between the clears, so the listeners of the removed modules have to go away
+    this.appManager.emitter.removeAllListeners();
 
     this.cache = cache?.() || new Cache();
     this.appManager = appManager?.() || new AppManager();
@@ -467,7 +546,20 @@ export class Client<
       }
 
       const parsedData = parseResponse(response);
-      this.cache.set({ ...config, cacheKey, scope }, parsedData);
+      this.cache.set(
+        { ...config, cacheKey, scope },
+        {
+          // Hydrated responses did not go through the dispatcher, so the request details get their neutral values
+          retries: 0,
+          isCanceled: false,
+          isOffline: false,
+          willRetry: false,
+          addedTimestamp: parsedData?.requestTimestamp,
+          triggerTimestamp: parsedData?.requestTimestamp,
+          ...parsedData,
+          hydrated: true,
+        },
+      );
     });
   };
 

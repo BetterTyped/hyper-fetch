@@ -91,6 +91,10 @@ export const client = new Client({
 });
 ```
 
+Clearing the cache with `client.cache.clear()` or `client.clear()` also removes every element from the lazy storage,
+using its `keys` and `delete` methods. Call it on logout, so the persisted data of one user is never loaded for the
+next one.
+
 ---
 
 ## Queue Persistence

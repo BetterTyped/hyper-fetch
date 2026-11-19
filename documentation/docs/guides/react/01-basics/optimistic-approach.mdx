@@ -199,8 +199,9 @@ Everything below is triggered by core, also when the component that submitted ha
   refreshed.
 - **Aborting from `useSubmit`** removes the request from the queue, so rollbacks receive `"removed"`.
   `request.abort()` cancels the running request and reports `"abort"`.
-- **User code can't break a request.** A helper, `.commit()` or `.rollback()` that throws (or returns a promise) is
-  logged, the request completes, the other changes still settle, and the target is refreshed.
+- **User code can't break a request.** When a helper, `.commit()` or `.rollback()` throws (or returns a promise), the
+  request completes, the other changes still settle and the target is refreshed. The error is logged and thrown from a
+  timer, outside of the request lifecycle, so `window.onerror` or `uncaughtException` handlers still see it.
 
 ---
 

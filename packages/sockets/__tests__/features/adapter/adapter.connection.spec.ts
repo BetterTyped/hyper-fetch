@@ -22,7 +22,7 @@ class OpenWebSocket extends EventTarget {
 }
 
 describe("Socket Adapter [ Connection ]", () => {
-  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
   let socket: ReturnType<typeof createSocket>;
   // The mocked WebSocket installed by the mocking server, restored after tests that replace it
   let MockedWebSocket: typeof WebSocket;
@@ -64,17 +64,38 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should reconnect when going online", async () => {
     const spy = vi.fn();
+    const disconnectedSpy = vi.fn();
     await waitForConnection(socket);
+    socket.events.onDisconnected(disconnectedSpy);
+
+    // The network goes down and takes the connection with it
     socket.appManager.setOnline(false);
-    socket.onDisconnected(() => {
-      socket.adapter.connected = false;
-      socket.events.onConnected(spy);
-      socket.appManager.setOnline(true);
+    getServer().close({ code: 1006, reason: "Network lost", wasClean: false });
+    await waitFor(() => {
+      expect(disconnectedSpy).toHaveBeenCalledTimes(1);
     });
-    await socket.disconnect();
+
+    startServer();
+    socket.events.onConnected(spy);
+    socket.appManager.setOnline(true);
+
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("should stay disconnected when going online after a manual disconnect", async () => {
+    const connectingSpy = vi.fn();
+    await waitForConnection(socket);
+    await socket.disconnect();
+    socket.events.onConnecting(connectingSpy);
+
+    socket.appManager.setOnline(false);
+    socket.appManager.setOnline(true);
+
+    expect(connectingSpy).not.toHaveBeenCalled();
+    expect(socket.adapter.connecting).toBe(false);
+    expect(socket.adapter.connected).toBe(false);
   });
 
   it("should reconnect when connection attempt takes too long", async () => {

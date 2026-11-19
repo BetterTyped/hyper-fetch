@@ -187,8 +187,10 @@ describe("Optimistic [ TypeScript ]", () => {
 
       expectTypeOf(sendToggle).toBeFunction();
       expectTypeOf(sendWithCallback).toBeFunction();
-      // @ts-expect-error per-call optimistic takes operations or a callback
-      toggleTodo.send({ params: { todoId: 1 }, payload: { done: true }, optimistic: [1] });
+      const sendInvalid = () =>
+        // @ts-expect-error per-call optimistic takes operations or a callback
+        toggleTodo.send({ params: { todoId: 1 }, payload: { done: true }, optimistic: [1] });
+      expectTypeOf(sendInvalid).toBeFunction();
     });
   });
 });

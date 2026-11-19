@@ -6,6 +6,8 @@ import type { RequestResponseEventType } from "managers";
 import type { OptimisticRollbackArgs, RequestInstance } from "request";
 import { scopeKey } from "request";
 
+import { getThrownErrors } from "../../utils/fixtures.utils";
+
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 const SERVER_ITEM = "server";
@@ -461,7 +463,7 @@ describe("Request [ Optimistic settlement ]", () => {
   });
 
   describe("when settlement callbacks fail", () => {
-    it("should resolve normally and log when rollback throws", async () => {
+    it("should resolve normally, log and throw outside of the lifecycle when rollback throws", async () => {
       const { client, logError } = createSetup();
       const failure = new Error("Rollback failed");
       const request = client
@@ -473,9 +475,13 @@ describe("Request [ Optimistic settlement ]", () => {
         }));
       mockRequest(request, { status: 400 });
 
-      const result = await request.send();
+      let result: Awaited<ReturnType<typeof request.send>> | undefined;
+      const thrown = await getThrownErrors(async () => {
+        result = await request.send();
+      });
 
-      expect(result.status).toBe(400);
+      expect(result?.status).toBe(400);
+      expect(thrown).toStrictEqual([failure]);
       expect(logError).toHaveBeenCalledTimes(1);
       expect(logError.mock.calls[0][0].extra).toMatchObject({ error: failure, reason: "error" });
     });
@@ -492,12 +498,16 @@ describe("Request [ Optimistic settlement ]", () => {
         }));
       mockRequest(request, { status: 400 });
 
-      const result = await request.send();
-
-      expect(result.status).toBe(400);
-      await waitFor(() => {
-        expect(logError).toHaveBeenCalledTimes(1);
+      let result: Awaited<ReturnType<typeof request.send>> | undefined;
+      const thrown = await getThrownErrors(async () => {
+        result = await request.send();
+        await waitFor(() => {
+          expect(logError).toHaveBeenCalledTimes(1);
+        });
       });
+
+      expect(result?.status).toBe(400);
+      expect(thrown).toStrictEqual([failure]);
       expect(logError.mock.calls[0][0].extra).toMatchObject({ error: failure, reason: "error" });
     });
 
@@ -513,15 +523,19 @@ describe("Request [ Optimistic settlement ]", () => {
       const queryKey = scopeKey(request.queryKey, request.scope);
       client.submitDispatcher.stop(queryKey);
 
-      const result = await request.send({
-        onBeforeSent: ({ requestId }) => {
-          queueMicrotask(() => {
-            client.submitDispatcher.delete(queryKey, requestId, scopeKey(request.abortKey, request.scope));
-          });
-        },
+      let result: Awaited<ReturnType<typeof request.send>> | undefined;
+      const thrown = await getThrownErrors(async () => {
+        result = await request.send({
+          onBeforeSent: ({ requestId }) => {
+            queueMicrotask(() => {
+              client.submitDispatcher.delete(queryKey, requestId, scopeKey(request.abortKey, request.scope));
+            });
+          },
+        });
       });
 
-      expect((result.error as Error).message).toBe(getErrorMessage("deleted").message);
+      expect((result?.error as Error | undefined)?.message).toBe(getErrorMessage("deleted").message);
+      expect(thrown).toStrictEqual([new Error("Rollback failed")]);
       expect(logError).toHaveBeenCalledTimes(1);
     });
 
@@ -537,9 +551,13 @@ describe("Request [ Optimistic settlement ]", () => {
         .setOptimistic(() => ({ invalidate: [list, other] }));
       mockRequest(request);
 
-      const result = await request.send();
+      let result: Awaited<ReturnType<typeof request.send>> | undefined;
+      const thrown = await getThrownErrors(async () => {
+        result = await request.send();
+      });
 
-      expect(result.success).toBeTrue();
+      expect(result?.success).toBeTrue();
+      expect(thrown).toStrictEqual([failure]);
       expect(invalidate).toHaveBeenCalledTimes(2);
       expect(invalidate).toHaveBeenLastCalledWith(other);
       expect(logError).toHaveBeenCalledTimes(1);

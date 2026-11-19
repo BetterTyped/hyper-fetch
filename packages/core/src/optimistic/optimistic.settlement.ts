@@ -8,6 +8,7 @@ import type {
   RequestInstance,
 } from "request";
 import { getRequestKey, scopeKey, stringifyKey } from "request";
+import { throwOutsideLifecycle } from "utils";
 
 import { OptimisticOperation } from "./optimistic";
 
@@ -72,8 +73,13 @@ const getClientState = (client: ClientInstance): ClientState => {
   return state;
 };
 
-const logFailure = (client: ClientInstance, title: string, extra: Record<string, unknown>) => {
+/**
+ * Failures of user code (helpers, commits, rollbacks, predicates) are logged and thrown outside of the request
+ * lifecycle, like every other user code running in it - the request and the other changes still settle.
+ */
+const reportFailure = (client: ClientInstance, title: string, extra: { error: unknown } & Record<string, unknown>) => {
   client.logger.error({ title, type: "system", extra });
+  throwOutsideLifecycle(extra.error);
 };
 
 const readEntry = (client: ClientInstance, storageKey: string) => {
@@ -154,14 +160,14 @@ const runSettleCallback = (
     const next = run(entry.data);
 
     if (next instanceof Promise) {
-      next.catch((error: unknown) => logFailure(client, title, { error, storageKey }));
+      next.catch((error: unknown) => reportFailure(client, title, { error, storageKey }));
       throw new TypeError("Optimistic rollback and commit must be synchronous, the returned promise was ignored");
     }
     if (next !== undefined && next !== entry.data) {
       writeData(request, entry, next);
     }
   } catch (error) {
-    logFailure(client, title, { error, storageKey, request: outcome.request });
+    reportFailure(client, title, { error, storageKey, request: outcome.request });
     pending.failed.add(storageKey);
   }
 };
@@ -170,7 +176,7 @@ const runSettleCallback = (
 const runObjectRollback = (pending: OptimisticPendingType, args: OptimisticRollbackArgs<RequestInstance>) => {
   const { client, result } = pending;
   const onFailure = (error: unknown) => {
-    logFailure(client, "Optimistic rollback failed", { error, reason: args.reason, request: args.request });
+    reportFailure(client, "Optimistic rollback failed", { error, reason: args.reason, request: args.request });
   };
 
   try {
@@ -186,7 +192,7 @@ const runObjectInvalidation = ({ client, result }: OptimisticPendingType, reques
     try {
       client.cache.invalidate(target);
     } catch (error) {
-      logFailure(client, "Optimistic invalidation failed", { error, target, request });
+      reportFailure(client, "Optimistic invalidation failed", { error, target, request });
     }
   });
 };
@@ -206,7 +212,7 @@ const shouldRollback = (pending: OptimisticPendingType, outcome: OptimisticRollb
   try {
     return !!rollbackOnError({ response: outcome.response, request: outcome.request });
   } catch (error) {
-    logFailure(pending.client, "Optimistic rollbackOnError failed", { error, request: outcome.request });
+    reportFailure(pending.client, "Optimistic rollbackOnError failed", { error, request: outcome.request });
     return true;
   }
 };
@@ -320,12 +326,12 @@ export const applyOptimistic = (
           pending.applied.push({ operation, storageKey, request, previous: entry.data });
           pending.guarded.add(storageKey);
         } catch (error) {
-          logFailure(client, "Optimistic update failed", { error, storageKey });
+          reportFailure(client, "Optimistic update failed", { error, storageKey });
           pending.failed.add(storageKey);
         }
       });
     } catch (error) {
-      logFailure(client, "Optimistic update failed", { error, operation: value });
+      reportFailure(client, "Optimistic update failed", { error, operation: value });
     }
   });
 

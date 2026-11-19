@@ -389,9 +389,28 @@ describe("Mocker [ Base ]", () => {
     const responseSpy = vi.fn();
     client.requestManager.events.onUploadProgressByQueue(request.queryKey, requestSpy);
     client.requestManager.events.onDownloadProgressByQueue(request.queryKey, responseSpy);
-    const response = await mockedRequest.send();
-    expect(requestSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
-    expect(responseSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
+    // Progress follows the clock (a step every 20ms) - fake timers make every step happen, however busy the machine is
+    vi.useFakeTimers();
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
+    const sent = mockedRequest.send();
+    await vi.advanceTimersByTimeAsync(200);
+    const response = await sent;
+    const getLoaded = (spy: typeof requestSpy) => spy.mock.calls.map(([event]) => [event.loaded, event.total]);
+
+    // The start of the transfer, then the chunks of 40ms and 60ms split into the steps
+    expect(getLoaded(requestSpy)).toStrictEqual([
+      [0, 1],
+      [500, 1000],
+      [1000, 1000],
+    ]);
+    expect(getLoaded(responseSpy)).toStrictEqual([
+      [0, 1],
+      [334, 1000],
+      [668, 1000],
+      [1000, 1000],
+    ]);
     expect(response).toStrictEqual({
       data: fixture,
       error: null,

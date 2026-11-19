@@ -36,7 +36,7 @@ type Variables = {
 };
 
 // 3. Create the mutation request
-const login = client.createRequest<boolean, Variables>()({
+const login = client.createRequest<{ response: boolean; payload: Variables }>()({
   endpoint: gql`
     mutation Login($username: String!, $password: String!) {
       login(username: $username, password: $password)
@@ -46,20 +46,18 @@ const login = client.createRequest<boolean, Variables>()({
 
 // 4. Send the mutation with variables
 const { data, error } = await login.send({
-  data: {
-    variables: {
-      username: "Some username",
-      password: "Some password",
-    },
+  payload: {
+    username: "Some username",
+    password: "Some password",
   },
 });
 ```
 
-Similar to queries, you can also use the `.setData()` method to provide variables for your mutation.
+Similar to queries, you can also use the `.setPayload()` method to provide variables for your mutation.
 
 ```ts
 const { data, error } = await login
-  .setData({
+  .setPayload({
     username: "Some username",
     password: "Some password",
   })
