@@ -180,23 +180,13 @@ describe("Websocket Adapter [ Base ]", () => {
     expect(result).toBe(undefined);
   });
 
-  it("should return null from getWebsocketAdapter when window access throws", () => {
-    const originalWindow = global.window;
-    Object.defineProperty(global, "window", {
-      get() {
-        throw new ReferenceError("window is not defined");
-      },
-      configurable: true,
-    });
+  it("should return null from getWebsocketAdapter when the runtime has no WebSocket", () => {
+    vi.stubGlobal("WebSocket", null);
 
-    const result = getWebsocketAdapter("ws://localhost:1234", {} as any);
+    const result = getWebsocketAdapter("ws://localhost:1234", {});
+
+    vi.unstubAllGlobals();
     expect(result).toBeNull();
-
-    Object.defineProperty(global, "window", {
-      value: originalWindow,
-      writable: true,
-      configurable: true,
-    });
   });
 
   it("should trigger reconnect timeout when websocket closes with a non-1000 code", async () => {

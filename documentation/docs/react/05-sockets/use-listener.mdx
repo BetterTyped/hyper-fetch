@@ -18,6 +18,8 @@ hooks into the `Socket` adapter and starts listening for a given event when a co
 3. **Reactive data updates**: Provides the latest `data` from the server as it arrives.
 4. **Connection state tracking**: Exposes `connected` and `connecting` states to build responsive UIs.
 5. **Helper event hooks**: Offers `onEvent`, `onError`, and `onReconnecting` for handling specific socket events.
+6. **Subscription status**: Follows subscriptions the server confirms and ends with `status`, `error`, `onStart` and
+   `onEnd`.
 
 :::
 
@@ -145,6 +147,51 @@ function App() {
   );
 }
 ```
+
+---
+
+## Subscription Status
+
+`status` tells where the subscription of the hook is. With the tRPC and oRPC socket adapters the server confirms and
+ends subscriptions, so the hook follows it. With adapters that route messages by topic, like the WebSocket and SSE
+adapters, it is `listening` right after the mount.
+
+| Status      | Meaning                                                                          |
+| ----------- | -------------------------------------------------------------------------------- |
+| `idle`      | Not subscribed yet, for example while rendering on the server                    |
+| `starting`  | Subscribed and waiting for the server to confirm it                              |
+| `listening` | Messages can arrive                                                              |
+| `ended`     | The server finished the subscription                                             |
+| `failed`    | The server ended the subscription with an error, available as `error`            |
+
+After `ended` or `failed` the hook stays unsubscribed and keeps the last `data`. Call `listen()` to subscribe again -
+changing the payload or params of the listener subscribes again too.
+
+```tsx
+function Progress({ jobId }: { jobId: string }) {
+  const { data, status, error, listen, onEnd } = useListener(onJobProgress.setPayload({ jobId }));
+
+  onEnd(({ error }) => {
+    if (!error) toast("Job finished");
+  });
+
+  if (status === "failed") return <Retry message={error?.message} onClick={listen} />;
+  if (status === "starting") return <Spinner />;
+  return <ProgressBar value={data?.percent ?? 0} done={status === "ended"} />;
+}
+```
+
+`onStart` runs when the subscription started, also when a reconnect restarted it. `onEnd` runs once, when the server
+ended it. Unsubscribing on unmount does not call it.
+
+---
+
+## Server Rendering
+
+During server rendering `useListener` does not subscribe, `status` is `idle` and `data` is `null`. The socket itself
+still connects when it is created on the server, because Node.js has a global `WebSocket`. Create the socket with
+`adapterOptions: { autoConnect: typeof window !== "undefined" }`, or only on the client, to keep the server from
+opening connections.
 
 ---
 

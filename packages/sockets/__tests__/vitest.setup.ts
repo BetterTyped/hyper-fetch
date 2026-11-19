@@ -13,7 +13,6 @@ if (isNodeEnv) {
 
   (globalThis as any).WebSocket = NodeWebSocket;
   (globalThis as any).EventSource = NodeEventSource;
-  (globalThis as any).window = globalThis;
 } else {
   // Unit tests: use mock EventSource for jsdom
   // @ts-expect-error no types available for eventsourcemock

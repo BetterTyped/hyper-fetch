@@ -9,7 +9,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { WebsocketAdapterOptionsType, WebsocketDecodedMessageType } from "./websocket-adapter.types";
-import { getWebsocketAdapter } from "./websocket-adapter.utils";
+import { getWebsocketAdapter, WebsocketReadyState } from "./websocket-adapter.utils";
 
 /**
  * -------------------------------------------
@@ -72,11 +72,12 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         // Connection timeout while connecting, reconnection delay after the connection was lost
         let timeout: ReturnType<typeof setTimeout> | undefined;
 
-        const scheduleReconnect = () => {
+        /** Starts over after `delay` - the attempt timeout while connecting, the reconnect delay after a loss */
+        const scheduleReconnect = (delay = socket.reconnectTime) => {
           clearTimeout(timeout);
           timeout = setTimeout(() => {
             reconnect();
-          }, socket.reconnectTime);
+          }, delay);
         };
 
         const openConnection = async (): Promise<boolean> => {
@@ -101,7 +102,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           const isCurrent = () => websocket === newWebsocket;
 
           // Connection timeout - when the server does not answer in time, start over
-          scheduleReconnect();
+          scheduleReconnect(socket.connectionTimeout);
 
           /**
            *  Mount listeners
@@ -146,7 +147,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           return new Promise((resolve) => {
-            if (newWebsocket.readyState === WebSocket.OPEN) {
+            if (newWebsocket.readyState === WebsocketReadyState.OPEN) {
               // No open event follows, so the attempt timeout would reconnect a working connection
               clearTimeout(timeout);
               resolve(true);
@@ -215,7 +216,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             onDisconnected();
           }
 
-          if (!currentWebsocket || currentWebsocket.readyState === WebSocket.CLOSED) {
+          if (!currentWebsocket || currentWebsocket.readyState === WebsocketReadyState.CLOSED) {
             return true;
           }
 
@@ -370,7 +371,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           connect();
         }
 
-        socket.appManager.events.onOnline(() => {
+        const unmountOnline = socket.appManager.events.onOnline(() => {
           // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
           if (autoConnect && !socket.adapter.connected && !socket.adapter.forceClosed) {
             connect();
@@ -383,6 +384,9 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           disconnect,
           listen,
           emit,
+          dispose: () => {
+            unmountOnline();
+          },
         };
       },
     );

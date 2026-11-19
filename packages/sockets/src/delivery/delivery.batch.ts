@@ -57,6 +57,11 @@ export const createBatchDeliveryStrategy = <Data, Extra = any>({
           timer = setTimeout(flush, interval);
         }
       },
+      flush: () => {
+        if (!disposed) {
+          flush();
+        }
+      },
       dispose: () => {
         disposed = true;
         buffer = [];

@@ -58,13 +58,16 @@ describe("Devtools Socket Server", () => {
       await plugin.data.eventHandler?.socket.disconnect();
       await waitFor(() => expect(connections?.["test-client"].ws).toBeNull());
       await waitFor(() => expect(receivedMessage).toBeTruthy());
-      expect(receivedMessage).toEqual({
-        event: {
-          messageType: MessageType.INTERNAL,
-          connectionName: "test-client",
-          eventType: InternalEvents.PLUGIN_HANGUP,
-        },
-      });
+      expect(receivedMessage).toEqual(
+        expect.objectContaining({
+          event: {
+            messageType: MessageType.INTERNAL,
+            connectionName: "test-client",
+            eventType: InternalEvents.PLUGIN_HANGUP,
+          },
+          topic: expect.any(String),
+        }),
+      );
 
       await socket.disconnect();
       expect(DEVTOOLS_FRONTEND_WS_CONNECTION).toBeNull();

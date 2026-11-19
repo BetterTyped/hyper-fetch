@@ -24,7 +24,7 @@ export class DevtoolsEventHandler {
   socket: Socket;
   // TODO - fix type, it can be either internal or simply an event
   socketEmitter: Emitter<PluginInternalMessagePayload | HFEventMessagePayload, any, any>;
-  socketListener: Listener<any, any, any>;
+  socketListener: Listener<any, any, any, any>;
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   isInitialized: boolean;

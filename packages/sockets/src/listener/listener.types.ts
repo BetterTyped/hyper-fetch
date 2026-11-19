@@ -13,12 +13,17 @@ import type {
   ExtractListenerSocketType,
   ExtractSocketAdapterType,
   ExtractListenerDeliveredType,
+  ExtractListenerPayloadType,
+  ExtractListenerHasPayloadType,
 } from "types";
 
 export type ListenerInstanceProperties = {
   response?: any;
+  /** What the server needs to start the subscription, e.g. the input of a tRPC subscription */
+  payload?: any;
   topic?: string;
   socket?: SocketInstance;
+  hasPayload?: boolean;
   hasParams?: boolean;
   /**
    * Type received by `listen` callbacks. Differs from `response` only when a `delivery` strategy
@@ -48,8 +53,10 @@ export type ListenerInstanceProperties = {
  */
 export type ListenerInstance<ListenerProperties extends ListenerInstanceProperties = {}> = Listener<
   TypeWithDefaults<ListenerProperties, "response", any>,
+  TypeWithDefaults<ListenerProperties, "payload", any>,
   TypeWithDefaults<ListenerProperties, "topic", any>,
   TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
+  TypeWithDefaults<ListenerProperties, "hasPayload", any>,
   TypeWithDefaults<ListenerProperties, "hasParams", any>,
   TypeWithDefaults<ListenerProperties, "delivered", any>
 >;
@@ -71,8 +78,10 @@ export type ListenerInstance<ListenerProperties extends ListenerInstanceProperti
  * | Field       | Default          | Why                                                                |
  * | ----------- | ---------------- | ------------------------------------------------------------------ |
  * | `response`  | `unknown`        | Forces narrowing in consumer code; never silently widened.         |
+ * | `payload`   | `undefined`      | "The subscription takes no payload." Set it for RPC subscriptions. |
  * | `topic`     | `string`         | Allows literal narrowing without erasure. Pass a string literal.   |
  * | `socket`    | `SocketInstance` | Injected by `createSocketSdk(socket)`; do not set this manually.   |
+ * | `hasPayload`| `false`          | "Caller must call `.setPayload()`" when the payload is required.   |
  * | `hasParams` | `false`          | "Caller must call `.setParams()`." Override only when bound.       |
  * | `delivered` | same as `response` | Set only when a `delivery` strategy changes the callback shape.  |
  *
@@ -101,13 +110,22 @@ export type ListenerInstance<ListenerProperties extends ListenerInstanceProperti
  */
 export type ListenerModel<ListenerProperties extends ListenerInstanceProperties = {}> = Listener<
   TypeWithDefaults<ListenerProperties, "response", unknown>,
+  TypeWithDefaults<ListenerProperties, "payload", undefined>,
   TypeWithDefaults<ListenerProperties, "topic", string>,
   TypeWithDefaults<ListenerProperties, "socket", SocketInstance>,
+  TypeWithDefaults<ListenerProperties, "hasPayload", false>,
   TypeWithDefaults<ListenerProperties, "hasParams", false>,
   TypeWithDefaults<ListenerProperties, "delivered", TypeWithDefaults<ListenerProperties, "response", unknown>>
 >;
 
-export type ListenerOfAdapter<A extends SocketAdapterInstance> = Listener<any, any, Socket<A>, any, any>;
+/**
+ * The listener as adapters receive it in `listen()` - the data that describes the subscription.
+ * Adapters read it, they never call the listener methods.
+ */
+export type ListenerOfAdapter<A extends SocketAdapterInstance> = Pick<
+  Listener<any, any, any, Socket<A>, any, any, any>,
+  "topic" | "params" | "payload" | "options" | "delivery" | "socket" | "listenerOptions"
+>;
 
 /** Configuration options for creating a Listener instance. */
 export type ListenerOptionsType<
@@ -136,8 +154,15 @@ export type ListenerOptionsType<
   delivery?: Delivery;
 };
 
-export type ListenerConfigurationType<Params, Topic extends string, Socket extends SocketInstance, Response = any> = {
+export type ListenerConfigurationType<
+  Params,
+  Topic extends string,
+  Socket extends SocketInstance,
+  Response = any,
+  Payload = any,
+> = {
   params?: Params;
+  payload?: Payload;
 } & Partial<ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>, Response>>;
 
 export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
@@ -149,18 +174,62 @@ export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
         params?: never;
       };
 
-export type ListenType<Listener extends ListenerInstance, Socket extends SocketInstance> =
-  ExtractUrlParams<ExtractListenerTopicType<Listener>> extends EmptyTypes
+/**
+ * `true` when the subscription needs a payload that was not set with `setPayload()` yet.
+ * Erased listeners (`any` payload) never require it, so they stay assignable to every listener constraint.
+ */
+/** `true` when a payload of this type is required and was not set yet. An `any` payload never requires it. */
+export type PayloadIsRequired<Payload, HasPayload> = HasPayload extends false
+  ? 0 extends 1 & Payload
+    ? false
+    : [Payload] extends [EmptyTypes | void]
+      ? false
+      : undefined extends Payload
+        ? false
+        : true
+  : false;
+
+/**
+ * `true` when the subscription needs a payload that was not set with `setPayload()` yet.
+ * Erased listeners (`any` payload) never require it, so they stay assignable to every listener constraint.
+ */
+export type ListenerRequiresPayload<L> = PayloadIsRequired<ExtractListenerPayloadType<L>, ExtractListenerHasPayloadType<L>>;
+
+/** What `onEnd` receives - `error` is `null` when the server finished the subscription without an error */
+export type ListenerEndType = { topic: string; error: Error | null };
+
+/** Start and end callbacks of one subscription started with `listen()` */
+export type ListenerLifecycleOptionsType = {
+  /**
+   * The subscription started. With adapters whose server confirms subscriptions (tRPC, oRPC) it runs when the
+   * server accepted it, and again when a reconnect restarted it. With other adapters it runs right after `listen()`.
+   */
+  onStart?: (data: { topic: string }) => void;
+  /**
+   * The server ended the subscription - it finished, or failed with `error`. Messages still pending in a `delivery`
+   * strategy are delivered first, then the listener unsubscribes. Restarting it takes a new `listen()`.
+   * Unsubscribing yourself does not call it.
+   */
+  onEnd?: (data: ListenerEndType) => void;
+};
+
+/** Second argument of `listen()` - a payload passed here is used for this subscription only */
+export type ListenMethodOptionsType<Payload> = { payload?: Payload } & ListenerLifecycleOptionsType;
+
+/**
+ * Type of `listener.listen`. Built from the generics of the listener, not from the listener type itself - a
+ * self-reference would stop TypeScript from measuring the variance of `Listener`.
+ */
+export type ListenType<Payload, HasPayload, Socket extends SocketInstance, Delivered> =
+  PayloadIsRequired<Payload, HasPayload> extends true
     ? (
-        callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerDeliveredType<Listener>>,
+        callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, Delivered>,
+        options: { payload: Payload } & ListenerLifecycleOptionsType,
       ) => () => void
-    : ExtractListenerHasParamsType<Listener> extends true
-      ? (
-          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerDeliveredType<Listener>>,
-        ) => () => void
-      : (
-          callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, ExtractListenerDeliveredType<Listener>>,
-        ) => () => void;
+    : (
+        callback: ListenerCallbackType<ExtractSocketAdapterType<Socket>, Delivered>,
+        options?: ListenMethodOptionsType<Payload>,
+      ) => () => void;
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
   data: D;
@@ -171,15 +240,19 @@ export type ExtendListener<
   T extends ListenerInstance,
   Properties extends {
     response?: any;
+    payload?: any;
     topic?: string;
     socket?: SocketInstance;
+    hasPayload?: true | false;
     hasParams?: true | false;
     delivered?: any;
   },
 > = Listener<
   TypeWithDefaults<Properties, "response", ExtractListenerResponseType<T>>,
+  TypeWithDefaults<Properties, "payload", ExtractListenerPayloadType<T>>,
   Properties["topic"] extends string ? Properties["topic"] : ExtractListenerTopicType<T>,
   Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractListenerSocketType<T>,
+  Properties["hasPayload"] extends true ? true : ExtractListenerHasPayloadType<T>,
   Properties["hasParams"] extends true ? true : ExtractListenerHasParamsType<T>,
   TypeWithDefaults<
     Properties,

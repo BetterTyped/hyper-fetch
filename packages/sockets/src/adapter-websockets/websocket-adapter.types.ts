@@ -9,6 +9,11 @@ export type WebsocketFrameType = Parameters<WebSocket["send"]>[0];
 
 export type WebsocketAdapterOptionsType = {
   /**
+   * The WebSocket constructor, e.g. from the `ws` package. Defaults to the global `WebSocket` of browsers,
+   * Node.js 22+, Bun and Deno. Pass it in runtimes without the global.
+   */
+  WebSocket?: typeof WebSocket;
+  /**
    * Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header).
    * To resolve them per connection attempt (e.g. short-lived auth tokens) use `socket.onConnect`.
    */
