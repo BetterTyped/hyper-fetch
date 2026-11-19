@@ -40,6 +40,10 @@ Releases are automated by **Nx Release** (`scripts/release.mjs`), and messages a
 A `!` after the type or a `BREAKING CHANGE:` footer publishes a **major** version, whatever the type. Never write that
 phrase in a commit body unless the change is breaking.
 
+A major also freezes the docs of the outgoing major. The `Version docs` workflow sees the bump on the pull request and
+commits the `pnpm docs:version` snapshot to it, and the release refuses a major without that snapshot. A pull request
+from a fork runs `pnpm docs:version --major <outgoing major>` itself.
+
 Releases are repo-wide. One `fix` in any released package publishes every package at the same version. A commit only
 counts when it changes files inside a released package.
 
