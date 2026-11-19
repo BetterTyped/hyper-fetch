@@ -5,7 +5,7 @@ import { LoggerManager } from "managers";
 import type { PluginMethods } from "plugin";
 import { Plugin } from "plugin";
 
-import { createCacheResponse, getUnhandledRejections } from "../../utils/fixtures.utils";
+import { createCacheResponse, getThrownErrors, getUnhandledRejections } from "../../utils/fixtures.utils";
 
 type Data = { id: number };
 
@@ -297,9 +297,10 @@ describe("Plugin [ Lifecycle ]", () => {
   });
 
   describe("When the plugin throws", () => {
+    const pluginError = new Error("Plugin failed");
     const failingPlugin = (hook: (typeof requestHooks)[number]) =>
       new Plugin({ name: "failing" })[hook](() => {
-        throw new Error("Plugin failed");
+        throw pluginError;
       });
 
     it.each([
@@ -312,11 +313,16 @@ describe("Plugin [ Lifecycle ]", () => {
       client.addPlugin(failingPlugin(hook));
 
       let response: Awaited<ReturnType<typeof request.send>> | undefined;
-      const rejections = await getUnhandledRejections(async () => {
-        response = await request.send();
+      let rejections: unknown[] = [];
+      const thrown = await getThrownErrors(async () => {
+        rejections = await getUnhandledRejections(async () => {
+          response = await request.send();
+        });
       });
 
       expect(rejections).toHaveLength(0);
+      // The error is not swallowed - it is thrown outside of the request lifecycle
+      expect(thrown).toStrictEqual([pluginError]);
       expect(response?.success).toBeTrue();
       expect(response?.data).toStrictEqual({ id: 1 });
       expect(request.read()?.data).toStrictEqual({ id: 1 });
@@ -329,11 +335,15 @@ describe("Plugin [ Lifecycle ]", () => {
         client.addPlugin(failingPlugin(hook));
 
         let response: Awaited<ReturnType<typeof request.send>> | undefined;
-        const rejections = await getUnhandledRejections(async () => {
-          response = await request.send();
+        let rejections: unknown[] = [];
+        const thrown = await getThrownErrors(async () => {
+          rejections = await getUnhandledRejections(async () => {
+            response = await request.send();
+          });
         });
 
         expect(rejections).toHaveLength(0);
+        expect(thrown).toStrictEqual([pluginError]);
         expect(response?.success).toBeFalse();
         expect(response?.error?.message).toBe("Failed");
       },
@@ -343,25 +353,30 @@ describe("Plugin [ Lifecycle ]", () => {
       const order: string[] = [];
       client.addPlugin(failingPlugin("onRequestSuccess")).addPlugin(createRecorder("next", order));
 
-      await request.send();
+      const thrown = await getThrownErrors(() => request.send());
 
+      expect(thrown).toStrictEqual([pluginError]);
       expect(order).toContain("next:onRequestSuccess");
       expect(order).toContain("next:onCacheItemChange");
     });
 
-    it("should store and emit the cache data when the cache hook throws", () => {
+    it("should store and emit the cache data when the cache hook throws", async () => {
       const spy = vi.fn();
       client.addPlugin(failingPlugin("onCacheItemChange"));
       client.cache.events.onDataByKey(request.cacheKey, spy);
 
-      expect(() => client.cache.set(request, createCacheResponse({ id: 1 }))).not.toThrow();
+      const thrown = await getThrownErrors(() => {
+        expect(() => client.cache.set(request, createCacheResponse({ id: 1 }))).not.toThrow();
+      });
+
+      expect(thrown).toStrictEqual([pluginError]);
 
       expect(request.read()?.data).toStrictEqual({ id: 1 });
       expect(spy).toHaveBeenCalledTimes(1);
       expect(client.cache.garbageCollectors.size).toBe(1);
     });
 
-    it("should delete and invalidate the cache data when the cache hooks throw", () => {
+    it("should delete and invalidate the cache data when the cache hooks throw", async () => {
       const deleteSpy = vi.fn();
       const invalidateSpy = vi.fn();
       client.addPlugin(
@@ -377,20 +392,25 @@ describe("Plugin [ Lifecycle ]", () => {
       client.cache.events.onDelete(deleteSpy);
       client.cache.events.onInvalidate(invalidateSpy);
 
-      client.cache.invalidate(request.cacheKey);
-      client.cache.delete(request.cacheKey);
+      const thrown = await getThrownErrors(() => {
+        client.cache.invalidate(request.cacheKey);
+        client.cache.delete(request.cacheKey);
+      });
 
+      expect(thrown).toHaveLength(2);
       expect(invalidateSpy).toHaveBeenCalledTimes(1);
       expect(deleteSpy).toHaveBeenCalledTimes(1);
       expect(request.read()).toBeUndefined();
     });
 
-    it("should log the failure with the name of the plugin and the hook", () => {
+    it("should log the failure with the name of the plugin and the hook", async () => {
       const logger = vi.fn();
       client.setDebug(true).setLogger(() => new LoggerManager({ logger }));
       client.addPlugin(failingPlugin("onCacheItemChange"));
 
-      client.cache.set(request, createCacheResponse({ id: 1 }));
+      await getThrownErrors(() => {
+        client.cache.set(request, createCacheResponse({ id: 1 }));
+      });
 
       expect(logger).toHaveBeenCalledTimes(1);
       expect(logger.mock.calls[0][0]).toStrictEqual(

@@ -383,21 +383,21 @@ Adapter options may vary depending on the adapter you use.
 
 When creating a request, the following defaults are applied unless overridden:
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `auth` | `true` | Whether auth interceptor runs for this request |
-| `method` | Adapter's default method | HTTP method (typically `"GET"`) |
-| `cancelable` | `false` | Whether sending a new request auto-cancels the previous one |
-| `retry` | `0` | Number of retry attempts on failure |
-| `retryTime` | `500` (ms) | Delay between retries |
-| `cacheTime` | `300000` (5 min) | How long cached data is stored |
-| `cache` | `true` | Whether the response is cached |
-| `staleTime` | `300000` (5 min) | How long cached data is considered fresh |
-| `queued` | `false` | Whether requests are queued (sequential execution) |
-| `offline` | `true` | Whether requests are stored when offline |
-| `deduplicate` | `false` | Whether identical in-flight requests are deduplicated |
-| `deduplicateTime` | `null` | Custom deduplication window (uses request duration when `null`) |
-| `structuralSharing` | `true` | Keep references of the unchanged parts of the data when saving responses to cache |
+| Option              | Default                  | Description                                                                       |
+| ------------------- | ------------------------ | --------------------------------------------------------------------------------- |
+| `auth`              | `true`                   | Whether auth interceptor runs for this request                                    |
+| `method`            | Adapter's default method | HTTP method (typically `"GET"`)                                                   |
+| `cancelable`        | `false`                  | Whether sending a new request auto-cancels the previous one                       |
+| `retry`             | `0`                      | Number of retry attempts on failure                                               |
+| `retryTime`         | `500` (ms)               | Delay between retries                                                             |
+| `cacheTime`         | `300000` (5 min)         | How long cached data is stored                                                    |
+| `cache`             | `true`                   | Whether the response is cached                                                    |
+| `staleTime`         | `300000` (5 min)         | How long cached data is considered fresh                                          |
+| `queued`            | `false`                  | Whether requests are queued (sequential execution)                                |
+| `offline`           | `true`                   | Whether requests are stored when offline                                          |
+| `deduplicate`       | `false`                  | Whether identical in-flight requests are deduplicated                             |
+| `deduplicateTime`   | `null`                   | Custom deduplication window (uses request duration when `null`)                   |
+| `structuralSharing` | `true`                   | Keep references of the unchanged parts of the data when saving responses to cache |
 
 ---
 
@@ -851,7 +851,7 @@ const request = client
     // Only retry on server errors, not on 4xx client errors
     return response.status >= 500;
   });
-  // highlight-end
+// highlight-end
 ```
 
 <LinkCard
@@ -895,8 +895,8 @@ await errorRequest.send({
 
 9. ### Scoping
 
-Use `setScope` to isolate all keys (cache, queue, abort) by scope (user, session, tenant, etc.). On the server, this
-is required to enable caching at all. On the client, it acts as an optional key prefix for organization.
+Use `setScope` to isolate all keys (cache, queue, abort) by scope (user, session, tenant, etc.). On the server, this is
+required to enable caching at all. On the client, it acts as an optional key prefix for organization.
 
 ```tsx
 const getUser = client.createRequest<{ response: User }>()({
@@ -905,9 +905,7 @@ const getUser = client.createRequest<{ response: User }>()({
 });
 
 // Scoped cache — isolated per session
-const scopedRequest = getUser
-  .setParams({ userId: 1 })
-  .setScope(sessionId);
+const scopedRequest = getUser.setParams({ userId: 1 }).setScope(sessionId);
 
 const { data } = await scopedRequest.send();
 ```
@@ -915,8 +913,8 @@ const { data } = await scopedRequest.send();
 :::info
 
 `setScope` returns a new cloned request (immutable). The scope string is included in `toJSON()` so it survives
-serialization through dispatchers and queues. All keys — cache, queue, and abort — are prefixed with the scope,
-ensuring complete isolation between scoped requests.
+serialization through dispatchers and queues. All keys — cache, queue, and abort — are prefixed with the scope, ensuring
+complete isolation between scoped requests.
 
 :::
 
@@ -966,9 +964,7 @@ const patchUser = client
 
     client.cache.update(getUsers, (prev) => ({
       ...prev,
-      data: prev.data.map((u) =>
-        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
-      ),
+      data: prev.data.map((u) => (u.id === Number(request.params?.userId) ? { ...u, ...payload } : u)),
     }));
 
     return {
@@ -983,13 +979,13 @@ const patchUser = client
 
 The callback receives `request`, `client`, and `payload`. It returns:
 
-- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks (`onResponse`, `$hooks`, React
-  hooks). The type is auto-inferred.
+- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks (`onResponse`, `$hooks`,
+  React hooks). The type is auto-inferred.
 - **`rollback`** — called automatically on failure or abort to revert cache changes.
 - **`invalidate`** — list of requests whose cache is refreshed on success.
 
-All fields are optional. The callback runs before the request is dispatched — if it throws, the request is not sent
-and an error response is returned.
+All fields are optional. The callback runs before the request is dispatched — if it throws, the request is not sent and
+an error response is returned.
 
 `setOptimistic` is type-safe: `mutationContext` is available in `send()` callbacks, `$hooks` listeners, and React hooks
 (`onSubmitSuccess`, `onSubmitError`, etc.) with its type automatically inferred from the `context` return value.
@@ -1025,7 +1021,8 @@ The `$hooks` API provides **persistent, instance-level lifecycle hooks** on a `R
 (which are one-shot), `$hooks` callbacks run on every send of that request instance. They survive `.clone()` and are
 ideal for cross-cutting concerns like logging, analytics, or auth token injection.
 
-Each hook method registers a callback and returns an **unsubscribe function**. Multiple listeners per hook are supported.
+Each hook method registers a callback and returns an **unsubscribe function**. Multiple listeners per hook are
+supported.
 
 ```tsx title="Adding persistent hooks"
 const getUser = client.createRequest<{ response: User }>()({
@@ -1051,8 +1048,8 @@ unsubscribe();
 
 :::info Serialization
 
-`$hooks` is a **runtime-only** property. It is excluded from `toJSON()` serialization, so hooks are not persisted
-to storage or queues. When a request is restored from JSON, hooks are simply not present (no crash).
+`$hooks` is a **runtime-only** property. It is excluded from `toJSON()` serialization, so hooks are not persisted to
+storage or queues. When a request is restored from JSON, hooks are simply not present (no crash).
 
 The `$` prefix convention indicates runtime-only properties throughout Hyper Fetch.
 
@@ -1095,6 +1092,15 @@ await someRequest.send({
   },
 });
 ```
+
+:::info Errors thrown by callbacks
+
+Callbacks, `$hooks` listeners, event listeners, plugins and the optimistic `rollback` run inside the request lifecycle.
+When one of them throws, the request still finishes, `send()` still resolves with the response and the other listeners
+still run. The error is not swallowed - it is thrown from a timer, outside of the lifecycle, so it reaches
+`window.onerror` in the browser and the `uncaughtException` handlers in Node.js.
+
+:::
 
 ---
 

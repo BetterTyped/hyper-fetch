@@ -53,6 +53,27 @@ export const getUnhandledRejections = async (action: () => unknown) => {
 };
 
 /**
+ * Errors of the user code (callbacks, listeners, plugins) are thrown from a timer, outside of the request lifecycle,
+ * where the environment reports them. Runs the action, waits for the timers which are already scheduled and returns
+ * everything that was thrown this way. Requires real timers.
+ */
+export const getThrownErrors = async (action: () => unknown) => {
+  const errors: unknown[] = [];
+  const onError = (error: unknown) => errors.push(error);
+  process.on("uncaughtException", onError);
+  try {
+    await action();
+    // Timers of the same delay run in the order they were set, so this one runs after the ones throwing the errors
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+  } finally {
+    process.off("uncaughtException", onError);
+  }
+  return errors;
+};
+
+/**
  * Removes the global value until `vi.unstubAllGlobals()` gets called - e.g. to simulate an environment without window
  */
 export const removeGlobal = (name: string) => {

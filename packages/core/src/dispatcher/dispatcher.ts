@@ -14,7 +14,7 @@ import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } 
 import type { ResponseDetailsType, LoggerMethods } from "managers";
 import type { RequestInstance, RequestJSON } from "request";
 import { Request, scopeKey } from "request";
-import { EventEmitter } from "utils";
+import { EventEmitter, throwOutsideLifecycle } from "utils";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
@@ -740,9 +740,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
             type: "system",
             extra: { error, request, requestId },
           });
-          setTimeout(() => {
-            throw error;
-          });
+          throwOutsideLifecycle(error);
         }
       };
 

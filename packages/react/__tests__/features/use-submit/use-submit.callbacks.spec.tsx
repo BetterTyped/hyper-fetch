@@ -3,9 +3,9 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { UseSubmitReturnType } from "hooks/use-submit";
 import { useSubmit } from "hooks/use-submit";
 import type { Mock } from "vitest";
-import { onTestFinished } from "vitest";
 
 import { createGatedClient } from "../../utils/gated-client.utils";
+import { collectThrownErrors } from "../../utils/helpers.utils";
 
 type User = { id: number; name: string };
 
@@ -73,18 +73,8 @@ const useSubmitWithEvents = <T extends RequestInstance>(request: T, events: Even
   return view;
 };
 
-/** Errors thrown by the user callbacks are reported as unhandled rejections - collect them for the assertions */
-const collectReportedErrors = () => {
-  const errors: unknown[] = [];
-  const handler = (error: unknown) => {
-    errors.push(error);
-  };
-  process.on("unhandledRejection", handler);
-  onTestFinished(() => {
-    process.off("unhandledRejection", handler);
-  });
-  return errors;
-};
+/** Errors thrown by the user callbacks are thrown outside of the request lifecycle */
+const collectReportedErrors = collectThrownErrors;
 
 /** Run the pending timers and promise callbacks - for the tests using fake timers */
 const advance = async (time = 0) => {

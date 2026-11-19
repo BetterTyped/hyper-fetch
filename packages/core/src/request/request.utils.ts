@@ -4,6 +4,7 @@ import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { RequestResponseEventType } from "managers";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
+import { runUserCode, throwOutsideLifecycle } from "utils";
 
 import type {
   OptimisticCallbackResult,
@@ -170,20 +171,6 @@ export const runResponseMapper = <Request extends RequestInstance>(
   }
 };
 
-/**
- * Callbacks passed to `send()` and to the `$hooks` belong to the user. When one of them throws, the lifecycle of
- * the request (and of the queue behind it) has to go on, so the error is reported outside of it.
- */
-const runCallback = (callback: VoidFunction) => {
-  try {
-    callback();
-  } catch (error) {
-    setTimeout(() => {
-      throw error;
-    });
-  }
-};
-
 export const mapResponseForSend = async <Request extends RequestInstance>(
   request: Request,
   response: ResponseType<any, any, AdapterInstance>,
@@ -210,6 +197,7 @@ const rollbackOptimistic = (
       type: "system",
       extra: { error, reason: args.reason, request: args.request },
     });
+    throwOutsideLifecycle(error);
   };
 
   try {
@@ -230,6 +218,7 @@ const invalidateOptimistic = (optimistic: OptimisticCallbackResult<any>, request
         type: "system",
         extra: { error, target, request },
       });
+      throwOutsideLifecycle(error);
     }
   });
 };
@@ -327,31 +316,31 @@ export const sendRequest = async <Request extends RequestInstance>(
       : undefined;
 
     const beforeSentData = { requestId, request, mutationContext };
-    runCallback(() => options?.onBeforeSent?.(beforeSentData));
-    runCallback(() => $hooks.__emit("onBeforeSent", beforeSentData));
+    runUserCode(() => options?.onBeforeSent?.(beforeSentData));
+    runUserCode(() => $hooks.__emit("onBeforeSent", beforeSentData));
 
     const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      runCallback(() => options?.onRequestStart?.(enriched));
-      runCallback(() => $hooks.__emit("onRequestStart", enriched));
+      runUserCode(() => options?.onRequestStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onRequestStart", enriched));
     });
 
     const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      runCallback(() => options?.onResponseStart?.(enriched));
-      runCallback(() => $hooks.__emit("onResponseStart", enriched));
+      runUserCode(() => options?.onResponseStart?.(enriched));
+      runUserCode(() => $hooks.__emit("onResponseStart", enriched));
     });
 
     const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      runCallback(() => options?.onUploadProgress?.(enriched));
-      runCallback(() => $hooks.__emit("onUploadProgress", enriched));
+      runUserCode(() => options?.onUploadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onUploadProgress", enriched));
     });
 
     const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) => {
       const enriched = { ...data, mutationContext };
-      runCallback(() => options?.onDownloadProgress?.(enriched));
-      runCallback(() => $hooks.__emit("onDownloadProgress", enriched));
+      runUserCode(() => options?.onDownloadProgress?.(enriched));
+      runUserCode(() => $hooks.__emit("onDownloadProgress", enriched));
     });
 
     // When resolved
@@ -370,8 +359,8 @@ export const sendRequest = async <Request extends RequestInstance>(
         }
         isDelivered = true;
 
-        runCallback(() => options?.onResponse?.(enrichedValues));
-        runCallback(() => $hooks.__emit("onResponse", enrichedValues));
+        runUserCode(() => options?.onResponse?.(enrichedValues));
+        runUserCode(() => $hooks.__emit("onResponse", enrichedValues));
         resolve(data);
 
         // Unmount Listeners
@@ -408,8 +397,8 @@ export const sendRequest = async <Request extends RequestInstance>(
         }
 
         const enriched = { ...data, mutationContext };
-        runCallback(() => options?.onRemove?.(enriched));
-        runCallback(() => $hooks.__emit("onRemove", enriched));
+        runUserCode(() => options?.onRemove?.(enriched));
+        runUserCode(() => $hooks.__emit("onRemove", enriched));
         resolve({
           data: null,
           status: null,

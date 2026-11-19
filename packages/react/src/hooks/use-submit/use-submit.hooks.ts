@@ -10,7 +10,7 @@ import type {
   RequestSendType,
   ExtractAdapterType,
 } from "@hyper-fetch/core";
-import { sendRequest } from "@hyper-fetch/core";
+import { runUserCode, sendRequest } from "@hyper-fetch/core";
 import type { UseTrackedStateType } from "helpers";
 import { useTrackedState, useRequestEvents } from "helpers";
 import type { UseSubmitOptionsType, UseSubmitReturnType } from "hooks/use-submit";
@@ -279,15 +279,14 @@ export const useSubmit = <RequestType extends RequestInstance, TSelected = Extra
   const handlers = useMemo(() => {
     /**
      * Callbacks run inside of the request lifecycle. Error thrown by one of them would break it - the request
-     * would never finish and it would block the queue. We report such error outside of the lifecycle instead.
+     * would never finish and it would block the queue. Such error is thrown outside of the lifecycle instead,
+     * the same way as the errors of every other callback, listener and plugin.
      */
     const protect = <Args extends unknown[]>(callback: (...args: Args) => void | Promise<void>) => {
       return (...args: Args): void => {
-        try {
+        runUserCode(() => {
           callback(...args);
-        } catch (error) {
-          Promise.reject(error);
-        }
+        });
       };
     };
 

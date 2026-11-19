@@ -30,7 +30,7 @@ import type {
   ExtractAdapterDefaultQueryParamsType,
   ExtractAdapterRequestOptionsType,
 } from "types";
-import { getUniqueRequestId } from "utils";
+import { getUniqueRequestId, throwOutsideLifecycle } from "utils";
 
 import { interceptRequest, interceptResponse, resolveClientMode } from "./client.utils";
 
@@ -356,6 +356,7 @@ export class Client<
           type: "system",
           extra: { plugin: plugin.name, method: key, error },
         });
+        throwOutsideLifecycle(error);
       }
     });
 
