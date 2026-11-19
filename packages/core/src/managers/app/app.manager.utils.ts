@@ -36,8 +36,10 @@ export const onWindowEvent = <K extends keyof WindowEventMap>(
 ): VoidFunction => {
   /* istanbul ignore next */
   if (hasWindow()) {
-    window.addEventListener(key, listener, options);
-    return () => window.removeEventListener(key, listener, options);
+    // Keep the target - the cleanup has to reach the same object, even when the global one is already gone
+    const target = window;
+    target.addEventListener(key, listener, options);
+    return () => target.removeEventListener(key, listener, options);
   }
   /* istanbul ignore next */
   return () => null;
@@ -50,8 +52,10 @@ export const onDocumentEvent = <K extends keyof DocumentEventMap>(
 ): VoidFunction => {
   /* istanbul ignore next */
   if (hasDocument()) {
-    window.document.addEventListener(key, listener, options);
-    return () => window.document.removeEventListener(key, listener, options);
+    // Keep the target - the cleanup has to reach the same object, even when the global one is already gone
+    const target = window.document;
+    target.addEventListener(key, listener, options);
+    return () => target.removeEventListener(key, listener, options);
   }
   /* istanbul ignore next */
   return () => null;

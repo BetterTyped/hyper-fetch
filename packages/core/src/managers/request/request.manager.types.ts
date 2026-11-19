@@ -29,6 +29,8 @@ export type RequestResponseEventType<T extends RequestInstance> = {
   requestId: string;
   response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
   details: ResponseDetailsType;
+  /** Result of the optimistic callback - available in the callbacks of `send()` and in the request `$hooks` */
+  mutationContext?: OptimisticCallbackResult<any>;
 };
 
 export type RequestDeduplicatedEventType<T extends RequestInstance> = RequestEventType<T> & {

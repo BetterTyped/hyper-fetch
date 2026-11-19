@@ -11,7 +11,7 @@ const setNavigatorOnline = (value: boolean) => {
 };
 
 describe("Socket [ App Manager ]", () => {
-  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
   const sockets: Socket<WebsocketAdapterType>[] = [];
 
   const create = (...args: Parameters<typeof createSocket<WebsocketAdapterType>>) => {
@@ -59,11 +59,18 @@ describe("Socket [ App Manager ]", () => {
     it("should reconnect when the browser comes back online", async () => {
       const socket = create();
       await waitForConnection(socket);
+      const onDisconnected = vi.fn();
+      socket.events.onDisconnected(onDisconnected);
 
+      // The network goes down and takes the connection with it
       window.dispatchEvent(new Event("offline"));
-      await socket.disconnect();
+      getServer().close({ code: 1006, reason: "Network lost", wasClean: false });
+      await waitFor(() => {
+        expect(onDisconnected).toHaveBeenCalledTimes(1);
+      });
       expect(socket.adapter.connected).toBeFalse();
 
+      startServer();
       const onConnected = vi.fn();
       socket.events.onConnected(onConnected);
       window.dispatchEvent(new Event("online"));
@@ -72,6 +79,21 @@ describe("Socket [ App Manager ]", () => {
         expect(onConnected).toHaveBeenCalledTimes(1);
         expect(socket.adapter.connected).toBeTrue();
       });
+    });
+
+    it("should stay disconnected when the browser comes back online after a manual disconnect", async () => {
+      const socket = create();
+      await waitForConnection(socket);
+      await socket.disconnect();
+      const onConnecting = vi.fn();
+      socket.events.onConnecting(onConnecting);
+
+      window.dispatchEvent(new Event("offline"));
+      window.dispatchEvent(new Event("online"));
+
+      expect(onConnecting).not.toHaveBeenCalled();
+      expect(socket.adapter.connecting).toBeFalse();
+      expect(socket.adapter.connected).toBeFalse();
     });
 
     it("should not connect while the browser is offline", async () => {

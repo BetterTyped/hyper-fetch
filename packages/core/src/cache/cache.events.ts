@@ -18,17 +18,27 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
   },
   /**
    * Invalidate cache values event
+   * @param cacheKey key of the invalidated element - the event data
+   * @param isTriggeredExternally event comes from outside of the cache (for example from devtools)
+   * @param listenersKey key the by-key listeners are subscribed with. Scoped elements are stored under
+   * `scopeKey(cacheKey, scope)`, while their listeners use the `cacheKey` of the request
    */
-  emitInvalidation: (cacheKey: string, isTriggeredExternally = false): void => {
+  emitInvalidation: (cacheKey: string, isTriggeredExternally = false, listenersKey = cacheKey): void => {
     emitter.emit(getInvalidateKey(), cacheKey, isTriggeredExternally);
-    emitter.emit(getInvalidateByKey(cacheKey), isTriggeredExternally);
+    // Key goes as the event data, so the external trigger flag stays at its place for the emit observers
+    emitter.emit(getInvalidateByKey(listenersKey), cacheKey, isTriggeredExternally);
   },
   /**
    * Delete of cache values
+   * @param cacheKey key of the deleted element - the event data
+   * @param isTriggeredExternally event comes from outside of the cache (for example from devtools)
+   * @param listenersKey key the by-key listeners are subscribed with. Scoped elements are stored under
+   * `scopeKey(cacheKey, scope)`, while their listeners use the `cacheKey` of the request
    */
-  emitDelete: (cacheKey: string, isTriggeredExternally = false): void => {
+  emitDelete: (cacheKey: string, isTriggeredExternally = false, listenersKey = cacheKey): void => {
     emitter.emit(getDeleteKey(), cacheKey, isTriggeredExternally);
-    emitter.emit(getDeleteByKey(cacheKey), isTriggeredExternally);
+    // Key goes as the event data, so the external trigger flag stays at its place for the emit observers
+    emitter.emit(getDeleteByKey(listenersKey), cacheKey, isTriggeredExternally);
   },
   /**
    * Cache data listener for all keys
@@ -64,12 +74,14 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     return () => emitter.removeListener(getInvalidateKey(), callback);
   },
   /**
-   * Cache invalidation listener
+   * Cache invalidation listener filtered by the cache key of the request.
+   * Requests of every scope share that key - the callback receives the key of the invalidated element
+   * (`scopeKey(cacheKey, scope)`), which tells the scopes apart.
    * @param cacheKey
    * @param callback
    * @returns
    */
-  onInvalidateByKey: (cacheKey: string, callback: () => void): VoidFunction => {
+  onInvalidateByKey: (cacheKey: string, callback: (invalidatedKey: string) => void): VoidFunction => {
     emitter.on(getInvalidateByKey(cacheKey), callback);
     return () => emitter.removeListener(getInvalidateByKey(cacheKey), callback);
   },
@@ -78,8 +90,12 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.on(getDeleteKey(), callback);
     return () => emitter.removeListener(getDeleteKey(), callback);
   },
-  /** Cache deletion listener filtered by a specific cache key */
-  onDeleteByKey: (cacheKey: string, callback: () => void): VoidFunction => {
+  /**
+   * Cache deletion listener filtered by the cache key of the request.
+   * Requests of every scope share that key - the callback receives the key of the deleted element
+   * (`scopeKey(cacheKey, scope)`), which tells the scopes apart.
+   */
+  onDeleteByKey: (cacheKey: string, callback: (deletedKey: string) => void): VoidFunction => {
     emitter.on(getDeleteByKey(cacheKey), callback);
     return () => emitter.removeListener(getDeleteByKey(cacheKey), callback);
   },

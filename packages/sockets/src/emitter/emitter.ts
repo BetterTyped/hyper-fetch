@@ -3,6 +3,8 @@ import type { EmitMethodOptionsType, EmitterCloneOptionsType, EmitterOptionsType
 import type { SocketInstance } from "socket";
 import type { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
+import { mapTopicParams } from "../utils/topic.utils";
+
 /**
  * Represents a socket message emitter bound to a specific topic. Use it to send typed payloads
  * over WebSocket or Server-Sent Events connections via the socket adapter.
@@ -65,14 +67,7 @@ export class Emitter<
   }
 
   private paramsMapper = (params: ParamsType | null | undefined): Topic => {
-    let topic = this.emitterOptions.topic as string;
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        topic = topic.replaceAll(new RegExp(`:${key}`, "g"), String(value));
-      });
-    }
-
-    return topic as Topic;
+    return mapTopicParams(this.emitterOptions.topic, params) as Topic;
   };
 
   /** Create a new emitter instance with optional configuration overrides. */
@@ -107,6 +102,18 @@ export class Emitter<
     const typedOptions = options as EmitMethodOptionsType<Emitter<Payload, Topic, Socket, HasPayload, HasParams>>;
     const instance = this.clone<Payload, HasPayload, HasParams>(typedOptions);
 
-    this.socket.adapter.emit(instance);
+    // Adapters may reject asynchronously (e.g. the ones that cannot emit at all). Nobody awaits `emit`,
+    // so the failure is reported through the socket instead of becoming an unhandled promise rejection.
+    const result = this.socket.adapter.emit(instance) as unknown;
+    if (result instanceof Promise) {
+      result.catch((error: unknown) => {
+        const emitError = error instanceof Error ? error : new Error(String(error));
+        this.socket.events.emitEmitterError({ error: emitError, emitter: instance });
+        this.socket.unstable_onErrorCallbacks.forEach((callback) => {
+          callback({ error: emitError });
+        });
+        this.socket.events.emitError({ error: emitError });
+      });
+    }
   };
 }

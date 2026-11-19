@@ -15,6 +15,9 @@ import { Request, scopeKey } from "request";
 import type { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 import { EventEmitter } from "utils";
 
+/** Timers can't wait longer than 2^31-1 ms (~24.8 days) - a longer delay overflows and fires immediately */
+const MAX_TIMER_DELAY = 2_147_483_647;
+
 /**
  * Cache class handles the data exchange with the dispatchers.
  *
@@ -108,7 +111,9 @@ export class Cache<Adapter extends AdapterInstance> {
     if (processedResponse.success && isCachingAllowed) {
       this.logger.debug({ title: "Saving response to cache storage", type: "system", extra: { request, data } });
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(storageKey, newCacheData);
-      this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(storageKey, newCacheData);
+      this.runLazyStorage("set", storageKey, (lazyStorage) =>
+        lazyStorage.set<Response, Error, ExtractAdapterType<Request>>(storageKey, newCacheData),
+      );
       this.client.triggerPlugins("onCacheItemChange", {
         cache: this,
         cacheKey,
@@ -167,6 +172,11 @@ export class Cache<Adapter extends AdapterInstance> {
   get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error, Adapter> | undefined => {
     this.getLazyResource<Response, Error>(cacheKey);
     const cachedData = this.storage.get<Response, Error, Adapter>(cacheKey);
+
+    // Data saved by another cache version is never returned - the lazy resource check above removes it
+    if (cachedData && cachedData.version !== this.version) {
+      return undefined;
+    }
     return cachedData;
   };
 
@@ -186,15 +196,21 @@ export class Cache<Adapter extends AdapterInstance> {
    */
   delete = (cacheKey: string): void => {
     this.logger.debug({ title: "Deleting cache element", type: "system", extra: { cacheKey } });
+    // Removed element has nothing left to collect - pending collector would only emit the deletion once again
+    clearTimeout(this.garbageCollectors.get(cacheKey));
+    this.garbageCollectors.delete(cacheKey);
+
+    // Listeners are subscribed with the cache key of the request, scoped elements are stored under another key
+    const listenersKey = this.storage.get(cacheKey)?.cacheKey ?? cacheKey;
     this.storage.delete(cacheKey);
-    this.lazyStorage?.delete(cacheKey);
+    this.runLazyStorage("delete", cacheKey, (lazyStorage) => lazyStorage.delete(cacheKey));
 
     this.client.triggerPlugins("onCacheItemDelete", {
       cache: this,
       cacheKey,
     });
 
-    this.events.emitDelete(cacheKey);
+    this.events.emitDelete(cacheKey, false, listenersKey);
   };
 
   /**
@@ -219,7 +235,11 @@ export class Cache<Adapter extends AdapterInstance> {
           cacheKey: notifyCacheKey,
         });
 
-        this.events.emitInvalidation(notifyCacheKey);
+        // Listeners are subscribed with the cache key of the request, scoped elements are stored under another key.
+        // The key of the element goes as the event data, so they can tell the scopes apart.
+        const listenersKey =
+          notifyCacheKey === invalidateStorageKey ? (value?.cacheKey ?? notifyCacheKey) : notifyCacheKey;
+        this.events.emitInvalidation(invalidateStorageKey, false, listenersKey);
       };
 
       if (key instanceof Request) {
@@ -227,8 +247,10 @@ export class Cache<Adapter extends AdapterInstance> {
       } else if (typeof key === "string") {
         handleInvalidation(key);
       } else if (keys.length > 0) {
+        // Global and sticky expressions remember the position of the last match, which would skip some of the keys
+        const matcher = new RegExp(key.source, key.flags.replaceAll(/[gy]/g, ""));
         keys.forEach((entityKey) => {
-          if (key.test(entityKey)) {
+          if (matcher.test(entityKey)) {
             handleInvalidation(entityKey);
           }
         });
@@ -249,23 +271,34 @@ export class Cache<Adapter extends AdapterInstance> {
   getLazyResource = async <Response, Error>(
     cacheKey: string,
   ): Promise<CacheValueType<Response, Error, Adapter> | undefined> => {
-    const data = await this.lazyStorage?.get<Response, Error, Adapter>(cacheKey);
+    const data = await this.runLazyStorage("get", cacheKey, (lazyStorage) =>
+      lazyStorage.get<Response, Error, Adapter>(cacheKey),
+    );
     const syncData = this.storage.get<Response, Error, Adapter>(cacheKey);
 
     // No data in lazy storage
-    const hasLazyData = this.lazyStorage && data;
-    if (hasLazyData) {
+    if (data) {
       const now = Date.now();
       const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
-      const isStaleData = data.staleTime <= now - data.responseTimestamp;
+      // Storages based on JSON turn Infinity into null - such data never gets stale
+      const isStaleData = data.staleTime === null ? false : data.staleTime <= now - data.responseTimestamp;
       const isValidLazyData = data.version === this.version;
+      // Collectors do not survive the application restart, so outdated data has to be removed once we meet it
+      const isExpiredData = this.client.appManager.isOnline && this.getTimeLeft(data, now) < 0;
 
-      if (!isValidLazyData) {
-        this.lazyStorage?.delete(cacheKey);
+      if (!isValidLazyData || isExpiredData) {
+        this.runLazyStorage("delete", cacheKey, (lazyStorage) => lazyStorage.delete(cacheKey));
       }
-      if (isNewestData && !isStaleData && isValidLazyData) {
+      if (isNewestData && !isStaleData && isValidLazyData && !isExpiredData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey, cached: true });
+        // Data loaded to the sync storage is collected the same way as the data set directly
+        this.scheduleGarbageCollector(cacheKey);
+        // Data events are emitted with the request cacheKey, which differs from the storage key for scoped requests
+        this.events.emitCacheData<Response, Error, Adapter>({
+          ...data,
+          cacheKey: typeof data.cacheKey === "string" ? data.cacheKey : cacheKey,
+          cached: true,
+        });
         return data;
       }
     }
@@ -273,6 +306,7 @@ export class Cache<Adapter extends AdapterInstance> {
     const isValidData = syncData?.version === this.version;
     if (syncData && !isValidData) {
       this.delete(cacheKey);
+      return undefined;
     }
     return syncData;
   };
@@ -308,31 +342,34 @@ export class Cache<Adapter extends AdapterInstance> {
 
     // Clear running garbage collectors for given key
     clearTimeout(this.garbageCollectors.get(cacheKey));
+    this.garbageCollectors.delete(cacheKey);
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - Date.now();
+      const timeLeft = this.getTimeLeft(cacheData, Date.now());
       // null
       if (cacheData.cacheTime === null) {
         this.logger.debug({ title: "Cache time is null", type: "system", extra: { cacheKey } });
       }
       // Infinity
-      else if (
-        (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") ||
-        cacheData.cacheTime === Infinity
-      ) {
+      else if (timeLeft === Infinity) {
         this.logger.debug({ title: "Cache time is Infinite", type: "system", extra: { cacheKey } });
       }
       // Run garbage collector
       else if (timeLeft >= 0) {
+        // Longer delays are split into parts, as timers fire immediately when the delay is too big for them
+        const delay = Math.min(timeLeft, MAX_TIMER_DELAY);
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.client.appManager.isOnline) {
+            this.garbageCollectors.delete(cacheKey);
+            if (delay < timeLeft) {
+              this.scheduleGarbageCollector(cacheKey);
+            } else if (this.client.appManager.isOnline) {
               this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
               this.delete(cacheKey);
             }
-          }, timeLeft),
+          }, delay),
         );
       }
       // Delete if value is stale and we are online
@@ -344,10 +381,61 @@ export class Cache<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Clear cache storages
+   * Time left to the garbage collection of the cache element. Returns Infinity for elements stored forever
+   * and a negative value for outdated elements or elements without valid times.
+   */
+  private getTimeLeft = (cacheData: Pick<CacheValueType, "cacheTime" | "responseTimestamp">, now: number): number => {
+    const { cacheTime, responseTimestamp } = cacheData;
+    // Storages based on JSON turn Infinity into null
+    if (cacheTime === null || (typeof cacheTime === "number" && !Number.isFinite(cacheTime))) {
+      return Infinity;
+    }
+    const timeLeft = cacheTime + responseTimestamp - now;
+    // Missing times can't be scheduled, such element is treated as outdated
+    return Number.isNaN(timeLeft) ? -1 : timeLeft;
+  };
+
+  /**
+   * Lazy storage is an external resource (IndexedDB, AsyncStorage etc.) - its failures are logged, they must not
+   * break the cache flow nor end up as unhandled promise rejections.
+   */
+  private runLazyStorage = async <Result>(
+    action: "get" | "set" | "delete" | "clear",
+    cacheKey: string,
+    callback: (lazyStorage: CacheAsyncStorageType) => Promise<Result>,
+  ): Promise<Result | undefined> => {
+    if (!this.lazyStorage) {
+      return undefined;
+    }
+    try {
+      return await callback(this.lazyStorage);
+    } catch (error) {
+      this.logger?.error({
+        title: `Lazy storage "${action}" failed`,
+        type: "system",
+        extra: { cacheKey, error },
+      });
+      return undefined;
+    }
+  };
+
+  /**
+   * Clear cache storages - the memory and the lazy one. Data left in the lazy storage would be loaded back
+   * by the next read, for example for the next user after a logout.
    */
   clear = async (): Promise<void> => {
     this.garbageCollectors.forEach((timeout) => clearTimeout(timeout));
+    this.garbageCollectors.clear();
     this.storage.clear();
+
+    await this.runLazyStorage("clear", "*", async (lazyStorage) => {
+      const keys = [...(await lazyStorage.keys())];
+      // One element that can't be removed must not keep the others in the storage
+      const results = await Promise.allSettled(keys.map((key) => lazyStorage.delete(key)));
+      const failed = results.find((result) => result.status === "rejected");
+      if (failed) {
+        throw failed.reason;
+      }
+    });
   };
 }

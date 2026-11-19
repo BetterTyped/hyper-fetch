@@ -53,8 +53,11 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         onError,
         onEvent,
       }) => {
+        // The transport in use. Events of any other instance (replaced or closed on purpose) are ignored.
         let sse: ReturnType<typeof getServerSentEventsAdapter> | undefined;
-        // Reconnects when the current attempt does not open in time, `disconnect` cancels it
+        // Connection attempt in progress - concurrent `connect()` calls join it
+        let pendingConnection: Promise<boolean> | undefined;
+        // Connection timeout while connecting, reconnection delay after the connection was lost
         let timeout: ReturnType<typeof setTimeout> | undefined;
 
         const autoConnect =
@@ -79,7 +82,14 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           }
         };
 
-        const connect = async (): Promise<boolean> => {
+        const scheduleReconnect = () => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            reconnect();
+          }, socket.reconnectTime);
+        };
+
+        const openConnection = async (): Promise<boolean> => {
           const connection = await onConnect();
           if (!connection) {
             return socket.adapter.connected;
@@ -91,34 +101,56 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
           const eventSource = createEventSource(url, connection.adapterOptions);
-          sse = eventSource;
+          sse = eventSource ?? undefined;
 
           if (!eventSource) {
             return false;
           }
 
-          // Reconnection timeout
-          timeout = setTimeout(() => {
-            reconnect();
-          }, socket.reconnectTime);
+          const isCurrent = () => sse === eventSource;
+
+          // Connection timeout - when the server does not answer in time, start over
+          scheduleReconnect();
 
           /**
            *  Mount listeners
            */
 
           eventSource.addEventListener("open", () => {
+            if (!isCurrent()) {
+              return;
+            }
             clearTimeout(timeout);
             onConnected();
           });
 
           eventSource.addEventListener("error", (event) => {
+            if (!isCurrent()) {
+              return;
+            }
             const error = getSocketError(event);
 
             onError({ error: new Error(error) });
+
+            // An open stream broke. The browser either retries on its own (CONNECTING) or gives up (CLOSED) -
+            // in both cases the socket is not connected anymore. The timeout takes over when the stream
+            // does not come back in time, the same way it guards the initial connection.
+            const isLost = adapter.connected && eventSource.readyState !== EventSource.OPEN;
+            if (isLost) {
+              onDisconnected();
+              if (eventSource.readyState === EventSource.CONNECTING) {
+                adapter.setConnecting(true);
+                socket.events.emitConnecting({ connecting: true });
+              }
+              scheduleReconnect();
+            }
           });
 
           const { decode } = connection.adapterOptions || {};
           eventSource.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+            if (!isCurrent()) {
+              return;
+            }
             const message = decodeMessage(newEvent, decode);
             if (message) {
               onEvent({ topic: message.topic, data: message.data, extra: newEvent });
@@ -150,28 +182,73 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           });
         };
 
-        const disconnect = async (): Promise<boolean> => {
-          // Manual disconnect cancels a pending attempt's automatic reconnect
+        const connect = (): Promise<boolean> => {
+          // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
+          if (adapter.connecting && pendingConnection) {
+            return pendingConnection;
+          }
+
+          const connection = openConnection();
+          pendingConnection = connection;
+          const release = () => {
+            if (pendingConnection === connection) {
+              pendingConnection = undefined;
+            }
+          };
+          connection.then(release, release);
+
+          return connection;
+        };
+
+        /**
+         * Closes the transport and resets the connection state. From this point the closed transport is detached -
+         * whatever it reports later does not reach the socket anymore.
+         */
+        const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
           clearTimeout(timeout);
 
           const currentSse = sse;
+          sse = undefined;
           const hasTransport = currentSse && currentSse.readyState !== EventSource.CLOSED;
 
           // When there is nothing to close, only a connection attempt may still be preparing (onConnect) - cancel it
-          const wasConnecting = adapter.connecting;
+          const wasActive = adapter.connected || adapter.connecting;
           onDisconnect();
+          if (!manual) {
+            // Closing the previous transport is a part of reconnecting - only `disconnect()` keeps the socket closed
+            adapter.setForceClosed(false);
+          }
           if (hasTransport) {
+            currentSse.clearListeners();
             currentSse.close();
           }
-          if (hasTransport || wasConnecting) {
+          if (hasTransport || wasActive) {
             onDisconnected();
           }
 
           return true;
         };
 
-        const reconnect = () => {
-          onReconnect({ disconnect, connect });
+        /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
+        const disconnect = (): Promise<boolean> => {
+          return closeConnection({ manual: true });
+        };
+
+        const reconnect = async () => {
+          // Reconnecting is a request to be connected, also after a manual disconnect
+          adapter.setForceClosed(false);
+
+          await onReconnect({
+            disconnect: () => closeConnection({ manual: false }),
+            connect: async () => {
+              // `disconnect()` called in the meantime wins over the reconnection
+              if (adapter.forceClosed) {
+                adapter.setReconnectionAttempts(0);
+                return false;
+              }
+              return connect();
+            },
+          });
         };
 
         /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
@@ -195,7 +272,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           return onListen({ listener, callback });
         };
 
-        const emit = async () => {
+        // Server-Sent Events are receive-only. Throwing synchronously makes `emitter.emit()` fail right at the
+        // call site instead of leaving a rejected promise nobody awaits.
+        const emit = () => {
           throw new Error("Cannot emit events in SSE adapter");
         };
 
@@ -205,7 +284,8 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
         }
 
         socket.appManager.events.onOnline(() => {
-          if (autoConnect && !adapter.connected) {
+          // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
+          if (autoConnect && !adapter.connected && !adapter.forceClosed) {
             connect();
           }
         });

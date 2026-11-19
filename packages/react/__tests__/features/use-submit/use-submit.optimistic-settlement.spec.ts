@@ -5,6 +5,8 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useSubmit } from "hooks/use-submit";
 import { StrictMode } from "react";
 
+import { collectThrownErrors } from "../../utils/helpers.utils";
+
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 const SERVER_ITEM = "server";
@@ -371,6 +373,7 @@ describe("useSubmit [ Optimistic settlement ]", () => {
     });
 
     it("should fire callbacks when rollback throws", async () => {
+      const thrown = collectThrownErrors();
       const setup = createSetup();
       setup.rollback.mockImplementation(() => {
         throw new Error("Rollback failed");
@@ -391,6 +394,9 @@ describe("useSubmit [ Optimistic settlement ]", () => {
       await waitFor(() => {
         expect(onError).toHaveBeenCalledTimes(1);
         expect(onFinished).toHaveBeenCalledTimes(1);
+      });
+      await waitFor(() => {
+        expect(thrown).toStrictEqual([new Error("Rollback failed")]);
       });
     });
   });
