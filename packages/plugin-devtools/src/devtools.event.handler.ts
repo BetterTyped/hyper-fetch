@@ -19,6 +19,15 @@ type EventData<
   Key extends keyof ReturnType<Events>,
 > = Parameters<Parameters<ReturnType<Events>[Key]>[0]>[0];
 
+/**
+ * Sockets don't connect without a window, so server renders stay offline. Devtools are meant to report from
+ * servers too, so the plugin opts in to the runtime's global `WebSocket` there (Node.js 22+, Deno, Bun).
+ */
+const getServerWebSocket = () => {
+  const hasWindow = typeof window !== "undefined";
+  return hasWindow ? undefined : globalThis.WebSocket;
+};
+
 export class DevtoolsEventHandler {
   client: ClientInstance;
   socket: Socket;
@@ -35,7 +44,7 @@ export class DevtoolsEventHandler {
 
   constructor(
     client: ClientInstance,
-    { appName, url = "ws://localhost:2137", debug = false, environment }: DevtoolsPluginOptions,
+    { appName, url = "ws://localhost:2137", debug = false, environment, webSocketImpl }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.isInitialized = false;
@@ -46,7 +55,7 @@ export class DevtoolsEventHandler {
     this.environment = environment || appName;
     this.socket = new Socket({
       url,
-      adapterOptions: { autoConnect: false },
+      adapterOptions: { autoConnect: false, webSocketImpl: webSocketImpl ?? getServerWebSocket() },
       reconnect: 100,
       reconnectTime: 3000,
     }).setQueryParams({
@@ -101,6 +110,11 @@ export class DevtoolsEventHandler {
             }
             if (message.data.eventName === CoreEvents.ON_CACHE_INVALIDATION) {
               const data = message.data.eventData as EventData<typeof getCacheEvents, "onInvalidate">;
+              // Same as `cache.invalidate()`, without announcing the change back to HyperFlow
+              const value = client.cache.storage.get(data);
+              if (value) {
+                client.cache.storage.set(data, { ...value, staleTime: 0 });
+              }
               client.cache.events.emitInvalidation(data, true);
             }
             if (message.data.eventName === CoreEvents.ON_CACHE_DELETE) {

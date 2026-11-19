@@ -1,3 +1,5 @@
+import type { WebsocketImplementationType } from "@hyper-fetch/sockets";
+
 export type DevtoolsPluginOptions = {
   /**
    * Name of your application, it will be displayed in the HyperFlow app
@@ -19,4 +21,10 @@ export type DevtoolsPluginOptions = {
    * Displayed alongside the app name in HyperFlow to distinguish deployments.
    */
   environment?: string;
+  /**
+   * The `WebSocket` class used to connect to HyperFlow.
+   * Defaults to `window.WebSocket` in browsers and to the global `WebSocket` on servers (Node.js 22+, Deno, Bun).
+   * On Node.js 18 and 20 pass the one from the `ws` package: `import { WebSocket } from "ws"`.
+   */
+  webSocketImpl?: WebsocketImplementationType;
 };
