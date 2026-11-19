@@ -55,10 +55,10 @@ const lines = [
   ),
 ];
 
-console.log(lines.join("\n"));
+process.stdout.write(`${lines.join("\n")}\n`);
 
 const failed = [...cells.values()].filter((status) => status === "failed").length;
 if (failed) {
-  console.error(`\n${failed} compatibility check(s) failed`);
+  process.stderr.write(`\n${failed} compatibility check(s) failed\n`);
   process.exit(1);
 }
