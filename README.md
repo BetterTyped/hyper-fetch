@@ -68,7 +68,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
 | A socket client             | Typed `Socket` listeners and emitters                  |
 | OpenAPI codegen             | `npx @hyper-fetch/cli generate`                        |
 | A tRPC, oRPC or Hono client | `createSdk` typed from your router                     |
-| MSW and hand-written mocks  | `setMock()` and `@hyper-fetch/testing`                 |
+| MSW and hand-written mocks  | `setMock()` on any request                             |
 
 ### 🔮 Types you never write twice
 
@@ -102,7 +102,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
 ### 🧪 Tooling included
 
 - **Devtools** - HyperFlow shows every request, the cache and the queue live
-- **Mocking** - `setMock()` on any request. HTTP, GraphQL, WebSocket and SSE mock servers for tests
+- **Mocking** - `setMock()` on any request returns your data and status with no network call
 - **ESLint plugin** - Catches empty and misspelled generic types on requests and clients
 - **Works everywhere** - React, Next.js, Remix, Astro, Node.js and Bun. SSR hydration included
 
@@ -171,7 +171,6 @@ Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build
 | [`@hyper-fetch/axios`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios)<br /><sub>Runs every request through Axios</sub>                                  | [![npm](https://img.shields.io/npm/v/@hyper-fetch/axios?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/axios&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/axios&external=@hyper-fetch/core,axios)](https://bundlejs.com/?q=@hyper-fetch/axios)                                                          |
 | [`@hyper-fetch/plugin-devtools`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-devtools)<br /><sub>Connects your app to the HyperFlow devtools</sub>           | [![npm](https://img.shields.io/npm/v/@hyper-fetch/plugin-devtools?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools) | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/plugin-devtools&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/plugin-devtools) | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/plugin-devtools&external=@hyper-fetch/core,@hyper-fetch/sockets)](https://bundlejs.com/?q=@hyper-fetch/plugin-devtools)                       |
 | [`eslint-plugin-hyper-fetch`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-eslint)<br /><sub>Lint rules for request and client generic types</sub>            | [![npm](https://img.shields.io/npm/v/eslint-plugin-hyper-fetch?color=e76f51)](https://www.npmjs.com/package/eslint-plugin-hyper-fetch)       | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=eslint-plugin-hyper-fetch&color=fbc646)](https://www.npmjs.com/package/eslint-plugin-hyper-fetch)       | -                                                                                                                                                                                                                             |
-| [`@hyper-fetch/testing`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/testing)<br /><sub>HTTP, GraphQL, WebSocket and SSE mock servers for tests</sub>               | -                                                                                                                                            | -                                                                                                                                                                                     | -                                                                                                                                                                                                                             |
 
 <p align="center">
 	<a href="https://github.com/sponsors/prc5?tier=Gold">
