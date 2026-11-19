@@ -8,6 +8,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
 };
 const { startServer } = createSseMockingServer();
+const OriginalEventSource = window.EventSource;
 
 /** Opens the mocked connection, `startServer` waits for a timer so the clock has to move for it to finish */
 const openConnection = async (start: () => Promise<void>) => {
@@ -27,6 +28,7 @@ describe("Socket SSE [ Connection ]", () => {
     // replacing the EventSource registered for the shared url while the next test is running.
     vi.clearAllTimers();
     vi.useRealTimers();
+    window.EventSource = OriginalEventSource;
   });
 
   it("should auto connect", async () => {
@@ -89,5 +91,48 @@ describe("Socket SSE [ Connection ]", () => {
     await vi.advanceTimersByTimeAsync(30);
 
     expect(onReconnecting).toHaveBeenCalledTimes(1);
+  });
+
+  it("should not reconnect after disconnecting during a pending connection attempt", async () => {
+    const onReconnecting = vi.fn();
+    const onConnecting = vi.fn();
+    const url = "ws://localhost:2347";
+    const socket = createSocket({ ...socketOptions, url, adapterOptions: { autoConnect: false } });
+    socket.events.onReconnecting(onReconnecting);
+    socket.events.onConnecting(onConnecting);
+
+    socket.adapter.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    await socket.adapter.disconnect();
+
+    expect(onConnecting).toHaveBeenCalledTimes(2);
+    expect(socket.adapter.connecting).toBeFalse();
+
+    // Several reconnect intervals pass without the cancelled attempt coming back
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(onReconnecting).not.toHaveBeenCalled();
+    expect(onConnecting).toHaveBeenCalledTimes(2);
+    expect(socket.adapter.connecting).toBeFalse();
+  });
+
+  it("should not reconnect when the EventSource is already open", async () => {
+    class OpenEventSource extends OriginalEventSource {
+      constructor(url: string | URL, eventSourceInitDict?: EventSourceInit) {
+        super(url, eventSourceInitDict);
+        Object.defineProperty(this, "readyState", { get: () => EventSource.OPEN, set: () => {} });
+      }
+    }
+    window.EventSource = OpenEventSource;
+    const onReconnecting = vi.fn();
+    const url = "ws://localhost:2348";
+    const socket = createSocket({ ...socketOptions, url, adapterOptions: { autoConnect: false } });
+    socket.events.onReconnecting(onReconnecting);
+
+    await expect(socket.adapter.connect()).resolves.toBeTrue();
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(onReconnecting).not.toHaveBeenCalled();
+    expect(socket.adapter.connected).toBeTrue();
   });
 });
