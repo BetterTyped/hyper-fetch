@@ -119,6 +119,34 @@ describe("Request [ Values ]", () => {
       expect(request.setPayload({ a: 1 }).setPayload(0).payload).toBe(0);
     });
 
+    it("should remove the payload when it is set to null", () => {
+      expect(request.setPayload({ a: 1 }).setPayload(null).payload).toBeUndefined();
+      expect(request.setPayload({ a: 1 }).clone({ payload: null }).payload).toBeUndefined();
+      expect(request.setPayload({ a: 1 }).setPayload(null).setRetry(1).payload).toBeUndefined();
+      expect(request.setPayload(null).payload).toBeUndefined();
+    });
+
+    it("should keep the payload when the clone is given no payload", () => {
+      expect(request.setPayload({ a: 1 }).clone({ payload: undefined }).payload).toStrictEqual({ a: 1 });
+      expect(request.setPayload({ a: 1 }).clone({}).payload).toStrictEqual({ a: 1 });
+    });
+
+    it("should send no payload for null given to send instead of the payload set on the request", async () => {
+      const payloads: unknown[] = [];
+      const mocked = request.clone().setMock(
+        ({ request: sent }) => {
+          payloads.push(sent.payload);
+          return { data: null, status: 200 };
+        },
+        { requestTime: 0, responseTime: 0 },
+      );
+
+      await mocked.setPayload({ a: 1 }).send({ payload: null } as never);
+      await mocked.setPayload({ a: 1 }).send({ payload: undefined } as never);
+
+      expect(payloads).toStrictEqual([undefined, { a: 1 }]);
+    });
+
     it("should keep the binary payloads untouched", () => {
       const formData = new FormData();
       const blob = new Blob(["content"]);

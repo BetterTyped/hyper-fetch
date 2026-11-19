@@ -207,6 +207,9 @@ You can also pass payload directly to the `send` method.
 const response = await postFile.send({ payload: data });
 ```
 
+Falsy values like `0`, `false` or an empty string are sent as they are. Passing `null` removes the payload set on the
+request before, so the request is sent without a body.
+
 <LinkCard
   type="guides"
   title="Payload"

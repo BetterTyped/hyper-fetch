@@ -572,6 +572,37 @@ describe("useSubmit [ Submit arguments ]", () => {
     });
   });
 
+  describe("when submit gets an empty payload", () => {
+    it("should send no payload for null instead of the payload set on the request", async () => {
+      const { client, waitForCall } = setup();
+      const request = client
+        .createRequest<{ response: User; payload: { name: string } | null }>()({ endpoint: "/users", method: "PUT" })
+        .setPayload({ name: "From request" });
+      const { result } = renderHook(() => useUntrackedSubmit(request));
+
+      act(() => {
+        result.current.submit({ payload: null });
+      });
+
+      const call = await waitForCall(0);
+      expect(call.request.payload).toBeUndefined();
+    });
+    it("should send the payload set on the request when submit gets none", async () => {
+      const { client, waitForCall } = setup();
+      const request = client
+        .createRequest<{ response: User; payload: { name: string } }>()({ endpoint: "/users", method: "PUT" })
+        .setPayload({ name: "From request" });
+      const { result } = renderHook(() => useUntrackedSubmit(request));
+
+      act(() => {
+        result.current.submit();
+      });
+
+      const call = await waitForCall(0);
+      expect(call.request.payload).toStrictEqual({ name: "From request" });
+    });
+  });
+
   describe("when the hook is disabled", () => {
     it("should not send the request", async () => {
       vi.useFakeTimers();

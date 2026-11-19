@@ -237,7 +237,7 @@ export class Request<
     return this.clone<HasPayload, P extends null ? false : true, HasQuery>({ params });
   };
 
-  /** Set the request body payload. */
+  /** Set the request body payload. Passing `null` removes the payload set before. */
   public setPayload = <P extends Payload>(payload: P) => {
     return this.clone<P extends null ? false : true, HasParams, HasQuery>({
       payload,
@@ -564,8 +564,8 @@ export class Request<
       updatedQueryKey: !!configuration?.queryKey || this.updatedQueryKey,
       endpoint: this.paramsMapper(configuration?.params || this.params),
       queryParams: configuration?.queryParams || this.queryParams,
-      // Falsy payloads like `0`, `false` or an empty string are valid values
-      payload: configuration?.payload ?? this.payload,
+      // Falsy payloads like `0`, `false` or an empty string are valid values, `null` removes the payload
+      payload: configuration?.payload === null ? undefined : (configuration?.payload ?? this.payload),
       params: (configuration?.params || this.params) as
         | EmptyTypes
         | (Endpoint extends string ? ExtractUrlParams<Endpoint> : never),
