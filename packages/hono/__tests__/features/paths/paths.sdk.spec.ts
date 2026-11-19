@@ -87,6 +87,26 @@ describe("HonoAppToHyperFetch [ Paths against a Hono server ]", () => {
     expect(del.data).toStrictEqual({ method: "DELETE" });
   });
 
+  it("should send each method of an app.on() route with several methods", async () => {
+    const sdk = createAppSdk();
+
+    const put = await sdk.items.$itemId.$put.setParams({ itemId: "1" }).send();
+    const patch = await sdk.items.$itemId.$patch.setParams({ itemId: "1" }).send();
+
+    expect(put.data).toStrictEqual({ method: "PUT", itemId: "1" });
+    expect(patch.data).toStrictEqual({ method: "PATCH", itemId: "1" });
+  });
+
+  it("should send to each path of an app.on() route with several paths", async () => {
+    const sdk = createAppSdk();
+
+    const health = await sdk.health.$get.send();
+    const status = await sdk.status.$get.send();
+
+    expect(health.data).toStrictEqual({ up: true });
+    expect(status.data).toStrictEqual({ up: true });
+  });
+
   it("should send to a path registered without a leading slash", async () => {
     const sdk = createAppSdk();
     const request = sdk.plain.$get;
@@ -105,5 +125,35 @@ describe("HonoAppToHyperFetch [ Paths against a Hono server ]", () => {
 
     expect(request.endpoint).toBe("/slash");
     expect(data).toStrictEqual({ slash: true });
+  });
+
+  it("should send to a wildcard route through its literal path", async () => {
+    const sdk = createAppSdk();
+    const request = sdk.assets["*"].$get;
+
+    const { data } = await request.send();
+
+    expect(request.endpoint).toBe("/assets/*");
+    expect(data).toStrictEqual({ path: "/assets/*" });
+  });
+
+  it("should send each method of two routers mounted on one path", async () => {
+    const sdk = createAppSdk();
+
+    const read = await sdk.shared.$get.send();
+    const written = await sdk.shared.$post.send();
+
+    expect(read.data).toStrictEqual({ read: true });
+    expect(written.data).toStrictEqual({ written: true });
+  });
+
+  it("should send to a route nested deeper than createSdk injects its client", async () => {
+    const sdk = createAppSdk();
+    const request = sdk.l1.l2.l3.l4.l5.l6.l7.l8.l9.l10.l11.$leaf.$get;
+
+    const { data } = await request.setParams({ leaf: "end" }).send();
+
+    expect(request.endpoint).toBe("/l1/l2/l3/l4/l5/l6/l7/l8/l9/l10/l11/:leaf");
+    expect(data).toStrictEqual({ leaf: "end" });
   });
 });

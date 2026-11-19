@@ -1,4 +1,5 @@
-import type { ExtractEndpointType, ExtractResponseType } from "@hyper-fetch/core";
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { ClientInstance, ExtractClientType, ExtractEndpointType, ExtractResponseType } from "@hyper-fetch/core";
 import { Hono } from "hono";
 import { expectTypeOf } from "vitest";
 
@@ -110,6 +111,33 @@ describe("HonoAppToHyperFetch [ Methods ]", () => {
     expectTypeOf<ExtractResponseType<HookSchema["hook"]["$post"]>>().toEqualTypeOf<{ any: true }>();
     expect(true).toBe(true);
   });
+
+  it("should add one key per method of an app.on() route with several methods", () => {
+    expectTypeOf<keyof Schema["items"]["$itemId"]>().toEqualTypeOf<"$put" | "$patch">();
+    expectTypeOf<ExtractEndpointType<Schema["items"]["$itemId"]["$patch"]>>().toEqualTypeOf<"/items/:itemId">();
+    expect(true).toBe(true);
+  });
+
+  it("should add one route per path of an app.on() route with several paths", () => {
+    expectTypeOf<ExtractEndpointType<Schema["health"]["$get"]>>().toEqualTypeOf<"/health">();
+    expectTypeOf<ExtractEndpointType<Schema["status"]["$get"]>>().toEqualTypeOf<"/status">();
+    expectTypeOf<ExtractResponseType<Schema["status"]["$get"]>>().toEqualTypeOf<{ up: true }>();
+    expect(true).toBe(true);
+  });
+
+  it("should keep a custom method of app.on()", () => {
+    const app = new Hono().on("PURGE", "/cache", (c) => c.json({ purged: true as const }));
+    type CacheSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<keyof CacheSchema["cache"]>().toEqualTypeOf<"$purge">();
+    expect(true).toBe(true);
+  });
+
+  it("should merge the methods of two routers mounted on one path", () => {
+    expectTypeOf<keyof Schema["shared"]>().toEqualTypeOf<"$get" | "$post">();
+    expectTypeOf<ExtractResponseType<Schema["shared"]["$post"]>>().toEqualTypeOf<{ written: true }>();
+    expect(true).toBe(true);
+  });
 });
 
 describe("HonoAppToHyperFetch [ Path shapes ]", () => {
@@ -121,6 +149,75 @@ describe("HonoAppToHyperFetch [ Path shapes ]", () => {
   it("should give a path registered with a trailing slash the endpoint createSdk sends", () => {
     expectTypeOf<keyof Schema["slash"]>().toEqualTypeOf<"$get">();
     expectTypeOf<ExtractEndpointType<Schema["slash"]["$get"]>>().toEqualTypeOf<"/slash">();
+    expect(true).toBe(true);
+  });
+
+  it("should keep a wildcard segment as a literal * key", () => {
+    expectTypeOf<keyof Schema["assets"]>().toEqualTypeOf<"*">();
+    expectTypeOf<ExtractEndpointType<Schema["assets"]["*"]["$get"]>>().toEqualTypeOf<"/assets/*">();
+    expect(true).toBe(true);
+  });
+
+  it("should nest a route deeper than ten segments", () => {
+    type Leaf = Schema["l1"]["l2"]["l3"]["l4"]["l5"]["l6"]["l7"]["l8"]["l9"]["l10"]["l11"]["$leaf"]["$get"];
+
+    expectTypeOf<ExtractEndpointType<Leaf>>().toEqualTypeOf<"/l1/l2/l3/l4/l5/l6/l7/l8/l9/l10/l11/:leaf">();
+    expectTypeOf<ExtractResponseType<Leaf>>().toEqualTypeOf<{ leaf: string }>();
+    expect(true).toBe(true);
+  });
+
+  it("should keep the default client below the ten levels createSdk injects its client into", () => {
+    const client = createClient({ url: "http://localhost" });
+    const sdk = createSdk<typeof client, Schema>(client);
+    const shallow = sdk.files.$get;
+    const deep = sdk.l1.l2.l3.l4.l5.l6.l7.l8.l9.l10.l11.$leaf.$get;
+
+    expectTypeOf<ExtractClientType<typeof shallow>>().toEqualTypeOf<typeof client>();
+    expectTypeOf<ExtractClientType<typeof deep>>().toEqualTypeOf<ClientInstance>();
+    deep.setParams({ leaf: "end" });
+    // @ts-expect-error - the param is named by the Hono path
+    deep.setParams({ id: "end" });
+    expect(true).toBe(true);
+  });
+
+  it("should flatten routers mounted with an empty path", () => {
+    const app = new Hono().basePath("/api/v1").route(
+      "/me",
+      new Hono().route(
+        "",
+        new Hono().get("", (c) => c.json({ name: "hono" })),
+      ),
+    );
+    type MeSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<ExtractEndpointType<MeSchema["api"]["v1"]["me"]["$get"]>>().toEqualTypeOf<"/api/v1/me">();
+    expect(true).toBe(true);
+  });
+
+  it("should prefix routes added after basePath()", () => {
+    const app = new Hono().basePath("/api").get("/search", (c) => c.json({ ok: true as const }));
+    type SearchSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<ExtractEndpointType<SearchSchema["api"]["search"]["$get"]>>().toEqualTypeOf<"/api/search">();
+    expect(true).toBe(true);
+  });
+
+  it("should prefix a router mounted after basePath()", () => {
+    const book = new Hono().get("/", (c) => c.json({ ok: true as const }));
+    const app = new Hono().basePath("/v1").route("/book", book);
+    type BookSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<ExtractEndpointType<BookSchema["v1"]["book"]["$get"]>>().toEqualTypeOf<"/v1/book">();
+    expect(true).toBe(true);
+  });
+
+  it("should accept an app with a typed environment", () => {
+    type Env = { Bindings: { TOKEN: string }; Variables: { userId: string } };
+    const api = new Hono<Env>().get("/me", (c) => c.json({ userId: c.get("userId") }));
+    const app = new Hono<Env>().route("/api", api);
+    type EnvSchema = HonoAppToHyperFetch<typeof app>;
+
+    expectTypeOf<ExtractResponseType<EnvSchema["api"]["me"]["$get"]>>().toEqualTypeOf<{ userId: string }>();
     expect(true).toBe(true);
   });
 });
