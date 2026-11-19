@@ -9,6 +9,7 @@ const backends: { name: string; src: string; scale?: number }[] = [
   { name: "GraphQL", src: "/img/integration-graphql.svg" },
   { name: "tRPC", src: "/img/integration-trpc.svg", scale: 1.12 },
   { name: "oRPC", src: "/img/integration-orpc.svg" },
+  { name: "Hono", src: "/img/integration-hono.svg" },
   { name: "Firebase", src: "/img/integration-firebase.svg" },
   { name: "Axios", src: "/img/integration-axios.svg" },
   { name: "WebSockets", src: "/img/integration-sockets.svg" },
@@ -17,7 +18,7 @@ const backends: { name: string; src: string; scale?: number }[] = [
 
 export const Ecosystem = () => {
   return (
-    <ul className="grid grid-cols-4 sm:flex sm:flex-wrap justify-center gap-x-2 gap-y-4 sm:gap-x-3 md:gap-x-5 list-none !p-0 !m-0 mt-6 md:mt-4 max-w-[90vw]">
+    <ul className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center gap-x-2 gap-y-4 sm:gap-x-3 md:gap-x-5 list-none !p-0 !m-0 mt-6 md:mt-4 max-w-[90vw]">
       {backends.map((backend, index) => (
         <motion.li
           key={backend.name}
