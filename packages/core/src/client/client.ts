@@ -14,7 +14,7 @@ import type { HttpAdapterType } from "http-adapter";
 import { parseResponse, HttpAdapter } from "http-adapter";
 import type { LogLevel } from "managers";
 import { AppManager, LoggerManager, RequestManager } from "managers";
-import { resetOptimisticState } from "optimistic";
+import { resetOptimisticState } from "optimistic/optimistic.settlement";
 import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
 import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";

@@ -1,7 +1,7 @@
 import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import type { ClientInstance } from "client";
 import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
-import type { OptimisticFactoryType, OptimisticUpdatesType } from "optimistic";
+import type { OptimisticFactoryType, OptimisticUpdatesType } from "optimistic/optimistic.types";
 /* eslint-disable @typescript-eslint/no-shadow */
 import type {
   NullableKeys,
