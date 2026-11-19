@@ -5,261 +5,307 @@ sidebar_label: Optimistic Updates
 
 # Optimistic Updates
 
-Optimistic updates are a powerful UI pattern that makes your application feel significantly faster. The idea is to update
-the UI _immediately_ after a user action, assuming the server request will succeed. If the request later fails, the
-changes are automatically rolled back. This avoids making the user wait for the network round-trip.
+Optimistic updates change the UI right after a user action, before the server answers. If the request fails, the change
+is reverted. HyperFetch splits this in two: a **helper describes the change** of a cached request, and **`.rollback()`
+describes the undo**. Core applies the change, runs the undo when needed, refreshes the data afterwards and protects the
+change from stale responses - for `send()`, `$hooks` and React hooks alike.
 
-HyperFetch provides first-class support for optimistic updates through the `request.setOptimistic()` API. You define
-cache manipulation, rollback logic, and invalidation targets directly on the request - the framework orchestrates
-everything automatically, whether you use `send()`, `$hooks`, or React hooks.
+:::tip Purpose
 
-:::secondary What you'll learn
-
-1. How to configure optimistic updates with **`request.setOptimistic()`**.
-2. How **`rollback`** restores the cache on failure automatically.
-3. How **`invalidate`** keeps your data in sync on success.
-4. How **`mutationContext`** lets you access snapshot data in lifecycle callbacks.
+1. **Describe, don't orchestrate**: `optimistic(getTodos).patch(todoId, payload)` replaces snapshots and hand-written
+   cache updates.
+2. **Explicit undo**: `.rollback()` sits next to the change it reverts. Core runs it once, at the right moment.
+3. **Always correct in the end**: targets are refetched once the last pending mutation on them settles.
+4. **No stale overwrites**: a fetch that started before the mutation settled never overwrites the optimistic value.
+5. **Typed end to end**: helpers are typed by the target's response, `.commit()` by the mutation's response.
 
 :::
 
 ---
 
-## Basic Example: Updating a User
+## Quick start
 
-The most common optimistic pattern is updating a list item. The user clicks "Save," the list updates instantly, and the
-request is sent in the background.
-
-### 1. Define the request with `setOptimistic`
-
-```typescript
-import { client } from "./client";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-const getUsers = client.createRequest<{ response: User[] }>()({
-  endpoint: "/users",
-  method: "GET",
-});
-
-const patchUser = client
-  .createRequest<{
-    response: User;
-    payload: Partial<User>;
-  }>()({
-    endpoint: "/users/:userId",
-    method: "PATCH",
-  })
-  .setOptimistic(({ client, payload, request }) => {
-    // 1. Snapshot the current cache
-    const snapshot = client.cache.get(getUsers.cacheKey);
-
-    // 2. Optimistically update the cache
-    client.cache.update(getUsers, (prev) => ({
-      ...prev,
-      data: prev.data.map((u) => (u.id === Number(request.params?.userId) ? { ...u, ...payload } : u)),
-    }));
-
-    return {
-      // Available as `mutationContext` in callbacks
-      context: { snapshot },
-      // Called automatically on failure, abort or queue removal
-      rollback: () => {
-        if (snapshot) client.cache.set(getUsers, snapshot);
-      },
-      // Cache keys to invalidate on success
-      invalidate: [getUsers],
-    };
-  });
-```
-
-### 2. Use in a React component
+Return the changes from `setOptimistic`. The callback receives the mutation's `params`, `queryParams` and `payload`.
 
 ```tsx
-import { useFetch, useSubmit } from "@hyper-fetch/react";
+import { optimistic } from "@hyper-fetch/core";
 
-function UserList() {
-  const { data: users } = useFetch(getUsers);
-  const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
+const getTodos = client.createRequest<{ response: Todo[] }>()({ endpoint: "/todos" });
 
-  // mutationContext is auto-inferred - no extra generics needed
-  onSubmitSuccess(({ mutationContext }) => {
-    console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
-  });
+const toggleTodo = client
+  .createRequest<{ response: Todo; payload: { completed: boolean } }>()({
+    endpoint: "/todos/:todoId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos)
+      .patch(params.todoId, payload)
+      .rollback(({ data, previous }) => {
+        const before = previous.find((todo) => todo.id === Number(params.todoId));
+        return data.map((todo) => (todo.id === Number(params.todoId) && before ? before : todo));
+      }),
+  ]);
+```
 
-  onSubmitError(({ mutationContext }) => {
-    // rollback already happened automatically
-    alert("Update failed - changes have been reverted.");
-  });
+Components need nothing optimistic-specific:
 
-  const handleRename = (userId: number, newName: string) => {
-    submit({
-      params: { userId },
-      payload: { name: newName },
-    });
-  };
+```tsx
+function Todos() {
+  const { data: todos } = useFetch(getTodos);
+  const { submit } = useSubmit(toggleTodo);
 
-  return (
-    <ul>
-      {users?.map((user) => (
-        <li key={user.id}>
-          {user.name}
-          <button onClick={() => handleRename(user.id, "New Name")}>Rename</button>
-        </li>
-      ))}
-    </ul>
-  );
+  return todos?.map((todo) => (
+    <div key={todo.id} onClick={() => submit({ params: { todoId: todo.id }, payload: { completed: !todo.completed } })}>
+      {todo.title}
+    </div>
+  ));
 }
 ```
 
-### How It Works
-
-1. **Before the request is sent**, `setOptimistic` runs: it snapshots the cache, patches it optimistically, and returns
-   `context`, `rollback`, and `invalidate`.
-2. **The UI updates immediately** because `useFetch(getUsers)` reacts to cache changes.
-3. **On success**: the `invalidate` list triggers a cache refresh for `getUsers`, and `onSubmitSuccess` receives the
-   typed `mutationContext`.
-4. **On failure**: `rollback()` is called automatically to restore the cache, then `onSubmitError` fires with
-   `mutationContext`.
-5. **On abort**: treated like failure - `rollback()` runs, then `onSubmitAbort` fires.
-6. **On queue removal**: `rollback()` runs when the request is deleted from the dispatcher queue before it finishes.
-
-### When Rollback and Invalidation Run
-
-Settlement happens in `@hyper-fetch/core`, so it works the same for `request.send()`, `$hooks`, and React hooks. It also
-still runs when the component that started the request unmounts before the response arrives.
-
-| Outcome                                  | `rollback`                | `invalidate` |
-| ---------------------------------------- | ------------------------- | ------------ |
-| Success                                  | Not called                | Runs once    |
-| Final error                              | Once, reason `"error"`    | Not called   |
-| Abort                                    | Once, reason `"abort"`    | Not called   |
-| Removed from the queue                   | Once, reason `"removed"`  | Not called   |
-| Failed attempt that will be retried      | Waits for the last attempt | Waits        |
-| Failed while offline, waiting to resend  | Waits for the resend      | Waits        |
-
-An error thrown by `rollback` or by an invalidation is caught and logged, and the request still resolves normally.
+When `setOptimistic` returns synchronously, the cache changes within the `submit()` / `send()` call, so the list
+re-renders in the same tick.
 
 ---
 
-## The `setOptimistic` Callback
+## Helpers
 
-The callback receives an object with:
+| Helper                                                  | Use                                        |
+| ------------------------------------------------------- | ------------------------------------------ |
+| `set(updater)`                                          | Anything else - receives and returns the data |
+| `patch(match, fields)`                                  | Merge fields into matching list items      |
+| `insert(item, { at })`                                  | Add an item at `"end"` (default), `"start"` or an index |
+| `remove(match)`                                         | Remove matching items                      |
+| `increment(field, by)` / `increment(match, field, by)` | Counters on the data or on matching items  |
 
-| Argument  | Description                                             |
-| --------- | ------------------------------------------------------- |
-| `request` | The request instance (with params, endpoint, etc.)      |
-| `client`  | The client instance (access to `client.cache`)          |
-| `payload` | The payload being sent (typed from the request generic)  |
+`match` is a predicate, or a plain value compared with the item's `id`. Numbers and strings match each other, so a route
+param `"1"` matches the id `1`. Compare another field with `{ key }`:
 
-It returns an object with three optional fields:
-
-| Return field | Type                | Description                                        |
-| ------------ | ------------------- | -------------------------------------------------- |
-| `context`    | `Ctx` (generic)     | Passed as `mutationContext` in all lifecycle callbacks |
-| `rollback`   | `(args) => void`    | Called automatically once on failure, abort or queue removal |
-| `invalidate` | `RequestInstance[]`  | Cache keys invalidated on success                  |
-
-### The `rollback` Argument
-
-`rollback` receives a single object describing why the change is being reverted. You can ignore it, a rollback without
-arguments keeps working.
-
-| Field      | Type                               | Description                                                     |
-| ---------- | ---------------------------------- | --------------------------------------------------------------- |
-| `reason`   | `"error" \| "abort" \| "removed"` | Why the request did not succeed                                 |
-| `response` | Response or `undefined`            | The final response, after response mapping. Absent for `removed` |
-| `request`  | The request instance               | The request that was sent                                       |
-
-```typescript
-const patchUser = client
-  .createRequest<{ response: User; payload: Partial<User> }>()({
-    endpoint: "/users/:userId",
-    method: "PATCH",
-  })
-  .setOptimistic(({ client }) => {
-    const snapshot = client.cache.get(getUsers.cacheKey);
-
-    return {
-      rollback: ({ reason, response }) => {
-        if (snapshot) client.cache.set(getUsers, snapshot);
-
-        if (reason === "error") {
-          console.error("Update failed with status", response.status);
-        }
-      },
-    };
-  });
+```ts
+optimistic(getTodos).remove(params.todoId);
+optimistic(getTodos).patch((todo) => todo.listId === params.listId, { archived: true });
+optimistic(getTodos).remove(params.slug, { key: "slug" });
 ```
 
-:::note Aborting from `useSubmit`
+### Targets
 
-The `abort` method returned by `useSubmit` deletes the request from the queue, so its rollback receives the `"removed"`
-reason. `request.abort()` cancels the running request and reports `"abort"` with the abort response.
+- `optimistic(getUser.setParams({ userId }))` - one cache entry. A target whose params are not set is a compile error.
+- `optimistic.all(getUsers)` - every cached variant of the request, whatever the query params: filters, sorting and
+  all pages of [infinite lists](/docs/react/hooks/use-infinite-fetch).
+- `.list("field")` - the list helpers for an array inside an object response:
+
+```ts
+optimistic(getFeed).list("items").insert(post, { at: "start" });
+```
+
+The list helpers exist when the target's data is an array, `increment(field, by)` and `.list()` when it is an object.
+Unchanged items keep their references, and a helper that matches nothing does not write to the cache.
+
+---
+
+## Rollback
+
+**Core never infers an undo** - an updater is opaque, and items cannot be found reliably after other changes. You write
+the undo in `.rollback()`; core runs it.
+
+`.rollback(({ data, previous, reason, response, request }) => next)`:
+
+| Field      | Description                                                                         |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `data`     | The target's data **now**, after other mutations and server responses              |
+| `previous` | The target's data just before this change was applied - use it to look values up    |
+| `reason`   | `"error"`, `"abort"` or `"removed"` (from the queue)                                |
+| `response` | The mutation's failed response. Absent for `"removed"`                              |
+| `request`  | The mutation request                                                                |
+
+It returns the new data. **Returning nothing leaves the data as it is**, so a rollback can be a pure side effect. It must
+be synchronous.
+
+```ts
+// Re-add a removed item
+optimistic(getTodos)
+  .remove(params.todoId)
+  .rollback(({ data, previous }) => {
+    const removed = previous.find((todo) => todo.id === Number(params.todoId));
+    return removed ? [...data, removed] : data;
+  });
+
+// Opposite increment
+optimistic(getStats)
+  .increment("total", -1)
+  .rollback(({ data }) => ({ ...data, total: data.total + 1 }));
+
+// Keep a failed message in the list, marked for retry
+optimistic(getMessages)
+  .insert(message)
+  .rollback(({ data, reason }) =>
+    reason === "error"
+      ? data.map((item) => (item.id === message.id ? { ...item, status: "failed" } : item))
+      : data.filter((item) => item.id !== message.id),
+  );
+
+// No .rollback(): on failure the user is simply refetched
+optimistic(getUser.setParams({ userId: params.userId })).set((user) => ({ ...user, ...payload }));
+```
+
+:::caution Build the result from `data`
+
+`previous` is a snapshot from before the change. Returning it whole would discard everything that happened since, such
+as other mutations on the same list. Use it only to look old values up.
 
 :::
 
----
+### Commit
 
-## Advanced: Custom Rollback for Creates
+`.commit(({ data, response, request }) => next)` runs on success, for example to swap a temporary item for the server's.
+Use the `optimistic` builder passed to the callback to type `response` with the mutation's response:
 
-When creating a new item (not updating an existing one), the rollback might need to remove the optimistically added
-entry:
-
-```typescript
-const createUser = client
-  .createRequest<{
-    response: User;
-    payload: { name: string; email: string };
-  }>()({
-    endpoint: "/users",
-    method: "POST",
-  })
-  .setOptimistic(({ client, payload }) => {
-    const tempId = -Date.now();
-    const optimisticUser: User = { id: tempId, ...payload };
-
-    client.cache.update(getUsers, (prev) => ({
-      ...prev,
-      data: [...prev.data, optimisticUser],
-    }));
-
-    return {
-      context: { tempId },
-      rollback: () => {
-        client.cache.update(getUsers, (prev) => ({
-          ...prev,
-          data: prev.data.filter((u) => u.id !== tempId),
-        }));
-      },
-      invalidate: [getUsers],
-    };
+```ts
+const createTodo = client
+  .createRequest<{ response: Todo; payload: NewTodo }>()({ endpoint: "/todos", method: "POST" })
+  .setOptimistic(({ payload, optimistic }) => {
+    const temp = { id: -Date.now(), ...payload, completed: false };
+    return [
+      optimistic(getTodos)
+        .insert(temp)
+        .commit(({ data, response }) => data.map((todo) => (todo.id === temp.id ? response.data : todo)))
+        .rollback(({ data }) => data.filter((todo) => todo.id !== temp.id)),
+    ];
   });
 ```
 
 ---
 
-## Cautions
+## When things settle
 
-- **`cache.update` vs `cache.set`**: For creates (adding new items), use `cache.update` to merge into the existing
-  list. `cache.set` replaces the entire cache entry.
-- **Concurrent same-key mutations**: If two optimistic updates target the same cache key concurrently, each has its own
-  `rollback`. A failure on one will only revert to its snapshot, which may not include the other's changes. See the
-  [Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide for per-item rollback strategies
-  that avoid this problem.
+Everything below is triggered by core, also when the component that submitted has unmounted.
+
+| Outcome                                   | What happens                                                  | Then            |
+| ----------------------------------------- | ------------------------------------------------------------- | --------------- |
+| Success                                   | Each `.commit()` runs                                          | Targets refresh |
+| Final error                               | Each `.rollback()` runs, in reverse order of the changes       | Targets refresh |
+| Final error, `rollbackOnError` says no    | The change stays, no rollback                                  | Nothing         |
+| Abort, or removed from the queue          | Each `.rollback()` runs, in reverse order                      | Targets refresh |
+| Will retry, or waits offline to resend    | The change stays                                               | Nothing yet     |
+
+- **No flicker on success.** The optimistic value is the cached value until the refresh returns.
+- **Refresh waits for the last one.** With several mutations pending on one key, the key is refreshed once, after the
+  last of them settles. A refresh is a cache invalidation, so mounted `useFetch` hooks refetch it.
+- **Stale responses are discarded.** While a mutation that changed a key is pending, and for fetches that started
+  before it settled, fetch responses are not written to that key. The refresh supplies current data. Manual
+  `cache.set` / `cache.update` calls are never affected, and a key that had no data when the change was applied is not
+  held back, so a first load always lands.
+- **The refresh is the safety net.** An undo that is slightly off is corrected as soon as the refetch returns.
+- **No data, no change.** A target without cached data is left alone and its `.rollback()` is not called; it is still
+  refreshed.
+- **Aborting from `useSubmit`** removes the request from the queue, so rollbacks receive `"removed"`.
+  `request.abort()` cancels the running request and reports `"abort"`.
+- **User code can't break a request.** A helper, `.commit()` or `.rollback()` that throws (or returns a promise) is
+  logged, the request completes, the other changes still settle, and the target is refreshed.
 
 ---
 
-:::success Summary
+## Options and forms
 
-- Use **`request.setOptimistic()`** to define optimistic behavior on the request itself - no hook configuration needed.
-- Return **`context`** for typed data available in all lifecycle callbacks as `mutationContext`.
-- Return **`rollback`** to automatically revert cache changes on failure, abort or queue removal - also outside of React.
-- Return **`invalidate`** to refresh stale cache entries on success.
-- **`mutationContext` is auto-inferred** from the `setOptimistic` return type - no extra generics on `useSubmit`.
+`setOptimistic` accepts an array of changes, or an object that combines them with the rest:
+
+```ts
+toggleTodo.setOptimistic(({ params, payload }) => ({
+  updates: [optimistic(getTodos).patch(params.todoId, payload)],
+  // Delivered as `mutationContext` to the lifecycle callbacks
+  context: { todoId: params.todoId },
+  // A hand-written rollback for anything outside the cache, runs after the helpers' rollbacks
+  rollback: ({ reason }) => toast(`Not saved (${reason})`),
+  // Keep the change when the server rejects it with a conflict
+  rollbackOnError: ({ response }) => response.status !== 409,
+  // Don't refresh the targets afterwards
+  revalidate: false,
+}));
+```
+
+| Field             | Default | Description                                                                  |
+| ----------------- | ------- | ---------------------------------------------------------------------------- |
+| `updates`         | -       | Changes built with `optimistic()`                                            |
+| `context`         | -       | Typed `mutationContext` for the lifecycle callbacks                          |
+| `rollback`        | -       | Hand-written undo, receives `{ reason, response, request }`                 |
+| `invalidate`      | -       | Requests invalidated on success                                              |
+| `rollbackOnError` | `true`  | `true`, `false` or `({ response, request }) => boolean` - final errors only  |
+| `revalidate`      | `true`  | Refresh the targets after the last pending mutation settles                  |
+
+### Per call
+
+Pass changes for one call - they replace the request's own `setOptimistic`:
+
+```tsx
+submit({
+  params: { todoId },
+  payload,
+  optimistic: [optimistic(getTodos).patch(todoId, payload)],
+});
+
+// Or for every submit of one hook
+const { submit } = useSubmit(toggleTodo, {
+  optimistic: ({ params, payload }) => [optimistic(getTodos).patch(params.todoId, payload)],
+});
+```
+
+`request.send({ optimistic })` works the same outside React.
+
+---
+
+## Migrating from the hand-written form
+
+The object form - snapshot the cache, update it, return `{ context, rollback, invalidate }` - keeps working unchanged.
+Its `rollback` now also receives `{ reason, response, request }`; a rollback without arguments is unaffected.
+
+To move to the helpers:
+
+```ts
+// diff-remove-start
+.setOptimistic(({ client, payload, request }) => {
+  const todoId = Number(request.params?.todoId);
+  const previousItem = client.cache.get(getTodos.cacheKey)?.data?.find((t) => t.id === todoId);
+  client.cache.update(getTodos, (prev) => ({
+    ...prev,
+    data: prev.data.map((t) => (t.id === todoId ? { ...t, ...payload } : t)),
+  }));
+  return {
+    rollback: () => {
+      if (previousItem) {
+        client.cache.update(getTodos, (prev) => ({
+          ...prev,
+          data: prev.data.map((t) => (t.id === todoId ? previousItem : t)),
+        }));
+      }
+    },
+    invalidate: [getTodos],
+  };
+});
+// diff-remove-end
+// diff-add-start
+.setOptimistic(({ params, payload }) => [
+  optimistic(getTodos)
+    .patch(params.todoId, payload)
+    .rollback(({ data, previous }) => {
+      const before = previous.find((t) => t.id === Number(params.todoId));
+      return data.map((t) => (t.id === Number(params.todoId) && before ? before : t));
+    }),
+]);
+// diff-add-end
+```
+
+1. Replace the cache update with a helper, and the snapshot with `previous` inside `.rollback()`.
+2. Drop `invalidate` for the targets - they are refreshed automatically. Keep it for other requests.
+3. Keep `context` and side-effect rollbacks by returning the object form with `updates`.
+
+---
+
+:::secondary Summary
+
+- Describe each change with **`optimistic(target)`** and a helper: `set`, `patch`, `insert`, `remove`, `increment`.
+- Write the undo in **`.rollback()`** and success follow-ups in **`.commit()`** - core runs them exactly once.
+- Targets are **refreshed once** after the last pending mutation, and **stale fetch responses are discarded**.
+- Use **`optimistic.all()`** for every filter and page of a list, and **`.list("field")`** for lists inside objects.
+- Pass changes **per call** with the `optimistic` option of `send()`, `submit()` or `useSubmit`.
 
 :::
 
@@ -267,5 +313,5 @@ const createUser = client
 
 ## Next Steps
 
-For concurrent mutations, per-item rollback, toggle patterns, and cross-cache coordination, see the
+For concurrent mutations on one list, toggles and several caches at once, see the
 [Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide.

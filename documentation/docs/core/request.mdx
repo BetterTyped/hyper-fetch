@@ -946,64 +946,55 @@ console.log(error); // Error: Must be 18+
 
 11. ### Optimistic Updates
 
-Optimistic updates let you update the UI immediately before the server responds, then automatically rollback on failure.
-Configure optimistic behavior directly on the request with `setOptimistic`:
+Optimistic updates change the cache before the server responds. Describe each change with `optimistic()` and its undo
+with `.rollback()` - core applies the change, runs the undo on failure, abort or queue removal, and refreshes the target
+once the last pending mutation on it settles:
 
 ```typescript
+import { optimistic } from "@hyper-fetch/core";
+
 const patchUser = client
-  .createRequest<{
-    response: User;
-    payload: Partial<User>;
-  }>()({
+  .createRequest<{ response: User; payload: Partial<User> }>()({
     endpoint: "/users/:userId",
     method: "PATCH",
   })
-  .setOptimistic(({ client, payload, request }) => {
-    const snapshot = client.cache.get(getUsers.cacheKey);
-
-    client.cache.update(getUsers, (prev) => ({
-      ...prev,
-      data: prev.data.map((u) =>
-        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
-      ),
-    }));
-
-    return {
-      context: { snapshot },
-      rollback: () => {
-        if (snapshot) client.cache.set(getUsers, snapshot);
-      },
-      invalidate: [getUsers],
-    };
-  });
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getUsers)
+      .patch(params.userId, payload)
+      .rollback(({ data, previous }) => {
+        const before = previous.find((user) => user.id === Number(params.userId));
+        return data.map((user) => (user.id === Number(params.userId) && before ? before : user));
+      }),
+  ]);
 ```
 
-The callback receives `request`, `client`, and `payload`. It returns:
+The callback receives `request`, `client`, `payload`, `params`, `queryParams` and an `optimistic` builder typed by the
+mutation. It returns an array of changes, or an object:
 
-- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks (`onResponse`, `$hooks`, React
-  hooks). The type is auto-inferred.
-- **`rollback`** — called automatically on failure or abort to revert cache changes.
-- **`invalidate`** — list of requests whose cache is refreshed on success.
+- **`updates`** — changes built with `optimistic()`: `set`, `patch`, `insert`, `remove`, `increment`.
+- **`context`** — arbitrary data available as `mutationContext` in all lifecycle callbacks. The type is auto-inferred.
+- **`rollback`** — a hand-written undo, called once on failure, abort or queue removal with `{ reason, response, request }`.
+- **`invalidate`** — requests invalidated on success.
+- **`rollbackOnError`** / **`revalidate`** — skip the rollback for some errors, or the refresh of the targets.
 
 All fields are optional. The callback runs before the request is dispatched — if it throws, the request is not sent
-and an error response is returned.
+and an error response is returned. Pass `send({ optimistic })` to use other changes for a single call.
 
-`setOptimistic` is type-safe: `mutationContext` is available in `send()` callbacks, `$hooks` listeners, and React hooks
-(`onSubmitSuccess`, `onSubmitError`, etc.) with its type automatically inferred from the `context` return value.
+The `context` is delivered to the lifecycle callbacks. React hooks (`onSubmitSuccess`, `onSubmitError`, etc.) receive it
+as `mutationContext`, typed from the `context` return value. `send()` callbacks and `$hooks` listeners receive the whole
+optimistic result as `mutationContext`, with your value under `context`:
 
 ```typescript
-// send() callback — mutationContext is typed
 patchUser.send({
   params: { userId: 1 },
   payload: { name: "New Name" },
   onResponse: ({ mutationContext }) => {
-    console.log(mutationContext?.snapshot);
+    console.log(mutationContext?.context);
   },
 });
 
-// $hooks — mutationContext flows through
 patchUser.$hooks.onResponse(({ mutationContext }) => {
-  console.log("Snapshot:", mutationContext?.snapshot);
+  console.log("Context:", mutationContext?.context);
 });
 ```
 

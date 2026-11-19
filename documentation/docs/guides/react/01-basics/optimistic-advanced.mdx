@@ -5,299 +5,144 @@ sidebar_label: Advanced Optimistic
 
 # Advanced Optimistic Patterns
 
-The [Optimistic Updates](/docs/guides/react/basics/optimistic-approach) guide covers the fundamentals - snapshot, rollback,
-and invalidation for single mutations. This guide explores patterns you'll encounter in real applications: concurrent
-mutations on the same list, reorder operations, batch toggling, and cross-cache coordination.
+The [Optimistic Updates](/docs/guides/react/basics/optimistic-approach) guide covers helpers, `.rollback()` and when
+things settle. This guide collects the patterns for real applications: many mutations on one list, toggles, batches and
+several caches at once.
 
-:::secondary What you'll learn
+:::tip Purpose
 
-1. How to run **multiple optimistic mutations concurrently** on the same cached list without them clashing.
-2. How to build **granular rollbacks** that revert only a single item instead of the entire list.
-3. How to handle **toggle patterns** (like/unlike, pin/unpin) optimistically.
-4. How to coordinate optimistic updates **across multiple cache keys**.
+1. **Concurrent mutations**: why per-item rollbacks keep in-flight mutations independent.
+2. **Toggles and batches**: the same rule applied to on/off switches and bulk actions.
+3. **Several caches**: one mutation keeping a list, a counter and every filter in step.
 
 :::
 
 ---
 
-## Setup
+## Concurrent mutations on one list
 
-All examples use this shared setup:
+A user toggles several todos quickly; every mutation changes `getTodos`. Core keeps them apart:
 
-```typescript
-import { client } from "./client";
+- Each rollback receives the **current** `data`, so reverting one mutation keeps the others' changes - as long as the
+  rollback only touches its own item. Restore the item from `previous`, never the whole list.
+- Fetch responses for the list are held back while any of the mutations is pending, so a refetch can't overwrite them.
+- The list is refreshed **once**, after the last mutation settles, and the server's data replaces the optimistic one.
 
-interface Todo {
-  id: number;
-  title: string;
-  completed: boolean;
-  pinned: boolean;
-}
-
-const getTodos = client.createRequest<{ response: Todo[] }>()({
-  endpoint: "/todos",
-  method: "GET",
-});
-```
-
----
-
-## Concurrent Mutations on the Same List
-
-The most common real-world scenario: a user rapidly toggles "completed" on multiple items in a todo list. Each mutation
-targets the same cache key (`getTodos`). If you snapshot the entire list and restore it on rollback, reverting one failed
-request will undo the other successful ones.
-
-The solution: **snapshot only the item you're changing**, and rollback by restoring that single item.
-
-### Per-Item Rollback
-
-```typescript
+```ts
 const toggleTodo = client
-  .createRequest<{
-    response: Todo;
-    payload: { completed: boolean };
-  }>()({
+  .createRequest<{ response: Todo; payload: { completed: boolean } }>()({
     endpoint: "/todos/:todoId",
     method: "PATCH",
   })
-  .setOptimistic(({ client, payload, request }) => {
-    const todoId = Number(request.params?.todoId);
-
-    // Snapshot only the item being changed
-    const currentList = client.cache.get(getTodos.cacheKey);
-    const previousItem = currentList?.data?.find((t) => t.id === todoId);
-
-    // Apply optimistic update
-    client.cache.update(getTodos, (prev) => ({
-      ...prev,
-      data: prev.data.map((t) => (t.id === todoId ? { ...t, ...payload } : t)),
-    }));
-
-    return {
-      context: { todoId, previousItem },
-      rollback: () => {
-        // Revert only this item - other concurrent mutations are untouched
-        if (previousItem) {
-          client.cache.update(getTodos, (prev) => ({
-            ...prev,
-            data: prev.data.map((t) => (t.id === todoId ? previousItem : t)),
-          }));
-        }
-      },
-      invalidate: [getTodos],
-    };
-  });
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos)
+      .patch(params.todoId, payload)
+      // Restores this item only - other pending toggles are untouched
+      .rollback(({ data, previous }) => {
+        const before = previous.find((todo) => todo.id === Number(params.todoId));
+        return data.map((todo) => (todo.id === Number(params.todoId) && before ? before : todo));
+      }),
+  ]);
 ```
 
-### Why this works
+:::info Two mutations on the same field
 
-When two `toggleTodo` mutations fire concurrently:
+When two pending toggles change the same field and the earlier one fails, its rollback restores the value it saw before
+its own change. The refresh after the last toggle settles replaces it with the server's value either way.
 
-1. **Mutation A** (todo #1): snapshots item #1, marks it completed, sets rollback for item #1
-2. **Mutation B** (todo #2): snapshots item #2, marks it completed, sets rollback for item #2
-3. If **Mutation A fails**: rollback restores only item #1 - item #2's optimistic state is preserved
-4. If **Mutation B succeeds**: `invalidate` refreshes the list with server truth
-
-Each mutation operates on its own item snapshot, so rollbacks never interfere with each other.
-
-### Component
-
-```tsx
-function TodoList() {
-  const { data: todos } = useFetch(getTodos);
-  const { submit, onSubmitError } = useSubmit(toggleTodo);
-
-  onSubmitError(({ mutationContext }) => {
-    console.log(`Failed to toggle todo #${mutationContext?.todoId}`);
-  });
-
-  const handleToggle = (todo: Todo) => {
-    submit({
-      params: { todoId: todo.id },
-      payload: { completed: !todo.completed },
-    });
-  };
-
-  return (
-    <ul>
-      {todos?.map((todo) => (
-        <li key={todo.id}>
-          <label>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => handleToggle(todo)}
-            />
-            {todo.title}
-          </label>
-        </li>
-      ))}
-    </ul>
-  );
-}
-```
-
----
-
-## Toggle Pattern (Like / Unlike)
-
-Toggles are a special case of concurrent mutations. The key insight: the optimistic update is the _inverse_ of the
-current state, and the rollback restores the original value.
-
-```typescript
-const togglePin = client
-  .createRequest<{
-    response: Todo;
-    payload: { pinned: boolean };
-  }>()({
-    endpoint: "/todos/:todoId/pin",
-    method: "PATCH",
-  })
-  .setOptimistic(({ client, payload, request }) => {
-    const todoId = Number(request.params?.todoId);
-    const currentList = client.cache.get(getTodos.cacheKey);
-    const wasPinned = currentList?.data?.find((t) => t.id === todoId)?.pinned;
-
-    client.cache.update(getTodos, (prev) => ({
-      ...prev,
-      data: prev.data.map((t) => (t.id === todoId ? { ...t, pinned: payload.pinned } : t)),
-    }));
-
-    return {
-      context: { todoId, wasPinned },
-      rollback: () => {
-        client.cache.update(getTodos, (prev) => ({
-          ...prev,
-          data: prev.data.map((t) => (t.id === todoId ? { ...t, pinned: !!wasPinned } : t)),
-        }));
-      },
-    };
-  });
-```
-
-Notice there's no `invalidate` - for simple toggles, the rollback is enough on failure, and the cache already reflects
-the correct state on success.
-
----
-
-## Cross-Cache Optimistic Updates
-
-Sometimes a mutation affects multiple cache keys. For example, completing a todo might update both the todo list and a
-separate "stats" endpoint:
-
-```typescript
-interface Stats {
-  total: number;
-  completed: number;
-}
-
-const getStats = client.createRequest<{ response: Stats }>()({
-  endpoint: "/todos/stats",
-  method: "GET",
-});
-
-const completeTodo = client
-  .createRequest<{
-    response: Todo;
-    payload: { completed: true };
-  }>()({
-    endpoint: "/todos/:todoId/complete",
-    method: "PATCH",
-  })
-  .setOptimistic(({ client, request }) => {
-    const todoId = Number(request.params?.todoId);
-
-    // Snapshot both caches
-    const todosSnapshot = client.cache.get(getTodos.cacheKey);
-    const statsSnapshot = client.cache.get(getStats.cacheKey);
-
-    // Update the todo list
-    client.cache.update(getTodos, (prev) => ({
-      ...prev,
-      data: prev.data.map((t) => (t.id === todoId ? { ...t, completed: true } : t)),
-    }));
-
-    // Update the stats counter
-    if (statsSnapshot?.data) {
-      client.cache.update(getStats, (prev) => ({
-        ...prev,
-        data: { ...prev.data, completed: prev.data.completed + 1 },
-      }));
-    }
-
-    return {
-      context: { todoId },
-      rollback: () => {
-        if (todosSnapshot) client.cache.set(getTodos, todosSnapshot);
-        if (statsSnapshot) client.cache.set(getStats, statsSnapshot);
-      },
-      invalidate: [getTodos, getStats],
-    };
-  });
-```
-
-:::warning Cross-cache rollback
-When rolling back multiple cache keys, use `cache.set` with full snapshots to avoid partial state. If multiple
-mutations modify overlapping caches concurrently, consider using per-item rollback instead of full snapshots.
 :::
 
 ---
 
-## Batch Operations
+## Toggles
 
-For operations like "complete all" or "delete selected," apply the same per-item principle at scale:
+Flip back with the opposite value instead of a snapshot:
 
-```typescript
+```ts
+const togglePin = client
+  .createRequest<{ response: Todo; payload: { pinned: boolean } }>()({
+    endpoint: "/todos/:todoId/pin",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => [
+    optimistic(getTodos)
+      .patch(params.todoId, payload)
+      .rollback(({ data }) =>
+        data.map((todo) => (todo.id === Number(params.todoId) ? { ...todo, pinned: !payload.pinned } : todo)),
+      ),
+  ]);
+```
+
+---
+
+## Batches
+
+Match many items with a predicate and restore each from `previous`:
+
+```ts
 const completeAll = client
-  .createRequest<{
-    response: { updated: number };
-    payload: { todoIds: number[] };
-  }>()({
+  .createRequest<{ response: { updated: number }; payload: { todoIds: number[] } }>()({
     endpoint: "/todos/complete-all",
     method: "POST",
   })
-  .setOptimistic(({ client, payload }) => {
-    const idsToComplete = new Set(payload.todoIds);
-
-    // Snapshot only the items being changed
-    const currentList = client.cache.get(getTodos.cacheKey);
-    const previousItems = currentList?.data?.filter((t) => idsToComplete.has(t.id)) ?? [];
-
-    client.cache.update(getTodos, (prev) => ({
-      ...prev,
-      data: prev.data.map((t) => (idsToComplete.has(t.id) ? { ...t, completed: true } : t)),
-    }));
-
-    return {
-      context: { completedIds: payload.todoIds },
-      rollback: () => {
-        // Restore each item to its previous state
-        const prevMap = new Map(previousItems.map((t) => [t.id, t]));
-        client.cache.update(getTodos, (prev) => ({
-          ...prev,
-          data: prev.data.map((t) => prevMap.get(t.id) ?? t),
-        }));
-      },
-      invalidate: [getTodos],
-    };
+  .setOptimistic(({ payload }) => {
+    const ids = new Set(payload.todoIds);
+    return [
+      optimistic(getTodos)
+        .patch((todo) => ids.has(todo.id), { completed: true })
+        .rollback(({ data, previous }) => {
+          const before = new Map(previous.filter((todo) => ids.has(todo.id)).map((todo) => [todo.id, todo]));
+          return data.map((todo) => before.get(todo.id) ?? todo);
+        }),
+    ];
   });
+```
+
+---
+
+## Several caches at once
+
+Return one change per target. They are applied in order and reverted in reverse order, each target is refreshed on its
+own, and a target without data is skipped.
+
+```ts
+const completeTodo = client
+  .createRequest<{ response: Todo }>()({ endpoint: "/todos/:todoId/complete", method: "PATCH" })
+  .setOptimistic(({ params }) => [
+    // Every filter and page of the list
+    optimistic
+      .all(getTodos)
+      .patch(params.todoId, { completed: true })
+      .rollback(({ data }) =>
+        data.map((todo) => (todo.id === Number(params.todoId) ? { ...todo, completed: false } : todo)),
+      ),
+    // A counter in another entry
+    optimistic(getStats)
+      .increment("completed", 1)
+      .rollback(({ data }) => ({ ...data, completed: data.completed - 1 })),
+  ]);
 ```
 
 ---
 
 ## Guidelines
 
-| Scenario | Rollback strategy | Why |
-| --- | --- | --- |
-| Single item in a list | Snapshot the **item**, restore by ID | Other concurrent mutations are unaffected |
-| Toggle (on/off) | Store the **previous value**, flip back | Simple, no snapshot object needed |
-| Create (add to list) | Filter out by **temp ID** | See the [basic guide](/docs/guides/react/basics/optimistic-approach#advanced-custom-rollback-for-creates) |
-| Cross-cache update | Snapshot **each cache key**, restore all | Atomic revert across caches |
-| Batch operation | Snapshot **affected items**, restore by ID map | Same as single-item, scaled |
+| Scenario                 | Rollback                                       |
+| ------------------------ | ---------------------------------------------- |
+| One item in a list       | Restore the item from `previous`, by id        |
+| Toggle                   | Write the opposite value                       |
+| Create                   | Filter the temporary id out, swap it in `.commit()` |
+| Delete                   | Re-add the item from `previous`                |
+| Counter                  | Opposite `increment`                           |
+| Batch                    | Restore the matched items from `previous`      |
+| Hard to undo             | No `.rollback()` - the refresh restores the data |
 
-:::success Key takeaway
-The fundamental rule for concurrent optimistic updates: **scope your snapshot and rollback to the smallest unit of
-change**. Snapshot the item, not the list. Rollback the item, not the world. This makes multiple in-flight mutations
-independent of each other.
+---
+
+:::secondary Summary
+
+- **Scope every rollback to its own change**: build the result from `data`, look old values up in `previous`.
+- Core holds back stale fetch responses and **refreshes each target once**, after its last pending mutation.
+- Use **`optimistic.all()`** and several operations to keep lists, counters and pages in step.
+
 :::

@@ -385,34 +385,40 @@ Below is a full list of returned values.
 
 ## Optimistic Updates
 
-`useSubmit` has first-class support for optimistic mutations. Configure optimistic behavior on the request with
-`setOptimistic`, and the hook handles the entire lifecycle — running the callback before the request is sent, rolling
-back on failure, and invalidating cache on success.
+`useSubmit` has first-class support for optimistic mutations. Describe the change on the request with `setOptimistic`
+and `optimistic()` helpers - core applies it before the request is sent, rolls it back on failure and refreshes the
+target afterwards, even when the component unmounts in the meantime.
 
 ```tsx title="Optimistic update with rollback"
+import { optimistic } from "@hyper-fetch/core";
+
 const patchUser = client
   .createRequest<{ response: User; payload: Partial<User> }>()({
     endpoint: "/users/:userId",
     method: "PATCH",
   })
-  .setOptimistic(({ client, payload, request }) => {
-    const snapshot = client.cache.get(getUsers.cacheKey);
+  .setOptimistic(({ params, payload }) => ({
+    context: { userId: params.userId },
+    updates: [
+      optimistic(getUsers)
+        .patch(params.userId, payload)
+        .rollback(({ data, previous }) => {
+          const before = previous.find((user) => user.id === Number(params.userId));
+          return data.map((user) => (user.id === Number(params.userId) && before ? before : user));
+        }),
+    ],
+  }));
+```
 
-    client.cache.update(getUsers, (prev) => ({
-      ...prev,
-      data: prev.data.map((u) =>
-        u.id === Number(request.params?.userId) ? { ...u, ...payload } : u,
-      ),
-    }));
+Changes can also come from the hook or a single call. They replace the request's own `setOptimistic`, and the call wins
+over the hook:
 
-    return {
-      context: { snapshot },
-      rollback: () => {
-        if (snapshot) client.cache.set(getUsers, snapshot);
-      },
-      invalidate: [getUsers],
-    };
-  });
+```tsx
+const { submit } = useSubmit(patchUser, {
+  optimistic: ({ params, payload }) => [optimistic(getUsers).patch(params.userId, payload)],
+});
+
+submit({ params: { userId: 1 }, payload, optimistic: [optimistic(getUsers).patch(1, payload)] });
 ```
 
 The `mutationContext` returned from the optimistic callback is available in all submit lifecycle callbacks, fully typed:
@@ -421,8 +427,8 @@ The `mutationContext` returned from the optimistic callback is available in all 
 const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished, onSubmitAbort } = useSubmit(patchUser);
 
 onSubmitSuccess(({ mutationContext }) => {
-  // mutationContext is typed as { snapshot: ... } | undefined
-  console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
+  // mutationContext is typed as { userId: ... } | undefined
+  console.log("Updated user", mutationContext?.userId);
 });
 
 onSubmitError(({ mutationContext }) => {
@@ -442,11 +448,12 @@ onSubmitFinished(({ mutationContext }) => {
 
 **How it works:**
 
-1. When `submit()` is called, the `setOptimistic` callback runs _before_ the network request.
-2. The callback can update the cache optimistically and return `context`, `rollback`, and `invalidate`.
-3. On **success**: cache keys from `invalidate` are refreshed, then `onSubmitSuccess` fires.
-4. On **error** or **abort**: `rollback()` is called automatically, then the error/abort callback fires.
-5. With **retries**: `rollback` only runs after the final failure — intermediate retries keep the optimistic state.
+1. When `submit()` is called, the changes are applied _before_ the network request, in the same tick.
+2. On **success**: each `.commit()` runs and the targets are refreshed once no other mutation is pending on them, then
+   `onSubmitSuccess` fires.
+3. On **error** or **abort**: each `.rollback()` runs in reverse order, then the error/abort callback fires.
+4. With **retries**: rollbacks only run after the final failure — intermediate retries keep the optimistic state.
+5. Fetch responses that started before the mutation settled are not written to the changed targets.
 
 :::info Bounce compatibility
 
