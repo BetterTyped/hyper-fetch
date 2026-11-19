@@ -1,0 +1,180 @@
+---
+sidebar_position: 6
+title: React hooks - useCache
+sidebar_label: useCache
+---
+
+# useCache
+
+[Read the API Reference »](/docs/api/react/Hooks/useCache)
+
+The `useCache` hook **subscribes to cache updates** for a given request without triggering any network request. It is a
+read-only observer of the cache layer - it provides cached state and methods to manipulate the cache, but it does not
+fetch, submit, or abort requests.
+
+:::tip Purpose
+
+1. **Subscribe to cache changes** for a specific request without initiating a fetch.
+2. **Display cached data** from one request in a different component (cross-component data sharing).
+3. **Invalidate cache** to force other hooks (`useFetch`, `useSubmit`) to re-fetch.
+4. **Manipulate cache state** with `setData`, `setError`, and `setLoading`.
+
+:::
+
+:::caution What useCache does NOT provide
+
+Unlike `useFetch`, `useCache` does **not** provide `abort`, `onSuccess`, `onError`, `refetch`, or any network-related
+functionality. It only observes and manipulates the cache. If you need to fetch data, use `useFetch` instead.
+
+:::
+
+> **When to use it**: Use `useCache` when you need to display or react to cached data that was fetched elsewhere. For
+> example, a sidebar component that shows user details fetched by a different page component.
+
+---
+
+## Quick Start
+
+Just provide a prepared [`Request`](/docs/core/request) instance to the hook and listen to it's cache state.
+
+:::warning Remember to match the `cacheKey`
+
+Request's `cacheKey` are generated dynamically based on the request's `queryKey` and `params`. If you want to use
+`useCache` hook, you need to ensure that the `cacheKey` is matching the triggered request's `cacheKey`.
+
+For example if your request has params, provide them like:
+
+```ts
+// When fetching data
+const { data } = useFetch(getUser.setParams({ userId: 1 }));
+
+// code-editor-split
+
+// When listening to cache from another component
+const { data } = useCache(getUser.setParams({ userId: 1 }));
+```
+
+:::
+
+```tsx
+import { useCache } from "@hyper-fetch/react";
+
+const { data, error, loading, invalidate, setData, setError, setLoading } = useCache(getUsers);
+```
+
+:::info Cache-only - no network requests
+
+`useCache` never sends a request to the server. If the cache is empty when the hook mounts, `data` will be `null` until
+another hook (like `useFetch`) populates the cache for the same `cacheKey`.
+
+:::
+
+---
+
+## Invalidate cache
+
+Invalidate the cache for the current request or a custom key.
+
+```tsx
+const { invalidate } = useCache(request);
+
+// Invalidate current request cache
+invalidate();
+
+// Invalidate by custom key (Regex or cacheKey)
+invalidate(cacheKey);
+```
+
+:::info Invalidating cache
+
+In many cases, **you don't need to use** the `useCache` hook to invalidate cache entries. You can call the `invalidate`
+method directly on the cache instance for more flexibility. Do not worry - it is integrated with our hooks, so you can
+use it in the same way as with the `useCache` hook.
+
+```tsx
+import { client } from "./client";
+
+// Invalidate cache for a specific request
+client.cache.invalidate(request);
+
+// Invalidate cache by custom key (Regex or cacheKey)
+client.cache.invalidate(/^getUsers/);
+
+// Invalidate cache by request instance
+client.cache.invalidate(request);
+```
+
+:::
+
+---
+
+## Clear State
+
+The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
+
+```tsx title="Using clearState"
+import { useCache } from "@hyper-fetch/react";
+import { getUsers } from "./api/users";
+
+function UsersCache() {
+  const { data, clearState } = useCache(getUsers);
+
+  return (
+    <div>
+      {data && <Table data={data} />}
+      <button type="button" onClick={clearState}>
+        Clear Cache State
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useCache(request, options)
+```
+
+(@import react UseCacheOptionsType type=returns)
+
+---
+
+## State and methods
+
+This hook returns the following values.
+
+```tsx
+const values = useCache(request);
+```
+
+(@import react useCache type=returns)
+
+<LinkCard
+  type="api"
+  title="useCache API Reference"
+  description="Learn more about the useCache hook."
+  to="/docs/api/react/Hooks/useCache"
+/>
+
+---
+
+## See also
+
+<LinkCard
+  type="docs"
+  to="/docs/react/overview"
+  title="Use with React"
+  description="Overview of all React hooks and the approach to use them"
+/>
+
+<LinkCard
+  type="docs"
+  to="/docs/core/cache"
+  title="Cache"
+  description="Learn more about the Cache class and its methods"
+/>

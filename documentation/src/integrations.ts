@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Network, Orbit } from "lucide-react";
+import { Book, Zap } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -12,6 +12,8 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
 const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
+const OrpcIcon = isBrowser() ? require("../static/img/integration-orpc.svg").default : () => null;
+const TrpcIcon = isBrowser() ? require("../static/img/integration-trpc.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
 // const StrapiIcon = isBrowser() ? require("../static/img/integration-strapi.svg").default : () => null;
 // const HasuraIcon = isBrowser() ? require("../static/img/integration-hasura.svg").default : () => null;
@@ -64,6 +66,25 @@ export const integrations: Section[] = [
     featured: true,
     category: "Plugin",
     package: "plugin-eslint",
+  },
+  {
+    label: "Oxlint",
+    description:
+      "Run the HyperFetch lint rules on Oxlint, the Rust linter, with the same rule names as the ESLint plugin.",
+    dir: "plugin-oxlint",
+    isPackage: true,
+    paths: ["plugin-oxlint"],
+    img: Zap,
+    text: "drop-shadow-sm !text-sky-500 dark:!text-sky-400",
+    textAction: "focus:!text-sky-500 focus:dark:!text-sky-400 active:!text-sky-600 active:dark:!text-sky-300",
+    textHover: "hover:!text-sky-500 hover:dark:!text-sky-400",
+    icon: "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 bg-sky-400 dark:bg-sky-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
+    border: "border-sky-500 dark:border-sky-400",
+    borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
+    category: "Plugin",
+    package: "plugin-oxlint",
   },
   {
     label: "Devtools",
@@ -148,7 +169,7 @@ export const integrations: Section[] = [
     dir: "adapter-orpc",
     isPackage: true,
     paths: ["adapter-orpc"],
-    img: Orbit,
+    img: OrpcIcon,
     text: "drop-shadow-sm !text-teal-500 dark:!text-teal-400",
     textAction: "focus:!text-teal-500 focus:dark:!text-teal-400 active:!text-teal-600 active:dark:!text-teal-300",
     textHover: "hover:!text-teal-500 hover:dark:!text-teal-400",
@@ -166,7 +187,7 @@ export const integrations: Section[] = [
     dir: "adapter-trpc",
     isPackage: true,
     paths: ["adapter-trpc"],
-    img: Network,
+    img: TrpcIcon,
     text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
     textAction: "focus:!text-blue-500 focus:dark:!text-blue-400 active:!text-blue-600 active:dark:!text-blue-300",
     textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",

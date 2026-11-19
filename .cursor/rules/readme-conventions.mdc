@@ -17,7 +17,7 @@ alwaysApply: false
 
 - Titles use emoji + human-friendly name: `# ⚡ Hyper Fetch`, NOT `# @hyper-fetch/core`
 - Each package has its own emoji (keep them consistent):
-  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🧪 testing, 🏯 hono
+  - ⚡ core, ⚛️ react, 🛰️ sockets, 🪄 cli, 🏛️ axios, 🔥 firebase/firebase-admin, 🎡 graphql, 🛸 orpc, 🔧 devtools plugin, ⚛️ hyper-flow, 🧹 eslint, 🐂 oxlint, 🧪 testing, 🏯 hono
 - Subtitle goes in a centered `<p align="center"><b>...</b></p>` right after the title
 - READMEs must look visually appealing — emojis in section headers, bold key terms in capabilities
 
@@ -93,8 +93,11 @@ Key capabilities are the MOST IMPORTANT part of the README. They sell the packag
   adapter or transport ships
 - Keep code examples short and readable: one idea per block, no walls of chained setup calls
 - Two quick start paths: manual setup + CLI generation
-- Packages table with package name (npm link) and one line on what it does. No per-row badges: GitHub caches them
-  and the size services are often down
+- Packages table: package (repo link) with a one-line `<sub>` description, then Version, Downloads and Size badges.
+  Version uses shields `npm/v`. Downloads and Size use the cached badges on `api.maciejpyrc.com/portfolio/npm/`
+  (`downloads.svg?packages=` and `size.svg?package=&external=`), never shields bundlephobia or bundlejs, which time out
+  or get rate limited. List core and each SDK in `external` so a size counts only the package itself
+- The top downloads badge sums every published package through the same `downloads.svg` endpoint
 - Sponsor section preserved
 
 ## Formatting Rules

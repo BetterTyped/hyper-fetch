@@ -1,0 +1,65 @@
+{
+  "name": "oxlint-plugin-hyper-fetch",
+  "version": "0.0.0",
+  "description": "Oxlint plugin for HyperFetch",
+  "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "start": "pnpm build && npx run-when-changed --watch 'src/**/*.ts' --exec 'pnpm build'",
+    "build": "vite build",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
+    "tests": "pnpm lint-staged"
+  },
+  "dependencies": {
+    "@oxlint/plugins": "1.62.0"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.62.0"
+  },
+  "devDependencies": {
+    "oxlint": "1.62.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "vitest related --run --passWithNoTests"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/plugin-oxlint"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "keywords": [
+    "oxlint",
+    "oxc",
+    "lint",
+    "hyper-fetch"
+  ]
+}

@@ -14,7 +14,8 @@ export default defineConfig({
     },
     minify: false,
     rollupOptions: {
-      external: getRollupExternalsFromPackageJson(__dirname),
+      // ESLint and typescript-eslint come from the user's install. Bundling them also swaps Node built-ins for browser stubs.
+      external: [...getRollupExternalsFromPackageJson(__dirname), /^eslint(\/|$)/, /^@typescript-eslint\//],
     },
     sourcemap: true,
   },

@@ -26,6 +26,7 @@ const createIo = ({
   bootstrapToken = false,
   githubReleases = ["1.0.0"],
   legacyReleases = [],
+  docsVersions = [],
 } = {}) => {
   const calls = [];
   const remaining = { ...failures };
@@ -67,6 +68,7 @@ const createIo = ({
     hasGithubRelease: (version) => githubReleases.includes(version),
     hasLegacyRelease: (version) => legacyReleases.includes(version),
     createGithubRelease: (version, { prerelease }) => calls.push(`github:${version}${prerelease ? ":prerelease" : ""}`),
+    docsVersions: () => docsVersions,
   };
 };
 
@@ -245,6 +247,29 @@ describe("runRelease", () => {
     assert.ok(io.calls.includes("next:beta"));
     assert.ok(io.calls.includes("publish:@hyper-fetch/core:beta"));
     assert.ok(io.calls.includes("github:1.1.0-beta.1:prerelease"));
+  });
+
+  it("refuses a major before the outgoing docs are versioned", async () => {
+    const io = createIo({ next: "2.0.0", docsVersions: ["v0.0.0"] });
+    await assert.rejects(runRelease(io), /v1 docs, which are not versioned yet.*docs:version --major 1/);
+    assert.deepEqual(io.state.tags, ["v1.0.0"]);
+    assert.ok(!io.calls.includes("build"));
+  });
+
+  it("releases a major once the outgoing docs are versioned", async () => {
+    const io = createIo({ next: "2.0.0", docsVersions: ["v1.0.0"] });
+    assert.deepEqual(await runRelease(io), { released: true, version: "2.0.0" });
+  });
+
+  it("does not wait for versioned docs on a prerelease major", async () => {
+    const io = createIo({
+      branch: "beta",
+      tags: ["v1.0.0", "v1.1.0-beta.0"],
+      registry: { "@hyper-fetch/core": ["1.1.0-beta.0"], "@hyper-fetch/react": ["1.1.0-beta.0"] },
+      githubReleases: ["1.1.0-beta.0"],
+      next: "2.0.0-beta.0",
+    });
+    assert.equal((await runRelease(io)).released, true);
   });
 
   it("changes nothing on a dry run", async () => {
