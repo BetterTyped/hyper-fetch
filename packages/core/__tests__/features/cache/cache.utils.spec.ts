@@ -6,6 +6,24 @@ import type { ResponseDetailsType } from "managers";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {
+    it.each([[0], [false], [""]])("should keep the %j response data", (data) => {
+      const previousResponse = {
+        data: "previous",
+        error: null,
+        status: 200,
+        success: true,
+        extra: xhrExtra,
+      } as unknown as Parameters<typeof getCacheData>[0];
+      const response = {
+        data,
+        error: null,
+        status: 200,
+        success: true,
+        extra: xhrExtra,
+      } as unknown as Parameters<typeof getCacheData>[1];
+
+      expect(getCacheData(previousResponse, response).data).toBe(data);
+    });
     it("should not override cache on retry or refresh error response", async () => {
       const previousResponse = {
         data: {},

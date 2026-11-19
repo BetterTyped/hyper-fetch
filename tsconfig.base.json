@@ -17,6 +17,9 @@
       "path": "./packages/adapter-orpc"
     },
     {
+      "path": "./packages/adapter-trpc"
+    },
+    {
       "path": "./packages/codegen-openapi"
     },
     {
