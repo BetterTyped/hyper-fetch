@@ -57,8 +57,8 @@ git log --no-merges --format='%h %s' "$(git describe --tags --abbrev=0 origin/ma
 
 ## Scopes
 
-Use the package or area: `core`, `react`, `sockets`, `axios`, `graphql`, `firebase`, `firebase-admin`, `cli`, `testing`,
-`devtools`, `eslint`, `hyper-flow`, `cache`, `build`, `ci`. Omit the scope when a change spans the repo.
+Use the package or area: `core`, `react`, `sockets`, `axios`, `graphql`, `orpc`, `firebase`, `firebase-admin`, `cli`,
+`testing`, `devtools`, `eslint`, `hyper-flow`, `cache`, `build`, `ci`. Omit the scope when a change spans the repo.
 
 ## Issue references
 

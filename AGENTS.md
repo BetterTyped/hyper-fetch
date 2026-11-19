@@ -18,6 +18,7 @@ dependents.
 | `packages/react`                  | `@hyper-fetch/react`           | `react`           |
 | `packages/adapter-axios`          | `@hyper-fetch/axios`           | `axios`           |
 | `packages/adapter-graphql`        | `@hyper-fetch/graphql`         | `graphql`         |
+| `packages/adapter-orpc`           | `@hyper-fetch/orpc`            | `orpc`            |
 | `packages/adapter-firebase`       | `@hyper-fetch/firebase`        | `firebase`        |
 | `packages/adapter-firebase-admin` | `@hyper-fetch/firebase-admin`  | `firebase-admin`  |
 | `packages/plugin-devtools`        | `@hyper-fetch/plugin-devtools` | `plugin-devtools` |
