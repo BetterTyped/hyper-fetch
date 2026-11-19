@@ -12,11 +12,42 @@ describe("useSubmit [ Bounce ]", () => {
 
   let request = createRequest<null, null>({ method: "POST" });
 
+  /**
+   * Bouncing is decided by elapsed time, so the timing specs run on a fake clock. With real timers a stall between two
+   * submits moves them into separate bounce windows and the request count changes.
+   */
+  const useFakeClock = () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+  };
+  const advance = (ms: number) => act(() => vi.advanceTimersByTimeAsync(ms));
+
+  /**
+   * Submits four times, 10ms apart, all inside one bounce window
+   */
+  const submitFourTimes = async (submit: () => unknown) => {
+    act(() => {
+      submit();
+    });
+    await advance(10);
+    act(() => {
+      submit();
+    });
+    await advance(10);
+    act(() => {
+      submit();
+    });
+    await advance(10);
+    act(() => {
+      submit();
+    });
+  };
+
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     resetMocks();
   });
 
@@ -33,52 +64,41 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given debounce is active", () => {
     describe("when request is about to change", () => {
       it("should debounce single request", async () => {
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
+        useFakeClock();
+        const spy = vi.fn();
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
         act(() => {
-          response.result.current.onSubmitRequestStart(() => {
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
+          response.result.current.onSubmitRequestStart(spy);
           response.result.current.submit();
         });
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-        });
+        await advance(hookDebounceOptions.bounceTime - 1);
+        expect(spy).not.toHaveBeenCalled();
 
-        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
+        await advance(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should debounce multiple request triggers by bounceTime", async () => {
+        useFakeClock();
         const spy = vi.fn();
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
-        await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
+        act(() => {
+          response.result.current.onSubmitRequestStart(spy);
         });
+        await submitFourTimes(response.result.current.submit);
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-        });
+        // The window restarts with every submit, so it closes bounceTime after the last one
+        await advance(hookDebounceOptions.bounceTime - 1);
+        expect(spy).not.toHaveBeenCalled();
 
-        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
+        await advance(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        await advance(1000);
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
@@ -106,39 +126,24 @@ describe("useSubmit [ Bounce ]", () => {
         expect(value).toHaveLength(4);
       });
       it("should change debounce time", async () => {
+        useFakeClock();
         const newBounceTime = 200;
         const spy = vi.fn();
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
-        await act(async () => {
-          await response.rerender({ bounceTime: newBounceTime });
+        act(() => {
+          response.rerender({ bounceTime: newBounceTime });
         });
-
-        await waitForRender(1);
-
-        await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
+        act(() => {
+          response.result.current.onSubmitRequestStart(spy);
         });
+        await submitFourTimes(response.result.current.submit);
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-        });
+        await advance(newBounceTime - 1);
+        expect(spy).not.toHaveBeenCalled();
 
-        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
+        await advance(1);
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
@@ -148,15 +153,11 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when request is about to change", () => {
       it("should not debounce multiple request triggers", async () => {
         const spy = vi.fn();
-        let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 
         await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
+          response.result.current.onSubmitRequestStart(spy);
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -167,10 +168,8 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         await waitFor(() => {
-          expect(startTime).not.toBeNull();
+          expect(spy).toHaveBeenCalledTimes(4);
         });
-
-        expect(spy).toHaveBeenCalledTimes(4);
       });
     });
   });
@@ -178,52 +177,48 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given throttle is active", () => {
     describe("when request is about to change", () => {
       it("should throttle single request", async () => {
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
+        useFakeClock();
+        const spy = vi.fn();
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         act(() => {
-          response.result.current.onSubmitRequestStart(() => {
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
+          response.result.current.onSubmitRequestStart(spy);
           response.result.current.submit();
           response.result.current.submit();
         });
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
-        });
+        // Nothing was throttled yet, so the first submit is sent right away and the second waits for the timeout
+        await advance(0);
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        await advance(hookThrottleOptions.bounceTimeout - 1);
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        await advance(1);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
       it("should throttle multiple request triggers by bounceTime", async () => {
+        useFakeClock();
         const spy = vi.fn();
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
-        await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
+        act(() => {
+          response.result.current.onSubmitRequestStart(spy);
         });
+        await submitFourTimes(response.result.current.submit);
+        expect(spy).toHaveBeenCalledTimes(1);
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
-          expect(spy).toHaveBeenCalledTimes(2);
-        });
+        // Only the last throttled submit is sent, bounceTimeout after it
+        await advance(hookThrottleOptions.bounceTimeout - 1);
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        await advance(1);
+        expect(spy).toHaveBeenCalledTimes(2);
+
+        await advance(1000);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
       it("should resolve throttled methods", async () => {
         mockRequest(request);
@@ -250,39 +245,26 @@ describe("useSubmit [ Bounce ]", () => {
         expect(value).toHaveLength(4);
       });
       it("should change throttle time", async () => {
+        useFakeClock();
         const newBounceTime = 200;
         const spy = vi.fn();
-        let submitTime: number | null = null;
-        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
-        await act(async () => {
-          await response.rerender({ bounceTime: newBounceTime, bounceTimeout: newBounceTime });
+        act(() => {
+          response.rerender({ bounceTime: newBounceTime, bounceTimeout: newBounceTime });
         });
-
-        await waitForRender(1);
-
-        await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
-          submitTime = Date.now();
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
-          await waitForRender(10);
-          response.result.current.submit();
+        act(() => {
+          response.result.current.onSubmitRequestStart(spy);
         });
+        await submitFourTimes(response.result.current.submit);
+        expect(spy).toHaveBeenCalledTimes(1);
 
-        await waitFor(() => {
-          expect(startTime).not.toBeNull();
-          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
-          expect(spy).toHaveBeenCalledTimes(2);
-        });
+        await advance(newBounceTime - 1);
+        expect(spy).toHaveBeenCalledTimes(1);
+
+        await advance(1);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -291,15 +273,11 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when request is about to change", () => {
       it("should not throttle multiple request triggers", async () => {
         const spy = vi.fn();
-        let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 
         await act(async () => {
-          response.result.current.onSubmitRequestStart(() => {
-            spy();
-            startTime = Date.now();
-          });
+          response.result.current.onSubmitRequestStart(spy);
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -310,10 +288,8 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         await waitFor(() => {
-          expect(startTime).not.toBeNull();
+          expect(spy).toHaveBeenCalledTimes(4);
         });
-
-        expect(spy).toHaveBeenCalledTimes(4);
       });
     });
   });

@@ -29,10 +29,12 @@ describe("useFetch [ Cancel ]", () => {
   });
 
   describe("given request is cancelable", () => {
+    // The mock must outlive every render and sleep before the abort, otherwise the response wins the race under load
+    const inFlightDelay = 1000;
+
     describe("when aborting request", () => {
       it("should allow to cancel the ongoing request", async () => {
-        // Long enough to still be in flight when it gets aborted, also on a busy machine
-        mockRequest(request, { delay: 2000 });
+        mockRequest(request, { delay: inFlightDelay });
         const response = renderUseFetch(request);
 
         await waitForRender();
@@ -45,7 +47,7 @@ describe("useFetch [ Cancel ]", () => {
       });
 
       it("should allow to cancel deduplicated request", async () => {
-        mockRequest(request, { delay: 2000 });
+        mockRequest(request, { delay: inFlightDelay });
         const response = renderUseFetch(request);
         await waitForRender();
         const dedupeResponse = renderUseFetch(request);
@@ -61,7 +63,7 @@ describe("useFetch [ Cancel ]", () => {
       it("should cancel previous requests when dependencies change", async () => {
         const spy = vi.fn();
 
-        mockRequest(request, { delay: 50 });
+        mockRequest(request, { delay: inFlightDelay });
         const response = renderUseFetch(request, { dependencies: [{}] });
         await waitForRender(1);
 

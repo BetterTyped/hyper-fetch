@@ -33,8 +33,10 @@ export const emitDownloadProgress = <T extends RequestInstance>(
   },
 ) => {
   const values = options || { total: 50, loaded: 25 };
-  const startTimestamp = new Date(Date.now() - 20_000);
-  const progressTimestamp = new Date();
+  // One clock read so the elapsed time is exactly 20s, even when the clock ticks in between
+  const now = Date.now();
+  const startTimestamp = new Date(now - 20_000);
+  const progressTimestamp = new Date(now);
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
   request.client.requestManager.events.emitDownloadProgress({
@@ -55,8 +57,10 @@ export const emitUploadProgress = <T extends RequestInstance>(
   },
 ) => {
   const values = options || { total: 50, loaded: 25 };
-  const startTimestamp = new Date(Date.now() - 20_000);
-  const progressTimestamp = new Date();
+  // One clock read so the elapsed time is exactly 20s, even when the clock ticks in between
+  const now = Date.now();
+  const startTimestamp = new Date(now - 20_000);
+  const progressTimestamp = new Date(now);
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
   request.client.requestManager.events.emitUploadProgress({

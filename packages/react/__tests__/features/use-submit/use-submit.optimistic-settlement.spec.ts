@@ -439,7 +439,8 @@ describe("useSubmit [ Optimistic settlement ]", () => {
 
     it("should roll back aborted request", async () => {
       const setup = createSetup();
-      mockRequest(setup.mutation, { delay: 100 });
+      // waitFor polls every 50ms, so the request has to stay in flight well past that to be aborted, not resolved
+      mockRequest(setup.mutation, { delay: 1000 });
       const { result, unmount } = renderHook(() => useSubmit(setup.mutation));
 
       const pending = startSubmit(result.current.submit);

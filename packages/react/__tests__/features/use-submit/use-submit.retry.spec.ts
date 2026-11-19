@@ -1,3 +1,4 @@
+import type { RequestInstance } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { act, waitFor } from "@testing-library/react";
 
@@ -8,11 +9,34 @@ const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingSe
 describe("useSubmit [ Retry ]", () => {
   let request = createRequest<{ response: null; payload: null }>({ method: "POST" });
 
+  /**
+   * Submits and resolves once the last attempt has responded, so the attempt count is final.
+   * Waiting for a fixed time instead loses attempts on a slow machine.
+   */
+  const submitUntilSettled = async (retryRequest: RequestInstance) => {
+    const onStart = vi.fn();
+    const onFinished = vi.fn();
+    const response = renderUseSubmit(retryRequest);
+
+    act(() => {
+      response.result.current.onSubmitRequestStart(onStart);
+      response.result.current.onSubmitFinished(({ details }) => onFinished(details.willRetry));
+      response.result.current.submit();
+    });
+
+    await waitFor(() => {
+      expect(onFinished).toHaveBeenLastCalledWith(false);
+    });
+
+    return { onStart, onFinished };
+  };
+
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     resetMocks();
   });
 
@@ -28,83 +52,57 @@ describe("useSubmit [ Retry ]", () => {
 
   describe("when request retry attribute is set to false", () => {
     it("should not retry request on failure", async () => {
-      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
-      const response = renderUseSubmit(request.setRetry(0).setRetryTime(0));
 
-      act(() => {
-        response.result.current.onSubmitRequestStart(spy);
-        response.result.current.submit();
-      });
+      const { onStart, onFinished } = await submitUntilSettled(request.setRetry(0).setRetryTime(0));
 
-      // Wait for the outcome instead of a fixed time - once the request left the queue, no retry can follow
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-      });
-      await waitFor(() => {
-        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
-      });
-
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(onStart).toHaveBeenCalledTimes(1);
+      expect(onFinished).toHaveBeenCalledTimes(1);
     });
   });
   describe("when request retry attribute is set to true", () => {
     it("should retry request once", async () => {
-      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
-      const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
-      act(() => {
-        response.result.current.onSubmitRequestStart(spy);
-        response.result.current.submit();
-      });
+      const { onStart, onFinished } = await submitUntilSettled(request.setRetry(1).setRetryTime(10));
 
-      // Wait for the outcome instead of a fixed time - the retries can take longer on a busy machine
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(2);
-      });
-      await waitFor(() => {
-        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
-      });
-
-      expect(spy).toHaveBeenCalledTimes(2);
+      expect(onStart).toHaveBeenCalledTimes(2);
+      expect(onFinished.mock.calls).toStrictEqual([[true], [false]]);
     });
     it("should retry request twice", async () => {
-      const spy = vi.fn();
       mockRequest(request, { status: 400, delay: 5 });
-      const response = renderUseSubmit(request.setRetry(2).setRetryTime(10));
 
-      act(() => {
-        response.result.current.onSubmitRequestStart(spy);
-        response.result.current.submit();
-      });
+      const { onStart, onFinished } = await submitUntilSettled(request.setRetry(2).setRetryTime(10));
 
-      // Wait for the outcome instead of a fixed time - the retries can take longer on a busy machine
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(3);
-      });
-      await waitFor(() => {
-        expect(client.submitDispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
-      });
-
-      expect(spy).toHaveBeenCalledTimes(3);
+      expect(onStart).toHaveBeenCalledTimes(3);
+      expect(onFinished.mock.calls).toStrictEqual([[true], [true], [false]]);
     });
     it("should trigger retries with the config interval", async () => {
-      const time: number[] = [];
-      mockRequest(request, { status: 400, delay: 0 });
-      const response = renderUseSubmit(request.setRetry(1).setRetryTime(100));
+      // Node can fire a real timer earlier than Date.now() says, so the interval is measured on a fake clock
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+      const retryTime = 100;
+      const startTimes: number[] = [];
+      const finishTimes: number[] = [];
+      mockRequest(request, { status: 400, delay: 5 });
+      const response = renderUseSubmit(request.setRetry(1).setRetryTime(retryTime));
 
       act(() => {
         response.result.current.onSubmitRequestStart(() => {
-          time.push(Date.now());
+          startTimes.push(Date.now());
+        });
+        response.result.current.onSubmitFinished(() => {
+          finishTimes.push(Date.now());
         });
         response.result.current.submit();
       });
 
-      await waitFor(() => {
-        expect(time[1] - time[0]);
-        expect(time[1] - time[0]).toBeGreaterThan(99);
+      // vi.waitFor polls on real timers - the RTL waitFor would wait on the faked setTimeout forever
+      await vi.waitFor(async () => {
+        await act(() => vi.advanceTimersByTimeAsync(20));
+        expect(startTimes).toHaveLength(2);
       });
+
+      expect(startTimes[1] - finishTimes[0]).toBeGreaterThanOrEqual(retryTime);
     });
   });
 });
