@@ -1,19 +1,26 @@
 import type { EmptyTypes } from "@hyper-fetch/core";
 
+import { getWindowImplementation } from "../utils/environment.utils";
 import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
+/** The `WebSocket` class to use: the one from the options, else the page's. `null` when there is none. */
+export const getWebsocketImplementation = (
+  adapterOptions: WebsocketAdapterOptionsType | EmptyTypes,
+): typeof WebSocket | null => {
+  // Callers pass `ws` or another class with the browser API, which the adapter is limited to
+  const implementation = (adapterOptions?.webSocketImpl ?? getWindowImplementation("WebSocket")) as
+    | typeof WebSocket
+    | undefined;
+  return typeof implementation === "function" ? implementation : null;
+};
+
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
-  /** istanbul ignore next */
-  try {
-    /** istanbul ignore next */
-    if (!window?.WebSocket) {
-      return null;
-    }
-  } catch {
+  const WebsocketImplementation = getWebsocketImplementation(adapterOptions);
+  if (!WebsocketImplementation) {
     return null;
   }
 
-  class HyperFetchWebsocket extends WebSocket {
+  class HyperFetchWebsocket extends WebsocketImplementation {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
     public registeredHandlers = new Map<
       (...args: any[]) => any,

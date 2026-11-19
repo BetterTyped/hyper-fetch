@@ -3,8 +3,10 @@ import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 import { waitFor } from "@testing-library/dom";
 import type { ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
 import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
+import { EventSourceReadyState } from "adapter-sse/sse-adapter.types";
 
 import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
+import { withoutImplementation } from "../../utils/environment.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -186,7 +188,7 @@ describe("Socket Adapter [ SSE ]", () => {
       constructor(url: string, eventSourceInitDict?: EventSourceInit) {
         super(url, eventSourceInitDict);
         Object.defineProperty(this, "readyState", {
-          get: () => EventSource.OPEN,
+          get: () => EventSourceReadyState.OPEN,
         });
       }
     }
@@ -211,7 +213,7 @@ describe("Socket Adapter [ SSE ]", () => {
       constructor(url: string, eventSourceInitDict?: EventSourceInit) {
         super(url, eventSourceInitDict);
         Object.defineProperty(this, "readyState", {
-          get: () => EventSource.CLOSED,
+          get: () => EventSourceReadyState.CLOSED,
           set: () => {},
         });
       }
@@ -256,22 +258,9 @@ describe("Socket Adapter [ SSE ]", () => {
     expect(socketWithoutAutoConnect.adapter.connected).toBe(false);
   });
 
-  it("should return null from getServerSentEventsAdapter when window access throws", () => {
-    const originalWindow = global.window;
-    Object.defineProperty(global, "window", {
-      get() {
-        throw new ReferenceError("window is not defined");
-      },
-      configurable: true,
-    });
-
-    const result = getServerSentEventsAdapter("http://localhost:1234", {} as any);
-    expect(result).toBeNull();
-
-    Object.defineProperty(global, "window", {
-      value: originalWindow,
-      writable: true,
-      configurable: true,
+  it("should return null from getServerSentEventsAdapter when no EventSource class is available", async () => {
+    await withoutImplementation("EventSource", () => {
+      expect(getServerSentEventsAdapter("http://localhost:1234", {})).toBeNull();
     });
   });
 

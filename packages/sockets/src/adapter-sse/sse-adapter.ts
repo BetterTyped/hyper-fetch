@@ -8,6 +8,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { SSEAdapterOptionsType, SSEDecodedMessageType } from "./sse-adapter.types";
+import { EventSourceReadyState } from "./sse-adapter.types";
 import { getServerSentEventsAdapter } from "./sse-adapter.utils";
 
 /**
@@ -135,10 +136,10 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             // An open stream broke. The browser either retries on its own (CONNECTING) or gives up (CLOSED) -
             // in both cases the socket is not connected anymore. The timeout takes over when the stream
             // does not come back in time, the same way it guards the initial connection.
-            const isLost = adapter.connected && eventSource.readyState !== EventSource.OPEN;
+            const isLost = adapter.connected && eventSource.readyState !== EventSourceReadyState.OPEN;
             if (isLost) {
               onDisconnected();
-              if (eventSource.readyState === EventSource.CONNECTING) {
+              if (eventSource.readyState === EventSourceReadyState.CONNECTING) {
                 adapter.setConnecting(true);
                 socket.events.emitConnecting({ connecting: true });
               }
@@ -158,7 +159,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           });
 
           return new Promise((resolve) => {
-            if (eventSource.readyState === EventSource.OPEN) {
+            if (eventSource.readyState === EventSourceReadyState.OPEN) {
               // No open event follows, so the attempt timeout would reconnect a working connection
               clearTimeout(timeout);
               resolve(true);
@@ -209,7 +210,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           const currentSse = sse;
           sse = undefined;
-          const hasTransport = currentSse && currentSse.readyState !== EventSource.CLOSED;
+          const hasTransport = currentSse && currentSse.readyState !== EventSourceReadyState.CLOSED;
 
           // When there is nothing to close, only a connection attempt may still be preparing (onConnect) - cancel it
           const wasActive = adapter.connected || adapter.connecting;

@@ -1,5 +1,6 @@
 import { createSseMockingServer } from "@hyper-fetch/testing";
 import { ServerSentEventsAdapter } from "adapter-sse";
+import { EventSourceReadyState } from "adapter-sse/sse-adapter.types";
 
 import { createSocket } from "../../utils/socket.utils";
 
@@ -120,7 +121,7 @@ describe("Socket SSE [ Connection ]", () => {
     class OpenEventSource extends OriginalEventSource {
       constructor(url: string | URL, eventSourceInitDict?: EventSourceInit) {
         super(url, eventSourceInitDict);
-        Object.defineProperty(this, "readyState", { get: () => EventSource.OPEN, set: () => {} });
+        Object.defineProperty(this, "readyState", { get: () => EventSourceReadyState.OPEN, set: () => {} });
       }
     }
     window.EventSource = OpenEventSource;

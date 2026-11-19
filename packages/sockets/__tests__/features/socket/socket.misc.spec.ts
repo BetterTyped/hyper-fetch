@@ -3,6 +3,7 @@ import { getServerSentEventsAdapter } from "adapter-sse/sse-adapter.utils";
 import { getWebsocketAdapter } from "adapter-websockets/websocket-adapter.utils";
 import type { MockInstance } from "vitest";
 
+import { removeImplementation } from "../../utils/environment.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 const windowInstance = global.window;
@@ -35,31 +36,45 @@ describe("Socket Client [ Utils ]", () => {
     expect(removed).toBeFalse();
   });
 
-  describe("getAdapter utils no window", () => {
+  describe("getAdapter utils without an implementation", () => {
+    const restores: (() => void)[] = [];
     beforeEach(() => {
-      windowSpy.mockImplementation(() => undefined as any);
+      restores.push(removeImplementation("WebSocket"), removeImplementation("EventSource"));
     });
-    it("should not throw when there is no window", () => {
+    afterEach(() => {
+      restores.splice(0).forEach((restore) => restore());
+    });
+    it("should not throw when there is no WebSocket", () => {
       const adapter = getWebsocketAdapter(url, {});
       expect(adapter).toBeNull();
     });
-    it("should not throw SSE when there is no window", () => {
+    it("should not throw when there is no EventSource", () => {
       const adapter = getServerSentEventsAdapter(url, {});
       expect(adapter).toBeNull();
+    });
+    it("should ignore implementations that are not classes", () => {
+      // Misconfigured values from untyped code
+      const notAWebSocket = {} as unknown as typeof WebSocket;
+      const notAnEventSource = {} as unknown as typeof EventSource;
+      expect(getWebsocketAdapter(url, { webSocketImpl: notAWebSocket })).toBeNull();
+      expect(getServerSentEventsAdapter(url, { eventSourceImpl: notAnEventSource })).toBeNull();
     });
   });
 
-  describe("getAdapter utils no instances", () => {
-    beforeEach(() => {
-      windowSpy.mockImplementation(() => ({}) as any);
+  describe("getAdapter utils with an implementation option", () => {
+    it("should use webSocketImpl over the global WebSocket", () => {
+      class CustomWebSocket extends WebSocket {}
+      const adapter = getWebsocketAdapter(url, { webSocketImpl: CustomWebSocket });
+      expect(adapter).toBeInstanceOf(CustomWebSocket);
     });
-    it("should not throw when there is no window", () => {
-      const adapter = getWebsocketAdapter(url, {});
-      expect(adapter).toBeNull();
+    it("should use eventSourceImpl over the global EventSource", () => {
+      class CustomEventSource extends windowInstance.EventSource {}
+      const adapter = getServerSentEventsAdapter(url, { eventSourceImpl: CustomEventSource });
+      expect(adapter).toBeInstanceOf(CustomEventSource);
     });
-    it("should not throw SSE when there is no window", () => {
-      const adapter = getServerSentEventsAdapter(url, {});
-      expect(adapter).toBeNull();
+    it("should not need a window when an implementation is passed", () => {
+      windowSpy.mockImplementation(() => undefined as unknown as Window & typeof globalThis);
+      expect(getWebsocketAdapter(url, { webSocketImpl: WebSocket })).toBeInstanceOf(WebSocket);
     });
   });
 

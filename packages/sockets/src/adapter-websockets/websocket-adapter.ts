@@ -9,6 +9,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { WebsocketAdapterOptionsType, WebsocketDecodedMessageType } from "./websocket-adapter.types";
+import { WebsocketReadyState } from "./websocket-adapter.types";
 import { getWebsocketAdapter } from "./websocket-adapter.utils";
 
 /**
@@ -146,7 +147,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           });
 
           return new Promise((resolve) => {
-            if (newWebsocket.readyState === WebSocket.OPEN) {
+            if (newWebsocket.readyState === WebsocketReadyState.OPEN) {
               // No open event follows, so the attempt timeout would reconnect a working connection
               clearTimeout(timeout);
               resolve(true);
@@ -215,7 +216,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             onDisconnected();
           }
 
-          if (!currentWebsocket || currentWebsocket.readyState === WebSocket.CLOSED) {
+          if (!currentWebsocket || currentWebsocket.readyState === WebsocketReadyState.CLOSED) {
             return true;
           }
 

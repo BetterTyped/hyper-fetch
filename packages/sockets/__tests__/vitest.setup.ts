@@ -6,8 +6,12 @@ expect.extend(matchers);
 
 const isNodeEnv = typeof window === "undefined";
 
+/** Node's own `WebSocket` (Node.js 22+), before the setup replaces the global with `ws` */
+export const nativeWebSocket: typeof WebSocket | undefined = globalThis.WebSocket;
+
 if (isNodeEnv) {
-  // E2E tests: polyfill browser globals with real implementations
+  // E2E tests: real implementations on a browser-like `window`.
+  // `e2e.environments.spec.ts` removes the window to cover Node.js apps.
   const { WebSocket: NodeWebSocket } = await import("ws");
   const { EventSource: NodeEventSource } = await import("eventsource");
 

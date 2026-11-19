@@ -1,17 +1,26 @@
 import type { EmptyTypes } from "@hyper-fetch/core";
 
+import { getWindowImplementation } from "../utils/environment.utils";
 import type { SSEAdapterOptionsType } from "./sse-adapter.types";
 
+/** The `EventSource` class to use: the one from the options, else the page's. `null` when there is none. */
+export const getEventSourceImplementation = (
+  adapterOptions: SSEAdapterOptionsType | EmptyTypes,
+): typeof EventSource | null => {
+  // Callers pass `eventsource` or another class with the browser API, which the adapter is limited to
+  const implementation = (adapterOptions?.eventSourceImpl ?? getWindowImplementation("EventSource")) as
+    | typeof EventSource
+    | undefined;
+  return typeof implementation === "function" ? implementation : null;
+};
+
 export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
-  /** istanbul ignore next */
-  try {
-    /** istanbul ignore next */
-    if (!window?.EventSource) {return null;}
-  } catch {
+  const EventSourceImplementation = getEventSourceImplementation(adapterOptions);
+  if (!EventSourceImplementation) {
     return null;
   }
 
-  class HyperFetchEventSource extends EventSource {
+  class HyperFetchEventSource extends EventSourceImplementation {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
     public registeredHandlers = new Map<
       (...args: any[]) => any,
