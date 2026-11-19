@@ -15,7 +15,7 @@
     "build": "vite build",
     "lint": "oxlint .",
     "format": "oxfmt --write .",
-    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
+    "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json && tsgo --noEmit -p __tests__/type-stress/custom-adapter/tsconfig.json",
     "tests": "pnpm lint-staged"
   },
   "publishConfig": {
