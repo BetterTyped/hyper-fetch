@@ -1,0 +1,191 @@
+---
+sidebar_position: 3
+title: Socket
+sidebar_label: Socket
+---
+
+[Read the API Reference »](/docs/api/sockets/Classes/Socket)
+
+**`Socket`** is the central class for configuring your server connection in the Hyper Fetch sockets module. It
+initializes all core subsystems and provides a unified way to create and manage listeners and emitters based on its
+configuration. By keeping all data and logic encapsulated within a single socket instance, you ensure that each socket
+remains isolated and independent from others.
+
+---
+
+:::tip Purpose
+
+1. **Orchestrates** the components and flow of the sockets library
+2. Creates **listeners** and **emitters** to provide global setup and environment
+3. Isolates sockets from each other and their events
+
+:::
+
+---
+
+## Initialization
+
+```tsx
+import { createSocketClient } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({ url: "ws://localhost:3000" });
+```
+
+---
+
+## Features
+
+Here are the main features of the `Socket` class.
+
+### Adapters
+
+You can pick between two built-in modes for the data exchange:
+
+1. **WebSocket mode** (default)
+2. **Server Sent Events (SSE) mode**
+
+You can change it with the `SSE` adapter by passing it via the `adapter` constructor option:
+
+```tsx
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
+```
+
+---
+
+### Intercepting Events
+
+The Socket class provides callback methods for intercepting outgoing and incoming events. These are not a separate
+subsystem - they are chainable methods on the socket instance itself:
+
+- `onSend` — triggered before sending an event. Receives the emitter instance and must return it (optionally modified).
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onSend(({ emitter }) => {
+  return emitter.setPayload({ ...emitter.payload, token: "1234567890" });
+});
+```
+
+- `onError` — triggered on error from socket.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onError(({ error }) => {
+  console.error("Socket error:", error);
+});
+```
+
+- `onMessage` — triggered on any received message. Receives the event data and must return the transformed data.
+
+```tsx
+new Socket({ url: "ws://localhost:3000" }).onMessage(({ event }) => {
+  return { ...event, receivedAt: Date.now() };
+});
+```
+
+You can modify received data or outgoing payloads with these callbacks before they are emitted to other sub-systems.
+
+---
+
+### Query Params
+
+You can pass query parameters to the socket connection via the `queryParams` constructor option. They will be appended
+to the connection URL. You can also update them later using `setQueryParams`.
+
+```tsx
+export const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  queryParams: { param1: [1, 2, 3], param2: "test" },
+});
+
+// Update query params dynamically
+socket.setQueryParams({ param1: [4, 5], param2: "updated" });
+```
+
+---
+
+### Authentication
+
+To exchange authenticated events, set up the `queryParams` parameter with authentication parameter.
+
+```tsx
+export const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  queryParams: { authToken: "1234567890" },
+});
+```
+
+<LinkCard
+  type="guides"
+  title="Authentication guide"
+  description="Learn how to set up authentication for your sockets."
+  to="/docs/guides/sockets/authentication"
+/>
+
+---
+
+## Constructor Options
+
+The `Socket` constructor (and `createSocketClient` helper) accepts the following options:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `url` | `string` | — | **Required.** URL of the server to connect to. |
+| `adapter` | `(() => Adapter) \| Adapter` | `WebsocketAdapter()` | Adapter instance or factory for the transport layer. |
+| `adapterOptions` | `object` | — | Adapter-specific options passed to the adapter on initialization. |
+| `queryParams` | `object \| string` | — | Query parameters appended to the connection URL. |
+| `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts. |
+| `reconnectTime` | `number` | `5000` | Delay in milliseconds between reconnection attempts. |
+
+---
+
+## Connection Management
+
+The `Socket` class provides methods for controlling the connection lifecycle.
+
+```tsx
+const socket = createSocketClient({ url: "ws://localhost:3000" });
+
+await socket.connect();
+await socket.disconnect();
+await socket.reconnect();
+```
+
+---
+
+## Lifecycle Callbacks
+
+You can register callbacks for connection lifecycle events. These are called in order whenever the corresponding event
+occurs.
+
+```tsx
+const socket = createSocketClient({ url: "ws://localhost:3000" });
+
+socket
+  .onConnected(() => {
+    console.log("Connected");
+  })
+  .onDisconnected(() => {
+    console.log("Disconnected");
+  })
+  .onReconnect(() => {
+    console.log("Reconnecting...");
+  })
+  .onReconnectFailed(() => {
+    console.log("Reconnection failed");
+  });
+```
+
+---
+
+## TypeScript
+
+Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
+adapter type and **will automatically change** to any new adapter type you pass to the `Socket` class.
+
+---
+
+{/* ## See More */}

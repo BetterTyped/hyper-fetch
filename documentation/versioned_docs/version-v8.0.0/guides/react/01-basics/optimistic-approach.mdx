@@ -1,0 +1,215 @@
+---
+title: Optimistic Updates
+sidebar_label: Optimistic Updates
+---
+
+# Optimistic Updates
+
+Optimistic updates are a powerful UI pattern that makes your application feel significantly faster. The idea is to update
+the UI _immediately_ after a user action, assuming the server request will succeed. If the request later fails, the
+changes are automatically rolled back. This avoids making the user wait for the network round-trip.
+
+HyperFetch provides first-class support for optimistic updates through the `request.setOptimistic()` API. You define
+cache manipulation, rollback logic, and invalidation targets directly on the request - the framework orchestrates
+everything automatically, whether you use `send()`, `$hooks`, or React hooks.
+
+:::secondary What you'll learn
+
+1. How to configure optimistic updates with **`request.setOptimistic()`**.
+2. How **`rollback`** restores the cache on failure automatically.
+3. How **`invalidate`** keeps your data in sync on success.
+4. How **`mutationContext`** lets you access snapshot data in lifecycle callbacks.
+
+:::
+
+---
+
+## Basic Example: Updating a User
+
+The most common optimistic pattern is updating a list item. The user clicks "Save," the list updates instantly, and the
+request is sent in the background.
+
+### 1. Define the request with `setOptimistic`
+
+```typescript
+import { client } from "./client";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const getUsers = client.createRequest<{ response: User[] }>()({
+  endpoint: "/users",
+  method: "GET",
+});
+
+const patchUser = client
+  .createRequest<{
+    response: User;
+    payload: Partial<User>;
+  }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ client, payload, request }) => {
+    // 1. Snapshot the current cache
+    const snapshot = client.cache.get(getUsers.cacheKey);
+
+    // 2. Optimistically update the cache
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: prev.data.map((u) => (u.id === Number(request.params?.userId) ? { ...u, ...payload } : u)),
+    }));
+
+    return {
+      // Available as `mutationContext` in callbacks
+      context: { snapshot },
+      // Called automatically on failure or abort
+      rollback: () => {
+        if (snapshot) client.cache.set(getUsers, snapshot);
+      },
+      // Cache keys to invalidate on success
+      invalidate: [getUsers],
+    };
+  });
+```
+
+### 2. Use in a React component
+
+```tsx
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+
+function UserList() {
+  const { data: users } = useFetch(getUsers);
+  const { submit, onSubmitSuccess, onSubmitError } = useSubmit(patchUser);
+
+  // mutationContext is auto-inferred - no extra generics needed
+  onSubmitSuccess(({ mutationContext }) => {
+    console.log("Updated! Previous snapshot:", mutationContext?.snapshot);
+  });
+
+  onSubmitError(({ mutationContext }) => {
+    // rollback already happened automatically
+    alert("Update failed - changes have been reverted.");
+  });
+
+  const handleRename = (userId: number, newName: string) => {
+    submit({
+      params: { userId },
+      payload: { name: newName },
+    });
+  };
+
+  return (
+    <ul>
+      {users?.map((user) => (
+        <li key={user.id}>
+          {user.name}
+          <button onClick={() => handleRename(user.id, "New Name")}>Rename</button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### How It Works
+
+1. **Before the request is sent**, `setOptimistic` runs: it snapshots the cache, patches it optimistically, and returns
+   `context`, `rollback`, and `invalidate`.
+2. **The UI updates immediately** because `useFetch(getUsers)` reacts to cache changes.
+3. **On success**: the `invalidate` list triggers a cache refresh for `getUsers`, and `onSubmitSuccess` receives the
+   typed `mutationContext`.
+4. **On failure**: `rollback()` is called automatically to restore the cache, then `onSubmitError` fires with
+   `mutationContext`.
+5. **On abort**: treated like failure - `rollback()` runs, then `onSubmitAbort` fires.
+
+---
+
+## The `setOptimistic` Callback
+
+The callback receives an object with:
+
+| Argument  | Description                                             |
+| --------- | ------------------------------------------------------- |
+| `request` | The request instance (with params, endpoint, etc.)      |
+| `client`  | The client instance (access to `client.cache`)          |
+| `payload` | The payload being sent (typed from the request generic)  |
+
+It returns an object with three optional fields:
+
+| Return field | Type                | Description                                        |
+| ------------ | ------------------- | -------------------------------------------------- |
+| `context`    | `Ctx` (generic)     | Passed as `mutationContext` in all lifecycle callbacks |
+| `rollback`   | `() => void`        | Called automatically on failure or abort            |
+| `invalidate` | `RequestInstance[]`  | Cache keys invalidated on success                  |
+
+---
+
+## Advanced: Custom Rollback for Creates
+
+When creating a new item (not updating an existing one), the rollback might need to remove the optimistically added
+entry:
+
+```typescript
+const createUser = client
+  .createRequest<{
+    response: User;
+    payload: { name: string; email: string };
+  }>()({
+    endpoint: "/users",
+    method: "POST",
+  })
+  .setOptimistic(({ client, payload }) => {
+    const tempId = -Date.now();
+    const optimisticUser: User = { id: tempId, ...payload };
+
+    client.cache.update(getUsers, (prev) => ({
+      ...prev,
+      data: [...prev.data, optimisticUser],
+    }));
+
+    return {
+      context: { tempId },
+      rollback: () => {
+        client.cache.update(getUsers, (prev) => ({
+          ...prev,
+          data: prev.data.filter((u) => u.id !== tempId),
+        }));
+      },
+      invalidate: [getUsers],
+    };
+  });
+```
+
+---
+
+## Cautions
+
+- **`cache.update` vs `cache.set`**: For creates (adding new items), use `cache.update` to merge into the existing
+  list. `cache.set` replaces the entire cache entry.
+- **Concurrent same-key mutations**: If two optimistic updates target the same cache key concurrently, each has its own
+  `rollback`. A failure on one will only revert to its snapshot, which may not include the other's changes. See the
+  [Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide for per-item rollback strategies
+  that avoid this problem.
+
+---
+
+:::success Summary
+
+- Use **`request.setOptimistic()`** to define optimistic behavior on the request itself - no hook configuration needed.
+- Return **`context`** for typed data available in all lifecycle callbacks as `mutationContext`.
+- Return **`rollback`** to automatically revert cache changes on failure or abort.
+- Return **`invalidate`** to refresh stale cache entries on success.
+- **`mutationContext` is auto-inferred** from the `setOptimistic` return type - no extra generics on `useSubmit`.
+
+:::
+
+---
+
+## Next Steps
+
+For concurrent mutations, per-item rollback, toggle patterns, and cross-cache coordination, see the
+[Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide.

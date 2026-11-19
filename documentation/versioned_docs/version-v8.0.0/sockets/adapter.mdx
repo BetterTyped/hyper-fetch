@@ -1,0 +1,158 @@
+---
+sidebar_position: 6
+title: Adapter
+sidebar_label: Adapter
+---
+
+[Read the API Reference »](/docs/api/sockets/Classes/SocketAdapter)
+
+Adapter is a class that specifies how to communicate with the server. It defines the way to send and receive
+data, handle errors, handle reconnects, and more. The `@hyper-fetch/sockets` package ships with two built-in adapters:
+`WebsocketAdapter` and `ServerSentEventsAdapter`. Other integrations such as Firebase Realtime Database are available as
+separate packages (e.g., `@hyper-fetch/firebase`).
+
+---
+
+## Built in Adapters
+
+There are two built in adapters - `WebsocketAdapter` and `ServerSentEventsAdapter` providing basic functionality for the
+`Websocket` and `Server Sent Events (SSE)` connection types.
+
+---
+
+### Websocket Adapter
+
+The default adapter is used to communicate with the `Websocket` server.
+
+(@import sockets WebsocketAdapter type=import)
+
+```tsx
+import { createSocketClient, WebsocketAdapter } from "@hyper-fetch/sockets";
+
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  adapter: WebsocketAdapter(),
+});
+```
+
+#### Options
+
+You can pass adapter-specific options via the `adapterOptions` constructor option on `Socket`.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `protocols` | `string[]` | — | Subprotocols passed to the `WebSocket` constructor. |
+| `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
+| `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
+| `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
+| `pongTimeout` | `number` | — | Timeout (ms) to wait for a pong response. |
+
+```tsx
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  adapterOptions: {
+    autoConnect: false,
+    protocols: ["v1"],
+    heartbeat: true,
+    heartbeatMessage: "ping",
+  },
+});
+```
+
+<LinkCard
+  type="api"
+  title="WebsocketAdapter"
+  description="Read the API Reference for the WebsocketAdapter class."
+  to="/docs/api/sockets/Functions/WebsocketAdapter"
+/>
+
+---
+
+### Server Sent Events (SSE) Adapter
+
+The `ServerSentEventsAdapter` is used to communicate with the `Server Sent Events (SSE)` server.
+
+:::caution SSE is receive-only
+
+The SSE adapter does **not** support emitting events. Calling `emit` on an emitter with this adapter will throw an
+error. Use the `WebsocketAdapter` if you need bidirectional communication.
+
+:::
+
+(@import sockets ServerSentEventsAdapter type=import)
+
+```tsx
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
+
+```tsx
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+  adapterOptions: {
+    autoConnect: false,
+    eventSourceInit: { withCredentials: true },
+  },
+});
+```
+
+<LinkCard
+  type="api"
+  title="ServerSentEventsAdapter"
+  description="Read the API Reference for the ServerSentEventsAdapter class."
+  to="/docs/api/sockets/Functions/ServerSentEventsAdapter"
+/>
+
+---
+
+## Custom Adapter
+
+There is nothing to prevent you from changing this and creating the adapter you need. Thanks to event communication, you
+can set your own adapter as you wish by only fulfilling the typescript requirements. This way you can create your own
+adapters for existing libraries like `socket.io`. Refer to the `SocketAdapter` API reference for the full contract your
+custom adapter must satisfy.
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Learn more about the Emitter class and its configuration options."
+  to="/docs/sockets/emitter"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Learn more about the Listener class and its configuration options."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Firebase Realtime Database"
+  description="Learn more about the Firebase Realtime Database integration."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>

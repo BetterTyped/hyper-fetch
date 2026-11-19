@@ -11,6 +11,7 @@
     "start:app": "pnpm reset && nx serve",
     "build": "pnpm reset && nx run-many --target=build --parallel=2 --skip-nx-cache --projects='packages/*'",
     "build:docs": "cd documentation && pnpm install && pnpm build",
+    "docs:version": "node ./scripts/version-docs.mjs",
     "test": "nx run-many --target=test --parallel=1 --skip-nx-cache --projects='packages/*' --exclude=firebase,firebase-admin",
     "lint": "nx run-many --target=lint --parallel=3 --skip-nx-cache --projects='packages/*'",
     "format": "nx run-many --target=format --parallel=3 --skip-nx-cache --projects='packages/*'",
@@ -18,7 +19,7 @@
     "release": "node ./scripts/release.mjs",
     "nx:upgrade": "npx nx migrate latest",
     "update-version": "node ./scripts/update-package-version.js",
-    "test:release": "node --test scripts/release.test.mjs"
+    "test:release": "node --test scripts/release.test.mjs scripts/version-docs.test.mjs"
   },
   "dependencies": {
     "@nx/js": "22.6.5",
