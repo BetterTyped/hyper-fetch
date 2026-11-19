@@ -1,3 +1,4 @@
+import { optimistic as optimisticBuilder } from "optimistic";
 import { Client } from "client";
 
 describe("Request [ Optimistic ]", () => {
@@ -58,7 +59,14 @@ describe("Request [ Optimistic ]", () => {
       const result = request.setOptimistic(callback1).setOptimistic(callback2);
 
       expect(result.optimistic).toBeDefined();
-      const callResult = result.optimistic!({ request: result, client, payload: undefined });
+      const callResult = result.optimistic!({
+        request: result,
+        client,
+        payload: undefined,
+        params: undefined,
+        queryParams: undefined,
+        optimistic: optimisticBuilder,
+      });
       expect(callResult).toStrictEqual({ context: "second" });
     });
 
@@ -81,6 +89,9 @@ describe("Request [ Optimistic ]", () => {
         request: reqWithPayload,
         client: reqWithPayload.client,
         payload: reqWithPayload.payload,
+        params: undefined,
+        queryParams: undefined,
+        optimistic: optimisticBuilder,
       });
 
       expect(callbackSpy).toHaveBeenCalledTimes(1);

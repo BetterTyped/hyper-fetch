@@ -12,6 +12,7 @@ import type {
 } from "dispatcher";
 import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } from "dispatcher";
 import type { ResponseDetailsType, LoggerMethods } from "managers";
+import { isStaleOptimisticResponse } from "optimistic/optimistic.settlement";
 import type { RequestInstance, RequestJSON } from "request";
 import { Request, scopeKey } from "request";
 import { EventEmitter, throwOutsideLifecycle } from "utils";
@@ -762,10 +763,22 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       // the cache, a response of a request sent before it is outdated - it must not replace that data.
       const storageKey = scopeKey(request.cacheKey, scope);
       const isOutdated = (this.cachedOrder.get(storageKey) ?? 0) > sentOrder;
+      // A pending optimistic change on the key makes the response stale - the refresh after it supplies current data.
+      // Always checked, so a fetch marked as stale is released even when its response is skipped for another reason.
+      let isStaleOptimistic = false;
+      notify(() => {
+        isStaleOptimistic = isStaleOptimisticResponse(this.client, request, requestId);
+      });
 
       if (isOutdated) {
         this.logger.debug({
           title: "Response of a request sent before the cached one, skipping the cache",
+          type: "system",
+          extra: { requestId, request, response },
+        });
+      } else if (isStaleOptimistic) {
+        this.logger.debug({
+          title: "Response started before a pending optimistic change settled, skipping the cache",
           type: "system",
           extra: { requestId, request, response },
         });

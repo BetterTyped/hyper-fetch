@@ -432,7 +432,8 @@ export class Cache<Adapter extends AdapterInstance> {
       const keys = [...(await lazyStorage.keys())];
       // One element that can't be removed must not keep the others in the storage
       const results = await Promise.allSettled(keys.map((key) => lazyStorage.delete(key)));
-      const failed = results.find((result) => result.status === "rejected");
+      // The type guard keeps older compilers (docs generation) narrowing the result to the rejected one
+      const failed = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
       if (failed) {
         throw failed.reason;
       }

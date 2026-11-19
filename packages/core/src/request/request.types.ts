@@ -1,6 +1,7 @@
 import type { RequestResponseType, ResponseSuccessType, ResponseErrorType } from "adapter";
 import type { ClientInstance } from "client";
 import type { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import type { OptimisticFactoryType, OptimisticUpdatesType } from "optimistic/optimistic.types";
 /* eslint-disable @typescript-eslint/no-shadow */
 import type {
   NullableKeys,
@@ -372,6 +373,11 @@ export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omi
 > & {
   dispatcherType?: "auto" | "fetch" | "submit";
   cachePolicy?: RequestCachePolicyType;
+  /**
+   * Optimistic update of this call - `optimistic()` operations or a callback like the one of `setOptimistic`.
+   * Replaces the request's own optimistic callback for this call.
+   */
+  optimistic?: OptimisticSendOptionType<Request>;
 };
 
 // Request making
@@ -429,6 +435,15 @@ export type OptimisticCallbackArgs<Req extends RequestInstance> = {
   request: Req;
   client: Req["client"];
   payload: ExtractPayloadType<Req>;
+  /** Endpoint params of the mutation */
+  params: ExtractParamsType<Req>;
+  /** Query params of the mutation */
+  queryParams: ExtractQueryParamsType<Req>;
+  /**
+   * The `optimistic()` builder with `.commit()` and `.rollback()` typed by this mutation's response.
+   * Same as the exported `optimistic`, whose callbacks receive an erased mutation type.
+   */
+  optimistic: OptimisticFactoryType<Req>;
 };
 
 /**
@@ -441,17 +456,42 @@ export type OptimisticRollbackArgs<Req extends RequestInstance> =
   | { reason: "error" | "abort"; response: RequestResponseType<Req>; request: Req }
   | { reason: "removed"; response?: undefined; request: Req };
 
+/**
+ * Object form of the optimistic result. All fields are optional.
+ */
 export type OptimisticCallbackResult<Ctx, Req extends RequestInstance = RequestInstance> = {
+  /** Value delivered as `mutationContext` to the lifecycle callbacks */
   context?: Ctx;
+  /** Operations built with `optimistic()`, applied in order and reverted in reverse order */
+  updates?: OptimisticUpdatesType;
   /** Runs once when the request settles without success, also outside of any framework */
   rollback?: (args: OptimisticRollbackArgs<Req>) => void;
   /** Requests invalidated in the cache once the request succeeds */
   invalidate?: RequestInstance[];
+  /**
+   * Decides if a final error reverts the change (`true` by default). Aborted and removed requests are always reverted.
+   * With `false` the change stays, no rollback runs and nothing is refreshed.
+   */
+  rollbackOnError?: boolean | ((args: { response: RequestResponseType<Req>; request: Req }) => boolean);
+  /** Refresh the targets of `updates` once the last pending mutation on them settles (`true` by default) */
+  revalidate?: boolean;
 };
+
+/**
+ * What an optimistic callback returns: an array of `optimistic()` operations, or the object form.
+ */
+export type OptimisticCallbackReturnType<Ctx, Req extends RequestInstance = RequestInstance> =
+  | OptimisticUpdatesType
+  | OptimisticCallbackResult<Ctx, Req>;
 
 export type OptimisticCallback<Req extends RequestInstance, Ctx = undefined> = (
   args: OptimisticCallbackArgs<Req>,
-) => OptimisticCallbackResult<Ctx, Req> | Promise<OptimisticCallbackResult<Ctx, Req>>;
+) => OptimisticCallbackReturnType<Ctx, Req> | Promise<OptimisticCallbackReturnType<Ctx, Req>>;
+
+/**
+ * Per-call optimistic update - operations or a callback like the one of `setOptimistic`. Replaces the request's own.
+ */
+export type OptimisticSendOptionType<Req extends RequestInstance> = OptimisticUpdatesType | OptimisticCallback<Req, any>;
 
 // Mappers
 

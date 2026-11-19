@@ -2,7 +2,9 @@ import type { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import type { UseSubmitOptionsType } from "./use-submit.types";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<RequestInstance>, "initialResponse" | "select">> & {
+type DefaultOptionsType = RequiredKeys<
+  Omit<UseSubmitOptionsType<RequestInstance>, "initialResponse" | "select" | "optimistic">
+> & {
   initialResponse: null;
 };
 
