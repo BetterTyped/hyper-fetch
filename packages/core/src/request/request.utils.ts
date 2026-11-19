@@ -3,11 +3,13 @@ import type { AdapterInstance, ProgressType, RequestResponseType, ResponseType }
 import { SAFE_HTTP_METHODS } from "constants/http.constants";
 import type { Dispatcher } from "dispatcher";
 import type { RequestResponseEventType } from "managers";
+import type { OptimisticPendingType } from "optimistic";
+import { applyOptimistic, getOptimisticResult, optimistic, settleOptimistic } from "optimistic";
 import type { ExtractAdapterType, ExtractErrorType } from "types";
 
 import type {
   OptimisticCallbackResult,
-  OptimisticRollbackArgs,
+  OptimisticSendOptionType,
   ProgressEventType,
   RequestInstance,
   RequestJSON,
@@ -183,43 +185,6 @@ export const mapResponseForSend = async <Request extends RequestInstance>(
   return (mapping || response) as RequestResponseType<Request>;
 };
 
-/**
- * Rollback is user code running in the middle of the response handling, its failure can't affect the request
- */
-const rollbackOptimistic = (
-  optimistic: OptimisticCallbackResult<any>,
-  args: OptimisticRollbackArgs<RequestInstance>,
-): void => {
-  const logFailure = (error: unknown) => {
-    args.request.client.logger.error({
-      title: "Optimistic rollback failed",
-      type: "system",
-      extra: { error, reason: args.reason, request: args.request },
-    });
-  };
-
-  try {
-    // Async rollback is not awaited, but its rejection can't stay unhandled
-    Promise.resolve(optimistic.rollback?.(args)).catch(logFailure);
-  } catch (error) {
-    logFailure(error);
-  }
-};
-
-const invalidateOptimistic = (optimistic: OptimisticCallbackResult<any>, request: RequestInstance): void => {
-  optimistic.invalidate?.forEach((target) => {
-    try {
-      request.client.cache.invalidate(target);
-    } catch (error) {
-      request.client.logger.error({
-        title: "Optimistic invalidation failed",
-        type: "system",
-        extra: { error, target, request },
-      });
-    }
-  });
-};
-
 export const sendRequest = async <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
@@ -229,14 +194,26 @@ export const sendRequest = async <Request extends RequestInstance>(
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
   let mutationContext: OptimisticCallbackResult<any> | undefined;
+  let pendingOptimistic: OptimisticPendingType | undefined;
+  // The per-call option replaces the optimistic callback of the request
+  const optimisticSource = (options?.optimistic ?? request.optimistic) as
+    | OptimisticSendOptionType<RequestInstance>
+    | undefined;
 
-  if (request.optimistic) {
+  if (optimisticSource) {
     try {
-      mutationContext = await request.optimistic({
-        request,
-        client: request.client,
-        payload: request.payload,
-      });
+      const result = Array.isArray(optimisticSource)
+        ? optimisticSource
+        : optimisticSource({
+            request,
+            client: request.client,
+            payload: request.payload,
+            params: request.params,
+            queryParams: request.queryParams,
+            optimistic,
+          });
+      // Synchronous callbacks change the cache within the send() call, async ones once they resolve
+      mutationContext = getOptimisticResult(result instanceof Promise ? await result : result);
     } catch (error) {
       return {
         data: null,
@@ -250,6 +227,7 @@ export const sendRequest = async <Request extends RequestInstance>(
         responseTimestamp: Date.now(),
       };
     }
+    pendingOptimistic = applyOptimistic(client, mutationContext);
   }
 
   return new Promise<RequestResponseType<Request>>((resolve) => {
@@ -278,9 +256,9 @@ export const sendRequest = async <Request extends RequestInstance>(
     };
 
     // Attached ahead of `onBeforeSent`, so listeners added there already observe the settled cache
-    const unmountSettlement = mutationContext
+    const unmountSettlement = pendingOptimistic
       ? requestManager.events.onResponseById<Request>(requestId, (values) => {
-          const optimistic = mutationContext as OptimisticCallbackResult<any>;
+          const pending = pendingOptimistic as OptimisticPendingType;
           const willBeResent = getWillBeResent(values);
 
           const settle = (response: ResponseType<any, any, AdapterInstance>) => {
@@ -290,11 +268,11 @@ export const sendRequest = async <Request extends RequestInstance>(
             isSettled = true;
 
             if (values.details.isCanceled) {
-              rollbackOptimistic(optimistic, { reason: "abort", response, request });
+              settleOptimistic(pending, { type: "rollback", reason: "abort", response, request });
             } else if (response.success) {
-              invalidateOptimistic(optimistic, request);
+              settleOptimistic(pending, { type: "success", response, request });
             } else {
-              rollbackOptimistic(optimistic, { reason: "error", response, request });
+              settleOptimistic(pending, { type: "rollback", reason: "error", response, request });
             }
           };
 
@@ -383,9 +361,9 @@ export const sendRequest = async <Request extends RequestInstance>(
         isResolved = true;
         isDelivered = true;
 
-        if (mutationContext && !isSettled) {
+        if (pendingOptimistic && !isSettled) {
           isSettled = true;
-          rollbackOptimistic(mutationContext, { reason: "removed", request });
+          settleOptimistic(pendingOptimistic, { type: "rollback", reason: "removed", request });
         }
 
         const enriched = { ...data, mutationContext };

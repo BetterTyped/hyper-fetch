@@ -14,6 +14,7 @@ import type { HttpAdapterType } from "http-adapter";
 import { parseResponse, HttpAdapter } from "http-adapter";
 import type { LogLevel } from "managers";
 import { AppManager, LoggerManager, RequestManager } from "managers";
+import { resetOptimisticState } from "optimistic";
 import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
 import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";
@@ -411,6 +412,7 @@ export class Client<
     const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
 
     this.requestManager.abortControllers.clear();
+    resetOptimisticState(this);
     this.fetchDispatcher.clear();
     this.submitDispatcher.clear();
     this.cache.clear();

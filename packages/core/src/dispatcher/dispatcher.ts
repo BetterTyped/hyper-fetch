@@ -11,6 +11,7 @@ import type {
 } from "dispatcher";
 import { getRequestType, canRetryRequest, getDispatcherEvents, DispatcherMode } from "dispatcher";
 import type { ResponseDetailsType, LoggerMethods } from "managers";
+import { isStaleOptimisticResponse } from "optimistic";
 import type { RequestInstance, RequestJSON } from "request";
 import { Request, scopeKey } from "request";
 import { EventEmitter } from "utils";
@@ -653,8 +654,10 @@ export class Dispatcher<Adapter extends AdapterInstance> {
       isOffline,
     });
 
-    // Cache event to emit the data inside and store it
-    cache.set(request, { ...response, ...requestDetails });
+    // Cache event to emit the data inside and store it, unless a pending optimistic change made the response stale
+    if (!isStaleOptimisticResponse(this.client, request, requestId)) {
+      cache.set(request, { ...response, ...requestDetails });
+    }
     this.logger.debug({
       title: "Dispatcher processing response",
       type: "system",

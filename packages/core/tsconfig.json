@@ -19,6 +19,8 @@
       "managers/*": ["./src/managers/*"],
       "mocker": ["./src/mocker"],
       "mocker/*": ["./src/mocker/*"],
+      "optimistic": ["./src/optimistic"],
+      "optimistic/*": ["./src/optimistic/*"],
       "plugin": ["./src/plugin"],
       "plugin/*": ["./src/plugin/*"],
       "request": ["./src/request"],
