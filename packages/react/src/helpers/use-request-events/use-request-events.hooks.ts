@@ -228,10 +228,12 @@ export const useRequestEvents = <R extends RequestInstance>({
 
       if (data instanceof Promise) {
         return (async () => {
-          handleResponseCallbacks({
-            ...values,
-            response: (await data) as ResponseType<any, any, ExtractAdapterType<R>>,
-          });
+          const response = (await data) as ResponseType<any, any, ExtractAdapterType<R>>;
+          // The mapper can outlive the component - the unmount cleanup can't stop a response already being mapped
+          if (!isMounted.current) {
+            return;
+          }
+          handleResponseCallbacks({ ...values, response });
         })();
       }
       // Callbacks receive the same (mapped) response as the hook state

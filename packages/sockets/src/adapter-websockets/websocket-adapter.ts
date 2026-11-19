@@ -147,6 +147,8 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
           return new Promise((resolve) => {
             if (newWebsocket.readyState === WebSocket.OPEN) {
+              // No open event follows, so the attempt timeout would reconnect a working connection
+              clearTimeout(timeout);
               resolve(true);
               socket.adapter.setConnected(true);
               socket.adapter.setConnecting(false);

@@ -159,6 +159,8 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           return new Promise((resolve) => {
             if (eventSource.readyState === EventSource.OPEN) {
+              // No open event follows, so the attempt timeout would reconnect a working connection
+              clearTimeout(timeout);
               resolve(true);
               adapter.setConnected(true);
               adapter.setConnecting(false);
