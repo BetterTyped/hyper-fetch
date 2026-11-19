@@ -237,8 +237,16 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When flushing requests", () => {
     it("should flush all queues request", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "2", deduplicate: false });
+      const firstRequest = client.createRequest()({
+        endpoint: "shared-base-endpoint",
+        queryKey: "1",
+        deduplicate: false,
+      });
+      const secondRequest = client.createRequest()({
+        endpoint: "shared-base-endpoint",
+        queryKey: "2",
+        deduplicate: false,
+      });
       mockRequest(firstRequest);
       mockRequest(secondRequest);
 
@@ -351,7 +359,8 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should stop queue and cancel ongoing requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1", deduplicate: false });
-      mockRequest(request);
+      // The responses come long after the stop - both requests are stopped while they are in flight
+      mockRequest(request, { delay: 1000 });
 
       const spy = vi.spyOn(client.adapter, "fetch");
       const firstSpy = vi.fn();
@@ -362,7 +371,9 @@ describe("Dispatcher [ Queue ]", () => {
       client.requestManager.events.onAbortById(firstRequestId, firstSpy);
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
 
-      await sleep(1);
+      await waitFor(() => {
+        expect(dispatcher.getRunningRequests(request.queryKey)).toHaveLength(2);
+      });
 
       dispatcher.stop(request.queryKey);
 
@@ -414,23 +425,33 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not remove requests from queue storage on stop", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      mockRequest(request);
+      // The response comes long after the stop - the request is stopped while it is in flight
+      mockRequest(request, { delay: 1000 });
 
-      dispatcher.add(request);
-      await sleep(2);
+      const requestId = dispatcher.add(request);
+      await waitFor(() => {
+        expect(dispatcher.hasRunningRequest(request.queryKey, requestId)).toBeTrue();
+      });
       dispatcher.stop(request.queryKey);
 
       expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
+      expect(dispatcher.getRunningRequests(request.queryKey)).toHaveLength(0);
     });
     it("should not remove request from queue storage on stopRequest", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      mockRequest(request);
+      // The response comes long after the stop - the request is stopped while it is in flight
+      mockRequest(request, { delay: 1000 });
 
       const requestId = dispatcher.add(request);
-      await sleep(2);
+      await waitFor(() => {
+        expect(dispatcher.hasRunningRequest(request.queryKey, requestId)).toBeTrue();
+      });
       dispatcher.stopRequest(request.queryKey, requestId);
 
-      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
+      const { requests } = dispatcher.getQueue(request.queryKey);
+      expect(requests).toHaveLength(1);
+      expect(requests[0].stopped).toBeTrue();
+      expect(dispatcher.hasRunningRequest(request.queryKey, requestId)).toBeFalse();
     });
   });
 
