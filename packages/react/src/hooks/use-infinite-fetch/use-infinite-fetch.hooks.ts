@@ -1,4 +1,3 @@
-import { useDidUpdate } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import type {
   ExtractErrorType,
@@ -209,17 +208,39 @@ export const useInfiniteFetch = <
     }
 
     if (bounce && previous && previous !== store && !store.hasPages()) {
-      bounceFunction(() => store.start({ revalidate: latest.current.revalidate }));
+      bounceFunction(() => {
+        // The list could have been left for another one, or disabled, before the bounce settled
+        if (mountedStore.current === store && !latest.current.disabled) {
+          store.start({ revalidate: latest.current.revalidate });
+        }
+      });
     } else {
       store.start({ revalidate });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store, disabled]);
 
-  useDidUpdate(() => {
-    if (!disabled) {
+  useEffect(() => {
+    if (disabled) {
+      return;
+    }
+    return store.enable();
+  }, [store, disabled]);
+
+  // Effects run again in StrictMode and when a hidden list is shown - only changed values are a reason to refetch
+  const usedDependencies = useRef(dependencies);
+
+  useEffect(() => {
+    const previous = usedDependencies.current;
+    usedDependencies.current = dependencies;
+
+    const hasChanged =
+      previous.length !== dependencies.length ||
+      previous.some((value, index) => !Object.is(value, dependencies[index]));
+    if (hasChanged && !disabled) {
       store.refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   useEffect(() => {

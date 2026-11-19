@@ -173,7 +173,7 @@ const { items, isPreviousData, onReset } = useInfiniteFetch(getPosts.setQueryPar
 onReset(() => window.scrollTo({ top: 0 }));
 ```
 
-With `bounce`, only the settled value of a search box is fetched.
+With `bounce`, only the settled value of a search box is fetched. A value left before it settled is never requested.
 
 ---
 
@@ -182,13 +182,14 @@ With `bounce`, only the settled value of a search box is fetched.
 `refetch()` loads every loaded page again. The old pages stay on screen and the list is swapped when the new ones arrive.
 
 - **Page numbers and offsets** refetch in parallel, because their values do not depend on other pages. A page that fails
-  keeps its old data.
+  keeps its old data. When the list became shorter, the pages after its new end are dropped.
 - **Cursors** refetch in order from the first page, following the fresh cursors. If a page of the chain fails, the list
   stays as it was.
 
 The same refetch runs when a loaded page is invalidated or deleted, on `refresh`, and on `refetchOnFocus`,
 `refetchOnBlur` and `refetchOnReconnect`. Pages restored from the cache are refetched on mount once they are stale, or
-always with `revalidate: true`.
+always with `revalidate: true`. The same check runs when another hook mounts on a list that is already on screen, and
+when a list hidden by `<Activity>` is shown again.
 
 A cache change on a loaded page, such as an optimistic update, updates that page in place.
 

@@ -1,5 +1,7 @@
 import type { RequestInstance } from "@hyper-fetch/core";
 
+import type { InfiniteSnapshot } from "./use-infinite-fetch.store.types";
+
 /**
  * Identity of a list. Everything describing the request takes part in it, so a changed filter, sort, page size
  * or URL param starts a new list without anything having to be listed by hand.
@@ -41,4 +43,11 @@ export const getShouldKeepPreviousList = (
     return previous.method === current.method && previous.endpoint === current.endpoint;
   }
   return mode === "preserve";
+};
+
+/**
+ * Tells whether nothing changed between two states of a list, so nobody has to be notified
+ */
+export const isSameSnapshot = (a: InfiniteSnapshot, b: InfiniteSnapshot) => {
+  return (Object.keys(a) as (keyof InfiniteSnapshot)[]).every((key) => a[key] === b[key]);
 };

@@ -33,6 +33,7 @@ import type {
   OperationKind,
 } from "./use-infinite-fetch.store.types";
 import type { InfinitePageEvent } from "./use-infinite-fetch.types";
+import { isSameSnapshot } from "./use-infinite-fetch.utils";
 
 // Render and commit are separate steps, a store waits this long for the component that created it
 const unusedStoreTime = 1000;
@@ -46,10 +47,6 @@ const getStores = (client: ClientInstance) => {
     stores.set(client, clientStores);
   }
   return clientStores;
-};
-
-const isSameSnapshot = (a: InfiniteSnapshot, b: InfiniteSnapshot) => {
-  return (Object.keys(a) as (keyof InfiniteSnapshot)[]).every((key) => a[key] === b[key]);
 };
 
 /**
@@ -71,6 +68,7 @@ export class InfiniteStore {
   private refetchedKeys = new Set<string>();
   private unmountCacheListeners: VoidFunction | null = null;
   private unusedTimer: ReturnType<typeof setTimeout> | null = null;
+  private enabledHooks = 0;
   private started = false;
   private settled = false;
   private firstFetch: Promise<any> = Promise.resolve(null);
@@ -120,6 +118,14 @@ export class InfiniteStore {
     };
   };
 
+  /** Counts the hooks allowed to fetch - changes of the cache refetch the list only for them */
+  enable = () => {
+    this.enabledHooks += 1;
+    return () => {
+      this.enabledHooks -= 1;
+    };
+  };
+
   /** Callbacks can capture values of the latest render */
   setPagination = (pagination: PaginationConfig) => {
     this.options.pagination = pagination;
@@ -136,6 +142,11 @@ export class InfiniteStore {
    */
   start = ({ revalidate }: { revalidate?: boolean } = {}) => {
     if (this.started) {
+      // A hook joining a list already on screen, or coming back to it, checks the loaded pages like a new mount
+      const isIdle = !this.running && this.queue.length === 0;
+      if (isIdle && this.pages.length > 0 && (revalidate || this.getHasStalePages())) {
+        this.revalidate();
+      }
       return this.firstFetch;
     }
     this.started = true;
@@ -400,13 +411,20 @@ export class InfiniteStore {
       return null;
     }
 
-    const failed = results.find((fetched) => fetched && !fetched.response.success);
-    const last = failed ?? results.findLast(Boolean);
-
-    this.pages = current.map((page, index) => {
+    const pages = current.map((page, index) => {
       const fetched = results[index];
       return fetched?.response.success ? this.createPage(fetched) : page;
     });
+    // The list can be shorter than before. Pages after its new end are gone, whatever their requests returned.
+    const end = pages.findIndex((page, index) => {
+      return results[index]?.response.success && !getHasNextPage(this.getContext(page, pages.slice(0, index + 1)));
+    });
+    const length = end === -1 ? pages.length : end + 1;
+    const kept = results.slice(0, length);
+    const failed = kept.find((fetched) => fetched && !fetched.response.success);
+    const last = failed ?? kept.findLast(Boolean);
+
+    this.pages = pages.slice(0, length);
     if (last) {
       this.setResult(last.response);
     }
@@ -522,8 +540,10 @@ export class InfiniteStore {
   };
 
   private getHasStalePages = () => {
-    return this.pages.some((page) => {
-      const value = this.readValue(page.request);
+    return this.pages.some(({ request, responseTimestamp }) => {
+      // Pages of requests without cache are kept only here
+      const kept = request.cache ? null : { staleTime: request.staleTime, responseTimestamp };
+      const value = this.readValue(request) ?? kept;
       return !value || isStaleCacheData(value.staleTime, value.responseTimestamp);
     });
   };
@@ -709,7 +729,7 @@ export class InfiniteStore {
     this.hasInvalidation = true;
     queueMicrotask(() => {
       this.hasInvalidation = false;
-      if (this.listeners.size > 0) {
+      if (this.enabledHooks > 0) {
         this.refetch();
       }
     });

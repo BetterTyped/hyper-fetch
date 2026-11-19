@@ -1,4 +1,4 @@
-import type { Pagination } from "@hyper-fetch/core";
+import type { ExtractErrorType, Pagination } from "@hyper-fetch/core";
 import { Client, fetchInfinite } from "@hyper-fetch/core";
 import { useInfiniteFetch } from "hooks/use-infinite-fetch";
 
@@ -91,6 +91,69 @@ describe("useInfiniteFetch [ TypeScript ]", () => {
     const result = types(() => fetchInfinite(getPosts, { pagination: { page: "page" } }));
 
     expectTypeOf(result).resolves.toHaveProperty("items").toEqualTypeOf<Post[]>();
+  });
+
+  it("should type the pages, the paging values and the result of the last fetch", () => {
+    const getTyped = client.createRequest<{
+      response: { data: Post[]; nextCursor: string | null };
+      queryParams: { cursor?: string };
+      error: { code: number };
+    }>()({ endpoint: "/typed" });
+    const list = types(() =>
+      useInfiniteFetch(getTyped, { pagination: { cursor: "cursor", next: "nextCursor", items: "data" } }),
+    );
+
+    expectTypeOf(list.pages).toEqualTypeOf<{ data: Post[]; nextCursor: string | null }[]>();
+    expectTypeOf(list.pageParams).toEqualTypeOf<unknown[]>();
+    expectTypeOf(list.error).toEqualTypeOf<ExtractErrorType<typeof getTyped> | null>();
+    expectTypeOf<{ code: number }>().toMatchTypeOf<NonNullable<typeof list.error>>();
+    expectTypeOf(list.hasNextPage).toEqualTypeOf<boolean>();
+    expectTypeOf(list.isFetchNextPageError).toEqualTypeOf<boolean>();
+    expectTypeOf(list.abort).toEqualTypeOf<() => void>();
+  });
+
+  it("should type the responses of the actions and the page events", () => {
+    const list = types(() => useInfiniteFetch(getPosts, { pagination: { page: "page" } }));
+
+    expectTypeOf(list.fetchNextPage).parameters.toEqualTypeOf<[]>();
+    expectTypeOf<NonNullable<Awaited<ReturnType<typeof list.fetchNextPage>>>["data"]>().toEqualTypeOf<Post[] | null>();
+    expectTypeOf<Awaited<ReturnType<typeof list.fetchNextPage>>>().toBeNullable();
+    expectTypeOf(list.fetchPreviousPage).toEqualTypeOf(list.fetchNextPage);
+    expectTypeOf(list.refetch).toEqualTypeOf(list.fetchNextPage);
+    expectTypeOf(list.reset).toEqualTypeOf(list.fetchNextPage);
+
+    types(() => {
+      list.onSuccess(({ response, request, param }) => {
+        expectTypeOf(response.data).toEqualTypeOf<Post[] | null>();
+        expectTypeOf(request.endpoint).toEqualTypeOf<"/posts">();
+        expectTypeOf(request.queryParams).toEqualTypeOf(getPosts.queryParams);
+        expectTypeOf(param).toBeUnknown();
+      });
+      list.onError(({ response }) => {
+        expectTypeOf(response.success).toEqualTypeOf<boolean>();
+      });
+      list.onReset(() => null);
+    });
+  });
+
+  it("should type the context of select and uniqueBy", () => {
+    types(() =>
+      useInfiniteFetch(getFeed, {
+        pagination: { cursor: "cursor", next: "nextCursor", items: "data" },
+        uniqueBy: ({ item }) => {
+          expectTypeOf(item).toEqualTypeOf<Post>();
+          return item.id;
+        },
+        select: ({ items, pages }) => {
+          expectTypeOf(items).toEqualTypeOf<Post[]>();
+          expectTypeOf(pages).toEqualTypeOf<
+            { data: Post[]; nextCursor: string | null; count: number; label: string }[]
+          >();
+          return pages.length;
+        },
+      }),
+    );
+    types(() => useInfiniteFetch(getPosts, { pagination: { page: "page" }, uniqueBy: "id" }));
   });
 
   it("should reject a wrong pagination", () => {
