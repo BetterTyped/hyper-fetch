@@ -85,8 +85,12 @@ Key capabilities are the MOST IMPORTANT part of the README. They sell the packag
 
 ## Root README Special Rules
 
-- Uses hero image at the top
-- Centered tagline: "One SDK. Any API. Fully typed."
+- Opens with the banner (`.github/assets/readme.png`). It carries the tagline "From REST to realtime. Fully typed." and
+  the logos of every supported backend, so the text below must not repeat it. Keep its alt text in sync
+- Under the banner: a links row, then the badge block
+- "One request shape on every backend" section first: one code block that builds a client per adapter and sends the
+  same request, then a realtime listener
+- "Works with" logo grid linking each backend to its docs. Add a cell when a new adapter or transport ships
 - Two quick start paths: manual setup + CLI generation
 - "Why HyperFetch?" section with 4 benefit bullets
 - Packages table with version/downloads/size badges (markdown table, not HTML)

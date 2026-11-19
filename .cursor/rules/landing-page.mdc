@@ -8,7 +8,7 @@ alwaysApply: false
 
 ## Section Order (strict)
 
-1. **Hero** — "One SDK. Any API. Fully typed." + universality subtitle + Get Started / Generate SDK CTAs
+1. **Hero** — "From REST to realtime. Fully typed." + built-in features subtitle + backend logo row + Get Started / Generate SDK CTAs
 2. **CodePreview** — Video showing the SDK in action
 3. **Clients** — Company logo carousel (Swiper auto-scroll)
 4. **About ("Works everywhere")** — Three cards: Every Framework, Every API Protocol, Every Environment
@@ -21,8 +21,11 @@ alwaysApply: false
 
 ## Hero Rules
 
-- H1 must be: "One SDK. Any API." with subtitle "Fully Typed." (with wavy underline)
-- Subtitle: universality message mentioning REST, GraphQL, Firebase, WebSockets, SSE
+- H1 must be: "From REST to realtime." with second line "Fully Typed." (wavy underline on "Typed")
+- Subtitle: what is built in (caching, retries, deduplication, offline replay, live subscriptions) and that the same
+  `createRequest()` works with every adapter
+- Backend logo row (`hero/ecosystem.tsx`) sits between the subtitle and the CTAs. Add a logo there when a new adapter
+  or transport ships. Logos live in `static/img/integration-*.svg`
 - Primary CTA: "Get Started" → docs/getting-started
 - Secondary CTA: "Generate SDK" → docs/cli/commands/generate
 - Badge link above title: "Generate SDK from Swagger" → CLI docs

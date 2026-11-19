@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "@docusaurus/router";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 
 import "./hype-stack-card.css";
@@ -125,10 +126,11 @@ export function HypeStackCard() {
 
 /**
  * The same card pinned to the corner of the window. It is drawn only once the page runs, so someone who shrank it
- * never sees the whole card flash back.
+ * never sees the whole card flash back. On the landing page it is always the small one, so it never covers the hero.
  */
 export function HypeStackFloat() {
   const [small, shrink] = useShrunk();
+  const landing = useLocation().pathname === useBaseUrl("/");
   const [phone, setPhone] = useState(false);
   useEffect(() => {
     const query = window.matchMedia(PHONE);
@@ -138,7 +140,7 @@ export function HypeStackFloat() {
     return () => query.removeEventListener("change", read);
   }, []);
   if (small === null) return null;
-  const compact = small || phone;
+  const compact = small || phone || landing;
   return (
     <aside className="hs-ad-float" aria-label="From Hype Stack">
       <Card campaign="docs-float" small={compact} text />
