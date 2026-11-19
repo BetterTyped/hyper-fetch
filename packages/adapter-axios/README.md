@@ -51,7 +51,7 @@ npm install @hyper-fetch/core @hyper-fetch/axios axios
 import { createClient } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
-const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter());
+const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
 ```
 
 ## 📚 Documentation

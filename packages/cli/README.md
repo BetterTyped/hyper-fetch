@@ -236,7 +236,7 @@ const sdk = createSdk(client);
 const { data: users } = await sdk.users.list.send();
 const { data: user } = await sdk.users.get.setParams({ userId: 1 }).send();
 const { data: newUser } = await sdk.pets.create.send({
-  data: { name: "Buddy", species: "dog" },
+  payload: { name: "Buddy", species: "dog" },
 });
 ```
 

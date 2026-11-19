@@ -106,7 +106,7 @@ const { data } = await getUser.setParams({ userId: 1 }).send();
 
 // Payload is type-checked: { name, email } required here
 const { data: newUser } = await createUser.send({
-  data: { name: "Jane", email: "jane@example.com" },
+  payload: { name: "Jane", email: "jane@example.com" },
 });
 ```
 

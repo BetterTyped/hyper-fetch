@@ -48,19 +48,19 @@ operations.
 ## 🚀 Quick Start
 
 ```bash
-npm install @hyper-fetch/core @hyper-fetch/graphql
+npm install @hyper-fetch/core @hyper-fetch/graphql graphql-tag
 ```
 
 ```ts
 import { createClient } from "@hyper-fetch/core";
-import { GraphQLAdapter } from "@hyper-fetch/graphql";
+import { GraphqlAdapter } from "@hyper-fetch/graphql";
 
-const client = createClient({ url: "https://api.example.com/graphql" }).setAdapter(GraphQLAdapter());
+const client = createClient({ url: "https://api.example.com/graphql" }).setAdapter(GraphqlAdapter());
 ```
 
 ## 📚 Documentation
 
-- [GraphQL Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql)
+- [GraphQL Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview)
 - [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 
@@ -68,32 +68,31 @@ const client = createClient({ url: "https://api.example.com/graphql" }).setAdapt
 
 ### Query
 
+The query goes in `endpoint` as a `gql` document.
+
 ```ts
+import gql from "graphql-tag";
+
 interface UsersResponse {
   users: { id: string; name: string; email: string }[];
 }
 
-const getUsers = client.createRequest<{ response: UsersResponse }>()({
-  endpoint: "",
-  method: "POST",
+const getUsers = client.createRequest<{ response: UsersResponse; payload: { limit: number } }>()({
+  endpoint: gql`
+    query GetUsers($limit: Int) {
+      users(limit: $limit) {
+        id
+        name
+        email
+      }
+    }
+  `,
 });
 
-const { data } = await getUsers
-  .setData({
-    query: `
-      query GetUsers($limit: Int) {
-        users(limit: $limit) {
-          id
-          name
-          email
-        }
-      }
-    `,
-    variables: { limit: 10 },
-  })
-  .send();
+// The payload is sent as the GraphQL variables
+const { data } = await getUsers.send({ payload: { limit: 10 } });
 
-console.log(data.users);
+console.log(data?.users);
 ```
 
 ### Mutation
@@ -105,26 +104,23 @@ interface CreateUserResponse {
 
 const createUser = client.createRequest<{
   response: CreateUserResponse;
+  payload: { name: string; email: string };
 }>()({
-  endpoint: "",
-  method: "POST",
+  endpoint: gql`
+    mutation CreateUser($name: String!, $email: String!) {
+      createUser(name: $name, email: $email) {
+        id
+        name
+      }
+    }
+  `,
 });
 
-const { data } = await createUser
-  .setData({
-    query: `
-      mutation CreateUser($name: String!, $email: String!) {
-        createUser(name: $name, email: $email) {
-          id
-          name
-        }
-      }
-    `,
-    variables: { name: "Jane", email: "jane@example.com" },
-  })
-  .send();
+const { data } = await createUser.send({
+  payload: { name: "Jane", email: "jane@example.com" },
+});
 
-console.log("Created:", data.createUser.name);
+console.log("Created:", data?.createUser.name);
 ```
 
 ### With React hooks
@@ -133,11 +129,7 @@ console.log("Created:", data.createUser.name);
 import { useFetch } from "@hyper-fetch/react";
 
 const UserList = () => {
-  const { data, loading } = useFetch(
-    getUsers.setData({
-      query: `{ users { id name } }`,
-    }),
-  );
+  const { data, loading } = useFetch(getUsers.setPayload({ limit: 10 }));
 
   if (loading) return <p>Loading...</p>;
   return (

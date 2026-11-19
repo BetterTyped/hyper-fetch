@@ -127,7 +127,7 @@ const CreateUserForm = () => {
     const form = new FormData(e.currentTarget);
     // Pass typed payload — TypeScript ensures the shape matches your request definition
     submit({
-      data: { name: form.get("name") as string, email: form.get("email") as string },
+      payload: { name: form.get("name") as string, email: form.get("email") as string },
     });
   };
 

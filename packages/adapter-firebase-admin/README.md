@@ -87,7 +87,7 @@ const getMessages = client.createRequest<{ response: Message[] }>()({
 });
 
 await addMessage.send({
-  data: { text: "Hello from server!", author: "system", createdAt: Date.now() },
+  payload: { text: "Hello from server!", author: "system", createdAt: Date.now() },
 });
 
 const { data: messages } = await getMessages.send();

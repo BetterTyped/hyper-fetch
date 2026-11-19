@@ -185,10 +185,10 @@ const { data, error, status } = await getUsers.send();
 ### Mutation with params and payload
 
 ```ts
-// Params go in the URL and data goes in the body. Both are typed
+// Params go in the URL and the payload goes in the body. Both are typed
 const { data, error, status } = await createUser.send({
   params: { teamId: 1 },
-  data: { name: "Jane", email: "jane@example.com" },
+  payload: { name: "Jane", email: "jane@example.com" },
 });
 ```
 
