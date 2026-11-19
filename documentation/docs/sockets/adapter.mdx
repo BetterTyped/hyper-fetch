@@ -42,6 +42,7 @@ You can pass adapter-specific options via the `adapterOptions` constructor optio
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `webSocketImpl` | `new (url, protocols?) => WebSocket` | `window.WebSocket` | The `WebSocket` class used to open connections. Required to connect where there is no `window`, e.g. on Node.js. |
 | `protocols` | `string \| string[]` | — | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header). |
 | `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
 | `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
@@ -62,54 +63,26 @@ const socket = createSocketClient({
 });
 ```
 
-#### Custom message format
+#### Node.js and other runtimes
 
-By default every frame is a JSON `{ topic, data }` object. When your server speaks a different format - for example
-`{ type, payload }` - map it with the `decode` and `encode` options instead of writing a custom adapter. Frames decoded
-to `null` (pings, unknown messages) are ignored, and errors thrown by either function are reported through `onError`.
+The adapter uses `window.WebSocket`. Where there is no `window` (Node.js, Deno, Bun or a server-side render) nothing
+connects, so sockets created while rendering on the server stay offline. To connect from a server, pass the
+`WebSocket` class explicitly: the global one on Node.js 22+, Deno and Bun, or the one from the `ws` package:
 
 ```tsx
+import { createSocketClient } from "@hyper-fetch/sockets";
+import { WebSocket } from "ws"; // or the global `WebSocket` on Node.js 22+
+
 const socket = createSocketClient({
-  url: "wss://example.com/ws",
+  url: "ws://localhost:3000",
   adapterOptions: {
-    // highlight-start
-    decode: (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "pong") return null;
-      return { topic: message.type, data: message.payload };
-    },
-    encode: ({ topic, payload }) => JSON.stringify({ type: topic, payload }),
-    // highlight-end
+    webSocketImpl: WebSocket,
   },
 });
 ```
 
-#### Dynamic options
-
-Every adapter option can be resolved right before a connection attempt with the `onConnect` interceptor on the socket.
-It runs for the initial connection, automatic reconnects and manual reconnects, so short-lived values such as auth
-tokens passed through `protocols` are always fresh.
-
-```tsx
-const socket = createSocketClient({
-  url: "wss://example.com/ws",
-}).onConnect(({ connection }) => ({
-  ...connection,
-  adapterOptions: {
-    ...connection.adapterOptions,
-    protocols: ["authorization", authStore.getState().accessToken],
-  },
-}));
-```
-
-<LinkCard
-  type="api"
-  title="WebsocketAdapter"
-  description="Read the API Reference for the WebsocketAdapter class."
-  to="/docs/api/sockets/Functions/WebsocketAdapter"
-/>
-
----
+When no `WebSocket` is available, connecting fails with an error event instead of throwing. The SSE adapter works the
+same way with `eventSourceImpl`, for example with the `eventsource` package.
 
 ### Server Sent Events (SSE) Adapter
 
@@ -138,6 +111,7 @@ const socket = createSocketClient({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `eventSourceImpl` | `new (url, eventSourceInit?) => EventSource` | `window.EventSource` | The `EventSource` class used to open connections. Required to connect where there is no `window`, e.g. on Node.js. |
 | `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
 | `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message into a listener event. Return `null` to ignore the message. |
 

@@ -54,6 +54,41 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
 
 (@import plugin-devtools DevtoolsPluginOptions type=returns)
 
+---
+
+## Node.js backends
+
+The plugin reports from servers and scripts too, so you can inspect the requests your backend sends. Use the
+`environment` option to tell the backend apart from your frontend in HyperFlow.
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My API",
+    environment: "backend",
+  }),
+);
+```
+
+On Node.js 22+, Deno and Bun the plugin uses the global `WebSocket`. On Node.js 18 and 20 install `ws` and pass its
+class:
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { WebSocket } from "ws";
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My API",
+    environment: "backend",
+    // highlight-next-line
+    webSocketImpl: WebSocket,
+  }),
+);
+```
+
 <LinkCard
   type="promo"
   title="HyperFlow"
