@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book } from "lucide-react";
+import { Book, Server } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -124,6 +124,26 @@ export const integrations: Section[] = [
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     category: "Service",
     package: "hono",
+  },
+  {
+    label: "Elysia",
+    description:
+      "Call your Elysia backend through a typed SDK with responses, errors and inputs read from your routes.",
+    dir: "elysia",
+    isPackage: true,
+    paths: ["elysia"],
+    img: Server,
+    text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
+    textAction:
+      "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
+    textHover: "hover:!text-violet-500 hover:dark:!text-violet-400",
+    icon: "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 bg-violet-400 dark:bg-violet-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 group-hover:bg-violet-400 group-hover:dark:bg-violet-500 !bg-opacity-40",
+    border: "border-violet-500 dark:border-violet-400",
+    borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
+    category: "Service",
+    package: "elysia",
   },
   {
     label: "Graphql",
