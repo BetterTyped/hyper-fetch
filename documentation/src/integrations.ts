@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Zap } from "lucide-react";
+import { Book } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -11,6 +11,8 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
+// oxc icon, CC BY-NC-SA 4.0, see static/img/ATTRIBUTION.md
+const OxlintIcon = isBrowser() ? require("../static/img/integration-oxlint.svg").default : () => null;
 const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
 const ElysiaIcon = isBrowser() ? require("../static/img/integration-elysia.svg").default : () => null;
 const OrpcIcon = isBrowser() ? require("../static/img/integration-orpc.svg").default : () => null;
@@ -75,7 +77,7 @@ export const integrations: Section[] = [
     dir: "plugin-oxlint",
     isPackage: true,
     paths: ["plugin-oxlint"],
-    img: Zap,
+    img: OxlintIcon,
     text: "drop-shadow-sm !text-sky-500 dark:!text-sky-400",
     textAction: "focus:!text-sky-500 focus:dark:!text-sky-400 active:!text-sky-600 active:dark:!text-sky-300",
     textHover: "hover:!text-sky-500 hover:dark:!text-sky-400",
