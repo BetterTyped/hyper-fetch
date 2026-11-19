@@ -11,20 +11,25 @@ export enum Status {
 }
 
 export const getStatus = (
-  item: Pick<DevtoolsRequestEvent, "isRemoved" | "isCanceled" | "isFinished" | "isSuccess">,
+  item: Pick<DevtoolsRequestEvent, "isRemoved" | "isCanceled" | "isFinished" | "isSuccess"> &
+    Partial<Pick<DevtoolsRequestEvent, "isPaused">>,
 ): Status => {
   if (!item) {
     return Status.REMOVED;
   }
 
-  if (item.isRemoved) {
-    return Status.REMOVED;
-  }
+  // An aborted request is removed from its queue afterwards, it is still a canceled request
   if (item.isCanceled) {
     return Status.CANCELED;
   }
+  if (item.isRemoved) {
+    return Status.REMOVED;
+  }
   if (item.isFinished) {
     return item.isSuccess ? Status.SUCCESS : Status.FAILED;
+  }
+  if (item.isPaused) {
+    return Status.PAUSED;
   }
   return Status.IN_PROGRESS;
 };

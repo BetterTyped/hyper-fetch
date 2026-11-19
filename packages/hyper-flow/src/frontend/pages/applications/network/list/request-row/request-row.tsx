@@ -1,6 +1,5 @@
 import { Boxes, Hexagon } from "lucide-react";
-import { useMemo } from "react";
-import { useShallow } from "zustand/react/shallow";
+import { memo, useMemo } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Method } from "@/components/ui/method";
@@ -8,16 +7,19 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { useNetworkStore } from "@/store/applications/network.store";
+import { getDisplayEndpoint } from "@/utils/endpoint.utils";
 import { formatTime } from "@/utils/format";
 import { getStatus, RequestStatusIcon } from "@/utils/request.status.utils";
 
-export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEvent; clickable?: boolean }) => {
-  const { application } = useDevtools();
-  const { openDetails, detailsRequestId } = useNetworkStore(
-    useShallow((state) => ({
-      openDetails: state.openDetails,
-      detailsRequestId: state.applications[application.name].detailsRequestId,
-    })),
+/**
+ * One request of the list. Memoized and subscribed only to its own selection, so a new event re-renders the rows it
+ * changed instead of the whole history.
+ */
+export const RequestRow = memo(({ item, clickable = true }: { item: DevtoolsRequestEvent; clickable?: boolean }) => {
+  const { application, client } = useDevtools();
+  const openDetails = useNetworkStore((state) => state.openDetails);
+  const isSelected = useNetworkStore(
+    (state) => !!item.requestId && state.applications[application.name]?.detailsRequestId === item.requestId,
   );
 
   const status = useMemo(() => {
@@ -34,7 +36,7 @@ export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEv
     <TableRow
       onClick={handleClick}
       className={`cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md ${
-        item.requestId === detailsRequestId ? "ring-1 ring-inset ring-blue-400" : ""
+        isSelected ? "ring-1 ring-inset ring-blue-400" : ""
       }`}
     >
       <TableCell className="max-w-fit">
@@ -44,7 +46,7 @@ export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEv
       <TableCell className="text-sm font-medium">
         <div className="flex items-center gap-2">
           <Method method={item.request.method} />
-          <span>{item.request.endpoint}</span>
+          <span>{getDisplayEndpoint(item.request, client)}</span>
         </div>
       </TableCell>
 
@@ -74,4 +76,4 @@ export const RequestRow = ({ item, clickable = true }: { item: DevtoolsRequestEv
       </TableCell>
     </TableRow>
   );
-};
+});

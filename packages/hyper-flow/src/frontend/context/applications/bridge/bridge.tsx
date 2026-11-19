@@ -1,43 +1,34 @@
-import { useDidMount } from "@better-hooks/lifecycle";
-import { Client } from "@hyper-fetch/core";
 import type { AppInternalMessage, HFEventMessage, PluginInternalMessage } from "@hyper-fetch/plugin-devtools";
 import { InternalEvents, MessageOrigin, SocketTopics } from "@hyper-fetch/plugin-devtools";
 import { Socket } from "@hyper-fetch/sockets";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 
+import { createMirrorClient } from "./mirror-client";
 import { ConnectionName } from "@/constants/connection.name";
 import { defaultSimulatedError, useApplications } from "@/store/applications/apps.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { initializeApplicationStores } from "@/store/applications/initialize";
 
+/**
+ * The renderer's connection to the HyperFlow server. Receives the plugin handshakes and hangups, and owns the
+ * listener and emitter every application uses to exchange events with its plugin.
+ */
 export const Bridge = memo(({ port, address = "localhost" }: { port: number; address?: string }) => {
-  const addConnection = useConnectionStore((state) => state.addConnection);
-  const updateConnection = useConnectionStore((state) => state.updateConnection);
-  const addApplication = useApplications((state) => state.addApplication);
-
-  useDidMount(() => {
-    const nameRef = { current: "" };
+  useEffect(() => {
+    const { addConnection, updateConnection, disconnectAll } = useConnectionStore.getState();
+    const { addApplication } = useApplications.getState();
 
     const socket = new Socket({
       url: `ws://${address}:${port}`,
       adapterOptions: { autoConnect: false },
       reconnect: Infinity,
       reconnectTime: 4000,
-    })
-      .setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP })
-      .onConnected(() => {
-        if (!nameRef.current) {return;}
+    }).setQueryParams({ connectionName: ConnectionName.HF_DEVTOOLS_FRONTEND, origin: MessageOrigin.APP });
 
-        updateConnection(nameRef.current, {
-          connected: true,
-        });
-      })
-      .onDisconnected(() => {
-        if (!nameRef.current) {return;}
-
-        updateConnection(nameRef.current, {
-          connected: false,
-        });
-      });
+    // Plugins report themselves again once the server sees the renderer, so nothing is marked online here
+    const unmountDisconnected = socket.events.onDisconnected(() => {
+      disconnectAll();
+    });
 
     const devtoolsListener = socket.createListener<PluginInternalMessage["data"]>()({
       topic: SocketTopics.APP_MAIN_LISTENER,
@@ -51,20 +42,16 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
       topic: SocketTopics.PLUGIN_LISTENER,
     });
 
-    socket.connect();
-
-    devtoolsListener.listen((event) => {
+    const unmountListener = devtoolsListener.listen((event) => {
       const { connectionName, messageType, eventType, environment, clientOptions, adapterOptions } = event.data;
-
-      const name = connectionName;
-      nameRef.current = name;
 
       switch (eventType) {
         case InternalEvents.PLUGIN_INITIALIZED: {
-          const client = new Client({ url: clientOptions.url });
+          const client = createMirrorClient({ clientOptions, adapterOptions });
+          initializeApplicationStores(connectionName);
 
           addConnection({
-            name,
+            name: connectionName,
             clientOptions,
             adapterOptions,
             client,
@@ -74,7 +61,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
             environment,
           });
           addApplication({
-            name,
+            name: connectionName,
             environment,
             adapterName: client.adapter.name,
             url: client.url,
@@ -88,7 +75,7 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
           return;
         }
         case InternalEvents.PLUGIN_HANGUP: {
-          updateConnection(nameRef.current, {
+          updateConnection(connectionName, {
             connected: false,
           });
           return;
@@ -98,7 +85,17 @@ export const Bridge = memo(({ port, address = "localhost" }: { port: number; add
         }
       }
     });
-  });
+
+    socket.connect();
+
+    return () => {
+      unmountListener();
+      unmountDisconnected();
+      socket.reconnectAttempts = 0;
+      socket.disconnect();
+      disconnectAll();
+    };
+  }, [address, port]);
 
   return null;
 });

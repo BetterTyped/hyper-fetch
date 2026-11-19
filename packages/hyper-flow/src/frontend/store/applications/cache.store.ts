@@ -34,6 +34,8 @@ type Store = {
   }) => void;
   setCacheItem: (data: { application: string; cacheKey: string; cacheData: DevtoolsCacheEvent["cacheData"] }) => void;
   invalidateCache: (data: { application: string; cacheKey: string }) => void;
+  /** Drop an entry deleted from the application's cache, and close its details if they were open. */
+  removeCache: (data: { application: string; cacheKey: string }) => void;
 };
 
 export const useCacheStore = create<Store>((set) => ({
@@ -122,6 +124,20 @@ export const useCacheStore = create<Store>((set) => ({
             staleTime: 0,
           },
         });
+      }),
+    );
+  },
+  removeCache: ({ application, cacheKey }) => {
+    set((state) =>
+      produce(state, (draft) => {
+        const app = draft.applications[application];
+        if (!app) {
+          return;
+        }
+        app.caches.delete(cacheKey);
+        if (app.detailsId === cacheKey) {
+          app.detailsId = null;
+        }
       }),
     );
   },

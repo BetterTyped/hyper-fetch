@@ -32,13 +32,20 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   );
   const requests = useNetworkStore((state) => state.applications[application.name].requests);
 
+  // The method decides which dispatcher owns the queue. A custom query key says nothing about it, so it comes from a
+  // request of this queue, and the default "<method>_<endpoint>_<query>" key is only the last resort
+  const method = useMemo(() => {
+    const sent = requests.find((el) => el.request.queryKey === item?.queryKey);
+    return sent?.request.method ?? item?.requests[0]?.request.method ?? item?.queryKey.split("_")[0];
+  }, [requests, item?.queryKey, item?.requests]);
+
   const dummyRequest = useMemo(() => {
     return client.createRequest()({
       endpoint: "",
       queryKey: item?.queryKey,
-      method: item?.queryKey.split("_")[0],
+      method,
     });
-  }, [client, item?.queryKey]);
+  }, [client, item?.queryKey, method]);
 
   const { start, stop, stopped, dispatcher } = useQueue(dummyRequest as unknown as RequestInstance);
 
@@ -60,16 +67,19 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   };
 
   const latestItem = useMemo(() => {
-    if (!item) {return null;}
+    if (!item) {
+      return null;
+    }
 
     const element = requests.find((el) => el.request.queryKey === item.queryKey);
-    if (!element)
-      {return {
+    if (!element) {
+      return {
         request: {
           cacheKey: item.queryKey,
         } as any,
         requestId: "",
-      };}
+      };
+    }
     return element;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.queryKey, requests?.length]);
@@ -77,7 +87,9 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   const isLoading = item ? loadingKeys.has(latestItem?.request.queryKey || item.queryKey) : false;
 
   const toggleLoading = () => {
-    if (!item || !latestItem) {return;}
+    if (!item || !latestItem) {
+      return;
+    }
 
     // This is dummy data for the event, it is minimum that is required to trigger the event
     // We don't need to pass all the data, because it will be handled anyway

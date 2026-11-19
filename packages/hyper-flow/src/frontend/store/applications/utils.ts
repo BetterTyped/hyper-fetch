@@ -21,6 +21,16 @@ export const toNumber = (value: number): number => {
 export const getDataSize = async (data: unknown): Promise<number> => {
   let size = 0;
 
+  // No body was sent or received
+  if (data === null || data === undefined) {
+    return 0;
+  }
+
+  // Text bodies go over the wire as they are, without JSON quotes
+  if (typeof data === "string") {
+    return new Blob([data]).size;
+  }
+
   // Handle streams and blob-like objects
   if (data instanceof ReadableStream) {
     let streamSize = 0;
@@ -30,7 +40,9 @@ export const getDataSize = async (data: unknown): Promise<number> => {
       while (true) {
         // eslint-disable-next-line no-await-in-loop
         const { done, value } = await reader.read();
-        if (done) {break;}
+        if (done) {
+          break;
+        }
 
         // For Uint8Array or similar buffer types
         if (value && value.byteLength) {

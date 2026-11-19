@@ -1,10 +1,8 @@
-import { useDidMount } from "@better-hooks/lifecycle";
-import type { NonNullableKeys, RequestInstance, RequestJSON } from "@hyper-fetch/core";
-import { memo, useCallback, useEffect } from "react";
+import type { NonNullableKeys, QueueDataType, RequestInstance, RequestJSON } from "@hyper-fetch/core";
+import { memo, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { initialApplicationState, useApplicationStates } from "./state.context";
-import type { DevtoolsCacheEvent, DevtoolsRequestEvent } from "@/context/applications/types";
+import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
 import { useCacheStore } from "@/store/applications/cache.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
@@ -16,18 +14,19 @@ import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { useQueueStore } from "@/store/applications/queue.store";
 
 export const State = memo(({ application }: { application: string }) => {
-  const { setApplicationStates } = useApplicationStates("State");
-
-  const { setNetworkRequest, setNetworkResponse } = useNetworkStore(
+  const { setNetworkRequest, setNetworkResponse, updateNetworkRequest, setPausedRequests } = useNetworkStore(
     useShallow((selector) => ({
       setNetworkRequest: selector.setNetworkRequest,
+      setPausedRequests: selector.setPausedRequests,
       setNetworkResponse: selector.setNetworkResponse,
+      updateNetworkRequest: selector.updateNetworkRequest,
     })),
   );
-  const { setCache, invalidateCache } = useCacheStore(
+  const { setCache, invalidateCache, removeCache } = useCacheStore(
     useShallow((selector) => ({
       setCache: selector.setCache,
       invalidateCache: selector.invalidateCache,
+      removeCache: selector.removeCache,
     })),
   );
   const { setNetworkStats } = useNetworkStatsStore(
@@ -68,43 +67,10 @@ export const State = memo(({ application }: { application: string }) => {
   const { connections } = useConnectionStore();
   const { client } = connections[application as keyof typeof connections];
 
-  const handleCacheChange = useCallback(() => {
-    if (!client?.cache) {
-      return;
-    }
-
-    const cacheKeys = [...client.cache.storage.keys()];
-    const cacheItems = cacheKeys
-      .map((key) => {
-        const data = client.cache.get(key);
-        return {
-          cacheKey: key,
-          cacheData: data,
-        };
-      })
-      .filter(({ cacheData }) => !!cacheData) as DevtoolsCacheEvent[];
-
-    setApplicationStates((draft) => {
-      draft[application].cache = cacheItems;
-    });
-  }, [client?.cache, application, setApplicationStates]);
-
   useEffect(() => {
     if (!client) {
       return;
     }
-
-    const unmountOffline = client.appManager.events.onOffline(() => {
-      setApplicationStates((draft) => {
-        draft[application].isOnline = false;
-      });
-    });
-
-    const unmountOnline = client.appManager.events.onOnline(() => {
-      setApplicationStates((draft) => {
-        draft[application].isOnline = true;
-      });
-    });
 
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((item) => {
       const data: DevtoolsRequestEvent = {
@@ -116,7 +82,6 @@ export const State = memo(({ application }: { application: string }) => {
         isSuccess: false,
         isFinished: false,
         isPaused: false,
-        // TODO: use request start time for every timestamp
         timestamp: Date.now(),
       };
 
@@ -182,25 +147,53 @@ export const State = memo(({ application }: { application: string }) => {
         });
       }
     });
+    // Core emits abort, then a canceled response, then removes the request from its queue
     const unmountOnRequestPause = client.requestManager.events.onAbort((item) => {
-      const data: DevtoolsRequestEvent = {
-        requestId: item.requestId,
-        request: item.request as unknown as RequestJSON<RequestInstance>,
-        client,
-        isRemoved: false,
-        isCanceled: true,
-        isSuccess: false,
-        isFinished: false,
-        isPaused: false,
-        timestamp: Date.now(),
-      };
-
-      setNetworkResponse({
+      updateNetworkRequest({
         application,
-        data,
+        requestId: item.requestId,
+        update: { isCanceled: true, timestamp: Date.now() },
       });
     });
+    /**
+     * Requests are listed once they are queued, so the ones waiting in a stopped queue are visible too,
+     * and follow the paused state of their queue.
+     */
+    const syncQueuedRequests = (data: QueueDataType<RequestInstance>) => {
+      const listed = new Set(
+        (useNetworkStore.getState().applications[application]?.requests ?? []).map((request) => request.requestId),
+      );
+      data.requests
+        .filter((item) => !listed.has(item.requestId))
+        .forEach((item) => {
+          setNetworkRequest({
+            application,
+            data: {
+              requestId: item.requestId,
+              request: item.request as unknown as RequestJSON<RequestInstance>,
+              client,
+              isRemoved: false,
+              isCanceled: false,
+              isSuccess: false,
+              isFinished: false,
+              isPaused: data.stopped || item.stopped,
+              timestamp: Date.now(),
+            },
+          });
+        });
+      setPausedRequests({
+        application,
+        requestIds: data.requests.filter((item) => data.stopped || item.stopped).map((item) => item.requestId),
+        paused: true,
+      });
+      setPausedRequests({
+        application,
+        requestIds: data.requests.filter((item) => !data.stopped && !item.stopped).map((item) => item.requestId),
+        paused: false,
+      });
+    };
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((data) => {
+      syncQueuedRequests(data);
       if (data.requests.length === 0) {
         removeLoadingKey({
           application,
@@ -213,6 +206,7 @@ export const State = memo(({ application }: { application: string }) => {
       });
     });
     const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange((data) => {
+      syncQueuedRequests(data);
       setQueue({
         application,
         data,
@@ -225,6 +219,7 @@ export const State = memo(({ application }: { application: string }) => {
       });
     });
     const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((data) => {
+      syncQueuedRequests(data);
       if (data.requests.length === 0) {
         removeLoadingKey({
           application,
@@ -237,6 +232,7 @@ export const State = memo(({ application }: { application: string }) => {
       });
     });
     const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange((data) => {
+      syncQueuedRequests(data);
       setQueue({
         application,
         data,
@@ -250,21 +246,10 @@ export const State = memo(({ application }: { application: string }) => {
     });
     const unmountOnRemove = client.requestManager.events.onRemove((item) => {
       if (!item.resolved) {
-        const data: DevtoolsRequestEvent = {
-          requestId: item.requestId,
-          request: item.request as unknown as RequestJSON<RequestInstance>,
-          client,
-          isRemoved: true,
-          isCanceled: false,
-          isSuccess: false,
-          isFinished: false,
-          isPaused: false,
-          timestamp: Date.now(),
-        };
-
-        setNetworkResponse({
+        updateNetworkRequest({
           application,
-          data,
+          requestId: item.requestId,
+          update: { isRemoved: true, timestamp: Date.now() },
         });
       }
     });
@@ -285,17 +270,13 @@ export const State = memo(({ application }: { application: string }) => {
     });
 
     const unmountCacheDelete = client.cache.events.onDelete((cacheKey) => {
-      setApplicationStates((draft) => {
-        const toRemove = draft[application].cache.findIndex((cacheElement) => cacheElement.cacheKey === cacheKey);
-        if (toRemove !== -1) {
-          draft[application].cache.splice(toRemove, 1);
-        }
+      removeCache({
+        application,
+        cacheKey,
       });
     });
 
     return () => {
-      unmountOffline();
-      unmountOnline();
       unmountOnResponse();
       unmountOnRequestStart();
       unmountOnRequestPause();
@@ -314,8 +295,8 @@ export const State = memo(({ application }: { application: string }) => {
     client,
     application,
     addLoadingKey,
-    handleCacheChange,
     invalidateCache,
+    removeCache,
     removeLoadingKey,
     setCache,
     setCacheStats,
@@ -324,16 +305,11 @@ export const State = memo(({ application }: { application: string }) => {
     setNetworkRequest,
     setNetworkResponse,
     setNetworkStats,
-    setApplicationStates,
+    setPausedRequests,
+    updateNetworkRequest,
     setQueue,
     setQueueStats,
   ]);
-
-  useDidMount(() => {
-    setApplicationStates((draft) => {
-      draft[application] = initialApplicationState;
-    });
-  });
 
   return null;
 });

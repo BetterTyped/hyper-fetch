@@ -3,10 +3,11 @@ import { serverLogger } from "@shared/utils/logger";
 import type { Server } from "http";
 import { createServer } from "http";
 import url from "url";
-import type { WebSocket } from "ws";
+import type { RawData, WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 
 import { ConnectionHandler } from "./handlers/connection-handler";
+import type { ConnectionMap } from "./types/connection.type";
 
 const getConnectionInfo = (requestUrl: string) => {
   const queryParams = url.parse(requestUrl, true).query;
@@ -20,9 +21,24 @@ const getConnectionInfo = (requestUrl: string) => {
 export type StartServer = {
   server: Server | null;
   wss: WebSocketServer | null;
-  connections: Record<string, any>;
-  DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
+  connections: ConnectionMap;
+  /** The HyperFlow renderer connection at the moment of reading. */
+  readonly DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
+  /** The HyperFlow renderer connection, or `null` while the renderer is not connected. */
+  getAppConnection: () => WebSocket | null;
   errorMessage?: string;
+};
+
+const parseMessage = (raw: RawData): { data: BaseMessagePayload } | null => {
+  try {
+    const message = JSON.parse(raw.toString()) as { data?: BaseMessagePayload } | null;
+    if (!message || typeof message !== "object" || !message.data || typeof message.data !== "object") {
+      return null;
+    }
+    return message as { data: BaseMessagePayload };
+  } catch {
+    return null;
+  }
 };
 
 export const startServer = async (options: { port: number; onServerCrash?: () => void }): Promise<StartServer> => {
@@ -44,6 +60,7 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
           headers: request.headers,
         },
       });
+      wsConn.close(1008, "Missing connectionName or origin");
       return;
     }
 
@@ -61,15 +78,31 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     });
 
     wsConn.on("close", () => {
-      if (!connectionInfo) {
-        return;
-      }
-      connectionHandler.handleClosedConnection(connectionInfo.connectionName);
+      connectionHandler.handleClosedConnection(connectionInfo, wsConn);
     });
 
-    wsConn.on("message", (msg: { data: BaseMessagePayload }) => {
-      const message = JSON.parse(msg.toString()) as { data: BaseMessagePayload };
-      connectionHandler.handleMessage(message);
+    wsConn.on("message", (raw: RawData) => {
+      const message = parseMessage(raw);
+      if (!message) {
+        serverLogger.error("Dropped malformed WebSocket message", {
+          context: "WebSocketServer",
+          details: { connectionInfo },
+        });
+        return;
+      }
+      // A listener that throws would surface as an uncaught exception in the Electron main process
+      try {
+        connectionHandler.handleMessage(message);
+      } catch (error) {
+        serverLogger.error("Failed to handle WebSocket message", {
+          context: "WebSocketServer",
+          details: {
+            connectionInfo,
+            error: error instanceof Error ? error.message : String(error),
+            messageType: message.data.messageType,
+          },
+        });
+      }
     });
   });
 
@@ -131,11 +164,15 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
   const { isReady, message } = await startingServer;
 
   if (isReady) {
+    const getAppConnection = () => connectionHandler.connectionState.appConnection;
     return {
       server,
       wss,
       connections: connectionHandler.connectionState.connections,
-      DEVTOOLS_FRONTEND_WS_CONNECTION: connectionHandler.connectionState.appConnection,
+      get DEVTOOLS_FRONTEND_WS_CONNECTION() {
+        return getAppConnection();
+      },
+      getAppConnection,
     };
   }
   serverLogger.error("Server failed to start", {
@@ -145,5 +182,12 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       error: "Server failed to start",
     },
   });
-  return { server: null, wss: null, connections: {}, DEVTOOLS_FRONTEND_WS_CONNECTION: null, errorMessage: message };
+  return {
+    server: null,
+    wss: null,
+    connections: {},
+    DEVTOOLS_FRONTEND_WS_CONNECTION: null,
+    getAppConnection: () => null,
+    errorMessage: message,
+  };
 };

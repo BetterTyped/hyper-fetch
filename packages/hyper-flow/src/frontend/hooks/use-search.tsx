@@ -1,8 +1,6 @@
-import { useDidUpdate } from "@better-hooks/lifecycle";
-import { useDebounce } from "@better-hooks/performance";
 import type { MatchSorterOptions } from "match-sorter";
 import { matchSorter } from "match-sorter";
-import { useState } from "react";
+import { useMemo } from "react";
 
 type JoinString<K, P, S extends string = "."> = K extends string | number
   ? P extends string | number
@@ -20,57 +18,32 @@ export type PathsOf<T, S extends string = ".", D extends number = 1> = [D] exten
       }[keyof T]
     : "";
 
+/**
+ * Filter (and optionally sort with `baseSort`) a list by a search term.
+ * Derived on every render from the latest data, so entries arriving while the user types are never dropped.
+ */
 export const useSearch = <T extends Record<string, any>[]>({
   data,
   searchKeys,
   searchTerm,
-  dependencies,
+  dependencies = [],
   ...options
 }: {
   data: T;
-  searchKeys: PathsOf<T[0]>[];
+  /** Paths into the items, or functions returning the text to match, e.g. a formatted name */
+  searchKeys: (PathsOf<T[0]> | ((item: T[number]) => string))[];
   searchTerm: string;
-  dependencies?: readonly any[];
+  /** Extra values the sorting depends on, e.g. the selected sort column */
+  dependencies?: readonly unknown[];
 } & Omit<MatchSorterOptions<T[0]>, "keys">) => {
-  const [filteredData, setFilteredData] = useState<T>(data as unknown as T);
-  const { debounce } = useDebounce({ delay: 200 });
-
-  const handleMatchSorter = () => {
-    const filtered = matchSorter(data as readonly T[], searchTerm, {
-      ...options,
-      keys: searchKeys,
-    }) as T;
-
-    setFilteredData(filtered);
-  };
-
-  const handleSearch = () => {
-    if (!searchTerm && data !== filteredData) {
-      setFilteredData(data);
-      return;
+  const items = useMemo(() => {
+    if (!searchTerm && !options.baseSort) {
+      return data;
     }
+    return matchSorter(data, searchTerm ?? "", { ...options, keys: searchKeys }) as unknown as T;
+    // `options` and `searchKeys` are recreated by callers on every render, `dependencies` stands for them
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, searchTerm, ...dependencies]);
 
-    handleMatchSorter();
-  };
-
-  useDidUpdate(
-    () => {
-      handleSearch();
-    },
-    [data],
-    true,
-  );
-
-  useDidUpdate(() => {
-    debounce(handleSearch);
-  }, [searchTerm]);
-
-  useDidUpdate(
-    () => {
-      debounce(handleMatchSorter);
-    },
-    dependencies ? [...dependencies] : [],
-  );
-
-  return { items: filteredData };
+  return { items };
 };

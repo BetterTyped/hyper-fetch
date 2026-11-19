@@ -1,5 +1,4 @@
 import type { QueueDataType, RequestInstance } from "@hyper-fetch/core";
-import { produce } from "immer";
 import { create } from "zustand/react";
 
 type QueryKey = string;
@@ -29,66 +28,63 @@ const getInitialState = (): QueueStore["applications"][string] => ({
   loadingKeys: new Set(),
 });
 
-export const useQueueStore = create<QueueStore>((set) => ({
-  applications: {},
-  initialize: (applicationName: string) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.applications[applicationName] = getInitialState();
-      }),
-    );
-  },
-  setQueue: async ({ application, data }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
+export const useQueueStore = create<QueueStore>((set) => {
+  // Queues change on every request, so updates copy only what changed (see the network store)
+  const updateApplication = (
+    application: string,
+    update: (app: QueueStore["applications"][string]) => QueueStore["applications"][string],
+  ) => {
+    set((state) => {
+      const current = state.applications[application] ?? getInitialState();
+      const next = update(current);
+      if (next === current && state.applications[application]) {
+        return state;
+      }
+      return { applications: { ...state.applications, [application]: next } };
+    });
+  };
 
-        // Update queues
-        draft.applications[application].queues.set(data.queryKey, data);
-      }),
-    );
-  },
-  setSearchTerm: (application: string, searchTerm: string) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.applications[application].searchTerm = searchTerm;
-      }),
-    );
-  },
-  openDetails: (application: string, queryKey: QueryKey) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.applications[application].detailsId = queryKey;
-      }),
-    );
-  },
-  closeDetails: (application: string) => {
-    set((state) =>
-      produce(state, (draft) => {
-        draft.applications[application].detailsId = null;
-      }),
-    );
-  },
-  addLoadingKey: ({ application, queryKey }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
+  return {
+    applications: {},
+    initialize: (application) => {
+      set((state) => ({ applications: { ...state.applications, [application]: getInitialState() } }));
+    },
+    setQueue: ({ application, data }) => {
+      updateApplication(application, (app) => {
+        if (app.queues.get(data.queryKey) === data) {
+          return app;
         }
-        draft.applications[application].loadingKeys.add(queryKey);
-      }),
-    );
-  },
-  removeLoadingKey: ({ application, queryKey }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
+        const queues = new Map(app.queues);
+        queues.set(data.queryKey, data);
+        return { ...app, queues };
+      });
+    },
+    setSearchTerm: (application, searchTerm) => {
+      updateApplication(application, (app) => ({ ...app, searchTerm }));
+    },
+    openDetails: (application, queryKey) => {
+      updateApplication(application, (app) => ({ ...app, detailsId: queryKey }));
+    },
+    closeDetails: (application) => {
+      updateApplication(application, (app) => ({ ...app, detailsId: null }));
+    },
+    addLoadingKey: ({ application, queryKey }) => {
+      updateApplication(application, (app) => {
+        if (app.loadingKeys.has(queryKey)) {
+          return app;
         }
-        draft.applications[application].loadingKeys.delete(queryKey);
-      }),
-    );
-  },
-}));
+        return { ...app, loadingKeys: new Set(app.loadingKeys).add(queryKey) };
+      });
+    },
+    removeLoadingKey: ({ application, queryKey }) => {
+      updateApplication(application, (app) => {
+        if (!app.loadingKeys.has(queryKey)) {
+          return app;
+        }
+        const loadingKeys = new Set(app.loadingKeys);
+        loadingKeys.delete(queryKey);
+        return { ...app, loadingKeys };
+      });
+    },
+  };
+});

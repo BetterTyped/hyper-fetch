@@ -17,7 +17,7 @@ type QueueStatsStore = {
     };
   };
   initialize: (applicationName: string) => void;
-  setQueueStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setQueueStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
 };
 
 export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
@@ -40,24 +40,14 @@ export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
       payloadSize,
     };
 
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = {
-            stats: new Map(),
-            errorStats: new Map(),
-          };
-        }
-        draft.applications[application].stats.set(
-          data.request.queryKey,
-          getNetworkStats(
-            draft.applications[application].stats.get(data.request.queryKey) ?? initialNetworkStats,
-            data,
-            perf,
-          ),
-        );
-        draft.applications[application].errorStats.set(data.request.queryKey, getErrorStats(data));
-      }),
-    );
+    set((state) => {
+      const app = state.applications[application] ?? { stats: new Map(), errorStats: new Map() };
+      const { queryKey } = data.request;
+      const stats = new Map(app.stats);
+      stats.set(queryKey, getNetworkStats(app.stats.get(queryKey) ?? initialNetworkStats, data, perf));
+      const errorStats = new Map(app.errorStats);
+      errorStats.set(queryKey, getErrorStats(data, app.errorStats.get(queryKey)));
+      return { applications: { ...state.applications, [application]: { stats, errorStats } } };
+    });
   },
 }));

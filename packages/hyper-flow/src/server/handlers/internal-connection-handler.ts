@@ -46,7 +46,15 @@ export class InternalConnectionHandler {
 
   sendPluginHandshakeToApp = (connectionName: string, message: PluginInternalMessage) => {
     if (!this.connectionState.connections[connectionName]) {
-      throw new Error(`No open connection exists for the connectionName ${connectionName}`);
+      serverLogger.error("Failed to forward plugin handshake", {
+        context: "ConnectionHandler",
+        details: {
+          reason: "No open connection exists for this connectionName",
+          connectionName,
+          activeConnections: Object.keys(this.connectionState.connections),
+        },
+      });
+      return;
     }
 
     if (!this.connectionState.appConnection) {
@@ -83,10 +91,10 @@ export class InternalConnectionHandler {
       return;
     }
     this.connectionState.appConnection?.send(
-      JSON.stringify(({
-	topic: SocketTopics.APP_MAIN_LISTENER,
-	data: message.data
-})),
+      JSON.stringify({
+        topic: SocketTopics.APP_MAIN_LISTENER,
+        data: message.data,
+      }),
     );
     this.connectionState.connections[connectionName].appStatus = AppConnectionStatus.IN_PROGRESS;
     this.connectionState.connections[connectionName].clientMetaData = message;

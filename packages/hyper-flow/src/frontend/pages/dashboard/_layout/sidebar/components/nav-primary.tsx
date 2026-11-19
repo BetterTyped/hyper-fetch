@@ -1,7 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, AlertTriangle, AppWindow, Settings } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { ChevronRight, AlertTriangle, AppWindow, Settings } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -18,30 +18,19 @@ import {
 import { useSettings } from "@/store/general/settings.store";
 
 const items: ({
+  title: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  onCrash?: boolean;
+  items?: ({
     title: string;
-    icon: LucideIcon;
-    isActive?: boolean;
-    onCrash?: boolean;
-    items?: ({
-        title: string;
-      } & Pick<LinkProps, "to" | "params">)[];
-  } & Pick<LinkProps, "to" | "params">)[] = [
-  // {
-  //   title: "Workspaces",
-  //   link: "dashboard",
-  //   icon: FolderKanban,
-  //   isActive: true,
-  // },
+  } & Pick<LinkProps, "to" | "params">)[];
+} & Pick<LinkProps, "to" | "params">)[] = [
   {
     title: "Applications",
     to: "/",
     icon: AppWindow,
   },
-  // {
-  //   title: "Members",
-  //   link: "dashboard.members",
-  //   icon: Users,
-  // },
   {
     title: "Settings",
     to: "/settings",

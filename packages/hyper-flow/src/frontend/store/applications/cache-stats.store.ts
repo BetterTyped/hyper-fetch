@@ -75,13 +75,14 @@ const generateCacheStats = ({
 
   // if cached
   if (request.cache) {
+    currentStats.notCachedEntries.delete(request.cacheKey);
     currentStats.cacheEntries.set(request.cacheKey, {
+      ...previousEntry,
       endpointWithParams: request.endpoint,
       cacheKey: request.cacheKey,
       staleTime: request.staleTime,
       cacheTime: request.cacheTime,
       timestamp: data.details.responseTimestamp,
-      ...previousEntry,
       stats: {
         size: details.cacheSize,
       },
@@ -89,6 +90,7 @@ const generateCacheStats = ({
   }
   // if not cached
   else {
+    currentStats.cacheEntries.delete(request.cacheKey);
     currentStats.notCachedEntries.set(request.cacheKey, {
       endpointWithParams: request.endpoint,
       timestamp: data.details.responseTimestamp,
@@ -99,10 +101,7 @@ const generateCacheStats = ({
   }
 
   const totalSize = [...currentStats.cacheEntries.values()].reduce((acc, curr) => acc + curr.stats.size, 0);
-  const notCachedSize = [...currentStats.notCachedEntries.values()].reduce(
-    (acc, curr) => acc + curr.stats.size,
-    0,
-  );
+  const notCachedSize = [...currentStats.notCachedEntries.values()].reduce((acc, curr) => acc + curr.stats.size, 0);
 
   return {
     ...currentStats,
@@ -124,7 +123,7 @@ type Store = {
     };
   };
   initialize: (applicationName: string) => void;
-  setCacheStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setCacheStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
 };
 
 export const useCacheStatsStore = create<Store>((set) => ({
@@ -171,12 +170,11 @@ export const useCacheStatsStore = create<Store>((set) => ({
           }),
         );
 
-        const totalSize = [...draft.applications[application].cachesStats.values()].reduce(
-          (acc, curr) => acc + curr.generalStats.cacheSize,
-          0,
-        );
-
-        draft.applications[application].generalStats.cacheSize = totalSize;
+        const allStats = [...draft.applications[application].cachesStats.values()];
+        draft.applications[application].generalStats = {
+          cacheSize: allStats.reduce((acc, curr) => acc + curr.generalStats.cacheSize, 0),
+          notCachedSize: allStats.reduce((acc, curr) => acc + curr.generalStats.notCachedSize, 0),
+        };
       }),
     );
   },

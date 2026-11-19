@@ -17,16 +17,34 @@ import { Progress } from "@/components/ui/progress";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { cn } from "@/lib/utils";
 import { useMethodStatsStore } from "@/store/applications/method-stats.store";
-import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
+import { getPercentile, useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { formatTime, formatBytes } from "@/utils/format";
+
+/** Share of `value` in `max` as a 0-100 progress value, `0` before anything was measured */
+const toPercent = (value: number, max: number) => {
+  if (!max || !Number.isFinite(value / max)) {
+    return 0;
+  }
+  return Math.min(100, (value * 100) / max);
+};
 
 export const CardResponses = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
 
-  const { networkStats } = useNetworkStatsStore(
+  const { networkStats, responseTimeSamples } = useNetworkStatsStore(
     useShallow((state) => ({
       networkStats: state.applications[application.name].networkStats,
+      responseTimeSamples: state.applications[application.name].responseTimeSamples,
     })),
+  );
+
+  const percentiles = useMemo(
+    () =>
+      ([50, 95, 99] as const).map((percentile) => ({
+        label: `p${percentile}`,
+        value: getPercentile(responseTimeSamples, percentile),
+      })),
+    [responseTimeSamples],
   );
 
   const { methodsStats } = useMethodStatsStore(
@@ -42,7 +60,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
       [...methodsStats.values()]
         .map(({ method, methodStats }) => ({
           method,
-          requests: methodStats.totalRequests,
+          avgResponseTime: Math.round(methodStats.avgResponseTime),
           fill: getMethodColor(method).var,
         }))
         // Sort by method name for consistent display order
@@ -72,24 +90,26 @@ export const CardResponses = ({ className }: { className?: string }) => {
             <span className="text-sm font-medium">Average response time</span>
             <span className="text-sm font-bold">{formatTime(networkStats.avgResponseTime)}</span>
           </div>
-          <Progress
-            value={Math.min(100, (networkStats.avgResponseTime * 100) / networkStats.highestResponseTime)}
-            className="h-2"
-          />
+          <Progress value={toPercent(networkStats.avgResponseTime, networkStats.highestResponseTime)} className="h-2" />
+        </div>
+        <div className="grid grid-cols-3 gap-2" data-testid="response-percentiles">
+          {percentiles.map(({ label, value }) => (
+            <div key={label} className="flex flex-col rounded-md bg-zinc-500/10 px-3 py-2">
+              <span className="text-xs text-muted-foreground">{label}</span>
+              <span className="text-sm font-bold">{responseTimeSamples.length ? formatTime(value) : "-"}</span>
+            </div>
+          ))}
         </div>
         <div className="space-y-2 pt-2 border-t">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Average response size</span>
             <span className="text-sm font-bold">{formatBytes(networkStats.avgResponseSize)}</span>
           </div>
-          <Progress
-            value={Math.min(100, (networkStats.avgResponseSize * 100) / networkStats.highestResponseSize)}
-            className="h-2"
-          />
+          <Progress value={toPercent(networkStats.avgResponseSize, networkStats.highestResponseSize)} className="h-2" />
         </div>
 
         <div className="pt-4 border-t">
-          <h3 className="text-sm font-medium mb-4">Response time breakdown</h3>
+          <h3 className="text-sm font-medium mb-4">Average response time by method</h3>
           {chartData.length === 0 && <EmptyBox title="No requests recorded yet" />}
           {chartData.length > 0 && (
             <ChartContainer config={chartConfig}>
@@ -98,7 +118,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
                 <XAxis dataKey="method" tickLine={false} tickMargin={10} axisLine={false} />
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <ChartLegend content={<ChartLegendContent verticalAlign="top" />} />
-                <Bar dataKey="requests" strokeWidth={0} radius={8} />
+                <Bar dataKey="avgResponseTime" name="Average response time (ms)" strokeWidth={0} radius={8} />
               </BarChart>
             </ChartContainer>
           )}

@@ -1,4 +1,5 @@
 import { Settings2, Network, AlertTriangle, Trash, Server, Globe, Cpu } from "lucide-react";
+import { useState } from "react";
 
 import { AddErrorDialog } from "./add-error-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,16 @@ export const ApplicationSettings = () => {
   const settings = useApplications((state) => state.applications[application.name].settings);
   const setSettings = useApplications((state) => state.setSettings);
   const setSimulatedErrors = useApplications((state) => state.setSimulatedErrors);
+  // The field may be empty or invalid while the user types, the stored limit must always stay a positive integer.
+  const [historyLimitDraft, setHistoryLimitDraft] = useState<string | null>(null);
+
+  const handleHistoryLimitChange = (value: string) => {
+    setHistoryLimitDraft(value);
+    const limit = Number(value);
+    if (value.trim() && Number.isInteger(limit) && limit >= 1) {
+      setSettings(application.name, { maxRequestsHistorySize: limit });
+    }
+  };
 
   const handleAddError = ({ initialName, ...data }: SimulatedError & { initialName?: string }) => {
     const newSimulatedErrors: Record<string, SimulatedError> = { ...settings?.simulatedErrors };
@@ -27,7 +38,9 @@ export const ApplicationSettings = () => {
   };
 
   const handleRemoveError = (errorName: string) => {
-    if (errorName === "Default") {return;} // Don't allow removing default error
+    if (errorName === "Default") {
+      return;
+    } // Don't allow removing default error
 
     const newSimulatedErrors = { ...settings?.simulatedErrors };
     delete newSimulatedErrors[errorName];
@@ -93,10 +106,9 @@ export const ApplicationSettings = () => {
               <div className="flex gap-3 items-center">
                 <Input
                   type="number"
-                  value={settings.maxRequestsHistorySize}
-                  onChange={(e) =>
-                    setSettings(application.name, { maxRequestsHistorySize: parseInt(e.target.value, 10) })
-                  }
+                  value={historyLimitDraft ?? settings.maxRequestsHistorySize}
+                  onChange={(e) => handleHistoryLimitChange(e.target.value)}
+                  onBlur={() => setHistoryLimitDraft(null)}
                   className="max-w-[200px] h-10"
                   min="1"
                   max="100000"

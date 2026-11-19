@@ -18,10 +18,12 @@ interface ApplicationCardProps {
   iconUrl: string;
   adapterName: string;
   url: string;
+  /** Reported by the plugin, defaults to the application name */
+  environment?: string;
   onOpen: () => void;
 }
 
-export const ApplicationCard: FC<ApplicationCardProps> = ({ name, iconUrl, adapterName, url, onOpen }) => {
+export const ApplicationCard: FC<ApplicationCardProps> = ({ name, iconUrl, adapterName, url, environment, onOpen }) => {
   const { connections, removeConnection } = useConnectionStore();
   const removeApplication = useApplications((state) => state.removeApplication);
   const { connected } = connections[name] || { connected: false };
@@ -93,6 +95,11 @@ export const ApplicationCard: FC<ApplicationCardProps> = ({ name, iconUrl, adapt
               <AdapterIcon name={adapterName} />
               {adapterName}
             </Badge>
+            {!!environment && environment !== name && (
+              <Badge variant="outline" data-testid={`application-environment-${name}`}>
+                {environment}
+              </Badge>
+            )}
 
             <div className="flex items-center gap-2">
               <div

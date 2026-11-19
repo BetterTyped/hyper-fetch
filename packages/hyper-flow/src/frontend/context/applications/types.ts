@@ -10,14 +10,6 @@ import type {
   ResponseType,
 } from "@hyper-fetch/core";
 
-export enum DevtoolsModule {
-  WORKSPACE = "Workspace",
-  NETWORK = "Network",
-  CACHE = "Cache",
-  QUEUES = "Queues",
-  EXPLORER = "Explorer",
-}
-
 export type Sort = { key: string; order: "asc" | "desc" };
 
 export type RequestEvent<T extends ClientInstance> = RequestEventType<

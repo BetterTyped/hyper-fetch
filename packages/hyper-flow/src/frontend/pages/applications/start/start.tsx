@@ -5,6 +5,7 @@ import { CacheDashboard } from "./cache/cache";
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
 import { EmptyState } from "@/components/no-content/empty-state";
+import { Badge } from "@/components/ui/badge";
 import {
   Section,
   SectionActions,
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApplications } from "@/store/applications/apps.store";
-// import { Environments } from "./environments/environments";
 
 export const ApplicationStart = () => {
   const { applicationName } = useParams({ strict: false });
@@ -41,7 +41,13 @@ export const ApplicationStart = () => {
         <SectionDescription className="-mt-1 flex items-center gap-2">
           {application.url || "Not configured"}
         </SectionDescription>
-        <SectionActions>{/* <Environments /> */}</SectionActions>
+        {!!application.environment && application.environment !== application.name && (
+          <SectionActions>
+            <Badge variant="outline" data-testid="application-environment">
+              {application.environment}
+            </Badge>
+          </SectionActions>
+        )}
       </SectionHeader>
 
       <Tabs defaultValue="general" className="w-full pb-4">

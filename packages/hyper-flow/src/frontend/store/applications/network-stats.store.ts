@@ -88,22 +88,45 @@ export const initialNetworkStats: NetworkStats = {
 };
 
 const getNetworkInitialState = (): NetworkStatsStore => ({
-  networkStats: initialNetworkStats,
+  networkStats: { ...initialNetworkStats },
   networkEntries: new Map(),
+  responseTimeSamples: [],
 });
 
-const getAvgValue = (currentAvg: number, newValue: number, enabled = true) => {
-  if (!currentAvg) {return newValue;}
-  return enabled ? parseFloat(((currentAvg + newValue) / 2).toFixed(2)) : currentAvg;
+/** How many of the latest response times are kept to compute percentiles */
+export const RESPONSE_TIME_SAMPLE_SIZE = 1000;
+
+/**
+ * Nearest-rank percentile of the samples, e.g. `getPercentile(samples, 95)` is the time 95% of requests stayed under.
+ * Returns `0` without samples.
+ */
+export const getPercentile = (samples: readonly number[], percentile: number): number => {
+  if (!samples.length) {
+    return 0;
+  }
+  const sorted = samples.toSorted((a, b) => a - b);
+  const rank = Math.ceil((Math.min(Math.max(percentile, 0), 100) / 100) * sorted.length);
+  return sorted[Math.max(rank, 1) - 1];
+};
+
+/** Running arithmetic mean, where `count` already includes the new value. */
+const getAvgValue = (currentAvg: number, newValue: number, count: number) => {
+  if (count <= 1) {
+    return newValue;
+  }
+  return currentAvg + (newValue - currentAvg) / count;
 };
 
 const getHighestValue = (currentHighest: number, newValue: number, enabled = true) => {
   return enabled ? Math.max(currentHighest, newValue) : currentHighest;
 };
 
-const getLowestValue = (currentLowest: number, newValue: number, enabled = true) => {
-  return enabled ? Math.min(currentLowest, newValue) : currentLowest;
+/** `0` means "no value yet" until the first sample of the group, so it is replaced instead of compared. */
+const getLowestValue = (currentLowest: number, newValue: number, previousCount: number) => {
+  return previousCount === 0 ? newValue : Math.min(currentLowest, newValue);
 };
+
+const round = (value: number) => parseFloat(value.toFixed(2));
 
 export const getNetworkStats = (
   currentStats: NetworkStats,
@@ -115,53 +138,65 @@ export const getNetworkStats = (
 ): NetworkStats => {
   const { request, response, details } = data;
   const { responseSize, payloadSize } = perf;
+  const isSuccess = !!response.success;
 
-  const responseTime = parseFloat((details.responseTimestamp - response.requestTimestamp).toFixed(2));
-  const processingTime = parseFloat((details.requestTimestamp - details.triggerTimestamp).toFixed(2));
-  const queueTime = parseFloat((details.triggerTimestamp - details.addedTimestamp).toFixed(2));
+  const responseTime = round(details.responseTimestamp - response.requestTimestamp);
+  const processingTime = round(details.requestTimestamp - details.triggerTimestamp);
+  const queueTime = round(details.triggerTimestamp - details.addedTimestamp);
+
+  const previousTotal = currentStats.totalRequests;
+  const previousSuccess = currentStats.totalRequestsSuccess;
+  const previousFailed = currentStats.totalRequestsFailed;
+  const totalRequests = previousTotal + 1;
+  const totalRequestsSuccess = previousSuccess + (isSuccess ? 1 : 0);
+  const totalRequestsFailed = previousFailed + (isSuccess ? 0 : 1);
 
   return {
     // General
-    totalRequests: currentStats.totalRequests + 1,
-    totalRequestsSuccess: currentStats.totalRequestsSuccess + (response.success ? 1 : 0),
-    totalRequestsFailed: currentStats.totalRequestsFailed + (!response.success ? 1 : 0),
+    totalRequests,
+    totalRequestsSuccess,
+    totalRequestsFailed,
     totalRequestsCanceled: currentStats.totalRequestsCanceled + (details.isCanceled ? 1 : 0),
     totalCachedRequests: currentStats.totalCachedRequests + (request.cache ? 1 : 0),
     totalNonCachedRequests: currentStats.totalNonCachedRequests + (request.cache ? 0 : 1),
     // Response
-    avgResponseTime: getAvgValue(currentStats.avgResponseTime, responseTime),
-    avgResponseTimeSuccess: getAvgValue(currentStats.avgResponseTimeSuccess, responseTime, response.success),
-    avgResponseTimeFailed: getAvgValue(currentStats.avgResponseTimeFailed, responseTime, !response.success),
+    avgResponseTime: getAvgValue(currentStats.avgResponseTime, responseTime, totalRequests),
+    avgResponseTimeSuccess: isSuccess
+      ? getAvgValue(currentStats.avgResponseTimeSuccess, responseTime, totalRequestsSuccess)
+      : currentStats.avgResponseTimeSuccess,
+    avgResponseTimeFailed: isSuccess
+      ? currentStats.avgResponseTimeFailed
+      : getAvgValue(currentStats.avgResponseTimeFailed, responseTime, totalRequestsFailed),
     highestResponseTime: getHighestValue(currentStats.highestResponseTime, responseTime),
-    highestResponseTimeSuccess: getHighestValue(
-      currentStats.highestResponseTimeSuccess,
-      responseTime,
-      response.success,
-    ),
-    highestResponseTimeFailed: getHighestValue(currentStats.highestResponseTimeFailed, responseTime, !response.success),
-    lowestResponseTime: getLowestValue(currentStats.lowestResponseTime, responseTime),
-    lowestResponseTimeSuccess: getLowestValue(currentStats.lowestResponseTimeSuccess, responseTime, response.success),
-    lowestResponseTimeFailed: getLowestValue(currentStats.lowestResponseTimeFailed, responseTime, !response.success),
+    highestResponseTimeSuccess: getHighestValue(currentStats.highestResponseTimeSuccess, responseTime, isSuccess),
+    highestResponseTimeFailed: getHighestValue(currentStats.highestResponseTimeFailed, responseTime, !isSuccess),
+    lowestResponseTime: getLowestValue(currentStats.lowestResponseTime, responseTime, previousTotal),
+    lowestResponseTimeSuccess: isSuccess
+      ? getLowestValue(currentStats.lowestResponseTimeSuccess, responseTime, previousSuccess)
+      : currentStats.lowestResponseTimeSuccess,
+    lowestResponseTimeFailed: isSuccess
+      ? currentStats.lowestResponseTimeFailed
+      : getLowestValue(currentStats.lowestResponseTimeFailed, responseTime, previousFailed),
     latestResponseTime: responseTime,
     // Processing
-    avgProcessingTime: getAvgValue(currentStats.avgProcessingTime, processingTime),
+    avgProcessingTime: getAvgValue(currentStats.avgProcessingTime, processingTime, totalRequests),
     highestProcessingTime: getHighestValue(currentStats.highestProcessingTime, processingTime),
-    lowestProcessingTime: getLowestValue(currentStats.lowestProcessingTime, processingTime),
+    lowestProcessingTime: getLowestValue(currentStats.lowestProcessingTime, processingTime, previousTotal),
     latestProcessingTime: processingTime,
     // Payload
     totalTransferredPayload: currentStats.totalTransferredPayload + payloadSize,
     totalTransferredResponse: currentStats.totalTransferredResponse + responseSize,
-    avgPayloadSize: getAvgValue(currentStats.avgPayloadSize, payloadSize),
-    avgResponseSize: getAvgValue(currentStats.avgResponseSize, responseSize),
-    lowestPayloadSize: getLowestValue(currentStats.lowestPayloadSize, payloadSize),
-    lowestResponseSize: getLowestValue(currentStats.lowestResponseSize, responseSize),
+    avgPayloadSize: getAvgValue(currentStats.avgPayloadSize, payloadSize, totalRequests),
+    avgResponseSize: getAvgValue(currentStats.avgResponseSize, responseSize, totalRequests),
+    lowestPayloadSize: getLowestValue(currentStats.lowestPayloadSize, payloadSize, previousTotal),
+    lowestResponseSize: getLowestValue(currentStats.lowestResponseSize, responseSize, previousTotal),
     highestPayloadSize: getHighestValue(currentStats.highestPayloadSize, payloadSize),
     highestResponseSize: getHighestValue(currentStats.highestResponseSize, responseSize),
     latestResponseSize: responseSize,
     // Queue
-    avgQueueTime: getAvgValue(currentStats.avgQueueTime, queueTime),
+    avgQueueTime: getAvgValue(currentStats.avgQueueTime, queueTime, totalRequests),
     highestQueueTime: getHighestValue(currentStats.highestQueueTime, queueTime),
-    lowestQueueTime: getLowestValue(currentStats.lowestQueueTime, queueTime),
+    lowestQueueTime: getLowestValue(currentStats.lowestQueueTime, queueTime, previousTotal),
     latestQueueTime: queueTime,
   };
 };
@@ -170,6 +205,8 @@ type EndpointAndMethod = string;
 
 export type NetworkStatsStore = {
   networkStats: NetworkStats;
+  /** The latest response times, oldest first, up to `RESPONSE_TIME_SAMPLE_SIZE` */
+  responseTimeSamples: number[];
   networkEntries: Map<
     EndpointAndMethod,
     {
@@ -183,7 +220,7 @@ export type NetworkStatsStore = {
 export const useNetworkStatsStore = create<{
   applications: { [application: string]: NetworkStatsStore };
   initialize: (application: string) => void;
-  setNetworkStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setNetworkStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
 }>((set) => ({
   applications: {},
   initialize: (application: string) => {
@@ -200,26 +237,30 @@ export const useNetworkStatsStore = create<{
       responseSize,
       payloadSize,
     };
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getNetworkInitialState();
-        }
-
-        const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);
-
-        draft.applications[application].networkStats = getNetworkStats(
-          draft.applications[application].networkStats,
+    // Runs on every response, so it copies only what changed instead of drafting the whole state
+    set((state) => {
+      const app = state.applications[application] ?? getNetworkInitialState();
+      const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);
+      const networkStats = getNetworkStats(app.networkStats, data, perf);
+      const responseTimeSamples = [...app.responseTimeSamples, networkStats.latestResponseTime].slice(
+        -RESPONSE_TIME_SAMPLE_SIZE,
+      );
+      const networkEntries = new Map(app.networkEntries);
+      networkEntries.set(globalEndpointAndMethod, {
+        endpoint: data.request.requestOptions.endpoint,
+        method: data.request.method,
+        stats: getNetworkStats(
+          app.networkEntries.get(globalEndpointAndMethod)?.stats ?? initialNetworkStats,
           data,
           perf,
-        );
-        const existingEntry = draft.applications[application].networkEntries.get(globalEndpointAndMethod);
-        draft.applications[application].networkEntries.set(globalEndpointAndMethod, {
-          endpoint: data.request.requestOptions.endpoint,
-          method: data.request.method,
-          stats: getNetworkStats(existingEntry?.stats ?? initialNetworkStats, data, perf),
-        });
-      }),
-    );
+        ),
+      });
+      return {
+        applications: {
+          ...state.applications,
+          [application]: { networkStats, responseTimeSamples, networkEntries },
+        },
+      };
+    });
   },
 }));

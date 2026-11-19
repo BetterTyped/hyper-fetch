@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "../ui/button";
 import { jsonViewerStyles } from "./json-viewer.styles";
-import { getRaw, theme, updateValue } from "./json-viewer.utils";
+import { getRaw, theme, toDataKeys, updateValue } from "./json-viewer.utils";
 import { Label } from "./label/label";
 import { Value } from "./value/value";
 
@@ -45,7 +45,7 @@ export const JSONViewer = ({
   const handleOnChange = (path: (number | string)[]) => (value: any) => {
     if (onChange) {
       const newData = produce(data, (draft: any) => {
-        updateValue(draft, path, value);
+        updateValue(draft, toDataKeys(path, hideRoot), value);
       });
       onChange(newData);
     } else {
@@ -73,7 +73,7 @@ export const JSONViewer = ({
           <Value value={value} raw={raw} path={path} onChange={handleOnChange(path)} disabled={!onChange} />
         )}
         labelRenderer={(path, _, __, expandable) => (
-          <Label label={path[0]} getRaw={() => getRaw(data, path)} expandable={expandable} />
+          <Label label={path[0]} getRaw={() => getRaw(data, toDataKeys(path, hideRoot))} expandable={expandable} />
         )}
       />
       <CopyButton data={data} />

@@ -20,9 +20,7 @@ export const CardErrors = ({ className }: { className?: string }) => {
   );
 
   const topFailingEndpoints = useMemo(() => {
-    return [...endpointErrorStats.values()]
-      .toSorted((a, b) => b.count - a.count)
-      .slice(0, 5);
+    return [...endpointErrorStats.values()].toSorted((a, b) => b.count - a.count).slice(0, 5);
   }, [endpointErrorStats]);
 
   return (
@@ -51,7 +49,7 @@ export const CardErrors = ({ className }: { className?: string }) => {
               <span className="text-sm font-medium text-muted-foreground">Count</span>
             </div>
             {topFailingEndpoints.map((endpoint) => (
-              <div key={endpoint.status} className="grid grid-cols-3 gap-2">
+              <div key={`${endpoint.method}-${endpoint.endpoint}`} className="grid grid-cols-3 gap-2">
                 <span className="text-sm font-medium">
                   <Method method={endpoint.method} className="text-base mt-0.5" /> {endpoint.endpoint}
                 </span>
