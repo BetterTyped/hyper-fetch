@@ -28,8 +28,7 @@
     "lint": "oxlint .",
     "format": "oxfmt --write .",
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
-    "tests": "pnpm lint-staged",
-    "release": "pnpm semantic-release --extends ../../release.config.js -t 'hyper-fetch-trpc-v${version}'"
+    "tests": "pnpm lint-staged"
   },
   "publishConfig": {
     "access": "public",
