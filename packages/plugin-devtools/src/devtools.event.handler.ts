@@ -188,12 +188,9 @@ export class DevtoolsEventHandler {
         case MessageType.INTERNAL: {
           if (message.data.eventType === InternalEvents.APP_INITIALIZED) {
             this.isInitialized = true;
-            while (this.eventQueue.length > 0) {
-              const nextEvent = this.eventQueue.shift();
-              if (nextEvent) {
-                this.socketEmitter.emit({ payload: nextEvent });
-              }
-            }
+            this.eventQueue.splice(0).forEach((queuedEvent) => {
+              this.socketEmitter.emit({ payload: queuedEvent });
+            });
             // A reloaded HyperFlow knows nothing about the sockets, their events so far went to the previous one
             this.socketReporters.forEach((reporter) => reporter.sendSnapshot());
           } else {
