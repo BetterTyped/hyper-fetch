@@ -3,7 +3,11 @@ import type { Socket } from "net";
 import type { Server, ServerResponse } from "node:http";
 import { createServer } from "node:http";
 
-export const createSseE2EServer = () => {
+/**
+ * A real Server-Sent Events server for e2e specs.
+ * @param options.retry - sent as the `retry:` field, how many ms the EventSource waits before resuming a dropped stream
+ */
+export const createSseE2EServer = ({ retry }: { retry?: number } = {}) => {
   let server: Server | null = null;
   let port = 0;
   const responses: ServerResponse[] = [];
@@ -18,7 +22,7 @@ export const createSseE2EServer = () => {
           Connection: "keep-alive",
           "Access-Control-Allow-Origin": "*",
         });
-        res.write("\n");
+        res.write(retry === undefined ? "\n" : `retry: ${retry}\n\n`);
 
         responses.push(res);
 

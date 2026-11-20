@@ -164,7 +164,7 @@ describe.each(socketCases)("Socket compatibility [ $name ]", (socketCase: Socket
     expect(getApp().messages.some((item) => item.event === "SOCKET_DISCONNECTED")).toBeTrue();
   });
 
-  it("counts reconnection attempts and resets them once connected again", async () => {
+  it.skipIf(socketCase.resumesItself)("counts reconnection attempts and resets them once connected again", async () => {
     const { socket } = await setup({ reconnect: 5, reconnectTime: 20 });
     await connect(socket);
 
@@ -174,6 +174,19 @@ describe.each(socketCases)("Socket compatibility [ $name ]", (socketCase: Socket
     const reconnecting = getApp().messages.find((item) => item.event === "SOCKET_RECONNECTING");
     expect(reconnecting?.attempts).toBe(1);
     await waitFor(() => expect(getSocket().status).toBe("connected"));
+    expect(getSocket().reconnectAttempts).toBe(0);
+  });
+
+  it.runIf(socketCase.resumesItself)("shows a dropped stream resuming on its own", async () => {
+    const { socket } = await setup({ reconnect: 5, reconnectTime: 20 });
+    await connect(socket);
+
+    socketCase.dropConnections();
+
+    await waitFor(() => expect(getApp().messages.some((item) => item.event === "SOCKET_DISCONNECTED")).toBeTrue());
+    await waitFor(() => expect(getSocket().status).toBe("connected"));
+    // The stream came back by itself, the socket did not have to reconnect
+    expect(getApp().messages.some((item) => item.event === "SOCKET_RECONNECTING")).toBeFalse();
     expect(getSocket().reconnectAttempts).toBe(0);
   });
 

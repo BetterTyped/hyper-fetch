@@ -13,6 +13,11 @@ export type SocketCase = {
   adapterName: string;
   /** Whether the transport can send, SSE only receives */
   canSend: boolean;
+  /**
+   * Whether a dropped connection comes back by itself. An EventSource resumes its stream (keeping `Last-Event-ID`),
+   * a WebSocket is reconnected by the socket, attempt by attempt.
+   */
+  resumesItself: boolean;
   start: () => Promise<void>;
   stop: () => Promise<void>;
   /** A new socket of this kind, not connected yet */
@@ -31,6 +36,7 @@ const createWebsocketCase = (): SocketCase => {
     name: "websockets",
     adapterName: "websockets",
     canSend: true,
+    resumesItself: false,
     start: async () => {
       url = await server.startServer();
     },
@@ -44,12 +50,14 @@ const createWebsocketCase = (): SocketCase => {
 };
 
 const createSseCase = (): SocketCase => {
-  const server = createSseE2EServer();
+  // A dropped stream is resumed after this delay, like a server that sends `retry:`
+  const server = createSseE2EServer({ retry: 20 });
   let url = "";
   return {
     name: "sse",
     adapterName: "sse",
     canSend: false,
+    resumesItself: true,
     start: async () => {
       url = await server.startServer();
     },
