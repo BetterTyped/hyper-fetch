@@ -1,0 +1,75 @@
+---
+title: Load more
+sidebar_label: Load more
+sidebar_position: 4
+description: Load pages on demand with a Load more button, start in the middle of a list and see where each page begins.
+sidebar_custom_props:
+  path: react/load-more
+  level: intermediate
+  tags: [useInfiniteFetch, pagination]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/load-more/src/api.ts";
+import app from "!!raw-loader!@examples/react/load-more/src/App.tsx";
+
+A post list that opens on page five, as if from a shared link. "Load more" adds the next page, "Load earlier posts" adds
+the one before, and every page is drawn as its own box so you can see how the responses join into one list.
+
+:::tip What it shows
+
+1. **Buttons instead of scrolling.** `fetchNextPage()` and `fetchPreviousPage()` are plain functions you call from any
+   event.
+2. **Starting in the middle.** The `skip` set on the request is the first page, and `hasPreviousPage` is `true`.
+3. **Page boundaries.** `pages` and `pageParams` keep each response and its offset, `items` is the flat list.
+4. **Reloading and starting over.** `refetch()` reloads every loaded page, `reset()` goes back to the starting page.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` declares `postsPagination` with `offset: "skip"`, `limit: "limit"`, `items: "posts"` and `total: "total"`,
+   checked with `satisfies Pagination<typeof getPosts>`.
+2. `App` passes `getPosts.setQueryParams({ limit: 5, skip: 20, ... })`. The list starts from the value already on the
+   request, so the first response is posts 21-25.
+3. "Load more" calls `fetchNextPage()`, which sends `skip=25`. "Load earlier posts" calls `fetchPreviousPage()`, which
+   sends `skip=15` and adds the page at the top. `isFetchingNextPage` and `isFetchingPreviousPage` drive each button's
+   busy state.
+4. The list is drawn from `pages`, with `pageParams[index]` as the page label. The same posts are also in `items`, which
+   the header uses to count them.
+5. `refetch()` sends all loaded pages again in parallel and swaps them when they arrive. `reset()` drops back to
+   `skip=20` and fetches it again.
+6. `hasNextPage` turns `false` once `skip + limit` reaches `total`, and the button is replaced by an end message.
+
+```tsx
+const { pages, pageParams, hasNextPage, fetchNextPage } = useInfiniteFetch(request, { pagination: postsPagination });
+// highlight-next-line
+const loadMore = () => fetchNextPage();
+```
+
+:::note When to use it
+
+- Lists where users decide when to load more, such as comments or activity logs.
+- Pages opened at a deep offset, for example from a link, that should still let users go back.
+- For loading on scroll, see [Infinite scroll](/examples/data-fetching/infinite-scroll).
+
+:::
+
+---
+
+## Related
+
+- [`useInfiniteFetch`](/docs/react/hooks/use-infinite-fetch)
+- [Infinite scroll guide](/docs/guides/react/basics/infinite-scroll)
+- [Pagination guide](/docs/guides/react/basics/pagination)
+
+:::secondary Summary
+
+You loaded pages in both directions with buttons, rendered the page boundaries from `pages` and `pageParams`, and used
+`refetch()` and `reset()` to reload or restart the list.
+
+:::

@@ -1,0 +1,12 @@
+{
+  "label": "Adapters and integrations",
+  "position": 8,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "GraphQL, Axios, server frameworks, devtools and other integrations.",
+  "link": {
+    "type": "generated-index",
+    "title": "Adapters and integrations examples",
+    "description": "GraphQL, Axios, server frameworks, devtools and other integrations."
+  }
+}

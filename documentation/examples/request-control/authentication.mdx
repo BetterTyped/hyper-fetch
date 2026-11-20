@@ -1,0 +1,74 @@
+---
+title: Authentication
+sidebar_label: Authentication
+sidebar_position: 5
+description: Log in, attach the token to every request with onAuth and refresh it on a 401 with onError.
+sidebar_custom_props:
+  path: react/authentication
+  level: intermediate
+  tags: [auth, useSubmit, useFetch, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/authentication/src/api.ts";
+import app from "!!raw-loader!@examples/react/authentication/src/App.tsx";
+
+A login form and a profile page backed by the DummyJSON auth API. The token handling lives in two client interceptors,
+so the requests and components never touch a token.
+
+:::tip What it shows
+
+1. **`onAuth`** adds the `Authorization` header to every request that has `auth: true`.
+2. **`onError`** catches a `401`, refreshes the token and sends the failed request again.
+3. **`setUsed(true)`** marks the retried request, so a second `401` cannot start a refresh loop.
+4. **Logout** removes the tokens and clears the cache, so the next user never sees the old profile.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` registers `client.onAuth()`. It reads the access token from `localStorage` and returns a copy of the request
+   with the header set. Requests have `auth: true` by default, so `getMe` gets the header without any options.
+2. `login` and `refresh` set `auth: false`. They run before a valid token exists, so the interceptor skips them.
+3. `client.onError()` runs for every failed response. On a `401` it sends `refresh` with the refresh token, stores the
+   new pair and returns the response of the retried request. That response replaces the `401`, so `useFetch(getMe)` only
+   ever sees the profile:
+
+   ```ts
+   tokens.set(data);
+   // highlight-next-line
+   return request.setUsed(true).send();
+   ```
+
+4. `LoginForm` sends the credentials with `useSubmit(login)` and asks for a token that expires after one minute. Wait a
+   minute, or press **Expire token**, then **Reload profile**: the activity log shows the `401`, the refresh and the
+   retry.
+5. **Log out** removes the tokens and calls `client.cache.clear()`, then unmounts the profile.
+
+:::note When to use it
+
+- APIs that expect a bearer token or an API key header on most requests.
+- Short-lived access tokens with a refresh token.
+- Apps where several users can log in on the same device.
+
+:::
+
+---
+
+## Related
+
+- [Authentication guide](/docs/guides/core/basics/authentication)
+- [Client](/docs/core/client)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`onAuth` attaches the token, `onError` refreshes it on a `401` and retries once with `setUsed(true)`. Both live on the
+client, so every request gets the same behavior.
+
+:::

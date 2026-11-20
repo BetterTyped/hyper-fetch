@@ -7,6 +7,7 @@ import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yar
 import fs from "fs";
 import path from "path";
 
+import examplesPlugin from "./plugins/examples";
 import docsVersions from "./versions.json";
 
 /**
@@ -168,6 +169,7 @@ const config: Config = {
         },
       };
     },
+    examplesPlugin,
     [
       "@docusaurus/plugin-content-docs",
       {
@@ -255,7 +257,7 @@ const config: Config = {
           activeBaseRegex: `/docs/api/`,
         },
         {
-          to: "/examples/playground/",
+          to: "/examples/",
           label: "Examples",
           position: "left",
         },

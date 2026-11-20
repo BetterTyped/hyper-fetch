@@ -1,0 +1,76 @@
+---
+title: Pagination
+sidebar_label: Pagination
+sidebar_position: 2
+description: Page through products with query params, keep the previous page on screen and prefetch the next one.
+sidebar_custom_props:
+  path: react/pagination
+  level: intermediate
+  tags: [useFetch, pagination, prefetching, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/pagination/src/api.ts";
+import app from "!!raw-loader!@examples/react/pagination/src/App.tsx";
+
+A product table with numbered pages. Each page is a separate cache entry, the next page is fetched before you ask for
+it, and a log lists every request that reaches the network.
+
+:::tip What it shows
+
+1. **Query params as pages.** `limit` and `skip` are part of the cache key, so every page is cached on its own.
+2. **`keepPreviousData`** decides what the table shows while a new page loads. Switch between `auto`, `preserve` and
+   `clean` to compare.
+3. **Prefetching** with `request.send()`. "Next" renders from the cache with no loading state.
+4. **`staleTime` with `revalidate: false`** stops pages you already have from being requested again.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getProducts` with typed `queryParams` and `staleTime: Time.MIN`. `getProductsPage(page)` turns a
+   page number into `limit` and `skip`, so the hook and the prefetch build the same request and share a cache key.
+2. `App` calls `useFetch(getProductsPage(page), { keepPreviousData: mode, revalidate: false })`. With
+   `revalidate: false` the hook sends a request only when the page is missing from the cache or older than `staleTime`.
+3. `keepPreviousData` controls the state between pages. `"auto"`, the default, keeps the old data when only query params
+   change and clears it when URL params change. `"preserve"` always keeps it, `"clean"` always clears it. While old data
+   is on screen, `loading` is `true` and the table is dimmed.
+4. An effect calls `getProductsPage(page + 1).send({ cachePolicy: "cache-first" })` after each page change. The response
+   goes into the cache, and `cache-first` skips the call when that page is cached already.
+5. `client.requestManager.events.onRequestStart` logs every request the client sends. Click "Next" and only the page
+   after it shows up in the log. Jump to "Last" to see a page that was not prefetched.
+
+```tsx
+useEffect(() => {
+  // highlight-next-line
+  if (page < totalPages) getProductsPage(page + 1).send({ cachePolicy: "cache-first" });
+}, [page, totalPages]);
+```
+
+:::note When to use it
+
+- Tables and lists where users move page by page and expect page numbers.
+- Admin views where going back to a page should not request it again.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Pagination guide](/docs/guides/react/basics/pagination)
+- [Prefetching guide](/docs/guides/core/advanced/prefetching)
+- [Query params guide](/docs/guides/core/basics/query-params)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+You paged through products with typed query params, chose how the previous page behaves with `keepPreviousData`, and
+prefetched the next page with `send()` so moving forward needs no loading state.
+
+:::

@@ -77,6 +77,8 @@ jobs:
         run: pnpm test --coverage
       - name: Test release script
         run: pnpm test:release
+      - name: Check examples
+        run: pnpm test:examples && pnpm examples
       - name: Send Report
         uses: qltysh/qlty-action/coverage@v1
         with:

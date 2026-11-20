@@ -1,0 +1,27 @@
+{
+  "name": "@hyper-fetch-examples/react-refetch-on-focus",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Refetch when the window gets focus, loses it or the network comes back, with a log of every trigger.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

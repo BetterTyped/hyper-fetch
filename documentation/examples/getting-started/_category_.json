@@ -1,0 +1,12 @@
+{
+  "label": "Getting started",
+  "position": 1,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Your first requests: a client, typed requests and the hooks that read them.",
+  "link": {
+    "type": "generated-index",
+    "title": "Getting started examples",
+    "description": "Your first requests: a client, typed requests and the hooks that read them."
+  }
+}

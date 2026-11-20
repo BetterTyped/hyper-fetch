@@ -1,0 +1,75 @@
+---
+title: Select
+sidebar_label: Select
+sidebar_position: 9
+description:
+  Read different parts of one cached response with the select option, and re-render only when that part changes.
+sidebar_custom_props:
+  path: react/select
+  level: intermediate
+  tags: [useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/select/src/api.ts";
+import app from "!!raw-loader!@examples/react/select/src/App.tsx";
+
+A shopping cart split into four cards that all read the same cached response. Three of them pick one part of the cart
+with `select`, the fourth reads all of it. Every card flashes when it re-renders, so you can see which ones a change
+reaches.
+
+:::tip What it shows
+
+1. **One request, many readers.** Every card calls `useFetch(getCart)`. They share one cache entry and one network call.
+2. **`select`** returns the part of the response a component uses, and `data` gets that type.
+3. **Fewer re-renders.** A component re-renders only when its selected value changes.
+4. **Structural sharing** keeps a derived array's reference when its contents are equal, so inline selectors are fine.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getCart` and `updateCart`, which changes the cached cart with `client.cache.update()`. It stands in
+   for a mutation or a realtime event that updates the cache.
+2. `ItemCount` selects `cart.totalQuantity`, `CartTotal` selects `cart.total`, and `ItemNames` maps the products to
+   their titles. `FullCart` has no `select`.
+3. "Add one of the first item" changes the quantity and the totals. `ItemCount`, `CartTotal` and `FullCart` flash.
+   `ItemNames` does not, because the titles are the same.
+4. "Rename the first item" changes only a title. `ItemNames` and `FullCart` flash, the two totals stay still.
+5. "Refetch from server" brings back the server's cart, so every card that shows a changed value re-renders.
+6. `Toolbar` reads `loading` and `error` in its own component. The cards do not read `loading`, so a refetch in progress
+   does not re-render them.
+
+```tsx
+// highlight-next-line
+const { data: count } = useFetch(getCart, { select: (cart) => cart.totalQuantity });
+```
+
+`useRenderFlash` in `use-render-flash.ts` runs an effect without a dependency array, which fires after every render, and
+plays a short outline animation. It is only there to make re-renders visible.
+
+:::note When to use it
+
+- Large responses that several components read in small parts, such as a cart, a settings object or a dashboard.
+- Derived values (counts, sums, filtered lists) that should not re-render the component when other fields change.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch` select](/docs/react/hooks/use-fetch)
+- [Cache](/docs/core/cache)
+- [Basic data fetching](/examples/getting-started/basic)
+
+:::secondary Summary
+
+You read four views of one cached response with `select`. Each component re-rendered only when the part it selected
+changed, while the request and its cache stayed shared.
+
+:::

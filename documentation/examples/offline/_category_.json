@@ -1,0 +1,12 @@
+{
+  "label": "Offline and persistence",
+  "position": 6,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Apps that keep working without a network and remember data between visits.",
+  "link": {
+    "type": "generated-index",
+    "title": "Offline and persistence examples",
+    "description": "Apps that keep working without a network and remember data between visits."
+  }
+}

@@ -1,0 +1,78 @@
+---
+title: Hono fullstack
+sidebar_label: Hono
+sidebar_position: 4
+description: A Hono API and a React client in one Vite app, with requests typed from the Hono routes.
+sidebar_custom_props:
+  path: hono/fullstack
+  level: intermediate
+  tags: [hono, createSdk, typescript, useFetch, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import server from "!!raw-loader!@examples/hono/fullstack/server/app.ts";
+import api from "!!raw-loader!@examples/hono/fullstack/src/api.ts";
+import app from "!!raw-loader!@examples/hono/fullstack/src/App.tsx";
+
+A notes app with its backend in the same project. Vite serves the React app and runs the Hono API under `/api`, and the
+client gets every type from the Hono routes, without codegen.
+
+:::tip What it shows
+
+1. **`HonoAppToHyperFetch`** turns the type of a Hono app into a schema for `createSdk`.
+2. **Typed from the routes**: responses, the `json` validator payload and `:noteId` params all reach the client.
+3. **One dev server**: `@hono/vite-dev-server` runs the API inside Vite, so `npm run dev` starts both.
+4. **Typed errors**: the server sends `{ message }`, the error type of the HyperFetch client.
+
+:::
+
+<Example files={{ "server/app.ts": server, "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `server/app.ts` defines the routes as one chain under `basePath("/api")` and exports the schema type next to the app:
+
+   ```ts
+   // highlight-next-line
+   export type AppSchema = HonoAppToHyperFetch<typeof app>;
+   ```
+
+2. `vite.config.ts` adds `devServer({ entry: "server/app.ts", exclude: [...] })`. Requests to `/api` go to the Hono app;
+   everything else is served by Vite. `vite build` builds only the client, so in production the API runs wherever you
+   deploy Hono.
+3. `src/api.ts` imports `AppSchema` with `import type`, so no server code reaches the browser bundle, and calls
+   `createSdk<typeof client, AppSchema>(client)`. `sdk.api.notes.$get`, `sdk.api.notes.$post` and
+   `sdk.api.notes.$noteId.$delete` are regular requests. Each SDK access builds a new request, so the file keeps one
+   reference per endpoint.
+4. `App` reads the list with `useFetch(getNotes)`, adds notes with `useSubmit(createNote)` and deletes them with
+   `deleteNote.setParams({ noteId }).send()`. Change a route in `server/app.ts` and TypeScript points at the client code
+   that no longer matches.
+5. The `json` validator throws an `HTTPException` for an empty note, and `onError` turns it into `{ message }` with a
+   `400`. `useSubmit` returns it as `error`. Throwing keeps the error body out of the route's response type, which stays
+   `Note`.
+
+:::note When to use it
+
+- Projects with a Hono backend and a TypeScript frontend, in one repository.
+- Teams that want end-to-end types without generating a client.
+- Small fullstack apps that should start with a single `npm run dev`.
+
+:::
+
+---
+
+## Related
+
+- [Hono integration](/docs/integrations/hono/overview)
+- [SDK](/docs/core/sdk)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+`HonoAppToHyperFetch` reads the Hono app type and `createSdk` turns it into typed requests. The backend stays the single
+source of truth, and the frontend uses the same hooks as any other HyperFetch app.
+
+:::

@@ -1,0 +1,12 @@
+{
+  "label": "Frameworks",
+  "position": 9,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Server rendering and hydration with meta-frameworks.",
+  "link": {
+    "type": "generated-index",
+    "title": "Frameworks examples",
+    "description": "Server rendering and hydration with meta-frameworks."
+  }
+}

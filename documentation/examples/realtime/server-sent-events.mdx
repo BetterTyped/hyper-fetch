@@ -1,0 +1,75 @@
+---
+title: Server-sent events
+sidebar_label: Server-sent events
+sidebar_position: 2
+description: Listen to a live server-sent events stream with the SSE adapter and useListener, with pause and resume.
+sidebar_custom_props:
+  path: react/server-sent-events
+  level: intermediate
+  tags: [realtime, useListener, streaming]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/server-sent-events/src/api.ts";
+import app from "!!raw-loader!@examples/react/server-sent-events/src/App.tsx";
+
+A live feed of edits on Wikipedia and other Wikimedia wikis, from the public
+[EventStreams](https://stream.wikimedia.org/v2/stream/recentchange) service. The server pushes every change over
+server-sent events, and the app keeps the newest few on screen.
+
+:::tip What it shows
+
+1. **`ServerSentEventsAdapter`** gives a socket client the browser's `EventSource` as its transport.
+2. **`decode`** maps messages from a server that does not send `{ topic, data }` to a listener topic.
+3. **`useListener`** receives every event while the component is mounted.
+4. **Pause and resume** close and reopen the connection with `socket.disconnect()` and `socket.connect()`.
+5. **A capped list** keeps memory and rendering flat on a stream with dozens of events per second.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates the socket with `createSocketClient({ url, adapter: ServerSentEventsAdapter() })`. It is the same
+   socket API as for WebSockets; only the adapter changes.
+2. Wikimedia sends plain JSON objects. By default the adapter reads `topic` and `data` from each message, so the
+   `decode` adapter option sends every message to one topic:
+
+   ```ts
+   adapterOptions: {
+     // highlight-next-line
+     decode: (event) => ({ topic: "recentchange", data: JSON.parse(event.data) }),
+   },
+   ```
+
+3. `onRecentChange` is a listener for that topic, typed with the `RecentChange` fields the UI reads.
+4. `App` calls `useListener(onRecentChange)`. `onEvent` counts every event, skips bots when the switch is on and keeps
+   the newest `MAX_ITEMS` changes.
+5. **Pause** calls `socket.disconnect()`, which closes the `EventSource`, so the server stops sending and `connected`
+   turns `false`. **Resume** calls `socket.connect()`. If the connection drops on its own, the adapter reconnects.
+
+:::note When to use it
+
+- Live feeds, notifications and progress updates that only flow from the server to the browser.
+- Servers and proxies where WebSockets are not available but plain HTTP is.
+- Any stream of JSON events, including APIs that use their own message format.
+
+:::
+
+---
+
+## Related
+
+- [Socket adapters](/docs/sockets/adapter)
+- [Listener](/docs/sockets/listener)
+- [`useListener`](/docs/react/sockets/use-listener)
+
+:::secondary Summary
+
+`ServerSentEventsAdapter` and a `decode` function connect a socket client to any SSE endpoint. `useListener` delivers
+the events, and `disconnect()` / `connect()` pause and resume the stream.
+
+:::

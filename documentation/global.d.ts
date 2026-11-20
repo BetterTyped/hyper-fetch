@@ -21,3 +21,9 @@ declare module "*.svg" {
   // eslint-disable-next-line import/no-default-export
   export default content;
 }
+
+declare module "!!raw-loader!*" {
+  const content: string;
+  // eslint-disable-next-line import/no-default-export
+  export default content;
+}

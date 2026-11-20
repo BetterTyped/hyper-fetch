@@ -1,0 +1,12 @@
+{
+  "label": "Caching",
+  "position": 4,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Controlling what is cached, for how long, and how it is updated.",
+  "link": {
+    "type": "generated-index",
+    "title": "Caching examples",
+    "description": "Controlling what is cached, for how long, and how it is updated."
+  }
+}

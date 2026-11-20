@@ -1,0 +1,74 @@
+---
+title: Prefetching
+sidebar_label: Prefetching
+sidebar_position: 10
+description: Prefetch product details on hover with request.send(), so opening them shows cached data at once.
+sidebar_custom_props:
+  path: react/prefetching
+  level: intermediate
+  tags: [send, prefetching, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/prefetching/src/api.ts";
+import app from "!!raw-loader!@examples/react/prefetching/src/App.tsx";
+
+A product list with a details panel. Hovering or focusing a product starts loading its details, so by the time you click
+they are in the cache. The details endpoint is slowed down on purpose, and a log shows which requests reach the network.
+
+:::tip What it shows
+
+1. **Prefetching is `send()`.** Any request sent outside a hook stores its response in the cache.
+2. **One request builder** (`productDetails`) for the prefetch and the hook, so both use the same cache key.
+3. **`cachePolicy: "cache-first"`** skips the prefetch when the product is cached already.
+4. **`staleTime` with `revalidate: false`** lets the details view use the prefetched data without a second request.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getProduct` with `staleTime: Time.MIN` and a `productDetails(productId)` helper that sets the
+   params and query params. The `delay` query param makes the endpoint take about a second.
+2. Each product button calls `prefetch(product.id)` on `onMouseEnter` and `onFocus`, so mouse and keyboard users both
+   get it. `prefetch` calls `productDetails(productId).send({ cachePolicy: "cache-first", onResponse })`.
+3. The `onResponse` callback of `send()` marks the product as prefetched once the response is in the cache.
+4. `ProductDetails` calls `useFetch(productDetails(productId), { revalidate: false })`. The cached data is fresh, so the
+   hook renders it at once and sends nothing. The network log shows a single request per product.
+5. If you click before the prefetch has finished, the hook joins the request already in flight instead of starting a
+   second one, because GET requests are deduplicated.
+
+```ts
+const prefetch = (productId: number) =>
+  // highlight-next-line
+  productDetails(productId).send({ cachePolicy: "cache-first" });
+```
+
+Without `revalidate: false`, the hook would still render the cached data at once, then refresh it in the background.
+That is the better choice when the data changes often.
+
+:::note When to use it
+
+- Lists that open a details view, where hover or focus is a strong hint of the next click.
+- Slow endpoints, where starting a few hundred milliseconds early is noticeable.
+
+:::
+
+---
+
+## Related
+
+- [Prefetching guide](/docs/guides/core/advanced/prefetching)
+- [Requests](/docs/core/request)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+You prefetched details on hover and focus with `send()`, shared the cache key with the details view through one request
+builder, and opened prefetched products without a loading state or a second request.
+
+:::

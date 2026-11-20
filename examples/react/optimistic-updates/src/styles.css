@@ -1,0 +1,43 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.narrow {
+  max-width: 40rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.add {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add button {
+  width: auto;
+}
+
+.todos,
+.log {
+  padding: 0;
+}
+
+.todos li {
+  list-style: none;
+}
+
+.log li {
+  list-style: none;
+  font-family: var(--pico-font-family-monospace);
+  font-size: 0.85rem;
+}
