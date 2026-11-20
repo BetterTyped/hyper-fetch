@@ -36,7 +36,7 @@ import type {
   RetryOnErrorCallbackType,
   OptimisticCallback,
 } from "./request.types";
-import { mapResponseForSend, sendRequest, scopeKey } from "./request.utils";
+import { mapResponseForSend, resolveQueryParams, sendRequest, scopeKey } from "./request.utils";
 
 type ClientAdapterOptions<C extends ClientInstance> = ExtractAdapterOptionsType<ExtractClientAdapterType<C>>;
 type ClientAdapterMethod<C extends ClientInstance> = ExtractAdapterMethodType<ExtractClientAdapterType<C>>;
@@ -199,7 +199,7 @@ export class Request<
     this.method = method as ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
     this.params = initialRequestConfiguration?.params;
     this.payload = initialRequestConfiguration?.payload;
-    this.queryParams = initialRequestConfiguration?.queryParams;
+    this.queryParams = resolveQueryParams(client, initialRequestConfiguration?.queryParams);
     this.options = initialRequestConfiguration?.options ?? options;
     this.cancelable = initialRequestConfiguration?.cancelable ?? cancelable;
     this.retry = initialRequestConfiguration?.retry ?? retry;
