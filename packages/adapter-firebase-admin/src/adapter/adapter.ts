@@ -14,7 +14,8 @@ import { getRealtimeDbAdminMethods } from "../realtime";
 export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T): FirebaseAdminAdapterTypes<T> => {
   const adapter = new Adapter({
     name: "firebase-admin",
-    defaultMethod: "getDoc",
+    // Requests without a method read: `getDoc` in Firestore, `get` in Realtime Database
+    defaultMethod: database instanceof Firestore ? FirestoreMethods.getDoc : RealtimeDBMethods.get,
     defaultExtra: {},
     systemErrorStatus: "error",
     systemErrorExtra: {},

@@ -8,7 +8,8 @@ import { getRealtimeDbBrowserMethods } from "realtime";
 export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T): FirebaseAdapterTypes<T> => {
   const adapter = new Adapter({
     name: "firebase",
-    defaultMethod: "getDoc",
+    // Requests without a method read: `getDoc` in Firestore, `get` in Realtime Database
+    defaultMethod: database instanceof Database ? RealtimeDBMethods.get : FirestoreMethods.getDoc,
     defaultExtra: {},
     systemErrorStatus: "error",
     systemErrorExtra: {},

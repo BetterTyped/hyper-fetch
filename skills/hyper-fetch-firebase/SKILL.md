@@ -50,8 +50,9 @@ the Realtime Database methods and options.
 1. **Pass an adapter instance, one per client or socket.** `setAdapter(FirebaseAdapter(db))`, not
    `setAdapter(() => FirebaseAdapter(db))` - `Client.setAdapter` takes an instance. Never share one
    `FirebaseSocketsAdapter(db)` between two sockets; the adapter binds to the socket it is initialized with.
-2. **Always set `method`.** The default method is `"getDoc"`, which only exists for Firestore. Realtime Database
-   requests must say `"get"`, `"set"`, `"push"`, `"update"` or `"remove"`.
+2. **Set `method` for anything but a read.** Without it, Firestore requests use `"getDoc"` and Realtime Database
+   requests use `"get"`. A method the database does not have (`"getDocs"` on Realtime Database) resolves with
+   `status: "error"`.
 3. **Path parity decides document vs collection.** The full path (`client.url + endpoint`, or `socket.url + topic`) with
    an even number of segments is a document (`teas/1`), odd is a collection (`teas`). `getDoc`/`setDoc`/`updateDoc`/
    `deleteDoc` need a document path, `getDocs`/`addDoc` a collection path. Mind the slash when concatenating:
@@ -300,7 +301,7 @@ can rely on a live listener, or invalidate: `client.cache.invalidate(getTeas)`. 
 | Wrong                                                                       | Right                                                           |
 | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | `.setAdapter(() => FirebaseAdapter(db))`                                    | `.setAdapter(FirebaseAdapter(db))`                              |
-| `method` omitted on a Realtime Database request                             | always set `"get"`, `"set"`, `"push"`, `"update"` or `"remove"` |
+| A Firestore method (`"getDocs"`) on a Realtime Database client              | `"get"`, `"set"`, `"push"`, `"update"` or `"remove"`            |
 | `getDoc` on `teas` / `getDocs` on `teas/1`                                  | document paths have an even number of segments                  |
 | `.setData(payload)`                                                         | `.setPayload(payload)` or `send({ payload })`                   |
 | `listener.listen({ callback })`                                             | `listener.listen(({ data, extra }) => ...)`                     |
