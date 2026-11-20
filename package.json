@@ -155,7 +155,6 @@
     "firebase-tools": "*",
     "graphql": "*",
     "graphql-tag": "^2.12.6",
-    "http": "*",
     "stream": "*"
   },
   "packageManager": "pnpm@10.11.0"
