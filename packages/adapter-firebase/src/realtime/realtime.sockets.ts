@@ -1,5 +1,5 @@
 import { SocketAdapter } from "@hyper-fetch/sockets";
-import type { RealtimeDbOnValueMethodExtra, RealtimeDBQueryParams, RealtimeSocketAdapterType } from "adapter";
+import type { RealtimeDbOnValueMethodExtra, RealtimeDBListenerOptions, RealtimeSocketAdapterType } from "adapter";
 import type { Database } from "firebase/database";
 import { onValue, query, ref, goOffline, goOnline } from "firebase/database";
 import { getStatus, isDocOrQuery } from "utils";
@@ -8,7 +8,7 @@ import type { RealtimePermittedMethods } from "../constraints";
 import { getOrderedResultRealtime, mapRealtimeConstraint } from "./utils";
 
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
-  return new SocketAdapter<RealtimeDbOnValueMethodExtra, undefined, { onlyOnce?: boolean } & RealtimeDBQueryParams>({
+  return new SocketAdapter<RealtimeDbOnValueMethodExtra, undefined, RealtimeDBListenerOptions>({
     name: "firebase-realtime",
     defaultConnected: true,
   }).setConnector(

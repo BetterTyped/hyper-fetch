@@ -34,7 +34,7 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T): Firebas
           throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
         }
         availableMethods(method, {
-          constraints: queryParams?.constraints || [],
+          constraints: queryParams ?? [],
           options,
           payload,
         });
@@ -55,7 +55,7 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T): Firebas
           throw new Error(`Cannot find method ${method} in Firestore available methods.`);
         }
         availableMethods(method, {
-          constraints: queryParams?.constraints ? queryParams.constraints : [],
+          constraints: queryParams ?? [],
           payload,
           options,
         });

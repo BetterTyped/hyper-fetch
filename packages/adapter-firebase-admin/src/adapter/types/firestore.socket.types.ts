@@ -1,11 +1,11 @@
 import type { SocketAdapter } from "@hyper-fetch/sockets";
-import type { FirestoreQueryParams } from "adapter";
+import type { FirestoreListenerOptions } from "adapter";
 import type { DocumentReference, DocumentSnapshot, DocumentData, Query, QuerySnapshot } from "firebase-admin/firestore";
 
 export type FirestoreAdminSocketAdapterType = SocketAdapter<
   FirestoreAdminOnSnapshotExtra,
   undefined,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
+  FirestoreListenerOptions
 >;
 
 export type FirestoreAdminOnSnapshotExtra = {

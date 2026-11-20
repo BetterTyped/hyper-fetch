@@ -95,11 +95,8 @@ The response from a Firebase request includes:
 
 ## Querying Data
 
-The Firebase adapters provide a standardized way to filter and limit your queries using the `constraints` query
-parameter. This approach ensures a consistent API across Realtime Database and Firestore, for both web and admin
-versions.
-
-You can build complex queries by passing an array of constraints.
+The Firebase adapters filter, order and limit queries with constraints. Pass them as the `queryParams` array; they apply
+in order. The API is the same for Realtime Database and Firestore, in both the web and admin packages.
 
 ```tsx
 import { $limit, $orderBy, $where } from "@hyper-fetch/firebase"; // or @hyper-fetch/firebase-admin
@@ -110,9 +107,7 @@ const getTeas = client.createRequest<{ response: Tea[] }>()({
 });
 
 const { data } = await getTeas.send({
-  queryParams: {
-    constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)],
-  },
+  queryParams: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)],
 });
 ```
 

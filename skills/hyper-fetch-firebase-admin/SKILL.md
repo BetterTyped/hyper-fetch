@@ -101,7 +101,7 @@ export const payOrder = async (orderId: string) => {
 };
 
 const { data: open } = await getOrders.send({
-  queryParams: { constraints: [$where("status", "==", "open"), $orderBy("total", "desc"), $limit(50)] },
+  queryParams: [$where("status", "==", "open"), $orderBy("total", "desc"), $limit(50)],
 });
 ```
 
@@ -129,7 +129,7 @@ const listSessions = rtdbClient.createRequest<{ response: Session[] | null; quer
   endpoint: "sessions",
   method: "get",
 });
-await listSessions.send({ queryParams: { constraints: [$limitToFirst(100)] } });
+await listSessions.send({ queryParams: [$limitToFirst(100)] });
 
 // @ts-expect-error - "get" is not a Firestore method
 adminClient.createRequest<{ response: Order[] }>()({ endpoint: "orders", method: "get" });
@@ -138,7 +138,7 @@ rtdbClient.createRequest<{ response: Session[] }>()({ endpoint: "sessions", meth
 // @ts-expect-error - payload is checked against the declared Order fields
 markPaid.send({ payload: { status: "refunded" } });
 // @ts-expect-error - Firestore constraint in a Realtime Database query
-listSessions.send({ queryParams: { constraints: [$where("userId", "==", "u1")] } });
+listSessions.send({ queryParams: [$where("userId", "==", "u1")] });
 // @ts-expect-error - onlyOnce is a Realtime Database listener option
 adminSocket.createListener<Order[]>()({ topic: "orders", options: { onlyOnce: true } });
 ```

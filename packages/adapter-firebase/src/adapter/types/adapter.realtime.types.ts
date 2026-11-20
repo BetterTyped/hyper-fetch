@@ -12,7 +12,7 @@ import type { DatabaseReference, DataSnapshot } from "firebase/database";
 export type RealtimeSocketAdapterType = SocketAdapter<
   RealtimeDbOnValueMethodExtra,
   undefined,
-  { onlyOnce?: boolean } & RealtimeDBQueryParams
+  RealtimeDBListenerOptions
 >;
 
 export type RealtimeDbAdapterType =
@@ -80,6 +80,24 @@ export type RealtimeDbPushMethodExtra = {
   key: string;
 };
 
-export type RealtimeDBQueryParams = {
-  constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+/** One Realtime Database query constraint, built with `$orderByChild`, `$limitToFirst`, `$equalTo` or a cursor helper. */
+export type RealtimeDBConstraint = PermittedConstraints<
+  RealtimePermittedMethods,
+  RealtimeConstraintsUnion | SharedQueryConstraints
+>;
+
+/**
+ * Query params of a Realtime Database request: the constraints, applied in order.
+ *
+ * @example
+ * getMessages.send({ queryParams: [$orderByChild("sentAt"), $limitToLast(50)] });
+ */
+export type RealtimeDBQueryParams = RealtimeDBConstraint[];
+
+/** Options of a Realtime Database `onValue` listener. */
+export type RealtimeDBListenerOptions = {
+  /** Query constraints, applied in order, as in {@link RealtimeDBQueryParams}. */
+  constraints?: RealtimeDBConstraint[];
+  /** Receive only the first value, then stop listening. */
+  onlyOnce?: boolean;
 };

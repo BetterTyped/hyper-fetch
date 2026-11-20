@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { ProductCard } from "./product-card/product-card";
 
 export const DashboardPage = () => {
-  const { data, error, loading } = useFetch(getProducts.setQueryParams({ constraints: [$limit(12)] }), {
+  const { data, error, loading } = useFetch(getProducts.setQueryParams([$limit(12)]), {
     initialResponse: { data: [] },
   });
 

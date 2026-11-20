@@ -38,7 +38,7 @@ export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           throw new Error(`Cannot find method ${method} in Firestore available methods.`);
         }
         availableMethods(method, {
-          constraints: queryParams?.constraints ? queryParams.constraints : [],
+          constraints: queryParams ?? [],
           payload,
           options,
         });
@@ -58,7 +58,7 @@ export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
         }
         availableMethods(method, {
-          constraints: queryParams?.constraints ? queryParams.constraints : [],
+          constraints: queryParams ?? [],
           options,
           payload,
         });

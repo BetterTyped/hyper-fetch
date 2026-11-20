@@ -46,9 +46,12 @@ export const SearchWidget: React.FC = () => {
   const [search, setSearch] = useState("");
 
   const { data, loading } = useFetch(
-    getProductsSearch.setQueryParams({
-      constraints: [$orderBy("name"), $where("name", ">=", search), $where("name", "<=", `${search}\uf8ff`), $limit(4)],
-    }),
+    getProductsSearch.setQueryParams([
+      $orderBy("name"),
+      $where("name", ">=", search),
+      $where("name", "<=", `${search}\uf8ff`),
+      $limit(4),
+    ]),
     {
       bounce: true,
       bounceTime: 400,
