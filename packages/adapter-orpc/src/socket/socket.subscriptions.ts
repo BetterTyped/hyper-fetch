@@ -44,6 +44,10 @@ export const createOrpcSubscriptions = <Adapter extends OrpcSocketAdapterInstanc
   const { onListen, onEvent, onError, onListenerStart, onListenerEnd } = bindings;
   const subscriptions = new Map<string, OrpcSubscriptionType<Transport>>();
 
+  /** The callbacks of a subscription as the bindings of the adapter type them */
+  const callbacksOf = (subscription: OrpcSubscriptionType<Transport>) =>
+    subscription.callbacks as ReadonlySet<ListenerCallbackType<Adapter, any>>;
+
   const createError = (subscription: OrpcSubscriptionType<Transport>, cause: unknown) => {
     return new OrpcSocketError({ cause, topic: subscription.topic, payload: subscription.payload });
   };
@@ -59,7 +63,7 @@ export const createOrpcSubscriptions = <Adapter extends OrpcSocketAdapterInstanc
   /** The server confirmed the subscription - after the first start and after every restart */
   const confirm = (subscription: OrpcSubscriptionType<Transport>) => {
     subscription.started = true;
-    onListenerStart({ topic: subscription.topic, callbacks: subscription.callbacks });
+    onListenerStart({ topic: subscription.topic, callbacks: callbacksOf(subscription) });
   };
 
   /**
@@ -75,7 +79,7 @@ export const createOrpcSubscriptions = <Adapter extends OrpcSocketAdapterInstanc
     if (error) {
       onError({ error });
     }
-    onListenerEnd({ topic: subscription.topic, callbacks: new Set(subscription.callbacks), error });
+    onListenerEnd({ topic: subscription.topic, callbacks: new Set(callbacksOf(subscription)), error });
   };
 
   const listen = (listener: ListenerOfAdapter<Adapter>, callback: ListenerCallbackType<Adapter, any>) => {
@@ -155,7 +159,7 @@ export const createOrpcSubscriptions = <Adapter extends OrpcSocketAdapterInstanc
     // Every adapter of this package has the event meta as its extra type
     const extra = { id, retry } satisfies OrpcSocketExtraType as ExtractAdapterExtraType<Adapter>;
     try {
-      onEvent({ topic: subscription.topic, data: value, extra, callbacks: subscription.callbacks });
+      onEvent({ topic: subscription.topic, data: value, extra, callbacks: callbacksOf(subscription) });
     } catch (error) {
       onError({ error: toError(error) });
     }

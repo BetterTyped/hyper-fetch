@@ -57,8 +57,10 @@ export const createEventStreamDecoder = (onMessage: (message: OrpcEventStreamMes
     let start = 0;
     const messages: string[] = [];
     [...pending.matchAll(messageDelimiter)].forEach((match) => {
-      messages.push(pending.slice(start, match.index));
-      start = match.index + match[0].length;
+      // `matchAll` always sets the index - older TypeScript versions type it as optional
+      const { index = 0 } = match;
+      messages.push(pending.slice(start, index));
+      start = index + match[0].length;
     });
     if (messages.length > 0) {
       discardLeadingLineFeed = start === pending.length && pending.endsWith("\r");

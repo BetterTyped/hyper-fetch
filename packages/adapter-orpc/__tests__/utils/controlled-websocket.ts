@@ -101,6 +101,14 @@ export class ControlledWebSocket extends EventTarget {
     this.serverMessage({ i: id, t: 3, p: { e: event, d: data, m: meta } });
   }
 
+  /**
+   * The handshake fails the way Node.js 22 reports it: an `error` event and no `close` - the socket stays CONNECTING.
+   * Browsers and newer Node.js versions always follow the error with a close event.
+   */
+  serverRefuseWithoutClose() {
+    this.dispatchEvent(new Event("error"));
+  }
+
   /** The server (or the network) closes the connection */
   serverClose({ code = 1006, reason = "" }: { code?: number; reason?: string } = {}) {
     this.readyState = ControlledWebSocket.CLOSED;

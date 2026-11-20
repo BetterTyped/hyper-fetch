@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams } from "@hyper-fetch/core";
-import { getSocketError, getSocketUrl, getWebsocketConstructor, SocketAdapter } from "@hyper-fetch/sockets";
+import {
+  getSocketError,
+  getSocketUrl,
+  getWebsocketConstructor,
+  SocketAdapter,
+  WebsocketReadyState,
+} from "@hyper-fetch/sockets";
 import { isORPCErrorStatus } from "@orpc/client";
 
 import { createOrpcSerializer } from "../adapter/adapter.utils";
@@ -250,7 +256,7 @@ export const OrpcWebsocketAdapter = ({
           instance.addEventListener("open", () => {
             clearTimeout(timeout);
             onConnected();
-            subscriptions.values().forEach((subscription) => {
+            [...subscriptions.values()].forEach((subscription) => {
               // A listener added by an `onConnected` callback is running already
               if (!subscription.transport) {
                 startSubscription(subscription);
@@ -259,11 +265,8 @@ export const OrpcWebsocketAdapter = ({
             resolve(true);
           });
 
-          instance.addEventListener("close", (event) => {
-            resolve(false);
-            if (!isCurrent()) {
-              return;
-            }
+          /** The transport is gone - report it and get the connection back unless it was closed normally */
+          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Event) => {
             websocket = undefined;
             clearTimeout(timeout);
             releaseAll();
@@ -274,6 +277,30 @@ export const OrpcWebsocketAdapter = ({
             if (event.code !== 1000) {
               scheduleReconnect();
             }
+          };
+
+          instance.addEventListener("close", (event) => {
+            resolve(false);
+            if (!isCurrent()) {
+              return;
+            }
+            onTransportClosed(event);
+          });
+
+          // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
+          // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
+          // Here the transport is detached and treated as an abnormally closed one (1006).
+          instance.addEventListener("error", () => {
+            if (!isCurrent() || instance.readyState !== WebsocketReadyState.CONNECTING) {
+              return;
+            }
+            resolve(false);
+            try {
+              instance.close();
+            } catch {
+              // Closing a transport that never connected may throw in some runtimes - it is detached already
+            }
+            onTransportClosed(Object.assign(new Event("close"), { code: 1006 }));
           });
 
           instance.addEventListener("message", (event) => {
@@ -328,6 +355,8 @@ export const OrpcWebsocketAdapter = ({
         }
         return new Promise<boolean>((resolve) => {
           current.addEventListener("close", () => resolve(true), { once: true });
+          // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
+          current.addEventListener("error", () => resolve(true), { once: true });
           current.close(1000);
         });
       };

@@ -269,7 +269,7 @@ export const OrpcStreamAdapter = ({
 
         connection = details;
         onConnected();
-        subscriptions.values().forEach((subscription) => {
+        [...subscriptions.values()].forEach((subscription) => {
           // A listener added by an `onConnected` callback is running already
           if (!subscription.transport) {
             startStream(subscription, 0);
@@ -300,7 +300,7 @@ export const OrpcStreamAdapter = ({
       const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
         const wasActive = adapter.connected || adapter.connecting;
         connection = undefined;
-        subscriptions.values().forEach(stopStream);
+        [...subscriptions.values()].forEach(stopStream);
 
         onDisconnect();
         if (!manual) {
@@ -349,7 +349,7 @@ export const OrpcStreamAdapter = ({
       const unmountOnline = socket.appManager.events.onOnline(() => {
         if (connection) {
           // Streams that failed while offline start again right away
-          subscriptions.values().forEach((subscription) => {
+          [...subscriptions.values()].forEach((subscription) => {
             const { transport } = subscription;
             if (transport && !transport.controller) {
               clearTimeout(transport.timer);
@@ -374,7 +374,7 @@ export const OrpcStreamAdapter = ({
         dispose: () => {
           unmountOnline();
           connection = undefined;
-          subscriptions.values().forEach(stopStream);
+          [...subscriptions.values()].forEach(stopStream);
         },
       };
     });
