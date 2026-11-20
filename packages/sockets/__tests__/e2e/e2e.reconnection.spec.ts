@@ -34,6 +34,8 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     const url = await startServer();
 
     const reconnectTime = 500;
+    // The lower end of the jitter - the first attempt comes exactly after reconnectTime
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
     const socket = new Socket({ url, reconnectTime });
     await waitForConnection(socket);
 
@@ -42,10 +44,13 @@ describe("E2E [ WebSocket Reconnection ]", () => {
       timestamps.push(Date.now());
     });
 
+    const lostAt = Date.now();
     terminateAllClients();
     await sleep(reconnectTime + 300);
+    random.mockRestore();
 
     expect(timestamps.length).toBeGreaterThanOrEqual(1);
+    expect(timestamps[0] - lostAt).toBeGreaterThanOrEqual(reconnectTime - 50);
 
     await socket.disconnect();
     await stopServer();
