@@ -29,6 +29,8 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
   actions: Pick<UseTrackedStateActions<T, unknown>, "setLoading">;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
   getIsDataProcessing: (cacheKey: string) => boolean;
+  /** Whether the last response failed and the request waits in the queue for its retry - it keeps the loading state */
+  getIsWaitingForRetry?: (queryKey: string) => boolean;
 };
 
 export type UseRequestEventsActionsType<T extends RequestInstance> = {

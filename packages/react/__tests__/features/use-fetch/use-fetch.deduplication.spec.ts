@@ -1,6 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/react";
 
-import { testErrorState, testSuccessState } from "../../shared";
+import { testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -57,8 +58,13 @@ describe("useFetch [ Deduplication ]", () => {
 
         await waitForRender();
         const successMock = mockRequest(dedupeRequest);
-        await testErrorState(errorMock, responseOne);
-        await testErrorState(errorMock, responseTwo);
+        // The failed attempt is shown, but both hooks keep loading - the retry is already scheduled
+        await waitFor(() => {
+          [responseOne, responseTwo].forEach((response) => {
+            expect(response.result.current.error).toStrictEqual(errorMock);
+            expect(response.result.current.loading).toBeTrue();
+          });
+        });
         await testSuccessState(successMock, responseOne);
         await testSuccessState(successMock, responseTwo);
 
