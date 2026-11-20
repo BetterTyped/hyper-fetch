@@ -79,6 +79,7 @@ export class OpenapiRequestGenerator {
     const generatedPath = path.join(config.resolvedPaths.api, `${fName}${hasExtension ? "" : extension}`);
 
     const file = await prettier.format(contents, prettierOpts);
+    await fs.mkdir(config.resolvedPaths.api, { recursive: true });
     await fs.writeFile(generatedPath, file, {
       flag: "w",
     });
