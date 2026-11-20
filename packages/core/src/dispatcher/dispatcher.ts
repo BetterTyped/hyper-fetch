@@ -38,6 +38,9 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   /** Cache element (by its storage key) to the order number of the request whose data it holds */
   private cachedOrder = new Map<string, number>();
 
+  /** Sends the queue restored from the storage once the client is configured */
+  private startTimer: ReturnType<typeof setTimeout> | undefined;
+
   private logger: LoggerMethods;
   private client: ClientInstance<{ adapter: Adapter }>;
 
@@ -64,6 +67,17 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     this.client.appManager.events.onOnline(() => {
       this.flush();
     });
+
+    // A queue restored from a persistent storage (e.g. the requests left by the previous page load) has to be sent
+    // on start. It waits for the next task, so the configuration chained after the client constructor - adapter,
+    // interceptors, plugins - applies to the restored requests too.
+    clearTimeout(this.startTimer);
+    if (this.getQueuesKeys().length) {
+      this.startTimer = setTimeout(() => {
+        this.startTimer = undefined;
+        this.flush();
+      });
+    }
 
     return this;
   };
@@ -244,12 +258,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
   /**
    * A request can be sent when it is not in flight, not held by `stopRequest`, not waiting for its retry,
-   * not just answered and - for the requests kept for later with the `offline` option - when there is a connection
+   * not just answered and - for the requests kept for later with the `offline` option - when there is a connection.
+   * Nothing is sent while the page unloads - the browser would cancel it right away.
    */
   private canPerformRequest = (item: ResolvedQueueItemType, runningIds: Set<string>) => {
     const isWaitingForNetwork = !this.client.appManager.isOnline && item.request.offline;
 
     return (
+      !this.client.appManager.isUnloading &&
       !item.stopped &&
       !isWaitingForNetwork &&
       !this.retryTimers.has(item.requestId) &&
@@ -313,6 +329,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Clear all running requests and storage
    */
   clear = () => {
+    clearTimeout(this.startTimer);
+    this.startTimer = undefined;
     const keys = this.getQueuesKeys();
     // Running requests are canceled and report it on their own, the waiting ones are reported as removed
     const removed = keys.map((queryKey) => ({
@@ -709,6 +727,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // If there is no running request with this id, it means it was cancelled and removed during send
     const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
     const isCanceled = !this.hasRunningRequest(queryKey, requestId) || isAbortedByUser || isCancelMessage;
+    // The browser cancels the requests of an unloading page - the failure says nothing about the request itself
+    const isUnloadFailure = !response.success && appManager.isUnloading;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);
@@ -719,7 +739,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     try {
       // A request removed from the queue while it was running (cleared queue) has nothing left to retry
       const isQueued = !!this.getRequest(queryKey, requestId);
-      const canRetryResponse = !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus;
+      const canRetryResponse =
+        !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus && !isUnloadFailure;
       const willRetry = canRetryResponse && this.getShouldRetryOnError(request, response);
 
       const requestDetails: ResponseDetailsType = {
@@ -810,6 +831,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
         }
         return this.logger.debug({
           title: "Request canceled",
+          type: "system",
+          extra: { response, requestDetails, request },
+        });
+      }
+      // On page unload - the request stays in the queue, a persistent storage sends it again on the next start
+      if (isUnloadFailure) {
+        return this.logger.debug({
+          title: "Page is unloading, keeping the request for the next start",
           type: "system",
           extra: { response, requestDetails, request },
         });

@@ -103,6 +103,11 @@ Queue persistence ensures that requests are not lost if the application closes o
 application restarts, the dispatcher will attempt to resend any queued requests. To enable it, you need to provide a
 synchronous storage implementation to the `Dispatcher`.
 
+The restored queue is sent right after the client is created, once the current task ends. The adapter, interceptors
+and plugins you chain after `new Client()` apply to the restored requests too. When the app starts offline, requests
+with the `offline` option wait for the connection. In the browser, a request canceled because the page is closing or
+reloading stays in the queue, so the next page load sends it again.
+
 When requests are stored in a JSON-serializing storage (e.g. MMKV, AsyncStorage), they are automatically reconstructed
 back into proper `Request` class instances when read from the queue. This means you can use any JSON-based storage
 without worrying about losing request functionality.
