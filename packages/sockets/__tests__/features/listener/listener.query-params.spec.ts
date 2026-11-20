@@ -1,4 +1,7 @@
+import type { DefaultMapperType } from "@hyper-fetch/core";
 import { SocketAdapter } from "adapter";
+import type { WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
+import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { Socket } from "socket";
 import { expectTypeOf } from "vitest";
 
@@ -15,6 +18,8 @@ class FiltersBuilder {
 }
 
 type FiltersQueryParams = Filter[] | ((builder: FiltersBuilder) => FiltersBuilder);
+
+type FiltersAdapterType = SocketAdapter<undefined, undefined, undefined, undefined, undefined, any, FiltersQueryParams>;
 
 const createFiltersSocket = (onListen: (queryParams: unknown) => void) => {
   const adapter = new SocketAdapter<undefined, undefined, undefined, undefined, undefined, any, FiltersQueryParams>({
@@ -105,5 +110,41 @@ describe("Listener [ Query params ]", () => {
     expectTypeOf(listener.queryParams).toEqualTypeOf<undefined>();
     // @ts-expect-error - the WebSocket adapter has no listener query params
     listener.setQueryParams([{ field: "role", value: "admin" }]);
+  });
+
+  it("should give adapters the listener query params in listen()", () => {
+    expectTypeOf<ListenerOfAdapter<FiltersAdapterType>["queryParams"]>().toEqualTypeOf<
+      FiltersQueryParams | undefined
+    >();
+    expectTypeOf<ListenerOfAdapter<WebsocketAdapterType>["queryParams"]>().toEqualTypeOf<undefined>();
+  });
+
+  it("should accept callbacks of an adapter with listener query params in the lifecycle helpers", () => {
+    // Generic like a custom adapter class - the helpers must spell the adapter with its listener query params
+    class GenericAdapter<ListenerQueryParams> extends SocketAdapter<
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      DefaultMapperType,
+      ListenerQueryParams
+    > {
+      track = (
+        topic: string,
+        callback: ListenerCallbackType<
+          SocketAdapter<undefined, undefined, undefined, undefined, undefined, DefaultMapperType, ListenerQueryParams>,
+          any
+        >,
+      ) => {
+        this.setListenerLifecycle({ topic, callback, lifecycle: { onStart: () => null, onEnd: () => null } });
+        return this.removeListener({ topic, callback });
+      };
+    }
+
+    const adapter = new GenericAdapter<FiltersQueryParams>({ name: "generic", defaultConnected: true });
+
+    expect(adapter.track("users", () => null)).toBe(false);
+    expect(adapter.listenerLifecycle.size).toBe(0);
   });
 });
