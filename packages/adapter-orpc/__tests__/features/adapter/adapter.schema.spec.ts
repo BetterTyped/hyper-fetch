@@ -113,6 +113,25 @@ describe("Orpc Adapter [ Schema ]", () => {
     expectTypeOf(read).toBeFunction();
   });
 
+  it("should narrow the error of send, which includes the global error of the client", () => {
+    // The example of the docs - the client has the default global error, so `error` is a union with `Error`
+    const read = async () => {
+      const { error } = await api.user.byId.$query.setPayload({ id: 999 }).send();
+
+      if (error && "defined" in error) {
+        expectTypeOf(error.defined).toEqualTypeOf<boolean>();
+        expectTypeOf(error.status).toEqualTypeOf<number>();
+        if (error.defined && error.code === "NOT_FOUND") {
+          expectTypeOf(error.data).toEqualTypeOf<{ id: number }>();
+        }
+      }
+      // @ts-expect-error the global error of the client has no `defined` flag
+      return error?.defined;
+    };
+
+    expectTypeOf(read).toBeFunction();
+  });
+
   it("should type procedures without defined errors", () => {
     expectTypeOf<ExtractLocalErrorType<Health>>().toEqualTypeOf<OrpcErrorType & { defined: false }>();
     expectTypeOf<OrpcErrorType["status"]>().toEqualTypeOf<number>();
