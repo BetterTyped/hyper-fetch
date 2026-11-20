@@ -99,9 +99,12 @@ const { data, error } = await getCategory.send({ params: { categoryId: 1 }, quer
 The `send()` method accepts a `cachePolicy` option that controls how the request interacts with the cache:
 
 - **`"network-only"`** (default) - Always fetches from the network, ignoring any cached data.
-- **`"cache-first"`** - Returns cached data if available and not stale. Falls back to a network request otherwise.
+- **`"cache-first"`** - Returns cached data if available, fresh or stale. Falls back to a network request otherwise.
 - **`"revalidate"`** - Returns cached data immediately (if available), then fetches from the network in the background
-  to refresh the cache (stale-while-revalidate pattern).
+  to refresh the cache (stale-while-revalidate pattern). Without cached data it waits for the network.
+
+Neither policy looks at `staleTime`. Compare `Date.now()` with `responseTimestamp + staleTime` of the cache entry when
+you need freshness-aware behavior.
 
 ```ts
 // Default - always goes to network
@@ -571,12 +574,15 @@ each unique request configuration is tracked separately. Your can override this 
 implementation.
 
 ```tsx
+import { getRequestKey } from "@hyper-fetch/core";
 import { client } from "./api";
 
 client.setCacheKeyMapper((request) => {
   if (request.requestOptions.endpoint === "/users/:userId") {
     return `CUSTOM_CACHE_KEY_${request.params?.userId || "unknown"}`;
   }
+  // The mapper must return a key for every request, fall back to the default one
+  return getRequestKey(request);
 });
 ```
 
@@ -596,7 +602,6 @@ You can override any key using the corresponding method:
 const customRequest = request.setQueryKey("custom-key");
 const customCacheRequest = request.setCacheKey("my-cache-key");
 const abortableRequest = request.setAbortKey("my-abort-key");
-const effectLinkedRequest = request.setEffectKey("my-effect-key");
 ```
 
 > **Note:** Overriding keys is an advanced feature. Make sure you understand the implications for caching,
@@ -1053,17 +1058,17 @@ The `$` prefix convention indicates runtime-only properties throughout Hyper Fet
 ## Lifecycle listeners
 
 The `send()` method accepts an options object where you can define lifecycle callback functions. These callbacks allow
-you to hook into various stages of the request's lifecycle—such as `onBeforeSent` (when the request finishes, regardless
-of outcome), `onSuccess`, `onError`, `onStart`, `onProgress`, `onAbort`, and `onOfflineError`—to perform actions based
-on the request's progress and outcome.
+you to hook into various stages of the request's lifecycle—`onBeforeSent` (right before the request is sent),
+`onRequestStart`, `onResponseStart`, `onUploadProgress`, `onDownloadProgress`, `onResponse` (the final response,
+successful or not) and `onRemove`—to perform actions based on the request's progress and outcome.
 
 ```tsx
 await someRequest.send({
-  onBeforeSent: ({ response, requestId }) => {
-    console.log(`Request ${requestId} has settled. Final response:`, response);
+  onBeforeSent: ({ request, requestId }) => {
+    console.log(`Request ${requestId} is about to be sent.`);
     // Called right before the request is sent—useful for quickly accessing the requestId for tracking or logging
   },
-  onStart: ({ requestId, request }) => {
+  onRequestStart: ({ requestId, request }) => {
     console.log(`Request ${requestId} has started.`);
     // Called when the request is started—useful for showing a loading indicator
   },
@@ -1076,8 +1081,8 @@ await someRequest.send({
     // Called when the download progress is updated—useful for showing a progress bar
   },
   onResponse: ({ response, requestId }) => {
-    console.log(`Request ${requestId} finished with data:`, response.data);
-    // Called when the request succeeds—useful for processing successful data
+    console.log(`Request ${requestId} finished:`, response.success ? response.data : response.error);
+    // Called with the final response, successful or not
   },
   onRemove: ({ request, requestId }) => {
     console.log(`Request ${requestId} removed.`);
@@ -1137,11 +1142,11 @@ Learn how to install and configure the plugin in the [Eslint plugin guide](/docs
 
 ### Generics
 
-Starting from `Hyper Fetch v7.0.0`, all the types for the `Client` class and the `createRequest` method are passed as
+Starting from `Hyper Fetch v7.0.0`, the generics of `createClient` and the `createRequest` method are passed as
 objects. This way, user can specify **only** what they want, in any order, in very a readable way.
 
 ```ts
-const client = new Client<{ error: ErrorType }>({ url });
+const client = createClient<{ error: ErrorType }>({ url });
 
 const getUsers = client.createRequest<{ response: ResponseType; queryParams: QueryParamsType }>()({
   endpoint: "/users",

@@ -28,10 +28,10 @@ This approach simplifies your async code by avoiding the need for `try...catch` 
 A global error type provides a consistent error structure for all requests initiated from a `Client` instance. This is
 useful for defining a standard error shape that your API returns, such as a generic error message and a status code.
 
-You can define the global error type using generics when creating your client.
+You can define the global error type with the `error` generic of `createClient`.
 
 ```ts
-import { Client } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
 // 1. Define a global error type
 type GlobalErrorType = {
@@ -41,7 +41,7 @@ type GlobalErrorType = {
 };
 
 // 2. Create a client with the global error type
-const clientWithGlobalError = new Client<{ error: GlobalErrorType }>({
+const clientWithGlobalError = createClient<{ error: GlobalErrorType }>({
   url: "https://jsonplaceholder.typicode.com",
 });
 
@@ -75,7 +75,7 @@ error type** for specific requests.
 This local error type will be combined with the global error type, creating a union type for the `error` property.
 
 ```ts
-import { Client } from "@hyper-fetch/core";
+import { createClient } from "@hyper-fetch/core";
 
 // Let's assume this client is defined in our app
 type GlobalErrorType = {
@@ -83,7 +83,7 @@ type GlobalErrorType = {
   status: number;
 };
 
-const clientForLocalError = new Client<{ error: GlobalErrorType }>({
+const clientForLocalError = createClient<{ error: GlobalErrorType }>({
   url: "https://jsonplaceholder.typicode.com",
 });
 

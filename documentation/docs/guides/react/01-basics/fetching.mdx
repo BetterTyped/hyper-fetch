@@ -136,11 +136,11 @@ You can pass a second argument to `useFetch` to configure its behavior:
 
 ```tsx
 const { data } = useFetch(getUser.setParams({ userId }), {
-  // Don't fetch on mount; only fetch when dependencies change
+  // Set to true to skip fetching (e.g. until required data is available)
   disabled: false,
 
   // Keep showing previous data while a new request is loading
-  keepPreviousData: true,
+  keepPreviousData: "preserve",
 
   // Custom dependencies array - re-fetch when these change
   dependencies: [userId],
@@ -150,7 +150,9 @@ const { data } = useFetch(getUser.setParams({ userId }), {
 Key options include:
 
 - **`disabled`**: When `true`, prevents the hook from fetching. Useful for conditional fetching.
-- **`keepPreviousData`**: Preserves the previous response data while a re-fetch is in progress, avoiding UI flicker.
+- **`keepPreviousData`**: What happens to the current data when the request (cache key) changes. `"auto"` (default)
+  keeps it when only query params change and clears it when URL params change, `"preserve"` always keeps it until new
+  data arrives, `"clean"` always resets it.
 - **`dependencies`**: An array of values that trigger a re-fetch when they change (similar to React's `useEffect` deps).
 - **`initialResponse`**: Provide initial data for SSR or hydration scenarios.
 

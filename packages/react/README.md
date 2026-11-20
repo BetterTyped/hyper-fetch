@@ -170,39 +170,35 @@ const UserPosts = ({ userId }: { userId: number }) => {
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
 
+// setOptimistic runs before the request is sent - the comment list updates instantly
+const addCommentOptimistic = addComment.setOptimistic(({ params, payload, optimistic }) => {
+  const temp = { id: `temp-${Date.now()}`, text: payload.text, author: "You" };
+
+  return {
+    updates: [
+      optimistic(getComments.setParams({ postId: params.postId }))
+        .insert(temp)
+        // On success swap the temporary comment for the one returned by the server
+        .commit(({ data, response }) => data.map((comment) => (comment.id === temp.id ? response.data : comment)))
+        // If the request fails, take it out again
+        .rollback(({ data }) => data.filter((comment) => comment.id !== temp.id)),
+    ],
+    context: { tempId: temp.id },
+  };
+});
+
 const AddComment = ({ postId }: { postId: number }) => {
-  // setOptimistic runs BEFORE the request — update the list instantly
-  const optimisticAdd = addComment.setParams({ postId }).setOptimistic((request, client) => {
-    const cacheKey = getComments.setParams({ postId });
-    const previous = client.cache.get(cacheKey);
+  const { submit, submitting, onSubmitError } = useSubmit(addCommentOptimistic);
 
-    // Immediately insert the new comment into the cached list
-    const optimisticComment = { id: `temp-${Date.now()}`, text: request.data.text, author: "You" };
-    client.cache.set(cacheKey, {
-      ...previous,
-      data: [...(previous?.data || []), optimisticComment],
-    });
-
-    return {
-      context: { previous },
-      // If the request fails, put the old list back
-      rollback: () => client.cache.set(cacheKey, previous),
-      // On success, refetch to get the real server data
-      invalidate: [cacheKey],
-    };
-  });
-
-  const { submit, submitting, onSubmitError } = useSubmit(optimisticAdd);
-
-  // mutationContext is fully typed from your setOptimistic return
+  // mutationContext is typed from the context returned by setOptimistic
   onSubmitError(({ mutationContext }) => {
-    console.log("Rolled back — restored", mutationContext?.previous?.data?.length, "comments");
+    console.log("Rolled back comment", mutationContext?.tempId);
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const text = new FormData(e.currentTarget).get("text") as string;
-    submit({ data: { text } });
+    submit({ params: { postId }, payload: { text } });
     e.currentTarget.reset();
   };
 
@@ -217,6 +213,8 @@ const AddComment = ({ postId }: { postId: number }) => {
 };
 ```
 
+The comment list is refreshed from the server once the request settles.
+
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

@@ -8,8 +8,8 @@
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat" alt="GitHub stars" />
   </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch" alt="License" />
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/packages/hyper-flow/LICENSE.md">
+    <img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
@@ -35,7 +35,7 @@ response data, monitor performance, and simulate offline behavior.
 1. Install the devtools plugin in your app:
 
 ```bash
-npm install @hyper-fetch/plugin-devtools
+npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 ```
 
 2. Connect it to your HyperFetch client:
@@ -53,7 +53,7 @@ const client = createClient({ url: "https://api.example.com" }).addPlugin(Devtoo
 
 - [HyperFlow Overview](https://hyperfetch.bettertyped.com/docs/hyper-flow)
 - [Download](https://hyperfetch.bettertyped.com/docs/hyper-flow/download)
-- [Plugin Devtools Setup](https://hyperfetch.bettertyped.com/docs/plugin-devtools/overview)
+- [Plugin Devtools Setup](https://hyperfetch.bettertyped.com/docs/integrations/plugin-devtools)
 
 ## 💡 Examples
 
@@ -74,4 +74,4 @@ understand the order of execution.
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[GPL-3.0-or-later](https://github.com/BetterTyped/hyper-fetch/blob/main/packages/hyper-flow/LICENSE.md)

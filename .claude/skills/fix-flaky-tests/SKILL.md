@@ -6,6 +6,8 @@ description:
   a `waitFor` times out around 1000ms, when a test depends on sleeps or default mock delays, or when a user says
   "flaky", "intermittent", "timeout", "works locally", "fix flake". Also use after adding new async tests to prove they
   are deterministic before committing.
+metadata:
+  internal: true
 ---
 
 # Fix Flaky Tests

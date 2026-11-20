@@ -171,7 +171,7 @@ export type ProgressDataType = {
 export type ProgressType = {
   /** Progress in percentage (0-100) */
   progress: number;
-  /** Time left in seconds (null if not available) */
+  /** Estimated time left in milliseconds (null if not available) */
   timeLeft: number | null;
   /** Size left in bytes */
   sizeLeft: number;

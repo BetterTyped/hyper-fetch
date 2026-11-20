@@ -1,7 +1,7 @@
 # 🎡 Hyper Fetch GraphQL
 
 <p align="center">
-  <b>GraphQL adapter for HyperFetch. Typed queries, mutations, and subscriptions.</b>
+  <b>GraphQL adapter for HyperFetch. Typed queries and mutations over HTTP.</b>
 </p>
 
 <p align="center">
@@ -33,13 +33,13 @@
 
 ## 📖 About
 
-This adapter connects HyperFetch to GraphQL APIs. You get typed queries, mutations, and subscriptions that work with
+This adapter connects HyperFetch to GraphQL APIs over HTTP. You get typed queries and mutations that work with
 HyperFetch's caching, queuing, and React hooks — the same request patterns you use for REST, but with GraphQL
-operations.
+operations. Subscriptions are not supported.
 
 ## 🎯 Key Capabilities
 
-- 🎡 **GraphQL meets HyperFetch** — Typed queries, mutations, and subscriptions with cache and queue support
+- 🎡 **GraphQL meets HyperFetch** — Typed queries and mutations with cache and queue support
 - 🔮 **End-to-end types** — Full TypeScript types for operations, variables, and responses
 - 📡 **Any GraphQL server** — Compatible with Apollo, Yoga, Hasura, and any spec-compliant endpoint
 - ⚛️ **React-ready** — Use `useFetch` and `useSubmit` for GraphQL operations in components
@@ -144,4 +144,4 @@ const UserList = () => {
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

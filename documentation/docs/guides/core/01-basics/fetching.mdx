@@ -199,7 +199,7 @@ const { data } = await getUser.setParams({ userId: 1 }).send({
   cachePolicy: "network-only",
 });
 
-// Return cached data if available and fresh, otherwise fetch from the network
+// Return cached data if available (fresh or stale), otherwise fetch from the network
 const { data: cachedFirst } = await getUser.setParams({ userId: 1 }).send({
   // highlight-next-line
   cachePolicy: "cache-first",
@@ -216,9 +216,9 @@ const { data: revalidated } = await getUser.setParams({ userId: 1 }).send({
 
 ## Aborting a Request
 
-You can abort a request using the native `AbortController`. Simply create a controller and pass its `signal` to the
-`send` method. This is useful for canceling requests that are no longer needed, for example, when a user navigates away
-from a component.
+You can abort a request with `request.abort()` or, through the client, with `client.requestManager.abortByKey()`. Both
+abort every in-flight request with the same `abortKey`, and the `send()` promise resolves with an abort error. This is
+useful for canceling requests that are no longer needed, for example, when a user navigates away from a component.
 
 ```ts live
 import { client } from "src/api/client";
@@ -331,7 +331,7 @@ You've learned the fundamentals of dispatching requests with Hyper-Fetch!
 
 - You can execute any request by calling its **`send`** method, which returns a rich response object.
 - You can pass data to a request using **setter methods** or directly within the **`send`** method's options.
-- You can abort a request using an **`AbortController`**'s `signal`.
+- You can abort a request with **`request.abort()`** or by its `abortKey`.
 - You can use **lifecycle callbacks** for handling side-effects during a request's journey.
 
 :::

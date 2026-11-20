@@ -308,22 +308,23 @@ token refresh, error normalization, or analytics.
 ### Authentication
 
 Built-in interceptor hooks make the common auth patterns (attach Bearer token, refresh on 401, toggle auth per
-request) first-class. A `useAuth` option on individual requests opts them out of the auth flow entirely.
+request) first-class. The `auth: false` option on individual requests opts them out of the auth flow entirely.
 
 ### Retries
 
-Configurable retry count and retry delay (fixed, exponential backoff, or custom function) per request or as a global
-default on the client. Retries respect the queue, so a retried request does not bypass ordering guarantees.
+Configurable retry count (`retry`) and fixed retry delay (`retryTime`) per request, with `setRetryOnError` to decide
+per response whether to retry. Defaults for many requests can be set with the SDK `$configure` or the adapter's
+`setRequestDefaults`. Retries respect the queue, so a retried request does not bypass ordering guarantees.
 
 ### Cancellation
 
-Individual requests can be cancelled via `AbortController` at any time. Entire queues can be cancelled by key. This
-is built into the dispatcher - no external cancellation token library is needed.
+Individual requests can be cancelled with `request.abort()` at any time. Whole groups can be cancelled by their abort
+key. This is built into the dispatcher - no external cancellation token library is needed.
 
 ### Deduplication
 
 Concurrent identical requests (same key, in-flight at the same time) are collapsed into one. Every caller receives
-the same response once it settles. This is on by default and configurable per request.
+the same response once it settles. It is off by default and enabled per request with `deduplicate: true`.
 
 ---
 
@@ -444,14 +445,14 @@ fresh response arrives. This behaviour is configurable per-request via `staleTim
 
 ### Cache invalidation and matching
 
-`client.cache.invalidate()` accepts exact keys, partial key prefixes, or RegExp patterns. Invalidating all
+`client.cache.invalidate()` accepts exact keys, requests, RegExp patterns, or an array of them. Invalidating all
 `/users/:id` entries after a mutation is a one-liner. Automatic re-fetch after mutation is triggered via the same
 mechanism and can be configured globally or per-request.
 
 ### Garbage collection
 
-Cache entries that have no active subscribers and have exceeded their `cacheTime` are automatically removed from
-memory. This prevents unbounded growth in long-lived single-page applications.
+Cache entries are automatically removed from memory once their `cacheTime` has passed since the response (only while
+the app is online). This prevents unbounded growth in long-lived single-page applications.
 
 ### Normalized caching
 
@@ -482,9 +483,10 @@ background sync dashboards — is not available in other general-purpose data cl
 
 ### Data flow standard
 
-Every response is stored and emitted in a standardized envelope: `{ data, error, status, extra, isSuccess,
-responseTime, requestTime }`. The shape is consistent across adapters, making it straightforward to write generic
-utilities (logging, error boundaries, analytics) that work regardless of the underlying protocol.
+Every response is stored and emitted in a standardized envelope:
+`{ data, error, status, success, extra, requestTimestamp, responseTimestamp }`. The shape is consistent across adapters,
+making it straightforward to write generic utilities (logging, error boundaries, analytics) that work regardless of the
+underlying protocol.
 
 :::tip Unique to HF
 

@@ -56,7 +56,7 @@ interface Tea {
 // We set a base endpoint of 'teas' which corresponds to a Firestore collection
 const client = createClient({
   url: "teas/",
-}).setAdapter(() => FirebaseAdminAdapter(db));
+}).setAdapter(FirebaseAdminAdapter(db));
 ```
 
 ---
@@ -115,7 +115,7 @@ const addDocReq = client.createRequest<{ response: Tea; payload: typeof newData 
   method: "addDoc",
 });
 
-const { data: addedTea, error: addError } = await addDocReq.setData(newData).send();
+const { data: addedTea, error: addError } = await addDocReq.setPayload(newData).send();
 
 if (addedTea) {
   console.log("Added tea:", addedTea);
@@ -186,13 +186,13 @@ const updatedData = {
   amount: 100,
 };
 
-const setDocReq = client.createRequest<Tea, typeof updatedData>()({
+const setDocReq = client.createRequest<{ response: Tea; payload: typeof updatedData }>()({
   endpoint: ":teaId",
   method: "setDoc",
-  // You can also pass { merge: true } to merge fields instead of overwriting
+  // Add `options: { merge: true }` to merge fields instead of overwriting
 });
 
-const { data: setResponse } = await setDocReq.setParams({ teaId: addedTea.__key }).setData(updatedData).send();
+const { data: setResponse } = await setDocReq.setParams({ teaId: addedTea.__key }).setPayload(updatedData).send();
 
 // The response from setDoc is the same data that was sent.
 console.log("Set response:", setResponse);
@@ -208,12 +208,12 @@ const partialUpdate = {
   year: 2025,
 };
 
-const updateDocReq = client.createRequest<Tea, typeof partialUpdate>()({
+const updateDocReq = client.createRequest<{ response: Partial<Tea>; payload: typeof partialUpdate }>()({
   endpoint: ":teaId",
   method: "updateDoc",
 });
 
-const { data: updateResponse } = await updateDocReq.setParams({ teaId: addedTea.__key }).setData(partialUpdate).send();
+const { data: updateResponse } = await updateDocReq.setParams({ teaId: addedTea.__key }).setPayload(partialUpdate).send();
 
 // The response from updateDoc is the same data that was sent for the update.
 console.log("Update response:", updateResponse);

@@ -101,13 +101,13 @@ request options.
 ```tsx
 const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 };
 const setReq = client
-  .createRequest<{ response: Tea, payload: TeaSchema }>()({
+  .createRequest<{ response: Tea; payload: Tea }>()({
     endpoint: "teas/:teaId",
     method: "setDoc",
     // options: { merge: true } // Use to merge data with an existing document
   })
   .setParams({ teaId: "some-id-1" })
-  .setData(newData);
+  .setPayload(newData);
 
 const { data } = await setReq.send();
 // data: The same data that was sent in the request.
@@ -122,11 +122,11 @@ Adds a new document to a collection with a randomly generated ID.
 ```tsx
 const newData = { origin: "China", type: "Oolong", year: 2022, name: "Tie Guan Yin", amount: 50 };
 const addDocReq = client
-  .createRequest<{ response: Tea, payload: TeaSchema }>()({
+  .createRequest<{ response: Tea; payload: Tea }>()({
     endpoint: "teas",
     method: "addDoc",
   })
-  .setData(newData);
+  .setPayload(newData);
 
 const { data } = await addDocReq.send();
 // data: The sent data, with the addition of a `__key` property containing the new document ID.

@@ -64,10 +64,10 @@ export type EmitterInstance<EmitterProperties extends EmitterInstanceProperties 
  *
  * | Field        | Default          | Why                                                              |
  * | ------------ | ---------------- | ---------------------------------------------------------------- |
- * | `payload`    | `undefined`      | "No payload declared." `.setData()` is required for typed bodies.|
+ * | `payload`    | `undefined`      | "No payload declared." Use `.setPayload()` for typed bodies.     |
  * | `topic`      | `string`         | Allows literal narrowing without erasure. Pass a string literal. |
  * | `socket`     | `SocketInstance` | Injected by `createSocketSdk(socket)`; do not set this manually. |
- * | `hasPayload` | `false`          | "Caller must call `.setData()`." Override only when bound.       |
+ * | `hasPayload` | `false`          | "Caller must call `.setPayload()`." Override only when bound.    |
  * | `hasParams`  | `false`          | "Caller must call `.setParams()`." Override only when bound.     |
  *
  * @example

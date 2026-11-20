@@ -64,12 +64,7 @@ type ChatMessageType = {
   message: string;
 };
 
-// Optional
-type AcknowledgementResponseType = {
-  value: string;
-};
-
-export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+export const sendChatMessage = socket.createEmitter<ChatMessageType>()({
   topic: "chat-message", // topic of the event
 });
 ```
