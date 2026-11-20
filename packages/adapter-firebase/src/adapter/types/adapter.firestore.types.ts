@@ -63,7 +63,10 @@ export type FirestoreQueryParams = FirestoreConstraint[];
 export type FirestoreListenerOptions = {
   /** Query constraints, applied in order, as in {@link FirestoreQueryParams}. */
   constraints?: FirestoreConstraint[];
-  /** Adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each snapshot. */
+  /**
+   * On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each
+   * snapshot. Document listeners get `null`.
+   */
   groupByChangeType?: boolean;
 };
 
@@ -93,7 +96,10 @@ export type FirestoreOnSnapshotExtra = {
   ref?: DocumentReference | CollectionReference;
   snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: FirestoreUnsubscribe;
+  /** Grouped document changes when the listener has `groupByChangeType`, otherwise `null`. Collection listeners only. */
   groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
+  /** `"emptyResource"` when the document is missing or the result list is empty. */
+  status: FirestoreStatuses;
 };
 
 export type FirestoreGetDocsExtra = {

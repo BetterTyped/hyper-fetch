@@ -62,7 +62,10 @@ export type FirestoreQueryParams = FirestoreConstraint[];
 export type FirestoreListenerOptions = {
   /** Query constraints, applied in order, as in {@link FirestoreQueryParams}. */
   constraints?: FirestoreConstraint[];
-  /** Adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each snapshot. */
+  /**
+   * On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each
+   * snapshot. Document listeners get `null`.
+   */
   groupByChangeType?: boolean;
 };
 

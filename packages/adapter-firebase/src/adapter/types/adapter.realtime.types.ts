@@ -64,6 +64,8 @@ export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodExtra = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
+  /** `"emptyResource"` when the value is missing or the list is empty. */
+  status: RealtimeDBStatuses;
 };
 
 export type RealtimeDbGetMethodExtra = {
