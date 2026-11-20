@@ -1,0 +1,47 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.users {
+  padding: 0;
+}
+
+.users li {
+  list-style: none;
+  padding-block: 0.2rem;
+}
+
+.users a.active {
+  font-weight: bold;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.log {
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.log li {
+  list-style: none;
+}

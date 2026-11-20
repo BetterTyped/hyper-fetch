@@ -1,0 +1,80 @@
+---
+title: File upload
+sidebar_label: File upload
+sidebar_position: 5
+description:
+  Upload a file as FormData with useSubmit, follow each phase of the request with progress bars and cancel it with
+  abort.
+sidebar_custom_props:
+  path: react/file-upload
+  level: intermediate
+  tags: [useSubmit, uploads, cancellation]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/file-upload/src/api.ts";
+import app from "!!raw-loader!@examples/react/file-upload/src/App.tsx";
+
+Pick a file and send it to httpbin, which echoes the file back. Two progress bars follow the request: one while the file
+is being sent, one while the answer is downloaded. **Cancel** stops the request at any point.
+
+:::tip What it shows
+
+1. **`FormData` payload**: typed as `payload: FormData` and sent without JSON encoding.
+2. **Lifecycle callbacks**: `onSubmitRequestStart`, `onSubmitResponseStart` and `onSubmitDownloadProgress` drive the UI.
+3. **Real download progress**: `progress`, `loaded` and `total` come from the response stream.
+4. **Cancel**: `abort()` from `useSubmit` stops the running request and fires `onSubmitAbort`.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates a client for `https://httpbin.org` and `uploadFileRequest` with `payload: FormData`. The default
+   adapter sends `FormData`, `Blob` and `ArrayBuffer` payloads as they are and does not add a JSON `Content-Type`, so
+   the browser writes the multipart header with its boundary.
+2. `handleSubmit` builds the `FormData` and calls `upload.submit({ payload })`.
+3. The callbacks map the request lifecycle to a phase: `onSubmitRequestStart` starts the "Sending" bar,
+   `onSubmitResponseStart` means the server has the file, and `onSubmitDownloadProgress` fills the "Receiving" bar:
+
+   ```tsx
+   // highlight-next-line
+   upload.onSubmitDownloadProgress(({ progress, loaded, total }) => setReceived({ progress, loaded, total }));
+   ```
+
+4. **Cancel** calls `upload.abort()`. The request is removed from the dispatcher, its network call is aborted and
+   `onSubmitAbort` runs. The hook keeps no response from the canceled call.
+
+:::caution Upload progress with fetch
+
+The default adapter uses the browser `fetch()` API, which does not report how much of the request body was sent. That is
+why the "Sending" bar is indeterminate. `onSubmitUploadProgress` still fires, but only at the start and end of the
+request. For a real upload percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview), which uses
+`XMLHttpRequest` in the browser.
+
+:::
+
+:::note When to use it
+
+- Avatar, document and attachment uploads.
+- Any long request where the user should see that something is happening and be able to stop it.
+
+:::
+
+---
+
+## Related
+
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Progress guide](/docs/guides/react/basics/progress)
+- [Axios adapter](/docs/integrations/adapter-axios/overview)
+
+:::secondary Summary
+
+`useSubmit` sends a `FormData` payload as it is. Its lifecycle callbacks report when the file goes out and how the
+answer comes back, and `abort()` cancels the upload.
+
+:::

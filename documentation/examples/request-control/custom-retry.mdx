@@ -1,0 +1,87 @@
+---
+title: Custom retry
+sidebar_label: Custom retry
+sidebar_position: 8
+description: Retry only network errors and 5xx answers, with exponential backoff and jitter, and log every attempt.
+sidebar_custom_props:
+  path: react/custom-retry
+  level: advanced
+  tags: [retries, errors, send, mocking]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/custom-retry/src/api.ts";
+import app from "!!raw-loader!@examples/react/custom-retry/src/App.tsx";
+
+A quote loader with a retry policy of its own. Pick a scenario: network errors and `5xx` answers are retried with a
+delay that doubles each time, a `404` stops at once, and a server that keeps failing is given up on after four retries.
+
+:::tip What it shows
+
+1. **A retry condition**: status `0` (network error or timeout) and `5xx` are retried, `4xx` is final.
+2. **Exponential backoff with jitter**: 250 ms, 500 ms, 1 s, 2 s, each plus a random part.
+3. **`send()` never throws**: the loop reads `success` and `status` from the response.
+4. **An attempt log** with the status and decision of every attempt.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `isRetryable(status)` is the policy. The fetch adapter reports network errors and timeouts as status `0`, so they are
+   retried together with `5xx`. A `4xx` answer will be the same next time, so it is returned as it is.
+2. `withBackoff(send, options)` calls `send()`, decides, waits and calls it again. The delay doubles with every attempt,
+   and the random part spreads out clients that failed at the same time:
+
+   ```ts
+   // highlight-next-line
+   const delay = Math.round(baseDelay * 2 ** (attempt - 1) + Math.random() * 100);
+   ```
+
+3. `getQuote.send()` resolves with `{ data, error, status, success }` for every outcome, so the loop needs no
+   `try`/`catch`, and `withBackoff` returns the last response with its full type.
+4. `onAttempt` reports each attempt to `App.tsx`, which shows the status and the decision in a table.
+5. DummyJSON does not fail on demand, so `getQuote.setMock()` answers with the statuses of the chosen scenario. The
+   policy sees the same statuses a real API would send.
+
+### Built-in retries
+
+The request options cover the common case. `retry` and `retryTime` resend a failed request after a fixed delay, inside
+the dispatcher, and `setRetryOnError` decides which failures to retry:
+
+```ts
+const getQuoteWithRetry = getQuote
+  .setRetry(4)
+  .setRetryTime(500)
+  // highlight-next-line
+  .setRetryOnError((response) => isRetryable(response.status));
+```
+
+`retryTime` is one number for every attempt, so a delay that grows needs a loop like `withBackoff`. The
+[Retries](/examples/request-control/retries) example shows the built-in options.
+
+:::note When to use it
+
+- APIs behind load balancers or rate-limited gateways that fail for short moments.
+- Many clients that could hit a recovering server at the same time.
+- Any request where a `4xx` answer means "fix the input", not "try again".
+
+:::
+
+---
+
+## Related
+
+- [Retries guide](/docs/guides/core/basics/retries)
+- [Requests](/docs/core/request)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+A status check decides which failures are worth another attempt, and a short loop around `send()` waits longer after
+each one. The built-in `retry`, `retryTime` and `setRetryOnError` cover retries with a fixed delay.
+
+:::

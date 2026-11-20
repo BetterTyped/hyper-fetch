@@ -1,0 +1,75 @@
+---
+title: Deduplication
+sidebar_label: Deduplication
+sidebar_position: 3
+description: Let many callers that ask for the same data at once share one network request with deduplicate.
+sidebar_custom_props:
+  path: react/deduplication
+  level: intermediate
+  tags: [send, deduplication]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/deduplication/src/api.ts";
+import app from "!!raw-loader!@examples/react/deduplication/src/App.tsx";
+
+Up to ten callers request the same user at the same moment. With `deduplicate` on, only the first one goes to the
+network and the others wait for its response. Turn it off to see one request per caller.
+
+:::tip What it shows
+
+1. **`deduplicate`**: identical requests started while one is in flight join it instead of sending their own.
+2. **Every caller still gets a response**: each `send()` resolves with the shared result.
+3. **Dispatcher events**: `onRequestStart` counts network requests, `onDeduplicated` counts the callers that joined.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `getUserRequest` is created with `deduplicate: true` and a `delay` of one second, so all callers overlap with the
+   first request.
+2. **Send from all callers** calls `send()` once per caller, in the same tick. The switch picks
+   `getUserRequest.setDeduplicate(true)` or `false`.
+3. The dispatcher groups requests by `queryKey`. When a deduplicated request arrives and the latest request in its queue
+   is still running, it joins that request instead of adding a new one:
+
+   ```ts
+   const request = getUserRequest.setDeduplicate(deduplicate);
+   // highlight-next-line
+   request.send(); // x callers
+   ```
+
+4. The effect in `App` listens to `client.requestManager.events`. `onRequestStart` fires only for real network calls,
+   `onDeduplicated` for each caller that joined one.
+5. `deduplicateTime` limits how long a running request can be joined, counted from when it was added. By default there
+   is no limit: any request still in flight can be joined.
+
+The default HTTP adapter turns `deduplicate` on for `GET` and `QUERY` requests, so most reads are already deduplicated.
+On mount, `useFetch` also skips fetching when a request for the same cache key is already running.
+
+:::note When to use it
+
+- Several components that need the same data when a page opens, such as the current user.
+- Code outside React (`send()` in loaders, services or event handlers) that can ask for the same data at once.
+- Keep it off for mutations: two identical `POST`s are usually two separate actions.
+
+:::
+
+---
+
+## Related
+
+- [Dispatcher](/docs/core/dispatcher)
+- [Requests](/docs/core/request)
+- [Managers](/docs/core/managers)
+
+:::secondary Summary
+
+`deduplicate` lets identical requests share one call while it is in flight. Every caller gets the response, and the
+server sees one request.
+
+:::

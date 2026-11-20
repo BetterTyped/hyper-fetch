@@ -1,0 +1,72 @@
+---
+title: GraphQL
+sidebar_label: GraphQL
+sidebar_position: 1
+description: Query a GraphQL API with the GraphQL adapter - typed queries, variables and per-variable caching.
+sidebar_custom_props:
+  path: react/graphql
+  level: beginner
+  tags: [graphql, useFetch, cache, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/graphql/src/api.ts";
+import app from "!!raw-loader!@examples/react/graphql/src/App.tsx";
+
+A country browser on top of the public [Countries GraphQL API](https://countries.trevorblades.com/). It uses the same
+requests and hooks as a REST app; only the adapter changes.
+
+:::tip What it shows
+
+1. **`GraphqlAdapter`** turns every request of the client into a GraphQL operation.
+2. **Typed queries** set the response and the variables with the usual `createRequest` generics.
+3. **Variables in the payload** are set with `setPayload()` and become a part of the cache key.
+4. **GraphQL errors** arrive as the typed `error` list, like any other failed response.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates the client with the endpoint URL and calls `setAdapter(GraphqlAdapter())`. The `error` generic of
+   `createClient` is set to `GraphQLFormattedError[]`, because the adapter reports failures as a list.
+2. The GraphQL document goes in `endpoint`. A plain string works, and so does a `gql` document from `graphql-tag`. The
+   `payload` generic types the variables:
+
+   ```ts
+   const getCountry = client.createRequest<{ response: { country: Country | null }; payload: { code: string } }>()({
+     // highlight-next-line
+     endpoint: `query Country($code: ID!) { country(code: $code) { name capital } }`,
+   });
+   ```
+
+3. `App` calls `useFetch(getCountries.setPayload({ continent }))`. The adapter builds the cache key from the operation
+   name and the variables, so `Countries` for Europe and for Asia are two cache entries, and switching back is instant.
+4. `CountryDetails` runs a second query with `getCountry.setPayload({ code })` for the selected country.
+5. Queries are sent with `POST` by default. `useFetch` still sends them through the fetch dispatcher and caches them
+   like `GET` requests.
+
+:::note When to use it
+
+- Apps that talk to a GraphQL API and want HyperFetch caching, queues and hooks.
+- Projects that mix REST and GraphQL: each client has its own adapter, and the hooks stay the same.
+
+:::
+
+---
+
+## Related
+
+- [GraphQL adapter](/docs/integrations/adapter-graphql/overview)
+- [Queries](/docs/integrations/adapter-graphql/queries)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`setAdapter(GraphqlAdapter())` is the only GraphQL-specific line. Documents go in `endpoint`, variables in the payload,
+and the cache keeps one entry per set of variables.
+
+:::

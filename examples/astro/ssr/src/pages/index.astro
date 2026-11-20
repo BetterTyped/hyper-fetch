@@ -1,0 +1,30 @@
+---
+import "@picocss/pico/css/pico.min.css";
+import "../styles.css";
+import { Recipes } from "../components/Recipes";
+import { popularRecipes } from "../lib/api";
+
+// Frontmatter runs on the server: during `astro dev` on every request, during `astro build` once per page.
+const response = await popularRecipes.send();
+// Only successful responses are passed. On failure the island fetches in the browser instead.
+const hydration = response.success ? [popularRecipes.dehydrate({ response })] : [];
+const renderedAt = new Date().toLocaleTimeString();
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HyperFetch - Astro</title>
+  </head>
+  <body>
+    <main class="container">
+      <hgroup>
+        <h1>Recipes</h1>
+        <p>Fetched in the Astro page at {renderedAt}, hydrated into a React island.</p>
+      </hgroup>
+      <!-- `client:load` hydrates the island right away. Astro serializes `hydration` into the HTML. -->
+      <Recipes client:load hydration={hydration} />
+    </main>
+  </body>
+</html>

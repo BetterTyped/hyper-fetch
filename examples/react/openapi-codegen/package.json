@@ -1,0 +1,29 @@
+{
+  "name": "@hyper-fetch-examples/react-openapi-codegen",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Generate typed HyperFetch requests from the Swagger Petstore OpenAPI spec with @hyper-fetch/cli and use them in React.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "generate": "hyper-fetch generate --template openapi --url openapi/petstore.json --fileName petstore.sdk.ts --overwrite",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@hyper-fetch/cli": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

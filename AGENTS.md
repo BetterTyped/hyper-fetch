@@ -30,7 +30,9 @@ dependents.
 | `packages/testing`                | internal, never published      | `testing`         |
 | `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
 
-`documentation/` is the docs site. `examples/` holds sample apps.
+`documentation/` is the docs site. `examples/<group>/<name>` are the docs examples: standalone apps that StackBlitz and
+CodeSandbox open from GitHub, each with a page in `documentation/examples`. `examples/README.md` explains how to add
+one; `pnpm test:examples` and `pnpm examples` check them. The other folders in `examples/` are development apps.
 
 ## Verification
 

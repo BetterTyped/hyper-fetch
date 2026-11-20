@@ -1,0 +1,75 @@
+---
+title: Suspense
+sidebar_label: Suspense
+sidebar_position: 8
+description: Load data with React Suspense and handle failed requests in an error boundary with throwOnError.
+sidebar_custom_props:
+  path: react/suspense
+  level: intermediate
+  tags: [useFetch, suspense, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/suspense/src/api.ts";
+import app from "!!raw-loader!@examples/react/suspense/src/App.tsx";
+import errorBoundary from "!!raw-loader!@examples/react/suspense/src/error-boundary.tsx";
+
+A product viewer where the component that reads the data has no loading or error branches. `<Suspense>` shows the
+loading state, an error boundary shows failures, and product 999 is there to fail on purpose.
+
+:::tip What it shows
+
+1. **`suspense: true`** makes `useFetch` suspend until the first response arrives.
+2. **`throwOnError: true`** throws the request error to the closest error boundary once the request settles.
+3. **An error boundary in app code**, with a "Try again" button that remounts the component and fetches again.
+4. **Cached data does not suspend.** A product you opened before renders at once.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/error-boundary.tsx": errorBoundary, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getProduct` with an `error` type for dummyjson's `404 { message }` body. The `delay` query param
+   makes the fallback visible.
+2. `ProductDetails` calls `useFetch(..., { suspense: true, throwOnError: true })`. While the request is in flight the
+   hook throws a promise and React shows the nearest `<Suspense>` fallback.
+3. When the response is an error, the hook throws the error object itself, not an `Error` instance. The boundary in
+   `error-boundary.tsx` stores it as `unknown`, and `getMessage` reads `message` safely.
+4. "Try again" calls `reset()` on the boundary, which renders the children again. Errors are not stored in the cache, so
+   the component suspends and fetches the product again.
+5. `App` passes `key={productId}` to the boundary, so switching products starts with a clean boundary instead of the
+   previous error.
+6. Successful responses are cached. Going back to a product renders it right away and refreshes it in the background.
+
+```tsx
+// highlight-next-line
+const { data } = useFetch(getProduct.setParams({ productId }), { suspense: true, throwOnError: true });
+```
+
+The `data` type stays nullable, because the return type does not depend on the options. A single `if (!data)` check
+satisfies TypeScript.
+
+:::note When to use it
+
+- Apps that already use `<Suspense>` for code splitting or streaming and want data loading in the same boundaries.
+- Screens with several requests that should show one loading state together.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch` suspense mode](/docs/react/hooks/use-fetch)
+- [Error handling example](/examples/getting-started/error-handling)
+- [Error handling guide](/docs/guides/core/basics/error-handling)
+
+:::secondary Summary
+
+You let `<Suspense>` handle loading and an error boundary handle failures with `suspense` and `throwOnError`, so the
+component that shows the product only deals with data.
+
+:::

@@ -1,0 +1,83 @@
+---
+title: Cancellation
+sidebar_label: Cancellation
+sidebar_position: 1
+description:
+  Cancel in-flight requests with abort() and with cancelable requests that stop the previous search when a new one
+  starts.
+sidebar_custom_props:
+  path: react/cancellation
+  level: intermediate
+  tags: [useFetch, cancellation]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/cancellation/src/api.ts";
+import app from "!!raw-loader!@examples/react/cancellation/src/App.tsx";
+import log from "!!raw-loader!@examples/react/cancellation/src/RequestLog.tsx";
+
+A product search where the server takes 1.5 seconds to answer. Type a few letters quickly: every new letter cancels the
+search that is still running, and the log shows each request being sent and canceled. **Cancel** stops the current one.
+
+:::tip What it shows
+
+1. **`cancelable: true`**: a new request aborts the running one in the same queue, so a slow old answer never replaces a
+   newer one.
+2. **A shared `queryKey`** puts searches with different query params in one queue.
+3. **`abort()`** from `useFetch` cancels the request the hook is waiting for.
+4. **Request events**: `client.requestManager.events` reports every start, abort and response.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/RequestLog.tsx": log }} />
+
+---
+
+## How it works
+
+1. `searchProductsRequest` is created with two options:
+
+   ```ts
+   {
+     endpoint: "/products/search",
+     // highlight-next-line
+     cancelable: true,
+     queryKey: "product-search",
+   }
+   ```
+
+   The dispatcher groups requests by `queryKey`. By default it is built from the endpoint and the query params, so
+   `?q=ph` and `?q=pho` would sit in different queues and never cancel each other. A fixed `queryKey` puts them
+   together. The cache key still includes the query params, so every term is cached on its own.
+
+2. `App` calls `useFetch(searchProductsRequest.setQueryParams({ q: query, ... }))`. Each keystroke changes the query
+   params and adds a new request. Because the request is cancelable, the dispatcher aborts the running one first.
+3. **Cancel** calls `abort()`. The request is aborted and the hook gets an error response with the message
+   `Request aborted`; `send()` and the hooks never throw for it.
+4. `RequestLog` subscribes to `onRequestStart`, `onAbort` and `onResponse` on `client.requestManager.events`. A canceled
+   request also emits a response, with `details.isCanceled` set, which the log skips.
+
+For search inputs you can combine this with the `bounce` option of `useFetch` to send fewer requests in the first place.
+Cancellation still matters then: a request that already started can be outrun by the next one.
+
+:::note When to use it
+
+- Search, filters and pagination, where only the latest answer matters.
+- Long requests the user may give up on, such as reports or exports.
+
+:::
+
+---
+
+## Related
+
+- [Dispatcher](/docs/core/dispatcher)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Managers](/docs/core/managers)
+
+:::secondary Summary
+
+A cancelable request aborts the previous one in its queue, and a shared `queryKey` decides which requests share that
+queue. `abort()` from a hook cancels the current request on demand.
+
+:::

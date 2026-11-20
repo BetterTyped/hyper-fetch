@@ -1,0 +1,110 @@
+---
+title: Rick and Morty explorer
+sidebar_label: Rick and Morty explorer
+sidebar_position: 1
+description:
+  "Explore the Rick and Morty API with React Router: search and pages in the URL, dependent requests, prefetch on hover
+  and a cache reused on every visit."
+sidebar_custom_props:
+  path: apps/rick-and-morty
+  level: intermediate
+  tags: [useFetch, prefetching, cache, router, debounce]
+---
+
+import { Example } from "@site/src/components";
+import characters from "!!raw-loader!@examples/apps/rick-and-morty/src/api/characters.ts";
+import characterList from "!!raw-loader!@examples/apps/rick-and-morty/src/features/characters/CharacterList.tsx";
+import characterPage from "!!raw-loader!@examples/apps/rick-and-morty/src/features/characters/CharacterPage.tsx";
+import episodes from "!!raw-loader!@examples/apps/rick-and-morty/src/features/characters/Episodes.tsx";
+import networkLog from "!!raw-loader!@examples/apps/rick-and-morty/src/api/network-log.ts";
+
+An explorer for the public [Rick and Morty API](https://rickandmortyapi.com) with two routes: a searchable, paged list
+of characters and a page for each character with the episodes they appear in. Hover a character before you open it, then
+go back: the network log on the right shows that neither step sent a request.
+
+:::tip What it shows
+
+1. **Search and page in the URL**: `useSearchParams` holds the state and every page has its own cache key
+   ([Filters in the URL](/examples/data-fetching/url-filters), [Pagination](/examples/data-fetching/pagination)).
+2. **Debounced search**: `bounce` sends one request when typing stops
+   ([Search as you type](/examples/data-fetching/search)).
+3. **Prefetch on hover**: `send({ cachePolicy: "cache-first" })` fills the cache for the character, its episodes and the
+   next page ([Prefetching](/examples/data-fetching/prefetching)).
+4. **Dependent requests**: the episode ids come from the character response
+   ([Dependent requests](/examples/data-fetching/dependent-requests)).
+5. **Cache reused on navigation**: `staleTime` plus `revalidate: false` render a visited route without a request
+   ([Stale time](/examples/caching/stale-time), [React Router](/examples/frameworks/react-router)).
+6. **Deduplication**: hovering a link again while its prefetch runs shares that call
+   ([Deduplication](/examples/request-control/deduplication)).
+
+:::
+
+<Example
+  files={{
+    "src/api/characters.ts": characters,
+    "src/features/characters/CharacterList.tsx": characterList,
+    "src/features/characters/CharacterPage.tsx": characterPage,
+    "src/features/characters/Episodes.tsx": episodes,
+    "src/api/network-log.ts": networkLog,
+  }}
+/>
+
+---
+
+## How it works
+
+1. The app is split by feature. `src/api/` holds the client, the requests and the network log,
+   `src/features/characters/` the two routes, and `src/components/` small presentational parts. `App.tsx` only declares
+   the routes with `createBrowserRouter`.
+2. `api/characters.ts` keeps the raw requests private and exports factories: `characterList(page, name)`,
+   `characterDetails(id)` and `characterEpisodes(character)`. The list, the details page and the prefetch build requests
+   with the same functions, so they always hit the same cache keys.
+3. Every request has `staleTime: 10 * Time.MIN`. The components pass `revalidate: false` to `useFetch`, which renders
+   fresh cached data without a request and fetches only what is missing or stale:
+
+   ```tsx
+   const { data, error, status } = useFetch(characterList(page, name), {
+     // highlight-next-line
+     revalidate: false,
+     bounce: true,
+     bounceTime: 400,
+   });
+   ```
+
+4. `CharacterList` reads `name` and `page` from the URL. Typing replaces the URL entry, and `bounce` waits 400 ms before
+   the request. Only the query params change, so the previous page stays on screen while the next one loads.
+5. The API answers a search without results with `404` and `{ error }`. The request types that body with
+   `error: ApiError`, and the list shows "No characters match" for that status instead of an error.
+6. Hovering or focusing a character calls `prefetchCharacter(id)`. It sends the character with
+   `cachePolicy: "cache-first"`, then the episodes from its answer. When you click, `CharacterPage` and `Episodes` find
+   both in the cache and render at once. The **Previous** and **Next** buttons prefetch their page the same way.
+7. `Episodes` is the dependent request. It mounts only when the character is loaded and builds the endpoint from the
+   character's episode urls. The API returns an array for `/episode/[1,2]`, also for a single id, so the response type
+   stays `Episode[]`.
+8. `api/network-log.ts` subscribes to `client.requestManager.events.onRequestStart`. That event fires only for requests
+   that reach the network, so cache hits never show up in the log.
+
+:::note When to use it
+
+- Catalogs and explorers with a list, filters and a details page.
+- Apps where users jump back and forth between routes and expect instant pages.
+- APIs whose data changes rarely, where a long `staleTime` saves most requests.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+- [Cache](/docs/core/cache)
+- [Dispatcher](/docs/core/dispatcher)
+- [Managers](/docs/core/managers)
+
+:::secondary Summary
+
+Request factories give every screen and every prefetch the same cache keys. With `staleTime` and `revalidate: false` the
+cache answers repeat visits, `cache-first` prefetches fill it before a click, and the URL keeps the search and the page.
+
+:::

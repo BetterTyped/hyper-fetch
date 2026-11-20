@@ -1,0 +1,12 @@
+{
+  "label": "Request control",
+  "position": 5,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Cancelling, retrying, deduplicating, queueing and transforming requests.",
+  "link": {
+    "type": "generated-index",
+    "title": "Request control examples",
+    "description": "Cancelling, retrying, deduplicating, queueing and transforming requests."
+  }
+}

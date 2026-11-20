@@ -1,0 +1,57 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.narrow {
+  max-width: 720px;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.center {
+  text-align: center;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chat {
+  height: 60vh;
+  overflow-y: auto;
+  /* The scroll position is restored by hand, so the browser must not adjust it as well. */
+  overflow-anchor: none;
+  padding-right: 0.5rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.message p {
+  margin: 0;
+}
+
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  font-weight: bold;
+}

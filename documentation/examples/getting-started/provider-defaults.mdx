@@ -1,0 +1,82 @@
+---
+title: Provider defaults
+sidebar_label: Provider defaults
+sidebar_position: 6
+description: Set useFetch options once for the whole app with the React Provider, and override them per hook.
+sidebar_custom_props:
+  path: react/provider-defaults
+  level: beginner
+  tags: [useFetch, polling, typescript]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/provider-defaults/src/App.tsx";
+import widgets from "!!raw-loader!@examples/react/provider-defaults/src/Widgets.tsx";
+import api from "!!raw-loader!@examples/react/provider-defaults/src/api.ts";
+
+Three widgets that refresh themselves. The refresh options are set once in the `Provider`, not in every hook. One widget
+uses them as they are, one changes the interval and one opts out. The switches at the top change the defaults while the
+app runs.
+
+:::tip What it shows
+
+1. **`<Provider config>`** sets default options for every `useFetch` below it with `useFetchConfig`.
+2. **Hook options win**: an option passed to `useFetch` replaces the default of the same name and keeps the others.
+3. **Live config**: when the `config` prop changes, the hooks pick up the new values on the next render.
+4. **Request counters** on each widget show how the options change the traffic.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/Widgets.tsx": widgets, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `App.tsx` keeps the defaults in state and passes them to the provider:
+
+   ```tsx
+   const config: ProviderOptionsType = { useFetchConfig: defaults };
+   // highlight-next-line
+   <Provider config={config}>...</Provider>;
+   ```
+
+   `ProviderOptionsType` types the object, so a misspelled option is a compile error.
+
+2. `QuoteWidget` calls `useFetch(getRandomQuoteRequest)` with no options. It refreshes every few seconds and on window
+   focus because the provider says so.
+3. `TodoWidget` passes `{ refreshTime: 2000 }`. The hook merges its options over the provider's, one option at a time,
+   so `refresh` and `refetchOnFocus` still come from the provider.
+4. `UserWidget` passes `{ refresh: false, refetchOnFocus: false }`. A profile rarely changes, so it loads once.
+5. Each widget counts its requests with the hook's `onRequestStart` callback. Turn **refresh** off and the quote and the
+   todo stop updating.
+6. `api.ts` has no refresh settings. How often to refetch is a choice of the screen, not of the endpoint, so it lives in
+   hook options.
+
+The order is: built-in defaults, then the provider's `useFetchConfig`, then the options passed to the hook. Options
+passed as `undefined` are skipped, so forwarding an optional prop does not erase a default. The provider has the same
+kind of key for the other hooks: `useSubmitConfig`, `useCacheConfig`, `useQueueConfig` and more.
+
+:::note When to use it
+
+- App-wide behavior such as refetching on focus or reconnect, or a standard debounce time.
+- Different defaults for one part of the app: nest a second `Provider` around it. It replaces the outer config, it does
+  not merge with it.
+- Keep request settings like `retry` or `staleTime` on the request or the client. The provider sets hook options only.
+
+:::
+
+---
+
+## Related
+
+- [Config provider guide](/docs/guides/react/basics/config-provider)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Refreshing guide](/docs/guides/react/basics/refreshing)
+
+:::secondary Summary
+
+`<Provider config={{ useFetchConfig }}>` sets the starting options for every `useFetch` in the tree. A hook overrides
+only the options it passes, so most components need no options at all.
+
+:::

@@ -1,0 +1,33 @@
+{
+  "name": "@hyper-fetch-examples/elysia-fullstack",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "An Elysia API on Node.js and a React client whose requests, query params and error bodies are typed from the Elysia routes.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "api": "tsx server/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@elysiajs/node": "^1.4.5",
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/elysia": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "elysia": "^1.4.32",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

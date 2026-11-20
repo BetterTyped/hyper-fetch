@@ -1,0 +1,87 @@
+---
+title: React Router
+sidebar_label: React Router
+sidebar_position: 4
+description:
+  React Router loaders prefetch through HyperFetch so components read from the cache, and an action saves edits and
+  updates the cache.
+sidebar_custom_props:
+  path: react/react-router
+  level: intermediate
+  tags: [router, prefetching, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/react-router/src/api.ts";
+import routes from "!!raw-loader!@examples/react/react-router/src/routes.tsx";
+import app from "!!raw-loader!@examples/react/react-router/src/App.tsx";
+
+A contacts app built on the React Router data router. Every route has a loader that fills the HyperFetch cache before
+the route renders, so the components read their data with `useFetch` and never show a loading state. An edit form saves
+through a route action. A small panel lists the requests that reach the network, so you can see which navigations were
+served from the cache.
+
+:::tip What it shows
+
+1. **Loaders prefetch with `send({ cachePolicy: "cache-first" })`**: cached data returns at once, new data is fetched.
+2. **Components read the cache** with `useFetch(request, { revalidate: false })`, built by the same function as in the
+   loader.
+3. **Search in the URL**: the search form changes `?q=`, the loader runs again, and each query has its own cache entry.
+4. **An action** sends the `PUT`, writes the answer into the cache with `client.cache.update()` and redirects.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/routes.tsx": routes, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `src/api.ts` defines the requests with a 30 second `staleTime` and exports `userList(q)` and `userDetails(userId)`.
+   The loaders and the components call these functions, so they always build the same cache key.
+2. `src/App.tsx` creates the router with `createBrowserRouter`. The root route lists users, `users/:userId` shows one,
+   and `users/:userId/edit` holds the form with its `action`.
+3. `rootLoader` reads `q` from the URL and awaits the list; `userLoader` does the same for one user:
+
+   ```ts
+   // highlight-next-line
+   const response = await userDetails(userId).send({
+     cachePolicy: "cache-first",
+   });
+   if (response.status === 404) throw data("User not found", { status: 404 });
+   ```
+
+   React Router waits for the loader, so the page renders with the data already in the cache.
+
+4. `Root`, `UserPage` and `EditUser` call `useFetch(..., { revalidate: false })`. The data is fresh, so the hooks send
+   nothing. Once it is older than `staleTime`, the hook refreshes it in the background.
+5. Open a user, open another, then go back to the first. The network panel shows two `GET /users/:userId` requests, not
+   three. The panel comes from `client.onRequest`, which runs for every request that is sent.
+6. `editAction` reads the form, sends `updateUser.setParams({ userId }).send({ payload })`, and on success calls
+   `client.cache.update(userDetails(userId), ...)` with the saved user before `redirect()`. The user page reads the new
+   name from the cache. dummyjson does not store edits, so the list keeps the old name; with a real API, invalidate the
+   list in the action as well.
+
+:::note When to use it
+
+- Apps on the React Router data router that want caching, deduplication and retries for their loader data.
+- Pages that should render without spinners after navigation, and render instantly when you come back.
+- Forms handled by route actions that should update the data other routes show.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+- [Cache](/docs/core/cache)
+- [Client](/docs/core/client)
+
+:::secondary Summary
+
+Loaders call `send({ cachePolicy: "cache-first" })` to fill the cache, and components read the same requests with
+`useFetch`. Actions send mutations and update the cache, so React Router owns navigation and HyperFetch owns the data.
+
+:::

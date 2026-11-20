@@ -1,0 +1,74 @@
+---
+title: Polling
+sidebar_label: Polling
+sidebar_position: 6
+description: Refetch data on an interval with refresh and refreshTime, and pause polling in background tabs.
+sidebar_custom_props:
+  path: react/polling
+  level: beginner
+  tags: [useFetch, polling]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/polling/src/api.ts";
+import app from "!!raw-loader!@examples/react/polling/src/App.tsx";
+
+A quote card that asks the server for a new random quote every few seconds. Switches turn polling on and off and decide
+whether it continues in a background tab, and a progress bar shows when the next refresh is due.
+
+:::tip What it shows
+
+1. **`refresh`** turns polling on and off for one `useFetch` call.
+2. **`refreshTime`** sets the interval in milliseconds and can change while the component is mounted.
+3. **`refetchBlurred`** decides whether polling continues while the tab is hidden or the window is not focused.
+4. **`refetch()`** fetches right away and starts the interval over.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getRandomQuote` for dummyjson `/quotes/random`, which returns a different quote on every call.
+2. `App` passes `{ refresh: polling, refreshTime, refetchBlurred: inBackground }` to `useFetch`. All three come from
+   React state, so the controls change them without remounting anything.
+3. After each refresh the hook starts a new `refreshTime` timer. A refresh is skipped while a request for the same data
+   is still running, so a slow server never gets overlapping polls.
+4. With `refetchBlurred: false` (the switch off) the timer keeps running in a background tab but sends nothing. Polling
+   continues when you come back. The hook default is `true`.
+5. `responseTimestamp` is the time of the last response. A small `useNow` clock re-renders four times a second to show
+   how long ago that was and to fill the progress bar.
+6. `onSuccess` counts the responses, and "Refresh now" calls `refetch()`.
+
+```tsx
+const { data, responseTimestamp, refetch } = useFetch(getRandomQuote, {
+  // highlight-next-line
+  refresh: polling,
+  refreshTime,
+  refetchBlurred: inBackground,
+});
+```
+
+:::note When to use it
+
+- Dashboards, job status pages and feeds where the server cannot push updates.
+- Short intervals only while a screen is visible. For server pushes, see the realtime examples.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Refreshing guide](/docs/guides/react/basics/refreshing)
+- [Window focus and blur guide](/docs/guides/react/basics/window-focus-blur)
+
+:::secondary Summary
+
+You polled an endpoint with `refresh` and `refreshTime`, paused polling in background tabs with `refetchBlurred`, and
+showed the time of the last update from `responseTimestamp`.
+
+:::

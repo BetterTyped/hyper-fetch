@@ -1,0 +1,113 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 960px) {
+  .layout,
+  .board {
+    grid-template-columns: 1fr;
+  }
+}
+
+.column {
+  padding: 1rem;
+  border: 2px dashed transparent;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-sectioning-background-color);
+}
+
+.column.over {
+  border-color: var(--pico-primary);
+}
+
+.column h2 {
+  font-size: 1rem;
+}
+
+.cards {
+  padding: 0;
+  min-height: 3rem;
+}
+
+.card {
+  list-style: none;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  box-shadow: var(--pico-card-box-shadow);
+  cursor: grab;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.card-actions button {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.sync ol {
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.sync li {
+  list-style: none;
+  margin-bottom: 0.25rem;
+}
+
+.sync li.failed,
+mark.failed {
+  color: var(--pico-del-color);
+}
+
+.sync li.synced {
+  color: var(--pico-primary);
+}
+
+mark.saved {
+  background: var(--pico-ins-color);
+}
+
+mark.failed {
+  background: transparent;
+}

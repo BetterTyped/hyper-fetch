@@ -1,0 +1,76 @@
+---
+title: Axios
+sidebar_label: Axios
+sidebar_position: 2
+description:
+  Send HyperFetch requests with axios through the Axios adapter, with axios options and errors passed through.
+sidebar_custom_props:
+  path: react/axios
+  level: beginner
+  tags: [axios, useFetch, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/axios/src/api.ts";
+import app from "!!raw-loader!@examples/react/axios/src/App.tsx";
+
+A product list where axios performs the HTTP calls. The requests and the hook are the same as in any HyperFetch app; the
+adapter, the request options and the error type come from axios.
+
+:::tip What it shows
+
+1. **`setAdapter(AxiosAdapter)`** makes axios the transport for every request of the client.
+2. **Axios options** go in the request `options`, typed as the axios request config.
+3. **`AxiosError`** is the error type of the client, with `code`, `config` and `response`.
+4. **Response headers** from axios are in `extra.headers`.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates the client with `createClient<{ error: AxiosError }>()` and calls `setAdapter(AxiosAdapter)`. The
+   generic types `error` in every hook and `send()` result.
+2. `getProducts` sets axios options in `options`. They are passed to the `axios()` call as they are:
+
+   ```ts
+   options: {
+     timeout: 2000,
+     // highlight-next-line
+     transitional: { clarifyTimeoutError: true },
+   },
+   ```
+
+   The adapter owns `url`, `baseURL`, `method`, `data`, `signal` and the progress callbacks, so those are left out of
+   the type.
+
+3. `App` calls `useFetch` with a `delay` query param. DummyJSON waits that long before it answers.
+4. When the delay goes over 2 seconds, axios aborts the request. The response resolves with `success: false` and the
+   `AxiosError` as `error`, with the `ETIMEDOUT` code from `clarifyTimeoutError` and the request `config`.
+5. On success, `extra.headers` holds the axios response headers, and `status` the HTTP status.
+
+:::note When to use it
+
+- Projects that already configure axios and want HyperFetch caching, queues and hooks on top.
+- Code that relies on axios features such as its timeout handling, `validateStatus` or `transformResponse`.
+- Node.js environments where you prefer axios over `fetch`.
+
+:::
+
+---
+
+## Related
+
+- [Axios adapter](/docs/integrations/adapter-axios/overview)
+- [Adapter](/docs/core/adapter)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+One `setAdapter(AxiosAdapter)` call moves the client to axios. Axios options go in `options`, and failures arrive as a
+typed `AxiosError` in the response.
+
+:::

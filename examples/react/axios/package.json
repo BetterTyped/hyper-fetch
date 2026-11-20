@@ -1,0 +1,29 @@
+{
+  "name": "@hyper-fetch-examples/react-axios",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Send HyperFetch requests with axios through the Axios adapter, with axios options and errors passed through.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/axios": "latest",
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "axios": "^1.13.2",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

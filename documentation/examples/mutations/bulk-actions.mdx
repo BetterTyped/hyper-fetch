@@ -1,0 +1,80 @@
+---
+title: Bulk actions
+sidebar_label: Bulk actions
+sidebar_position: 8
+description:
+  Complete or delete many todos at once, one at a time or in parallel, with a progress bar and a result for every row.
+sidebar_custom_props:
+  path: react/bulk-actions
+  level: intermediate
+  tags: [send, useFetch, mocking, errors]
+---
+
+import { Example } from "@site/src/components";
+import hook from "!!raw-loader!@examples/react/bulk-actions/src/use-bulk-action.ts";
+import api from "!!raw-loader!@examples/react/bulk-actions/src/api.ts";
+import app from "!!raw-loader!@examples/react/bulk-actions/src/App.tsx";
+
+A table of todos with checkboxes. Select some and press **Complete** or **Delete**. Every row gets its own request, a
+progress bar counts the finished ones, and a failed row shows its error while the others succeed. Choose whether the
+requests run one at a time or all at once.
+
+:::tip What it shows
+
+1. **One request per row** with `send()`, so each row has its own status and error.
+2. **`queued: true` plus a shared query key** runs the requests one after another. Without the shared key they run in
+   parallel.
+3. **Partial failures**: a failed row does not stop or undo the others, and it stays selected for a retry.
+4. **Per-instance mocks**: `setMock` on one request instance makes only that row fail.
+
+:::
+
+<Example files={{ "src/use-bulk-action.ts": hook, "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates both mutations with `queued: true`. Queued requests that share a query key run one at a time, in the
+   order they were sent. By default the query key comes from the endpoint, and the endpoint holds the todo id, so every
+   todo has its own queue and the requests run in parallel.
+2. In **One at a time** mode, `useBulkAction` gives every request the same key:
+
+   ```ts
+   let request = completeTodoRequest.setParams({ todoId: todo.id }).setPayload({ completed: true });
+   // highlight-next-line
+   if (oneByOne) request = request.setQueryKey("bulk-action");
+   ```
+
+3. `run()` sends all requests and waits for them with `Promise.all`. `send()` never rejects, it resolves with `success`
+   and `error`, so one failed row cannot break the loop. `onRequestStart` marks a row as running when its request really
+   starts, which shows the queue at work.
+4. A successful row updates the cached list with `client.cache.update()`: completed todos are crossed out, deleted ones
+   disappear. dummyjson does not store writes, so the cache is the only place the change lives.
+5. With **Make every third row fail** on, those rows get `request.setMock(serverError)`. `setMock` changes only that
+   instance, so the other rows still go to dummyjson.
+6. The progress bar counts rows that are done or failed. After the run, failed rows stay selected so you can try again.
+
+:::note When to use it
+
+- Admin lists, inboxes and tables where people act on many rows at once.
+- Use one at a time when the server is rate limited or the order matters, all at once when speed matters. If your API
+  has a bulk endpoint, one request for all rows is simpler still, but you lose the per-row result.
+
+:::
+
+---
+
+## Related
+
+- [Queueing guide](/docs/guides/core/advanced/queueing)
+- [Dispatcher](/docs/core/dispatcher)
+- [Requests](/docs/core/request)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+One request per row gives every row its own result. `queued` with a shared query key runs them in a line, separate keys
+run them together, and `send()` resolving with the response keeps partial failures from breaking the batch.
+
+:::

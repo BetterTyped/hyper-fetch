@@ -1,0 +1,84 @@
+---
+title: Typed errors
+sidebar_label: Typed errors
+sidebar_position: 13
+description:
+  Give each endpoint its own error type on top of the global one, and narrow the union in the UI to show the right
+  message.
+sidebar_custom_props:
+  path: react/typed-errors
+  level: intermediate
+  tags: [errors, typescript, useFetch, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/typed-errors/src/api.ts";
+import app from "!!raw-loader!@examples/react/typed-errors/src/App.tsx";
+
+Three endpoints that fail in three different ways: an unknown product, a wrong password and a sold-out reservation. Each
+panel shows its error type and narrows it to the right message. **Break the network** makes every request time out,
+which shows the error that all of them share.
+
+:::tip What it shows
+
+1. **A global error type** on the client: `createClient<{ error: Error }>()` for failures of the transport.
+2. **An endpoint error type** with the `error` generic. The hooks return the union of both.
+3. **`instanceof Error`** splits HyperFetch's own errors from the JSON error bodies of the server.
+4. **Deeper narrowing** on fields of the endpoint error, such as `status` in problem details.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` sets the global error to `Error`. HyperFetch reports network failures, timeouts and aborts as `Error`
+   objects such as `TimeoutError`, so that is what every request can fail with.
+2. Each request adds the body its endpoint sends on failure. `getProduct` has `NotFoundError`, `login` has
+   `InvalidCredentialsError`, and `reserve` has `ProblemDetails`:
+
+   ```ts
+   export const reserve = client.createRequest<{
+     response: { status: number; message: string };
+     // highlight-next-line
+     error: ProblemDetails;
+   }>()({ endpoint: "/http/:status/:message", method: "POST" });
+   ```
+
+3. `useFetch(getProduct...)` and `useSubmit(login)` return `error` typed as the endpoint error or `Error`. Without a
+   check, only fields shared by both members are available.
+4. `error instanceof Error` picks the global branch, rendered by one shared `TransportError` component. In the other
+   branch TypeScript knows the exact endpoint type, so `error.message`, or `error.status` and `error.detail` for problem
+   details, are typed.
+5. **Break the network** sets `setOptions({ timeout: 1 })` on all three requests. They resolve with a `TimeoutError`,
+   which `TransportError` names with a second `instanceof` check.
+
+The [error handling](/examples/getting-started/error-handling) example shows the same generics for one endpoint, with a
+retry button and an error log.
+
+:::note When to use it
+
+- APIs whose endpoints return different error bodies, such as auth, validation and problem details.
+- Shared error components for network failures, with messages per endpoint for the rest.
+- Code reviews: a new error shape changes the type, and every place that shows it fails to compile.
+
+:::
+
+---
+
+## Related
+
+- [Requests](/docs/core/request)
+- [Client](/docs/core/client)
+- [Global error type](/docs/guides/typescript/global-error)
+- [Local error type](/docs/guides/typescript/local-error)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+The client's `error` generic covers what every request can fail with, and each request's `error` generic adds what its
+endpoint sends. Narrowing the union with `instanceof` and its fields gives each case its own typed message.
+
+:::
