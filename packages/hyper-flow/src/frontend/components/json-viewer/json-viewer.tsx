@@ -53,10 +53,19 @@ export const JSONViewer = ({
     );
   };
 
-  if (!data) {
+  if (data === null || data === undefined) {
     return (
       <div>
         <span className="inline-flex text-red-500">{String(data)}</span>
+      </div>
+    );
+  }
+
+  // A plain value (string, number, boolean) is the whole data, so it is edited and replaced as a whole
+  if (typeof data !== "object") {
+    return (
+      <div className={jsonViewerStyles.base}>
+        <Value value={String(data)} raw={data} path={[]} onChange={(value) => onChange?.(value)} disabled={!onChange} />
       </div>
     );
   }
