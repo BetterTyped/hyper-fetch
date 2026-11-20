@@ -222,7 +222,15 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >,
       any
     >;
     lifecycle: ListenerLifecycleType;
@@ -238,7 +246,15 @@ export class SocketAdapter<
   }: {
     topic: string;
     callback: ListenerCallbackType<
-      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      SocketAdapter<
+        Extra,
+        AdapterOptions,
+        ListenerOptions,
+        EmitterOptions,
+        QueryParams,
+        QueryParamsMapperType,
+        ListenerQueryParams
+      >,
       any
     >;
   }) => {
