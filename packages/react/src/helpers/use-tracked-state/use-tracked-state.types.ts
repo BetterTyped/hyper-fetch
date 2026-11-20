@@ -44,6 +44,8 @@ export type UseTrackedStateReturn<T extends RequestInstance, TData = ExtractResp
     setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
     getStaleStatus: () => boolean;
     getIsDataProcessing: (cacheKey: string) => boolean;
+    /** Whether the last response failed and the request waits in the queue for its retry */
+    getIsWaitingForRetry: (queryKey?: string) => boolean;
     selectData: (data: ExtractResponseType<T> | null) => TData | null;
     /**
      * Details of the last response received from the cache - null when the state did not come from a response
@@ -64,7 +66,8 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance, TDa
    */
   error: null | ExtractErrorType<T>;
   /**
-   * Request loading state
+   * Request loading state. It stays `true` between the attempts of a retried request - `error` already holds the
+   * failed attempt, but the result is not final until the retries end.
    */
   loading: boolean;
   /**

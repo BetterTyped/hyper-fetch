@@ -25,6 +25,15 @@ bars, time remaining, and more.
 The progress callbacks receive an object with `progress` (0-100), `timeLeft` (in ms),
 `sizeLeft` (in bytes), and more. You can use this to update your UI in real-time.
 
+:::caution Upload progress with the default adapter
+
+The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
+once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` and `URLSearchParams`
+payloads. For a live upload percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview), which reads
+the browser upload events. Download progress works with every adapter.
+
+:::
+
 {/* Here is a live example demonstrating both upload and download progress bars. */}
 
 ```tsx

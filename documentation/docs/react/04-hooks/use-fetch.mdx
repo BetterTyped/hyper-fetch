@@ -463,7 +463,7 @@ const { ... } = useFetch(request, {
 | `dependencies` | `[]` | Array of values that trigger refetch on change |
 | `disabled` | `false` | Disable automatic fetching |
 | `dependencyTracking` | `true` | Only re-render when accessed fields change |
-| `revalidate` | `true` | Refetch on mount if data is stale |
+| `revalidate` | `true` | Refetch on mount and on key change even when cached data is fresh. With `false`, only stale data is refetched |
 | `initialResponse` | `null` | Initial data before first fetch |
 | `keepPreviousData` | `"auto"` | Keep previous data strategy: `"auto"`, `"preserve"`, `"clean"` |
 | `refresh` | `false` | Enable periodic refresh |
@@ -515,6 +515,9 @@ const {
   // ... and more
 } = useFetch(request);
 ```
+
+`loading` stays `true` while a failed request waits for its retry. `error` already holds the failed attempt, so you can
+show it, but the result is not final until the retries end.
 
 Below is a full list of returned values.
 

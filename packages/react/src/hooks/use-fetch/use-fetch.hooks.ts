@@ -125,7 +125,15 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
   const [
     state,
     actions,
-    { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing, selectData, getResponseDetails },
+    {
+      setRenderKey,
+      setCacheData,
+      getStaleStatus,
+      getIsDataProcessing,
+      getIsWaitingForRetry,
+      selectData,
+      getResponseDetails,
+    },
   ] = useTrackedState<R, TSelected>({
     logger,
     request: request as unknown as R,
@@ -150,6 +158,7 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     dispatcher,
     setCacheData,
     getIsDataProcessing,
+    getIsWaitingForRetry,
   });
 
   const { addCacheDataListener, addLifecycleListeners, clearCacheDataListener } = listeners;
