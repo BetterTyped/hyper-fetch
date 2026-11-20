@@ -1,0 +1,73 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.narrow {
+  max-width: 640px;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.todos {
+  padding: 0;
+}
+
+.todos li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  list-style: none;
+  padding-block: 0.25rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.todos button,
+.toast button {
+  width: auto;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toasts {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(360px, calc(100vw - 2rem));
+}
+
+.toast {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 1rem;
+}
+
+.countdown {
+  height: 3px;
+  margin-top: 0.5rem;
+  background: var(--pico-primary);
+  transform-origin: left;
+  animation: countdown linear forwards;
+}
+
+@keyframes countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@hyper-fetch-examples/nextjs-streaming",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Stream slow server data into a Next.js App Router page section by section with Suspense, and hydrate each section into HyperFetch hooks.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "next": "^16.4.6",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

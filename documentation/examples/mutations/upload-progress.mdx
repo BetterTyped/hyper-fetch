@@ -1,0 +1,83 @@
+---
+title: Upload progress
+sidebar_label: Upload progress
+sidebar_position: 9
+description:
+  Show a real upload percentage, speed and time left with the Axios adapter, and cancel the upload at any point.
+sidebar_custom_props:
+  path: react/upload-progress
+  level: intermediate
+  tags: [uploads, axios, useSubmit, cancellation]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/upload-progress/src/App.tsx";
+import api from "!!raw-loader!@examples/react/upload-progress/src/api.ts";
+
+An upload form with a progress bar that moves as the bytes go out, plus the speed and the time left. Pick a file up to 1
+MB or press **Upload a 1 MB test file**, and press **Cancel** to stop halfway. The file goes to httpbin, which echoes
+what it received.
+
+:::tip What it shows
+
+1. **The Axios adapter** swaps the transport with `setAdapter(AxiosAdapter)` and reports upload progress.
+2. **`onSubmitUploadProgress`** receives `progress`, `loaded`, `total`, `timeLeft` and `startTimestamp` for every chunk.
+3. **`abort()`** from `useSubmit` cancels the upload and fires `onSubmitAbort`.
+4. **No other change**: requests, hooks and callbacks are the same as with the default adapter.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates the client with the Axios adapter. The error type is set to `AxiosError`, so `response.error` is
+   typed:
+
+   ```ts
+   // highlight-next-line
+   createClient<{ error: AxiosError }>({ url: "https://httpbin.org" }).setAdapter(AxiosAdapter);
+   ```
+
+2. `uploadFileRequest` takes a `FormData` payload. The browser sets the multipart `Content-Type` with its boundary.
+3. `App.tsx` registers `onSubmitUploadProgress`. In the browser, axios sends with `XMLHttpRequest`, whose
+   `upload.onprogress` event fires as chunks leave. The adapter passes each event to HyperFetch, which adds `progress`
+   in percent and `timeLeft` in milliseconds. The speed is `loaded` divided by the time since `startTimestamp`.
+4. At 100% the body is sent, but the server has not answered yet. The card says so until `onSubmitSuccess` arrives with
+   the echo, where `headers["Content-Length"]` shows how many bytes httpbin received.
+5. **Cancel** calls `abort()`. Axios stops the upload, the request resolves as aborted, `onSubmitAbort` fires, and the
+   response is not stored.
+6. httpbin answers `413` for bodies above about 1 MB, so files are checked before they are sent. With your own server,
+   drop that check.
+
+### Why the default adapter cannot do this
+
+The default HTTP adapter uses `fetch`. `fetch` has no upload progress events: the browser sends the body without telling
+the page how much is gone. So with `fetch` HyperFetch can only report the start and the end of the upload. Download
+progress works with both adapters, because a `fetch` response body can be read chunk by chunk. If you only need to show
+that an upload is running, the [file upload example](/examples/mutations/file-upload) does it with the default adapter.
+
+:::note When to use it
+
+- Uploads of large files where users need to see that something is happening and how long it takes.
+- Set the Axios adapter on a separate client for uploads if the rest of the app should keep using `fetch`.
+
+:::
+
+---
+
+## Related
+
+- [Axios adapter](/docs/integrations/adapter-axios/overview)
+- [Progress guide](/docs/guides/react/basics/progress)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Cancellation guide](/docs/guides/core/advanced/cancellation)
+
+:::secondary Summary
+
+`setAdapter(AxiosAdapter)` gives HyperFetch real upload events, and `onSubmitUploadProgress` turns them into a
+percentage, speed and time left. `fetch` cannot report upload progress, so use Axios when the bar has to move.
+
+:::

@@ -55,6 +55,7 @@ const tags = [
   "mocking",
   "realtime",
   "streaming",
+  "sync",
   "ssr",
   "typescript",
   // integrations
@@ -64,6 +65,18 @@ const tags = [
   "nextjs",
   "devtools",
   "vanilla",
+  "trpc",
+  "orpc",
+  "elysia",
+  "openapi",
+  "firebase",
+  "astro",
+  "router",
+  "plugins",
+  "testing",
+  "eslint",
+  "downloads",
+  "server",
 ];
 
 const isDir = (p) => fs.existsSync(p) && fs.statSync(p).isDirectory();

@@ -1,0 +1,57 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+}
+
+.options fieldset {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.toolbar [role="group"] {
+  width: auto;
+  margin: 0;
+}
+
+.progress {
+  flex: 1;
+  max-width: 320px;
+}
+
+.progress progress {
+  margin: 0;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error,
+td.failed {
+  color: var(--pico-del-color);
+}
+
+td.done {
+  color: var(--pico-ins-color);
+}
+
+td.waiting {
+  color: var(--pico-muted-color);
+}

@@ -47,7 +47,10 @@ export const App = () => {
     <main className="container narrow">
       <hgroup>
         <h1>File upload</h1>
-        <p>Pick a file and send it to httpbin. Large files (a few MB) make every phase easy to see.</p>
+        <p>
+          Pick a file and send it to httpbin. Files close to 1 MB make every phase easy to see; httpbin rejects bodies
+          above about 1 MB.
+        </p>
       </hgroup>
 
       <form onSubmit={handleSubmit}>

@@ -1,0 +1,92 @@
+---
+title: Testing
+sidebar_label: Testing
+sidebar_position: 8
+description: Test a component that fetches and saves data with Vitest, Testing Library and HyperFetch mocks.
+sidebar_custom_props:
+  path: react/testing
+  level: intermediate
+  tags: [testing, mocking, useFetch, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import test from "!!raw-loader!@examples/react/testing/src/TodoList.test.tsx";
+import todoList from "!!raw-loader!@examples/react/testing/src/TodoList.tsx";
+import api from "!!raw-loader!@examples/react/testing/src/api.ts";
+
+A small todo list and five tests for it. The tests render the component with Testing Library and answer its requests
+with `setMock`, so they run without a server and cover loading, success, error, empty and save states.
+
+:::tip What it shows
+
+1. **`setMock`** answers a request in tests. Cache, hooks and callbacks run the same way as with a real response.
+2. **Error and edge states**: a mock that returns `error` and a status tests the error message without a failing server.
+3. **Checking what was sent**: the mock receives the request, so a test can assert the payload.
+4. **Isolation**: `clearMock()` and `client.clear()` after each test, so no test sees another test's data.
+
+:::
+
+<Example files={{ "src/TodoList.test.tsx": test, "src/TodoList.tsx": todoList, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `TodoList.tsx` is an ordinary component: `useFetch(getTodosRequest)` loads the list and
+   `useSubmit(updateTodoRequest)` saves a checkbox. It knows nothing about tests.
+2. Each test attaches a mock to the request before it renders:
+
+   ```ts
+   // highlight-next-line
+   getTodosRequest.setMock(() => ({ data: { todos, total: 2 }, status: 200 }));
+   render(<TodoList />);
+   expect(await screen.findByLabelText("Write the tests")).toBeTruthy();
+   ```
+
+   The mock replaces the adapter only. The request still goes through the dispatcher and the cache, so the test checks
+   the same code path the app uses.
+
+3. A failure is a mock with `error` and a status. `submit()` and `send()` resolve with the failed response, they do not
+   throw, so the component shows its error message and the test reads it.
+4. The save test reads `request.payload` inside the mock and checks that the component sent `{ completed: true }`.
+5. `afterEach` calls `cleanup()`, removes the mocks with `clearMock()` and resets the cache and queues with
+   `client.clear()`.
+6. `api.ts` exports the request with its query params already set, and the component uses that exact object. `setMock`
+   changes only the instance it is called on. A request derived earlier with `setQueryParams()` or `setParams()` keeps
+   its own copy and would still go to the network. Requests derived later, such as the one `submit({ params })` builds,
+   copy the mock.
+
+## Run the tests
+
+The preview runs the app against dummyjson. To run the tests, open a terminal in StackBlitz or CodeSandbox, or in your
+local copy, and run:
+
+```bash
+npm test
+```
+
+`vitest.config.ts` sets `environment: "jsdom"`, which gives Testing Library a DOM in Node.
+
+:::note When to use it
+
+- Component tests that should not depend on a running backend.
+- Error, empty and slow states that are hard to get from a real server. The mock config also takes `responseTime` and
+  `timeout`.
+
+:::
+
+---
+
+## Related
+
+- [Testing mocks guide](/docs/guides/testing/mocking)
+- [Testing isolation guide](/docs/guides/testing/isolation)
+- [Mocking](/docs/core/mocking)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+Attach a mock to the request the component uses, render, and assert on the screen. `setMock` keeps the cache, hooks and
+callbacks in the test path, and `clearMock()` plus `client.clear()` keep tests apart.
+
+:::

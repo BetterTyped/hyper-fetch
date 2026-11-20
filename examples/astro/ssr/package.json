@@ -1,0 +1,27 @@
+{
+  "name": "@hyper-fetch-examples/astro-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Fetch on the server in an Astro page and hydrate the response into a React island that uses HyperFetch hooks.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.9",
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "astro": "^7.4.13",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

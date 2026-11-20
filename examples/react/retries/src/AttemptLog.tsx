@@ -17,8 +17,10 @@ export const AttemptLog = () => {
   useEffect(() => {
     const { events } = client.requestManager;
     const add = (kind: Entry["kind"], text: string) => {
+      // Take the id now - the updater may run later, after other events changed the counter
       nextId += 1;
-      setEntries((list) => [{ id: nextId, kind, text }, ...list].slice(0, 10));
+      const id = nextId;
+      setEntries((list) => [{ id, kind, text }, ...list].slice(0, 10));
     };
     const time = () => new Date().toLocaleTimeString();
 

@@ -1,0 +1,86 @@
+---
+title: tRPC subscriptions
+sidebar_label: tRPC subscriptions
+sidebar_position: 6
+description:
+  A live chat on tRPC subscriptions, streamed over Server-Sent Events into useListener with typed events and resume
+  support.
+sidebar_custom_props:
+  path: trpc/subscriptions
+  level: advanced
+  tags: [trpc, realtime, useListener, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import router from "!!raw-loader!@examples/trpc/subscriptions/server/router.ts";
+import api from "!!raw-loader!@examples/trpc/subscriptions/src/api.ts";
+import app from "!!raw-loader!@examples/trpc/subscriptions/src/App.tsx";
+
+A chat with two rooms. Messages are posted with a tRPC mutation and arrive through a tRPC subscription, streamed over
+Server-Sent Events into `useListener`. A bot answers every message a second later, so you see events that the client did
+not ask for. Open the app in a second tab to chat between them.
+
+:::tip What it shows
+
+1. **`TrpcSseAdapter`** connects a HyperFetch `Socket` to tRPC subscriptions over Server-Sent Events.
+2. **`TrpcSocketSchema<AppRouter>`** turns every subscription into a typed `$listener`, with the input as its payload.
+3. **`useListener`** subscribes on mount, restarts when the payload changes and shows the `status` the server reports.
+4. **Tracked events**: `tracked(id, message)` reaches the client as `data`, with the id in `extra.eventId`.
+5. **One handler, two adapters**: the same `/api/trpc` endpoint serves the mutation (`TrpcAdapter`) and the stream.
+
+:::
+
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `server/router.ts` has a `chat.post` mutation and a `chat.onMessage` subscription. The subscription is an async
+   generator: it yields the last messages of the room, then every new one, each wrapped in `tracked(message.id, ...)`.
+   When the client leaves, tRPC aborts `signal` and the generator stops.
+2. `server/app.ts` mounts the router with `fetchRequestHandler` inside Hono, and Vite runs it for `/api` requests. The
+   fetch adapter answers subscriptions with an SSE stream, so no WebSocket server or second process is needed.
+3. `src/api.ts` creates two things that point at the same URL: a client with `TrpcAdapter()` for the mutation, and a
+   socket with `TrpcSseAdapter()` for the subscription.
+
+   ```ts
+   export const socket = new Socket({ url, adapter: TrpcSseAdapter() });
+   // highlight-next-line
+   export const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, {
+     camelCaseToKebabCase: false,
+   });
+   ```
+
+4. `Room` calls `useListener(onMessage.setPayload({ room }))`. The adapter opens
+   `GET /api/trpc/chat.onMessage?input={"room":"general"}` as an `EventSource`. Other components listening to the same
+   room share that stream. Switching rooms changes the payload, so the hook stops the old subscription and starts a new
+   one.
+5. `onEvent` appends each message to the list. The header shows `connected`, the hook `status` (`starting` until the
+   server confirms the subscription, then `listening`) and `extra.eventId` of the last event.
+6. If the connection drops, the adapter restarts the subscription with the last event id as `input.lastEventId`. The
+   procedure reads it and sends only the messages the client missed.
+
+:::note When to use it
+
+- Live feeds, chats, notifications or progress updates on top of an existing tRPC backend.
+- Server-Sent Events fit when you already serve tRPC over HTTP, including serverless hosts. For many subscriptions per
+  client, switch the socket to `TrpcWebsocketAdapter` and `applyWSSHandler`; the listeners stay the same.
+
+:::
+
+---
+
+## Related
+
+- [tRPC subscriptions](/docs/integrations/adapter-trpc/subscriptions)
+- [tRPC adapter](/docs/integrations/adapter-trpc/overview)
+- [Listener](/docs/sockets/listener)
+- [`useListener`](/docs/react/sockets/use-listener)
+
+:::secondary Summary
+
+`TrpcSseAdapter` and `TrpcSocketSchema` turn tRPC subscriptions into typed listeners. `useListener` handles subscribing,
+switching inputs and cleanup, and tracked event ids let a reconnect pick up where the stream stopped.
+
+:::

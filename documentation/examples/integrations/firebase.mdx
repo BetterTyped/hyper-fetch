@@ -1,0 +1,104 @@
+---
+title: Firebase
+sidebar_label: Firebase
+sidebar_position: 12
+description:
+  A Firestore guestbook where every read and write is a HyperFetch request, with query constraints, typed documents and
+  errors in the response.
+sidebar_custom_props:
+  path: react/firebase
+  level: intermediate
+  tags: [firebase, useFetch, useSubmit, params]
+---
+
+import { Example } from "@site/src/components";
+import firebase from "!!raw-loader!@examples/react/firebase/src/firebase.ts";
+import api from "!!raw-loader!@examples/react/firebase/src/api.ts";
+import app from "!!raw-loader!@examples/react/firebase/src/App.tsx";
+
+A guestbook stored in Firestore. Signing it, liking a message and deleting one are Firestore writes, and the list is a
+Firestore query, all sent as HyperFetch requests through `@hyper-fetch/firebase`. It runs against your own Firebase
+project or the local emulator, and shows a setup screen until one is configured.
+
+:::tip What it shows
+
+1. **`FirebaseAdapter(getFirestore(app))`** turns the client into a Firestore client: the endpoint is the Firestore
+   path, the method is the operation.
+2. **Query constraints as data**: `$orderBy` and `$limit` go in `queryParams` and become a part of the cache key.
+3. **Typed documents**: responses are typed per request, and the adapter adds the document id as `__key`.
+4. **Errors in the response**: a denied write or a missing index arrives in `error`, the request never throws.
+
+:::
+
+<Example files={{ "src/firebase.ts": firebase, "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## Setup
+
+The live preview has no Firebase project, so it shows the setup screen. To run the example:
+
+1. Create a project in the [Firebase console](https://console.firebase.google.com), add a Firestore database and a web
+   app, and copy its config.
+2. Copy `.env.example` to `.env.local` and fill in `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`,
+   `VITE_FIREBASE_PROJECT_ID` and `VITE_FIREBASE_APP_ID`. Restart `npm run dev`.
+3. Allow reads and writes to the `messages` collection in your Firestore security rules. While you test, a rule like
+   `match /messages/{id} { allow read, write: if true; }` is enough. Lock it down before you ship.
+
+To try it without a project, use the emulator. It needs Java and the Firebase CLI:
+
+```bash
+npx firebase-tools emulators:start --only firestore --project demo-hyper-fetch
+```
+
+Then set only `VITE_FIREBASE_PROJECT_ID=demo-hyper-fetch` and `VITE_FIREBASE_EMULATOR_HOST=127.0.0.1:8080`.
+`src/firebase.ts` calls `connectFirestoreEmulator` when the host is set.
+
+---
+
+## How it works
+
+1. `src/firebase.ts` reads the `VITE_FIREBASE_*` variables, initializes the Firebase app and exports `firestore` and
+   `missingEnv`, the variables that are still empty. `App` renders the setup screen while that list is not empty, so no
+   request is sent without a config.
+2. `src/api.ts` creates the client with `createClient({ url: "" }).setAdapter(FirebaseAdapter(firestore))`. Each request
+   names a Firestore path and method: `messages` with `getDocs` and `addDoc`, `messages/:messageId` with `updateDoc` and
+   `deleteDoc`. `:messageId` is a regular endpoint param, set with `setParams()`.
+3. `latestMessages` is the list request with its constraints already set:
+
+   ```ts
+   // highlight-next-line
+   export const latestMessages = getMessages.setQueryParams([$orderBy("createdAt", "desc"), $limit(10)]);
+   ```
+
+   The constraints are a part of the cache key, so another order or limit is a separate cache entry.
+
+4. `Guestbook` reads the list with `useFetch(latestMessages)` and signs with `useSubmit(addMessage)`. An empty
+   collection resolves with `status: "emptyResource"` and `data: []`, which the component shows as an empty state.
+5. Like and delete call `likeMessage.setParams({ messageId: message.__key }).send({ payload })` and
+   `deleteMessage.setParams(...).send()`, then `refetch()` the list. When security rules reject a write, `error` holds
+   the Firebase error and the form shows its message.
+
+:::note When to use it
+
+- Your app already uses Firestore and you want loading state, caching and deduplication without wiring them yourself.
+- Firebase and HTTP calls in one codebase that should look and behave the same.
+- For live updates, add `@hyper-fetch/sockets` and listen with `FirebaseSocketsAdapter`.
+
+:::
+
+---
+
+## Related
+
+- [Firebase adapter](/docs/integrations/adapter-firebase/overview)
+- [Firestore](/docs/integrations/adapter-firebase/firestore)
+- [Realtime listening](/docs/integrations/adapter-firebase/realtime-queries)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`FirebaseAdapter` turns Firestore operations into HyperFetch requests. Paths are endpoints, constraints are query params
+and errors come back in the response, so Firestore works with the same hooks and cache as any API.
+
+:::

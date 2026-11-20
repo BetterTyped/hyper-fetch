@@ -1,0 +1,99 @@
+---
+title: tRPC
+sidebar_label: tRPC
+sidebar_position: 5
+description:
+  A tRPC router served by Hono and a React client that calls it through HyperFetch with types inferred from the router.
+sidebar_custom_props:
+  path: trpc/basic
+  level: intermediate
+  tags: [trpc, createSdk, useFetch, useSubmit, invalidation]
+---
+
+import { Example } from "@site/src/components";
+import router from "!!raw-loader!@examples/trpc/basic/server/router.ts";
+import api from "!!raw-loader!@examples/trpc/basic/src/api.ts";
+import app from "!!raw-loader!@examples/trpc/basic/src/App.tsx";
+
+A todo list backed by a tRPC router. The router runs inside the Vite dev server through Hono, and the React app calls
+its queries and mutations with `useFetch` and `useSubmit`. Every input, output and error type comes from the router.
+
+:::tip What it shows
+
+1. **`TrpcAdapter`** sends requests in the tRPC format: queries as `GET`, mutations as `POST`.
+2. **`TrpcSchema<AppRouter>`** turns the router type into a typed SDK, with `$query` and `$mutation` for each procedure.
+3. **The input is the payload**, and every input has its own cache key, so each filter is cached separately.
+4. **Typed errors**: the router's `errorFormatter` adds `fieldErrors`, and the client sees them with their types.
+
+:::
+
+<Example files={{ "server/router.ts": router, "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `server/router.ts` is a regular tRPC v11 router with `todos.list`, `todos.add` and `todos.toggle`, validated with
+   zod. It exports `AppRouter`, the only thing the client imports, and only as a type.
+2. `server/app.ts` mounts the router in Hono with tRPC's fetch adapter. `vite.config.ts` runs that Hono app for every
+   `/api` request, so `npm run dev` starts the API and the client together:
+
+   ```ts
+   // highlight-next-line
+   new Hono().all("/api/trpc/*", (c) =>
+     fetchRequestHandler({
+       endpoint: "/api/trpc",
+       req: c.req.raw,
+       router: appRouter,
+     }),
+   );
+   ```
+
+3. `src/api.ts` points the client at `/api/trpc`, sets `TrpcAdapter()` and builds the SDK:
+
+   ```ts
+   const client = createClient({
+     url: `${window.location.origin}/api/trpc`,
+   }).setAdapter(TrpcAdapter());
+   // highlight-next-line
+   const sdk = createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
+     camelCaseToKebabCase: false,
+   });
+   ```
+
+   `camelCaseToKebabCase: false` keeps the procedure names as the router spells them. `sdk.todos.list.$query` is a
+   request for `todos.list`.
+
+4. `App` passes the procedure input as the payload: `useFetch(listTodos.setPayload({ status }))`. The adapter adds the
+   input to the cache key, so `all`, `open` and `done` are three cache entries. Switch back to a filter you already
+   opened and it renders without a request.
+5. The mutations run through `useSubmit`. After one succeeds, `client.cache.invalidate(/^QUERY_todos\.list/)` marks
+   every cached `todos.list` input stale, and the mounted list fetches again.
+6. Type a title shorter than three characters. zod rejects it, the router's `errorFormatter` adds
+   `fieldErrors: { title: "..." }`, and the form shows it. A network failure has no `data`, which is why the code checks
+   `"data" in add.error` first.
+
+:::note When to use it
+
+- You already have a tRPC backend and want caching, queueing, offline support or HyperFetch hooks on the client.
+- One client for tRPC, REST and GraphQL, with the same request API for all of them.
+- Any server that speaks the Fetch API can host the router: Hono, Next.js route handlers, Bun, Deno or Workers.
+
+:::
+
+---
+
+## Related
+
+- [tRPC adapter](/docs/integrations/adapter-trpc/overview)
+- [SDK](/docs/core/sdk)
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+
+:::secondary Summary
+
+`TrpcAdapter` speaks the tRPC protocol and `TrpcSchema` reads the router type, so `createSdk` gives you a typed request
+for every query and mutation. They work with the usual hooks and cache, keyed by the procedure input.
+
+:::
