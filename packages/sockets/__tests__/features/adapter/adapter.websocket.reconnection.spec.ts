@@ -16,7 +16,7 @@ describe("Websocket Adapter [ Reconnection ]", () => {
   const sockets: Socket[] = [];
 
   const createSocket = (options?: Partial<ConstructorParameters<typeof Socket>[0]>) => {
-    const socket = new Socket({ url, reconnectTime, ...options });
+    const socket = new Socket({ url, reconnectTime, connectionTimeout: reconnectTime, ...options });
     sockets.push(socket);
     return socket;
   };
@@ -105,7 +105,7 @@ describe("Websocket Adapter [ Reconnection ]", () => {
     });
 
     it("should use the reconnect time from the socket options", async () => {
-      const { socket, websocket } = await createConnectedSocket({ reconnectTime: 250 });
+      const { socket, websocket } = await createConnectedSocket({ reconnectTime: 250, connectionTimeout: 250 });
       socket.onError(() => null);
 
       websocket.serverClose({ code: 1006 });

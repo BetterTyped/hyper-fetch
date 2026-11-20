@@ -198,7 +198,11 @@ Hyper-fetch automatically handles reconnection attempts when a connection is los
 using the `reconnect` and `reconnectTime` options in the `Socket` constructor.
 
 - `reconnect`: The maximum number of reconnection attempts. Set to `Infinity` by default for endless retries.
-- `reconnectTime`: The time in milliseconds between each retry attempt. Defaults to `5000` (5 seconds).
+- `reconnectTime`: The time in milliseconds before the next attempt after the connection was lost. Defaults to `5000`
+  (5 seconds).
+- `connectionTimeout`: How long in milliseconds one connection attempt may take before it is abandoned and a new
+  attempt starts. Defaults to `5000`. It is separate from `reconnectTime`, so a short retry delay does not cut slow
+  handshakes short.
 
 ### Customizing Retry Logic
 

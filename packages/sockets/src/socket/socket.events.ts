@@ -13,6 +13,10 @@ import {
   getListenerEventByTopicKey,
   getListenerRemoveKey,
   getListenerRemoveByTopicKey,
+  getListenerStartKey,
+  getListenerStartByTopicKey,
+  getListenerEndKey,
+  getListenerEndByTopicKey,
   getEmitterStartEventKey,
   getEmitterStartEventByTopicKey,
   getEmitterErrorKey,
@@ -55,6 +59,16 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
     emitListenerRemoveEvent: ({ topic }: { topic: string }): void => {
       eventEmitter.emit(getListenerRemoveKey(), { topic });
       eventEmitter.emit(getListenerRemoveByTopicKey(topic), { topic });
+    },
+    /** The server confirmed a subscription of the topic - it was accepted and messages may arrive */
+    emitListenerStartEvent: ({ topic }: { topic: string }): void => {
+      eventEmitter.emit(getListenerStartKey(), { topic });
+      eventEmitter.emit(getListenerStartByTopicKey(topic), { topic });
+    },
+    /** The server ended a subscription of the topic - `error` is `null` when it finished without an error */
+    emitListenerEndEvent: ({ topic, error }: { topic: string; error: Error | null }): void => {
+      eventEmitter.emit(getListenerEndKey(), { topic, error });
+      eventEmitter.emit(getListenerEndByTopicKey(topic), { topic, error });
     },
     emitEmitterStartEvent: <EmitterType extends EmitterInstance>({ emitter }: { emitter: EmitterType }): void => {
       eventEmitter.emit(getEmitterStartEventKey(), { emitter });
@@ -154,6 +168,28 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
     onListenerRemove: (callback: ({ topic }: { topic: string }) => void): VoidFunction => {
       eventEmitter.on(getListenerRemoveKey(), callback);
       return () => eventEmitter.removeListener(getListenerRemoveKey(), callback);
+    },
+    onListenerStart: (callback: ({ topic }: { topic: string }) => void): VoidFunction => {
+      eventEmitter.on(getListenerStartKey(), callback);
+      return () => eventEmitter.removeListener(getListenerStartKey(), callback);
+    },
+    onListenerStartByTopic: <ListenerType extends ListenerInstance>(
+      listener: Pick<ListenerType, "topic">,
+      callback: ({ topic }: { topic: string }) => void,
+    ): VoidFunction => {
+      eventEmitter.on(getListenerStartByTopicKey(listener.topic), callback);
+      return () => eventEmitter.removeListener(getListenerStartByTopicKey(listener.topic), callback);
+    },
+    onListenerEnd: (callback: ({ topic, error }: { topic: string; error: Error | null }) => void): VoidFunction => {
+      eventEmitter.on(getListenerEndKey(), callback);
+      return () => eventEmitter.removeListener(getListenerEndKey(), callback);
+    },
+    onListenerEndByTopic: <ListenerType extends ListenerInstance>(
+      listener: Pick<ListenerType, "topic">,
+      callback: ({ topic, error }: { topic: string; error: Error | null }) => void,
+    ): VoidFunction => {
+      eventEmitter.on(getListenerEndByTopicKey(listener.topic), callback);
+      return () => eventEmitter.removeListener(getListenerEndByTopicKey(listener.topic), callback);
     },
     onListenerRemoveByTopic: <ListenerType extends ListenerInstance>(
       listener: Pick<ListenerType, "topic">,

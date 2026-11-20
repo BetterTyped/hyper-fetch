@@ -27,7 +27,8 @@
 ## 📖 About
 
 This adapter connects HyperFetch to an oRPC server through the oRPC RPC protocol. Procedures become regular HyperFetch
-requests, with inputs, outputs and defined errors inferred from your router through `createSdk`.
+requests, with inputs, outputs and defined errors inferred from your router through `createSdk`, and event iterators
+become typed socket listeners.
 
 ## 🎯 Key Capabilities
 
@@ -36,6 +37,10 @@ requests, with inputs, outputs and defined errors inferred from your router thro
 - 💾 **Cache per input** - `{ id: 1 }` and `{ id: 2 }` are cached, deduplicated and queued separately
 - ⚛️ **React-ready** - Use `useFetch` and `useSubmit` with your procedures
 - 🌐 **GET when you want it** - Opt into cacheable `GET` queries for the procedures your server allows
+- 📡 **Live event iterators** - Listen to `async function*` procedures over HTTP streams or one WebSocket with
+  `useListener`
+- 🔁 **Resume where you stopped** - Reconnects send the last `withEventMeta` id, so the server can replay what you
+  missed
 
 ## 🚀 Quick Start
 
@@ -59,6 +64,7 @@ const { data, error } = await api.planet.find.$query.setPayload({ id: 1 }).send(
 ## 📚 Documentation
 
 - [oRPC Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview)
+- [Event Iterators](https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/event-iterators)
 - [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 
@@ -82,6 +88,34 @@ import { useSubmit } from "@hyper-fetch/react";
 const { submit, submitting } = useSubmit(api.planet.uploadImage.$mutation);
 
 await submit({ payload: { planetId: 1, image: file } });
+```
+
+### Listen to an event iterator
+
+```ts
+import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
+import { OrpcStreamAdapter } from "@hyper-fetch/orpc";
+import type { OrpcSocketSchema } from "@hyper-fetch/orpc";
+
+// Or OrpcWebsocketAdapter() with the RPCHandler of @orpc/server/ws
+const socket = new Socket({ url: "http://localhost:3000/rpc", adapter: OrpcStreamAdapter() });
+const live = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, { camelCaseToKebabCase: false });
+
+const stop = live.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data, extra }) => {
+  console.log(data.name, extra.id);
+});
+```
+
+### Find the subscription that failed
+
+```ts
+import { OrpcSocketError } from "@hyper-fetch/orpc";
+
+socket.onError(({ error }) => {
+  if (error instanceof OrpcSocketError && error.code === "UNAUTHORIZED") {
+    console.log(`${error.topic} was rejected for`, error.payload);
+  }
+});
 ```
 
 ### Contract-first APIs

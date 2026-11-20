@@ -1,0 +1,495 @@
+---
+sidebar_position: 4
+title: React hooks - useSubmit
+sidebar_label: useSubmit
+---
+
+# useSubmit
+
+[Read the API Reference »](/api/react/Hooks/useSubmit.mdx)
+
+The `useSubmit` hook is designed for **mutating data** on the server. It provides a powerful and streamlined way to
+handle submissions, such as creating, updating, or deleting resources. It integrates with Hyper Fetch's core systems
+like the [`Dispatcher`](/docs/core/dispatcher) and [`Cache`](/docs/core/cache) to manage request states and data
+consistency.
+
+:::tip Purpose
+
+1.  **Simplified mutations**: Easily trigger data-modifying requests with a `submit` function.
+2.  **State management**: Automatically handles `submitting`, `error`, and `response` states.
+3.  **Lifecycle callbacks**: Provides hooks like `onSubmitSuccess`, `onSubmitError`, and `onSubmitFinished` to manage
+    side effects cleanly.
+4.  **Controlled requests**: Fine-grained control over request execution and data submission.
+5.  **Deep cache integration**: Leverages the central cache to keep data consistent across the application.
+
+:::
+
+> If you only need to fetch data, consider using the [`useFetch`](/react/04-hooks/use-fetch.mdx) hook.
+
+---
+
+## Quick Start
+
+To use `useSubmit`, provide a prepared [`Request`](/docs/core/request) instance. The hook returns a `submit` function to
+trigger the request, along with state variables like `submitting` to track its progress.
+
+```tsx live title="Creating a new user" size="lg"
+import { useSubmit } from "@hyper-fetch/react";
+import { createUser } from "./api/users";
+
+function App() {
+  const [name, setName] = useState("John Doe");
+  const { submit, submitting, onSubmitError, data } = useSubmit(createUser);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    submit({ payload: { name } });
+  };
+
+  onSubmitError((response) => {
+    toast({
+      title: "Error",
+      message: response.error.message,
+      type: "error",
+    });
+  });
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <TextField
+        label="User Name"
+        placeholder="Enter user name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        disabled={submitting}
+      />
+      <Button type="submit" loading={submitting}>
+        {submitting ? "Creating..." : "Create User"}
+      </Button>
+      {data && (
+        <div>
+          <Separator />
+          <h3 className="text-lg font-bold mb-2">New user created</h3>
+          <Table data={[data]} />
+        </div>
+      )}
+    </form>
+  );
+}
+```
+
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Learn more about creating and configuring requests."
+  to="/docs/core/request"
+/>
+
+---
+
+## Initialization
+
+```tsx
+const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+```
+
+---
+
+## How it works?
+
+**`useSubmit`** executes a request when a `submit()` function returned from it gets triggered. It uses dependency
+tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
+established by event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`,
+etc.) are returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base
+hook with callback logic. It also helps improve code readability, decreases code complication, and promotes more
+organized code.
+
+```tsx
+import { useSubmit } from "@hyper-fetch/react";
+import { postLogin } from "server";
+
+interface Values {
+  email: string;
+  password: string;
+}
+
+const LoginPage: React.FC = () => {
+  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess(({ response }) => {
+    console.log(response); // { token: string, refreshToken: string }
+  });
+
+  onSubmitError(({ response }) => {
+    console.log(response); // { message: string }
+  });
+
+  onSubmitFinished(({ response }) => {
+    const [payload, error, status] = response;
+    console.log(payload); // { token: string, refreshToken: string } | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = (values: Values) => {
+    submit({ payload: values });
+  };
+
+  return (
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+      <Form>
+        {error && <Alert severity="error">{error.error_message}</Alert>}
+        <FormInput name="email" label="Email" placeholder="Fill your email" />
+        <FormInput type="password" name="password" label="Password" placeholder="Fill your password" />
+        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
+          Log in
+        </Button>
+      </Form>
+    </Formik>
+  );
+};
+```
+
+---
+
+## Event Handlers
+
+`useSubmit` provides several hooks to handle side effects at different stages of the request lifecycle. This approach
+keeps your component logic clean by separating actions like showing notifications or redirecting from the submission
+itself.
+
+1.  `onSubmitSuccess`: Fires when the request completes successfully. It receives the success `response`.
+2.  `onSubmitError`: Fires when the request fails. It receives the `error` object.
+3.  `onSubmitFinished`: Fires when the request is finished, regardless of the outcome.
+
+```tsx title="Using Event Handlers"
+import { useSubmit } from "@hyper-fetch/react";
+import { postLogin } from "server";
+
+const LoginPage = () => {
+  const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess(({ response }) => {
+    console.log("Login successful:", response);
+    toast({ title: "Success", message: "Logged in!", type: "success" });
+  });
+
+  onSubmitError(({ error }) => {
+    console.error("Login failed:", error);
+    toast({ title: "Error", message: error.message, type: "error" });
+  });
+
+  onSubmitFinished((response) => {
+    console.log("Request finished", response);
+  });
+
+  const handleLogin = (values) => {
+    submit({ payload: values });
+  };
+
+  // ... form rendering logic
+};
+```
+
+---
+
+## Passing Data and Parameters
+
+You can pass data, and parameters to your request in two main ways.
+
+### Statically on the Request
+
+For data that doesn't change, you can set it directly on the [`Request`](/docs/core/request) instance.
+
+```tsx
+const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
+
+// Later in your component
+submit();
+```
+
+### Dynamically with the `submit` function
+
+For dynamic data, such as from user input, pass it in the `options` object to the `submit` function. This is the most
+common approach.
+
+```tsx
+const { submit } = useSubmit(patchUser);
+
+const handleSubmit = (id: number, name: string) => {
+  submit({
+    payload: { name },
+    params: { userId: id },
+    queryParams: { notify: "true" },
+  });
+};
+```
+
+---
+
+## Disabled Behavior
+
+When `disabled` is set to `true`, calling `submit()` does **not** throw or reject. Instead, it resolves immediately
+with an error response indicating the hook is disabled:
+
+```tsx
+const { submit } = useSubmit(createUser, { disabled: true });
+
+const result = await submit();
+// result = { data: null, error: Error("...disabled..."), status: null }
+```
+
+This makes it safe to call `submit()` unconditionally without wrapping it in a try/catch - the promise always resolves.
+Use `disabled` to prevent submissions while a form is invalid or while another operation is in progress.
+
+---
+
+## Bounce Behavior
+
+When `bounce` is enabled, rapid successive calls to `submit()` are **debounced** or **throttled** based on the
+`bounceType` option. This prevents duplicate submissions from fast button clicks or programmatic loops.
+
+```tsx
+const { submit } = useSubmit(createUser, {
+  // highlight-start
+  bounce: true,
+  bounceType: "debounce",
+  bounceTime: 400,
+  // highlight-end
+});
+
+// Rapid clicks - only the last call within the 400ms window fires
+submit({ payload: { name: "Alice" } });
+submit({ payload: { name: "Bob" } }); // Only this one actually sends
+```
+
+When multiple `submit()` calls are batched together by the bounce, the promises from earlier calls in the batch are
+resolved together with the result of the request that actually fires.
+
+---
+
+## Refetch
+
+`useSubmit` returns a `refetch()` method that triggers **cache invalidation** for the request's cache key. This is
+useful after a successful mutation to force other components using `useFetch` or `useCache` with the same cache key to
+re-fetch fresh data.
+
+```tsx
+const { submit, refetch, onSubmitSuccess } = useSubmit(updateUser);
+
+onSubmitSuccess(() => {
+  // Invalidate the cache so useFetch consumers get fresh data
+  refetch();
+});
+```
+
+---
+
+## Clear State
+
+The `clearState` method resets all hook state (`data`, `error`, `status`, `extra`, timestamps) back to initial values.
+
+```tsx title="Using clearState"
+import { useSubmit } from "@hyper-fetch/react";
+import { createUser } from "./api/users";
+
+function CreateUserForm() {
+  const { submit, data, error, clearState } = useSubmit(createUser);
+
+  const handleReset = () => {
+    clearState();
+  };
+
+  return (
+    <div>
+      <button type="button" onClick={() => submit({ payload: { name: "John" } })}>
+        Create User
+      </button>
+      {data && <p>User created!</p>}
+      {error && <p>Error creating user</p>}
+      <button type="button" onClick={handleReset}>
+        Reset
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## Selecting Data
+
+The `select` option picks the part of the response kept in the hook's `data`. The promise returned by `submit()` and
+the event handlers like `onSubmitSuccess` still receive the full response.
+
+```tsx title="Submit selector"
+const { submit, data: userName } = useSubmit(login, {
+  select: (response) => response.user.name,
+});
+```
+
+---
+
+## Options
+
+Customize the behavior of `useSubmit` by passing an options object as the second argument.
+
+```tsx
+const { ... } = useSubmit(request, {
+  disabled: false,
+  // ... and more
+});
+```
+
+Below is a full list of available options.
+
+(@import react UseSubmitOptionsType type=returns)
+
+<LinkCard
+  type="api"
+  title="UseSubmitOptionsType API Reference"
+  description="Learn more about the useSubmit hook's options."
+  to="/docs/api/react/Types/UseSubmitOptionsType"
+/>
+
+---
+
+## State and Methods
+
+`useSubmit` returns an object containing the request's state, the `submit` method, and event handlers.
+
+```tsx
+const {
+  submit,
+  submitting,
+  data,
+  error,
+  status,
+  onSubmitSuccess,
+  // ... and more
+} = useSubmit(request);
+```
+
+Below is a full list of returned values.
+
+(@import react useSubmit type=returns)
+
+<LinkCard
+  type="api"
+  title="useSubmit API Reference"
+  description="Learn more about the useSubmit hook."
+  to="/docs/api/react/Hooks/useSubmit"
+/>
+
+---
+
+## Optimistic Updates
+
+`useSubmit` has first-class support for optimistic mutations. Describe the change on the request with `setOptimistic`
+and `optimistic()` helpers - core applies it before the request is sent, rolls it back on failure and refreshes the
+target afterwards, even when the component unmounts in the meantime.
+
+```tsx title="Optimistic update with rollback"
+import { optimistic } from "@hyper-fetch/core";
+
+const patchUser = client
+  .createRequest<{ response: User; payload: Partial<User> }>()({
+    endpoint: "/users/:userId",
+    method: "PATCH",
+  })
+  .setOptimistic(({ params, payload }) => ({
+    context: { userId: params.userId },
+    updates: [
+      optimistic(getUsers)
+        .patch(params.userId, payload)
+        .rollback(({ data, previous }) => {
+          const before = previous.find((user) => user.id === Number(params.userId));
+          return data.map((user) => (user.id === Number(params.userId) && before ? before : user));
+        }),
+    ],
+  }));
+```
+
+Changes can also come from the hook or a single call. They replace the request's own `setOptimistic`, and the call wins
+over the hook:
+
+```tsx
+const { submit } = useSubmit(patchUser, {
+  optimistic: ({ params, payload }) => [optimistic(getUsers).patch(params.userId, payload)],
+});
+
+submit({ params: { userId: 1 }, payload, optimistic: [optimistic(getUsers).patch(1, payload)] });
+```
+
+The `mutationContext` returned from the optimistic callback is available in all submit lifecycle callbacks, fully typed:
+
+```tsx
+const { submit, onSubmitSuccess, onSubmitError, onSubmitFinished, onSubmitAbort } = useSubmit(patchUser);
+
+onSubmitSuccess(({ mutationContext }) => {
+  // mutationContext is typed as { userId: ... } | undefined
+  console.log("Updated user", mutationContext?.userId);
+});
+
+onSubmitError(({ mutationContext }) => {
+  // rollback() was already called automatically before this fires
+  alert("Update failed — changes have been reverted.");
+});
+
+onSubmitAbort(({ mutationContext }) => {
+  // abort is treated like an error — rollback runs automatically
+  console.log("Aborted, rolled back.");
+});
+
+onSubmitFinished(({ mutationContext }) => {
+  // Fires after success or error, with the same mutationContext
+});
+```
+
+**How it works:**
+
+1. When `submit()` is called, the changes are applied _before_ the network request, in the same tick.
+2. On **success**: each `.commit()` runs and the targets are refreshed once no other mutation is pending on them, then
+   `onSubmitSuccess` fires.
+3. On **error** or **abort**: each `.rollback()` runs in reverse order, then the error/abort callback fires.
+4. With **retries**: rollbacks only run after the final failure — intermediate retries keep the optimistic state.
+5. Fetch responses that started before the mutation settled are not written to the changed targets.
+
+:::info Bounce compatibility
+
+When `bounce` is enabled, the optimistic callback runs when the bounced request actually fires — not on every
+intermediate `submit()` call. This means optimistic updates work correctly with debounce and throttle.
+
+:::
+
+<LinkCard
+  type="guides"
+  title="Optimistic Updates Guide"
+  description="In-depth guide covering patterns for creates, updates, and advanced scenarios."
+  to="/docs/guides/react/basics/optimistic-approach"
+/>
+
+---
+
+## See More
+
+<LinkCard
+  type="guides"
+  title="Submitting data"
+  description="Learn more about submitting data with useSubmit."
+  to="/docs/guides/react/basics/submitting"
+/>
+
+<LinkCard
+  type="docs"
+  title="useFetch"
+  description="Learn more about the useFetch hook for fetching data."
+  to="/docs/react/hooks/use-fetch"
+/>
+
+<LinkCard
+  type="docs"
+  title="useCache"
+  description="Learn more about the useCache hook for direct cache manipulation."
+  to="/docs/react/hooks/use-cache"
+/>

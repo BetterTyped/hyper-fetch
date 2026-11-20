@@ -1,0 +1,62 @@
+---
+sidebar_position: 7
+title: React hooks - useAppManager
+sidebar_label: useAppManager
+---
+
+# useAppManager
+
+[Read the API Reference »](/api/react/Hooks/useAppManager.mdx)
+
+**`useAppManager`** allows you to use information about the connection status and screen focus state. It also offers
+options to manipulate its global state. This hook uses the [`AppManager`](/core/managers.mdx) available on the
+[`Client`](/core/client.mdx) instance.
+
+It returns the status of `isOnline` and `isFocused` and the actions that allow you to change them.
+
+---
+
+:::tip Purpose
+
+1. Controls application **online/offline** state
+2. Controls application **window focus/blur** state
+
+:::
+
+---
+
+## Usage
+
+Here is a simple example of how to use the `useAppManager` hook.
+
+### Get the connection status
+
+Online state is the information if application is connected to the internet or not.
+
+```tsx
+const { isOnline, setOnline } = useAppManager(client);
+
+setOnline(true);
+```
+
+### Get the screen focus state
+
+Focus state is the information if user is currently using the application or not.
+
+```tsx
+const { isFocused, setFocused } = useAppManager(client);
+
+setFocused(true);
+```
+
+---
+
+## State and methods
+
+This hook returns the following values.
+
+```tsx
+const values = useAppManager(client);
+```
+
+(@import react useAppManager type=returns)

@@ -4,7 +4,7 @@ import { waitFor } from "@testing-library/dom";
 import type { ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
 import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
 
-import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
+import { EventSourceReadyState, getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -186,7 +186,7 @@ describe("Socket Adapter [ SSE ]", () => {
       constructor(url: string, eventSourceInitDict?: EventSourceInit) {
         super(url, eventSourceInitDict);
         Object.defineProperty(this, "readyState", {
-          get: () => EventSource.OPEN,
+          get: () => EventSourceReadyState.OPEN,
         });
       }
     }
@@ -211,7 +211,7 @@ describe("Socket Adapter [ SSE ]", () => {
       constructor(url: string, eventSourceInitDict?: EventSourceInit) {
         super(url, eventSourceInitDict);
         Object.defineProperty(this, "readyState", {
-          get: () => EventSource.CLOSED,
+          get: () => EventSourceReadyState.CLOSED,
           set: () => {},
         });
       }
@@ -256,23 +256,14 @@ describe("Socket Adapter [ SSE ]", () => {
     expect(socketWithoutAutoConnect.adapter.connected).toBe(false);
   });
 
-  it("should return null from getServerSentEventsAdapter when window access throws", () => {
-    const originalWindow = global.window;
-    Object.defineProperty(global, "window", {
-      get() {
-        throw new ReferenceError("window is not defined");
-      },
-      configurable: true,
-    });
+  it("should return null from getServerSentEventsAdapter when the runtime has no EventSource", () => {
+    const original = globalThis.EventSource;
+    globalThis.EventSource = undefined as unknown as typeof EventSource;
 
-    const result = getServerSentEventsAdapter("http://localhost:1234", {} as any);
+    const result = getServerSentEventsAdapter("http://localhost:1234", {});
+
+    globalThis.EventSource = original;
     expect(result).toBeNull();
-
-    Object.defineProperty(global, "window", {
-      value: originalWindow,
-      writable: true,
-      configurable: true,
-    });
   });
 
   it("should properly clean up error event listeners on disconnect", async () => {
