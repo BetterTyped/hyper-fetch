@@ -5,6 +5,7 @@ import type {
   ExtractEndpointPayloadType,
   ExtractEndpointResponseType,
   QueryParamsType,
+  RequestInstance,
   stringifyQueryParams,
 } from "@hyper-fetch/core";
 import type { GraphQLFormattedError } from "graphql";
@@ -97,7 +98,7 @@ export type GraphqlAdapterType = Adapter<
   GraphQlEndpointType,
   (endpoint: GraphQlEndpointType) => string,
   typeof stringifyQueryParams,
-  DefaultMapperType,
+  (request: RequestInstance) => HeadersInit,
   DefaultMapperType,
   GraphqlRequestOptionsType
 >;

@@ -44,7 +44,7 @@ export const CardRecent = ({ className }: { className?: string }) => {
               <EmptyState title="Waiting for API activity" description="No requests processed yet" />
             ) : (
               <Table className="w-full h-full" wrapperClassName="pb-4">
-                <TableHeader className={cn(requests.length === 0 && "opacity-40", "sticky top-0 z-10")}>
+                <TableHeader className="sticky top-0 z-10">
                   <TableRow>
                     <TableHead />
                     <TableHead>Endpoint</TableHead>

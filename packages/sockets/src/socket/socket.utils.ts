@@ -14,6 +14,10 @@ export const getListenerRemoveKey = () => `listener_remove`;
 export const getEmitterStartEventKey = () => `emitter_start_event`;
 export const getEmitterErrorKey = () => `emitter_error`;
 export const getListenerRemoveByTopicKey = (event: string) => `${event}_listener_remove`;
+export const getListenerStartKey = () => `listener_start`;
+export const getListenerStartByTopicKey = (event: string) => `${event}_listener_start`;
+export const getListenerEndKey = () => `listener_end`;
+export const getListenerEndByTopicKey = (event: string) => `${event}_listener_end`;
 export const getListenerEventByTopicKey = (event: string) => `${event}_listener_event`;
 export const getEmitterStartEventByTopicKey = (event: string) => `${event}_emitter_start_event`;
 export const getEmitterErrorByTopicKey = (event: string) => `${event}_emitter_error`;
@@ -23,13 +27,13 @@ export const getEmitterErrorByTopicKey = (event: string) => `${event}_emitter_er
  * returned by the previous one - the adapter `extra` is never touched.
  */
 export const interceptListener = <Extra = any>(
-  interceptors: MessageCallbackType<any>[],
-  event: { data: any; extra: Extra },
+  interceptors: MessageCallbackType<any, any>[],
+  event: { data: any; extra: Extra; topic: string },
 ): { data: any; extra: Extra } => {
   let { data } = event;
   // eslint-disable-next-line no-restricted-syntax
   for (const interceptor of interceptors) {
-    const newData = interceptor({ event: data });
+    const newData = interceptor({ event: data, topic: event.topic, extra: event.extra });
     // Falsy values like `0`, `""` or `false` are valid message data - only a dropped value is an error
     const isDropped = newData === undefined || (newData === null && data !== null);
     if (isDropped && data !== undefined) {

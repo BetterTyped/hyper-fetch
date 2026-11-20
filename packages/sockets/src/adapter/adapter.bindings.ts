@@ -1,4 +1,4 @@
-import type { SocketAdapterInstance } from "adapter";
+import type { ListenerLifecycleType, SocketAdapterInstance } from "adapter";
 import type { EmitterInstance } from "emitter";
 import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import type { Socket, SocketConnectionType } from "socket";
@@ -233,12 +233,26 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     });
   };
 
-  const onEvent = ({ topic, data, extra }: { topic: string; data: any; extra: ExtractAdapterExtraType<T> }) => {
+  /**
+   * Delivers an incoming message through the `onMessage` interceptors to the listeners of the topic.
+   * `callbacks` limits the delivery to those listeners, for adapters where one topic carries several subscriptions.
+   */
+  const onEvent = ({
+    topic,
+    data,
+    extra,
+    callbacks,
+  }: {
+    topic: string;
+    data: any;
+    extra: ExtractAdapterExtraType<T>;
+    callbacks?: ReadonlySet<ListenerCallbackType<T, any>>;
+  }) => {
     logger.info({ title: "New event message", type: "system", extra: { topic, data, extra } });
 
     let message: { data: any; extra: ExtractAdapterExtraType<T> };
     try {
-      message = socket.unstable__modifyResponse({ data, extra });
+      message = socket.unstable__modifyResponse({ data, extra, topic });
     } catch (error) {
       // A failing `onMessage` interceptor must not break the transport - skip the message and report it
       onError({ error: error instanceof Error ? error : new Error(String(error)) });
@@ -246,11 +260,88 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     }
 
     try {
-      socket.adapter.triggerListeners({ topic, data: message.data, extra: message.extra });
+      socket.adapter.triggerListeners({ topic, data: message.data, extra: message.extra, callbacks });
     } finally {
       // Devtools and global subscriptions receive the message even when a listener callback throws
       socket.events.emitListenerEvent({ topic, data: message.data, extra: message.extra });
     }
+  };
+
+  /**
+   * Runs one lifecycle handler for each registered callback of `callbacks`. A handler that throws is reported
+   * with `onError` and does not stop the others.
+   */
+  const runLifecycle = ({
+    topic,
+    callbacks,
+    run,
+  }: {
+    topic: string;
+    callbacks: ReadonlySet<ListenerCallbackType<T, any>>;
+    run: (lifecycle: ListenerLifecycleType | undefined, callback: ListenerCallbackType<T, any>) => void;
+  }) => {
+    const registered = socket.adapter.listeners.get(topic);
+    const lifecycles = socket.adapter.listenerLifecycle.get(topic);
+    [...callbacks].forEach((callback) => {
+      if (!registered?.has(callback)) {
+        return;
+      }
+      try {
+        run(lifecycles?.get(callback), callback);
+      } catch (error) {
+        onError({ error: error instanceof Error ? error : new Error(String(error)) });
+      }
+    });
+  };
+
+  /**
+   * The server confirmed the subscription of `callbacks` - call it for adapters created with
+   * `confirmsSubscriptions: true`, also when a subscription is restarted after a reconnect and when a callback joins
+   * a subscription that is already running.
+   */
+  const onListenerStart = ({
+    topic,
+    callbacks,
+  }: {
+    topic: string;
+    callbacks: ReadonlySet<ListenerCallbackType<T, any>>;
+  }) => {
+    logger.debug({ title: "Subscription started", type: "system", extra: { topic } });
+    runLifecycle({ topic, callbacks, run: (lifecycle) => lifecycle?.onStart() });
+    socket.events.emitListenerStartEvent({ topic });
+  };
+
+  /**
+   * The server ended the subscription of `callbacks`, with `error` when it failed. Their listeners deliver what is
+   * still pending, unsubscribe and call their `onEnd` - restarting it takes a new `listen()`.
+   */
+  const onListenerEnd = ({
+    topic,
+    callbacks,
+    error = null,
+  }: {
+    topic: string;
+    callbacks: ReadonlySet<ListenerCallbackType<T, any>>;
+    error?: Error | null;
+  }) => {
+    logger.info({
+      title: error ? "Subscription failed" : "Subscription ended",
+      type: "system",
+      extra: { topic, error },
+    });
+    runLifecycle({
+      topic,
+      callbacks,
+      run: (lifecycle, callback) => {
+        if (lifecycle) {
+          lifecycle.onEnd({ error });
+          return;
+        }
+        // Registered without `Listener.listen()` - the subscription is over, so the registration goes too
+        socket.adapter.removeListener({ topic, callback });
+      },
+    });
+    socket.events.emitListenerEndEvent({ topic, error });
   };
 
   /** Maps query params to the format required by the adapter (defaults to the adapter's stored query params) */
@@ -273,5 +364,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     onDisconnected,
     onError,
     onEvent,
+    onListenerStart,
+    onListenerEnd,
   };
 };

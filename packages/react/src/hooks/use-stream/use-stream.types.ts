@@ -43,11 +43,12 @@ export type UseStreamReturnType<T extends RequestInstance> = {
    */
   start: () => void;
   /**
-   * Abort the ongoing stream.
+   * Abort the ongoing stream. Aborts the request while it waits for the response and cancels the body once it is
+   * being read. The text received so far stays in the state.
    */
   abort: () => void;
   /**
-   * Reset state to initial values, allowing a fresh stream.
+   * Stop the ongoing stream like `abort()` and reset state to initial values, allowing a fresh stream.
    */
   reset: () => void;
 };

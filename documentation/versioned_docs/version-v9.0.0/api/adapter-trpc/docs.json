@@ -1,0 +1,2370 @@
+{
+	"id": 880,
+	"name": "@hyper-fetch/trpc",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 913,
+			"name": "FetchTrpcAdapterOptionsType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 28,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L28"
+				}
+			],
+			"type": {
+				"type": "intersection",
+				"types": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Omit"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+									"qualifiedName": "RequestInit"
+								},
+								"name": "RequestInit",
+								"package": "typescript"
+							},
+							{
+								"type": "union",
+								"types": [
+									{
+										"type": "literal",
+										"value": "method"
+									},
+									{
+										"type": "literal",
+										"value": "headers"
+									},
+									{
+										"type": "literal",
+										"value": "body"
+									},
+									{
+										"type": "literal",
+										"value": "signal"
+									}
+								]
+							}
+						],
+						"name": "Omit",
+						"package": "typescript"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 914,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 915,
+									"name": "timeout",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {
+										"isOptional": true
+									},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 29,
+											"character": 2,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L29"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										915
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 28,
+									"character": 104,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L28"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": 910,
+			"name": "TrpcAdapterOptionsType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 24,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L24"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 911,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 912,
+							"name": "transformer",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 25,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L25"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 900,
+								"name": "TrpcTransformerType",
+								"package": "@hyper-fetch/trpc"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								912
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 24,
+							"character": 37,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L24"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 928,
+			"name": "TrpcAdapterType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 47,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L47"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/core/src/adapter/adapter.ts",
+					"qualifiedName": "Adapter"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": 913,
+						"name": "FetchTrpcAdapterOptionsType",
+						"package": "@hyper-fetch/trpc"
+					},
+					{
+						"type": "reference",
+						"target": 896,
+						"name": "TrpcMethod",
+						"package": "@hyper-fetch/trpc"
+					},
+					{
+						"type": "intrinsic",
+						"name": "number"
+					},
+					{
+						"type": "reference",
+						"target": 897,
+						"name": "TrpcExtraType",
+						"package": "@hyper-fetch/trpc"
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/adapter/adapter.types.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							}
+						]
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/adapter/adapter.types.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							},
+							{
+								"type": "intrinsic",
+								"name": "undefined"
+							}
+						]
+					},
+					{
+						"type": "intrinsic",
+						"name": "string"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 929,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 55,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L55"
+								}
+							],
+							"signatures": [
+								{
+									"id": 930,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 931,
+											"name": "endpoint",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							]
+						}
+					},
+					{
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../packages/core/src/http-adapter/http-adapter.utils.ts",
+								"qualifiedName": "stringifyQueryParams"
+							},
+							"name": "stringifyQueryParams",
+							"package": "@hyper-fetch/core",
+							"preferValues": true
+						}
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 932,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 57,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L57"
+								}
+							],
+							"signatures": [
+								{
+									"id": 933,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 934,
+											"name": "request",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/core/src/request/request.types.ts",
+													"qualifiedName": "RequestInstance"
+												},
+												"name": "RequestInstance",
+												"package": "@hyper-fetch/core"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+											"qualifiedName": "HeadersInit"
+										},
+										"name": "HeadersInit",
+										"package": "typescript"
+									}
+								}
+							]
+						}
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/adapter/adapter.ts",
+							"qualifiedName": "DefaultMapperType"
+						},
+						"name": "DefaultMapperType",
+						"package": "@hyper-fetch/core"
+					}
+				],
+				"name": "Adapter",
+				"package": "@hyper-fetch/core"
+			}
+		},
+		{
+			"id": 916,
+			"name": "TrpcErrorDataType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Default shape of the "
+					},
+					{
+						"kind": "code",
+						"text": "`error.data`"
+					},
+					{
+						"kind": "text",
+						"text": " field, servers can change it with the "
+					},
+					{
+						"kind": "code",
+						"text": "`errorFormatter`"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 33,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L33"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 917,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 918,
+							"name": "code",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 34,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L34"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 919,
+							"name": "httpStatus",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 35,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L35"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 920,
+							"name": "path",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 36,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L36"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 921,
+							"name": "stack",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 37,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L37"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								918,
+								919,
+								920,
+								921
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 33,
+							"character": 32,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L33"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 922,
+			"name": "TrpcErrorType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Default shape of the tRPC error, servers can change it with the "
+					},
+					{
+						"kind": "code",
+						"text": "`errorFormatter`"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 41,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L41"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 927,
+					"name": "Data",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"default": {
+						"type": "reference",
+						"target": 916,
+						"name": "TrpcErrorDataType",
+						"package": "@hyper-fetch/trpc"
+					}
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 923,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 925,
+							"name": "code",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 43,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L43"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 926,
+							"name": "data",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 44,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L44"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 927,
+								"name": "Data",
+								"package": "@hyper-fetch/trpc",
+								"refersToTypeParameter": true
+							}
+						},
+						{
+							"id": 924,
+							"name": "message",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 42,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L42"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								925,
+								926,
+								924
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 41,
+							"character": 54,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L41"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 897,
+			"name": "TrpcExtraType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 13,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L13"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 898,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 899,
+							"name": "headers",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 13,
+									"character": 30,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L13"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Record"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								],
+								"name": "Record",
+								"package": "typescript"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								899
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 13,
+							"character": 28,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L13"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 896,
+			"name": "TrpcMethod",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 11,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L11"
+				}
+			],
+			"type": {
+				"type": "indexedAccess",
+				"indexType": {
+					"type": "typeOperator",
+					"operator": "keyof",
+					"target": {
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"target": 886,
+							"name": "TrpcMethods",
+							"package": "@hyper-fetch/trpc"
+						}
+					}
+				},
+				"objectType": {
+					"type": "query",
+					"queryType": {
+						"type": "reference",
+						"target": 886,
+						"name": "TrpcMethods",
+						"package": "@hyper-fetch/trpc"
+					}
+				}
+			}
+		},
+		{
+			"id": 894,
+			"name": "TrpcSchema",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Maps the type of a tRPC router to the schema understood by "
+					},
+					{
+						"kind": "code",
+						"text": "`createSdk`"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				],
+				"blockTags": [
+					{
+						"tag": "@example",
+						"content": [
+							{
+								"kind": "code",
+								"text": "```ts\nconst api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });\n\nconst { data } = await api.user.byId.$query.setPayload({ id: 1 }).send();\n```"
+							}
+						]
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.schema.ts",
+					"line": 64,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.schema.ts#L64"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 895,
+					"name": "Router",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/@trpc+server@11.29.5_@types+express@4.17.25_@types+ws@8.18.1_next@14.2.28_@babel+core@7_3ba95f4ec56ca234f024d83b1f01dcd3/node_modules/@trpc/server/src/unstable-core-do-not-import/types.ts",
+							"qualifiedName": "AnyRouter"
+						},
+						"name": "AnyTRPCRouter",
+						"package": "@trpc/server",
+						"qualifiedName": "AnyRouter"
+					}
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.schema.ts",
+					"qualifiedName": "TrpcRecordSchema"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": 895,
+						"name": "Router",
+						"package": "@hyper-fetch/trpc",
+						"refersToTypeParameter": true
+					},
+					{
+						"type": "indexedAccess",
+						"indexType": {
+							"type": "literal",
+							"value": "record"
+						},
+						"objectType": {
+							"type": "indexedAccess",
+							"indexType": {
+								"type": "literal",
+								"value": "_def"
+							},
+							"objectType": {
+								"type": "reference",
+								"target": 895,
+								"name": "Router",
+								"package": "@hyper-fetch/trpc",
+								"refersToTypeParameter": true
+							}
+						}
+					},
+					{
+						"type": "literal",
+						"value": ""
+					}
+				],
+				"name": "TrpcRecordSchema",
+				"package": "@hyper-fetch/trpc"
+			}
+		},
+		{
+			"id": 900,
+			"name": "TrpcTransformerType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Serializes the input and deserializes the output, for example "
+					},
+					{
+						"kind": "code",
+						"text": "`superjson`"
+					},
+					{
+						"kind": "text",
+						"text": ".\nIt has to match the "
+					},
+					{
+						"kind": "code",
+						"text": "`transformer`"
+					},
+					{
+						"kind": "text",
+						"text": " passed to "
+					},
+					{
+						"kind": "code",
+						"text": "`initTRPC.create()`"
+					},
+					{
+						"kind": "text",
+						"text": " on the server."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 19,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L19"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 901,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 906,
+							"name": "deserialize",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 21,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L21"
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 907,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 21,
+											"character": 15,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L21"
+										}
+									],
+									"signatures": [
+										{
+											"id": 908,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"parameters": [
+												{
+													"id": 909,
+													"name": "value",
+													"variant": "param",
+													"kind": 32768,
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 902,
+							"name": "serialize",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 20,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L20"
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 903,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 20,
+											"character": 13,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L20"
+										}
+									],
+									"signatures": [
+										{
+											"id": 904,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"parameters": [
+												{
+													"id": 905,
+													"name": "value",
+													"variant": "param",
+													"kind": 32768,
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									]
+								}
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								906,
+								902
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 19,
+							"character": 34,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.types.ts#L19"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 886,
+			"name": "TrpcMethods",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 11,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L11"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 887,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 889,
+							"name": "MUTATION",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isReadonly": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.constants.ts",
+									"line": 13,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L13"
+								}
+							],
+							"type": {
+								"type": "literal",
+								"value": "MUTATION"
+							},
+							"defaultValue": "\"MUTATION\""
+						},
+						{
+							"id": 888,
+							"name": "QUERY",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isReadonly": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.constants.ts",
+									"line": 12,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L12"
+								}
+							],
+							"type": {
+								"type": "literal",
+								"value": "QUERY"
+							},
+							"defaultValue": "\"QUERY\""
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								889,
+								888
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.constants.ts",
+							"line": 11,
+							"character": 27,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L11"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 884,
+			"name": "defaultTimeout",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 5,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L5"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 890,
+			"name": "reservedQueryParams",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Query string keys owned by the tRPC HTTP format - they win over the user query params"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L17"
+				}
+			],
+			"type": {
+				"type": "array",
+				"elementType": {
+					"type": "intrinsic",
+					"name": "string"
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 885,
+			"name": "trpcExtra",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 7,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.constants.ts#L7"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": 897,
+				"name": "TrpcExtraType",
+				"package": "@hyper-fetch/trpc"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 881,
+			"name": "TrpcAdapter",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.ts",
+					"line": 4,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.ts#L4"
+				}
+			],
+			"signatures": [
+				{
+					"id": 882,
+					"name": "TrpcAdapter",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.ts",
+							"line": 4,
+							"character": 27,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.ts#L4"
+						}
+					],
+					"parameters": [
+						{
+							"id": 883,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 910,
+								"name": "TrpcAdapterOptionsType",
+								"package": "@hyper-fetch/trpc"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 928,
+						"name": "TrpcAdapterType",
+						"package": "@hyper-fetch/trpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 946,
+			"name": "getTrpcAbortKey",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 41,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L41"
+				}
+			],
+			"signatures": [
+				{
+					"id": 947,
+					"name": "getTrpcAbortKey",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The input is not a part of this key, so "
+							},
+							{
+								"kind": "code",
+								"text": "`request.abort()`"
+							},
+							{
+								"kind": "text",
+								"text": " stops every running call of the procedure"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 41,
+							"character": 31,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L41"
+						}
+					],
+					"parameters": [
+						{
+							"id": 948,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 891,
+			"name": "getTrpcAdapter",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.fetch.ts",
+					"line": 48,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.fetch.ts#L48"
+				}
+			],
+			"signatures": [
+				{
+					"id": 892,
+					"name": "getTrpcAdapter",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.fetch.ts",
+							"line": 48,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.fetch.ts#L48"
+						}
+					],
+					"parameters": [
+						{
+							"id": 893,
+							"name": "__namedParameters",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 910,
+								"name": "TrpcAdapterOptionsType",
+								"package": "@hyper-fetch/trpc"
+							},
+							"defaultValue": "{}"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 928,
+						"name": "TrpcAdapterType",
+						"package": "@hyper-fetch/trpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 949,
+			"name": "getTrpcHeaders",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 45,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L45"
+				}
+			],
+			"signatures": [
+				{
+					"id": 950,
+					"name": "getTrpcHeaders",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 45,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L45"
+						}
+					],
+					"parameters": [
+						{
+							"id": 951,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+							"qualifiedName": "HeadersInit"
+						},
+						"name": "HeadersInit",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 938,
+			"name": "getTrpcInput",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 13,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L13"
+				}
+			],
+			"signatures": [
+				{
+					"id": 939,
+					"name": "getTrpcInput",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The input as it is sent over the wire, "
+							},
+							{
+								"kind": "code",
+								"text": "`undefined`"
+							},
+							{
+								"kind": "text",
+								"text": " means that there is no input to send"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 13,
+							"character": 28,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L13"
+						}
+					],
+					"parameters": [
+						{
+							"id": 940,
+							"name": "input",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "unknown"
+							}
+						},
+						{
+							"id": 941,
+							"name": "transformer",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 900,
+								"name": "TrpcTransformerType",
+								"package": "@hyper-fetch/trpc"
+							}
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "intrinsic",
+								"name": "undefined"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
+			"id": 942,
+			"name": "getTrpcRequestKey",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 33,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L33"
+				}
+			],
+			"signatures": [
+				{
+					"id": 943,
+					"name": "getTrpcRequestKey",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Key of the request response - the same procedure called with a different input is a different resource"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 33,
+							"character": 33,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L33"
+						}
+					],
+					"parameters": [
+						{
+							"id": 944,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						},
+						{
+							"id": 945,
+							"name": "transformer",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 900,
+								"name": "TrpcTransformerType",
+								"package": "@hyper-fetch/trpc"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 957,
+			"name": "getTrpcResult",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 81,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L81"
+				}
+			],
+			"signatures": [
+				{
+					"id": 958,
+					"name": "getTrpcResult",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Reads the "
+							},
+							{
+								"kind": "code",
+								"text": "`{ result: { data } }`"
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "code",
+								"text": "`{ error }`"
+							},
+							{
+								"kind": "text",
+								"text": " envelopes, anything else did not come from a tRPC procedure"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 81,
+							"character": 29,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L81"
+						}
+					],
+					"parameters": [
+						{
+							"id": 959,
+							"name": "parsed",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "unknown"
+							}
+						},
+						{
+							"id": 960,
+							"name": "status",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 961,
+							"name": "transformer",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 900,
+								"name": "TrpcTransformerType",
+								"package": "@hyper-fetch/trpc"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+							"qualifiedName": "TrpcResultType"
+						},
+						"name": "TrpcResultType",
+						"package": "@hyper-fetch/trpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 952,
+			"name": "getTrpcUrl",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 53,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L53"
+				}
+			],
+			"signatures": [
+				{
+					"id": 953,
+					"name": "getTrpcUrl",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 53,
+							"character": 26,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L53"
+						}
+					],
+					"parameters": [
+						{
+							"id": 954,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						},
+						{
+							"id": 955,
+							"name": "queryParams",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "unknown"
+							}
+						},
+						{
+							"id": 956,
+							"name": "input",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "intrinsic",
+										"name": "undefined"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								]
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 935,
+			"name": "trpcEndpointMapper",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 8,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L8"
+				}
+			],
+			"signatures": [
+				{
+					"id": 936,
+					"name": "trpcEndpointMapper",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Turns the SDK path "
+							},
+							{
+								"kind": "code",
+								"text": "`/user/byId`"
+							},
+							{
+								"kind": "text",
+								"text": " into the procedure path "
+							},
+							{
+								"kind": "code",
+								"text": "`user.byId`"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 8,
+							"character": 34,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-trpc/src/adapter/adapter.utils.ts#L8"
+						}
+					],
+					"parameters": [
+						{
+							"id": 937,
+							"name": "endpoint",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Type Aliases",
+			"children": [
+				913,
+				910,
+				928,
+				916,
+				922,
+				897,
+				896,
+				894,
+				900
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				886,
+				884,
+				890,
+				885
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				881,
+				946,
+				891,
+				949,
+				938,
+				942,
+				957,
+				952,
+				935
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/trpc",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🎡 Hyper Fetch tRPC\n\n<p align=\"center\">\n  <b>tRPC adapter for HyperFetch. Typed procedures with caching, queueing and React hooks.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/trpc\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/trpc.svg?logo=npm&color=e76f51\" />\n  </a>\n</p>\n\n## 📖 About\n\nThis adapter connects HyperFetch to a tRPC server. Procedures become regular HyperFetch requests, with types inferred\nfrom your router through "
+		},
+		{
+			"kind": "code",
+			"text": "`createSdk`"
+		},
+		{
+			"kind": "text",
+			"text": ".\n\n## 🎯 Key Capabilities\n\n- 🔮 **End-to-end types** — Inputs, outputs and errors inferred from your "
+		},
+		{
+			"kind": "code",
+			"text": "`AppRouter`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 💾 **Smart caching included** — Every procedure input is cached separately\n- ⚛️ **React-ready** — Use "
+		},
+		{
+			"kind": "code",
+			"text": "`useFetch`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`useSubmit`"
+		},
+		{
+			"kind": "text",
+			"text": " with your procedures\n- 🔁 **Transformers** — Works with "
+		},
+		{
+			"kind": "code",
+			"text": "`superjson`"
+		},
+		{
+			"kind": "text",
+			"text": " and any "
+		},
+		{
+			"kind": "code",
+			"text": "`serialize`"
+		},
+		{
+			"kind": "text",
+			"text": " / "
+		},
+		{
+			"kind": "code",
+			"text": "`deserialize`"
+		},
+		{
+			"kind": "text",
+			"text": " pair\n\n## 🚀 Quick Start\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install @hyper-fetch/core @hyper-fetch/trpc\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { createClient, createSdk } from \"@hyper-fetch/core\";\nimport { TrpcAdapter } from \"@hyper-fetch/trpc\";\nimport type { TrpcSchema } from \"@hyper-fetch/trpc\";\n\nimport type { AppRouter } from \"./server\";\n\nconst client = createClient({ url: \"http://localhost:3000/trpc\" }).setAdapter(TrpcAdapter());\n\nconst api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });\n\nconst { data: user } = await api.user.byId.$query.setPayload({ id: 1 }).send();\nconst { data: created } = await api.user.create.$mutation.setPayload({ name: \"John\" }).send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📚 Documentation\n\n- [tRPC Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview)\n- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)\n- [API Reference](https://hyperfetch.bettertyped.com/api/)\n\n## License\n\n[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"880": {
+			"sourceFileName": "../packages/adapter-trpc/src/index.ts",
+			"qualifiedName": ""
+		},
+		"881": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.ts",
+			"qualifiedName": "TrpcAdapter"
+		},
+		"882": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.ts",
+			"qualifiedName": "TrpcAdapter"
+		},
+		"883": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.ts",
+			"qualifiedName": "options"
+		},
+		"884": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "defaultTimeout"
+		},
+		"885": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "trpcExtra"
+		},
+		"886": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "TrpcMethods"
+		},
+		"887": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object"
+		},
+		"888": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object.QUERY"
+		},
+		"889": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object.MUTATION"
+		},
+		"890": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "reservedQueryParams"
+		},
+		"891": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "getTrpcAdapter"
+		},
+		"892": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "getTrpcAdapter"
+		},
+		"893": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "__0"
+		},
+		"894": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.schema.ts",
+			"qualifiedName": "TrpcSchema"
+		},
+		"895": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.schema.ts",
+			"qualifiedName": "Router"
+		},
+		"896": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcMethod"
+		},
+		"897": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcExtraType"
+		},
+		"898": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"899": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.headers"
+		},
+		"900": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcTransformerType"
+		},
+		"901": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"902": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.serialize"
+		},
+		"903": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"904": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"905": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "value"
+		},
+		"906": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.deserialize"
+		},
+		"907": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"908": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"909": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "value"
+		},
+		"910": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcAdapterOptionsType"
+		},
+		"911": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"912": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.transformer"
+		},
+		"913": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "FetchTrpcAdapterOptionsType"
+		},
+		"914": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"915": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.timeout"
+		},
+		"916": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcErrorDataType"
+		},
+		"917": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"918": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.code"
+		},
+		"919": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.httpStatus"
+		},
+		"920": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.path"
+		},
+		"921": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.stack"
+		},
+		"922": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcErrorType"
+		},
+		"923": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"924": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.message"
+		},
+		"925": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.code"
+		},
+		"926": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.data"
+		},
+		"927": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "Data"
+		},
+		"928": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "TrpcAdapterType"
+		},
+		"929": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"930": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"931": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "endpoint"
+		},
+		"932": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"933": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"934": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "request"
+		},
+		"935": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "trpcEndpointMapper"
+		},
+		"936": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "trpcEndpointMapper"
+		},
+		"937": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "endpoint"
+		},
+		"938": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcInput"
+		},
+		"939": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcInput"
+		},
+		"940": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "input"
+		},
+		"941": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "transformer"
+		},
+		"942": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcRequestKey"
+		},
+		"943": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcRequestKey"
+		},
+		"944": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"945": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "transformer"
+		},
+		"946": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcAbortKey"
+		},
+		"947": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcAbortKey"
+		},
+		"948": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"949": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcHeaders"
+		},
+		"950": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcHeaders"
+		},
+		"951": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"952": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcUrl"
+		},
+		"953": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcUrl"
+		},
+		"954": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"955": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "queryParams"
+		},
+		"956": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "input"
+		},
+		"957": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcResult"
+		},
+		"958": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getTrpcResult"
+		},
+		"959": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "parsed"
+		},
+		"960": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "status"
+		},
+		"961": {
+			"sourceFileName": "../packages/adapter-trpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "transformer"
+		}
+	}
+}

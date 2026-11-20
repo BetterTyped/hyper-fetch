@@ -63,21 +63,21 @@ export const getFirestoreBrowserMethods = ({
       const status = getStatus(result);
       return { result, status, extra: { ref: path, snapshot: querySnapshot } };
     },
-    setDoc: async ({ data, options }: { data?: any; options?: any }) => {
+    setDoc: async ({ payload, options }: DataType) => {
       const path = doc(database, cleanUrl);
       const merge = options?.merge === true;
-      await setDoc(path, data, { merge });
-      return { result: data, status: "success", extra: { ref: path } };
+      await setDoc(path, payload, { merge });
+      return { result: payload, status: "success", extra: { ref: path } };
     },
-    addDoc: async ({ data }: { data?: any }) => {
+    addDoc: async ({ payload }: DataType) => {
       const path = collection(database, cleanUrl);
-      const docRef = await addDoc(path, data);
-      return { result: { ...data, __key: docRef.id }, status: "success", extra: { ref: docRef } };
+      const docRef = await addDoc(path, payload);
+      return { result: { ...payload, __key: docRef.id }, status: "success", extra: { ref: docRef } };
     },
-    updateDoc: async ({ data }: { data?: any }) => {
+    updateDoc: async ({ payload }: DataType) => {
       const path = doc(database, cleanUrl);
-      await updateDoc(path, data);
-      return { result: data, status: "success", extra: { ref: path } };
+      await updateDoc(path, payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
     deleteDoc: async () => {
       const path = doc(database, cleanUrl);

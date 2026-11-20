@@ -1,0 +1,112 @@
+---
+sidebar_position: 1
+title: CLI
+sidebar_label: Overview
+---
+
+CLI is a tool that allows to automate some of the hyper-fetch features. It's a great way to get started with Hyper-Fetch
+and to automate your workflow by generating code and adding sdks.
+
+```bash
+npx @hyper-fetch/cli@latest
+```
+
+This basic command will open the wizard to guide you through the setup process.
+
+---
+
+:::tip Purpose
+
+1.  **Generate code** from your api schema.
+2.  **Add sdks** to your project from the remote locations.
+3.  **Automate your workflow** by generating code and adding sdks.
+
+:::
+
+---
+
+## Usage
+
+You can use it in two ways - by going through wizard or passing individual arguments.
+
+### Wizard
+
+To use the wizard, run the following command:
+
+```bash
+npx @hyper-fetch/cli@latest
+```
+
+It will guide you through the process of generating the client, requests and data models.
+
+### Custom arguments
+
+You can also pass individual arguments to the command. Which is useful for the scripts.
+
+```bash
+npx @hyper-fetch/cli@latest {command}
+```
+
+Example:
+
+```bash
+npx @hyper-fetch/cli@latest generate
+```
+
+---
+
+## Auto-Initialization
+
+The CLI automatically initializes your project when needed. If you run any command (like `generate`) on a project that
+hasn't been set up yet (no `api.json` config file), the CLI will automatically run the `init` flow first, then proceed
+to your original command.
+
+This means you can jump straight to generating code without running `init` manually:
+
+```bash
+# This "just works" — auto-inits if api.json is missing, then generates
+npx @hyper-fetch/cli@latest generate --url https://api.example.com/openapi.json
+```
+
+The auto-init creates:
+- An `api.json` configuration file in your project root
+- A `src/api` directory for generated code
+- Default path aliases for api, hooks, components, and lib directories
+
+:::info
+
+If you prefer to configure things manually first, you can still run `init` separately. The auto-init only triggers
+when `api.json` is not found.
+
+:::
+
+---
+
+## More
+
+We will be covering individual commands in the next sections.
+
+<LinkCard
+  type="docs"
+  title="Initialize a cli project"
+  description="Learn how to initialize new cli project"
+  to="./commands/init"
+/>
+
+<LinkCard
+  type="docs"
+  title="Generate sdk"
+  description="Learn how to generate sdk from your api"
+  to="./commands/generate"
+/>
+
+---
+
+:::success Congratulations!
+
+You've learned how to use the CLI in Hyper-fetch!
+
+1.  You can use the wizard to guide you through the setup process.
+2.  You can pass individual arguments to the command for more control.
+
+:::

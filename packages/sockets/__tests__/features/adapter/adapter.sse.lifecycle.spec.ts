@@ -23,6 +23,7 @@ describe("SSE Adapter [ Lifecycle ]", () => {
     const socket = new Socket<ServerSentEventsAdapterType>({
       url,
       reconnectTime,
+      connectionTimeout: reconnectTime,
       adapter: ServerSentEventsAdapter,
       ...options,
     });

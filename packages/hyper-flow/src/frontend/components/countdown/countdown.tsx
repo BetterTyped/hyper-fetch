@@ -1,60 +1,50 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 import { useCountdown } from "@/hooks/use-countdown";
 
-const getPlural = (value: number, singular: string) => {
-  if (value === 1) {return `${value} ${singular}`;}
-  return `${value} ${singular}s`;
-};
+const getPlural = (value: number, singular: string) => `${value} ${singular}${value === 1 ? "" : "s"}`;
 
+/**
+ * Time left until `value` (a timestamp) in words, or `doneText` once it passed. Values that are no time, like
+ * `Infinity`, show as they are.
+ */
 export const Countdown = ({
   value,
-  countInPast = false,
   doneText = "Past",
   onDone,
   onStart,
 }: {
   value: number;
-  countInPast?: boolean;
   doneText?: React.ReactNode;
+  /** A running countdown reached its end, or its value moved to the past */
   onDone?: () => void;
+  /** The countdown started counting toward a time in the future */
   onStart?: () => void;
 }) => {
-  const triggered = useRef(false);
-  const number = useMemo(() => {
-    if (value === Infinity) {return -1;}
-    if (Number.isNaN(value)) {return -1;}
-    if (value < 1) {return -1;}
-
-    return value;
-  }, [value]);
-
-  const countdown = useCountdown(number);
-  const prev = useRef(countdown);
+  const countdown = useCountdown(value);
+  // `Infinity` never passes, `NaN` is no time at all
+  const isDone = !(countdown.total > 0);
+  const wasDone = useRef<boolean | null>(null);
 
   useLayoutEffect(() => {
-    const hasChanged = JSON.stringify(prev.current) !== JSON.stringify(countdown);
-
-    const now = Date.now();
-    const shouldHandlePast = countInPast ? true : now < new Date(value).getTime();
-
-    if (hasChanged && Object.values(countdown).every((v) => v < 1) && onDone) {
-      triggered.current = false;
-      onDone();
-    } else if (shouldHandlePast && !triggered.current && onStart) {
-      triggered.current = true;
-      onStart();
+    const previous = wasDone.current;
+    wasDone.current = isDone;
+    if (isDone === previous) {
+      return;
     }
-    prev.current = countdown;
-  }, [countInPast, countdown, onDone, onStart, value]);
+    if (!isDone) {
+      onStart?.();
+    } else if (previous === false) {
+      onDone?.();
+    }
+  }, [isDone, onDone, onStart]);
 
-  useLayoutEffect(() => {
-    triggered.current = false;
-  }, [value]);
-
-  if (number === -1) {return String(value);}
-  if (Object.values(countdown).every((v) => !v)) {return doneText;}
-  if (Object.values(countdown).some((v) => v < 0)) {return doneText;}
+  if (!Number.isFinite(value) || value < 1) {
+    return String(value);
+  }
+  if (isDone) {
+    return doneText;
+  }
 
   return (
     <>

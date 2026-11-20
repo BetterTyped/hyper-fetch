@@ -1,6 +1,5 @@
 import { getLoadingByCacheKey } from "@hyper-fetch/core";
-import { useEffect, useMemo, useState } from "react";
-import { useShallow } from "zustand/react/shallow";
+import { useEffect, useState } from "react";
 
 import { SectionData } from "./section-data";
 import { SectionHead } from "./section-head";
@@ -8,45 +7,25 @@ import { SectionOverview } from "./section-overview";
 import { SectionToolbar } from "./section-toolbar";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useCacheStore } from "@/store/applications/cache.store";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 
-export const CacheDetails = () => {
-  const { client, application } = useDevtools();
+export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
+  const { client } = useDevtools();
 
-  const { detailsId, caches } = useCacheStore(
-    useShallow((state) => ({
-      detailsId: state.applications[application.name].detailsId,
-      caches: state.applications[application.name].caches,
-    })),
-  );
-
-  const item = useMemo(() => {
-    if (!detailsId) {return null;}
-    return caches.get(detailsId);
-  }, [detailsId, caches]);
+  const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.staleTime < Date.now());
 
   const [listeners, setListeners] = useState(
-    item ? client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length : 0,
-  );
-
-  const [stale, setStale] = useState(
-    item ? item.cacheData.responseTimestamp + item.cacheData.staleTime < Date.now() : false,
+    client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length,
   );
 
   useEffect(() => {
-    return item
-      ? client.requestManager.emitter.onListener(getLoadingByCacheKey(item?.cacheKey), (count) => {
-          setListeners(count);
-        })
-      : undefined;
-  }, [client.requestManager.emitter, item, item?.cacheKey]);
-
-  // TODO NO CONTENT
-  if (!item) {return null;}
+    return client.requestManager.emitter.onListener(getLoadingByCacheKey(item.cacheKey), (count) => {
+      setListeners(count);
+    });
+  }, [client.requestManager.emitter, item.cacheKey]);
 
   return (
     <ResizableSidebar
-      position="right"
       className="absolute flex flex-col inset-y-0 right-0"
       defaultSize={{
         width: "70%",

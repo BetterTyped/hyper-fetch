@@ -116,6 +116,23 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(error).toStrictEqual([getErrorMessage("abort")]);
   });
 
+  it("should report aborted requests as canceled and not retry them", async () => {
+    mockRequest(request, { delay: 50 });
+    const retried = request.setRetry(2).setRetryTime(0);
+    const onResponse = vi.fn();
+    client.requestManager.events.onResponse(onResponse);
+    const unmount = client.requestManager.events.onRequestStart(() => {
+      unmount();
+      retried.abort();
+    });
+
+    const { success } = await retried.send();
+
+    expect(success).toBeFalse();
+    expect(onResponse).toHaveBeenCalledOnce();
+    expect(onResponse.mock.calls[0][0].details).toMatchObject({ isCanceled: true, willRetry: false });
+  });
+
   // it("should not throw when XMLHttpRequest is not available on window", async () => {
   //   const expected = mockRequest(request, { delay: 20 });
   //   const xml = window.XMLHttpRequest;

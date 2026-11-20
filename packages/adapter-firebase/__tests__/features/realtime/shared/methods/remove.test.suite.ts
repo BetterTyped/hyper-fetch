@@ -14,14 +14,14 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       const getReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "deleteDoc",
+          method: "remove",
         })
         .setParams({ teaId: 1 });
 
@@ -35,7 +35,7 @@ export const removeTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
       const removeReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "deleteDoc",
+          method: "remove",
         })
         .setParams({ teaId: 1 });
 

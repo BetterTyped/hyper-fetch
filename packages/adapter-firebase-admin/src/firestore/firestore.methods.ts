@@ -62,21 +62,21 @@ export const getFirestoreAdminMethods = ({
 
       return { result, status, extra: { ref: path, snapshot: querySnapshot } };
     },
-    setDoc: async ({ data, options }: { data?: any; options?: any }) => {
+    setDoc: async ({ payload, options }: DataType) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       const merge = options?.merge === true;
-      const res = await path.set(data, { merge });
+      const res = await path.set(payload, { merge });
       return { result: res, status: "success", extra: { ref: path } };
     },
-    addDoc: async ({ data }: { data?: any }) => {
+    addDoc: async ({ payload }: DataType) => {
       const ref = getRef(database, cleanUrl) as CollectionReference;
-      const docRef = await ref.add(data);
-      return { result: { ...data, __key: docRef.id }, status: "success", extra: { ref: docRef } };
+      const docRef = await ref.add(payload);
+      return { result: { ...payload, __key: docRef.id }, status: "success", extra: { ref: docRef } };
     },
-    updateDoc: async ({ data }: { data?: any }) => {
+    updateDoc: async ({ payload }: DataType) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
-      await path.update(data);
-      return { result: data, status: "success", extra: { ref: path } };
+      await path.update(payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
     deleteDoc: async () => {
       const path = getRef(database, cleanUrl) as DocumentReference;

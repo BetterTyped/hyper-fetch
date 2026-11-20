@@ -12,7 +12,7 @@ export const Label = ({
 }: {
   label: string | number;
   expandable: boolean;
-  getRaw: () => string;
+  getRaw: () => unknown;
 }) => {
   // oxlint-disable-next-line unicorn/no-useless-undefined
   const ref = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);

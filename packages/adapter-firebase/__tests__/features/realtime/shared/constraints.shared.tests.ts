@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 import type { FirebaseAdapter } from "adapter";
-import { $endAt, $limitToFirst, $orderByChild, $startAt } from "constraints";
+import { $endAt, $limitToFirst, $orderByChild, $startAfter, $startAt } from "constraints";
 
 import type { Tea } from "../../../utils";
 
@@ -10,10 +10,10 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$orderByChild("origin")] },
+        queryParams: [$orderByChild("origin")],
       });
       expect(data!.map((el) => el.origin)).toStrictEqual([
         "China",
@@ -34,10 +34,10 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$orderByChild("origin"), $limitToFirst(5)] },
+        queryParams: [$orderByChild("origin"), $limitToFirst(5)],
       });
       expect(data!.map((tea) => tea.origin)).toStrictEqual(["China", "China", "China", "China", "China"]);
     });
@@ -45,13 +45,24 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$orderByChild("year"), $startAt(2021), $endAt(2022)] },
+        queryParams: [$orderByChild("year"), $startAt(2021), $endAt(2022)],
       });
       expect(data).toHaveLength(5);
       expect(data!.map((tea) => tea.year)).toStrictEqual([2021, 2021, 2021, 2022, 2022]);
+    });
+    it("Should pass the key to cursors as the tie-breaker", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
+      const req = client.createRequest<{ response: Tea[] }>()({
+        endpoint: "",
+        method: "get",
+      });
+      const { data } = await req.send({
+        queryParams: [$orderByChild("year"), $startAfter(2022, "0")],
+      });
+      expect(data?.map((tea) => tea.name)).toStrictEqual(["Yunnan Golden Silk", "Taiping Hou Kui", "Hong Yu"]);
     });
   });
 };

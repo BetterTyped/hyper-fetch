@@ -12,6 +12,7 @@ import type {
 import { GraphqlMethod } from "./adapter.types";
 import {
   getGqlDocument,
+  getGqlHeaders,
   getPersistedQueryHash,
   getPersistedQueryMiss,
   getRequestValues,
@@ -57,6 +58,7 @@ export const getGqlAdapter = (): GraphqlAdapterType => {
       gqlEndpointNameMapper(requestOptions?.document ?? endpoint),
     )
     .setEndpointMapper(gqlEndpointMapper)
+    .setHeaderMapper(getGqlHeaders)
     .setQueryParamsMapper(stringifyQueryParams)
     .setFetcher(
       async ({
@@ -74,7 +76,6 @@ export const getGqlAdapter = (): GraphqlAdapterType => {
         onResponseStart,
         onBeforeRequest,
         onRequestStart,
-        onRequestProgress,
         onSuccess,
       }) => {
         const controller = getAbortController();
@@ -102,8 +103,21 @@ export const getGqlAdapter = (): GraphqlAdapterType => {
           }, timeoutMs);
         }
 
+        // The hashed request goes first. Without Web Crypto the hash is null and the full query is sent.
+        const sha256Hash =
+          persistedQueries && persistedQueriesSupported
+            ? await getPersistedQueryHash(gqlEndpointMapper(getGqlDocument(request)))
+            : null;
+        const persistedQuery = sha256Hash ? ({ version: 1, sha256Hash } as const) : null;
+        const firstValues = getRequestValues(
+          request,
+          queryParams,
+          persistedQuery ? { persistedQuery, withQuery: false } : undefined,
+        );
+        const total = firstValues.payload ? new Blob([firstValues.payload]).size : 0;
+
         onBeforeRequest();
-        onRequestStart();
+        onRequestStart(total ? { total, loaded: 0 } : undefined);
 
         try {
           const requestHeaders = headers as Record<string, string>;
@@ -164,25 +178,9 @@ export const getGqlAdapter = (): GraphqlAdapterType => {
             return new TextDecoder().decode(allChunks);
           };
 
-          const sha256Hash =
-            persistedQueries && persistedQueriesSupported
-              ? await getPersistedQueryHash(gqlEndpointMapper(getGqlDocument(request)))
-              : null;
-          const persistedQuery = sha256Hash ? ({ version: 1, sha256Hash } as const) : null;
-
-          const firstValues = getRequestValues(
-            request,
-            queryParams,
-            persistedQuery ? { persistedQuery, withQuery: false } : undefined,
-          );
-          if (firstValues.payload) {
-            const total = new Blob([firstValues.payload]).size;
-            onRequestProgress({ total, loaded: total } as ProgressEvent);
-          }
-
-          onRequestEnd();
-
           let response = await sendAttempt(firstValues);
+          // Fetch has no upload events. The response is the first sign that the whole body was sent.
+          onRequestEnd();
           // The timeout covers the time to the response headers. A hashed request can still be a miss, so it waits.
           if (!persistedQuery) {
             clearTimer();

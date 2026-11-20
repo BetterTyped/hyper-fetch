@@ -177,6 +177,29 @@ describe("Orpc Adapter [ Lifecycle ]", () => {
 
       expect(onUploadProgress).toHaveBeenCalledWith(expect.objectContaining({ loaded: size, total: size }));
     });
+
+    it("should report the finished upload only once the server has the body", async () => {
+      let serverHasBody = false;
+      server.use(
+        http.post(`${url}/user/create`, async ({ request }) => {
+          await request.text();
+          serverHasBody = true;
+          return HttpResponse.json({ json: null });
+        }),
+      );
+      const progress: { loaded: number; total: number; serverHasBody: boolean }[] = [];
+      const payload = { name: "John" };
+      const size = new Blob([JSON.stringify({ json: payload })]).size;
+
+      await createMutation()
+        .setPayload(payload)
+        .send({ onUploadProgress: ({ loaded, total }) => progress.push({ loaded, total, serverHasBody }) });
+
+      // Fetch has no upload events, so only the response can finish the upload
+      expect(progress.filter(({ loaded, total }) => loaded === total)).toStrictEqual([
+        { loaded: size, total: size, serverHasBody: true },
+      ]);
+    });
   });
 
   describe("when retrying", () => {

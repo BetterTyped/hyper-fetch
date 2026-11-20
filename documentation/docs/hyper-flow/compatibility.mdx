@@ -1,0 +1,55 @@
+---
+sidebar_position: 4
+title: Adapter compatibility
+sidebar_label: Compatibility
+---
+
+# Adapter compatibility
+
+HyperFlow inspects the requests of any HyperFetch adapter. Every feature below is tested against each adapter, with a
+real client reporting through the devtools plugin to a real HyperFlow.
+
+:::tip Purpose
+
+1.  **Know what works**: see which HyperFlow features each adapter supports before you connect your app.
+2.  **Tested, not promised**: every mark is an end-to-end test that runs on each change.
+
+:::
+
+---
+
+## Results
+
+| HyperFlow feature | fetch (default) | axios | graphql | trpc | orpc | firebase | firebase-admin | custom (firebase-like) |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Connects and reports its adapter | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Lists successful requests with the data the app received | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Lists failed requests with the error the app received | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Marks aborted requests as canceled | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Collects statistics | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Shows requests in the network list | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Lists cached responses | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Removes cache entries from the app | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Invalidates cache entries in the app | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Stops and starts the app's queues | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+- **fetch (default)**: the built-in HTTP adapter of `@hyper-fetch/core`.
+- **graphql**: requests are listed and grouped by their operation name.
+- **trpc** and **orpc**: requests are listed by procedure, answered in the tRPC and oRPC wire formats.
+- **firebase** and **firebase-admin**: the real adapters, answered by the
+  [HyperFetch mocker](/docs/core/mocking) instead of a Firebase backend.
+- **custom**: an adapter with its own methods and text statuses, like the one in the
+  [custom adapter guide](/docs/guides/core/advanced/custom-adapter).
+
+---
+
+## Running the checks
+
+From `packages/hyper-flow`, run the matrix and print this table:
+
+```bash
+pnpm test:compatibility
+```
+
+To cover a new adapter, add it to `packages/hyper-flow/__tests__/compatibility/adapters.ts`. Every check runs for it
+automatically.

@@ -1,8 +1,8 @@
 import { Earth } from "lucide-react";
-/* eslint-disable react/no-array-index-key */
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import { NetworkToolbar } from "../toolbar/network.toolbar";
 import { RequestRow } from "./request-row/request-row";
 import { EmptyTable } from "@/components/no-content/empty-table";
 import { DocsButton } from "@/components/ui/docs-button";
@@ -13,12 +13,12 @@ import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import type { PathsOf } from "@/hooks/use-search";
 import { useSearch } from "@/hooks/use-search";
-import { cn } from "@/lib/utils";
 import { useNetworkStore } from "@/store/applications/network.store";
-import { Status } from "@/utils/request.status.utils";
+import { getDisplayEndpoint } from "@/utils/endpoint.utils";
+import { getStatus, Status } from "@/utils/request.status.utils";
 
 export const NetworkList = () => {
-  const { application } = useDevtools();
+  const { application, client } = useDevtools();
   const requests = useNetworkStore(useShallow((state) => state.applications[application.name].requests));
   const networkFilter = useNetworkStore(useShallow((state) => state.applications[application.name].networkFilter));
   const networkSearchTerm = useNetworkStore(
@@ -28,7 +28,9 @@ export const NetworkList = () => {
   const setNetworkSort = useNetworkStore((state) => state.setNetworkSort);
 
   const data = useMemo(() => {
-    if (!networkFilter) {return requests;}
+    if (!networkFilter) {
+      return requests;
+    }
     switch (networkFilter) {
       case Status.SUCCESS: {
         return requests.filter((item) => item.isSuccess);
@@ -37,16 +39,17 @@ export const NetworkList = () => {
         return requests.filter((item) => item.isFinished && !item.isCanceled && !item.isSuccess);
       }
       case Status.IN_PROGRESS: {
-        return requests.filter((item) => !item.isFinished);
+        return requests.filter((item) => getStatus(item) === Status.IN_PROGRESS);
       }
       case Status.PAUSED: {
-        return requests.filter((item) => item.isPaused);
+        return requests.filter((item) => getStatus(item) === Status.PAUSED);
       }
       case Status.CANCELED: {
         return requests.filter((item) => item.isCanceled);
       }
+      // Status.REMOVED, the last of the statuses
       default: {
-        return requests;
+        return requests.filter((item) => getStatus(item) === Status.REMOVED);
       }
     }
   }, [requests, networkFilter]);
@@ -59,14 +62,26 @@ export const NetworkList = () => {
   };
 
   const handleGetSort = (key: PathsOf<DevtoolsRequestEvent>) => {
-    if (!networkSort) {return null;}
-    if (networkSort.key === key) {return networkSort.order;}
+    if (!networkSort) {
+      return null;
+    }
+    if (networkSort.key === key) {
+      return networkSort.order;
+    }
     return null;
   };
 
   const { items } = useSearch({
     data,
-    searchKeys: ["request.endpoint", "request.method", "request.queryKey", "request.cacheKey", "request.abortKey"],
+    searchKeys: [
+      // What the row shows (e.g. a GraphQL operation name), and the raw endpoint for anything inside it
+      (item) => getDisplayEndpoint(item.request, client),
+      "request.endpoint",
+      "request.method",
+      "request.queryKey",
+      "request.cacheKey",
+      "request.abortKey",
+    ],
     searchTerm: networkSearchTerm,
     baseSort: networkSort
       ? (a, b) => {
@@ -77,12 +92,16 @@ export const NetworkList = () => {
           const valueA = path.reduce((acc, k) => (acc as any)[k as any], a.item);
           const valueB = path.reduce((acc, k) => (acc as any)[k as any], b.item);
 
-          if (valueA === valueB) {return 0;}
-          if (order === "asc") {return valueA > valueB ? 1 : -1;}
+          if (valueA === valueB) {
+            return 0;
+          }
+          if (order === "asc") {
+            return valueA > valueB ? 1 : -1;
+          }
           return valueA < valueB ? 1 : -1;
         }
       : undefined,
-    dependencies: [networkSort],
+    dependencies: [networkSort, client],
   });
 
   return (
@@ -94,9 +113,10 @@ export const NetworkList = () => {
         <SectionTitle>Network</SectionTitle>
         <SectionDescription>You can see here all the requests made from your application.</SectionDescription>
       </SectionHeader>
+      {requests.length > 0 && <NetworkToolbar />}
       {items.length > 0 && (
         <Table className="flex-1" wrapperClassName="pb-4">
-          <TableHeader className={cn(requests.length === 0 && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
+          <TableHeader className="sticky top-0 bg-sidebar z-10">
             <TableRow>
               <TableHead />
               <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
@@ -112,13 +132,16 @@ export const NetworkList = () => {
             </TableRow>
           </TableHeader>
           <TableBody className="relative pb-8">
-            {items?.map((item, index) => {
-              return <RequestRow key={index} item={item} />;
+            {items?.map((item) => {
+              return <RequestRow key={item.requestId} item={item} />;
             })}
           </TableBody>
         </Table>
       )}
-      {items.length === 0 && (
+      {requests.length > 0 && items.length === 0 && (
+        <EmptyTable title="No matching requests" description="No request matches the search or the status filter." />
+      )}
+      {requests.length === 0 && (
         <EmptyTable title="Network is empty" description="Make some request to see them listed here.">
           <DocsButton />
         </EmptyTable>

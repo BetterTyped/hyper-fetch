@@ -137,7 +137,9 @@ describe("Delivery [ TypeScript ]", () => {
   });
 
   it("should type the raw Listener generics", () => {
-    expectTypeOf<Listener<Price, "prices", typeof socket>>().toMatchTypeOf<ListenerInstance<{ delivered: Price }>>();
+    expectTypeOf<Listener<Price, undefined, "prices", typeof socket>>().toMatchTypeOf<
+      ListenerInstance<{ delivered: Price }>
+    >();
     expect(true).toBeTrue();
   });
 });

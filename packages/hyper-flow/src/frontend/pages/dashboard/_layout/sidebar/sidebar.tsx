@@ -30,12 +30,8 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
         </SidebarHeader>
         <SidebarContent className="mb-2">
           <NavPrimary />
-          {/* <NavSecondary items={secondary} /> */}
           <NavTertiary className="mt-auto" />
         </SidebarContent>
-        {/* <SidebarFooter>
-          <NavOrg />
-        </SidebarFooter> */}
       </Sidebar>
     </SidebarProvider>
   );

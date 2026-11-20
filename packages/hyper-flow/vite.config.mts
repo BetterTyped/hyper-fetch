@@ -8,6 +8,8 @@ const workspaceHyperFetchAliases = {
   "@hyper-fetch/firebase": path.resolve(__dirname, "../adapter-firebase/src/index.ts"),
   "@hyper-fetch/firebase-admin": path.resolve(__dirname, "../adapter-firebase-admin/src/index.ts"),
   "@hyper-fetch/graphql": path.resolve(__dirname, "../adapter-graphql/src/index.ts"),
+  "@hyper-fetch/orpc": path.resolve(__dirname, "../adapter-orpc/src/index.ts"),
+  "@hyper-fetch/trpc": path.resolve(__dirname, "../adapter-trpc/src/index.ts"),
   "@hyper-fetch/plugin-devtools": path.resolve(__dirname, "../plugin-devtools/src/index.ts"),
   "@hyper-fetch/react": path.resolve(__dirname, "../react/src/index.ts"),
   "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),

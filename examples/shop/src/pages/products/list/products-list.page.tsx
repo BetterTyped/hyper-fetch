@@ -30,15 +30,10 @@ export const ProductsPage = () => {
     return constraints;
   };
 
-  const { data, error, loading } = useFetch(
-    getProducts.setQueryParams({
-      constraints: getConstraints(),
-    }),
-    {
-      initialResponse: { data: [] },
-      dependencies: [JSON.stringify(query)],
-    },
-  );
+  const { data, error, loading } = useFetch(getProducts.setQueryParams(getConstraints()), {
+    initialResponse: { data: [] },
+    dependencies: [JSON.stringify(query)],
+  });
 
   return (
     <Box

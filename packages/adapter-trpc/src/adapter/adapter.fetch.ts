@@ -142,12 +142,13 @@ export const getTrpcAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
             init.body = input;
 
             const total = new Blob([input]).size;
-            onRequestProgress({ total, loaded: total } as ProgressEvent);
+            onRequestProgress({ total, loaded: 0 } as ProgressEvent);
           }
 
-          onRequestEnd();
-
           const response = await fetch(getTrpcUrl(request, queryParams, input), init);
+
+          // Fetch has no upload events. The response is the first sign that the whole body was sent.
+          onRequestEnd();
 
           onResponseStart();
 

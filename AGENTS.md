@@ -27,7 +27,7 @@ dependents.
 | `packages/plugin-eslint`          | `eslint-plugin-hyper-fetch`    | `plugin-eslint`   |
 | `packages/plugin-oxlint`          | `oxlint-plugin-hyper-fetch`    | `plugin-oxlint`   |
 | `packages/cli`                    | `@hyper-fetch/cli`             | `cli`             |
-| `packages/testing`                | `@hyper-fetch/testing`         | `testing`         |
+| `packages/testing`                | internal, never published      | `testing`         |
 | `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
 
 `documentation/` is the docs site. `examples/` holds sample apps.
@@ -57,6 +57,20 @@ pnpm exec vitest run __tests__/features/cache/cache.base.spec.ts
 pnpm --filter @hyper-fetch/elysia test:bun
 ```
 
+- `firebase` and `firebase-admin` specs run against the Firebase emulators, so the affected command skips them. When
+  those packages, `core` or `sockets` change, run them too. They need Java 11 or newer, and CI runs them in the
+  `firebase-tests` job:
+
+```bash
+pnpm test:firebase
+```
+
+- To run one Firebase spec, wrap vitest in the emulators from the package directory:
+
+```bash
+pnpm exec firebase emulators:exec "npx vitest run __tests__/features/constraints/constraints.base.spec.ts"
+```
+
 - Fix every error you introduced before reporting the work as complete. Never report a check you did not run.
 - `pnpm format` rewrites unrelated files. Revert those instead of committing them.
 - Changes limited to Markdown, MDX or agent rules need no package checks.
@@ -71,6 +85,9 @@ pnpm --filter @hyper-fetch/elysia test:bun
 6. **The commit type decides the release.** `feat`, `fix`, `perf` and `revert` publish every package to npm. Read
    `.cursor/rules/commit-conventions.mdc` before committing.
 7. **Never hand-edit `dist/`** or other build output.
+8. **`@hyper-fetch/testing` is internal.** It exists only for this repo's own specs. Never mention, recommend or market
+   it in READMEs, documentation, blog posts, the landing page, examples, changelogs or social posts, and never list it
+   among the packages. Never publish it. Users mock requests with `request.setMock()`.
 
 ## Rules by area
 
@@ -97,6 +114,14 @@ Workflows in `.claude/skills/`:
 - `fix-bug`: reproduce a bug with a failing test, fix it, keep the test.
 - `fix-flaky-tests`: root-cause intermittent failures and prove the fix by repeated runs.
 - `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.
+- `publish-new-package`: first npm publish and trusted publishing for a package that is not on npm yet.
+
+These are for working on this repo. Every `SKILL.md` outside `skills/` sets `metadata.internal: true` so the
+[skills](https://skills.sh) CLI never installs it for users.
+
+`skills/` holds the public skills, one per package, installed with `npx skills add BetterTyped/hyper-fetch/skills`.
+Their readers build apps with HyperFetch. Verify every API name, option, default and type claim in them against
+`packages/*/src`, and update the matching skill when a change alters public behavior or types.
 
 ## Decisions
 

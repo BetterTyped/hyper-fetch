@@ -358,7 +358,7 @@ parallel.
 Deduplication optimizes data exchange with the server. If we ask the server for the same data twice at the same time
 with different requests, this mode will perform one call and propagate the response to both sources.
 
-Enable this mode by setting the request `deduplication` prop to true.
+Enable this mode by setting the request `deduplicate` option to true.
 
 ```tsx live size=md
 import { getUser } from "./api";

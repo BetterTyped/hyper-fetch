@@ -7,6 +7,7 @@ import { convertNpmToPackageManagers } from "@sapphire/docusaurus-plugin-npm2yar
 import fs from "fs";
 import path from "path";
 
+import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
 import docsVersions from "./versions.json";
 
 /**
@@ -152,6 +153,7 @@ const config: Config = {
 
   plugins: [
     "@docsearch/docusaurus-adapter",
+    hyperFlowReleasesPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {

@@ -257,6 +257,13 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
     return false;
   };
 
+  /**
+   * A failed attempt with another one scheduled. The request waits in the queue for its retry timer, so it is not
+   * running, but its result is not final either - the state stays loading until the retries end.
+   */
+  const getIsWaitingForRetry = (queryKey: string = scopedQueryKey) =>
+    !!responseDetails.current?.willRetry && dispatcher.getQueue(queryKey).requests.length > 0;
+
   const handleCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
@@ -288,7 +295,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       retries: cacheData.retries,
       responseTimestamp: new Date(cacheData.responseTimestamp),
       requestTimestamp: new Date(cacheData.requestTimestamp),
-      loading: dispatcher.hasRunningRequests(scopedQueryKey),
+      loading: dispatcher.hasRunningRequests(scopedQueryKey) || getIsWaitingForRetry(),
     };
 
     const nextState: UseTrackedStateType<T, TData> = { ...state.current };
@@ -461,6 +468,7 @@ export const useTrackedState = <T extends RequestInstance, TData = ExtractRespon
       setCacheData,
       getStaleStatus,
       getIsDataProcessing,
+      getIsWaitingForRetry,
       selectData: (data) => selectData(data, state.current.data),
       getResponseDetails: () => responseDetails.current,
     },

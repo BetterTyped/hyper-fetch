@@ -18,7 +18,8 @@
     "format": "oxfmt --write .",
     "typecheck": "tsgo --noEmit --emitDeclarationOnly false && tsgo --noEmit -p __tests__/tsconfig.json",
     "tests": "pnpm lint-staged",
-    "update:version": "node ../../scripts/update-package-version.js --prefix v"
+    "update:version": "node ../../scripts/update-package-version.js --prefix v",
+    "test:compatibility": "node scripts/compatibility-report.mjs"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.7.0",
@@ -32,18 +33,20 @@
     "@electron-forge/plugin-vite": "^7.7.0",
     "@electron-forge/publisher-github": "^7.7.0",
     "@electron/fuses": "^1.8.0",
+    "@hyper-fetch/orpc": "*",
+    "@hyper-fetch/trpc": "*",
     "@tanstack/react-router-devtools": "1.121.34",
     "@tanstack/router-plugin": "1.121.34",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@vitejs/plugin-react": "^4.3.4",
     "bufferutil": "^4.0.9",
+    "electron": "36.6.0",
     "tailwindcss": "^4.0.9",
     "ts-node": "^10.9.2",
     "utf-8-validate": "^6.0.5",
     "vite": "^5.4.14",
     "vite-plugin-svgr": "^4.3.0",
-    "vite-tsconfig-paths": "^5.1.4",
-    "electron": "36.6.0"
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "ws": "^8.18.1",

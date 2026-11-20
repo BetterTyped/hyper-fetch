@@ -32,6 +32,8 @@ export default defineConfig({
       provider: "v8",
     },
     environment: "node",
+    // Every spec file seeds and clears the same collections on one shared emulator, so files must run one at a time
+    fileParallelism: false,
     globals: true,
     include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
     setupFiles: ["./__tests__/vitest.setup.ts"],

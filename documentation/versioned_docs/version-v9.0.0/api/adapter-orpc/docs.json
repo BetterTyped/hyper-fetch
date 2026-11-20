@@ -1,0 +1,2762 @@
+{
+	"id": 799,
+	"name": "@hyper-fetch/orpc",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 825,
+			"name": "FetchOrpcAdapterOptionsType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 35,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L35"
+				}
+			],
+			"type": {
+				"type": "intersection",
+				"types": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Omit"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+									"qualifiedName": "RequestInit"
+								},
+								"name": "RequestInit",
+								"package": "typescript"
+							},
+							{
+								"type": "union",
+								"types": [
+									{
+										"type": "literal",
+										"value": "method"
+									},
+									{
+										"type": "literal",
+										"value": "headers"
+									},
+									{
+										"type": "literal",
+										"value": "body"
+									},
+									{
+										"type": "literal",
+										"value": "signal"
+									}
+								]
+							}
+						],
+						"name": "Omit",
+						"package": "typescript"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 826,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 828,
+									"name": "queryMethod",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {
+										"isOptional": true
+									},
+									"comment": {
+										"summary": [
+											{
+												"kind": "text",
+												"text": "Overrides the "
+											},
+											{
+												"kind": "code",
+												"text": "`queryMethod`"
+											},
+											{
+												"kind": "text",
+												"text": " of the adapter for one request"
+											}
+										]
+									},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 38,
+											"character": 2,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L38"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": 820,
+										"name": "OrpcQueryMethod",
+										"package": "@hyper-fetch/orpc"
+									}
+								},
+								{
+									"id": 827,
+									"name": "timeout",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {
+										"isOptional": true
+									},
+									"sources": [
+										{
+											"fileName": "adapter/adapter.types.ts",
+											"line": 36,
+											"character": 2,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L36"
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										828,
+										827
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 35,
+									"character": 104,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L35"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": 821,
+			"name": "OrpcAdapterOptionsType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 22,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L22"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 822,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 824,
+							"name": "customJsonSerializers",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Serializers of custom types, the same as the "
+									},
+									{
+										"kind": "code",
+										"text": "`customJsonSerializers`"
+									},
+									{
+										"kind": "text",
+										"text": " option of "
+									},
+									{
+										"kind": "code",
+										"text": "`RPCHandler`"
+									},
+									{
+										"kind": "text",
+										"text": " and "
+									},
+									{
+										"kind": "code",
+										"text": "`RPCLink`"
+									},
+									{
+										"kind": "text",
+										"text": ".\nBoth sides need the same list."
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 32,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L32"
+								}
+							],
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+										"qualifiedName": "StandardRPCCustomJsonSerializer"
+									},
+									"name": "StandardRPCCustomJsonSerializer",
+									"package": "@orpc/client"
+								}
+							}
+						},
+						{
+							"id": 823,
+							"name": "queryMethod",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isOptional": true
+							},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "HTTP method of the "
+									},
+									{
+										"kind": "code",
+										"text": "`QUERY`"
+									},
+									{
+										"kind": "text",
+										"text": " requests, mutations always use "
+									},
+									{
+										"kind": "code",
+										"text": "`POST`"
+									},
+									{
+										"kind": "text",
+										"text": "."
+									}
+								],
+								"blockTags": [
+									{
+										"tag": "@default",
+										"content": [
+											{
+												"kind": "code",
+												"text": "```ts\n\"POST\"\n```"
+											}
+										]
+									}
+								]
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 27,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L27"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 820,
+								"name": "OrpcQueryMethod",
+								"package": "@hyper-fetch/orpc"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								824,
+								823
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 22,
+							"character": 37,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L22"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 838,
+			"name": "OrpcAdapterType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 53,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L53"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/core/src/adapter/adapter.ts",
+					"qualifiedName": "Adapter"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": 825,
+						"name": "FetchOrpcAdapterOptionsType",
+						"package": "@hyper-fetch/orpc"
+					},
+					{
+						"type": "reference",
+						"target": 816,
+						"name": "OrpcMethod",
+						"package": "@hyper-fetch/orpc"
+					},
+					{
+						"type": "intrinsic",
+						"name": "number"
+					},
+					{
+						"type": "reference",
+						"target": 817,
+						"name": "OrpcExtraType",
+						"package": "@hyper-fetch/orpc"
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/adapter/adapter.types.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							}
+						]
+					},
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/adapter/adapter.types.ts",
+									"qualifiedName": "QueryParamsType"
+								},
+								"name": "QueryParamsType",
+								"package": "@hyper-fetch/core"
+							},
+							{
+								"type": "intrinsic",
+								"name": "string"
+							},
+							{
+								"type": "intrinsic",
+								"name": "undefined"
+							}
+						]
+					},
+					{
+						"type": "intrinsic",
+						"name": "string"
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 839,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 61,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L61"
+								}
+							],
+							"signatures": [
+								{
+									"id": 840,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 841,
+											"name": "endpoint",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							]
+						}
+					},
+					{
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../packages/core/src/http-adapter/http-adapter.utils.ts",
+								"qualifiedName": "stringifyQueryParams"
+							},
+							"name": "stringifyQueryParams",
+							"package": "@hyper-fetch/core",
+							"preferValues": true
+						}
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 842,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 63,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L63"
+								}
+							],
+							"signatures": [
+								{
+									"id": 843,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 844,
+											"name": "request",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/core/src/request/request.types.ts",
+													"qualifiedName": "RequestInstance"
+												},
+												"name": "RequestInstance",
+												"package": "@hyper-fetch/core"
+											}
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+											"qualifiedName": "HeadersInit"
+										},
+										"name": "HeadersInit",
+										"package": "typescript"
+									}
+								}
+							]
+						}
+					},
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/adapter/adapter.ts",
+							"qualifiedName": "DefaultMapperType"
+						},
+						"name": "DefaultMapperType",
+						"package": "@hyper-fetch/core"
+					}
+				],
+				"name": "Adapter",
+				"package": "@hyper-fetch/core"
+			}
+		},
+		{
+			"id": 829,
+			"name": "OrpcErrorType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Error sent by an oRPC procedure, the JSON form of "
+					},
+					{
+						"kind": "code",
+						"text": "`ORPCError`"
+					},
+					{
+						"kind": "text",
+						"text": ".\nErrors from the "
+					},
+					{
+						"kind": "code",
+						"text": "`.errors()`"
+					},
+					{
+						"kind": "text",
+						"text": " map of the procedure have "
+					},
+					{
+						"kind": "code",
+						"text": "`defined: true`"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 45,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L45"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 836,
+					"name": "Code",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					},
+					"default": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				},
+				{
+					"id": 837,
+					"name": "Data",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"default": {
+						"type": "intrinsic",
+						"name": "unknown"
+					}
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 830,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 832,
+							"name": "code",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 47,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L47"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 836,
+								"name": "Code",
+								"package": "@hyper-fetch/orpc",
+								"refersToTypeParameter": true
+							}
+						},
+						{
+							"id": 835,
+							"name": "data",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 50,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L50"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 837,
+								"name": "Data",
+								"package": "@hyper-fetch/orpc",
+								"refersToTypeParameter": true
+							}
+						},
+						{
+							"id": 831,
+							"name": "defined",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 46,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L46"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "boolean"
+							}
+						},
+						{
+							"id": 834,
+							"name": "message",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 49,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L49"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 833,
+							"name": "status",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 48,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L48"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								832,
+								835,
+								831,
+								834,
+								833
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 45,
+							"character": 74,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L45"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 817,
+			"name": "OrpcExtraType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 14,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L14"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 818,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 819,
+							"name": "headers",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.types.ts",
+									"line": 14,
+									"character": 30,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L14"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Record"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								],
+								"name": "Record",
+								"package": "typescript"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								819
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.types.ts",
+							"line": 14,
+							"character": 28,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L14"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 816,
+			"name": "OrpcMethod",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 12,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L12"
+				}
+			],
+			"type": {
+				"type": "indexedAccess",
+				"indexType": {
+					"type": "typeOperator",
+					"operator": "keyof",
+					"target": {
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"target": 805,
+							"name": "OrpcMethods",
+							"package": "@hyper-fetch/orpc"
+						}
+					}
+				},
+				"objectType": {
+					"type": "query",
+					"queryType": {
+						"type": "reference",
+						"target": 805,
+						"name": "OrpcMethods",
+						"package": "@hyper-fetch/orpc"
+					}
+				}
+			}
+		},
+		{
+			"id": 820,
+			"name": "OrpcQueryMethod",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "HTTP method used for the "
+					},
+					{
+						"kind": "code",
+						"text": "`QUERY`"
+					},
+					{
+						"kind": "text",
+						"text": " requests.\nThe oRPC "
+					},
+					{
+						"kind": "code",
+						"text": "`RPCHandler`"
+					},
+					{
+						"kind": "text",
+						"text": " accepts only "
+					},
+					{
+						"kind": "code",
+						"text": "`POST`"
+					},
+					{
+						"kind": "text",
+						"text": " until "
+					},
+					{
+						"kind": "code",
+						"text": "`GET`"
+					},
+					{
+						"kind": "text",
+						"text": " is added to its "
+					},
+					{
+						"kind": "code",
+						"text": "`allowMethods`"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.types.ts",
+					"line": 20,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.types.ts#L20"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "POST"
+					},
+					{
+						"type": "literal",
+						"value": "GET"
+					}
+				]
+			}
+		},
+		{
+			"id": 814,
+			"name": "OrpcSchema",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Maps the type of an oRPC router to the schema understood by "
+					},
+					{
+						"kind": "code",
+						"text": "`createSdk`"
+					},
+					{
+						"kind": "text",
+						"text": ".\nIt takes the router, or the client type, like "
+					},
+					{
+						"kind": "code",
+						"text": "`ContractRouterClient<typeof contract>`"
+					},
+					{
+						"kind": "text",
+						"text": " for contract-first APIs."
+					}
+				],
+				"blockTags": [
+					{
+						"tag": "@example",
+						"content": [
+							{
+								"kind": "code",
+								"text": "```ts\nconst api = createSdk<typeof client, OrpcSchema<typeof router>>(client, { camelCaseToKebabCase: false });\n\nconst { data } = await api.planet.find.$query.setPayload({ id: 1 }).send();\n```"
+							}
+						]
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.schema.ts",
+					"line": 73,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.schema.ts#L73"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 815,
+					"name": "Router",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/@orpc+server@1.16.4_@opentelemetry+api@1.9.1_ws@8.20.0_bufferutil@4.1.0_utf-8-validate@6.0.6_/node_modules/@orpc/server/dist/shared/server.qKsRrdxW.d.mts",
+									"qualifiedName": "AnyRouter"
+								},
+								"name": "AnyRouter",
+								"package": "@orpc/server"
+							},
+							{
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.i2uoJbEp.d.mts",
+									"qualifiedName": "NestedClient"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									}
+								],
+								"name": "NestedClient",
+								"package": "@orpc/client"
+							}
+						]
+					}
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.schema.ts",
+					"qualifiedName": "OrpcClientSchema"
+				},
+				"typeArguments": [
+					{
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.schema.ts",
+							"qualifiedName": "OrpcRouterClient"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 815,
+								"name": "Router",
+								"package": "@hyper-fetch/orpc",
+								"refersToTypeParameter": true
+							}
+						],
+						"name": "OrpcRouterClient",
+						"package": "@hyper-fetch/orpc"
+					},
+					{
+						"type": "literal",
+						"value": ""
+					}
+				],
+				"name": "OrpcClientSchema",
+				"package": "@hyper-fetch/orpc"
+			}
+		},
+		{
+			"id": 848,
+			"name": "OrpcSerializerType",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 14,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L14"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+					"qualifiedName": "ReturnType"
+				},
+				"typeArguments": [
+					{
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"target": 845,
+							"name": "createOrpcSerializer",
+							"package": "@hyper-fetch/orpc"
+						}
+					}
+				],
+				"name": "ReturnType",
+				"package": "typescript"
+			}
+		},
+		{
+			"id": 805,
+			"name": "OrpcMethods",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 11,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L11"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 806,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 808,
+							"name": "MUTATION",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isReadonly": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.constants.ts",
+									"line": 13,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L13"
+								}
+							],
+							"type": {
+								"type": "literal",
+								"value": "MUTATION"
+							},
+							"defaultValue": "\"MUTATION\""
+						},
+						{
+							"id": 807,
+							"name": "QUERY",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {
+								"isReadonly": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/adapter.constants.ts",
+									"line": 12,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L12"
+								}
+							],
+							"type": {
+								"type": "literal",
+								"value": "QUERY"
+							},
+							"defaultValue": "\"QUERY\""
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								808,
+								807
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/adapter.constants.ts",
+							"line": 11,
+							"character": 27,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L11"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 803,
+			"name": "defaultTimeout",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 5,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L5"
+				}
+			],
+			"type": {
+				"type": "intrinsic",
+				"name": "number"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 810,
+			"name": "maxGetUrlLength",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Longer GET urls are sent with POST, the same limit as the "
+					},
+					{
+						"kind": "code",
+						"text": "`RPCLink`"
+					},
+					{
+						"kind": "text",
+						"text": " of oRPC"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 20,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L20"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 2083
+			},
+			"defaultValue": "2083"
+		},
+		{
+			"id": 804,
+			"name": "orpcExtra",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 7,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L7"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": 817,
+				"name": "OrpcExtraType",
+				"package": "@hyper-fetch/orpc"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 809,
+			"name": "reservedQueryParams",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Query string key owned by the oRPC RPC protocol - it wins over the user query params"
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.constants.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.constants.ts#L17"
+				}
+			],
+			"type": {
+				"type": "array",
+				"elementType": {
+					"type": "intrinsic",
+					"name": "string"
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 800,
+			"name": "OrpcAdapter",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.ts",
+					"line": 11,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.ts#L11"
+				}
+			],
+			"signatures": [
+				{
+					"id": 801,
+					"name": "OrpcAdapter",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Adapter calling oRPC procedures with the RPC protocol.\nThe endpoint is the procedure path and the payload is the procedure input."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@example",
+								"content": [
+									{
+										"kind": "code",
+										"text": "```ts\nconst client = createClient({ url: \"http://localhost:3000/rpc\" }).setAdapter(OrpcAdapter());\n```"
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.ts",
+							"line": 11,
+							"character": 27,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.ts#L11"
+						}
+					],
+					"parameters": [
+						{
+							"id": 802,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"target": 821,
+								"name": "OrpcAdapterOptionsType",
+								"package": "@hyper-fetch/orpc"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 838,
+						"name": "OrpcAdapterType",
+						"package": "@hyper-fetch/orpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 845,
+			"name": "createOrpcSerializer",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 10,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L10"
+				}
+			],
+			"signatures": [
+				{
+					"id": 846,
+					"name": "createOrpcSerializer",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Serializer of the oRPC RPC protocol, it handles types like "
+							},
+							{
+								"kind": "code",
+								"text": "`Date`"
+							},
+							{
+								"kind": "text",
+								"text": ", "
+							},
+							{
+								"kind": "code",
+								"text": "`BigInt`"
+							},
+							{
+								"kind": "text",
+								"text": ", "
+							},
+							{
+								"kind": "code",
+								"text": "`Map`"
+							},
+							{
+								"kind": "text",
+								"text": ", "
+							},
+							{
+								"kind": "code",
+								"text": "`Set`"
+							},
+							{
+								"kind": "text",
+								"text": " and files"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 10,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L10"
+						}
+					],
+					"parameters": [
+						{
+							"id": 847,
+							"name": "customJsonSerializers",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+										"qualifiedName": "StandardRPCCustomJsonSerializer"
+									},
+									"name": "StandardRPCCustomJsonSerializer",
+									"package": "@orpc/client"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+							"qualifiedName": "StandardRPCSerializer"
+						},
+						"name": "StandardRPCSerializer",
+						"package": "@orpc/client"
+					}
+				}
+			]
+		},
+		{
+			"id": 856,
+			"name": "getOrpcAbortKey",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 56,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L56"
+				}
+			],
+			"signatures": [
+				{
+					"id": 857,
+					"name": "getOrpcAbortKey",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The input is not a part of this key, so "
+							},
+							{
+								"kind": "code",
+								"text": "`request.abort()`"
+							},
+							{
+								"kind": "text",
+								"text": " stops every running call of the procedure"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 56,
+							"character": 31,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L56"
+						}
+					],
+					"parameters": [
+						{
+							"id": 858,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 811,
+			"name": "getOrpcAdapter",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.fetch.ts",
+					"line": 68,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.fetch.ts#L68"
+				}
+			],
+			"signatures": [
+				{
+					"id": 812,
+					"name": "getOrpcAdapter",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.fetch.ts",
+							"line": 68,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.fetch.ts#L68"
+						}
+					],
+					"parameters": [
+						{
+							"id": 813,
+							"name": "__namedParameters",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": 821,
+								"name": "OrpcAdapterOptionsType",
+								"package": "@hyper-fetch/orpc"
+							},
+							"defaultValue": "{}"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 838,
+						"name": "OrpcAdapterType",
+						"package": "@hyper-fetch/orpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 859,
+			"name": "getOrpcHeaders",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 61,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L61"
+				}
+			],
+			"signatures": [
+				{
+					"id": 860,
+					"name": "getOrpcHeaders",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Only the user headers, the content type depends on the encoded body and is set while sending"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 61,
+							"character": 30,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L61"
+						}
+					],
+					"parameters": [
+						{
+							"id": 861,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+							"qualifiedName": "HeadersInit"
+						},
+						"name": "HeadersInit",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 862,
+			"name": "getOrpcHttpRequest",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 77,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L77"
+				}
+			],
+			"signatures": [
+				{
+					"id": 863,
+					"name": "getOrpcHttpRequest",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Encodes the call as described by the oRPC RPC protocol.\nGET sends the input in the "
+							},
+							{
+								"kind": "code",
+								"text": "`data`"
+							},
+							{
+								"kind": "text",
+								"text": " query param. Files and urls over the length limit fall back to POST,\nthe same as the "
+							},
+							{
+								"kind": "code",
+								"text": "`RPCLink`"
+							},
+							{
+								"kind": "text",
+								"text": " of oRPC."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 77,
+							"character": 34,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L77"
+						}
+					],
+					"parameters": [
+						{
+							"id": 864,
+							"name": "__namedParameters",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 865,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 867,
+											"name": "endpoint",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 87,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L87"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 869,
+											"name": "headers",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 89,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L89"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+													"qualifiedName": "HeadersInit"
+												},
+												"name": "HeadersInit",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 870,
+											"name": "payload",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 90,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L90"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "unknown"
+											}
+										},
+										{
+											"id": 871,
+											"name": "queryMethod",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 91,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L91"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 820,
+												"name": "OrpcQueryMethod",
+												"package": "@hyper-fetch/orpc"
+											}
+										},
+										{
+											"id": 868,
+											"name": "queryParams",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 88,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L88"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "unknown"
+											}
+										},
+										{
+											"id": 866,
+											"name": "request",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 86,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L86"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../packages/core/src/request/request.types.ts",
+													"qualifiedName": "RequestInstance"
+												},
+												"name": "RequestInstance",
+												"package": "@hyper-fetch/core"
+											}
+										},
+										{
+											"id": 872,
+											"name": "serializer",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 92,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L92"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+													"qualifiedName": "StandardRPCSerializer"
+												},
+												"name": "StandardRPCSerializer",
+												"package": "@orpc/client"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												867,
+												869,
+												870,
+												871,
+												868,
+												866,
+												872
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/adapter.utils.ts",
+											"line": 85,
+											"character": 3,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L85"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+							"qualifiedName": "OrpcHttpRequestType"
+						},
+						"name": "OrpcHttpRequestType",
+						"package": "@hyper-fetch/orpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 852,
+			"name": "getOrpcRequestKey",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 48,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L48"
+				}
+			],
+			"signatures": [
+				{
+					"id": 853,
+					"name": "getOrpcRequestKey",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Key of the request response - the same procedure called with a different input is a different resource"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 48,
+							"character": 33,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L48"
+						}
+					],
+					"parameters": [
+						{
+							"id": 854,
+							"name": "request",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/core/src/request/request.types.ts",
+									"qualifiedName": "RequestInstance"
+								},
+								"name": "RequestInstance",
+								"package": "@hyper-fetch/core"
+							}
+						},
+						{
+							"id": 855,
+							"name": "serializer",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+									"qualifiedName": "StandardRPCSerializer"
+								},
+								"name": "StandardRPCSerializer",
+								"package": "@orpc/client"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 873,
+			"name": "getOrpcResult",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 157,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L157"
+				}
+			],
+			"signatures": [
+				{
+					"id": 874,
+					"name": "getOrpcResult",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Reads the serialized "
+							},
+							{
+								"kind": "code",
+								"text": "`{ json, meta }`"
+							},
+							{
+								"kind": "text",
+								"text": " body, or the multipart body when the output contains files.\nStatuses from 400 up are errors, the same as in oRPC."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 157,
+							"character": 29,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L157"
+						}
+					],
+					"parameters": [
+						{
+							"id": 875,
+							"name": "__namedParameters",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 876,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 877,
+											"name": "body",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 162,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L162"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "string"
+													},
+													{
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.dom.d.ts",
+															"qualifiedName": "FormData"
+														},
+														"name": "FormData",
+														"package": "typescript"
+													}
+												]
+											}
+										},
+										{
+											"id": 879,
+											"name": "serializer",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 164,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L164"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../node_modules/.pnpm/@orpc+client@1.16.4_@opentelemetry+api@1.9.1/node_modules/@orpc/client/dist/shared/client.DfYtAZrm.d.mts",
+													"qualifiedName": "StandardRPCSerializer"
+												},
+												"name": "StandardRPCSerializer",
+												"package": "@orpc/client"
+											}
+										},
+										{
+											"id": 878,
+											"name": "status",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/adapter.utils.ts",
+													"line": 163,
+													"character": 2,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L163"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "number"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												877,
+												879,
+												878
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/adapter.utils.ts",
+											"line": 161,
+											"character": 3,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L161"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+							"qualifiedName": "OrpcResultType"
+						},
+						"name": "OrpcResultType",
+						"package": "@hyper-fetch/orpc"
+					}
+				}
+			]
+		},
+		{
+			"id": 849,
+			"name": "orpcEndpointMapper",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.utils.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L17"
+				}
+			],
+			"signatures": [
+				{
+					"id": 850,
+					"name": "orpcEndpointMapper",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Turns the procedure path "
+							},
+							{
+								"kind": "code",
+								"text": "`user/byId`"
+							},
+							{
+								"kind": "text",
+								"text": " or "
+							},
+							{
+								"kind": "code",
+								"text": "`/user/byId`"
+							},
+							{
+								"kind": "text",
+								"text": " into the url path "
+							},
+							{
+								"kind": "code",
+								"text": "`/user/byId`"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "adapter/adapter.utils.ts",
+							"line": 17,
+							"character": 34,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/adapter-orpc/src/adapter/adapter.utils.ts#L17"
+						}
+					],
+					"parameters": [
+						{
+							"id": 851,
+							"name": "endpoint",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Type Aliases",
+			"children": [
+				825,
+				821,
+				838,
+				829,
+				817,
+				816,
+				820,
+				814,
+				848
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				805,
+				803,
+				810,
+				804,
+				809
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				800,
+				845,
+				856,
+				811,
+				859,
+				862,
+				852,
+				873,
+				849
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/orpc",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🛸 Hyper Fetch oRPC\n\n<p align=\"center\">\n  <b>oRPC adapter for HyperFetch. Typed procedures with caching, queueing and React hooks.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/github/stars/BetterTyped/hyper-fetch?logo=github&color=118ab2\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/orpc\">\n    <img src=\"https://img.shields.io/npm/v/@hyper-fetch/orpc.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/orpc\">\n    <img src=\"https://img.shields.io/npm/dm/@hyper-fetch/orpc.svg?logo=npm&color=2a9d8f\" />\n  </a>\n  <a href=\"https://bundlephobia.com/package/@hyper-fetch/orpc\">\n    <img src=\"https://img.shields.io/bundlephobia/minzip/@hyper-fetch/orpc?color=8338ec\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=yellow\" />\n  </a>\n  <img src=\"https://img.shields.io/badge/TypeScript-ready-3178c6?logo=typescript&logoColor=white\" />\n  <img src=\"https://img.shields.io/badge/oRPC-v1-000000\" />\n</p>\n\n## 📖 About\n\nThis adapter connects HyperFetch to an oRPC server through the oRPC RPC protocol. Procedures become regular HyperFetch\nrequests, with inputs, outputs and defined errors inferred from your router through "
+		},
+		{
+			"kind": "code",
+			"text": "`createSdk`"
+		},
+		{
+			"kind": "text",
+			"text": ".\n\n## 🎯 Key Capabilities\n\n- 🔮 **End-to-end types** - Inputs, outputs and "
+		},
+		{
+			"kind": "code",
+			"text": "`.errors()`"
+		},
+		{
+			"kind": "text",
+			"text": " maps inferred from your router or contract\n- 📅 **Rich types on the wire** - "
+		},
+		{
+			"kind": "code",
+			"text": "`Date`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`BigInt`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`Map`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`Set`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`URL`"
+		},
+		{
+			"kind": "text",
+			"text": " and files, encoded by the oRPC serializer\n- 💾 **Cache per input** - "
+		},
+		{
+			"kind": "code",
+			"text": "`{ id: 1 }`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`{ id: 2 }`"
+		},
+		{
+			"kind": "text",
+			"text": " are cached, deduplicated and queued separately\n- ⚛️ **React-ready** - Use "
+		},
+		{
+			"kind": "code",
+			"text": "`useFetch`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`useSubmit`"
+		},
+		{
+			"kind": "text",
+			"text": " with your procedures\n- 🌐 **GET when you want it** - Opt into cacheable "
+		},
+		{
+			"kind": "code",
+			"text": "`GET`"
+		},
+		{
+			"kind": "text",
+			"text": " queries for the procedures your server allows\n\n## 🚀 Quick Start\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install @hyper-fetch/core @hyper-fetch/orpc @orpc/client\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { createClient, createSdk } from \"@hyper-fetch/core\";\nimport { OrpcAdapter } from \"@hyper-fetch/orpc\";\nimport type { OrpcSchema } from \"@hyper-fetch/orpc\";\n\nimport type { router } from \"./server\";\n\nconst client = createClient({ url: \"http://localhost:3000/rpc\" }).setAdapter(OrpcAdapter());\nconst api = createSdk<typeof client, OrpcSchema<typeof router>>(client, { camelCaseToKebabCase: false });\n\nconst { data, error } = await api.planet.find.$query.setPayload({ id: 1 }).send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📚 Documentation\n\n- [oRPC Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview)\n- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)\n- [API Reference](https://hyperfetch.bettertyped.com/api/)\n\n## 💡 Examples\n\n### Handle a defined error\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nconst { data, error } = await api.planet.find.$query.setPayload({ id: 99 }).send();\n\nif (error?.defined && error.code === \"NOT_FOUND\") {\n  console.log(`Planet ${error.data.id} does not exist`);\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Upload a file\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```tsx\nimport { useSubmit } from \"@hyper-fetch/react\";\n\nconst { submit, submitting } = useSubmit(api.planet.uploadImage.$mutation);\n\nawait submit({ payload: { planetId: 1, image: file } });\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Contract-first APIs\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport type { ContractRouterClient } from \"@orpc/contract\";\n\nimport type { contract } from \"./contract\";\n\nconst api = createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof contract>>>(client, {\n  camelCaseToKebabCase: false,\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## License\n\n[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"799": {
+			"sourceFileName": "../packages/adapter-orpc/src/index.ts",
+			"qualifiedName": ""
+		},
+		"800": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.ts",
+			"qualifiedName": "OrpcAdapter"
+		},
+		"801": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.ts",
+			"qualifiedName": "OrpcAdapter"
+		},
+		"802": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.ts",
+			"qualifiedName": "options"
+		},
+		"803": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "defaultTimeout"
+		},
+		"804": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "orpcExtra"
+		},
+		"805": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "OrpcMethods"
+		},
+		"806": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object"
+		},
+		"807": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object.QUERY"
+		},
+		"808": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "__object.MUTATION"
+		},
+		"809": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "reservedQueryParams"
+		},
+		"810": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.constants.ts",
+			"qualifiedName": "maxGetUrlLength"
+		},
+		"811": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "getOrpcAdapter"
+		},
+		"812": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "getOrpcAdapter"
+		},
+		"813": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.fetch.ts",
+			"qualifiedName": "__0"
+		},
+		"814": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.schema.ts",
+			"qualifiedName": "OrpcSchema"
+		},
+		"815": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.schema.ts",
+			"qualifiedName": "Router"
+		},
+		"816": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcMethod"
+		},
+		"817": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcExtraType"
+		},
+		"818": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"819": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.headers"
+		},
+		"820": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcQueryMethod"
+		},
+		"821": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcAdapterOptionsType"
+		},
+		"822": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"823": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.queryMethod"
+		},
+		"824": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.customJsonSerializers"
+		},
+		"825": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "FetchOrpcAdapterOptionsType"
+		},
+		"826": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"827": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.timeout"
+		},
+		"828": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.queryMethod"
+		},
+		"829": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcErrorType"
+		},
+		"830": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"831": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.defined"
+		},
+		"832": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.code"
+		},
+		"833": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.status"
+		},
+		"834": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.message"
+		},
+		"835": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type.data"
+		},
+		"836": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "Code"
+		},
+		"837": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "Data"
+		},
+		"838": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "OrpcAdapterType"
+		},
+		"839": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"840": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"841": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "endpoint"
+		},
+		"842": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"843": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "__type"
+		},
+		"844": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.types.ts",
+			"qualifiedName": "request"
+		},
+		"845": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "createOrpcSerializer"
+		},
+		"846": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "createOrpcSerializer"
+		},
+		"847": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "customJsonSerializers"
+		},
+		"848": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "OrpcSerializerType"
+		},
+		"849": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "orpcEndpointMapper"
+		},
+		"850": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "orpcEndpointMapper"
+		},
+		"851": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "endpoint"
+		},
+		"852": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcRequestKey"
+		},
+		"853": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcRequestKey"
+		},
+		"854": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"855": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "serializer"
+		},
+		"856": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcAbortKey"
+		},
+		"857": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcAbortKey"
+		},
+		"858": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"859": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcHeaders"
+		},
+		"860": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcHeaders"
+		},
+		"861": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "request"
+		},
+		"862": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcHttpRequest"
+		},
+		"863": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcHttpRequest"
+		},
+		"864": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__0"
+		},
+		"865": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type"
+		},
+		"866": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.request"
+		},
+		"867": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.endpoint"
+		},
+		"868": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.queryParams"
+		},
+		"869": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.headers"
+		},
+		"870": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.payload"
+		},
+		"871": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.queryMethod"
+		},
+		"872": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.serializer"
+		},
+		"873": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcResult"
+		},
+		"874": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "getOrpcResult"
+		},
+		"875": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__0"
+		},
+		"876": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type"
+		},
+		"877": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.body"
+		},
+		"878": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.status"
+		},
+		"879": {
+			"sourceFileName": "../packages/adapter-orpc/src/adapter/adapter.utils.ts",
+			"qualifiedName": "__type.serializer"
+		}
+	}
+}

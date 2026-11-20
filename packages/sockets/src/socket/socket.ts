@@ -31,6 +31,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   url: string;
   reconnectAttempts: number;
   reconnectTime: number;
+  connectionTimeout: number;
   debug: boolean;
   autoConnect: boolean;
 
@@ -40,7 +41,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   unstable_onDisconnectCallbacks: CloseCallbackType[] = [];
   unstable_onReconnectCallbacks: ReconnectCallbackType[] = [];
   unstable_onReconnectFailedCallbacks: ReconnectFailedCallbackType[] = [];
-  unstable_onMessageCallbacks: MessageCallbackType<any>[] = [];
+  unstable_onMessageCallbacks: MessageCallbackType<any, any>[] = [];
   unstable_onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
   unstable_onErrorCallbacks: ErrorCallbackType<any>[] = [];
 
@@ -53,12 +54,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   logger = this.loggerManager.initialize(this, "Socket");
 
   constructor(public options: SocketOptionsType<Adapter>) {
-    const { url, adapter, reconnect, reconnectTime, queryParams, appManager } = this.options;
+    const { url, adapter, reconnect, reconnectTime, connectionTimeout, queryParams, appManager } = this.options;
     this.emitter?.setMaxListeners(1000);
     this.url = url;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 5;
+    this.connectionTimeout = connectionTimeout ?? Time.SEC * 5;
     this.autoConnect = true;
 
     // App manager must be initialized before the adapter - it may connect right away and checks the network state
@@ -86,6 +88,19 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    */
   disconnect = async () => {
     await this.adapter.disconnect();
+  };
+
+  /**
+   * Disconnects the socket and removes everything it subscribed to - the adapter's app manager subscriptions and the
+   * app manager it created itself. An app manager passed in the options is left mounted, it can be shared.
+   * Use it when the socket is not needed anymore, e.g. on logout or when switching tenants.
+   */
+  destroy = async () => {
+    await this.adapter.disconnect();
+    this.adapter.dispose();
+    if (!this.options.appManager) {
+      this.appManager.unmount();
+    }
   };
 
   /**
@@ -198,7 +213,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onMessage<Event>(callback: MessageCallbackType<Event>) {
+  onMessage<Event>(callback: MessageCallbackType<Event, ExtractAdapterExtraType<Adapter>>) {
     this.unstable_onMessageCallbacks.push(callback);
     return this;
   }
@@ -237,7 +252,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     return interceptEmitter(this.unstable_onSendCallbacks, emitter);
   };
 
-  unstable__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter> }) => {
+  unstable__modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<Adapter>; topic: string }) => {
     return interceptListener(this.unstable_onMessageCallbacks, data);
   };
 
@@ -248,18 +263,26 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    */
 
   /**
-   * Create event listener
-   * @param options
-   * @returns
+   * Create a listener factory. `Response` is the message type, `Payload` is what the server needs to start
+   * the subscription (e.g. the input of a tRPC subscription), set later with `setPayload()`.
+   *
+   * @example
+   * const onMessage = socket.createListener<Message, { roomId: string }>()({ topic: "chat.onMessage" });
+   * onMessage.setPayload({ roomId: "1" }).listen(({ data }) => {});
    */
-  createListener = <Response>() => {
+  createListener = <Response, Payload = undefined>() => {
     return <Topic extends string, Delivery extends ListenerDeliveryType<Response, Adapter> | undefined = undefined>(
       options: ListenerOptionsType<Topic, Adapter, Response, Delivery>,
     ) => {
-      return new Listener<Response, Topic, Socket<Adapter>, false, ResolveDeliveredType<Response, Delivery>>(
-        this,
-        options,
-      );
+      return new Listener<
+        Response,
+        Payload,
+        Topic,
+        Socket<Adapter>,
+        false,
+        false,
+        ResolveDeliveredType<Response, Delivery>
+      >(this, options);
     };
   };
 

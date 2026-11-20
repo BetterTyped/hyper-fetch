@@ -57,6 +57,14 @@ export const getOrpcAbortKey = (request: RequestInstance): string => {
   return `${request.method}_${orpcEndpointMapper(request.endpoint)}-${request.cancelable}`;
 };
 
+/**
+ * Key of a subscription - listeners of the same topic with the same input share one server subscription.
+ * The input is read in the wire format, so values like `Date` or `Map` stay distinct.
+ */
+export const getOrpcSubscriptionKey = (topic: string, payload: unknown, serializer: OrpcSerializerType): string => {
+  return `${topic}-${getOrpcInputKey(payload, serializer)}`;
+};
+
 /** Only the user headers, the content type depends on the encoded body and is set while sending */
 export const getOrpcHeaders = (request: RequestInstance): HeadersInit => {
   return { ...(request.headers as Record<string, string> | undefined) };
@@ -70,28 +78,28 @@ type OrpcHttpRequestType = {
 };
 
 /**
- * Encodes the call as described by the oRPC RPC protocol.
- * GET sends the input in the `data` query param. Files and urls over the length limit fall back to POST,
- * the same as the `RPCLink` of oRPC.
+ * Encodes a call of the procedure as described by the oRPC RPC protocol, for any base `url` - the client url of a
+ * request or the url of a socket. GET sends the input in the `data` query param. Files and urls over the length limit
+ * fall back to POST, the same as the `RPCLink` of oRPC.
  */
-export const getOrpcHttpRequest = ({
-  request,
+export const getOrpcCallRequest = ({
+  url: base,
   endpoint,
   queryParams,
   headers,
   payload,
-  queryMethod,
+  method,
   serializer,
 }: {
-  request: RequestInstance;
+  url: string;
   endpoint: string;
   queryParams: unknown;
   headers: HeadersInit;
   payload: unknown;
-  queryMethod: OrpcQueryMethod;
+  method: "GET" | "POST";
   serializer: OrpcSerializerType;
 }): OrpcHttpRequestType => {
-  const [baseUrl, baseQuery] = request.client.url.split("?");
+  const [baseUrl, baseQuery] = base.split("?");
   const searchParams = new URLSearchParams(baseQuery);
 
   // Mappers can return anything, so we normalize their result to the query string
@@ -107,7 +115,7 @@ export const getOrpcHttpRequest = ({
   const serialized = serializer.serialize(payload);
   const userHeaders = { ...(headers as Record<string, string>) };
 
-  if (request.method === OrpcMethods.QUERY && queryMethod === "GET" && !(serialized instanceof FormData)) {
+  if (method === "GET" && !(serialized instanceof FormData)) {
     const getParams = new URLSearchParams(searchParams);
     getParams.append("data", JSON.stringify(serialized));
     const getUrl = `${url}?${getParams.toString()}`;
@@ -131,6 +139,28 @@ export const getOrpcHttpRequest = ({
     headers: { "Content-Type": "application/json", ...userHeaders },
     body: JSON.stringify(serialized),
   };
+};
+
+/**
+ * Encodes the request as described by the oRPC RPC protocol.
+ * Queries use the `queryMethod`, mutations are always sent with POST.
+ */
+export const getOrpcHttpRequest = ({
+  request,
+  queryMethod,
+  ...call
+}: {
+  request: RequestInstance;
+  endpoint: string;
+  queryParams: unknown;
+  headers: HeadersInit;
+  payload: unknown;
+  queryMethod: OrpcQueryMethod;
+  serializer: OrpcSerializerType;
+}): OrpcHttpRequestType => {
+  const method = request.method === OrpcMethods.QUERY && queryMethod === "GET" ? "GET" : "POST";
+
+  return getOrpcCallRequest({ ...call, url: request.client.url, method });
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {

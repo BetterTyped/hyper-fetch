@@ -108,12 +108,12 @@ export type RequestInstance<
  * | Field             | Default          | Why                                                                    |
  * | ----------------- | ---------------- | ---------------------------------------------------------------------- |
  * | `response`        | `unknown`        | Forces narrowing in consumer code; never silently widened.             |
- * | `payload`         | `undefined`      | "No body declared." `.setData()` is required for typed bodies.         |
+ * | `payload`         | `undefined`      | "No body declared." `.setPayload()` is required for typed bodies.      |
  * | `queryParams`     | `undefined`      | Same as payload.                                                       |
  * | `error`           | `Error`          | Sensible default; override per-endpoint when the API has a known shape.|
  * | `endpoint`        | `string`         | Allows literal narrowing without erasure. Pass a string literal.       |
  * | `client`          | `ClientInstance` | Injected by `createSdk(client)`; you do not need to set this manually. |
- * | `hasPayload`      | `false`          | "Caller must call `.setData()`." Override only when payload is bound.  |
+ * | `hasPayload`      | `false`          | "Caller must call `.setPayload()`." Override only when payload is bound.|
  * | `hasParams`       | `false`          | Same as `hasPayload` for params.                                       |
  * | `hasQueryParams`  | `false`          | Same as `hasPayload` for query params.                                 |
  * | `mutationContext` | `undefined`      | Optional context; default is "no context".                             |
@@ -220,7 +220,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   headers?: HeadersInit;
   /**
-   * Should the onAuth method get called on this request
+   * Should the onAuth method get called on this request (default true)
    */
   auth?: boolean;
   /**
@@ -257,7 +257,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   queued?: boolean;
   /**
-   * Do we want to store request made in offline mode for latter use when we go back online
+   * Do we want to store request made in offline mode for latter use when we go back online (default true)
    */
   offline?: boolean;
   /**
@@ -289,7 +289,8 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    */
   deduplicate?: boolean;
   /**
-   * Time of pooling for the deduplication to be active (default 10ms)
+   * Window in milliseconds, counted from the start of the in-flight request, in which a new request joins it.
+   * Default `null`: a deduplicated request joins any matching request that is still in flight.
    */
   deduplicateTime?: number;
   /**

@@ -35,31 +35,26 @@ describe("Socket Client [ Utils ]", () => {
     expect(removed).toBeFalse();
   });
 
-  describe("getAdapter utils no window", () => {
-    beforeEach(() => {
-      windowSpy.mockImplementation(() => undefined as any);
-    });
-    it("should not throw when there is no window", () => {
-      const adapter = getWebsocketAdapter(url, {});
-      expect(adapter).toBeNull();
-    });
-    it("should not throw SSE when there is no window", () => {
-      const adapter = getServerSentEventsAdapter(url, {});
-      expect(adapter).toBeNull();
-    });
-  });
+  describe("getAdapter utils without the global constructors", () => {
+    const originalEventSource = globalThis.EventSource;
 
-  describe("getAdapter utils no instances", () => {
-    beforeEach(() => {
-      windowSpy.mockImplementation(() => ({}) as any);
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      globalThis.EventSource = originalEventSource;
     });
-    it("should not throw when there is no window", () => {
-      const adapter = getWebsocketAdapter(url, {});
-      expect(adapter).toBeNull();
+
+    it("should return null when the runtime has no WebSocket", () => {
+      vi.stubGlobal("WebSocket", null);
+      expect(getWebsocketAdapter(url, {})).toBeNull();
     });
-    it("should not throw SSE when there is no window", () => {
-      const adapter = getServerSentEventsAdapter(url, {});
-      expect(adapter).toBeNull();
+    it("should return null when the runtime has no EventSource", () => {
+      globalThis.EventSource = undefined as unknown as typeof EventSource;
+      expect(getServerSentEventsAdapter(url, {})).toBeNull();
+    });
+    it("should not read window", () => {
+      windowSpy.mockImplementation(() => undefined as any);
+      expect(getWebsocketAdapter(url, {})).toBeInstanceOf(WebSocket);
+      expect(getServerSentEventsAdapter(url, {})).toBeInstanceOf(EventSource);
     });
   });
 

@@ -1,7 +1,7 @@
 import type { ExtractUrlParams, ParamsType } from "@hyper-fetch/core";
 import type { DeliveryStrategyContextType, ListenerDeliveryType, ResolveDeliveredType } from "delivery";
 import { assertDelivery, createDeliveryController } from "delivery";
-import type { ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
+import type { ListenMethodOptionsType, ListenType, ListenerConfigurationType, ListenerOptionsType } from "listener";
 import type { SocketInstance } from "socket";
 import type { ExtractAdapterListenerOptionsType, ExtractSocketAdapterType } from "types";
 
@@ -13,16 +13,24 @@ import { mapTopicParams } from "../utils/topic.utils";
  *
  * `Response` is the raw message type, `Delivered` is what `listen` callbacks receive. They differ only
  * when a `delivery` strategy changes the shape (e.g. `batch` delivers `Response[]`).
+ *
+ * `Payload` is what the server needs to start the subscription, for example the input of a tRPC or oRPC
+ * subscription procedure. Plain topic listeners have none (`undefined`). Listeners of the same topic with
+ * different payloads are separate subscriptions - adapters deliver each one only its own messages.
  */
 export class Listener<
   Response,
+  Payload,
   Topic extends string,
   Socket extends SocketInstance,
+  HasPayload extends boolean = false,
   HasParams extends boolean = false,
   Delivered = Response,
 > {
   readonly topic: Topic;
   params?: ParamsType = undefined;
+  /** Subscription payload set with `setPayload()` or passed to `listen()` */
+  payload?: Payload = undefined;
   options?: ExtractAdapterListenerOptionsType<ExtractSocketAdapterType<Socket>> = undefined;
   /**
    * How messages reach `listen` callbacks. Typed with `any` input on purpose - it keeps `Response`
@@ -39,11 +47,15 @@ export class Listener<
     listenerOptions: ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>, Response>,
   ) {
     this.listenerOptions = listenerOptions;
-    const { topic, options, delivery, params } = listenerOptions as typeof listenerOptions & { params?: ParamsType };
+    const { topic, options, delivery, params, payload } = listenerOptions as typeof listenerOptions & {
+      params?: ParamsType;
+      payload?: Payload;
+    };
     this.topic = topic;
     this.topicTemplate = topic;
     this.options = options;
     this.params = params;
+    this.payload = payload;
     this.delivery = delivery;
     if (delivery) {
       assertDelivery(delivery);
@@ -57,7 +69,15 @@ export class Listener<
 
   /** Set the URL path parameters for the topic (e.g., `:channelId`). */
   setParams(params: ExtractUrlParams<Topic>) {
-    return this.clone<true>({ params });
+    return this.clone<HasPayload, true>({ params });
+  }
+
+  /**
+   * Set the payload the server needs to start the subscription, e.g. the input of a tRPC subscription.
+   * Listeners of the same topic with different payloads receive only their own messages.
+   */
+  setPayload<NewPayload extends Payload>(payload: NewPayload) {
+    return this.clone<true, HasParams>({ payload });
   }
 
   /**
@@ -67,27 +87,48 @@ export class Listener<
   setDelivery<NewDelivery extends ListenerDeliveryType<Response, ExtractSocketAdapterType<Socket>> | undefined>(
     delivery: NewDelivery,
   ) {
-    return this.clone<HasParams, ResolveDeliveredType<Response, NewDelivery>>({ delivery });
+    return this.clone<HasPayload, HasParams, ResolveDeliveredType<Response, NewDelivery>>({ delivery });
   }
 
   /** Create a new listener instance with optional configuration overrides. */
-  clone<NewHasParams extends true | false = HasParams, NewDelivered = Delivered>(
-    options?: ListenerConfigurationType<ExtractUrlParams<Topic>, Topic, Socket, Response>,
-  ) {
-    const newInstance = new Listener<Response, Topic, Socket, NewHasParams, NewDelivered>(this.socket, {
-      ...this.listenerOptions,
-      ...options,
-      topic: this.paramsMapper(options?.params || this.params),
-    });
+  clone<
+    NewHasPayload extends true | false = HasPayload,
+    NewHasParams extends true | false = HasParams,
+    NewDelivered = Delivered,
+  >(options?: ListenerConfigurationType<ExtractUrlParams<Topic>, Topic, Socket, Response, Payload>) {
+    const params = options?.params || this.params;
+    const newInstance = new Listener<Response, Payload, Topic, Socket, NewHasPayload, NewHasParams, NewDelivered>(
+      this.socket,
+      {
+        ...this.listenerOptions,
+        ...options,
+        params,
+        payload: options && "payload" in options ? options.payload : this.payload,
+        topic: this.paramsMapper(params),
+      } as ListenerOptionsType<Topic, ExtractSocketAdapterType<Socket>, Response>,
+    );
     newInstance.topicTemplate = this.topicTemplate;
 
     return newInstance;
   }
 
-  /** Start listening for messages on the configured topic. Returns a function to unsubscribe. */
-  listen: ListenType<Listener<Response, Topic, Socket, HasParams, Delivered>, Socket> = (
-    callback: Parameters<ListenType<Listener<Response, Topic, Socket, HasParams, Delivered>, Socket>>[0],
+  /**
+   * Start listening for messages on the configured topic. Returns a function to unsubscribe.
+   * A listener whose payload is required and not set yet takes it as the second argument.
+   */
+  listen: ListenType<Payload, HasPayload, Socket, Delivered> = (
+    callback: Parameters<ListenType<Payload, HasPayload, Socket, Delivered>>[0],
+    listenOptions?: ListenMethodOptionsType<Payload>,
   ) => {
+    // `listen(callback, { payload })` subscribes with that payload, the instance itself stays unchanged
+    if (listenOptions && "payload" in listenOptions) {
+      const { payload, ...lifecycleOptions } = listenOptions;
+      return this.clone<true, HasParams>({ payload }).listen(callback, lifecycleOptions);
+    }
+
+    const { adapter } = this.socket;
+    const { topic } = this;
+
     // With a delivery strategy the adapter receives the controller's `push` instead of the user callback.
     // Each listen() call gets its own controller, so subscriptions never share timers or buffers.
     const controller = this.delivery
@@ -95,14 +136,38 @@ export class Listener<
           deliver: callback as DeliveryStrategyContextType<any, any>["deliver"],
         })
       : null;
-    const adapterCallback = controller ? controller.push : callback;
-
-    this.socket.adapter.listen(this, adapterCallback);
+    // Every listen() call is its own subscription. The callback is registered as it is, so it can be removed with
+    // `adapter.removeListener`. A callback already listening to the topic (e.g. with another payload) gets a wrapper,
+    // so both registrations exist and each is stopped only by its own unsubscribe.
+    const isRegistered = !controller && !!adapter.listeners.get(topic)?.has(callback);
+    const adapterCallback: typeof callback =
+      controller?.push ?? (isRegistered ? (response: Parameters<typeof callback>[0]) => callback(response) : callback);
 
     const removeListener = () => {
       controller?.dispose();
-      this.socket.adapter.removeListener({ topic: this.topic, callback: adapterCallback });
+      adapter.removeListener({ topic, callback: adapterCallback });
     };
+
+    // Set before the adapter registers the callback, so a subscription confirmed right away still reaches it
+    adapter.setListenerLifecycle({
+      topic,
+      callback: adapterCallback,
+      lifecycle: {
+        onStart: () => listenOptions?.onStart?.({ topic }),
+        onEnd: ({ error }) => {
+          // The last messages of a finished stream still arrive before the end
+          controller?.flush?.();
+          removeListener();
+          listenOptions?.onEnd?.({ topic, error });
+        },
+      },
+    });
+
+    adapter.listen(this, adapterCallback);
+
+    if (!adapter.confirmsSubscriptions) {
+      listenOptions?.onStart?.({ topic });
+    }
 
     return removeListener;
   };

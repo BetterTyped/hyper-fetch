@@ -6,146 +6,125 @@ sidebar_label: Overview
 
 [Read the API Reference »](/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter.mdx)
 
-Hyper Fetch's Firebase adapters provide seamless integration with both Firebase Realtime Database and Firestore. This
-allows you to use the power and convenience of Hyper-fetch with your Firebase backend, for both web and admin
-environments, with a unified and consistent API.
+`@hyper-fetch/firebase-admin` runs Firestore and Realtime Database operations from server code through HyperFetch
+requests, using the Firebase Admin SDK. Route handlers, workers and scripts get typed responses, retries and queues with
+the same request API as the browser package.
 
 ---
 
 :::tip Purpose
 
-1.  **Unified API**: Provides a single interface for both `Realtime Database` and `Firestore`.
-2.  **Isomorphic**: Supports both client-side (web) and server-side (admin) Firebase applications.
-3.  **Real-time Data**: Includes socket adapters for real-time data listeners.
-4.  **Standardized Queries**: Simplifies filtering and querying with a consistent constraint-based syntax.
-5.  **Simplified Data Handling**: Automatically handles Firebase-specific data structures, returning clean arrays.
+1.  **Server-side Firebase as requests**: Admin SDK reads and writes are regular HyperFetch requests.
+2.  **Same API as the web package**: methods, constraints and responses match `@hyper-fetch/firebase`, apart from the
+    differences listed below.
+3.  **Retries and queues for backend work**: HyperFetch retry, deduplication and queueing on top of the Admin SDK.
+4.  **Live data on the server**: `FirebaseSocketsAdminAdapter` listens to Firestore and Realtime Database changes.
+5.  **No rejected promises**: Firebase errors come back in `response.error`.
 
 :::
 
 ---
 
-## Choosing the Right Package
+## Installation
 
-Hyper-fetch offers two distinct packages for Firebase integration, tailored to different environments. Your choice
-depends on whether you are working in a client-side web application or a server-side admin environment.
+```bash
+npm install @hyper-fetch/core @hyper-fetch/firebase-admin firebase-admin
+```
 
-### Web Applications (`@hyper-fetch/firebase`)
-
-Use this package for client-side applications running in the browser.
-
-- **`FirebaseAdapter`**: For standard database operations (get, set, update).
-- **`FirebaseSocketsAdapter`**: For setting up real-time listeners to your database.
-
-### Server-side / Admin Environments (`@hyper-fetch/firebase-admin`)
-
-Use this package for backend applications using the Firebase Admin SDK.
-
-- **`FirebaseAdminAdapter`**: For standard database operations.
-- **`FirebaseSocketsAdminAdapter`**: For real-time listeners on the server.
+Add `@hyper-fetch/sockets` for live listeners.
 
 ---
 
-## Client Setup
+## Setup
 
-Once you've chosen the right package, you need to initialize Firebase and configure the Hyper-fetch `Client`. The
-process is similar for both web and admin environments, with the main difference being the package import and Firebase
-initialization.
-
-Here's an example of setting up the client for a **server-side application**:
-
-```tsx
+```ts
 import { Client } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
-import * as admin from "firebase-admin";
+import { cert, initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
-// 1. Initialize Firebase Admin
-// Make sure to replace with your actual service account key and database URL
-const serviceAccount = require("./path/to/your/serviceAccountKey.json");
+initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!)) });
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://your-project-id.firebaseio.com",
-});
+export const client = new Client({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
 
-const db = admin.firestore();
+type Order = { __key: string; status: "open" | "paid"; total: number };
 
-// 2. Create a Hyper-fetch client with the Firebase admin adapter
-const client = new Client({ url: "teas/" }).setAdapter(() => FirebaseAdminAdapter(db));
-
-// 3. Create a request
-const getTeas = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "",
+const getOrders = client.createRequest<{ response: Order[] }>()({
+  endpoint: "orders",
   method: "getDocs",
 });
 
-// 4. Send the request and check the results
-const { data, status, extra, success, error } = await getTeas.send();
+const { data, error } = await getOrders.send();
 ```
 
-For a **web application**, you would import from `@hyper-fetch/firebase` and use the Firebase JS SDK for initialization.
-The Hyper-fetch logic for creating requests and handling responses remains the same.
+Use `getDatabase()` from `firebase-admin/database` for Realtime Database; `initializeApp` then needs a `databaseURL`.
 
-### Response Object
+| Database instance | Methods                                                           | Default method |
+| ----------------- | ----------------------------------------------------------------- | -------------- |
+| `getFirestore()`  | `getDoc`, `getDocs`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc` | `getDoc`       |
+| `getDatabase()`   | `get`, `set`, `push`, `update`, `remove`                          | `get`          |
 
-The response from a Firebase request includes:
+:::danger Admin access bypasses security rules
 
-- `data`: The data from the database. Each document is enhanced with a `__key` property representing its ID.
-- `status`: A status of `success`, `error`, or `emptyResource` (if the request was successful but returned no data).
-- `success`: A boolean indicating if the request was successful.
-- `error`: An error object if the request failed.
-- `extra`: Additional properties, such as the `ref` and `snapshot` from Firestore for a `getDocs` method.
-
----
-
-## Querying Data
-
-The Firebase adapters provide a standardized way to filter and limit your queries using the `constraints` query
-parameter. This approach ensures a consistent API across Realtime Database and Firestore, for both web and admin
-versions.
-
-You can build complex queries by passing an array of constraints.
-
-```tsx
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
-
-const getTeas = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "",
-  method: "getDocs",
-});
-
-const { data } = await getTeas.send({
-  queryParams: {
-    constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)],
-  },
-});
-```
-
-:::info Available Constraints
-
-The adapter provides wrappers for most of Firebase's query methods:
-
-- **Filtering**: `$where`, `$startAt`, `$startAfter`, `$endAt`, `$endBefore`, `$equalTo`
-- **Ordering**: `$orderBy`, `$orderByChild`, `$orderByKey`, `$orderByValue`
-- **Limiting**: `$limit`, `$limitToFirst`, `$limitToLast`
-
-These functions work just like their native Firebase counterparts.
+1.  The Admin SDK reads and writes everything, whatever your security rules say. Check who may do what in your own code
+    before you send a request.
+2.  Keep service account credentials on the server. Browser code uses
+    [`@hyper-fetch/firebase`](/docs/integrations/adapter-firebase/overview).
 
 :::
 
 ---
 
-## Data Handling
+## Paths and responses
 
-The Firebase adapters include logic to simplify data handling, particularly with array-like structures in the Realtime
-Database.
+Paths, responses and querying work like the web package, apart from the
+[differences](#differences-from-hyper-fetchfirebase) below:
 
-:::note Automatic Array Conversion
+- The Firebase path is `client.url + endpoint`. An odd number of segments is a collection or list, an even number a
+  document or value.
+- Responses are `{ data, error, status, success, extra }`, with `status` `"success"`, `"emptyResource"` or `"error"`.
+- Documents and list items carry `__key`, their id.
+- Constraints are the `queryParams` array:
 
-In Firebase Realtime Database, if you store an array and then remove items, it may no longer be sequential. For example,
-deleting elements `a` and `b` from `[a, b, c, d, e]` might result in Firebase returning an object like
-`{2: 'c', 4: 'e'}` instead of an array.
+```ts
+import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
 
-Hyper-fetch automatically converts such objects back into an array. Each item in the resulting array will have a `__key`
-property containing its original key from the database. This ensures you always work with predictable array structures.
+const { data } = await getOrders.send({
+  queryParams: [$where("status", "==", "open"), $orderBy("total", "desc"), $limit(50)],
+});
+```
+
+See the [Firebase adapter overview](/docs/integrations/adapter-firebase/overview) for the full rules.
+
+---
+
+## Differences from `@hyper-fetch/firebase`
+
+| Topic                                     | `@hyper-fetch/firebase` (web)                | `@hyper-fetch/firebase-admin` (server)         |
+| ----------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Request adapter                           | `FirebaseAdapter`                            | `FirebaseAdminAdapter`                         |
+| Socket adapter                            | `FirebaseSocketsAdapter`                     | `FirebaseSocketsAdminAdapter`                  |
+| Security rules                            | enforced for the signed-in user              | bypassed                                       |
+| Firestore `setDoc` `data`                 | the payload                                  | the Admin SDK `WriteResult`                    |
+| Firestore socket `connect` / `disconnect` | toggle the network of the instance           | throw; stop listeners with their stop function |
+| Realtime document listener `data`         | the value                                    | the value plus `__key`                         |
+| Firestore listener `extra`                | `ref`, `snapshot`, `status`, `groupedResult` | the same, plus `unsubscribe`                   |
+
+:::note When to use it
+
+- API routes and server actions that read or write Firebase on behalf of a user you already authorized.
+- Background jobs and scripts where retries, queues and typed responses save you wiring.
+- Code shared between server and browser that should look the same on both sides.
+
+:::
+
+---
+
+:::secondary Summary
+
+1.  Pass `getFirestore()` or `getDatabase()` from `firebase-admin` to `FirebaseAdminAdapter`.
+2.  Paths, responses, `__key` and `queryParams` constraints match the web package.
+3.  Admin access bypasses security rules, so authorize in your own code.
+4.  `setDoc` returns the `WriteResult`, and the Firestore socket cannot connect or disconnect.
 
 :::

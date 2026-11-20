@@ -32,15 +32,24 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   );
   const requests = useNetworkStore((state) => state.applications[application.name].requests);
 
+  // The method decides which dispatcher owns the queue. A custom query key says nothing about it, so it comes from a
+  // request of this queue, and the default "<method>_<endpoint>_<query>" key is only the last resort
+  const method = useMemo(() => {
+    const sent = requests.find((el) => el.request.queryKey === item.queryKey);
+    return sent?.request.method ?? item.requests[0]?.request.method ?? item.queryKey.split("_")[0];
+  }, [requests, item.queryKey, item.requests]);
+
   const dummyRequest = useMemo(() => {
     return client.createRequest()({
       endpoint: "",
-      queryKey: item?.queryKey,
-      method: item?.queryKey.split("_")[0],
+      queryKey: item.queryKey,
+      method,
     });
-  }, [client, item?.queryKey]);
+  }, [client, item.queryKey, method]);
 
-  const { start, stop, stopped, dispatcher } = useQueue(dummyRequest as unknown as RequestInstance);
+  const { start, stop, dispatcher } = useQueue(dummyRequest as unknown as RequestInstance);
+  // The user's application owns the queue, HyperFlow's own dispatcher only learns about changes made after it mounted
+  const { stopped } = item;
 
   const toggleQueue = () => {
     if (stopped) {
@@ -53,36 +62,18 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
   };
 
   const clear = () => {
-    if (item) {
-      dispatcher.clearQueue(item.queryKey);
-      dispatcher.events.emitDrained(item, true);
-    }
+    dispatcher.clearQueue(item.queryKey);
+    dispatcher.events.emitDrained(item, true);
   };
 
-  const latestItem = useMemo(() => {
-    if (!item) {return null;}
-
-    const element = requests.find((el) => el.request.queryKey === item.queryKey);
-    if (!element)
-      {return {
-        request: {
-          cacheKey: item.queryKey,
-        } as any,
-        requestId: "",
-      };}
-    return element;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item?.queryKey, requests?.length]);
-
-  const isLoading = item ? loadingKeys.has(latestItem?.request.queryKey || item.queryKey) : false;
+  const isLoading = loadingKeys.has(item.queryKey);
 
   const toggleLoading = () => {
-    if (!item || !latestItem) {return;}
-
-    // This is dummy data for the event, it is minimum that is required to trigger the event
-    // We don't need to pass all the data, because it will be handled anyway
+    // The loading event only needs the keys the user's hooks listen on, so a queue whose requests left the network
+    // list still reaches them through its query key
+    const sent = requests.find((el) => el.request.queryKey === item.queryKey);
     const eventData = {
-      request: latestItem.request,
+      request: (sent?.request ?? { queryKey: item.queryKey }) as unknown as RequestInstance,
       isRetry: false,
       isOffline: false,
       requestId: "",
@@ -123,7 +114,7 @@ export const SectionToolbar = ({ item }: { item: QueueDataType<RequestInstance> 
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={toggleLoading} disabled={!latestItem}>
+          <DropdownMenuItem onClick={toggleLoading}>
             <LoaderCircle className="mr-2 h-4 w-4" />
             {isLoading ? "Restore" : "Set"} loading
           </DropdownMenuItem>

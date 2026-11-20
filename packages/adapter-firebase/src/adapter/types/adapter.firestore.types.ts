@@ -16,11 +16,7 @@ import type {
   QuerySnapshot,
 } from "firebase/firestore";
 
-export type FirestoreSocketAdapterType = SocketAdapter<
-  FirestoreOnSnapshotExtra,
-  undefined,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
->;
+export type FirestoreSocketAdapterType = SocketAdapter<FirestoreOnSnapshotExtra, undefined, FirestoreListenerOptions>;
 
 export type FirestoreAdapterType =
   | Adapter<
@@ -49,8 +45,29 @@ export type FirestoreAdapterType =
       undefined
     >;
 
-export type FirestoreQueryParams = {
-  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
+/** One Firestore query constraint, built with `$where`, `$orderBy`, `$limit` or a cursor helper such as `$startAfter`. */
+export type FirestoreConstraint = PermittedConstraints<
+  FirestorePermittedMethods,
+  FirestoreConstraintsUnion | SharedQueryConstraints
+>;
+
+/**
+ * Query params of a Firestore request: the constraints, applied in order.
+ *
+ * @example
+ * getTeas.send({ queryParams: [$where("type", "==", "Green"), $orderBy("year"), $limit(20)] });
+ */
+export type FirestoreQueryParams = FirestoreConstraint[];
+
+/** Options of a Firestore `onSnapshot` listener. */
+export type FirestoreListenerOptions = {
+  /** Query constraints, applied in order, as in {@link FirestoreQueryParams}. */
+  constraints?: FirestoreConstraint[];
+  /**
+   * On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents of each
+   * snapshot. Document listeners get `null`.
+   */
+  groupByChangeType?: boolean;
 };
 
 export enum FirestoreMethods {
@@ -79,7 +96,10 @@ export type FirestoreOnSnapshotExtra = {
   ref?: DocumentReference | CollectionReference;
   snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: FirestoreUnsubscribe;
+  /** Grouped document changes when the listener has `groupByChangeType`, otherwise `null`. Collection listeners only. */
   groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
+  /** `"emptyResource"` when the document is missing or the result list is empty. */
+  status: FirestoreStatuses;
 };
 
 export type FirestoreGetDocsExtra = {

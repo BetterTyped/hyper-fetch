@@ -1,7 +1,7 @@
 import type { LinkProps } from "@tanstack/react-router";
 import { Link, useParams } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Atom, Boxes, Earth, Home, AppWindow, Settings2 } from "lucide-react";
+import { Atom, Boxes, Earth, Home, AppWindow, Radio, Settings2 } from "lucide-react";
 import * as React from "react";
 
 import logo from "../../../../assets/images/icon.png";
@@ -17,12 +17,9 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { useApplications } from "@/store/applications/apps.store";
 
 export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { applicationName } = useParams({ strict: false });
-  const { applications } = useApplications();
-  const application = applications[applicationName as string];
 
   const navigation: ({ title: string; icon: LucideIcon; isActive: boolean } & Pick<LinkProps, "to" | "params">)[] = [
     {
@@ -60,6 +57,13 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
       isActive: false,
     },
     {
+      title: "Sockets",
+      to: "/applications/$applicationName/sockets",
+      params: { applicationName },
+      icon: Radio,
+      isActive: false,
+    },
+    {
       title: "Settings",
       to: "/applications/$applicationName/settings",
       params: { applicationName },
@@ -67,10 +71,6 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
       isActive: false,
     },
   ];
-
-  if (!application) {
-    return <div />;
-  }
 
   return (
     <SidebarProvider className="min-h-full">

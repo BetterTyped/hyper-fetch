@@ -15,16 +15,19 @@ export const NetworkDetails = () => {
   const { requests, detailsRequestId } = useNetworkStore(useShallow((state) => state.applications[application.name]));
 
   const item = useMemo(() => {
-    if (!detailsRequestId) {return null;}
+    if (!detailsRequestId) {
+      return null;
+    }
     return requests.find((request) => request.requestId === detailsRequestId);
   }, [detailsRequestId, requests]);
 
   // It is never shown to the user
-  if (!item) {return null;}
+  if (!item) {
+    return null;
+  }
 
   return (
     <ResizableSidebar
-      position="right"
       defaultSize={{
         width: "70%",
       }}

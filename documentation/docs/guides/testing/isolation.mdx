@@ -80,8 +80,11 @@ beforeEach(() => {
 
 ### Other Environments
 
-For other environments like Vitest or if you're not using a test runner with a built-in module cache reset, you might
-need to use a library like `decache` to clear the module cache manually.
+In Vitest use `vi.resetModules()` the same way. If your test runner has no built-in module cache reset, you might need
+to use a library like `decache` to clear the module cache manually.
+
+`client.clear()` also aborts queued and ongoing requests and resets optimistic state. It removes the event listeners of
+the cache, dispatchers and managers, so subscribe again after calling it.
 
 ---
 

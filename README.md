@@ -50,11 +50,29 @@ npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
 ```
 
 ```ts
-import { sdk } from "./generated";
+import { createSdk } from "./api-openapi.sdk";
 
-// Every endpoint from your schema is available as a typed method
-const { data } = await sdk.users.list.send();
+const sdk = createSdk(client);
+
+// Every endpoint from your schema is available as a typed request
+const { data } = await sdk.users.$get.send();
 ```
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Platinum.png" alt="Platinum sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/platinum/sponsorkit/sponsors.svg" alt="Platinum sponsors"/>
+		</picture>
+	</a>
+</p>
 
 ## 💥 Why HyperFetch?
 
@@ -135,22 +153,22 @@ Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build
 
 <p align="center">
   <a href="https://hype-stack.dev">
-    <img src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
+    <img width="600" src="./.github/assets/banner-hype-stack.png" alt="Build your SaaS on Hype Stack" />
   </a>
 </p>
 
 <p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+	<a href="https://github.com/sponsors/prc5?tier=Gold">
 		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Platinum.png" alt="Platinum sponsor banner"/>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Gold.png" alt="Gold sponsor banner"/>
 		</picture>
 	</a>
 </p>
 
 <p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+	<a href="https://github.com/sponsors/prc5?tier=Gold">
 		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/platinum/sponsorkit/sponsors.svg" alt="Platinum sponsors"/>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/gold/sponsorkit/sponsors.svg" alt="Gold sponsors"/>
 		</picture>
 	</a>
 </p>
@@ -176,17 +194,17 @@ Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build
 | [`oxlint-plugin-hyper-fetch`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/plugin-oxlint)<br /><sub>The same rules on Oxlint, the Rust linter</sub>                  | [![npm](https://img.shields.io/npm/v/oxlint-plugin-hyper-fetch?color=e76f51)](https://www.npmjs.com/package/oxlint-plugin-hyper-fetch)       | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=oxlint-plugin-hyper-fetch&color=fbc646)](https://www.npmjs.com/package/oxlint-plugin-hyper-fetch)       | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=oxlint-plugin-hyper-fetch&external=oxlint,@oxlint/plugins)](https://bundlejs.com/?q=oxlint-plugin-hyper-fetch)                                             |
 
 <p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Gold">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
 		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Gold.png" alt="Gold sponsor banner"/>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Silver.png" alt="Silver sponsor banner"/>
 		</picture>
 	</a>
 </p>
 
 <p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Gold">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
 		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/gold/sponsorkit/sponsors.svg" alt="Gold sponsors"/>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/silver/sponsorkit/sponsors.svg" alt="Silver sponsors"/>
 		</picture>
 	</a>
 </p>
@@ -239,22 +257,6 @@ const UserList = () => {
 - [CLI & SDK Generation](https://hyperfetch.bettertyped.com/docs/cli/commands/generate)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 - [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
-
-<p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Silver">
-		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Silver.png" alt="Silver sponsor banner"/>
-		</picture>
-	</a>
-</p>
-
-<p align="center">
-	<a href="https://github.com/sponsors/prc5?tier=Silver">
-		<picture>
-			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/silver/sponsorkit/sponsors.svg" alt="Silver sponsors"/>
-		</picture>
-	</a>
-</p>
 
 ## Our sponsors
 

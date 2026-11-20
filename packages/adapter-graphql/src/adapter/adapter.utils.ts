@@ -1,9 +1,39 @@
 import type { EmptyTypes, QueryParamsType, RequestInstance } from "@hyper-fetch/core";
-import { HttpMethods, Request, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
+import { getAdapterHeaders, HttpMethods, Request, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
 import type { DocumentNode, OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
 import type { GraphQlEndpointType, GraphqlPersistedQueryType, GraphqlRequestOptionsType } from "./adapter.types";
+import { GraphqlMethod } from "./adapter.types";
+
+/** Whether the request headers name the content type, also with an empty value that removes it */
+const hasContentTypeHeader = (headers: HeadersInit | undefined) => {
+  if (!headers) return false;
+  const names =
+    typeof Headers !== "undefined" && headers instanceof Headers
+      ? [...headers.keys()]
+      : (Array.isArray(headers) ? headers : Object.entries(headers)).map(([name]) => name);
+  return names.some((name) => name.toLowerCase() === "content-type");
+};
+
+/**
+ * A POST body is always JSON (`query`, `operationName`, `variables`, `extensions`), also for an operation without
+ * variables, so it needs the JSON content type. A GET request has no body and sends the operation in the URL, so it
+ * gets none - the header would only trigger a CORS preflight. A content type given with the request always wins.
+ */
+export const getGqlHeaders = (request: RequestInstance): HeadersInit => {
+  const headers = { ...(getAdapterHeaders(request) as Record<string, string>) };
+
+  if (hasContentTypeHeader(request.headers)) {
+    return headers;
+  }
+
+  delete headers["Content-Type"];
+  if (request.method === GraphqlMethod.POST) {
+    headers["Content-Type"] = "application/json";
+  }
+  return headers;
+};
 
 const getDocumentOption = (request: RequestInstance) => {
   return (request.requestOptions as unknown as GraphqlRequestOptionsType).document;
@@ -249,7 +279,7 @@ export const matchGqlOperation = (operation: GraphQlEndpointType | RequestInstan
 
 /**
  * SHA-256 hash of the query for automatic persisted queries, as lowercase hex.
- * `null` when the runtime has no Web Crypto - the full query is sent then.
+ * `null` when the runtime has no working Web Crypto - the full query is sent then.
  */
 export const getPersistedQueryHash = async (query: string): Promise<string | null> => {
   const subtle = globalThis.crypto?.subtle;
@@ -257,8 +287,13 @@ export const getPersistedQueryHash = async (query: string): Promise<string | nul
     return null;
   }
 
-  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(query));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  try {
+    const digest = await subtle.digest("SHA-256", new TextEncoder().encode(query));
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  } catch {
+    // A runtime that refuses the digest is one without working Web Crypto - the full query is sent instead
+    return null;
+  }
 };
 
 /**
