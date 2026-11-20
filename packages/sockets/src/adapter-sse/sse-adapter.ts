@@ -190,7 +190,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
               if (sse === eventSource) {
                 sse = undefined;
               }
-              eventSource.clearListeners();
+              // Listeners stay - the engine ignores a detached stream, and a library wrapping EventSource may need its own
               eventSource.close();
             },
           };

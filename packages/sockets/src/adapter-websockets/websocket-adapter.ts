@@ -78,6 +78,10 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
       /**
        * Closes a detached transport. Resolves on its close - or on an error, as a transport that fails while closing
        * may report only `error` (Node.js 22). The error listener also keeps such a late error from going unhandled.
+       *
+       * The listeners of the transport are kept: the engine ignores whatever a detached transport reports, and a
+       * WebSocket wrapped by a library (msw forwards unmocked connections with listeners of its own on the instance)
+       * would never close the real connection without them.
        */
       const closeWebsocket = (transport: HyperFetchWebsocketType): Promise<void> => {
         if (websocket === transport) {
@@ -85,7 +89,6 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           loseCurrent = undefined;
           clearTimers();
         }
-        transport.clearListeners();
         if (transport.readyState === WebsocketReadyState.CLOSED) {
           return Promise.resolve();
         }
