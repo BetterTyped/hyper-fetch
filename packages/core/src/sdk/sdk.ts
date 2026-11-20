@@ -28,6 +28,21 @@ export type RecursiveSchemaType = Record<
  * schema objects are recursed into. Depth is guarded at 10 levels to keep the type checker
  * within reasonable bounds.
  */
+/**
+ * Keys every request has at runtime - its public properties and the private ones. Below the top level, the SDK reads
+ * such a key from the request instead of treating it as a path segment or procedure name.
+ */
+type SdkReservedKey = keyof RequestInstance | "updatedAbortKey" | "updatedCacheKey" | "updatedQueryKey" | "paramsMapper";
+
+/**
+ * Type of a schema key the SDK can't reach, because every request has a property with the same name - for example a
+ * procedure called `send`. Using it fails to compile instead of crashing at runtime. Rename the key, or set the path
+ * with a `$`-prefixed key.
+ */
+export type SdkReservedKeyError<Key extends PropertyKey> = {
+  __sdkError: `"${Key & string}" is a property of every request, so the SDK can't reach a path or procedure with this name. Rename it in the schema.`;
+};
+
 export type InjectClient<T, TClient extends ClientInstance, Depth extends unknown[] = []> = Depth["length"] extends 10
   ? T
   : T extends RequestInstance
@@ -44,7 +59,14 @@ export type InjectClient<T, TClient extends ClientInstance, Depth extends unknow
         ExtractMutationContextType<T>
       >
     : T extends Record<string, any>
-      ? { [K in keyof T]: InjectClient<T[K], TClient, [...Depth, unknown]> }
+      ? {
+          // The top level is not a request, so only the nested keys can clash with the request properties
+          [K in keyof T]: Depth["length"] extends 0
+            ? InjectClient<T[K], TClient, [...Depth, unknown]>
+            : K extends SdkReservedKey
+              ? SdkReservedKeyError<K>
+              : InjectClient<T[K], TClient, [...Depth, unknown]>;
+        }
       : T;
 
 /**
