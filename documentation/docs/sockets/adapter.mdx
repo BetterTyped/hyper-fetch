@@ -189,6 +189,18 @@ const connect = async () => {
 Use `onConnectFailed({ error })` when the transport cannot be created, and `onConnected` / `onDisconnected` /
 `onError` / `onEvent` to report what happens afterwards.
 
+#### Listener query params
+
+An adapter can let listeners carry query params, such as filters, with the seventh `SocketAdapter` generic. Your
+`listen` reads them from `listener.queryParams`. To accept a callback, register `setListenerQueryParamsResolver`: the
+resolver runs when the listener is created or `setQueryParams` is called, and the listener stores what it returns.
+
+```ts
+const adapter = new SocketAdapter<Extra, undefined, ListenerOptions, undefined, undefined, DefaultMapperType, Filters>({
+  name: "my-adapter",
+}).setListenerQueryParamsResolver((callback) => callback(createFilters()).toJSON());
+```
+
 ---
 
 ## See More

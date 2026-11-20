@@ -5,7 +5,7 @@ import type { SocketAdapter } from "./adapter";
 
 export type RemoveListenerCallbackType = () => void;
 
-export type SocketAdapterInstance = SocketAdapter<any, any, any, any, any, any>;
+export type SocketAdapterInstance = SocketAdapter<any, any, any, any, any, any, any>;
 
 export type Connector<A extends SocketAdapterInstance = SocketAdapterInstance> = {
   connect: () => void;

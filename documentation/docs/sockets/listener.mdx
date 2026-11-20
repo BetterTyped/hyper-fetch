@@ -138,6 +138,25 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ---
 
+### Query Params
+
+Some adapters let a listener say what it asks for, such as filters, ordering or limits, through query params. Set them
+in `createListener` or with `setQueryParams`, which returns a clone. A callback is turned into data by the adapter as
+soon as it is set, so the listener never holds a function.
+
+```ts
+// Firebase: listen only to green teas, newest first
+const onGreenTeas = socket
+  .createListener<Tea[]>()({ topic: "teas" })
+  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc"));
+```
+
+Listener query params are separate from the socket's own `queryParams`, which belong to the connection (for example a
+token in the WebSocket URL). The WebSocket and SSE adapters do not use listener query params, so `setQueryParams` does
+not compile for them.
+
+---
+
 ### Delivery Strategies {#delivery-strategies}
 
 High-frequency streams (prices, trades, logs) can call your callbacks hundreds of times per second. The `delivery`

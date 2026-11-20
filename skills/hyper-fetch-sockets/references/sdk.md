@@ -95,4 +95,5 @@ export const configuredSdk = sdk.$configure(chatConfig);
 ```
 
 `options` must be options the adapter understands. The WebSocket and SSE adapters have no listener or emitter options;
-Firebase adapters accept `constraints`, `groupByChangeType` or `onlyOnce`.
+Firebase adapters accept `groupByChangeType` or `onlyOnce`; Firebase listener constraints go in
+`listener.setQueryParams((c) => ...)`.

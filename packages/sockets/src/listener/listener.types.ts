@@ -9,6 +9,7 @@ import type {
   ExtractListenerTopicType,
   ExtractListenerResponseType,
   ExtractAdapterListenerOptionsType,
+  ExtractAdapterListenerQueryParamsType,
   ExtractAdapterExtraType,
   ExtractListenerSocketType,
   ExtractSocketAdapterType,
@@ -122,6 +123,11 @@ export type ListenerOptionsType<
   topic: Topic;
   /** Adapter-specific listener options */
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
+  /**
+   * What the listener asks for, such as filters or limits. Only for adapters that support it (Firebase); a callback
+   * is turned into data by the adapter as soon as it is set.
+   */
+  queryParams?: ExtractAdapterListenerQueryParamsType<AdapterType>;
   /**
    * Controls how incoming messages reach `listen` callbacks. Omit it for immediate delivery of every message.
    *
