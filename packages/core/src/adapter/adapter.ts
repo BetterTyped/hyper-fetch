@@ -141,7 +141,7 @@ export class Adapter<
    * Turns query params given as a callback into data, at the moment they are set on a request. Unset by default, so
    * adapters without it store query params as given. See {@link Adapter.setQueryParamsResolver}.
    */
-  public unstable_queryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown;
+  public unstable_queryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown = undefined;
   /** Get default adapter options for the request. */
   public unstable_getAdapterDefaults?: (
     request: ExtendRequest<

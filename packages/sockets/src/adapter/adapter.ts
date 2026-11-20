@@ -38,7 +38,7 @@ export class SocketAdapter<
    * Turns listener query params given as a callback into data, at the moment they are set on a listener. Unset by
    * default, so adapters without it store them as given. See {@link SocketAdapter.setListenerQueryParamsResolver}.
    */
-  public unstable_listenerQueryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown;
+  public unstable_listenerQueryParamsResolver?: (callback: (...args: any[]) => unknown) => unknown = undefined;
   /** Type-only marker for the query params listeners of this adapter accept. */
   declare readonly __listenerQueryParams?: ListenerQueryParams;
 
