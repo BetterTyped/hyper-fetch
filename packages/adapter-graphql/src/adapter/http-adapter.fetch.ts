@@ -11,6 +11,7 @@ import type {
 } from "./adapter.types";
 import { GraphqlMethod } from "./adapter.types";
 import {
+  getGqlHeaders,
   getRequestValues,
   gqlEndpointMapper,
   gqlEndpointNameMapper,
@@ -51,6 +52,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
       gqlEndpointNameMapper(requestOptions?.document ?? endpoint),
     )
     .setEndpointMapper(gqlEndpointMapper)
+    .setHeaderMapper(getGqlHeaders)
     .setQueryParamsMapper(stringifyQueryParams)
     .setFetcher(
       async ({
@@ -68,7 +70,6 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         onResponseStart,
         onBeforeRequest,
         onRequestStart,
-        onRequestProgress,
         onSuccess,
       }) => {
         const { fullUrl, payload } = getRequestValues(request, queryParams);
@@ -92,8 +93,10 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
           }, timeoutMs);
         }
 
+        const total = payload ? new Blob([payload]).size : 0;
+
         onBeforeRequest();
-        onRequestStart();
+        onRequestStart(total ? { total, loaded: 0 } : undefined);
 
         try {
           const init: RequestInit = {
@@ -105,16 +108,12 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
 
           if (payload) {
             init.body = payload;
-
-            if (typeof payload === "string") {
-              const total = new Blob([payload]).size;
-              onRequestProgress({ total, loaded: total } as ProgressEvent);
-            }
           }
 
-          onRequestEnd();
-
           const response = await fetch(fullUrl, init);
+
+          // Fetch has no upload events. The response is the first sign that the whole body was sent.
+          onRequestEnd();
 
           if (timeoutId) {
             clearTimeout(timeoutId);

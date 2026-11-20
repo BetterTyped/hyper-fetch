@@ -1,9 +1,39 @@
 import type { EmptyTypes, QueryParamsType, RequestInstance } from "@hyper-fetch/core";
-import { HttpMethods, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
+import { getAdapterHeaders, HttpMethods, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
 import type { DocumentNode, OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
 import type { GraphQlEndpointType, GraphqlRequestOptionsType } from "./adapter.types";
+import { GraphqlMethod } from "./adapter.types";
+
+/** Whether the request headers name the content type, also with an empty value that removes it */
+const hasContentTypeHeader = (headers: HeadersInit | undefined) => {
+  if (!headers) return false;
+  const names =
+    typeof Headers !== "undefined" && headers instanceof Headers
+      ? [...headers.keys()]
+      : (Array.isArray(headers) ? headers : Object.entries(headers)).map(([name]) => name);
+  return names.some((name) => name.toLowerCase() === "content-type");
+};
+
+/**
+ * A POST body is always the JSON `{ query, variables }`, also for an operation without variables, so it needs the JSON
+ * content type. A GET request has no body and sends the variables in the URL, so it gets none - the header would only
+ * trigger a CORS preflight. A content type given with the request always wins.
+ */
+export const getGqlHeaders = (request: RequestInstance): HeadersInit => {
+  const headers = { ...(getAdapterHeaders(request) as Record<string, string>) };
+
+  if (hasContentTypeHeader(request.headers)) {
+    return headers;
+  }
+
+  delete headers["Content-Type"];
+  if (request.method === GraphqlMethod.POST) {
+    headers["Content-Type"] = "application/json";
+  }
+  return headers;
+};
 
 const getDocumentOption = (request: RequestInstance) => {
   return (request.requestOptions as unknown as GraphqlRequestOptionsType).document;
