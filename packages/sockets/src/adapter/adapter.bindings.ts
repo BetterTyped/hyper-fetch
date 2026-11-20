@@ -109,13 +109,22 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     return true;
   };
 
+  /**
+   * Replaces the connection with a new one. Automatic attempts count towards `socket.reconnectAttempts` and stop at it.
+   * A `manual` reconnection - `socket.reconnect()` - is a fresh start: it resets the counter and is never refused.
+   */
   const onReconnect = async ({
     disconnect,
     connect,
+    manual = false,
   }: {
     disconnect: () => Promise<any>;
     connect: () => Promise<any>;
+    manual?: boolean;
   }): Promise<boolean> => {
+    if (manual) {
+      adapter.setReconnectionAttempts(0);
+    }
     // Capture attempts before disconnect/connect reset them
     const currentAttempts = adapter.reconnectionAttempts;
 
@@ -125,8 +134,9 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.events.emitReconnecting({ attempts: currentAttempts });
 
     await disconnect();
-    if (currentAttempts < socket.reconnectAttempts) {
-      const nextAttempts = currentAttempts + 1;
+    if (manual || currentAttempts < socket.reconnectAttempts) {
+      // A reconnection by hand is a fresh connection - `onConnect` gets attempt 0, like for the first one
+      const nextAttempts = manual ? 0 : currentAttempts + 1;
       socket.adapter.setReconnectionAttempts(nextAttempts);
       logger.debug({
         title: "Reconnecting",

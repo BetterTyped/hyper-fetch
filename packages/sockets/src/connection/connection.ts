@@ -138,7 +138,7 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
     const safeDelay = Number.isFinite(delay) ? Math.max(0, delay) : socket.reconnectTime;
     retryTimer = setTimeout(() => {
       retryTimer = undefined;
-      reconnect();
+      reconnect({ manual: false });
     }, safeDelay);
   };
 
@@ -319,13 +319,18 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
     return closeConnection({ manual: true });
   };
 
-  const reconnect = async () => {
+  /** One attempt of the outage, or a fresh start by hand that is never refused by the attempt limit */
+  const reconnect = async ({ manual }: { manual: boolean }) => {
     // Reconnecting is a request to be connected, also after a manual disconnect
     wanted = true;
     clearRetry();
     adapter.setForceClosed(false);
+    if (manual) {
+      outageStart = null;
+    }
 
     await onReconnect({
+      manual,
       disconnect: () => closeConnection({ manual: false }),
       connect: async () => {
         // `disconnect()` called while the previous transport was closing wins over the reconnection
@@ -361,7 +366,7 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
     // Back in front of the user - don't make them wait for the rest of the delay
     if (retryTimer && wanted && !isActive()) {
       clearRetry();
-      reconnect();
+      reconnect({ manual: false });
     }
   });
 
@@ -371,7 +376,7 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
 
   return {
     connect,
-    reconnect,
+    reconnect: () => reconnect({ manual: true }),
     disconnect,
     dispose: () => {
       unmountOffline();

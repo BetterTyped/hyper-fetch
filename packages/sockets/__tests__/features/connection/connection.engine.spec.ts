@@ -651,6 +651,36 @@ describe("Reconnection engine", () => {
       expect(FakeTransport.instances).toHaveLength(2);
     });
 
+    it("should start a fresh outage on reconnect() after the attempts ran out", async () => {
+      const socket = await createConnectedSocket({ reconnect: 1 });
+      const events = track(socket);
+      FakeTransport.last.serverLost();
+      await advance(reconnectTime);
+      FakeTransport.last.serverLost();
+      await advance(maxReconnectTime);
+      expect(events).toContain("failed:1");
+
+      socket.reconnect();
+      await settle();
+
+      expect(FakeTransport.instances).toHaveLength(3);
+      expect(events.at(-1)).toBe("reconnecting:0");
+    });
+
+    it("should never refuse reconnect() by hand, also with no automatic attempts", async () => {
+      const socket = await createConnectedSocket({ reconnect: 0 });
+      const events = track(socket);
+
+      socket.reconnect();
+      await settle();
+      socket.reconnect();
+      await settle();
+
+      expect(FakeTransport.instances).toHaveLength(3);
+      expect(events).not.toContain("failed:0");
+      expect(socket.adapter.reconnectionAttempts).toBe(0);
+    });
+
     it("should connect on reconnect() after disconnect()", async () => {
       const socket = await createConnectedSocket();
       await socket.disconnect();
