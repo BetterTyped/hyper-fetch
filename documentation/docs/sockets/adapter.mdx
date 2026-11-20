@@ -18,6 +18,28 @@ separate packages (e.g., `@hyper-fetch/firebase`).
 There are two built in adapters - `WebsocketAdapter` and `ServerSentEventsAdapter` providing basic functionality for the
 `Websocket` and `Server Sent Events (SSE)` connection types.
 
+Both use the global `WebSocket` / `EventSource` of the runtime, so they work in browsers, Bun, Deno and Node.js 22+ (for
+`WebSocket`). Where a global is missing, pass the constructor in `adapterOptions` - for example Node.js has no global
+`EventSource`:
+
+```ts
+import { EventSource } from "eventsource";
+
+const socket = new Socket({ url: "http://localhost:3000/events", adapter: ServerSentEventsAdapter(), adapterOptions: { EventSource } });
+```
+
+:::caution Server rendering
+
+A socket connects wherever the runtime has a `WebSocket`, the server included - Node.js 22+ has one. When a socket is
+created while rendering on the server (Next.js, Remix), it opens a connection from the server. Create sockets on the
+client only, or turn the automatic connection off on the server:
+
+```ts
+const socket = new Socket({ url, adapterOptions: { autoConnect: typeof window !== "undefined" } });
+```
+
+:::
+
 ---
 
 ### Websocket Adapter
@@ -42,7 +64,7 @@ You can pass adapter-specific options via the `adapterOptions` constructor optio
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
-| `webSocketImpl` | `new (url, protocols?) => WebSocket` | `window.WebSocket` | The `WebSocket` class used to open connections. Required to connect where there is no `window`, e.g. on Node.js. |
+| `WebSocket` | `typeof WebSocket` | global `WebSocket` | The WebSocket constructor, e.g. from the `ws` package, for runtimes without the global. |
 | `protocols` | `string \| string[]` | — | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header). |
 | `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
 | `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
@@ -63,26 +85,54 @@ const socket = createSocketClient({
 });
 ```
 
-#### Node.js and other runtimes
+#### Custom message format
 
-The adapter uses `window.WebSocket`. Where there is no `window` (Node.js, Deno, Bun or a server-side render) nothing
-connects, so sockets created while rendering on the server stay offline. To connect from a server, pass the
-`WebSocket` class explicitly: the global one on Node.js 22+, Deno and Bun, or the one from the `ws` package:
+By default every frame is a JSON `{ topic, data }` object. When your server speaks a different format - for example
+`{ type, payload }` - map it with the `decode` and `encode` options instead of writing a custom adapter. Frames decoded
+to `null` (pings, unknown messages) are ignored, and errors thrown by either function are reported through `onError`.
 
 ```tsx
-import { createSocketClient } from "@hyper-fetch/sockets";
-import { WebSocket } from "ws"; // or the global `WebSocket` on Node.js 22+
-
 const socket = createSocketClient({
-  url: "ws://localhost:3000",
+  url: "wss://example.com/ws",
   adapterOptions: {
-    webSocketImpl: WebSocket,
+    // highlight-start
+    decode: (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "pong") return null;
+      return { topic: message.type, data: message.payload };
+    },
+    encode: ({ topic, payload }) => JSON.stringify({ type: topic, payload }),
+    // highlight-end
   },
 });
 ```
 
-When no `WebSocket` is available, connecting fails with an error event instead of throwing. The SSE adapter works the
-same way with `eventSourceImpl`, for example with the `eventsource` package.
+#### Dynamic options
+
+Every adapter option can be resolved right before a connection attempt with the `onConnect` interceptor on the socket.
+It runs for the initial connection, automatic reconnects and manual reconnects, so short-lived values such as auth
+tokens passed through `protocols` are always fresh.
+
+```tsx
+const socket = createSocketClient({
+  url: "wss://example.com/ws",
+}).onConnect(({ connection }) => ({
+  ...connection,
+  adapterOptions: {
+    ...connection.adapterOptions,
+    protocols: ["authorization", authStore.getState().accessToken],
+  },
+}));
+```
+
+<LinkCard
+  type="api"
+  title="WebsocketAdapter"
+  description="Read the API Reference for the WebsocketAdapter class."
+  to="/docs/api/sockets/Functions/WebsocketAdapter"
+/>
+
+---
 
 ### Server Sent Events (SSE) Adapter
 
@@ -111,9 +161,17 @@ const socket = createSocketClient({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
-| `eventSourceImpl` | `new (url, eventSourceInit?) => EventSource` | `window.EventSource` | The `EventSource` class used to open connections. Required to connect where there is no `window`, e.g. on Node.js. |
+| `EventSource` | `typeof EventSource` | global `EventSource` | The EventSource constructor, e.g. from the `eventsource` package in Node.js. |
 | `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
-| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message into a listener event. Return `null` to ignore the message. |
+| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message, named events included, into a listener event. Return `null` to ignore the message. |
+
+Unnamed messages carry `{ topic, data }` JSON. A **named event** (`event: tick` on the wire) goes to the listeners
+whose topic is the event name, with the data parsed as JSON, or kept as text when it is not JSON:
+
+```tsx
+// server: event: tick\ndata: {"count":1}
+socket.createListener<{ count: number }>()({ topic: "tick" }).listen(({ data }) => console.log(data.count));
+```
 
 ```tsx
 const socket = createSocketClient({
@@ -162,6 +220,56 @@ const connect = async () => {
 
 Use `onConnectFailed({ error })` when the transport cannot be created, and `onConnected` / `onDisconnected` /
 `onError` / `onEvent` to report what happens afterwards.
+
+Return a `dispose` function from the connector for what outlives a connection, like the app manager's online event.
+It runs on `socket.destroy()` and before the adapter is initialized for another socket. Use `socket.connectionTimeout`
+to limit one connection attempt and `socket.reconnectTime` as the delay before the next one.
+
+```ts
+const unmountOnline = socket.appManager.events.onOnline(() => connect());
+
+return { connect, reconnect, disconnect, listen, emit, dispose: () => unmountOnline() };
+```
+
+### Subscriptions with a payload
+
+When the server starts a subscription per request, like tRPC or oRPC, read the
+[subscription payload](/docs/sockets/listener#subscription-payload) from `listener.payload` in `listen`. Listeners of
+one topic can then carry different payloads, so pass `callbacks` to `onEvent` to deliver a message only to the listeners
+of its subscription.
+
+```ts
+const listen = (listener, callback) => {
+  const subscription = subscribe(listener.topic, listener.payload, (data) => {
+    onEvent({ topic: listener.topic, data, extra: undefined, callbacks: subscription.callbacks });
+  });
+  subscription.callbacks.add(callback);
+
+  return onListen({ listener, callback, onUnmount: () => subscription.remove(callback) });
+};
+```
+
+When the server confirms and ends subscriptions, create the adapter with `confirmsSubscriptions: true` and report both
+with `onListenerStart` and `onListenerEnd`. Listeners then follow the server: `onEnd` runs, the listener unsubscribes
+and `useListener` switches its `status` to `ended` or `failed`.
+
+```ts
+const adapter = new SocketAdapter({ name: "rpc", confirmsSubscriptions: true }).setConnector(
+  ({ onListen, onEvent, onListenerStart, onListenerEnd }) => {
+    // ...
+    server.on("started", (subscription) => {
+      onListenerStart({ topic: subscription.topic, callbacks: subscription.callbacks });
+    });
+    server.on("stopped", (subscription, error) => {
+      onListenerEnd({ topic: subscription.topic, callbacks: subscription.callbacks, error: error ?? null });
+    });
+    // ...
+  },
+);
+```
+
+Call `onListenerStart` again after a reconnect restarted a subscription, and for a callback that joins a subscription
+that is already running. Without `confirmsSubscriptions` a listener counts as started as soon as it is registered.
 
 ---
 

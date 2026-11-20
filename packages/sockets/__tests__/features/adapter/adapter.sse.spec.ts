@@ -3,10 +3,8 @@ import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 import { waitFor } from "@testing-library/dom";
 import type { ServerSentEventsAdapterType } from "adapter-sse/sse-adapter";
 import { ServerSentEventsAdapter } from "adapter-sse/sse-adapter";
-import { EventSourceReadyState } from "adapter-sse/sse-adapter.types";
 
-import { getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
-import { withoutImplementation } from "../../utils/environment.utils";
+import { EventSourceReadyState, getServerSentEventsAdapter } from "../../../src/adapter-sse/sse-adapter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -258,10 +256,14 @@ describe("Socket Adapter [ SSE ]", () => {
     expect(socketWithoutAutoConnect.adapter.connected).toBe(false);
   });
 
-  it("should return null from getServerSentEventsAdapter when no EventSource class is available", async () => {
-    await withoutImplementation("EventSource", () => {
-      expect(getServerSentEventsAdapter("http://localhost:1234", {})).toBeNull();
-    });
+  it("should return null from getServerSentEventsAdapter when the runtime has no EventSource", () => {
+    const original = globalThis.EventSource;
+    globalThis.EventSource = undefined as unknown as typeof EventSource;
+
+    const result = getServerSentEventsAdapter("http://localhost:1234", {});
+
+    globalThis.EventSource = original;
+    expect(result).toBeNull();
   });
 
   it("should properly clean up error event listeners on disconnect", async () => {

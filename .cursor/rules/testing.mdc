@@ -9,7 +9,8 @@ alwaysApply: false
 ## Test real code
 
 The boundary is the network. Clients, requests, dispatchers, caches and hooks all run for real, and
-`@hyper-fetch/testing` answers at the transport level.
+`@hyper-fetch/testing` answers at the transport level. That package is internal to this repo: specs import it, but it
+is never published, documented or recommended to users.
 
 ```ts
 import { createHttpMockingServer } from "@hyper-fetch/testing";

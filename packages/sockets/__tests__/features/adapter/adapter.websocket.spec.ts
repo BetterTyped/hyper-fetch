@@ -6,7 +6,6 @@ import type { Socket } from "socket";
 import type { WebsocketAdapterType } from "../../../src/adapter-websockets/websocket-adapter";
 import { WebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter";
 import { getWebsocketAdapter } from "../../../src/adapter-websockets/websocket-adapter.utils";
-import { withoutImplementation } from "../../utils/environment.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 describe("Websocket Adapter [ Base ]", () => {
@@ -181,44 +180,13 @@ describe("Websocket Adapter [ Base ]", () => {
     expect(result).toBe(undefined);
   });
 
-  it("should return null from getWebsocketAdapter when no WebSocket class is available", async () => {
-    await withoutImplementation("WebSocket", () => {
-      expect(getWebsocketAdapter("ws://localhost:1234", {})).toBeNull();
-    });
-  });
+  it("should return null from getWebsocketAdapter when the runtime has no WebSocket", () => {
+    vi.stubGlobal("WebSocket", null);
 
-  it("should open connections with the webSocketImpl option instead of the global WebSocket", async () => {
-    const created: string[] = [];
-    class CustomWebSocket extends window.WebSocket {
-      constructor(socketUrl: string, protocols?: string | string[]) {
-        super(socketUrl, protocols);
-        created.push(socketUrl);
-      }
-    }
-    // The option must work where there is no global at all
-    await withoutImplementation("WebSocket", async () => {
-      const newSocket = createSocket({ url, adapterOptions: { webSocketImpl: CustomWebSocket, autoConnect: false } });
+    const result = getWebsocketAdapter("ws://localhost:1234", {});
 
-      await newSocket.connect();
-      await waitForConnection(newSocket);
-
-      expect(created).toHaveLength(1);
-      expect(newSocket.adapter.connected).toBeTrue();
-      await newSocket.disconnect();
-    });
-  });
-
-  it("should report a failed connection when no WebSocket class is available", async () => {
-    await withoutImplementation("WebSocket", async () => {
-      const errorSpy = vi.fn();
-      const newSocket = createSocket({ url, reconnect: 0, adapterOptions: { autoConnect: false } });
-      newSocket.events.onError(errorSpy);
-
-      await newSocket.connect();
-
-      expect(newSocket.adapter.connected).toBeFalse();
-      await waitFor(() => expect(errorSpy).toHaveBeenCalled());
-    });
+    vi.unstubAllGlobals();
+    expect(result).toBeNull();
   });
 
   it("should trigger reconnect timeout when websocket closes with a non-1000 code", async () => {

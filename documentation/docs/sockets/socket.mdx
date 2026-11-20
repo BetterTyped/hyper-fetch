@@ -78,11 +78,13 @@ new Socket({ url: "ws://localhost:3000" }).onError(({ error }) => {
 });
 ```
 
-- `onMessage` — triggered on any received message. Receives the event data and must return the transformed data.
+- `onMessage` — triggered on any received message. Receives the message data as `event`, the listener `topic` and the
+  adapter `extra` (the `MessageEvent`, or the subscription details of the tRPC and oRPC adapters) and must return the
+  transformed data.
 
 ```tsx
-new Socket({ url: "ws://localhost:3000" }).onMessage(({ event }) => {
-  return { ...event, receivedAt: Date.now() };
+new Socket({ url: "ws://localhost:3000" }).onMessage(({ event, topic, extra }) => {
+  return { ...event, topic, receivedAt: extra.timeStamp };
 });
 ```
 
@@ -174,13 +176,21 @@ The `Socket` constructor (and `createSocketClient` helper) accepts the following
 | `adapterOptions` | `object` | — | Adapter-specific options passed to the adapter on initialization. |
 | `queryParams` | `object \| string` | — | Query parameters appended to the connection URL. |
 | `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts. |
-| `reconnectTime` | `number` | `5000` | Delay in milliseconds between reconnection attempts. |
+| `reconnectTime` | `number` | `5000` | Delay in milliseconds before the next attempt after the connection was lost. |
+| `connectionTimeout` | `number` | `5000` | How long in milliseconds one connection attempt may take before a new attempt starts. |
 
 ---
 
 ## Connection Management
 
-The `Socket` class provides methods for controlling the connection lifecycle.
+The `Socket` class provides methods for controlling the connection lifecycle. When a socket is not needed anymore, for
+example after a logout, call `destroy()`. It disconnects and removes the subscriptions the adapter made to the app
+manager, so nothing reconnects the socket later. An app manager passed in the options stays mounted, so it can be shared
+by other sockets.
+
+```tsx
+await socket.destroy();
+```
 
 ```tsx
 const socket = createSocketClient({ url: "ws://localhost:3000" });

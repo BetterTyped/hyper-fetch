@@ -9,9 +9,14 @@ export const trpcEndpointMapper = (endpoint: string): string => {
   return endpoint.replaceAll(/^\/+|\/+$/g, "").replaceAll("/", ".");
 };
 
+/** The input after the transformer, before it is encoded to JSON. `undefined` means that there is no input to send */
+export const serializeTrpcInput = (input: unknown, transformer?: TrpcTransformerType): unknown => {
+  return transformer ? transformer.serialize(input) : input;
+};
+
 /** The input as it is sent over the wire, `undefined` means that there is no input to send */
 export const getTrpcInput = (input: unknown, transformer?: TrpcTransformerType): string | undefined => {
-  const serialized = transformer ? transformer.serialize(input) : input;
+  const serialized = serializeTrpcInput(input, transformer);
 
   return serialized === undefined ? undefined : JSON.stringify(serialized);
 };
@@ -51,7 +56,36 @@ export const getTrpcHeaders = (request: RequestInstance): HeadersInit => {
 };
 
 export const getTrpcUrl = (request: RequestInstance, queryParams: unknown, input: string | undefined): string => {
-  const [baseUrl, baseQuery] = request.client.url.split("?");
+  const isQuery = request.method !== TrpcMethods.MUTATION;
+
+  return getTrpcProcedureUrl({
+    url: request.client.url,
+    endpoint: request.endpoint,
+    queryParams,
+    input: isQuery ? input : undefined,
+  });
+};
+
+/**
+ * Url of a procedure: `{url}/user.byId?{queryParams}&input={input}`.
+ * Query params of the base url are kept, the reserved ones (`input`, `batch`) set by the user are dropped.
+ */
+export const getTrpcProcedureUrl = ({
+  url,
+  endpoint,
+  queryParams,
+  input,
+  protocolParams = {},
+}: {
+  url: string;
+  endpoint: string;
+  queryParams: unknown;
+  /** Encoded input sent in the query string, `undefined` sends no input */
+  input: string | undefined;
+  /** Query params of the tRPC protocol added after the input, e.g. `lastEventId` of a subscription */
+  protocolParams?: Record<string, string>;
+}): string => {
+  const [baseUrl, baseQuery] = url.split("?");
   const searchParams = new URLSearchParams(baseQuery);
 
   // Mappers can return anything, so we normalize their result to the query string
@@ -63,10 +97,12 @@ export const getTrpcUrl = (request: RequestInstance, queryParams: unknown, input
     },
   );
 
-  const isQuery = request.method !== TrpcMethods.MUTATION;
-  const encodedInput = isQuery && input !== undefined ? `input=${encodeURIComponent(input)}` : "";
-  const queryString = [searchParams.toString(), encodedInput].filter(Boolean).join("&");
-  const procedure = trpcEndpointMapper(request.endpoint);
+  const encodedInput = input !== undefined ? `input=${encodeURIComponent(input)}` : "";
+  const encodedProtocolParams = Object.entries(protocolParams).map(
+    ([key, value]) => `${key}=${encodeURIComponent(value)}`,
+  );
+  const queryString = [searchParams.toString(), encodedInput, ...encodedProtocolParams].filter(Boolean).join("&");
+  const procedure = trpcEndpointMapper(endpoint);
 
   return `${baseUrl.replace(/\/+$/, "")}/${procedure}${queryString ? `?${queryString}` : ""}`;
 };

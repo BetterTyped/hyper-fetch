@@ -1,26 +1,25 @@
 import type { EmptyTypes } from "@hyper-fetch/core";
 
-import { getWindowImplementation } from "../utils/environment.utils";
 import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
-/** The `WebSocket` class to use: the one from the options, else the page's. `null` when there is none. */
-export const getWebsocketImplementation = (
-  adapterOptions: WebsocketAdapterOptionsType | EmptyTypes,
-): typeof WebSocket | null => {
-  // Callers pass `ws` or another class with the browser API, which the adapter is limited to
-  const implementation = (adapterOptions?.webSocketImpl ?? getWindowImplementation("WebSocket")) as
-    | typeof WebSocket
-    | undefined;
-  return typeof implementation === "function" ? implementation : null;
+/** `readyState` values of a WebSocket - read without the global, which some runtimes don't have */
+export const WebsocketReadyState = { CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3 } as const;
+
+/**
+ * The WebSocket constructor to use: the one from `adapterOptions`, otherwise the global one
+ * (browsers, Node.js 22+, Bun, Deno). `null` when the runtime has none.
+ */
+export const getWebsocketConstructor = (adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
+  return adapterOptions?.WebSocket ?? (typeof globalThis.WebSocket === "function" ? globalThis.WebSocket : null);
 };
 
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
-  const WebsocketImplementation = getWebsocketImplementation(adapterOptions);
-  if (!WebsocketImplementation) {
+  const WebSocketConstructor = getWebsocketConstructor(adapterOptions);
+  if (!WebSocketConstructor) {
     return null;
   }
 
-  class HyperFetchWebsocket extends WebsocketImplementation {
+  class HyperFetchWebsocket extends WebSocketConstructor {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
     public registeredHandlers = new Map<
       (...args: any[]) => any,

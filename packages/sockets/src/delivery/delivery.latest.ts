@@ -51,6 +51,14 @@ export const createLatestDeliveryStrategy = <Data, Extra = any>({
         }
         pending = message;
       },
+      flush: () => {
+        if (disposed || !pending) {
+          return;
+        }
+        const message = pending;
+        pending = undefined;
+        deliver(message);
+      },
       dispose: () => {
         disposed = true;
         pending = undefined;

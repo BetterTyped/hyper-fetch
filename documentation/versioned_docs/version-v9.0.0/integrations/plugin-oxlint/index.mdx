@@ -1,0 +1,108 @@
+---
+sidebar_position: 1
+title: Oxlint Plugin
+sidebar_label: Overview
+---
+
+# Oxlint Plugin
+
+[Read the API Reference »](/docs/api/plugin-oxlint/Variables/requestGenericTypes.mdx)
+
+**`oxlint-plugin-hyper-fetch`** brings the HyperFetch lint rules to [Oxlint](https://oxc.rs/docs/guide/usage/linter). It
+catches typos, unknown keys and malformed generics in `createClient` and `createRequest`, the mistakes TypeScript lets
+through because every generic key is optional. Rule names match the [ESLint plugin](../plugin-eslint/), so you can
+switch linters without touching your rule config.
+
+---
+
+:::tip Purpose
+
+1.  **Catch generic typos**: `rsponse` instead of `response` silently types your data as `unknown`. The plugin flags it.
+2.  **Lint fast**: on the HyperFetch codebase the plugin runs about 16x faster than the ESLint plugin.
+3.  **Migrate in one step**: the rules are named the same as in `eslint-plugin-hyper-fetch`.
+
+:::
+
+---
+
+## Install the Plugin
+
+```bash npm2yarn2pnpm
+npm install -D oxlint oxlint-plugin-hyper-fetch
+```
+
+The plugin needs Oxlint `1.62.0` or newer.
+
+---
+
+## Configuration
+
+Add the plugin to `jsPlugins` in `.oxlintrc.json` and turn the rules on.
+
+```json title=".oxlintrc.json"
+{
+  "jsPlugins": ["oxlint-plugin-hyper-fetch"],
+  "rules": {
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "error"
+  }
+}
+```
+
+With a TypeScript config, the same goes into `defineConfig`.
+
+```ts title="oxlint.config.ts"
+import { defineConfig } from "oxlint";
+
+export default defineConfig({
+  jsPlugins: ["oxlint-plugin-hyper-fetch"],
+  rules: {
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "error",
+  },
+});
+```
+
+Each rule accepts `"off"`, `"warn"` or `"error"`. See the [rules](./rules.mdx) for what each one reports.
+
+---
+
+## Migrating from ESLint
+
+Rule ids are the same, so only the plugin registration changes.
+
+```json
+{
+  // diff-remove-next-line
+  "plugins": ["hyper-fetch"],
+  // diff-add-next-line
+  "jsPlugins": ["oxlint-plugin-hyper-fetch"],
+  "rules": {
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "error"
+  }
+}
+```
+
+---
+
+## Why it is fast
+
+Oxlint parses every file in Rust. Handing the AST to a JS plugin is the expensive part, so both rules look at the source
+text first and skip any file that cannot contain a mistake.
+
+- `request-generic-types` only runs where the text has `createRequest<`.
+- `client-generic-types` only runs where the text mentions both `@hyper-fetch/core` and `createClient`.
+
+Skipped files never have their AST built for the plugin, so only the files that define requests or clients add to your
+lint time.
+
+---
+
+:::secondary Summary
+
+- `oxlint-plugin-hyper-fetch` runs the HyperFetch generic checks on Oxlint.
+- Register it in `jsPlugins` and enable `hyper-fetch/client-generic-types` and `hyper-fetch/request-generic-types`.
+- Rule ids match the ESLint plugin, so migrating only changes how the plugin is loaded.
+
+:::

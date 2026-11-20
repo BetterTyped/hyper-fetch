@@ -4,6 +4,8 @@ description:
   Land a finished hyper-fetch change on main - verify it, choose the commit type by release impact, open the PR and
   merge when CI is green. Use when the user says "ship it", "open a PR", "merge this", "land this", "release this" or
   asks to merge without publishing a new version.
+metadata:
+  internal: true
 ---
 
 # Ship a change

@@ -4,6 +4,8 @@ description:
   Reproduce, root-cause and fix a bug in the hyper-fetch monorepo with a failing regression test first. Use whenever a
   user reports a bug, a GitHub issue describes wrong behavior, a behavior regressed, or says "broken", "doesn't work",
   "wrong result", "regression" or "fix this issue". For intermittent test failures use fix-flaky-tests instead.
+metadata:
+  internal: true
 ---
 
 # Fix a bug

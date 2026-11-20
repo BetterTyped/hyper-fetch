@@ -56,13 +56,14 @@ maintainability, and optimal usage of HyperFetch's features.
 ### 2.1 Design Patterns Specific to hyper-fetch
 
 - **Custom Hooks for Data Fetching:** As highlighted earlier, encapsulating hyper-fetch logic within custom hooks. This
-  promotes reusability and separation of concerns. These hooks will typically return the result of a `useQuery` or
-  `useMutation` call.
+  promotes reusability and separation of concerns. These hooks will typically return the result of a `useFetch` or
+  `useSubmit` call.
 
 - **Optimistic Updates:** Implement optimistic updates to improve perceived performance. This involves updating the UI
   before the API request completes, and then reverting the changes if the request fails. Use `request.setOptimistic()`
-  which returns `context`, `rollback`, and `invalidate` — the framework orchestrates rollback on failure/abort and
-  invalidation on success automatically.
+  and return operations built with `optimistic(target)` from `@hyper-fetch/core` (`set`, `patch`, `insert`, `remove`,
+  `increment`, plus `.commit()` and `.rollback()`), or the object form with `updates`, `context`, `rollback` and
+  `invalidate`. Core runs the rollbacks on failure or abort and refreshes the targets once the request settles.
 
 - **Pessimistic Updates:** Update the UI only after a successful response from the API. Simpler to implement but
   provides a less snappy user experience.
@@ -72,7 +73,7 @@ maintainability, and optimal usage of HyperFetch's features.
 - **Prefetching Data:** Prefetch data for routes or components that the user is likely to visit next. This can
   significantly improve the user experience. Use `request.send()`.
 
-- **Dependent Queries:** Fetch data based on the result of a previous query. Use the `enabled` option in `useQuery` to
+- **Dependent Queries:** Fetch data based on the result of a previous query. Use the `disabled` option of `useFetch` to
   conditionally execute queries.
 
   ```typescript
@@ -119,22 +120,22 @@ maintainability, and optimal usage of HyperFetch's features.
 
 - **Query Invalidation:** Invalidate queries when data changes. This ensures that the UI is always up-to-date.
 
-- **Stale-While-Revalidate:** Use the `staleTime` and `cacheTime` options to configure how long data should be
-  considered fresh. `Stale While Revalidate` allows the UI to display cached data while fetching fresh data in the
+- **Stale-While-Revalidate:** Use the `staleTime` request option to configure how long data should be considered
+  fresh. `Stale While Revalidate` allows the UI to display cached data while fetching fresh data in the
   background. This can be passed to the hook like: `useFetch(request, { revalidate: true })`
 
-- **Window Focus Refetching:** Configure refetching on window focus to keep data fresh when the user switches back to
-  the application.
+- **Window Focus Refetching:** Use the `refetchOnFocus` option of `useFetch` to keep data fresh when the user switches
+  back to the application.
 
 - **Polling/Refetch Intervals:** Use `refreshTime` to periodically refetch data. This is useful for data that changes
   frequently.
 
 ### 3.2 Memory Management
 
-- **Query Cache Management:** Understand how hyper-fetch manages its cache. Configure the `staleTime` option to control
-  how long data is stored in the cache.
+- **Query Cache Management:** Understand how hyper-fetch manages its cache. Configure the `staleTime` request option to
+  control how long cached data is considered fresh.
 
-- **Garbage Collection:** Ensure that unused queries are garbage collected properly. Use the `cacheTime` option to
+- **Garbage Collection:** Ensure that unused queries are garbage collected properly. Use the `cacheTime` request option to
   configure how long inactive queries should be kept in the cache.
 
 ### 3.3 Rendering Optimization
@@ -301,7 +302,7 @@ request.setMock(
 ### 7.3 Linting and Formatting
 
 - **ESLint:** Use ESLint to enforce coding standards and prevent errors. Install dedicated linter package to avoid
-  common typescript issues. `@hyper-fetch/eslint`
+  common typescript issues. `eslint-plugin-hyper-fetch`
 
 - **Prettier:** Use Prettier to automatically format your code. This ensures that your code is consistently formatted
   and easy to read.

@@ -46,7 +46,7 @@ function App() {
     submit({ payload: { name } });
   };
 
-  onSubmitError((response) => {
+  onSubmitError(({ response }) => {
     toast({
       title: "Error",
       message: response.error.message,
@@ -159,7 +159,8 @@ keeps your component logic clean by separating actions like showing notification
 itself.
 
 1.  `onSubmitSuccess`: Fires when the request completes successfully. It receives the success `response`.
-2.  `onSubmitError`: Fires when the request fails. It receives the `error` object.
+2.  `onSubmitError`: Fires when the request fails. It receives the error `response` - read the error from
+    `response.error`.
 3.  `onSubmitFinished`: Fires when the request is finished, regardless of the outcome.
 
 ```tsx title="Using Event Handlers"
@@ -174,12 +175,12 @@ const LoginPage = () => {
     toast({ title: "Success", message: "Logged in!", type: "success" });
   });
 
-  onSubmitError(({ error }) => {
-    console.error("Login failed:", error);
-    toast({ title: "Error", message: error.message, type: "error" });
+  onSubmitError(({ response }) => {
+    console.error("Login failed:", response.error);
+    toast({ title: "Error", message: response.error.message, type: "error" });
   });
 
-  onSubmitFinished((response) => {
+  onSubmitFinished(({ response }) => {
     console.log("Request finished", response);
   });
 
@@ -202,7 +203,7 @@ You can pass data, and parameters to your request in two main ways.
 For data that doesn't change, you can set it directly on the [`Request`](/docs/core/request) instance.
 
 ```tsx
-const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
+const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setPayload({ name: "New Name" }));
 
 // Later in your component
 submit();
@@ -236,7 +237,7 @@ with an error response indicating the hook is disabled:
 const { submit } = useSubmit(createUser, { disabled: true });
 
 const result = await submit();
-// result = { data: null, error: Error("...disabled..."), status: null }
+// result = { data: null, error: Error("...disabled..."), status: null, success: false, ... }
 ```
 
 This makes it safe to call `submit()` unconditionally without wrapping it in a try/catch - the promise always resolves.

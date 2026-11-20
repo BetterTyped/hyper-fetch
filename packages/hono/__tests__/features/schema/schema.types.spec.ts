@@ -1,3 +1,4 @@
+import { createNodeWebSocket } from "@hono/node-ws";
 import { createClient, createSdk } from "@hyper-fetch/core";
 import type {
   Client,
@@ -16,6 +17,7 @@ import { expectTypeOf } from "vitest";
 
 import type { HonoAppToHyperFetch } from "../../../src";
 import type { User, apiApp, app } from "../../utils/app";
+import type { RealtimeApp } from "../../utils/realtime-server";
 
 type Schema = HonoAppToHyperFetch<typeof app>;
 
@@ -158,6 +160,46 @@ describe("HonoAppToHyperFetch [ createSdk ]", () => {
     sdk.users.$userId.posts.$get.setQueryParams({ page: "2" });
     // @ts-expect-error - the validator reads page, not limit
     sdk.users.$userId.posts.$get.setQueryParams({ limit: "2" });
+    expect(true).toBe(true);
+  });
+});
+
+describe("HonoAppToHyperFetch [ Realtime routes ]", () => {
+  type RealtimeSchema = HonoAppToHyperFetch<RealtimeApp>;
+
+  it("should leave WebSocket routes out of the schema", () => {
+    // /ws, /chat/:roomId, /notifications and /legacy are upgradeWebSocket() routes
+    expectTypeOf<keyof RealtimeSchema>().toEqualTypeOf<"health" | "events">();
+    expect(true).toBe(true);
+  });
+
+  it("should keep the HTTP methods of a path that also upgrades GET to a WebSocket", () => {
+    const { upgradeWebSocket } = createNodeWebSocket({ app: new Hono() });
+    const mixed = new Hono()
+      .get(
+        "/live",
+        upgradeWebSocket(() => ({})),
+      )
+      .post("/live", (c) => c.json({ posted: true }));
+    type MixedSchema = HonoAppToHyperFetch<typeof mixed>;
+
+    expectTypeOf<keyof MixedSchema>().toEqualTypeOf<"live">();
+    expectTypeOf<keyof MixedSchema["live"]>().toEqualTypeOf<"$post">();
+    expectTypeOf<ExtractResponseType<MixedSchema["live"]["$post"]>>().toEqualTypeOf<{ posted: true }>();
+    expect(true).toBe(true);
+  });
+
+  it("should keep a Server-Sent Events route as a GET with an untyped response", () => {
+    expectTypeOf<ExtractEndpointType<RealtimeSchema["events"]["$get"]>>().toEqualTypeOf<"/events">();
+    expectTypeOf<ExtractResponseType<RealtimeSchema["events"]["$get"]>>().toEqualTypeOf<{}>();
+    expect(true).toBe(true);
+  });
+
+  it("should reject a WebSocket route used as a request", () => {
+    // @ts-expect-error - /ws is a WebSocket route
+    type WebSocketRoute = RealtimeSchema["ws"];
+
+    expectTypeOf<WebSocketRoute>().toBeAny();
     expect(true).toBe(true);
   });
 });
