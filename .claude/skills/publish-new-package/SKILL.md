@@ -92,19 +92,25 @@ For about 90 seconds after a first publish npm can show a `0.0.0-stage` placehol
 npm view @hyper-fetch/<name> versions
 ```
 
-Then trust the release job in `.github/workflows/workflow.yml` (no GitHub environment). This is the command that works,
-use it exactly:
+Then trust the release job in `.github/workflows/workflow.yml` (no GitHub environment). `npm trust` needs npm >= 11.15
+with `--allow-publish`: npm 11.12.1 sends no permission and the registry answers a bare `E400 Bad Request` after 2FA
+(seen for both oxlint and elysia). npm 12 needs a newer Node than `.nvmrc`, so use npm 11.21.3.
+
+Run that npm directly, not through `npx`: inside `npx` the 2FA prompt (`Authenticate your account at: <url>` /
+`Press ENTER to open in the browser...`) can be hidden, which looks like a hang. Install it into a temporary folder:
 
 ```bash
-npx -y npm@11.12.1 trust github @hyper-fetch/<name> --file workflow.yml --repo BetterTyped/hyper-fetch --yes
+NPM11=$(mktemp -d) && npm i --prefix "$NPM11" --no-audit --no-fund npm@11.21.3
 ```
 
-It asks for 2FA in the browser. Type the package name by hand: npm's publish output prints a full-width `＠`
-(`📦 ＠hyper-fetch/<name>`), and a name copied from there is not the real package. `npx` spins for several seconds while
-it fetches npm's metadata, so a quiet spinner is not a hang. Confirm the relationship:
+```bash
+"$NPM11/node_modules/.bin/npm" trust github @hyper-fetch/<name> --file workflow.yml --repo BetterTyped/hyper-fetch --allow-publish --yes
+```
+
+Approve the 2FA page it prints. Confirm the relationship:
 
 ```bash
-npx -y npm@11.12.1 trust list @hyper-fetch/<name>
+"$NPM11/node_modules/.bin/npm" trust list @hyper-fetch/<name>
 ```
 
 ## 6. Release within 48 hours
