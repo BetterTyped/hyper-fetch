@@ -311,7 +311,7 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
         onHeartbeat();
       };
 
-      const onClose = (event: CloseEvent) => {
+      const onClose = (event: Pick<CloseEvent, "code"> & Event) => {
         clearTimeout(timeout);
         clearTimers();
         forgetAll();
@@ -361,6 +361,22 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
             if (isCurrent()) {
               onClose(event);
             }
+          });
+          // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
+          // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
+          // Here the transport is detached and treated as an abnormally closed one (1006).
+          newWebsocket.addEventListener("error", () => {
+            if (!isCurrent() || newWebsocket.readyState !== WebsocketReadyState.CONNECTING) {
+              return;
+            }
+            resolve(false);
+            websocket = undefined;
+            try {
+              newWebsocket.close();
+            } catch {
+              // Closing a transport that never connected may throw in some runtimes - it is detached already
+            }
+            onClose(Object.assign(new Event("close"), { code: 1006 }));
           });
           newWebsocket.addEventListener("message", (event) => {
             if (isCurrent()) {
@@ -417,6 +433,8 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
 
         return new Promise<boolean>((resolve) => {
           currentWebsocket.addEventListener("close", () => resolve(true), { once: true });
+          // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
+          currentWebsocket.addEventListener("error", () => resolve(true), { once: true });
           currentWebsocket.close(1000);
         });
       };
