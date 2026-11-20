@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import { getStatus, RequestStatusIcon, Status } from "@/utils/request.status.utils";
 
@@ -21,6 +21,7 @@ describe("Request status", () => {
     [Status.FAILED, "#ef4444"],
     [Status.SUCCESS, "#22c55e"],
     [Status.IN_PROGRESS, "#3b82f6"],
+    [Status.PAUSED, "#eab308"],
   ])("should draw a %s request in its color", (status, color) => {
     const { container } = render(<RequestStatusIcon status={status} className="custom" />);
 
@@ -29,9 +30,9 @@ describe("Request status", () => {
     expect(container.querySelector(`[fill="${color}"]`)).toBeInTheDocument();
   });
 
-  it("should draw no icon for a paused request", () => {
-    const { container } = render(<RequestStatusIcon status={Status.PAUSED} />);
+  it("should label the paused icon for screen readers", () => {
+    render(<RequestStatusIcon status={Status.PAUSED} />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByRole("img", { name: "Paused" })).toBeInTheDocument();
   });
 });
