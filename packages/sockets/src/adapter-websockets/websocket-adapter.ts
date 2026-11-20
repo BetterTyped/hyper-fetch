@@ -117,10 +117,8 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             onHeartbeat();
           });
 
-          newWebsocket.addEventListener("close", (event) => {
-            if (!isCurrent()) {
-              return;
-            }
+          /** The transport is gone - report it and get the connection back unless it was closed normally */
+          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Event) => {
             clearTimeout(timeout);
             clearTimers();
             onDisconnected();
@@ -131,6 +129,30 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             if (event.code !== 1000) {
               scheduleReconnect();
             }
+          };
+
+          newWebsocket.addEventListener("close", (event) => {
+            if (!isCurrent()) {
+              return;
+            }
+            onTransportClosed(event);
+          });
+
+          // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
+          // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
+          // Here the transport is detached and treated as an abnormally closed one (1006).
+          newWebsocket.addEventListener("error", () => {
+            if (!isCurrent() || newWebsocket.readyState !== WebsocketReadyState.CONNECTING) {
+              return;
+            }
+            websocket = undefined;
+            newWebsocket.clearListeners();
+            try {
+              newWebsocket.close();
+            } catch {
+              // Closing a transport that never connected may throw in some runtimes - it is detached already
+            }
+            onTransportClosed(Object.assign(new Event("close"), { code: 1006 }));
           });
 
           newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
@@ -224,8 +246,11 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             const resolveDisconnected = () => {
               resolve(true);
               currentWebsocket.removeEventListener("close", resolveDisconnected);
+              currentWebsocket.removeEventListener("error", resolveDisconnected);
             };
             currentWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
+            // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
+            currentWebsocket.addEventListener("error", resolveDisconnected, { disableCleanup: true });
             currentWebsocket.close(1000);
           });
         };
