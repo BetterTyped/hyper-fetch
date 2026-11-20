@@ -80,7 +80,8 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     const { startServer, stopServer, terminateAllClients } = createWebsocketE2EServer();
     const url = await startServer();
 
-    const socket = new Socket({ url, reconnectTime: 200, reconnect: 5 });
+    // The counter resets once a connection stays up for minUptime
+    const socket = new Socket({ url, reconnectTime: 200, reconnect: 5, minUptime: 100 });
     await waitForConnection(socket);
 
     let reconnectCount = 0;
@@ -93,6 +94,7 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     await sleep(600);
     await waitForConnection(socket, 3000);
     const firstRoundReconnects = reconnectCount;
+    await sleep(150);
 
     expect(socket.adapter.connected).toBe(true);
     expect(socket.adapter.reconnectionAttempts).toBe(0);
@@ -101,6 +103,7 @@ describe("E2E [ WebSocket Reconnection ]", () => {
     terminateAllClients();
     await sleep(600);
     await waitForConnection(socket, 3000);
+    await sleep(150);
 
     expect(reconnectCount).toBeGreaterThan(firstRoundReconnects);
     expect(socket.adapter.reconnectionAttempts).toBe(0);

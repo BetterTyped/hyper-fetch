@@ -24,6 +24,15 @@ const trackEvents = (socket: Socket) => {
 };
 
 describe("Websocket Adapter [ Lifecycle ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: Socket[] = [];
 
   const createSocket = (options?: Partial<ConstructorParameters<typeof Socket>[0]>) => {
@@ -421,19 +430,31 @@ describe("Websocket Adapter [ Lifecycle ]", () => {
       expect(vi.getTimerCount()).toBe(1);
     });
 
-    it("should not reconnect after a normal closure from the server", async () => {
+    it("should reconnect after a normal closure from the server", async () => {
+      // Servers, proxies and load balancers close with 1000 on deploys and idle timeouts too
       const socket = createSocket({ reconnectTime: 100 });
       const websocket = await openWebSocket();
       const events = trackEvents(socket);
 
       websocket.serverClose({ code: 1000, wasClean: true });
-      await vi.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(100);
 
-      expect(events).toStrictEqual([
+      expect(events.slice(0, 3)).toStrictEqual([
         "connecting:false",
         "disconnected",
         "error:Normal closure, meaning that the purpose for which the connection was established has been fulfilled.",
       ]);
+      expect(ControlledWebSocket.instances).toHaveLength(2);
+    });
+
+    it("should not reconnect a normal closure refused by shouldReconnect", async () => {
+      const socket = createSocket({ reconnectTime: 100, shouldReconnect: ({ code }) => code !== 1000 });
+      const websocket = await openWebSocket();
+      socket.onError(() => null);
+
+      websocket.serverClose({ code: 1000, wasClean: true });
+      await vi.advanceTimersByTimeAsync(1000);
+
       expect(ControlledWebSocket.instances).toHaveLength(1);
     });
 

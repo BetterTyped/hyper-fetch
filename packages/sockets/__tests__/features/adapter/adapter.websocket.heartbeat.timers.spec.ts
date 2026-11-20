@@ -15,6 +15,15 @@ const pongTimeout = 1000;
 const reconnectTime = 500;
 
 describe("Websocket Adapter [ Heartbeat Timers ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: Socket[] = [];
 
   const createConnectedSocket = async (adapterOptions: WebsocketAdapterOptionsType = {}) => {
@@ -313,6 +322,8 @@ describe("Websocket Adapter [ Heartbeat Timers ]", () => {
 
     it("should stop pinging when the server closes the connection", async () => {
       const { socket, websocket } = await createConnectedSocket();
+      // No reconnection, so the only timers left would be the heartbeat ones
+      socket.shouldReconnect = () => false;
       socket.onError(() => null);
 
       websocket.serverClose({ code: 1000, wasClean: true });

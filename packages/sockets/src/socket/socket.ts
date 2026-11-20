@@ -3,6 +3,7 @@ import { LoggerManager, AppManager, Time } from "@hyper-fetch/core";
 import type { SocketAdapterInstance } from "adapter";
 import type { WebsocketAdapterType } from "adapter-websockets/websocket-adapter";
 import { WebsocketAdapter } from "adapter-websockets/websocket-adapter";
+import type { ReconnectDelayType, ShouldReconnectType } from "connection";
 import type { ListenerDeliveryType, ResolveDeliveredType } from "delivery";
 import type { EmitterInstance, EmitterOptionsType } from "emitter";
 import { Emitter } from "emitter";
@@ -31,6 +32,10 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   url: string;
   reconnectAttempts: number;
   reconnectTime: number;
+  maxReconnectTime: number;
+  minUptime: number;
+  reconnectDelay: ReconnectDelayType | undefined;
+  shouldReconnect: ShouldReconnectType | undefined;
   connectionTimeout: number;
   debug: boolean;
   autoConnect: boolean;
@@ -54,12 +59,28 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   logger = this.loggerManager.initialize(this, "Socket");
 
   constructor(public options: SocketOptionsType<Adapter>) {
-    const { url, adapter, reconnect, reconnectTime, connectionTimeout, queryParams, appManager } = this.options;
+    const {
+      url,
+      adapter,
+      reconnect,
+      reconnectTime,
+      maxReconnectTime,
+      minUptime,
+      reconnectDelay,
+      shouldReconnect,
+      connectionTimeout,
+      queryParams,
+      appManager,
+    } = this.options;
     this.emitter?.setMaxListeners(1000);
     this.url = url;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
-    this.reconnectTime = reconnectTime ?? Time.SEC * 5;
+    this.reconnectTime = reconnectTime ?? Time.SEC;
+    this.maxReconnectTime = maxReconnectTime ?? Time.SEC * 30;
+    this.minUptime = minUptime ?? Time.SEC * 5;
+    this.reconnectDelay = reconnectDelay;
+    this.shouldReconnect = shouldReconnect;
     this.connectionTimeout = connectionTimeout ?? Time.SEC * 5;
     this.autoConnect = true;
 

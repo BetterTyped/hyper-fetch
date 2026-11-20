@@ -137,16 +137,21 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       return true;
     }
 
+    onReconnectFailed(currentAttempts);
+    return false;
+  };
+
+  /** Reports that reconnecting stopped - the attempts ran out or the retry policy returned `null` */
+  const onReconnectFailed = (attempts: number = adapter.reconnectionAttempts) => {
     logger.error({
       title: "Stopped reconnecting",
       type: "system",
-      extra: { reconnectionAttempts: currentAttempts },
+      extra: { reconnectionAttempts: attempts },
     });
     socket.unstable_onReconnectFailedCallbacks.forEach((callback) => {
       callback();
     });
-    socket.events.emitReconnectingFailed({ attempts: currentAttempts });
-    return false;
+    socket.events.emitReconnectingFailed({ attempts });
   };
 
   // Listeners
@@ -210,11 +215,17 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
 
   // Lifecycle
 
-  const onConnected = () => {
+  /**
+   * The connection is open. `resetAttempts: false` keeps the reconnection attempt counter - the reconnection engine
+   * resets it only once the connection proved stable.
+   */
+  const onConnected = ({ resetAttempts = true }: { resetAttempts?: boolean } = {}) => {
     logger.info({ title: "Connection open", type: "system", extra: {} });
     adapter.setConnected(true);
     adapter.setConnecting(false);
-    adapter.setReconnectionAttempts(0);
+    if (resetAttempts) {
+      adapter.setReconnectionAttempts(0);
+    }
     socket.events.emitConnecting({ connecting: false });
     socket.events.emitConnected();
     socket.unstable_onConnectedCallbacks.forEach((callback) => {
@@ -356,6 +367,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     onConnect,
     onConnectFailed,
     onReconnect,
+    onReconnectFailed,
     onDisconnect,
     onListen,
     onEmit,

@@ -11,8 +11,19 @@ import {
 
 const url = "ws://reconnection";
 const reconnectTime = 1000;
+// The socket default - how long a connection must stay up before the attempt counter resets
+const minUptime = 5000;
 
 describe("Websocket Adapter [ Reconnection ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: Socket[] = [];
 
   const createSocket = (options?: Partial<ConstructorParameters<typeof Socket>[0]>) => {
@@ -42,6 +53,12 @@ describe("Websocket Adapter [ Reconnection ]", () => {
     await vi.advanceTimersByTimeAsync(reconnectTime);
     await flushPromises();
     return ControlledWebSocket.last;
+  };
+
+  /** A handshake that never finishes times out first, and the next attempt follows after the reconnection delay */
+  const waitForHangingAttempt = async () => {
+    await vi.advanceTimersByTimeAsync(reconnectTime);
+    return waitForReconnectAttempt();
   };
 
   /** Waits for the next attempt and lets the server refuse it */
@@ -156,10 +173,30 @@ describe("Websocket Adapter [ Reconnection ]", () => {
         "reconnecting:2",
         "connected",
       ]);
+      // The counter resets only once the connection proved stable
+      expect(socket.adapter.reconnectionAttempts).toBe(3);
+      await vi.advanceTimersByTimeAsync(minUptime);
       expect(socket.adapter.reconnectionAttempts).toBe(0);
     });
 
     it("should start counting from zero after a successful reconnection", async () => {
+      const { socket, websocket } = await createConnectedSocket();
+      socket.onError(() => null);
+
+      websocket.serverClose({ code: 1006 });
+      await refuseReconnectAttempt();
+      const recovered = await waitForReconnectAttempt();
+      recovered.serverOpen();
+      await vi.advanceTimersByTimeAsync(minUptime);
+      const events = trackReconnection(socket);
+
+      recovered.serverClose({ code: 1006 });
+      await waitForReconnectAttempt();
+
+      expect(events).toStrictEqual(["disconnected", "reconnecting:0"]);
+    });
+
+    it("should keep counting when the reconnected connection drops before minUptime", async () => {
       const { socket, websocket } = await createConnectedSocket();
       socket.onError(() => null);
 
@@ -172,7 +209,7 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       recovered.serverClose({ code: 1006 });
       await waitForReconnectAttempt();
 
-      expect(events).toStrictEqual(["disconnected", "reconnecting:0"]);
+      expect(events).toStrictEqual(["disconnected", "reconnecting:2"]);
     });
 
     it("should hold only one live transport while reconnecting", async () => {
@@ -208,9 +245,13 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       expect(ControlledWebSocket.active).toStrictEqual([current]);
       expect(events.filter((event) => event === "disconnected")).toHaveLength(10);
       expect(events.filter((event) => event === "connected")).toHaveLength(10);
-      expect(events.filter((event) => event === "reconnecting:0")).toHaveLength(10);
+      // None of the connections stayed up for minUptime - every drop is the next attempt of one outage
+      expect(events.filter((event) => event.startsWith("reconnecting"))).toStrictEqual(
+        Array.from({ length: 10 }, (_, attempt) => `reconnecting:${attempt}`),
+      );
       expect(socket.adapter.connected).toBeTrue();
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer of the last connection
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should keep delivering messages to the same listeners after reconnecting", async () => {
@@ -275,6 +316,26 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       expect(ControlledWebSocket.instances).toHaveLength(3);
     });
 
+    it("should give up on a connection that drops right after every open", async () => {
+      const { socket, websocket } = await createConnectedSocket({ reconnect: 2 });
+      socket.onError(() => null);
+      const events = trackReconnection(socket);
+
+      websocket.serverClose({ code: 4401 });
+      for (let attempt = 0; attempt < 5 && !events.includes("failed:2"); attempt += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        const next = await waitForReconnectAttempt();
+        if (next.readyState !== ControlledWebSocket.CONNECTING) {
+          break;
+        }
+        next.serverOpen();
+        next.serverClose({ code: 4401 });
+      }
+
+      expect(events).toContain("failed:2");
+      expect(ControlledWebSocket.instances).toHaveLength(3);
+    });
+
     it("should leave no timers and no transport after giving up", async () => {
       const { socket, websocket } = await createConnectedSocket({ reconnect: 1 });
       socket.onError(() => null);
@@ -333,7 +394,7 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       socket.onError(() => null);
       const hanging = await waitForWebSocket();
 
-      const next = await waitForReconnectAttempt();
+      const next = await waitForHangingAttempt();
 
       expect(hanging.readyState).toBe(ControlledWebSocket.CLOSED);
       expect(next).not.toBe(hanging);
@@ -349,9 +410,9 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       socket.onError(() => null);
       await waitForWebSocket();
 
-      await waitForReconnectAttempt();
-      await waitForReconnectAttempt();
-      await waitForReconnectAttempt();
+      await waitForHangingAttempt();
+      await waitForHangingAttempt();
+      await waitForHangingAttempt();
 
       expect(attempts).toStrictEqual([0, 1, 2, 3]);
     });
@@ -592,6 +653,29 @@ describe("Websocket Adapter [ Reconnection ]", () => {
       expect(socket.adapter.connecting).toBeFalse();
     });
 
+    it("should close the open connection when going offline", async () => {
+      const { socket, websocket } = await createConnectedSocket();
+      const events = trackReconnection(socket);
+
+      socket.appManager.setOnline(false);
+      await flushPromises();
+
+      expect(websocket.readyState).toBe(ControlledWebSocket.CLOSED);
+      expect(socket.adapter.connected).toBeFalse();
+      expect(events).toStrictEqual(["disconnected"]);
+    });
+
+    it("should skip the rest of the reconnection delay when the app is focused again", async () => {
+      const { socket, websocket } = await createConnectedSocket({ reconnectTime: 30_000 });
+      socket.onError(() => null);
+      websocket.serverClose({ code: 1006 });
+
+      socket.appManager.setFocused(true);
+      await flushPromises();
+
+      expect(ControlledWebSocket.instances).toHaveLength(2);
+    });
+
     it("should connect as soon as the network is back", async () => {
       const { socket, websocket } = await createConnectedSocket();
       socket.onError(() => null);
@@ -610,7 +694,6 @@ describe("Websocket Adapter [ Reconnection ]", () => {
     it("should keep the open connection when the online event fires", async () => {
       const { socket } = await createConnectedSocket();
 
-      socket.appManager.setOnline(false);
       socket.appManager.setOnline(true);
       await flushPromises();
 
@@ -638,6 +721,23 @@ describe("Websocket Adapter [ Reconnection ]", () => {
 
       expect(ControlledWebSocket.instances).toHaveLength(0);
       expect(socket.adapter.connecting).toBeFalse();
+    });
+
+    it("should recover a socket connected by hand without autoConnect after the network drops", async () => {
+      const socket = createSocket({ adapterOptions: { autoConnect: false } });
+      socket.onError(() => null);
+      socket.connect();
+      const websocket = await openWebSocket(1);
+
+      socket.appManager.setOnline(false);
+      websocket.serverClose({ code: 1006 });
+      await vi.advanceTimersByTimeAsync(reconnectTime);
+      await flushPromises();
+
+      socket.appManager.setOnline(true);
+      await openWebSocket(2);
+
+      expect(socket.adapter.connected).toBeTrue();
     });
 
     it("should stay disconnected on the online event after a manual disconnect", async () => {

@@ -3,6 +3,8 @@ import type { EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams, Time } from "@hyper-fetch/core";
 import type { SocketData } from "adapter";
 import { SocketAdapter } from "adapter/adapter";
+import type { ConnectionLossType } from "connection";
+import { createReconnectingConnection } from "connection";
 import type { EmitterInstance } from "emitter";
 import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 
@@ -10,6 +12,8 @@ import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { WebsocketAdapterOptionsType, WebsocketDecodedMessageType } from "./websocket-adapter.types";
 import { getWebsocketAdapter, WebsocketReadyState } from "./websocket-adapter.utils";
+
+type HyperFetchWebsocketType = NonNullable<ReturnType<typeof getWebsocketAdapter>>;
 
 /**
  * -------------------------------------------
@@ -39,100 +43,106 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
     name: "websockets",
   })
     .setQueryParamsMapper(stringifyQueryParams)
-    .setConnector(
-      ({
-        socket,
-        getQueryParams,
-        onConnect,
-        onConnectFailed,
-        onReconnect,
-        onDisconnect,
-        onListen,
-        onEmit,
-        onEmitError,
-        onConnected,
-        onDisconnected,
-        onError,
-        onEvent,
-      }) => {
-        const autoConnect =
-          typeof socket.adapter.adapterOptions?.autoConnect === "boolean"
-            ? socket.adapter.adapterOptions?.autoConnect
-            : true;
+    .setConnector((bindings) => {
+      const { socket, getQueryParams, onConnectFailed, onListen, onEmit, onEmitError, onError, onEvent } = bindings;
 
-        // The transport in use. Events of any other instance (replaced or closed on purpose) are ignored.
-        let websocket: ReturnType<typeof getWebsocketAdapter> | undefined;
-        // Options of the current connection attempt (after onConnect interceptors)
-        let options: WebsocketAdapterOptionsType | EmptyTypes = socket.adapter.adapterOptions;
-        // Connection attempt in progress - concurrent `connect()` calls join it
-        let pendingConnection: Promise<boolean> | undefined;
+      // The transport of the current attempt - `undefined` once it is detached
+      let websocket: HyperFetchWebsocketType | undefined;
+      // Options of the current connection attempt (after onConnect interceptors)
+      let options: WebsocketAdapterOptionsType | EmptyTypes = socket.adapter.adapterOptions;
+      // Ends the current attempt - the heartbeat uses it when the server stops answering
+      let loseCurrent: ((loss: ConnectionLossType) => void) | undefined;
 
-        let pingTimer: ReturnType<typeof setTimeout> | undefined;
-        let pongTimer: ReturnType<typeof setTimeout> | undefined;
-        // Connection timeout while connecting, reconnection delay after the connection was lost
-        let timeout: ReturnType<typeof setTimeout> | undefined;
+      let pingTimer: ReturnType<typeof setTimeout> | undefined;
+      let pongTimer: ReturnType<typeof setTimeout> | undefined;
 
-        /** Starts over after `delay` - the attempt timeout while connecting, the reconnect delay after a loss */
-        const scheduleReconnect = (delay = socket.reconnectTime) => {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => {
-            reconnect();
-          }, delay);
-        };
+      const clearTimers = () => {
+        clearTimeout(pingTimer);
+        clearTimeout(pongTimer);
+      };
 
-        const openConnection = async (): Promise<boolean> => {
-          const connection = await onConnect();
-          if (!connection) {
-            return socket.adapter.connected;
+      /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
+      const createWebsocket = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
+        try {
+          const instance = getWebsocketAdapter(url, adapterOptions);
+          if (!instance) {
+            onConnectFailed({ error: new Error("WebSocket is not available in this environment") });
           }
+          return instance;
+        } catch (error) {
+          onConnectFailed({ error: error as Error });
+          return null;
+        }
+      };
 
-          clearTimeout(timeout);
-          websocket?.clearListeners();
-          websocket?.close(1000);
-
-          options = connection.adapterOptions;
-          const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
-          const newWebsocket = createWebsocket(url, options);
-          websocket = newWebsocket ?? undefined;
-
-          if (!newWebsocket) {
-            return false;
+      /**
+       * Closes a detached transport. Resolves on its close - or on an error, as a transport that fails while closing
+       * may report only `error` (Node.js 22). The error listener also keeps such a late error from going unhandled.
+       */
+      const closeWebsocket = (transport: HyperFetchWebsocketType): Promise<void> => {
+        if (websocket === transport) {
+          websocket = undefined;
+          loseCurrent = undefined;
+          clearTimers();
+        }
+        transport.clearListeners();
+        if (transport.readyState === WebsocketReadyState.CLOSED) {
+          return Promise.resolve();
+        }
+        return new Promise<void>((resolve) => {
+          const resolveClosed = () => {
+            resolve();
+            transport.removeEventListener("close", resolveClosed);
+            transport.removeEventListener("error", resolveClosed);
+          };
+          transport.addEventListener("close", resolveClosed, { disableCleanup: true });
+          transport.addEventListener("error", resolveClosed, { disableCleanup: true });
+          try {
+            transport.close(1000);
+          } catch {
+            // Closing a transport that never connected may throw in some runtimes - it is detached already
+            resolveClosed();
           }
+        });
+      };
 
-          const isCurrent = () => websocket === newWebsocket;
+      const connection = createReconnectingConnection({
+        bindings,
+        autoConnect: socket.adapter.adapterOptions?.autoConnect ?? true,
+        open: (attempt) => {
+          options = attempt.connection.adapterOptions;
+          const url = getSocketUrl(attempt.connection.url, getQueryParams(attempt.connection.queryParams));
+          const transport = createWebsocket(url, options);
+          if (!transport) {
+            return null;
+          }
+          websocket = transport;
 
-          // Connection timeout - when the server does not answer in time, start over
-          scheduleReconnect(socket.connectionTimeout);
-
-          /**
-           *  Mount listeners
-           */
-
-          newWebsocket.addEventListener("open", () => {
-            if (!isCurrent()) {
-              return;
-            }
-            clearTimeout(timeout);
-            onConnected();
-            onHeartbeat();
-          });
-
-          /** The transport is gone - report it and get the connection back unless it was closed normally */
-          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Event) => {
-            clearTimeout(timeout);
+          /** The transport is gone - report it and let the engine decide about the next attempt */
+          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Partial<Pick<CloseEvent, "reason">> & Event) => {
             clearTimers();
-            onDisconnected();
-            const error = getSocketError(event);
-            onError({ error: new Error(error) });
+            const error = new Error(getSocketError(event));
+            // The socket is reported as disconnected first, then the error that explains why
+            attempt.lost({ code: event.code, reason: event.reason || undefined });
+            onError({ error });
+          };
 
-            // The connection was lost or closed by the server with an error - try to get it back
-            if (event.code !== 1000) {
-              scheduleReconnect();
+          loseCurrent = (loss) => {
+            if (attempt.isCurrent()) {
+              attempt.lost(loss);
             }
           };
 
-          newWebsocket.addEventListener("close", (event) => {
-            if (!isCurrent()) {
+          transport.addEventListener("open", () => {
+            if (!attempt.isCurrent()) {
+              return;
+            }
+            attempt.ready();
+            onHeartbeat();
+          });
+
+          transport.addEventListener("close", (event) => {
+            if (!attempt.isCurrent()) {
               return;
             }
             onTransportClosed(event);
@@ -140,23 +150,16 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
 
           // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
           // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
-          // Here the transport is detached and treated as an abnormally closed one (1006).
-          newWebsocket.addEventListener("error", () => {
-            if (!isCurrent() || newWebsocket.readyState !== WebsocketReadyState.CONNECTING) {
+          // Here it is treated as an abnormally closed transport (1006).
+          transport.addEventListener("error", () => {
+            if (!attempt.isCurrent() || transport.readyState !== WebsocketReadyState.CONNECTING) {
               return;
-            }
-            websocket = undefined;
-            newWebsocket.clearListeners();
-            try {
-              newWebsocket.close();
-            } catch {
-              // Closing a transport that never connected may throw in some runtimes - it is detached already
             }
             onTransportClosed(Object.assign(new Event("close"), { code: 1006 }));
           });
 
-          newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
-            if (!isCurrent()) {
+          transport.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+            if (!attempt.isCurrent()) {
               return;
             }
             // Any frame proves the connection is alive, even the ones ignored by the decoder
@@ -168,250 +171,111 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             }
           });
 
-          return new Promise((resolve) => {
-            if (newWebsocket.readyState === WebsocketReadyState.OPEN) {
-              // No open event follows, so the attempt timeout would reconnect a working connection
-              clearTimeout(timeout);
-              resolve(true);
-              socket.adapter.setConnected(true);
-              socket.adapter.setConnecting(false);
-              return;
-            }
-
-            // Promise lifecycle
-            const resolveConnected = () => {
-              resolve(true);
-              newWebsocket.removeEventListener("open", resolveConnected);
-            };
-            const resolveDisconnected = () => {
-              resolve(false);
-              newWebsocket.removeEventListener("close", resolveDisconnected);
-            };
-            const resolveError = () => {
-              resolve(false);
-              newWebsocket.removeEventListener("error", resolveError);
-            };
-
-            newWebsocket.addEventListener("open", resolveConnected, { disableCleanup: true });
-            newWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
-            newWebsocket.addEventListener("error", resolveError, { disableCleanup: true });
-          });
-        };
-
-        const connect = (): Promise<boolean> => {
-          // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
-          if (socket.adapter.connecting && pendingConnection) {
-            return pendingConnection;
+          // No open event follows a transport that is open already
+          if (transport.readyState === WebsocketReadyState.OPEN) {
+            attempt.ready();
           }
 
-          const connection = openConnection();
-          pendingConnection = connection;
-          const release = () => {
-            if (pendingConnection === connection) {
-              pendingConnection = undefined;
-            }
-          };
-          connection.then(release, release);
+          return { close: () => closeWebsocket(transport) };
+        },
+      });
 
-          return connection;
-        };
-
-        /**
-         * Closes the transport and resets the connection state. From this point the closed transport is detached -
-         * whatever it reports later (close code, errors, late frames) does not reach the socket anymore,
-         * so closing on purpose is never treated as a lost connection.
-         */
-        const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
-          clearTimeout(timeout);
-          clearTimers();
-
-          const currentWebsocket = websocket;
-          websocket = undefined;
-
-          const wasActive = socket.adapter.connected || socket.adapter.connecting;
-          onDisconnect();
-          if (!manual) {
-            // Closing the previous transport is a part of reconnecting - only `disconnect()` keeps the socket closed
-            socket.adapter.setForceClosed(false);
+      /** Maps an incoming frame to the listener event, reporting decoder failures instead of throwing */
+      const decodeMessage = (event: MessageEvent<SocketData>): WebsocketDecodedMessageType | null => {
+        try {
+          if (options?.decode) {
+            return options.decode(event);
           }
-          if (wasActive) {
-            onDisconnected();
-          }
+          const { topic, data } = parseMessageEvent(event);
+          return { topic, data };
+        } catch (error) {
+          onError({ error: error as Error });
+          return null;
+        }
+      };
 
-          if (!currentWebsocket || currentWebsocket.readyState === WebsocketReadyState.CLOSED) {
-            return true;
-          }
+      /** Encodes and sends a message. Returns the error instead of throwing, so callers decide how to report it. */
+      const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">): Error | null => {
+        if (!websocket) {
+          return new Error("Cannot send event when connection is not open");
+        }
+        try {
+          const frame = options?.encode ? options.encode({ topic, payload }) : JSON.stringify({ topic, data: payload });
+          websocket.send(frame);
+          return null;
+        } catch (error) {
+          return error instanceof Error ? error : new Error(String(error));
+        }
+      };
 
-          return new Promise<boolean>((resolve) => {
-            const resolveDisconnected = () => {
-              resolve(true);
-              currentWebsocket.removeEventListener("close", resolveDisconnected);
-              currentWebsocket.removeEventListener("error", resolveDisconnected);
-            };
-            currentWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
-            // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
-            currentWebsocket.addEventListener("error", resolveDisconnected, { disableCleanup: true });
-            currentWebsocket.close(1000);
-          });
-        };
+      const onHeartbeat = () => {
+        const {
+          heartbeat = false,
+          pingTimeout = Time.SEC * 5,
+          pongTimeout = Time.SEC * 5,
+          heartbeatMessage = "heartbeat",
+        } = options ||
+        /* istanbul ignore next */
+        {};
 
-        /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
-        const disconnect = (): Promise<boolean> => {
-          return closeConnection({ manual: true });
-        };
-
-        const reconnect = async () => {
-          // Reconnecting is a request to be connected, also after a manual disconnect
-          socket.adapter.setForceClosed(false);
-
-          await onReconnect({
-            disconnect: () => closeConnection({ manual: false }),
-            connect: async () => {
-              // `disconnect()` called while the previous transport was closing wins over the reconnection
-              if (socket.adapter.forceClosed) {
-                socket.adapter.setReconnectionAttempts(0);
-                return false;
-              }
-              return connect();
-            },
-          });
-        };
-
-        /** Creates the transport, reporting a failed attempt when the environment or the connection details are invalid */
-        const createWebsocket = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
-          try {
-            const instance = getWebsocketAdapter(url, adapterOptions);
-            if (!instance) {
-              onConnectFailed({ error: new Error("WebSocket is not available in this environment") });
-            }
-            return instance;
-          } catch (error) {
-            onConnectFailed({ error: error as Error });
-            return null;
-          }
-        };
-
-        const clearTimers = () => {
-          clearTimeout(pingTimer);
-          clearTimeout(pongTimer);
-        };
-
-        /** Maps an incoming frame to the listener event, reporting decoder failures instead of throwing */
-        const decodeMessage = (event: MessageEvent<SocketData>): WebsocketDecodedMessageType | null => {
-          try {
-            if (options?.decode) {
-              return options.decode(event);
-            }
-            const { topic, data } = parseMessageEvent(event);
-            return { topic, data };
-          } catch (error) {
-            onError({ error: error as Error });
-            return null;
-          }
-        };
-
-        /** Encodes and sends a message. Returns the error instead of throwing, so callers decide how to report it. */
-        const sendEventMessage = ({ topic, payload }: Pick<EmitterInstance, "topic" | "payload">): Error | null => {
-          if (!websocket) {
-            return new Error("Cannot send event when connection is not open");
-          }
-          try {
-            const frame = options?.encode
-              ? options.encode({ topic, payload })
-              : JSON.stringify({ topic, data: payload });
-            websocket.send(frame);
-            return null;
-          } catch (error) {
-            return error instanceof Error ? error : new Error(String(error));
-          }
-        };
-
-        const onHeartbeat = () => {
-          const {
-            heartbeat = false,
-            pingTimeout = Time.SEC * 5,
-            pongTimeout = Time.SEC * 5,
-            heartbeatMessage = "heartbeat",
-          } = options ||
-          /* istanbul ignore next */
-          {};
-
-          if (socket.adapter.connecting || !heartbeat) {
-            return;
-          }
-          clearTimers();
-          pingTimer = setTimeout(() => {
-            const error = sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
-            if (error) {
-              onError({ error });
-            }
-            pongTimer = setTimeout(() => {
-              onHeartbeatTimeout();
-            }, pongTimeout);
-          }, pingTimeout);
-        };
-
-        /**
-         * The server did not answer the ping - the connection is dead. On a dead connection the closing handshake
-         * may take very long (or never finish), so the socket is marked as disconnected right away instead of
-         * waiting for the `close` event of the transport.
-         */
-        const onHeartbeatTimeout = () => {
-          const deadWebsocket = websocket;
-          if (!deadWebsocket) {
-            return;
-          }
-          websocket = undefined;
-          clearTimers();
-          deadWebsocket.close();
-          onDisconnected();
-          onError({ error: new Error("Heartbeat timeout - the server did not respond to the ping in time") });
-          scheduleReconnect();
-        };
-
-        const listen = (
-          listener: ListenerOfAdapter<WebsocketAdapterType>,
-          callback: ListenerCallbackType<WebsocketAdapterType, any>,
-        ) => {
-          return onListen({ listener, callback });
-        };
-
-        const emit = async (emitter: EmitterInstance) => {
-          const mappedEmitter = await onEmit({ emitter });
-          if (!mappedEmitter) {
-            return;
-          }
-
-          const error = sendEventMessage(mappedEmitter);
+        if (socket.adapter.connecting || !heartbeat) {
+          return;
+        }
+        clearTimers();
+        pingTimer = setTimeout(() => {
+          const error = sendEventMessage({ topic: "heartbeat", payload: heartbeatMessage });
           if (error) {
-            onEmitError({ emitter: mappedEmitter, error });
             onError({ error });
-            return false;
           }
-          return true;
-        };
+          pongTimer = setTimeout(() => {
+            onHeartbeatTimeout();
+          }, pongTimeout);
+        }, pingTimeout);
+      };
 
-        // Initialize
-        if (autoConnect) {
-          connect();
+      /**
+       * The server did not answer the ping - the connection is dead. On a dead connection the closing handshake may
+       * take very long (or never finish), so the engine detaches the transport right away instead of waiting for its
+       * `close` event.
+       */
+      const onHeartbeatTimeout = () => {
+        const error = new Error("Heartbeat timeout - the server did not respond to the ping in time");
+        // The socket is reported as disconnected first, then the error that explains why
+        loseCurrent?.({ error });
+        onError({ error });
+      };
+
+      const listen = (
+        listener: ListenerOfAdapter<WebsocketAdapterType>,
+        callback: ListenerCallbackType<WebsocketAdapterType, any>,
+      ) => {
+        return onListen({ listener, callback });
+      };
+
+      const emit = async (emitter: EmitterInstance) => {
+        const mappedEmitter = await onEmit({ emitter });
+        if (!mappedEmitter) {
+          return;
         }
 
-        const unmountOnline = socket.appManager.events.onOnline(() => {
-          // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
-          if (autoConnect && !socket.adapter.connected && !socket.adapter.forceClosed) {
-            connect();
-          }
-        });
+        const error = sendEventMessage(mappedEmitter);
+        if (error) {
+          onEmitError({ emitter: mappedEmitter, error });
+          onError({ error });
+          return false;
+        }
+        return true;
+      };
 
-        return {
-          connect,
-          reconnect,
-          disconnect,
-          listen,
-          emit,
-          dispose: () => {
-            unmountOnline();
-          },
-        };
-      },
-    );
+      return {
+        connect: connection.connect,
+        reconnect: connection.reconnect,
+        disconnect: connection.disconnect,
+        listen,
+        emit,
+        dispose: () => {
+          connection.dispose();
+          clearTimers();
+        },
+      };
+    });
