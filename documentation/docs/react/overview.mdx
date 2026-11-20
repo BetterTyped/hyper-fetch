@@ -140,11 +140,11 @@ const {
   onOfflineError,
 } = useFetch(getUsers);
 
-onRequestStart(({ details, request }) => {
+onRequestStart(({ request, requestId }) => {
   // Do something on query start
 });
 
-onResponseStart(({ response, details, request }) => {
+onResponseStart(({ request, requestId }) => {
   // Do something when query starts returning response
 });
 

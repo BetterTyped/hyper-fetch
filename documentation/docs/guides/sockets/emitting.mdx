@@ -7,15 +7,15 @@ sidebar_label: Emitting
 # Emitting Events
 
 In real-time applications, you often need to send data from the client to the server. With Hyper-Fetch's socket module,
-you can **emit events** to send data, and optionally.
+you can **emit events** to send data to a topic on the server.
 
 :::secondary What you'll learn
 
 1.  How to create an **emitter** to send events.
 2.  How to **send data** with an event.
-3.  How to handle **server acknowledgments**.
-4.  The difference between using **`.setPayload()`** and passing data directly to **`.emit()`**.
-5.  How to use **parameters** in event topics.
+3.  The difference between using **`.setPayload()`** and passing data directly to **`.emit()`**.
+4.  How to use **parameters** in event topics.
+5.  How to get a **reply from the server** without acknowledgement callbacks.
 
 :::
 
@@ -126,6 +126,36 @@ const sendMessage = socketInstance
 
 ---
 
+## Server Replies
+
+`emit()` returns `void` and takes no acknowledgement callback. A message that cannot be sent (the socket is not
+connected, or the payload mapper or encoding fails) is dropped and reported as an emitter error, never thrown and never
+queued. Listen for it per topic:
+
+```typescript
+const unmount = socketInstance.events.onEmitterErrorByTopic(sendChatMessage, ({ error }) => {
+  console.error("Message not sent", error.message);
+});
+```
+
+When the server answers, send the reply on its own topic and correlate it with a listener:
+
+```typescript
+const sendJoin = socketInstance.createEmitter<{ requestId: string; roomId: string }>()({ topic: "rooms/join" });
+const onJoinReply = socketInstance.createListener<{ requestId: string; ok: boolean }>()({ topic: "rooms/join/reply" });
+
+const requestId = crypto.randomUUID();
+const stopListening = onJoinReply.listen(({ data }) => {
+  if (data.requestId !== requestId) return;
+  stopListening();
+  console.log("Joined:", data.ok);
+});
+
+sendJoin.emit({ payload: { requestId, roomId: "general" } });
+```
+
+---
+
 :::success Congratulations!
 
 You've learned how to emit events with Hyper-Fetch Sockets!
@@ -133,5 +163,6 @@ You've learned how to emit events with Hyper-Fetch Sockets!
 - You can create an **emitter** for a specific event topic.
 - You can send data using **`.setPayload()`** or by passing it directly to **`.emit()`**.
 - You can use **parameters in topics** to send events to dynamic endpoints.
+- You can detect failed emits and correlate **server replies** through a listener.
 
 :::

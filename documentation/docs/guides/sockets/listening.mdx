@@ -50,10 +50,10 @@ The `.listen()` method returns an `unlisten` function, which you can call to sto
 call this cleanup function when the listener is no longer needed to prevent memory leaks.
 
 ```ts
-const callback = (message) => {
+const callback = ({ data }) => {
   // highlight-next-line
-  // The `message` parameter is fully typed based on the generic provided to `createListener`.
-  console.log("New message received:", message.message);
+  // `data` is fully typed based on the generic provided to `createListener`.
+  console.log("New message received:", data.message);
 };
 
 // Start listening

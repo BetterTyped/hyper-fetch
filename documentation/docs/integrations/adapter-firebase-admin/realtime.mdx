@@ -94,12 +94,12 @@ interface Tea {
 
 const newTea: Tea = { id: "1", name: "Green Tea" };
 
-const setTea = client.createRequest<{ response: Tea, payload: TeaSchema }>()({
+const setTea = client.createRequest<{ response: Tea; payload: Tea }>()({
   endpoint: "teas/:teaId",
   method: "set",
 });
 
-const { data, extra, error } = await setTea.setParams({ teaId: "1" }).setData(newTea).send();
+const { data, extra, error } = await setTea.setParams({ teaId: "1" }).setPayload(newTea).send();
 
 // data: returns the same data that was set
 // extra: { ref }
@@ -118,12 +118,12 @@ interface Tea {
 
 const newTea: Tea = { name: "Oolong Tea" };
 
-const pushTea = client.createRequest<Tea & { __key: string }, Tea>()({
+const pushTea = client.createRequest<{ response: Tea & { __key: string }; payload: Tea }>()({
   endpoint: "teas/",
   method: "push",
 });
 
-const { data, extra, error } = await pushTea.setData(newTea).send();
+const { data, extra, error } = await pushTea.setPayload(newTea).send();
 
 // data: returns the pushed data with an added `__key` field containing the unique ID
 // extra: { ref, key }
@@ -136,12 +136,12 @@ The `update` method allows you to modify data at a specified path without overwr
 ```tsx
 import { client } from "./client";
 
-const updateTea = client.createRequest<void, { name: string }>()({
+const updateTea = client.createRequest<{ response: { name: string }; payload: { name: string } }>()({
   endpoint: "teas/:teaId",
   method: "update",
 });
 
-const { data, extra, error } = await updateTea.setParams({ teaId: "1" }).setData({ name: "Jasmine Tea" }).send();
+const { data, extra, error } = await updateTea.setParams({ teaId: "1" }).setPayload({ name: "Jasmine Tea" }).send();
 
 // data: returns the data that was sent for the update
 // extra: { ref }
@@ -154,7 +154,7 @@ To delete data from a location, use the `remove` method.
 ```tsx
 import { client } from "./client";
 
-const removeTea = client.createRequest<void>()({
+const removeTea = client.createRequest<{ response: null }>()({
   endpoint: "teas/:teaId",
   method: "remove",
 });

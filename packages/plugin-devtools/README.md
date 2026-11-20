@@ -45,7 +45,7 @@ and monitoring capabilities.
 ## 🚀 Quick Start
 
 ```bash
-npm install @hyper-fetch/plugin-devtools
+npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 ```
 
 ```ts
@@ -57,7 +57,7 @@ const client = createClient({ url: "https://api.example.com" }).addPlugin(Devtoo
 
 ## 📚 Documentation
 
-- [Plugin Devtools Overview](https://hyperfetch.bettertyped.com/docs/plugin-devtools/overview)
+- [Plugin Devtools Overview](https://hyperfetch.bettertyped.com/docs/integrations/plugin-devtools)
 - [HyperFlow](https://hyperfetch.bettertyped.com/docs/hyper-flow)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 
@@ -92,4 +92,4 @@ const authClient = createClient({ url: "https://auth.example.com" }).addPlugin(
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

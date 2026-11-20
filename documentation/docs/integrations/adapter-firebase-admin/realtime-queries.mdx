@@ -51,11 +51,13 @@ const realtimeDb = getDatabase();
 
 // Create a Socket instance for Firestore
 const firestoreSocket = new Socket({
+  url: "",
   adapter: FirebaseSocketsAdminAdapter(firestoreDb),
 });
 
 // Create a Socket instance for Realtime Database
 const realtimeSocket = new Socket({
+  url: "",
   adapter: FirebaseSocketsAdminAdapter(realtimeDb),
 });
 ```
@@ -99,12 +101,10 @@ const teasListener = firestoreSocket.createListener<Tea[]>()({
   topic: "teas",
 });
 
-const unmount = teasListener.listen({
-  callback: ({ data, extra }) => {
-    console.log("Received data:", data);
-    // `extra` contains additional details like the raw snapshot
-    console.log("Extra details:", extra);
-  },
+const unmount = teasListener.listen(({ data, extra }) => {
+  console.log("Received data:", data);
+  // `extra` contains additional details like the raw snapshot
+  console.log("Extra details:", extra);
 });
 
 // To stop listening for updates
@@ -139,13 +139,13 @@ const teasListener = firestoreSocket.createListener<Tea[]>()({
   options: { groupByChangeType: true },
 });
 
-teasListener.listen({
-  callback: ({ data, extra }) => {
-    const { added, modified, removed } = extra.groupedResult;
-    console.log("Added teas:", added);
-    console.log("Modified teas:", modified);
-    console.log("Removed teas:", removed);
-  },
+teasListener.listen(({ data, extra }) => {
+  // `groupedResult` is null when the snapshot has no document changes
+  if (!extra.groupedResult) return;
+  const { added, modified, removed } = extra.groupedResult;
+  console.log("Added teas:", added);
+  console.log("Modified teas:", modified);
+  console.log("Removed teas:", removed);
 });
 ```
 
@@ -164,10 +164,8 @@ const configListener = realtimeSocket.createListener<any>()({
   options: { onlyOnce: true },
 });
 
-configListener.listen({
-  callback: ({ data }) => {
-    console.log("Fetched config once:", data);
-  },
+configListener.listen(({ data }) => {
+  console.log("Fetched config once:", data);
 });
 ```
 
@@ -191,10 +189,8 @@ const greenTeasListener = firestoreSocket.createListener<Tea[]>()({
   },
 });
 
-greenTeasListener.listen({
-  callback: ({ data }) => {
-    console.log("Green teas:", data);
-  },
+greenTeasListener.listen(({ data }) => {
+  console.log("Green teas:", data);
 });
 ```
 

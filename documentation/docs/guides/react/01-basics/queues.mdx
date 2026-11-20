@@ -31,14 +31,19 @@ queue. The UI will display the status of each upload, and provide buttons to pau
 ```tsx
 // A component to display a single request from the queue
 function QueuedRequest({ request }) {
-  const { upload, download } = request;
-  const progress = upload.progress || download.progress || 0;
-  const status = request.status;
+  const { uploading, downloading, stopped, success, failed, canceled } = request;
+  const progress = uploading?.progress || downloading?.progress || 0;
+
+  let status = "pending";
+  if (stopped) status = "stopped";
+  if (canceled) status = "canceled";
+  if (failed) status = "error";
+  if (success) status = "finished";
 
   let statusColor = "text-gray-600";
   if (status === "finished") statusColor = "text-green-600";
   if (status === "error") statusColor = "text-red-600";
-  if (status === "stopped") statusColor = "text-yellow-600";
+  if (status === "stopped" || status === "canceled") statusColor = "text-yellow-600";
 
   return (
     <div className="p-4 border-b">
@@ -56,12 +61,12 @@ function UploadQueue() {
 
   // 1. Use useSubmit to add requests to the queue
   // highlight-start
-  const { submit } = useSubmit(postFile.setQueue(true));
+  const { submit } = useSubmit(postFile.setQueued(true));
   // highlight-end
 
   // 2. Use useQueue to monitor and control the queue
   // highlight-start
-  const { requests, stopped, stop, start } = useQueue(postFile);
+  const { requests, stopped, stop, start } = useQueue(postFile, { keepFinishedRequests: true });
   // highlight-end
 
   const handleFileChange = (event) => {
@@ -115,15 +120,17 @@ function UploadQueue() {
 
 ### How It Works
 
-1.  **Enabling Queuing**: We tell a request that it should be part of a queue by using `.setQueue(true)` on the request
-    instance.
+1.  **Enabling Queuing**: We tell a request that it should be part of a queue by using `.setQueued(true)` on the request
+    instance. Queued requests are sent one at a time, in the order they were submitted.
 2.  **`useSubmit`**: This hook is configured with our queue-enabled request. Every time we call its `submit` function,
     it doesn't immediately send the request. Instead, it adds it to the queue associated with the `postFile` request.
 3.  **`useQueue`**: This hook listens to the state of the queue for the `postFile` request. It returns:
-    - `requests`: An array of all request instances currently in the queue, along with their real-time status
-      (`loading`, `finished`, `error`, etc.) and progress.
-    - `stopped`: A boolean indicating if the queue is currently paused.
-    - `stop`: A function to pause the queue.
+    - `requests`: An array of the queue items (`requestId`, `request`, `stopped`, ...) with their `uploading` and
+      `downloading` progress and the `success`, `failed` and `canceled` flags. Finished requests leave the list unless
+      `keepFinishedRequests` is `true`.
+    - `stopped`: A boolean indicating if the queue is currently stopped.
+    - `stop`: A function to stop the queue. It cancels the ongoing requests.
+    - `pause`: A function to pause the queue. Ongoing requests finish, the next ones wait.
     - `start`: A function to resume the queue.
 4.  **The UI**: We map over the `requests` array to display each queued item's status and progress. Buttons are wired to
     the `stop` and `start` functions to control the queue. An invisible file input is used to allow the user to select

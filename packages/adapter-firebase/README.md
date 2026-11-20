@@ -84,7 +84,7 @@ const getUser = client.createRequest<{ response: User }>()({
 });
 
 const { data } = await getUser.setParams({ userId: "abc123" }).send();
-console.log(data.name, data.email);
+console.log(data?.name, data?.email);
 ```
 
 ### Write a document
@@ -92,13 +92,14 @@ console.log(data.name, data.email);
 ```ts
 const createUser = client.createRequest<{
   payload: { name: string; email: string };
-  response: null;
+  response: { name: string; email: string; __key: string };
 }>()({
   endpoint: "/users",
   method: "addDoc",
 });
 
-await createUser.send({ data: { name: "Jane", email: "jane@example.com" } });
+// `data` is the payload plus `__key`, the id of the new document
+const { data: created } = await createUser.send({ payload: { name: "Jane", email: "jane@example.com" } });
 ```
 
 ### List documents
@@ -110,7 +111,7 @@ const listUsers = client.createRequest<{ response: User[] }>()({
 });
 
 const { data: users } = await listUsers.send();
-users.forEach((user) => console.log(user.name));
+users?.forEach((user) => console.log(user.name));
 ```
 
 ### Use with React hooks
@@ -128,4 +129,4 @@ const UserProfile = ({ userId }: { userId: string }) => {
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
