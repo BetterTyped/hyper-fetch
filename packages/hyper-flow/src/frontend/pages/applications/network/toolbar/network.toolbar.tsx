@@ -22,8 +22,8 @@ export const NetworkToolbar = () => {
   const { application } = useDevtools();
   const { searchTerm, filter } = useNetworkStore(
     useShallow((state) => ({
-      searchTerm: state.applications[application.name]?.networkSearchTerm ?? "",
-      filter: state.applications[application.name]?.networkFilter ?? null,
+      searchTerm: state.applications[application.name].networkSearchTerm,
+      filter: state.applications[application.name].networkFilter,
     })),
   );
   const setNetworkSearchTerm = useNetworkStore((state) => state.setNetworkSearchTerm);

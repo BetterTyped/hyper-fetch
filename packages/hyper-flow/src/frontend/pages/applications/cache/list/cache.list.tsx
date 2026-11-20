@@ -41,7 +41,7 @@ export const CacheList = () => {
       {data.length > 0 && <CacheToolbar />}
       {items.length > 0 && (
         <Table className="flex-1" wrapperClassName="pb-4">
-          <TableHeader style={{ opacity: caches.size === 0 ? 0.4 : 1 }}>
+          <TableHeader>
             <TableRow>
               <TableHead>Cache Key</TableHead>
               <TableHead>Status</TableHead>

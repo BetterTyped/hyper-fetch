@@ -4,7 +4,7 @@ import { useQueueStore } from "@/store/applications/queue.store";
 
 export const QueuesToolbar = () => {
   const { application } = useDevtools();
-  const searchTerm = useQueueStore((state) => state.applications[application.name]?.searchTerm ?? "");
+  const searchTerm = useQueueStore((state) => state.applications[application.name].searchTerm);
   const setSearchTerm = useQueueStore((state) => state.setSearchTerm);
 
   return (

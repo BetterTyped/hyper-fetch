@@ -13,7 +13,6 @@ import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 import type { PathsOf } from "@/hooks/use-search";
 import { useSearch } from "@/hooks/use-search";
-import { cn } from "@/lib/utils";
 import { useNetworkStore } from "@/store/applications/network.store";
 import { getDisplayEndpoint } from "@/utils/endpoint.utils";
 import { getStatus, Status } from "@/utils/request.status.utils";
@@ -48,11 +47,9 @@ export const NetworkList = () => {
       case Status.CANCELED: {
         return requests.filter((item) => item.isCanceled);
       }
-      case Status.REMOVED: {
-        return requests.filter((item) => getStatus(item) === Status.REMOVED);
-      }
+      // Status.REMOVED, the last of the statuses
       default: {
-        return requests;
+        return requests.filter((item) => getStatus(item) === Status.REMOVED);
       }
     }
   }, [requests, networkFilter]);
@@ -119,7 +116,7 @@ export const NetworkList = () => {
       {requests.length > 0 && <NetworkToolbar />}
       {items.length > 0 && (
         <Table className="flex-1" wrapperClassName="pb-4">
-          <TableHeader className={cn(requests.length === 0 && "opacity-40", "sticky top-0 bg-sidebar z-10")}>
+          <TableHeader className="sticky top-0 bg-sidebar z-10">
             <TableRow>
               <TableHead />
               <TableSortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>

@@ -4,7 +4,7 @@ import { useCacheStore } from "@/store/applications/cache.store";
 
 export const CacheToolbar = () => {
   const { application } = useDevtools();
-  const searchTerm = useCacheStore((state) => state.applications[application.name]?.cacheSearchTerm ?? "");
+  const searchTerm = useCacheStore((state) => state.applications[application.name].cacheSearchTerm);
   const setSearchTerm = useCacheStore((state) => state.setSearchTerm);
 
   return (

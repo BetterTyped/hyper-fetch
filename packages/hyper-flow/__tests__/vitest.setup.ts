@@ -81,6 +81,8 @@ function setupRendererEnvironment() {
   Element.prototype.scrollIntoView = Element.prototype.scrollIntoView ?? vi.fn();
   Element.prototype.hasPointerCapture = Element.prototype.hasPointerCapture ?? (() => false);
   Element.prototype.releasePointerCapture = Element.prototype.releasePointerCapture ?? vi.fn();
+  // Sonner captures the pointer when a toast is pressed
+  Element.prototype.setPointerCapture = Element.prototype.setPointerCapture ?? vi.fn();
   // jsdom has no canvas backend; components that draw on one get no context and skip drawing.
   HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement["getContext"];
 }

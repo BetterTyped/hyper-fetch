@@ -17,12 +17,9 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { useApplications } from "@/store/applications/apps.store";
 
 export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { applicationName } = useParams({ strict: false });
-  const { applications } = useApplications();
-  const application = applications[applicationName as string];
 
   const navigation: ({ title: string; icon: LucideIcon; isActive: boolean } & Pick<LinkProps, "to" | "params">)[] = [
     {
@@ -74,10 +71,6 @@ export function ApplicationSidebar({ ...props }: React.ComponentProps<typeof Sid
       isActive: false,
     },
   ];
-
-  if (!application) {
-    return <div />;
-  }
 
   return (
     <SidebarProvider className="min-h-full">

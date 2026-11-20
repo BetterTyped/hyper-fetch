@@ -13,7 +13,12 @@ import { Section, SectionDescription, SectionHeader, SectionIcon, SectionTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import { cn } from "@/lib/utils";
-import type { InspectedSocket, SocketMessage, SocketsFilter } from "@/store/applications/sockets.store";
+import type {
+  ApplicationSockets as ApplicationSocketsState,
+  InspectedSocket,
+  SocketMessage,
+  SocketsFilter,
+} from "@/store/applications/sockets.store";
 import { useSocketsStore } from "@/store/applications/sockets.store";
 import { formatBytes } from "@/utils/format";
 
@@ -42,6 +47,16 @@ const eventLabels: Record<string, string> = {
   SOCKET_MESSAGE_FAILED: "Sending failed",
 };
 
+const emptySockets: ApplicationSocketsState = {
+  sockets: {},
+  messages: [],
+  nextMessageId: 1,
+  selectedSocketId: null,
+  detailsMessageId: null,
+  searchTerm: "",
+  filter: "all",
+};
+
 const formatClock = (timestamp: number) =>
   new Date(timestamp).toLocaleTimeString(undefined, {
     hour12: false,
@@ -55,15 +70,13 @@ const getPreview = (message: SocketMessage) => {
       : eventLabels[message.event];
   }
   if (message.kind === "error" || message.kind === "failed") {
+    // Errors without a message, like `new Error()` or a WebSocket error event without a type, still need a label
     const error = message.error as { message?: string } | undefined;
-    return error?.message ?? eventLabels[message.event];
+    return error?.message || eventLabels[message.event];
   }
-  try {
-    const text = typeof message.data === "string" ? message.data : JSON.stringify(message.data);
-    return text && text.length > 120 ? `${text.slice(0, 120)}…` : (text ?? "");
-  } catch {
-    return String(message.data);
-  }
+  // The data arrived as JSON, so it always serializes; a message without data has nothing to preview
+  const text = typeof message.data === "string" ? message.data : (JSON.stringify(message.data) ?? "");
+  return text.length > 120 ? `${text.slice(0, 120)}…` : text;
 };
 
 const matchesFilter = (message: SocketMessage, filter: SocketsFilter) => {
@@ -156,7 +169,7 @@ const MessageRow = memo(
 const MessageDetails = ({ application, message }: { application: string; message: SocketMessage }) => {
   const closeDetails = useSocketsStore((state) => state.closeDetails);
   return (
-    <ResizableSidebar position="right" defaultSize={{ width: "45%" }} minWidth="360px" maxWidth="100%">
+    <ResizableSidebar defaultSize={{ width: "45%" }} minWidth="360px" maxWidth="100%">
       <div className="flex max-h-full flex-col gap-3 overflow-auto px-4 py-2" data-testid="socket-message-details">
         <div className="flex items-center gap-2 border-b border-sidebar-border pb-2">
           <Button
@@ -169,7 +182,7 @@ const MessageDetails = ({ application, message }: { application: string; message
             <XIcon className="size-4" />
           </Button>
           <DirectionIcon kind={message.kind} />
-          <span className="font-medium">{message.topic ?? eventLabels[message.event] ?? message.kind}</span>
+          <span className="font-medium">{message.topic ?? eventLabels[message.event]}</span>
           <span className="ml-auto font-mono text-xs text-muted-foreground">{formatClock(message.timestamp)}</span>
         </div>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -207,14 +220,15 @@ export const ApplicationSockets = () => {
   const name = application.name;
   const { sockets, messages, selectedSocketId, detailsMessageId, searchTerm, filter } = useSocketsStore(
     useShallow((state) => {
-      const app = state.applications[name];
+      // The application has no entry until its plugin reports the first socket
+      const app = state.applications[name] ?? emptySockets;
       return {
-        sockets: app?.sockets,
-        messages: app?.messages,
-        selectedSocketId: app?.selectedSocketId ?? null,
-        detailsMessageId: app?.detailsMessageId ?? null,
-        searchTerm: app?.searchTerm ?? "",
-        filter: app?.filter ?? "all",
+        sockets: app.sockets,
+        messages: app.messages,
+        selectedSocketId: app.selectedSocketId,
+        detailsMessageId: app.detailsMessageId,
+        searchTerm: app.searchTerm,
+        filter: app.filter,
       };
     }),
   );
@@ -228,10 +242,10 @@ export const ApplicationSockets = () => {
     })),
   );
 
-  const socketList = useMemo(() => Object.values(sockets ?? {}), [sockets]);
+  const socketList = useMemo(() => Object.values(sockets), [sockets]);
 
   const visible = useMemo(() => {
-    const filtered = (messages ?? []).filter(
+    const filtered = messages.filter(
       (message) => (!selectedSocketId || message.socketId === selectedSocketId) && matchesFilter(message, filter),
     );
     if (!searchTerm) {
@@ -246,7 +260,7 @@ export const ApplicationSockets = () => {
   }, [messages, selectedSocketId, filter, searchTerm]);
 
   const details = useMemo(
-    () => (detailsMessageId ? (messages ?? []).find((message) => message.id === detailsMessageId) : undefined),
+    () => (detailsMessageId ? messages.find((message) => message.id === detailsMessageId) : undefined),
     [messages, detailsMessageId],
   );
 
@@ -325,9 +339,9 @@ export const ApplicationSockets = () => {
 
             {visible.length === 0 ? (
               <EmptyTable
-                title={messages?.length ? "No matching messages" : "No messages yet"}
+                title={messages.length > 0 ? "No matching messages" : "No messages yet"}
                 description={
-                  messages?.length
+                  messages.length > 0
                     ? "No message matches the search, the filter or the selected socket."
                     : "Messages your sockets receive and send are listed here."
                 }
