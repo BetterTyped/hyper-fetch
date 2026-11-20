@@ -48,9 +48,9 @@ export const useNetworkStore = create<{
    */
   const updateApplication = (application: string, update: (app: NetworkStore) => NetworkStore) => {
     set((state) => {
-      const current = state.applications[application] ?? getInitialState();
+      const current = state.applications[application];
       const next = update(current);
-      if (next === current && state.applications[application]) {
+      if (next === current) {
         return state;
       }
       return { applications: { ...state.applications, [application]: next } };

@@ -71,12 +71,8 @@ export const getMessageSize = (data: unknown): number => {
   if (data === undefined || data === null) {
     return 0;
   }
-  try {
-    const text = typeof data === "string" ? data : JSON.stringify(data);
-    return new Blob([text ?? ""]).size;
-  } catch {
-    return 0;
-  }
+  // Messages reach HyperFlow as JSON, so they always serialize again
+  return new Blob([typeof data === "string" ? data : JSON.stringify(data)]).size;
 };
 
 const getKind = (event: SocketEvents): SocketMessageKind => {
@@ -209,14 +205,13 @@ type SocketsStore = {
 export const useSocketsStore = create<SocketsStore>((set) => {
   // Sockets can stream many messages per second, so updates copy only what changed (see the network store)
   const updateApplication = (application: string, update: (app: ApplicationSockets) => ApplicationSockets) => {
-    set((state) => {
-      const current = state.applications[application] ?? getInitialState();
-      const next = update(current);
-      if (next === current && state.applications[application]) {
-        return state;
-      }
-      return { applications: { ...state.applications, [application]: next } };
-    });
+    // Every update changes something, and events can come before a reloaded renderer set the application up
+    set((state) => ({
+      applications: {
+        ...state.applications,
+        [application]: update(state.applications[application] ?? getInitialState()),
+      },
+    }));
   };
 
   return {

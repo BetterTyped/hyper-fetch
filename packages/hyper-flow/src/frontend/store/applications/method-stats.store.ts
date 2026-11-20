@@ -48,10 +48,7 @@ export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
     };
 
     set((state) => {
-      const app = state.applications[application] ?? {
-        generalStats: { ...initialNetworkStats },
-        methodsStats: new Map(),
-      };
+      const app = state.applications[application];
       const existing = app.methodsStats.get(data.request.method);
       const methodsStats = new Map(app.methodsStats);
       methodsStats.set(data.request.method, {

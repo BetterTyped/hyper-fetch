@@ -5,7 +5,7 @@ import { create } from "zustand/react";
 import type { ErrorStats } from "./error-stats.store";
 import { getErrorStats } from "./error-stats.store";
 import type { NetworkStats } from "./network-stats.store";
-import { getNetworkStats, initialNetworkStats } from "./network-stats.store";
+import { addCanceledRequest, getNetworkStats, initialNetworkStats } from "./network-stats.store";
 import { getDataSize } from "./utils";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
@@ -18,6 +18,7 @@ type QueueStatsStore = {
   };
   initialize: (applicationName: string) => void;
   setQueueStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
+  countCanceledRequest: (data: { application: string; queryKey: string }) => void;
 };
 
 export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
@@ -32,6 +33,14 @@ export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
       }),
     );
   },
+  countCanceledRequest: ({ application, queryKey }) => {
+    set((state) => {
+      const app = state.applications[application];
+      const stats = new Map(app.stats);
+      stats.set(queryKey, addCanceledRequest(app.stats.get(queryKey) ?? initialNetworkStats));
+      return { applications: { ...state.applications, [application]: { ...app, stats } } };
+    });
+  },
   setQueueStats: async ({ application, data }) => {
     const responseSize = await getDataSize(data.response);
     const payloadSize = await getDataSize(data.request.payload);
@@ -41,7 +50,7 @@ export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
     };
 
     set((state) => {
-      const app = state.applications[application] ?? { stats: new Map(), errorStats: new Map() };
+      const app = state.applications[application];
       const { queryKey } = data.request;
       const stats = new Map(app.stats);
       stats.set(queryKey, getNetworkStats(app.stats.get(queryKey) ?? initialNetworkStats, data, perf));

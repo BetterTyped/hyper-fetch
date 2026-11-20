@@ -68,12 +68,6 @@ export const useErrorStatsStore = create<ErrorStatsStore>((set) => ({
   setErrorStats: ({ application, data }) => {
     set((state) =>
       produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = {
-            statusErrorStats: new Map(),
-            endpointErrorStats: new Map(),
-          };
-        }
         const { status } = data.response;
 
         const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);

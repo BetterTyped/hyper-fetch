@@ -156,7 +156,7 @@ export const getNetworkStats = (
     totalRequests,
     totalRequestsSuccess,
     totalRequestsFailed,
-    totalRequestsCanceled: currentStats.totalRequestsCanceled + (details.isCanceled ? 1 : 0),
+    totalRequestsCanceled: currentStats.totalRequestsCanceled,
     totalCachedRequests: currentStats.totalCachedRequests + (request.cache ? 1 : 0),
     totalNonCachedRequests: currentStats.totalNonCachedRequests + (request.cache ? 0 : 1),
     // Response
@@ -201,6 +201,12 @@ export const getNetworkStats = (
   };
 };
 
+/** Canceled requests never get a response, so they are counted apart from the finished ones */
+export const addCanceledRequest = (stats: NetworkStats): NetworkStats => ({
+  ...stats,
+  totalRequestsCanceled: stats.totalRequestsCanceled + 1,
+});
+
 type EndpointAndMethod = string;
 
 export type NetworkStatsStore = {
@@ -221,6 +227,7 @@ export const useNetworkStatsStore = create<{
   applications: { [application: string]: NetworkStatsStore };
   initialize: (application: string) => void;
   setNetworkStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
+  countCanceledRequest: (data: { application: string }) => void;
 }>((set) => ({
   applications: {},
   initialize: (application: string) => {
@@ -229,6 +236,17 @@ export const useNetworkStatsStore = create<{
         draft.applications[application] = getNetworkInitialState();
       }),
     );
+  },
+  countCanceledRequest: ({ application }) => {
+    set((state) => {
+      const app = state.applications[application];
+      return {
+        applications: {
+          ...state.applications,
+          [application]: { ...app, networkStats: addCanceledRequest(app.networkStats) },
+        },
+      };
+    });
   },
   setNetworkStats: async ({ application, data }) => {
     const responseSize = await getDataSize(data.response);
@@ -239,7 +257,7 @@ export const useNetworkStatsStore = create<{
     };
     // Runs on every response, so it copies only what changed instead of drafting the whole state
     set((state) => {
-      const app = state.applications[application] ?? getNetworkInitialState();
+      const app = state.applications[application];
       const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);
       const networkStats = getNetworkStats(app.networkStats, data, perf);
       const responseTimeSamples = [...app.responseTimeSamples, networkStats.latestResponseTime].slice(

@@ -147,15 +147,6 @@ export const useCacheStatsStore = create<Store>((set) => ({
     set((state) =>
       produce(state, (draft) => {
         const globalEndpointAndMethod = getEndpointAndMethod(data.request, data.client);
-        if (!draft.applications[application]) {
-          draft.applications[application] = {
-            generalStats: {
-              cacheSize: 0,
-              notCachedSize: 0,
-            },
-            cachesStats: new Map(),
-          };
-        }
 
         draft.applications[application].cachesStats.set(
           globalEndpointAndMethod,

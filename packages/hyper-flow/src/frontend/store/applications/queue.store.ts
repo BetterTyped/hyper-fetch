@@ -35,9 +35,9 @@ export const useQueueStore = create<QueueStore>((set) => {
     update: (app: QueueStore["applications"][string]) => QueueStore["applications"][string],
   ) => {
     set((state) => {
-      const current = state.applications[application] ?? getInitialState();
+      const current = state.applications[application];
       const next = update(current);
-      if (next === current && state.applications[application]) {
+      if (next === current) {
         return state;
       }
       return { applications: { ...state.applications, [application]: next } };
