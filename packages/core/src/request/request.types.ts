@@ -358,15 +358,27 @@ export type ExtractEndpointPayloadType<Endpoint> =
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
+/**
+ * A param name starts with a letter or `_`. Other colons - a protocol, a port, or the `$id: ID!` of a GraphQL
+ * document - are not params.
+ */
+type IsParamNameStart<Char extends string> = Char extends "_"
+  ? true
+  : Lowercase<Char> extends Uppercase<Char>
+    ? false
+    : true;
+
 export type ExtractUrlParams<T extends string> = string extends T
   ? EmptyTypes
-  : // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    T extends `${string}:${infer Param}/${infer Rest}`
-    ? { [k in Param | keyof ExtractUrlParams<Rest>]: ParamType }
-    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      T extends `${string}:${infer Param}`
-      ? { [k in Param]: ParamType }
-      : EmptyTypes;
+  : T extends `${string}:${infer AfterColon}`
+    ? AfterColon extends `${infer First}${string}`
+      ? IsParamNameStart<First> extends true
+        ? AfterColon extends `${infer Param}/${infer Rest}`
+          ? { [k in Param | keyof ExtractUrlParams<Rest>]: ParamType }
+          : { [k in AfterColon]: ParamType }
+        : ExtractUrlParams<AfterColon>
+      : EmptyTypes
+    : EmptyTypes;
 
 /**
  * If the request endpoint parameters are not filled it will throw an error

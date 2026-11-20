@@ -80,6 +80,34 @@ describe("Request [ Type inference ]", () => {
       expect(true).toBe(true);
     });
 
+    it("should not read the colons of a GraphQL document as params", () => {
+      expectTypeOf<ExtractUrlParams<"mutation D($id: ID!) { del(id: $id) }">>().toEqualTypeOf<null | undefined>();
+      expectTypeOf<ExtractUrlParams<"query { user(id: 1) { name } }">>().toEqualTypeOf<null | undefined>();
+      expectTypeOf<ExtractUrlParams<"query U($id: ID!) {\n  user(id: $id) { name }\n}">>().toEqualTypeOf<
+        null | undefined
+      >();
+      expect(true).toBe(true);
+    });
+
+    it("should read only the params of an absolute url", () => {
+      expectTypeOf<ExtractUrlParams<"http://localhost:3000/users/:userId">>().toEqualTypeOf<{
+        userId: ParamType;
+      }>();
+      expectTypeOf<ExtractUrlParams<"https://api.test/:_version/items">>().toEqualTypeOf<{ _version: ParamType }>();
+      expect(true).toBe(true);
+    });
+
+    it("should send a request with a GraphQL string document without params", () => {
+      const deleteUser = client.createRequest<{ response: User; payload: { id: string } }>()({
+        endpoint: "mutation D($id: ID!) { del(id: $id) }",
+        method: "POST",
+      });
+
+      expectTypeOf<ExtractParamsType<typeof deleteUser>>().toEqualTypeOf<null | undefined>();
+      expectTypeOf(deleteUser.send).toBeCallableWith({ payload: { id: "1" } });
+      expect(deleteUser.endpoint).toBe("mutation D($id: ID!) { del(id: $id) }");
+    });
+
     it("should keep the literal type of the endpoint", () => {
       expectTypeOf(getUser.requestOptions.endpoint).toEqualTypeOf<"/users/:userId">();
       expect(getUser.requestOptions.endpoint).toBe("/users/:userId");
