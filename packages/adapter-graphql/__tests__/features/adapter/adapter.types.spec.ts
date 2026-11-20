@@ -165,6 +165,39 @@ describe("Graphql Adapter [ Types ]", () => {
     });
   });
 
+  describe("when inferring the types from a typed document endpoint", () => {
+    it("should take the response and the variables without generics", () => {
+      const request = client.createRequest()({ endpoint: GetUserDocument });
+      const send = () => request.send({ payload: { id: "1" } });
+
+      expectTypeOf<Awaited<ReturnType<typeof send>>["data"]>().toEqualTypeOf<GetUserResult | null>();
+      // @ts-expect-error the id variable is a string
+      request.send({ payload: { id: 1 } });
+      // @ts-expect-error the id variable is required
+      request.send({ payload: { active: true } });
+    });
+
+    it("should not need a payload for a document without variables", () => {
+      const request = client.createRequest()({ endpoint: GetUsersDocument });
+
+      expectTypeOf(request.send).toBeCallableWith();
+    });
+
+    it("should keep the declared generics over the document", () => {
+      const request = client.createRequest<{ response: UserResponse }>()({ endpoint: GetUserDocument });
+      const send = () => request.send({ payload: { id: "1" } });
+
+      expectTypeOf<Awaited<ReturnType<typeof send>>["data"]>().toEqualTypeOf<UserResponse | null>();
+    });
+
+    it("should keep an untyped DocumentNode untyped", () => {
+      const request = client.createRequest()({ endpoint: getUserQuery });
+      const send = () => request.send();
+
+      expectTypeOf<Awaited<ReturnType<typeof send>>["data"]>().toEqualTypeOf<undefined | null>();
+    });
+  });
+
   describe("when typing errors", () => {
     it("should type the response error with GraphqlErrorType", () => {
       const typed = new Client<GraphqlErrorType>({ url: "" }).setAdapter(GraphqlAdapter());

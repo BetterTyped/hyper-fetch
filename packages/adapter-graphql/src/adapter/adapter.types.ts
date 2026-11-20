@@ -1,4 +1,12 @@
-import type { Adapter, DefaultMapperType, EmptyTypes, QueryParamsType, stringifyQueryParams } from "@hyper-fetch/core";
+import type {
+  Adapter,
+  DefaultMapperType,
+  EmptyTypes,
+  ExtractEndpointPayloadType,
+  ExtractEndpointResponseType,
+  QueryParamsType,
+  stringifyQueryParams,
+} from "@hyper-fetch/core";
 import type { GraphQLFormattedError } from "graphql";
 import type { DocumentNode } from "graphql/language/ast";
 
@@ -53,24 +61,21 @@ export type GraphqlRequestOptionsType = {
 
 /**
  * Response and payload of a typed document - a `TypedDocumentNode` from graphql-codegen or a gql.tada document.
- * Pass it to `createRequest` so the request types come from the document instead of being written by hand.
+ * `createRequest` reads them from a typed document passed as `endpoint` by itself. Use this type when the document is
+ * passed with the `document` option, or to combine the document types with other request types.
  *
  * @example
  * ```ts
  * const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
- *   endpoint: GetUserDocument,
+ *   endpoint: "/User",
+ *   document: GetUserDocument,
  * });
  * ```
  */
-export type GraphqlDocumentTypes<Document> = Document extends {
-  __apiType?: (variables: infer Variables) => infer Result;
-}
-  ? {
-      response: Result;
-      // Codegen types an operation without variables as `{ [key: string]: never }` - nothing to send
-      payload: Variables extends Record<string, never> ? undefined : Variables;
-    }
-  : never;
+export type GraphqlDocumentTypes<Document> = {
+  response: ExtractEndpointResponseType<Document>;
+  payload: ExtractEndpointPayloadType<Document>;
+};
 
 export type GraphqlAdapterType = Adapter<
   FetchGraphqlAdapterOptionsType,

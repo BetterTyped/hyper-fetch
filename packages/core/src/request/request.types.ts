@@ -323,6 +323,37 @@ export type RequestConfigurationType<
   scope?: string | null;
 } & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 
+/**
+ * The function signature of the `__apiType` decoration an endpoint carries - the one graphql-codegen puts on a
+ * `TypedDocumentNode` and gql.tada on its documents. `undefined` for endpoints without it.
+ */
+type ExtractEndpointApiType<Endpoint> = "__apiType" extends keyof Endpoint
+  ? Endpoint extends { __apiType?: infer ApiType }
+    ? NonNullable<ApiType>
+    : undefined
+  : undefined;
+
+/**
+ * Response type an endpoint is decorated with through `__apiType`, like a `TypedDocumentNode`.
+ * `createRequest` uses it when its generics do not declare the `response`. `undefined` without the decoration.
+ *
+ * The decoration is meant for document endpoints. On a string endpoint it hides the url params from the types.
+ */
+export type ExtractEndpointResponseType<Endpoint> =
+  ExtractEndpointApiType<Endpoint> extends (payload: any) => infer Response ? Response : undefined;
+
+/**
+ * Payload type an endpoint is decorated with through `__apiType`, like the variables of a `TypedDocumentNode`.
+ * `createRequest` uses it when its generics do not declare the `payload`. Without the decoration, or when the payload
+ * can hold no keys (`{ [key: string]: never }`), it is `undefined` - there is nothing to send.
+ */
+export type ExtractEndpointPayloadType<Endpoint> =
+  ExtractEndpointApiType<Endpoint> extends (payload: infer Payload) => any
+    ? Payload extends Record<string, never>
+      ? undefined
+      : Payload
+    : undefined;
+
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
@@ -491,7 +522,9 @@ export type OptimisticCallback<Req extends RequestInstance, Ctx = undefined> = (
 /**
  * Per-call optimistic update - operations or a callback like the one of `setOptimistic`. Replaces the request's own.
  */
-export type OptimisticSendOptionType<Req extends RequestInstance> = OptimisticUpdatesType | OptimisticCallback<Req, any>;
+export type OptimisticSendOptionType<Req extends RequestInstance> =
+  | OptimisticUpdatesType
+  | OptimisticCallback<Req, any>;
 
 // Mappers
 

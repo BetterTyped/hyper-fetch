@@ -137,23 +137,32 @@ This will pass the `name` variable to the `AddUser` mutation.
 ## Typed documents
 
 With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or [gql.tada](https://gql-tada.0no.co/), every
-document carries its result and variables types. Pass it to `GraphqlDocumentTypes` and the request takes its `response`
-and `payload` from the document, so they cannot drift from the query.
+document carries its result and variables types. Pass it as the `endpoint` and the request takes its `response` and
+`payload` from the document - no generics to write, and nothing that can drift from the query.
 
 ```ts
-import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
-
 import { GetUserDocument } from "./gql/graphql"; // generated
 
-const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
-  endpoint: GetUserDocument,
-});
+const getUser = client.createRequest()({ endpoint: GetUserDocument });
 
 const { data } = await getUser.send({ payload: { id: "1" } }); // payload and data are typed by the document
 ```
 
 - A document without variables needs no `payload`.
-- Combine it with other request types: `GraphqlDocumentTypes<typeof GetUserDocument> & { queryParams: { source: string } }`.
+- Generics you declare win over the document: `createRequest<{ response: UserView }>()` keeps the variables from the
+  document and uses your response type.
+- An untyped `DocumentNode` or string keeps the `undefined` response and payload, so declare them with generics.
+
+With the `document` option the `endpoint` is a URL path, so read the types with `GraphqlDocumentTypes`:
+
+```ts
+import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
+
+const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
+  endpoint: "/User",
+  document: GetUserDocument,
+});
+```
 
 ---
 
