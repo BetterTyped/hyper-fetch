@@ -134,6 +134,99 @@ This will pass the `name` variable to the `AddUser` mutation.
 
 ---
 
+## Typed documents
+
+With [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) or [gql.tada](https://gql-tada.0no.co/), every
+document carries its result and variables types. Pass it to `GraphqlDocumentTypes` and the request takes its `response`
+and `payload` from the document, so they cannot drift from the query.
+
+```ts
+import { GraphqlDocumentTypes } from "@hyper-fetch/graphql";
+
+import { GetUserDocument } from "./gql/graphql"; // generated
+
+const getUser = client.createRequest<GraphqlDocumentTypes<typeof GetUserDocument>>()({
+  endpoint: GetUserDocument,
+});
+
+const { data } = await getUser.send({ payload: { id: "1" } }); // payload and data are typed by the document
+```
+
+- A document without variables needs no `payload`.
+- Combine it with other request types: `GraphqlDocumentTypes<typeof GetUserDocument> & { queryParams: { source: string } }`.
+
+---
+
+## What is sent
+
+Each operation is sent in the [GraphQL over HTTP](https://graphql.github.io/graphql-over-http/) format.
+
+- The body (or the query string for `GET`) holds `query`, `variables` and `operationName` - the name of the first
+  operation in the document. Anonymous operations are sent without it.
+- The `Accept` header asks for `application/graphql-response+json` with `application/json` as the fallback, so servers
+  that follow the spec answer invalid requests with a 4xx status. An `Accept` header you set wins.
+- The cache and query keys contain the operation name, a fingerprint of the document and the variables. Two documents
+  with one operation name but other fields have their own cache entries and are never deduplicated into one request.
+
+---
+
+## Errors
+
+GraphQL reports most errors in the `errors` list of a `200` response. The adapter turns them into a failed response, with
+the list as `error`. Network, abort and timeout failures are also a list, with a single `Error` and status `0`.
+
+Type the error with `GraphqlErrorType` on the client:
+
+```ts
+import { Client } from "@hyper-fetch/core";
+import { GraphqlAdapter, GraphqlErrorType } from "@hyper-fetch/graphql";
+
+const client = new Client<GraphqlErrorType>({ url: "http://localhost:3000/graphql" }).setAdapter(GraphqlAdapter());
+
+const { error, status } = await getUser.send({ payload: { id: "1" } });
+
+if (error && status === 0) {
+  // network, abort or timeout error
+} else if (error) {
+  error.forEach((graphqlError) => console.log(graphqlError.message));
+}
+```
+
+### Partial data
+
+A response can hold both `data` and `errors`, when only some fields failed. The `errorPolicy` option decides what it
+resolves to:
+
+- `"none"` (default) - the request fails, `data` is `null` and `error` holds the errors.
+- `"all"` - the request succeeds with the partial `data`, and the errors are in `extra.errors`. A response without
+  `data`, or with a 4xx/5xx status, still fails.
+
+```ts
+const getDashboard = client.createRequest<{ response: Dashboard }>()({
+  endpoint: GetDashboardDocument,
+  options: { errorPolicy: "all" },
+});
+
+const { data, extra } = await getDashboard.send();
+
+if (extra?.errors) {
+  // show the data, and mark the fields listed in extra.errors[].path as unavailable
+}
+```
+
+`errorPolicy` is an adapter option, like `timeout`, so a request sets it in `options`. To set it for every request, use
+the adapter defaults. The request `options` still win over them:
+
+```ts
+const client = new Client({ url: "http://localhost:3000/graphql" }).setAdapter(
+  GraphqlAdapter().setAdapterDefaults(() => ({ errorPolicy: "all" })),
+);
+```
+
+The server errors are in `extra.errors` with both policies, whenever the response has any.
+
+---
+
 ## URL path per operation
 
 By default, `endpoint` holds the GraphQL document and every operation goes to `client.url`. When gateways, WAF/CDN
@@ -176,8 +269,8 @@ await getUser.setQueryParams({ source: "app", build: "1.2.3" }).send({ payload: 
 // body: { query, variables: { id: 1 } }
 ```
 
-For the `GET` method they are merged with `query` and `variables` in the query string. If a key collides, `query` and
-`variables` take precedence.
+For the `GET` method they are merged with `query`, `operationName` and `variables` in the query string. If a key
+collides, `query`, `operationName` and `variables` take precedence.
 
 They go through the query params mapper of the adapter, so you can change the format with the mapper config or replace
 the mapper. It can return a query string or an object.

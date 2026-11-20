@@ -59,13 +59,13 @@ describe("Graphql Adapter [ Variables ]", () => {
       expect(request.setPayload({ id: 1 }).queryKey).toBe(request.setPayload({ id: 1 }).queryKey);
     });
 
-    it("should keep the keys of a request without variables unchanged", () => {
+    it("should keep the variables out of the keys of a request without them", () => {
       const request = client.createRequest<{ response: UserResponse }>()({
         endpoint: "query GetUsers { users { name } }",
       });
 
-      expect(request.cacheKey).toBe("POST_GetUsers--");
-      expect(request.queryKey).toBe("POST_GetUsers--");
+      expect(request.cacheKey).toMatch(/^POST_GetUsers@\w+--$/);
+      expect(request.queryKey).toMatch(/^POST_GetUsers@\w+--$/);
     });
 
     it("should keep one abort key for an operation, whatever its variables", () => {

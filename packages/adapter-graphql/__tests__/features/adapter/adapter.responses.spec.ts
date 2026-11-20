@@ -86,6 +86,14 @@ describe("Graphql Adapter [ Responses ]", () => {
       expect(await send()).toMatchObject({ data: null, error: [{ message: "Partial" }], success: false });
     });
 
+    it("should expose the GraphQL errors in the extra of a failed response", async () => {
+      respond('{"data":null,"errors":[{"message":"Not allowed"}]}');
+
+      const response = await send();
+
+      expect(response.extra?.errors).toEqual([{ message: "Not allowed" }]);
+    });
+
     it.each([400, 401, 403, 404, 500, 503])("should return the errors of a %i response", async (status) => {
       respond('{"errors":[{"message":"Bad"}]}', { status });
 
@@ -147,11 +155,123 @@ describe("Graphql Adapter [ Responses ]", () => {
 
       expect(response.success).toBe(false);
       expect(response.status).toBe(0);
-      expect(response.error).toEqual(getErrorMessage("timeout"));
+      expect(response.error).toEqual([getErrorMessage("timeout")]);
+    });
+  });
+
+  describe("with the error policy", () => {
+    const sendWithPolicy = (errorPolicy?: "none" | "all") =>
+      client
+        .createRequest<{ response: { a: number; b: number | null } }>()({
+          endpoint: "query Q { a b }",
+          options: { errorPolicy },
+        })
+        .send();
+
+    it.each([undefined, "none"] as const)("should fail on partial data with the %s policy", async (errorPolicy) => {
+      respond('{"data":{"a":1,"b":null},"errors":[{"message":"No b","path":["b"]}]}');
+
+      expect(await sendWithPolicy(errorPolicy)).toMatchObject({
+        data: null,
+        error: [{ message: "No b", path: ["b"] }],
+        success: false,
+      });
+    });
+
+    it("should succeed with the partial data and keep the errors in the extra with the all policy", async () => {
+      respond('{"data":{"a":1,"b":null},"errors":[{"message":"No b","path":["b"]}]}');
+
+      const response = await sendWithPolicy("all");
+
+      expect(response).toMatchObject({ data: { a: 1, b: null }, error: null, success: true, status: 200 });
+      expect(response.extra?.errors).toEqual([{ message: "No b", path: ["b"] }]);
+    });
+
+    it("should fail errors without data with the all policy", async () => {
+      respond('{"data":null,"errors":[{"message":"Not allowed"}]}');
+
+      expect(await sendWithPolicy("all")).toMatchObject({
+        data: null,
+        error: [{ message: "Not allowed" }],
+        success: false,
+      });
+    });
+
+    it("should fail a failed status with data with the all policy", async () => {
+      respond('{"data":{"a":1,"b":null},"errors":[{"message":"Down"}]}', { status: 500 });
+
+      expect(await sendWithPolicy("all")).toMatchObject({ data: null, error: [{ message: "Down" }], success: false });
+    });
+
+    it("should not add errors to the extra of a response without them with the all policy", async () => {
+      respond('{"data":{"a":1,"b":2}}');
+
+      const response = await sendWithPolicy("all");
+
+      expect(response).toMatchObject({ data: { a: 1, b: 2 }, success: true });
+      expect(response.extra).not.toHaveProperty("errors");
+    });
+
+    it("should take the policy from the adapter defaults and let the request options override it", async () => {
+      const partial = '{"data":{"a":1,"b":null},"errors":[{"message":"No b"}]}';
+      const defaulted = new Client({ url }).setAdapter(
+        GraphqlAdapter().setAdapterDefaults(() => ({ errorPolicy: "all" })),
+      );
+      const request = defaulted.createRequest<{ response: { a: number; b: number | null } }>()({
+        endpoint: "query Q { a b }",
+      });
+
+      respond(partial);
+      expect(await request.send()).toMatchObject({ data: { a: 1, b: null }, success: true });
+
+      respond(partial);
+      expect(await request.setOptions({ errorPolicy: "none" }).send()).toMatchObject({ data: null, success: false });
+    });
+
+    it("should keep the partial data in the cache with the all policy", async () => {
+      respond('{"data":{"a":1,"b":null},"errors":[{"message":"No b"}]}');
+      const cachingClient = new Client({ url, mode: "client" }).setAdapter(GraphqlAdapter());
+      const request = cachingClient.createRequest<{ response: { a: number; b: number | null } }>()({
+        endpoint: "query Q { a b }",
+        options: { errorPolicy: "all" },
+      });
+
+      await request.send();
+
+      expect(cachingClient.cache.get(request.cacheKey)).toMatchObject({
+        data: { a: 1, b: null },
+        extra: { errors: [{ message: "No b" }] },
+      });
     });
   });
 
   describe("when sending the operation", () => {
+    it("should accept the GraphQL response media type with JSON as the fallback", async () => {
+      respond('{"data":{"a":1}}');
+
+      await send();
+
+      expect(fetchSpy.mock.calls[0][1]?.headers).toMatchObject({
+        Accept: "application/graphql-response+json, application/json;q=0.9",
+      });
+    });
+
+    it.each(["Accept", "accept"])("should keep an %s header set by the user", async (key) => {
+      respond('{"data":{"a":1}}');
+
+      await client
+        .createRequest<{ response: { a: number } }>()({
+          endpoint: "query Q { a }",
+          headers: { [key]: "application/json" },
+        })
+        .send();
+
+      const headers = fetchSpy.mock.calls[0][1]?.headers as Record<string, string>;
+      expect(Object.entries(headers).filter(([name]) => name.toLowerCase() === "accept")).toStrictEqual([
+        [key, "application/json"],
+      ]);
+    });
+
     it("should POST the query and the variables as JSON", async () => {
       respond('{"data":{"a":1}}');
       const request = client.createRequest<{ response: { a: number }; payload: { id: number } }>()({
@@ -166,6 +286,7 @@ describe("Graphql Adapter [ Responses ]", () => {
       expect(init?.method).toBe("POST");
       expect(JSON.parse(String(init?.body))).toEqual({
         query: queryWithId,
+        operationName: "Q",
         variables: { id: 7 },
       });
       expect(init?.headers).toMatchObject({ Authorization: "Bearer token" });
@@ -186,9 +307,49 @@ describe("Graphql Adapter [ Responses ]", () => {
       const [input, init] = fetchSpy.mock.calls[0];
       const params = new URL(String(input)).searchParams;
       expect(params.get("query")).toBe(queryWithFilter);
+      expect(params.get("operationName")).toBe("Q");
       expect(JSON.parse(params.get("variables") ?? "")).toEqual({ filter: { q: "x y&z=1", tags: ["ą", "b"] } });
       expect(init?.method).toBe("GET");
       expect(init?.body).toBeUndefined();
+    });
+
+    it("should not send an operationName for an anonymous operation", async () => {
+      respond('{"data":{"a":1}}');
+
+      await client.createRequest<{ response: { a: number } }>()({ endpoint: "{ a }" }).send();
+
+      expect(JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))).toEqual({ query: "{ a }" });
+    });
+
+    it("should send the name of the first operation when the document holds many", async () => {
+      respond('{"data":{"a":1}}');
+      const document = "query First { a } query Second { b }";
+
+      await client.createRequest<{ response: { a: number } }>()({ endpoint: document }).send();
+
+      expect(JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))).toMatchObject({ operationName: "First" });
+    });
+
+    it("should not send an operationName for a document that does not parse", async () => {
+      respond('{"errors":[{"message":"Syntax Error"}]}', { status: 400 });
+
+      await client.createRequest<{ response: { a: number } }>()({ endpoint: "query Q {" }).send();
+
+      expect(JSON.parse(String(fetchSpy.mock.calls[0][1]?.body))).toEqual({ query: "query Q {" });
+    });
+
+    it("should keep the operationName of the document over a query param with the same key in GET", async () => {
+      respond('{"data":{"a":1}}');
+      const request = client
+        .createRequest<{ response: { a: number }; queryParams: { operationName: string } }>()({
+          endpoint: "query Q { a }",
+          method: GraphqlMethod.GET,
+        })
+        .setQueryParams({ operationName: "Other" });
+
+      await request.send();
+
+      expect(new URL(String(fetchSpy.mock.calls[0][0])).searchParams.getAll("operationName")).toStrictEqual(["Q"]);
     });
 
     it("should pass fetch options through", async () => {

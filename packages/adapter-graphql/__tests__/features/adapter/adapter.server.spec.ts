@@ -87,7 +87,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -101,7 +101,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -118,7 +118,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -132,7 +132,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(status).toBe(400);
     expect(error).toStrictEqual(expected.errors);
     expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "42" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "42" },
       extensions: {},
     });
   });
@@ -150,7 +150,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -179,7 +179,7 @@ describe("Graphql Adapter [ Server ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error).toStrictEqual(getErrorMessage("timeout"));
+    expect(error).toStrictEqual([getErrorMessage("timeout")]);
   });
 
   // it("should allow to calculate payload size", async () => {

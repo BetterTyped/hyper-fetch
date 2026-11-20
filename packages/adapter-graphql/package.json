@@ -43,14 +43,12 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "peerDependencies": {
-    "@hyper-fetch/core": "*"
-  },
-  "dependencies": {
-    "events": "^3.3.0",
-    "graphql": "*"
+    "@hyper-fetch/core": "*",
+    "graphql": "^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
     "abortcontroller-polyfill": "^1.7.5",
+    "graphql": "^16.13.2",
     "graphql-tag": "^2.12.6"
   },
   "lint-staged": {

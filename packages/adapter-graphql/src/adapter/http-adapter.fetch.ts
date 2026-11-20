@@ -1,7 +1,7 @@
 import type { DefaultMapperType, QueryParamsType } from "@hyper-fetch/core";
 import { parseResponse, getErrorMessage, Adapter, stringifyQueryParams } from "@hyper-fetch/core";
 
-import { gqlExtra, defaultTimeout } from "./adapter.constants";
+import { gqlExtra, defaultTimeout, gqlAcceptHeader } from "./adapter.constants";
 import type {
   GraphqlAdapterType,
   GraphQlExtraType,
@@ -74,7 +74,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         const { fullUrl, payload } = getRequestValues(request, queryParams);
 
         const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, ...restOptions } = adapterOptions || {};
+        const { timeout: timeoutMs = defaultTimeout, errorPolicy = "none", ...restOptions } = adapterOptions || {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -96,9 +96,11 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         onRequestStart();
 
         try {
+          const requestHeaders = headers as Record<string, string>;
+          const hasAcceptHeader = Object.keys(requestHeaders).some((key) => key.toLowerCase() === "accept");
           const init: RequestInit = {
             method: request.method,
-            headers: headers as Record<string, string>,
+            headers: hasAcceptHeader ? requestHeaders : { Accept: gqlAcceptHeader, ...requestHeaders },
             signal: controller?.signal,
             ...restOptions,
           };
@@ -168,18 +170,18 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
           // An empty `errors` list is not a failure
           const errors = Array.isArray(parsed?.errors) && parsed.errors.length === 0 ? null : parsed?.errors || null;
           const extensions = parsed?.extensions || {};
-          const failure = errors || status > 399 || status === 0;
+          const extra = errors
+            ? { headers: responseHeaders, extensions, errors }
+            : { headers: responseHeaders, extensions };
+          const failedStatus = status > 399 || status === 0;
+          const keepsPartialData = errorPolicy === "all" && data !== null;
+          const failure = failedStatus || (errors && !keepsPartialData);
 
           if (failure) {
             const error = errors || [getErrorMessage()];
-            onError({ error, status, extra: { headers: responseHeaders, extensions } });
+            onError({ error, status, extra });
           } else {
-            onSuccess({
-              data,
-              error: errors,
-              status,
-              extra: { headers: responseHeaders, extensions },
-            });
+            onSuccess({ data, status, extra });
           }
         } catch (error: any) {
           if (timeoutId) clearTimeout(timeoutId);

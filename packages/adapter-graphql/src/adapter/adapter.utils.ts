@@ -17,13 +17,13 @@ export const getGqlDocument = (request: RequestInstance): GraphQlEndpointType =>
 };
 
 /** Query string keys owned by the GraphQL over HTTP GET format - they win over the user query params */
-const reservedQueryParams = ["query", "variables"];
+const reservedQueryParams = new Set(["query", "operationName", "variables"]);
 
 const isReservedQueryParam = (param: string) => {
   const [rawKey] = param.split("=");
   try {
     // Array formats encode the key as `key[]` or `key[0]`
-    return reservedQueryParams.includes(decodeURIComponent(rawKey).split("[")[0]);
+    return reservedQueryParams.has(decodeURIComponent(rawKey).split("[")[0]);
   } catch {
     return false;
   }
@@ -52,7 +52,9 @@ export const getRequestValues = <R extends RequestInstance>(
 ) => {
   const isPostRequest = request.method === HttpMethods.POST;
 
-  const query = gqlEndpointMapper(getGqlDocument(request));
+  const document = getGqlDocument(request);
+  const query = gqlEndpointMapper(document);
+  const operationName = getGqlOperationName(document);
   const variables = request.payload;
 
   const url = hasDocumentOption(request) ? `${request.client.url}${request.endpoint}` : request.client.url;
@@ -61,11 +63,13 @@ export const getRequestValues = <R extends RequestInstance>(
 
   const fullUrl = isPostRequest
     ? url + joinQueryStrings(queryString)
-    : url + joinQueryStrings(stringifyQueryParams({ query, variables }), omitReservedQueryParams(queryString));
+    : url +
+      joinQueryStrings(stringifyQueryParams({ query, operationName, variables }), omitReservedQueryParams(queryString));
 
   const payload = isPostRequest
     ? JSON.stringify({
         query,
+        operationName,
         variables,
       })
     : null;
@@ -80,10 +84,34 @@ export const gqlEndpointMapper = <E extends GraphQlEndpointType>(endpoint: E): s
   return print(endpoint);
 };
 
-const getOperationName = (ast: DocumentNode): string | undefined => {
-  const operationDefinition = ast.definitions.find(
-    (def): def is OperationDefinitionNode => def.kind === "OperationDefinition",
-  );
+const findOperation = (ast: DocumentNode) => {
+  return ast.definitions.find((def): def is OperationDefinitionNode => def.kind === "OperationDefinition");
+};
+
+const parseDocument = (document: GraphQlEndpointType): DocumentNode | undefined => {
+  if (typeof document !== "string") {
+    return document;
+  }
+  try {
+    return parse(document);
+  } catch {
+    // The server reports an invalid document, the name and the operationName are only a best effort
+    return undefined;
+  }
+};
+
+/**
+ * Name of the first operation of the document, sent as `operationName`.
+ * Anonymous operations and documents that do not parse have none.
+ */
+export const getGqlOperationName = (document: GraphQlEndpointType): string | undefined => {
+  const ast = parseDocument(document);
+
+  return ast ? findOperation(ast)?.name?.value : undefined;
+};
+
+const getOperationLabel = (ast: DocumentNode): string | undefined => {
+  const operationDefinition = findOperation(ast);
 
   if (operationDefinition) {
     if (operationDefinition.name?.value) {
@@ -102,19 +130,17 @@ const getOperationName = (ast: DocumentNode): string | undefined => {
   return undefined;
 };
 
+/** Readable name of the document - the operation name or, for anonymous operations, the first selected field */
 export const gqlEndpointNameMapper = (endpoint: GraphQlEndpointType): string => {
-  if (typeof endpoint !== "string") {
-    return getOperationName(endpoint) || "graphql-request";
+  const ast = parseDocument(endpoint);
+  const name = ast ? getOperationLabel(ast) : undefined;
+
+  if (name) {
+    return name;
   }
 
-  try {
-    const name = getOperationName(parse(endpoint));
-
-    if (name) {
-      return name;
-    }
-  } catch {
-    // We can ignore this error and just return some fallback
+  if (typeof endpoint !== "string") {
+    return "graphql-request";
   }
 
   // Fallback for invalid gql queries or something else
@@ -122,9 +148,42 @@ export const gqlEndpointNameMapper = (endpoint: GraphQlEndpointType): string => 
     .replace(/(query|mutation|subscription)/, "")
     .replaceAll(/[{}().,:]/g, " ")
     .trim();
-  const [name] = clearedQuery.split(" ");
+  const [fallbackName] = clearedQuery.split(" ");
 
-  return name || "graphql-request";
+  return fallbackName || "graphql-request";
+};
+
+/** FNV-1a - a short and stable fingerprint of a text */
+const hashText = (text: string): string => {
+  let hash = 2_166_136_261; // FNV offset basis
+  for (let index = 0; index < text.length; index += 1) {
+    // Code units, not code points - the loop walks every UTF-16 unit once
+    // eslint-disable-next-line unicorn/prefer-code-point
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16_777_619); // FNV prime
+  }
+  // `>>> 0` reads the 32 bits as unsigned, `Math.trunc` would keep the sign
+  // eslint-disable-next-line unicorn/prefer-math-trunc
+  return (hash >>> 0).toString(36);
+};
+
+/** Printing a DocumentNode is the costly part, and gql documents are created once, so their fingerprint is kept */
+const documentNodeHashes = new WeakMap<DocumentNode, string>();
+
+/** Fingerprint of the document text sent as `query`. Documents with other selections get other fingerprints. */
+const getDocumentHash = (document: GraphQlEndpointType): string => {
+  if (typeof document === "string") {
+    return hashText(document);
+  }
+
+  const known = documentNodeHashes.get(document);
+  if (known) {
+    return known;
+  }
+
+  const hash = hashText(print(document));
+  documentNodeHashes.set(document, hash);
+  return hash;
 };
 
 /**
@@ -138,11 +197,13 @@ export const gqlRequestNameMapper = (request: RequestInstance): string => {
 };
 
 /**
- * Cache and query key of a request. The variables are a part of it: the same operation with other variables is
- * another query, with its own cached data and its own place in the queue.
+ * Cache and query key of a request. The document fingerprint and the variables are a part of it: two documents with
+ * one operation name but other selections, or the same operation with other variables, are other queries - with their
+ * own cached data and their own place in the queue.
  */
 export const gqlRequestKeyMapper = (request: RequestInstance): string => {
-  const key = `${request.method}_${gqlRequestNameMapper(request)}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
+  const name = `${gqlRequestNameMapper(request)}@${getDocumentHash(getGqlDocument(request))}`;
+  const key = `${request.method}_${name}-${stringifyKey(request.params)}-${stringifyKey(request.queryParams)}`;
   const variables = stringifyKey(request.payload);
 
   return variables ? `${key}-${variables}` : key;

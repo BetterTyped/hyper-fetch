@@ -25,15 +25,15 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe(url);
-      expect(payload).toBe(JSON.stringify({ query: printedQuery }));
+      expect(payload).toBe(JSON.stringify({ query: printedQuery, operationName: "GetUser" }));
       expect(getGqlDocument(request)).toBe(printedQuery);
     });
 
-    it("should keep the same keys as before", () => {
+    it("should key the operation name and the document fingerprint", () => {
       const request = client.createRequest()({ endpoint: getUserQueryString });
 
-      expect(request.cacheKey).toBe("POST_GetUser--");
-      expect(request.queryKey).toBe("POST_GetUser--");
+      expect(request.cacheKey).toMatch(/^POST_GetUser@\w+--$/);
+      expect(request.queryKey).toMatch(/^POST_GetUser@\w+--$/);
       expect(request.abortKey).toBe("POST_GetUser-false");
     });
 
@@ -45,7 +45,7 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe(`${url}?source=app`);
-      expect(payload).toBe(JSON.stringify({ query: printedQuery }));
+      expect(payload).toBe(JSON.stringify({ query: printedQuery, operationName: "GetUser" }));
     });
 
     it("should merge query params into the GET query string", () => {
@@ -69,7 +69,7 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe(`${url}/User`);
-      expect(payload).toBe(JSON.stringify({ query: printedQuery }));
+      expect(payload).toBe(JSON.stringify({ query: printedQuery, operationName: "GetUser" }));
       expect(request.endpoint).toBe("/User");
       expect(getGqlDocument(request)).toBe(getUserQuery);
     });
@@ -77,7 +77,9 @@ describe("Graphql Adapter [ Document and query params ]", () => {
     it("should send a string document as it is", () => {
       const request = client.createRequest()({ endpoint: "/User", document: getUserQueryString });
 
-      expect(getRequestValues(request).payload).toBe(JSON.stringify({ query: getUserQueryString }));
+      expect(getRequestValues(request).payload).toBe(
+        JSON.stringify({ query: getUserQueryString, operationName: "GetUser" }),
+      );
     });
 
     it("should build the url from the issue example", () => {
@@ -89,7 +91,7 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe(`${url}/User?source=app&build=1.2.3`);
-      expect(payload).toBe(JSON.stringify({ query: printedQuery, variables: { id: 1 } }));
+      expect(payload).toBe(JSON.stringify({ query: printedQuery, operationName: "GetUser", variables: { id: 1 } }));
     });
 
     it("should send everything in the query string for GET", () => {
@@ -126,7 +128,7 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const { fullUrl, payload } = getRequestValues(request.setParams({ tenantId: 7 }));
 
       expect(fullUrl).toBe(`${url}/tenant/7/User`);
-      expect(payload).toBe(JSON.stringify({ query: printedQuery }));
+      expect(payload).toBe(JSON.stringify({ query: printedQuery, operationName: "GetUser" }));
     });
 
     it("should treat nullish document as omitted", () => {
@@ -152,7 +154,9 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const hydrated = client.fromJSON(restored);
 
       expect(getRequestValues(hydrated as any).fullUrl).toBe(`${url}/User`);
-      expect(getRequestValues(hydrated as any).payload).toBe(JSON.stringify({ query: printedQuery }));
+      expect(getRequestValues(hydrated as any).payload).toBe(
+        JSON.stringify({ query: printedQuery, operationName: "GetUser" }),
+      );
       expect(hydrated.cacheKey).toBe(request.cacheKey);
     });
   });
@@ -280,8 +284,8 @@ describe("Graphql Adapter [ Document and query params ]", () => {
       const fromString = client.createRequest()({ endpoint: "/User", document: getUserQueryString });
 
       [fromNode, fromString].forEach((request) => {
-        expect(request.cacheKey).toBe("POST_GetUser/User--");
-        expect(request.queryKey).toBe("POST_GetUser/User--");
+        expect(request.cacheKey).toMatch(/^POST_GetUser\/User@\w+--$/);
+        expect(request.queryKey).toMatch(/^POST_GetUser\/User@\w+--$/);
         expect(request.abortKey).toBe("POST_GetUser/User-false");
       });
     });
@@ -289,7 +293,7 @@ describe("Graphql Adapter [ Document and query params ]", () => {
     it("should not add the path for the empty endpoint", () => {
       const request = client.createRequest()({ endpoint: "", document: getUserQuery });
 
-      expect(request.cacheKey).toBe("POST_GetUser--");
+      expect(request.cacheKey).toMatch(/^POST_GetUser@\w+--$/);
     });
 
     it("should distinguish the same operation sent to different paths", () => {

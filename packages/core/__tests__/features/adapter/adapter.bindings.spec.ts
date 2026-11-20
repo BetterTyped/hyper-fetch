@@ -970,6 +970,23 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, HttpAdapterType>);
       });
+      it.each([
+        ["onAbortError", getErrorMessage("abort")],
+        ["onTimeoutError", getErrorMessage("timeout")],
+        ["onUnexpectedError", getErrorMessage()],
+      ] as const)("should pass the error of %s through the internal error mapping", async (method, error) => {
+        const bindings = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+          internalErrorMapping: (internalError) => ({ mapped: internalError }),
+        });
+
+        const response = await bindings[method]({ status: 0, extra: xhrExtra });
+
+        expect(response.error).toEqual({ mapped: error });
+      });
     });
   });
 

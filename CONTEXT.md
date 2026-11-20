@@ -14,6 +14,8 @@ one line here in the same change.
   payload.
 - **Response**: the object `send()` resolves with: `data`, `error`, `status`, `success`, `extra`, `requestTimestamp` and
   `responseTimestamp`.
+- **Error policy**: what a GraphQL response with both `data` and `errors` resolves to (`errorPolicy`): a failure
+  (`"none"`) or a success with partial data and the errors in `extra.errors` (`"all"`).
 - **Mapper**: a function that transforms a request before sending or a response after receiving.
 - **Mock**: a handler attached with `request.setMock()` that replaces the adapter for that request instance.
 - **SDK schema**: the nested type `createSdk` reads, with `$method` keys holding a `Request`. `HonoAppToHyperFetch` in
