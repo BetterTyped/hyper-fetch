@@ -97,6 +97,14 @@ Workflows in `.claude/skills/`:
 - `fix-bug`: reproduce a bug with a failing test, fix it, keep the test.
 - `fix-flaky-tests`: root-cause intermittent failures and prove the fix by repeated runs.
 - `ship-change`: verify, pick the commit type by release impact, open the PR and merge it.
+- `publish-new-package`: first npm publish and trusted publishing for a package that is not on npm yet.
+
+These are for working on this repo. Every `SKILL.md` outside `skills/` sets `metadata.internal: true` so the
+[skills](https://skills.sh) CLI never installs it for users.
+
+`skills/` holds the public skills, one per package, installed with `npx skills add BetterTyped/hyper-fetch/skills`.
+Their readers build apps with HyperFetch. Verify every API name, option, default and type claim in them against
+`packages/*/src`, and update the matching skill when a change alters public behavior or types.
 
 ## Decisions
 
