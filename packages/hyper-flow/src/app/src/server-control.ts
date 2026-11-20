@@ -10,6 +10,8 @@ import type { Settings } from "@/store/general/settings.store";
 
 // Store server instance for control
 let serverInstance: StartServer | null = null;
+/** The port the running server listens on */
+let serverPort: number | null = null;
 const defaultPort = 2137;
 
 const getPort = (options?: { port?: number }) => {
@@ -69,18 +71,38 @@ const notifyStatusChange = (isRunning: boolean) => {
 const onServerCrash = () => {
   appLogger.error("Server crashed unexpectedly");
   serverInstance = null;
+  serverPort = null;
   notifyStatusChange(false);
 };
 
-export const closeServer = () => {
-  if (serverInstance && serverInstance.server) {
-    appLogger.info("Closing server instance");
-    serverInstance.server.close();
-    if (serverInstance.wss) {
-      appLogger.info("Closing WebSocket server");
-      serverInstance.wss.close();
-    }
+/** Stops the running server and resolves once its port is free again */
+export const closeServer = async () => {
+  const instance = serverInstance;
+  serverInstance = null;
+  serverPort = null;
+  if (!instance?.server) {
+    return;
   }
+  appLogger.info("Closing server instance");
+  const { server, wss } = instance;
+  await new Promise<void>((resolve) => {
+    if (!wss) {
+      resolve();
+      return;
+    }
+    appLogger.info("Closing WebSocket server");
+    // Open connections would keep the port busy
+    wss.clients.forEach((client) => client.terminate());
+    wss.close(() => resolve());
+  });
+  await new Promise<void>((resolve) => {
+    server.close(() => resolve());
+  });
+};
+
+const start = async (port: number) => {
+  serverInstance = await startServer({ port, onServerCrash });
+  serverPort = serverInstance.server ? port : null;
 };
 
 /**
@@ -89,12 +111,12 @@ export const closeServer = () => {
 export async function setupServerControl() {
   const isDev = !app.isPackaged;
   if (isDev) {
-    closeServer();
+    await closeServer();
   }
   try {
     appLogger.info("Initializing server control");
     // Start the server immediately
-    serverInstance = await startServer({ port: getPort(), onServerCrash });
+    await start(getPort());
     appLogger.info("Server started successfully");
   } catch (error) {
     appLogger.error("Failed to start server", { error });
@@ -123,8 +145,8 @@ export async function setupServerControl() {
     appLogger.info("Server restart requested", { details: options });
     const port = getPort(options);
 
-    // Check if port is already in use
-    const used = await isPortInUse(port);
+    // Its own server holds the current port, so only another port has to be free
+    const used = port !== serverPort && (await isPortInUse(port));
 
     if (used) {
       appLogger.warning(`Cannot restart server - port ${port} is already in use`);
@@ -137,12 +159,12 @@ export async function setupServerControl() {
     }
 
     // If server is running, stop it first
-    closeServer();
+    await closeServer();
 
     // Start server with new options
     try {
       appLogger.info(`Starting server on port ${port}`);
-      serverInstance = await startServer({ port, onServerCrash });
+      await start(port);
       appLogger.info("Server started successfully");
     } catch (error) {
       appLogger.error("Server failed to start", { error });
