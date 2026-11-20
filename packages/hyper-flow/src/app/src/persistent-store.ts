@@ -12,11 +12,14 @@ export const persistentStore = () => {
     store.set(key, val);
   });
 
-  ipcMain.on("electron-store-delete", async (_, key) => {
+  // The renderer deletes with a synchronous message, which waits for a return value
+  ipcMain.on("electron-store-delete", (event, key) => {
     try {
       store.delete(key);
+      event.returnValue = true;
     } catch (error) {
-      console.error("🚀 ~ ipcMain.on ~ error:", error);
+      console.error("Failed to delete from the persistent store", error);
+      event.returnValue = false;
     }
   });
 };

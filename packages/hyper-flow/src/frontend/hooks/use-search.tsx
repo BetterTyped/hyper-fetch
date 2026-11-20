@@ -40,7 +40,7 @@ export const useSearch = <T extends Record<string, any>[]>({
     if (!searchTerm && !options.baseSort) {
       return data;
     }
-    return matchSorter(data, searchTerm ?? "", { ...options, keys: searchKeys }) as unknown as T;
+    return matchSorter(data, searchTerm, { ...options, keys: searchKeys }) as unknown as T;
     // `options` and `searchKeys` are recreated by callers on every render, `dependencies` stands for them
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, searchTerm, ...dependencies]);

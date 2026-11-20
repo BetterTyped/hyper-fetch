@@ -1,24 +1,14 @@
-import { useShallow } from "zustand/react/shallow";
+import type { QueueDataType } from "@hyper-fetch/core";
 
 import { SectionData } from "./section-data";
 import { SectionHead } from "./section-head";
 import { SectionOverview } from "./section-overview";
 import { SectionToolbar } from "./section-toolbar";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { useQueueStore } from "@/store/applications/queue.store";
 
-export const QueuesDetails = () => {
-  const { application } = useDevtools();
-  const { queues, detailsId } = useQueueStore(useShallow((state) => state.applications[application.name]));
-
-  const item = detailsId ? queues.get(detailsId) : null;
-
-  if (!item) {return null;}
-
+export const QueuesDetails = ({ item }: { item: QueueDataType }) => {
   return (
     <ResizableSidebar
-      position="right"
       className="absolute flex flex-col top-0 right-0 bottom-0 border-l border-light-400 dark:border-dark-400"
       defaultSize={{
         width: "70%",

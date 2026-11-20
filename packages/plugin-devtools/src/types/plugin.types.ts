@@ -1,3 +1,5 @@
+import type { SocketInstance } from "@hyper-fetch/sockets";
+
 export type DevtoolsPluginOptions = {
   /**
    * Name of your application, it will be displayed in the HyperFlow app
@@ -24,4 +26,10 @@ export type DevtoolsPluginOptions = {
    * Node.js 22+, Deno and Bun. On older Node.js pass the one from the `ws` package: `import { WebSocket } from "ws"`.
    */
   WebSocket?: typeof WebSocket;
+  /**
+   * Sockets to inspect in HyperFlow next to the requests of the client: their connection, the messages they receive
+   * and send, and their errors.
+   * @example DevtoolsPlugin({ appName: "My App", sockets: [socket] })
+   */
+  sockets?: SocketInstance[];
 };

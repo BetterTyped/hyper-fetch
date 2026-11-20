@@ -2,20 +2,18 @@ import type { AdapterInstance, Cache } from "@hyper-fetch/core";
 import { produce } from "immer";
 import { create } from "zustand/react";
 
-import type { DevtoolsCacheEvent, Sort } from "@/context/applications/types";
+import type { DevtoolsCacheEvent } from "@/context/applications/types";
 
 type CacheKey = string;
 
 type CacheStore = {
   cacheSearchTerm: string;
-  cacheSort: Sort | null;
   caches: Map<CacheKey, DevtoolsCacheEvent>;
   detailsId: string | null;
 };
 
 const getInitialState = (): CacheStore => ({
   cacheSearchTerm: "",
-  cacheSort: null,
   caches: new Map(),
   detailsId: null,
 });
@@ -26,7 +24,6 @@ type Store = {
   setSearchTerm: (application: string, searchTerm: string) => void;
   openDetails: (data: { application: string; cacheKey: string }) => void;
   closeDetails: (application: string) => void;
-  setCacheSort: (data: { application: string; sorting: Sort }) => void;
   setCache: (data: {
     application: string;
     data: Parameters<Parameters<Cache<AdapterInstance>["events"]["onData"]>[0]>[0];
@@ -50,9 +47,6 @@ export const useCacheStore = create<Store>((set) => ({
   setSearchTerm: (application: string, searchTerm: string) => {
     set((state) =>
       produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
         draft.applications[application].cacheSearchTerm = searchTerm;
       }),
     );
@@ -60,9 +54,6 @@ export const useCacheStore = create<Store>((set) => ({
   openDetails: ({ application, cacheKey }) => {
     set((state) =>
       produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
         draft.applications[application].detailsId = cacheKey;
       }),
     );
@@ -74,22 +65,9 @@ export const useCacheStore = create<Store>((set) => ({
       }),
     );
   },
-  setCacheSort: ({ application, sorting }) => {
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
-        draft.applications[application].cacheSort = sorting;
-      }),
-    );
-  },
   setCache: ({ application, data, isTriggeredExternally }) => {
     set((state) =>
       produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = getInitialState();
-        }
         const { cacheKey } = data;
 
         // When we set the data and send it to the client, we DON'T want to re-apply it
@@ -131,9 +109,6 @@ export const useCacheStore = create<Store>((set) => ({
     set((state) =>
       produce(state, (draft) => {
         const app = draft.applications[application];
-        if (!app) {
-          return;
-        }
         app.caches.delete(cacheKey);
         if (app.detailsId === cacheKey) {
           app.detailsId = null;

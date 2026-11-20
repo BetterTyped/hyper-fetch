@@ -88,10 +88,14 @@ app.whenReady().then(async () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  closeServer();
+  // On macOS the app stays in the dock and its window can be reopened, so the server keeps running
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+app.on("will-quit", () => {
+  void closeServer();
 });
 
 app.on("activate", () => {

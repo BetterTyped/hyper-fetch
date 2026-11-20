@@ -350,6 +350,22 @@ describe("DevtoolsPlugin [ Event handler ]", () => {
       await vi.waitFor(() => expect(onLoading).toHaveBeenCalledWith(expect.objectContaining({ loading: true }), true));
     });
 
+    it("should ignore request lifecycle events it doesn't apply", async () => {
+      const onResponse = vi.fn();
+      client.requestManager.events.onResponse(onResponse);
+      const onLoading = vi.fn();
+      client.requestManager.events.onLoading(onLoading);
+
+      server.sendEvent(EventSourceType.REQUEST_MANAGER, "ON_REQUEST_START" as CoreEvents, {});
+      server.sendEvent(EventSourceType.CACHE, CoreEvents.ON_CACHE_DELETE, "GET_/users");
+      client.cache.storage.set("GET_/users", createCacheValue());
+      server.sendEvent(EventSourceType.CACHE, CoreEvents.ON_CACHE_DELETE, "GET_/users");
+
+      await vi.waitFor(() => expect(client.cache.storage.get("GET_/users")).toBeUndefined());
+      expect(onResponse).not.toHaveBeenCalled();
+      expect(onLoading).not.toHaveBeenCalled();
+    });
+
     it("should keep working after unknown messages", async () => {
       server.send({ messageType: MessageType.INTERNAL, eventType: InternalEvents.PLUGIN_HANGUP });
       server.send({ messageType: "UNKNOWN" as MessageType });

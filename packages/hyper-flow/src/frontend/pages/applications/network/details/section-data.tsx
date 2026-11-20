@@ -11,11 +11,9 @@ import { cn } from "@/lib/utils";
 
 export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("payload");
+  const [activeTab, setActiveTab] = useState<"payload" | "response" | "details" | "request">("payload");
 
   const config = useMemo(() => {
-    if (!item) {return null;}
-
     const values = JSON.parse(JSON.stringify(item.request));
     delete values.payload;
     delete values.params;
@@ -25,26 +23,20 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
     return values;
   }, [item]);
 
-  const hasContent = (value: string) => {
-    switch (value) {
-      case "response": {
-        return !!item.response;
-      }
-      case "details": {
-        return !!item.details;
-      }
-      case "payload":
-      case "request": {
-        return true;
-      }
-      default: {
-        return false;
-      }
-    }
-  };
+  // Payload and request details always have something to show, the rest only once the response arrived
+  const hasContent = {
+    payload: true,
+    request: true,
+    response: !!item.response,
+    details: !!item.details,
+  }[activeTab];
 
   return (
-    <Tabs defaultValue="payload" className="h-[600px] my-4 flex-1" onValueChange={setActiveTab}>
+    <Tabs
+      defaultValue="payload"
+      className="h-[600px] my-4 flex-1"
+      onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+    >
       <TabsList>
         <TabsTrigger value="payload">
           <FileUp />
@@ -68,7 +60,7 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
         <div
           className={cn(
             "transition-all duration-300 ease-in-out overflow-hidden",
-            !isOpen && hasContent(activeTab) && "max-h-[200px]",
+            !isOpen && hasContent && "max-h-[200px]",
           )}
         >
           <TabsContent value="payload" className="h-full">
@@ -117,7 +109,7 @@ export const SectionData = ({ item }: { item: DevtoolsRequestEvent }) => {
           </TabsContent>
         </div>
 
-        {hasContent(activeTab) && (
+        {hasContent && (
           <>
             <div
               className={cn(

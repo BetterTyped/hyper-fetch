@@ -15,7 +15,8 @@ type ConnectionState = {
 
 export class ConnectionHandler {
   connectionState: ConnectionState = {
-    connections: {},
+    // Applications name their connections, so names like "constructor" must not resolve to Object.prototype
+    connections: Object.create(null),
     appConnection: null,
   };
 

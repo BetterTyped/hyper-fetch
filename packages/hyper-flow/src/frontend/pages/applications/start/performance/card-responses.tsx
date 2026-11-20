@@ -116,7 +116,7 @@ export const CardResponses = ({ className }: { className?: string }) => {
               <BarChart accessibilityLayer data={chartData}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="method" tickLine={false} tickMargin={10} axisLine={false} />
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent verticalAlign="top" />} />
                 <Bar dataKey="avgResponseTime" name="Average response time (ms)" strokeWidth={0} radius={8} />
               </BarChart>

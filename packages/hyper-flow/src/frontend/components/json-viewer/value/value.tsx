@@ -97,8 +97,8 @@ export const Value = ({
   }
 
   if (typeof raw === "string") {
-    const lines = Math.min(10, raw?.split(/\r\n|\r|\n/)?.length || 1);
-    const resize = lines > 1 ? "vertical" : "none";
+    // Multi-line text can be made taller by hand
+    const resize = /\r|\n/.test(raw) ? "vertical" : "none";
 
     return (
       <span className={cn(jsonViewerStyles.value, disabledStyles)}>

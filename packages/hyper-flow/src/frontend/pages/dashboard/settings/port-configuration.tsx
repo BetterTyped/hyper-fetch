@@ -28,7 +28,6 @@ type PortConfigurationFormData = z.infer<typeof portSchema>;
 
 export const PortConfiguration = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // Dummy state for demonstration
   const [loading, setLoading] = useState(false);
 
   const { serverStatus, settings, setServerPort } = useSettings();
@@ -39,6 +38,12 @@ export const PortConfiguration = () => {
       port: settings.serverPort,
     },
   });
+
+  // Every opening starts from the port in use, so a canceled or rejected draft never shows up again
+  const openDialog = () => {
+    form.reset({ port: settings.serverPort });
+    setIsDialogOpen(true);
+  };
 
   const handleSubmit = (data: PortConfigurationFormData) => {
     if (loading) {
@@ -98,7 +103,7 @@ export const PortConfiguration = () => {
         <div className="flex-1">
           <div className="grid gap-2">
             <div className="text-sm font-medium text-muted-foreground">Setup</div>
-            <Button size="sm" variant="secondary" onClick={() => setIsDialogOpen(true)} className="w-fit">
+            <Button size="sm" variant="secondary" onClick={openDialog} className="w-fit">
               <Wrench className="size-4 mr-1" />
               Change Port
             </Button>

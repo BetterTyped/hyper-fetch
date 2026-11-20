@@ -12,10 +12,8 @@ type ConnectionState = {
 };
 
 export class InternalConnectionHandler {
-  connectionState: ConnectionState = {
-    connections: {},
-    appConnection: null,
-  };
+  connectionState: ConnectionState;
+
   constructor(connectionState: ConnectionState) {
     this.connectionState = connectionState;
   }
@@ -72,25 +70,7 @@ export class InternalConnectionHandler {
       return;
     }
 
-    if (!message) {
-      /**
-       * This error can happen when the devtools plugin connects to the fake server
-       * We found this case being triggered with msw setup, which caused websocket to open
-       * We early return here to avoid the error on the startup of the devtools app
-       */
-      serverLogger.error("Failed to send connected apps info to devtools frontend", {
-        context: "ConnectionHandler",
-        details: {
-          reason: "Missing frontend connection or message data",
-          connectionName,
-          hasFrontendConnection: !!this.connectionState.appConnection,
-          hasMessage: !!message,
-          activeConnections: Object.keys(this.connectionState.connections),
-        },
-      });
-      return;
-    }
-    this.connectionState.appConnection?.send(
+    this.connectionState.appConnection.send(
       JSON.stringify({
         topic: SocketTopics.APP_MAIN_LISTENER,
         data: message.data,

@@ -1,22 +1,26 @@
-import http from "http";
+// `node:` always means the builtin, also in browser-like test environments (jsdom) where "http" may resolve to a package
+import type { Server } from "node:http";
+import { createServer } from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
 
 export const createWebsocketE2EServer = () => {
   let wss: WebSocketServer | null = null;
-  let server: http.Server | null = null;
+  let server: Server | null = null;
   let port = 0;
   const clients: WebSocket[] = [];
 
   const startServer = (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      server = http.createServer();
+      server = createServer();
       wss = new WebSocketServer({ server });
 
       wss.on("connection", (ws) => {
         clients.push(ws);
         ws.on("close", () => {
           const idx = clients.indexOf(ws);
-          if (idx !== -1) {clients.splice(idx, 1);}
+          if (idx !== -1) {
+            clients.splice(idx, 1);
+          }
         });
       });
 
@@ -56,8 +60,11 @@ export const createWebsocketE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) {reject(err);}
-        else {resolve();}
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
       });
     });
   };
@@ -99,7 +106,9 @@ export const createWebsocketE2EServer = () => {
 
   const closeClient = (index: number, code?: number, reason?: string) => {
     const ws = clients[index];
-    if (ws) {ws.close(code, reason);}
+    if (ws) {
+      ws.close(code, reason);
+    }
   };
 
   const terminateAllClients = () => {
@@ -165,7 +174,9 @@ export const createWebsocketE2EServer = () => {
   };
 
   const onMessage = (callback: (msg: { topic: string; data: unknown }, ws: WebSocket) => void) => {
-    if (!wss) {return;}
+    if (!wss) {
+      return;
+    }
     const connectionHandler = (ws: WebSocket) => {
       ws.on("message", (raw) => {
         try {

@@ -4,7 +4,9 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 
 import { createHyperFlowEnv } from "../../utils/hyper-flow";
 import { useApplications } from "@/store/applications/apps.store";
+import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { useNetworkStore } from "@/store/applications/network.store";
+import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { getStatus, Status } from "@/utils/request.status.utils";
 
 const { startServer, stopServer, resetMocks, mockRequest } = createHttpMockingServer();
@@ -110,6 +112,28 @@ describe("Network [ E2E ]", () => {
     expect(aborted.isCanceled).toBeTrue();
     expect(aborted.isFinished).toBeFalse();
     expect(getStatus(aborted)).toBe(Status.CANCELED);
+  });
+
+  it("should count aborted requests as canceled in the network and queue stats", async () => {
+    const { client, getUsers, getUser } = await setup();
+    mockRequest(getUsers, { data: [], delay: 1000 });
+    mockRequest(getUser, { data: { id: 1 } });
+    const unmount = client.requestManager.events.onRequestStart(() => {
+      unmount();
+      getUsers.abort();
+    });
+
+    await getUsers.send();
+    await getUser.send({ params: { id: 1 } });
+    await waitFor(() => {
+      expect(useNetworkStore.getState().applications.App.requests[0].isFinished).toBeTrue();
+    });
+
+    const { networkStats } = useNetworkStatsStore.getState().applications.App;
+    expect(networkStats.totalRequestsCanceled).toBe(1);
+    // A canceled request never finished, so it is not one of the finished ones
+    expect(networkStats.totalRequests).toBe(1);
+    expect(useQueueStatsStore.getState().applications.App.stats.get(getUsers.queryKey)?.totalRequestsCanceled).toBe(1);
   });
 
   it("should mark requests removed from the queue before they were sent", async () => {

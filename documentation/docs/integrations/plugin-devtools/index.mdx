@@ -57,6 +57,25 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
 
 ---
 
+## Inspecting sockets
+
+Pass your sockets in the `sockets` option to inspect their connection, messages and errors in HyperFlow, next to the
+requests of the client. See the [Socket Inspector](/docs/hyper-flow/features/sockets).
+
+```tsx
+const socket = new Socket({ url: "ws://localhost:3000" });
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    // highlight-next-line
+    sockets: [socket],
+  }),
+);
+```
+
+---
+
 ## Node.js backends
 
 The plugin reports from servers and scripts too, so you can inspect the requests your backend sends. Use the

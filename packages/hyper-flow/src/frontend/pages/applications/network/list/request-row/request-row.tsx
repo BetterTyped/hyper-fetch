@@ -28,7 +28,7 @@ export const RequestRow = memo(({ item, clickable = true }: { item: DevtoolsRequ
 
   const handleClick = () => {
     if (clickable) {
-      openDetails({ application: application.name, requestId: item.requestId ?? "" });
+      openDetails({ application: application.name, requestId: item.requestId });
     }
   };
 

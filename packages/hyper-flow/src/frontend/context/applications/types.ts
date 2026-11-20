@@ -34,7 +34,8 @@ export type DevtoolsRequestResponse = {
   details: ResponseDetailsType;
 };
 
-export type DevtoolsRequestEvent = Partial<DevtoolsRequestResponse> & {
+export type DevtoolsRequestEvent = Partial<Omit<DevtoolsRequestResponse, "requestId">> & {
+  requestId: string;
   request: RequestJSON<RequestInstance>;
   client: ClientInstance;
   isRemoved: boolean;

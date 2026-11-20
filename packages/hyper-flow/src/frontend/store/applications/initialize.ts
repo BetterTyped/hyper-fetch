@@ -7,6 +7,7 @@ import { useNetworkStatsStore } from "./network-stats.store";
 import { useNetworkStore } from "./network.store";
 import { useQueueStatsStore } from "./queue-stats.store";
 import { useQueueStore } from "./queue.store";
+import { useSocketsStore } from "./sockets.store";
 
 /**
  * Create the per-application state of every store. Runs synchronously, before anything renders the application's
@@ -25,5 +26,6 @@ export const initializeApplicationStores = (application: string) => {
   useErrorStatsStore.getState().initialize(application);
   useQueueStore.getState().initialize(application);
   useQueueStatsStore.getState().initialize(application);
+  useSocketsStore.getState().initialize(application);
   useInitializerStore.getState().initialize(application);
 };

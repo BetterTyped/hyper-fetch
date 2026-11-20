@@ -154,6 +154,8 @@ export const State = memo(({ application }: { application: string }) => {
         requestId: item.requestId,
         update: { isCanceled: true, timestamp: Date.now() },
       });
+      useNetworkStatsStore.getState().countCanceledRequest({ application });
+      useQueueStatsStore.getState().countCanceledRequest({ application, queryKey: item.request.queryKey });
     });
     /**
      * Requests are listed once they are queued, so the ones waiting in a stopped queue are visible too,

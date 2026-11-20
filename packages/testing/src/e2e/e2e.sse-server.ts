@@ -1,28 +1,36 @@
-import http from "http";
 import type { Socket } from "net";
+// `node:` always means the builtin, also in browser-like test environments (jsdom) where "http" may resolve to a package
+import type { Server, ServerResponse } from "node:http";
+import { createServer } from "node:http";
 
-export const createSseE2EServer = () => {
-  let server: http.Server | null = null;
+/**
+ * A real Server-Sent Events server for e2e specs.
+ * @param options.retry - sent as the `retry:` field, how many ms the EventSource waits before resuming a dropped stream
+ */
+export const createSseE2EServer = ({ retry }: { retry?: number } = {}) => {
+  let server: Server | null = null;
   let port = 0;
-  const responses: http.ServerResponse[] = [];
+  const responses: ServerResponse[] = [];
   const sockets: Socket[] = [];
 
   const startServer = (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      server = http.createServer((req, res) => {
+      server = createServer((req, res) => {
         res.writeHead(200, {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
           Connection: "keep-alive",
           "Access-Control-Allow-Origin": "*",
         });
-        res.write("\n");
+        res.write(retry === undefined ? "\n" : `retry: ${retry}\n\n`);
 
         responses.push(res);
 
         req.on("close", () => {
           const idx = responses.indexOf(res);
-          if (idx !== -1) {responses.splice(idx, 1);}
+          if (idx !== -1) {
+            responses.splice(idx, 1);
+          }
         });
       });
 
@@ -30,7 +38,9 @@ export const createSseE2EServer = () => {
         sockets.push(socket);
         socket.on("close", () => {
           const idx = sockets.indexOf(socket);
-          if (idx !== -1) {sockets.splice(idx, 1);}
+          if (idx !== -1) {
+            sockets.splice(idx, 1);
+          }
         });
       });
 
@@ -66,8 +76,11 @@ export const createSseE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) {reject(err);}
-        else {resolve();}
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
       });
     });
   };
