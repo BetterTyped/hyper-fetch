@@ -1,4 +1,4 @@
-export const getStatus = (res: any) => {
+export const getStatus = (res: any): "success" | "emptyResource" => {
   // Deliberate == instead of ===
   return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
 };

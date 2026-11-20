@@ -11,7 +11,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         endpoint: "",
         method: "getDocs",
       });
-      const { data } = await req.send({ queryParams: { constraints: [$where("type", "==", "Green")] } });
+      const { data } = await req.send({ queryParams: [$where("type", "==", "Green")] });
       expect(data).toHaveLength(3);
       expect(data?.map((tea) => tea.type)).toStrictEqual(["Green", "Green", "Green"]);
     });
@@ -21,7 +21,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         method: "getDocs",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$where("type", "==", "Green"), $where("amount", ">=", 50)] },
+        queryParams: [$where("type", "==", "Green"), $where("amount", ">=", 50)],
       });
       expect(data).toHaveLength(2);
       expect(data?.map((tea) => tea.type)).toStrictEqual(["Green", "Green"]);
@@ -33,7 +33,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         endpoint: "",
         method: "getDocs",
       });
-      const { data } = await req.send({ queryParams: { constraints: [$orderBy("year")] } });
+      const { data } = await req.send({ queryParams: [$orderBy("year")] });
       expect(data?.map((tea) => tea.year)).toStrictEqual([1980, 2011, 2017, 2021, 2021, 2021, 2022, 2022, 2023, 2023]);
     });
   });
@@ -43,7 +43,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         endpoint: "",
         method: "getDocs",
       });
-      const { data } = await req.send({ queryParams: { constraints: [$limit(5)] } });
+      const { data } = await req.send({ queryParams: [$limit(5)] });
 
       expect(data).toHaveLength(5);
     });
@@ -55,7 +55,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         method: "getDocs",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)] },
+        queryParams: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)],
       });
       expect(data).toHaveLength(1);
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -76,16 +76,16 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         method: "getDocs",
       });
       const { data: fromStart } = await req.send({
-        queryParams: { constraints: [$orderBy("year"), $startAt(2022)] },
+        queryParams: [$orderBy("year"), $startAt(2022)],
       });
       const { data: afterStart } = await req.send({
-        queryParams: { constraints: [$orderBy("year"), $startAfter(2022)] },
+        queryParams: [$orderBy("year"), $startAfter(2022)],
       });
       const { data: toEnd } = await req.send({
-        queryParams: { constraints: [$orderBy("year"), $endAt(2011)] },
+        queryParams: [$orderBy("year"), $endAt(2011)],
       });
       const { data: beforeEnd } = await req.send({
-        queryParams: { constraints: [$orderBy("year"), $endBefore(2011)] },
+        queryParams: [$orderBy("year"), $endBefore(2011)],
       });
 
       expect(fromStart?.map((tea) => tea.year)).toStrictEqual([2022, 2022, 2023, 2023]);
@@ -99,7 +99,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         method: "getDocs",
       });
       const { data } = await req.send({
-        queryParams: { constraints: [$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")] },
+        queryParams: [$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")],
       });
 
       expect(data?.map((tea) => tea.name)).toStrictEqual(["Taiping Hou Kui"]);

@@ -1,6 +1,6 @@
 import type { DocumentSnapshot } from "@firebase/firestore";
 import { SocketAdapter } from "@hyper-fetch/sockets";
-import type { FirestoreOnSnapshotExtra, FirestoreQueryParams, FirestoreSocketAdapterType } from "adapter";
+import type { FirestoreListenerOptions, FirestoreOnSnapshotExtra, FirestoreSocketAdapterType } from "adapter";
 import type { Firestore, QuerySnapshot } from "firebase/firestore";
 import { collection, disableNetwork, doc, enableNetwork, onSnapshot, query } from "firebase/firestore";
 import { getStatus, isDocOrQuery } from "utils";
@@ -11,12 +11,10 @@ import { FirestoreDocOrQuery } from "./firestore.types";
 import { getGroupedResultFirestore, getOrderedResultFirestore, mapConstraint } from "./utils";
 
 export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
-  return new SocketAdapter<FirestoreOnSnapshotExtra, undefined, { groupByChangeType?: boolean } & FirestoreQueryParams>(
-    {
-      name: "firebase-firestore",
-      defaultConnected: true,
-    },
-  ).setConnector(
+  return new SocketAdapter<FirestoreOnSnapshotExtra, undefined, FirestoreListenerOptions>({
+    name: "firebase-firestore",
+    defaultConnected: true,
+  }).setConnector(
     ({ socket, onConnect, onReconnect, onDisconnect, onListen, onConnected, onDisconnected, onEvent, onError }) => {
       const connect = async () => {
         const connection = await onConnect();
@@ -64,7 +62,9 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
                 : getOrderedResultFirestore(snapshot as QuerySnapshot);
             const status = getStatus(response);
             const groupedResult =
-              options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
+              options?.groupByChangeType === true && queryType === FirestoreDocOrQuery.QUERY
+                ? getGroupedResultFirestore(snapshot as QuerySnapshot)
+                : null;
             const extra = { ref: path, snapshot, groupedResult, status };
             onEvent({ topic: listener.topic, data: response, extra });
           },

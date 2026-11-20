@@ -4,18 +4,16 @@ title: Working with Firestore
 sidebar_label: Firestore
 ---
 
-This guide will walk you through performing **CRUD** (Create, Read, Update, Delete) operations in Firestore using the
-`@hyper-fetch/firebase-admin` adapter. We'll cover the available methods and demonstrate how to use them with practical
-examples.
+Firestore operations from server code are HyperFetch requests with a Firestore `method`. They behave like the
+[web package](/docs/integrations/adapter-firebase/firestore), with the Admin SDK underneath.
 
-:::secondary What you'll learn
+---
 
-- How to set up the Hyper-fetch client for Firestore
-- How to use `getDocs` to retrieve a collection
-- How to use `getDoc` to fetch a single document
-- How to add a new document with `addDoc`
-- How to modify a document with `setDoc` and `updateDoc`
-- How to remove a document with `deleteDoc`
+:::tip Purpose
+
+1.  **Read** documents and collections with `getDoc` and `getDocs`.
+2.  **Write** with `addDoc`, `setDoc`, `updateDoc` and `deleteDoc`, with the payload typed per request.
+3.  **Query** collections with constraints and cursors.
 
 :::
 
@@ -23,215 +21,103 @@ examples.
 
 ## Setup
 
-First, let's set up our Hyper-fetch client to work with Firestore. We'll need to initialize the Firebase Admin SDK and
-pass the Firestore instance to our adapter.
-
-```tsx
-import { createClient } from "@hyper-fetch/core";
+```ts
+import { Client } from "@hyper-fetch/core";
 import { FirebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
-import * as admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
-// 1. Initialize Firebase Admin
-// Make sure to replace with your actual service account key and database URL
-const serviceAccount = require("./path/to/your/serviceAccountKey.json");
+initializeApp();
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://your-project-id.firebaseio.com",
-});
+export const client = new Client({ url: "" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
 
-const db = admin.firestore();
-
-// 2. Define the data structure for our examples
-interface Tea {
-  name: string;
-  origin: string;
-  type: "Green" | "Black" | "Oolong" | "Herbal";
-  year: number;
-  amount: number;
-  __key?: string; // This will be automatically added by Hyper-fetch
-}
-
-// 3. Create a Hyper-fetch client
-// We set a base endpoint of 'teas' which corresponds to a Firestore collection
-const client = createClient({
-  url: "teas/",
-}).setAdapter(FirebaseAdminAdapter(db));
+type Order = { status: "open" | "paid"; total: number; createdAt: number };
+type OrderDoc = Order & { __key: string }; // __key is the document id, added by the adapter
 ```
 
 ---
 
-## Available Methods
+## Methods
 
-The Firestore adapter maps familiar Firestore SDK methods to Hyper-fetch requests. This allows you to interact with your
-database using a consistent, declarative syntax.
+| Method      | Path       | `data`                                  | `extra`                              |
+| ----------- | ---------- | --------------------------------------- | ------------------------------------ |
+| `getDocs`   | collection | documents with `__key`, `[]` when empty | `ref`, `snapshot` (QuerySnapshot)    |
+| `getDoc`    | document   | the document with `__key`, or `null`    | `ref`, `snapshot` (DocumentSnapshot) |
+| `addDoc`    | collection | the payload plus the new `__key`        | `ref` of the new document            |
+| `setDoc`    | document   | the Admin SDK `WriteResult`             | `ref`                                |
+| `updateDoc` | document   | the payload                             | `ref`                                |
+| `deleteDoc` | document   | `null`                                  | `ref`                                |
 
-The available methods are:
+`getDoc` is the default, so a request without `method` reads one document.
 
-- `getDocs`
-- `getDoc`
-- `setDoc`
-- `updateDoc`
-- `addDoc`
-- `deleteDoc`
+```ts
+import type { WriteResult } from "firebase-admin/firestore";
 
-```tsx
-const request = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "",
-  method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
+const getOrder = client.createRequest<{ response: OrderDoc | null }>()({
+  endpoint: "orders/:orderId",
 });
+
+const addOrder = client.createRequest<{ response: OrderDoc; payload: Order }>()({
+  endpoint: "orders",
+  method: "addDoc",
+});
+
+const saveOrder = client.createRequest<{ response: WriteResult; payload: Order }>()({
+  endpoint: "orders/:orderId",
+  method: "setDoc",
+  // options: { merge: true } merges the payload into the existing document
+});
+
+const markPaid = client.createRequest<{ response: Partial<Order>; payload: Partial<Order> }>()({
+  endpoint: "orders/:orderId",
+  method: "updateDoc",
+});
+
+const deleteOrder = client.createRequest<{ response: null }>()({
+  endpoint: "orders/:orderId",
+  method: "deleteDoc",
+});
+
+const { data: created } = await addOrder.send({ payload: { status: "open", total: 40, createdAt: Date.now() } });
+const { error } = await markPaid.setParams({ orderId: created!.__key }).send({ payload: { status: "paid" } });
 ```
 
-:::info Realtime Updates
+:::info setDoc returns the write result
 
-Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a
-standard adapter. For the `onSnapshot`-like usage, please check how to
-**[listen to queries](/docs/integrations/adapter-firebase-admin/realtime-queries)**.
+Unlike the web package, `setDoc` resolves with the Admin SDK `WriteResult` (with `writeTime`), not the payload. Read the
+document with `getDoc` when you need its saved state.
 
 :::
 
 ---
 
-## Usage Examples
+## Querying
 
-Let's walk through a complete CRUD cycle to see how these methods work together.
+```ts
+import { $limit, $orderBy, $startAfter, $where } from "@hyper-fetch/firebase-admin";
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
-### 1. `addDoc`
-
-To start, we'll add a new tea to our `teas` collection. The `addDoc` method creates a new document with an
-auto-generated ID.
-
-```tsx
-const newData: Omit<Tea, "__key"> = {
-  name: "Pai Mu Tan",
-  origin: "China",
-  type: "Green",
-  year: 2023,
-  amount: 50,
-};
-
-const addDocReq = client.createRequest<{ response: Tea; payload: typeof newData }>()({
-  endpoint: "",
-  method: "addDoc",
-});
-
-const { data: addedTea, error: addError } = await addDocReq.setPayload(newData).send();
-
-if (addedTea) {
-  console.log("Added tea:", addedTea);
-  // highlight-next-line
-  // The response data includes the original data plus the new document ID in the `__key` field.
-  // { name: 'Pai Mu Tan', ..., __key: 'Abc123xyz' }
-}
-```
-
-When using `addDoc`, the response data is the same as the data you sent, but with the addition of a `__key` field
-containing the newly created document's ID.
-
-### 2. `getDoc`
-
-Now, let's fetch the tea we just created using its ID. The `:teaId` in the endpoint is a dynamic parameter that we'll
-fill in using `setParams`.
-
-```tsx
-const getDocReq = client.createRequest<{ response: Tea }>()({
-  // highlight-next-line
-  endpoint: ":teaId",
-  method: "getDoc",
-});
-
-// highlight-next-line
-// We use the `__key` from the previous step to fetch the document
-const { data, extra } = await getDocReq.setParams({ teaId: addedTea.__key }).send();
-
-console.log("Fetched tea:", data);
-```
-
-#### `extra` response
-
-- `ref`: The Firestore `DocumentReference`.
-- `snapshot`: The raw Firestore `DocumentSnapshot`.
-
-### 3. `getDocs`
-
-To fetch all the teas in our collection, we use `getDocs`. This method returns an array of documents.
-
-```tsx
-const getDocsReq = client.createRequest<{ response: Tea[] }>()({
-  endpoint: "",
+const getOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams }>()({
+  endpoint: "orders",
   method: "getDocs",
 });
 
-const { data: allTeas, extra: getDocsExtra } = await getDocsReq.send();
+const newest = [$where("status", "==", "open"), $orderBy("createdAt", "desc")];
 
-// data is an array of objects, where each object also contains the `__key` property.
-console.log("All teas:", allTeas);
+const page1 = await getOrders.send({ queryParams: [...newest, $limit(100)] });
+const last = page1.data?.at(-1);
+const page2 = await getOrders.send({ queryParams: [...newest, $startAfter(last?.createdAt), $limit(100)] });
 ```
 
-#### `extra` response
+Constraints apply in order, and cursors take one value per `$orderBy`. The full list is on the
+[web Firestore page](/docs/integrations/adapter-firebase/firestore#querying).
 
-- `ref`: The Firestore `CollectionReference`.
-- `snapshot`: The raw Firestore `QuerySnapshot`.
+---
 
-### 4. `setDoc`
+:::secondary Summary
 
-The `setDoc` method allows you to overwrite a document. If the document doesn't exist, it will be created.
+1.  The same six methods as the web package, with `getDoc` as the default.
+2.  `setDoc` resolves with the `WriteResult`, unlike the web package; the other methods return the same data as there.
+3.  Queries are the `queryParams` array, and cursors page through ordered results.
 
-```tsx
-const updatedData = {
-  name: "Pai Mu Tan (Organic)",
-  origin: "China",
-  type: "Green",
-  year: 2024,
-  amount: 100,
-};
-
-const setDocReq = client.createRequest<{ response: Tea; payload: typeof updatedData }>()({
-  endpoint: ":teaId",
-  method: "setDoc",
-  // Add `options: { merge: true }` to merge fields instead of overwriting
-});
-
-const { data: setResponse } = await setDocReq.setParams({ teaId: addedTea.__key }).setPayload(updatedData).send();
-
-// The response from setDoc is the same data that was sent.
-console.log("Set response:", setResponse);
-```
-
-### 5. `updateDoc`
-
-If you only want to update specific fields in a document without overwriting the entire document, use `updateDoc`.
-
-```tsx
-const partialUpdate = {
-  amount: 95,
-  year: 2025,
-};
-
-const updateDocReq = client.createRequest<{ response: Partial<Tea>; payload: typeof partialUpdate }>()({
-  endpoint: ":teaId",
-  method: "updateDoc",
-});
-
-const { data: updateResponse } = await updateDocReq.setParams({ teaId: addedTea.__key }).setPayload(partialUpdate).send();
-
-// The response from updateDoc is the same data that was sent for the update.
-console.log("Update response:", updateResponse);
-```
-
-### 6. `deleteDoc`
-
-Finally, let's remove the tea from our collection using `deleteDoc`.
-
-```tsx
-const deleteDocReq = client.createRequest()({
-  endpoint: ":teaId",
-  method: "deleteDoc",
-});
-
-// highlight-next-line
-const { data: deleteResponse } = await deleteDocReq.setParams({ teaId: addedTea.__key }).send();
-
-// The response from deleteDoc is always `null`.
-console.log("Delete response:", deleteResponse);
-```
+:::

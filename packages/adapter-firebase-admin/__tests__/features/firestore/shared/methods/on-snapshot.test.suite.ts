@@ -87,6 +87,29 @@ export const onSnapshotTestSuite = (
 
       expect(socket.adapter.listeners.get(onSnapshotReq.topic)?.size).toBe(0);
     });
+    it("should deliver a document listener with groupByChangeType", async () => {
+      const { socket } = await initialize();
+      const onTea = socket
+        .createListener<Tea>()({
+          topic: ":teaId",
+          options: { groupByChangeType: true },
+        })
+        .setParams({ teaId: 1 });
+
+      const received: { data: Tea | null; groupedResult: unknown }[] = [];
+      const unmount = onTea.listen(({ data, extra }) => {
+        received.push({ data, groupedResult: "groupedResult" in extra ? extra.groupedResult : undefined });
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0].data).toMatchObject({ name: "Taiping Hou Kui", __key: "1" });
+      expect(received[0].groupedResult).toBeNull();
+
+      unmount();
+    });
+
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
       const onSnapshotReq = socketBees.createListener<Tea[]>()({
