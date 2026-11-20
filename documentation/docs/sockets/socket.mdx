@@ -175,9 +175,13 @@ The `Socket` constructor (and `createSocketClient` helper) accepts the following
 | `adapter` | `(() => Adapter) \| Adapter` | `WebsocketAdapter()` | Adapter instance or factory for the transport layer. |
 | `adapterOptions` | `object` | — | Adapter-specific options passed to the adapter on initialization. |
 | `queryParams` | `object \| string` | — | Query parameters appended to the connection URL. |
-| `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts. |
-| `reconnectTime` | `number` | `5000` | Delay in milliseconds before the next attempt after the connection was lost. |
-| `connectionTimeout` | `number` | `5000` | How long in milliseconds one connection attempt may take before a new attempt starts. |
+| `reconnect` | `number` | `Infinity` | Maximum number of reconnection attempts in one outage. |
+| `reconnectTime` | `number` | `1000` | Minimum delay in milliseconds before a reconnection attempt. |
+| `maxReconnectTime` | `number` | `30000` | Maximum delay in milliseconds before a reconnection attempt. |
+| `minUptime` | `number` | `5000` | How long in milliseconds a connection stays up before the attempt counter resets. |
+| `connectionTimeout` | `number` | `5000` | How long in milliseconds one connection attempt may take until the connection is ready. |
+| `reconnectDelay` | `function` | jittered backoff | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff, `null` stops reconnecting. |
+| `shouldReconnect` | `function` | retry every loss | `({ code, reason, error }) => boolean` - decides which lost connections are retried. |
 
 ---
 

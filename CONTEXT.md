@@ -63,6 +63,11 @@ one line here in the same change.
   when a subscription restarts so the server can resume after it.
 - **Emitter**: a typed event sender for a topic.
 - **SocketAdapter**: the realtime transport, for example WebSocket or SSE.
+- **Reconnection engine**: `createReconnectingConnection`, the connection lifecycle every socket adapter shares - attempts,
+  the connection timeout, backoff with jitter, the retry policy and the network and focus signals. Adapters only open
+  transports and report them `ready`, `lost` or `interrupted`.
+- **Outage**: the reconnection attempts between losing a connection and having one that stayed up for `minUptime`.
+  `reconnect` limits the attempts of one outage, `reconnectDelay` receives the attempt number and time within it.
 
 ## Tooling
 
