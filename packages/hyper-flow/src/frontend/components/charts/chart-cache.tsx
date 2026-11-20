@@ -10,11 +10,17 @@ import { formatBytes } from "@/utils/size.utils";
 
 const getDistributionFillColor = (cacheSize: number, totalCacheSize: number) => {
   // more than 50% of the total cache size
-  if (cacheSize > totalCacheSize / 2) {return "#1234a4";}
+  if (cacheSize > totalCacheSize / 2) {
+    return "#1234a4";
+  }
   // more than 25% of the total cache size
-  if (cacheSize > totalCacheSize / 4) {return "#1e40af";}
+  if (cacheSize > totalCacheSize / 4) {
+    return "#1e40af";
+  }
   // more than 15% of the total cache size
-  if (cacheSize > totalCacheSize / 6) {return "#2c52cc";}
+  if (cacheSize > totalCacheSize / 6) {
+    return "#2c52cc";
+  }
   // less than 15% of the total cache size
   return "#3374dd";
 };
@@ -36,18 +42,14 @@ export const ChartCache = ({
   totalSize: number;
   className?: string;
 }) => {
-  const chartData = useMemo(() => {
-    const children = data.map((item) => ({
-      ...item,
-      fill: getDistributionFillColor(item.totalSize, totalSize),
-    }));
-    return [
-      {
-        name: "Cache",
-        children,
-      },
-    ];
-  }, [data, totalSize]);
+  const chartData = useMemo(
+    () =>
+      data.map((item) => ({
+        ...item,
+        fill: getDistributionFillColor(item.totalSize, totalSize),
+      })),
+    [data, totalSize],
+  );
 
   const nameKey: keyof ChartCacheData = "name";
   const dataKey: keyof ChartCacheData = "totalSize";
@@ -94,18 +96,19 @@ function Content(
     fill: string;
   } & ChartCacheData,
 ) {
-  const { depth, x, y, width, height, name, fill, totalSize, totalEntries, method, endpoint } = props;
+  const { depth, x, y, width, height, fill, totalSize, totalEntries, method, endpoint } = props;
 
-  const formattedName = useMemo(() => {
-    if (name === "Cache") {return name;}
+  // Recharts also draws the root node, it spans the whole chart behind the tiles
+  if (depth === 0) {
+    return <rect x={x} y={y} width={width} height={height} className="fill-transparent stroke-transparent" />;
+  }
 
-    return (
-      <div className="flex items-center gap-2">
-        <Method method={method} />
-        <span className="text-xs text-muted-foreground">{endpoint}</span>
-      </div>
-    );
-  }, [name, method, endpoint]);
+  const formattedName = (
+    <div className="flex items-center gap-2">
+      <Method method={method} />
+      <span className="text-xs text-muted-foreground">{endpoint}</span>
+    </div>
+  );
 
   return (
     <TooltipProvider>
@@ -119,10 +122,10 @@ function Content(
               height={height}
               style={{
                 fill,
-                strokeWidth: 2 / (depth + 1e-10),
-                strokeOpacity: 1 / (depth + 1e-10),
+                strokeWidth: 1,
+                strokeOpacity: 0.5,
               }}
-              className={name === "Cache" ? "stroke-transparent" : "stroke-white"}
+              className="stroke-white"
             />
             {width > 50 && height > 20 && (
               <text

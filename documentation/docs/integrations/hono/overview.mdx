@@ -8,8 +8,8 @@ sidebar_label: Overview
 
 `@hyper-fetch/hono` converts the type of a [Hono](https://hono.dev/) app into a schema for
 [`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, payloads, query
-params and URL params come from your Hono routes and validators. The package exports a single type and adds no code to
-your bundle.
+params and URL params come from your Hono routes and validators. The package exports types only and adds no code to your
+bundle. For WebSocket and Server-Sent Events routes, see [Realtime](/docs/integrations/hono/realtime).
 
 :::tip Purpose
 
@@ -90,6 +90,9 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 | `app.route("/users", users)` + `/` | `sdk.users.$get`               | `/users`               |
 | `.get("/:userId", ...)`            | `sdk.users.$userId.$get`       | `/users/:userId`       |
 | `.get("/:userId/posts", ...)`      | `sdk.users.$userId.posts.$get` | `/users/:userId/posts` |
+| `.get("/files/:fileId?", ...)`     | `sdk.files.$get`               | `/files`               |
+|                                    | `sdk.files.$fileId.$get`       | `/files/:fileId`       |
+| `.get("/posts/:postId{[0-9]+}")`   | `sdk.posts.$postId.$get`       | `/posts/:postId`       |
 | `.get("/google-login", ...)`       | `sdk.auth.googleLogin.$get`    | `/auth/google-login`   |
 | `new Hono().basePath("/api")`      | `sdk.api.users.$get`           | `/api/users`           |
 
@@ -98,8 +101,18 @@ const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send
 - Each path segment becomes a nested property.
 - `:param` segments become `$param` properties, and the param is typed on `setParams()`.
 - kebab-case segments become camelCase. `createSdk` turns them back into kebab-case when it builds the URL.
-- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys.
+- Methods become lowercase `$get`, `$post`, `$put`, `$patch` and `$delete` keys. `app.on()` adds one key per method and
+  one route per path.
+- An `.all()` route gets every standard method, `$get` to `$query`, as in Hono's own client. A method registered on the
+  same path keeps its own types.
 - The endpoint is the full Hono path, including `app.route()` and `basePath()` prefixes.
+- An optional `:param?` segment adds the route twice: without the param and under `$param` with it, because HyperFetch
+  params are always required. A chain of optional params adds every prefix.
+- A regex param like `:postId{[0-9]+}` becomes `$postId`. The pattern is left out of the endpoint, and the server still
+  checks it, so a value it rejects resolves with a `404`.
+- The endpoint always starts with a slash and has no trailing slash, the same URL `createSdk` sends to. In Hono's
+  default strict mode a route registered as `/users/` only answers on `/users/`, so drop the trailing slash or add the
+  `appendTrailingSlash()` middleware.
 
 :::
 
@@ -112,7 +125,7 @@ Each route becomes a `Request` with these generics:
 - **Response**: the handler output, for example the value passed to `c.json()`.
 - **Payload**: the output type of the route's `json` validator, or `undefined` without one.
 - **Query params**: the input type of the route's `query` validator, or `undefined` without one.
-- **Endpoint**: the full Hono path, which types `setParams()`.
+- **Endpoint**: the Hono path as `createSdk` sends it, which types `setParams()`.
 
 :::caution Responses with several statuses
 
@@ -121,6 +134,34 @@ response type is the union of both bodies. At runtime a `404` still resolves thr
 and the body in `error`, as for every HyperFetch request.
 
 :::
+
+---
+
+## Query arrays
+
+HyperFetch sends arrays as `tags[]=a&tags[]=b` by default. Hono reads that as a key named `tags[]`, so
+`c.req.queries("tags")` and a `query` validator see no `tags`. Send repeated keys instead, which Hono reads as an array:
+
+```ts
+const client = createClient({ url: "https://api.example.com" });
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "none" });
+
+// GET /search?tags=a&tags=b
+await sdk.search.$get.setQueryParams({ tags: ["a", "b"] }).send();
+```
+
+---
+
+## Validators and responses to watch
+
+The schema follows Hono's types, and a few of them differ from what a HyperFetch request sends or receives:
+
+- **`form` validators** do not type the payload, so a form route is sent without a body and its validator reads an empty
+  form. Send `FormData` from a request created with `client.createRequest<{ payload: FormData }>()`.
+- **`header` and `cookie` validators** do not type the request. Set them with `setHeaders()`.
+- **`c.text()`** is typed as its literal text, but a text that is valid JSON, such as `"42"`, resolves parsed.
+- **`c.body(null)`** and other empty bodies are typed as `null` and resolve as `""`.
+- **`c.redirect()`** is typed as `undefined`. `fetch` follows the redirect, so the data is the body of the target.
 
 ---
 
@@ -163,6 +204,12 @@ const { error } = await sdk.users.$get.send();
   title="SDK"
   description="Learn how createSdk builds requests from a schema and how to configure defaults per endpoint."
   to="/docs/core/sdk"
+/>
+<LinkCard
+  type="integrations"
+  title="Hono Realtime"
+  description="Connect sockets to upgradeWebSocket and streamSSE routes, with typed paths and messages."
+  to="/docs/integrations/hono/realtime"
 />
 <LinkCard
   type="docs"

@@ -27,7 +27,7 @@ export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof Fireba
         method: "getDocs",
       });
       const { data, status, success, error } = await req.send();
-      expect(data).toStrictEqual(null);
+      expect(data).toStrictEqual([]);
       expect(status).toBe("emptyResource");
       expect(success).toBe(true);
       expect(error).toBe(null);

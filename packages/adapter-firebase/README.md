@@ -1,50 +1,50 @@
 # 🔥 Hyper Fetch Firebase
 
 <p align="center">
-  <b>Type-safe Firebase/Firestore client built on HyperFetch. CRUD, realtime listeners, auth — all typed.</b>
+  <b>Firestore and Realtime Database as typed HyperFetch requests, with caching, React hooks and live listeners.</b>
 </p>
 
 <p align="center">
-  <a href="https://bettertyped.com/">
-    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
-  </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?logo=github&color=118ab2" alt="GitHub stars" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm&color=e76f51" />
+    <img src="https://img.shields.io/npm/v/@hyper-fetch/firebase?logo=npm&color=e76f51" alt="npm version" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/firebase?logoColor=fff&logo=trending-up" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+    <img src="https://img.shields.io/npm/dm/@hyper-fetch/firebase?logo=npm" alt="npm downloads" />
   </a>
   <a href="https://bundlephobia.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B&logo=package" />
+    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B" alt="bundle size" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
+    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=yellow" alt="license" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
+  </a>
+  <a href="https://firebase.google.com/">
     <img src="https://img.shields.io/badge/firebase-ffca28?logo=firebase&logoColor=black" alt="Firebase" />
   </a>
 </p>
 
 ## 📖 About
 
-This adapter brings HyperFetch's typed request system to Firebase. Use the same `createRequest` / `.send()` patterns for
-Firestore and Realtime Database operations with typed responses, caching, queuing, and React hooks — the same API you
-use for REST.
+`@hyper-fetch/firebase` runs Firestore and Realtime Database operations through HyperFetch requests in the browser. You
+create them with `createRequest`, send them with `send()`, and get typed responses, caching, deduplication and React
+hooks, the same API you use for HTTP. Live data comes through `@hyper-fetch/sockets` listeners.
 
 ## 🎯 Key Capabilities
 
-- 🔥 **Same API for Firebase** — Use `createRequest` / `.send()` for Firestore and Realtime Database, just like REST
-- 🔮 **Typed CRUD** — `getDoc`, `addDoc`, `updateDoc`, `deleteDoc` with full TypeScript types on every field
-- 📡 **Realtime subscriptions** — Listen to document and collection changes with typed data flowing in
-- ⚛️ **React hooks for Firebase** — `useFetch` and `useSubmit` work with Firebase operations — same patterns, different
-  backend
-- 💾 **Cache and offline support** — HyperFetch's caching and offline queue work with Firebase out of the box
+- 🔥 **Firebase calls that look like the rest of your app** — `getDocs`, `addDoc`, `push`, `update` and friends are
+  regular requests with `send()`, hooks and devtools
+- 🔮 **Typed from path to payload** — Params, payloads, responses and the raw Firebase `extra` are typed per request
+- 🧭 **Queries as plain arrays** — `queryParams: [$where("type", "==", "Green"), $limit(20)]`, part of the cache key so
+  every filter is cached on its own
+- 📡 **Live data without wiring** — `onSnapshot` and `onValue` become socket listeners and `useListener` state
+- 🛡️ **Errors you can render** — Permission and index errors arrive in `response.error`; `send()` never rejects
+- 🗂️ **Clean results** — Documents and list items carry their id as `__key`, and Realtime Database lists come back as
+  ordered arrays
 
 ## 🚀 Quick Start
 
@@ -53,70 +53,88 @@ npm install @hyper-fetch/core @hyper-fetch/firebase firebase
 ```
 
 ```ts
-import { createClient } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 import { FirebaseAdapter } from "@hyper-fetch/firebase";
 import { getFirestore } from "firebase/firestore";
 
-const db = getFirestore();
-const client = createClient({ url: "" }).setAdapter(FirebaseAdapter(db));
+const client = new Client({ url: "" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+
+const getTeas = client.createRequest<{ response: Tea[] }>()({ endpoint: "teas", method: "getDocs" });
+const { data, error } = await getTeas.send();
 ```
 
 ## 📚 Documentation
 
-- [Firebase Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase)
-- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
-- [API Reference](https://hyperfetch.bettertyped.com/api/)
+- [Firebase Adapter](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/overview)
+- [Firestore](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/firestore)
+- [Realtime Database](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/realtime)
+- [Realtime listening](https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/realtime-queries)
+- [API Reference](https://hyperfetch.bettertyped.com/api/adapter-firebase/Functions/FirebaseAdapter)
 
 ## 💡 Examples
 
 ### Read a document
 
 ```ts
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+type User = { __key: string; name: string; email: string };
 
-const getUser = client.createRequest<{ response: User }>()({
-  endpoint: "/users/:userId",
+const getUser = client.createRequest<{ response: User | null }>()({
+  endpoint: "users/:userId",
   method: "getDoc",
 });
 
-const { data } = await getUser.setParams({ userId: "abc123" }).send();
-console.log(data.name, data.email);
+const { data, status } = await getUser.setParams({ userId: "abc123" }).send();
+// status is "emptyResource" and data is null when the document does not exist
+```
+
+### Query a collection
+
+```ts
+import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
+
+const getUsers = client.createRequest<{ response: User[]; queryParams?: FirestoreQueryParams }>()({
+  endpoint: "users",
+  method: "getDocs",
+});
+
+const { data: admins } = await getUsers.send({
+  queryParams: [$where("role", "==", "admin"), $orderBy("name"), $limit(20)],
+});
 ```
 
 ### Write a document
 
 ```ts
-const createUser = client.createRequest<{
-  payload: { name: string; email: string };
-  response: null;
-}>()({
-  endpoint: "/users",
+const createUser = client.createRequest<{ response: User; payload: Omit<User, "__key"> }>()({
+  endpoint: "users",
   method: "addDoc",
 });
 
-await createUser.send({ data: { name: "Jane", email: "jane@example.com" } });
+// data is the payload plus __key, the id of the new document
+const { data: created, error } = await createUser.send({ payload: { name: "Jane", email: "jane@example.com" } });
 ```
 
-### List documents
+### Listen to changes
 
 ```ts
-const listUsers = client.createRequest<{ response: User[] }>()({
-  endpoint: "/users",
-  method: "getDocs",
+import { Socket } from "@hyper-fetch/sockets";
+import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+
+const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getFirestore(app)) });
+
+const onAdmins = socket.createListener<User[]>()({
+  topic: "users",
+  options: { constraints: [$where("role", "==", "admin")] },
 });
 
-const { data: users } = await listUsers.send();
-users.forEach((user) => console.log(user.name));
+const stop = onAdmins.listen(({ data }) => console.log(data.length, "admins"));
 ```
 
-### Use with React hooks
+### Use with React
 
 ```tsx
-import { useFetch } from "@hyper-fetch/react";
+import { useFetch, useListener } from "@hyper-fetch/react";
 
 const UserProfile = ({ userId }: { userId: string }) => {
   const { data, loading } = useFetch(getUser.setParams({ userId }));
@@ -124,8 +142,13 @@ const UserProfile = ({ userId }: { userId: string }) => {
   if (loading) return <p>Loading...</p>;
   return <h1>{data?.name}</h1>;
 };
+
+const AdminCount = () => {
+  const { data } = useListener(onAdmins);
+  return <p>{data?.length ?? 0} admins</p>;
+};
 ```
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

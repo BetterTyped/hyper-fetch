@@ -14,14 +14,11 @@ export const testLifecycleEvents = async <R extends RequestInstance>(request: R)
   request.client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy4);
   request.client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
-  const response = (request as RequestInstance).send({
+  const response = await (request as RequestInstance).send({
     onBeforeSent: ({ requestId }) => {
       request.client.requestManager.events.onResponseById(requestId, spy6);
     },
   });
-
-  // eslint-disable-next-line no-promise-executor-return
-  await new Promise((resolve) => setTimeout(resolve, 50));
 
   expect(spy1).toHaveBeenCalledTimes(1);
   expect(spy2).toHaveBeenCalledTimes(1);

@@ -1,0 +1,3427 @@
+{
+	"id": 962,
+	"name": "@hyper-fetch/cli",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 963,
+			"name": "OpenapiRequestGenerator",
+			"variant": "declaration",
+			"kind": 128,
+			"flags": {},
+			"children": [
+				{
+					"id": 1041,
+					"name": "constructor",
+					"variant": "declaration",
+					"kind": 512,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 42,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L42"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1042,
+							"name": "new OpenapiRequestGenerator",
+							"variant": "signature",
+							"kind": 16384,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 42,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L42"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1043,
+									"name": "openapiDocument",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": 963,
+								"name": "OpenapiRequestGenerator",
+								"package": "@hyper-fetch/cli"
+							}
+						}
+					]
+				},
+				{
+					"id": 1045,
+					"name": "generateFile",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 46,
+							"character": 8,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L46"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1046,
+							"name": "generateFile",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 46,
+									"character": 8,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L46"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1047,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 1048,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 1049,
+													"name": "config",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 46,
+															"character": 45,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L46"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 1050,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"children": [
+																{
+																	"id": 1052,
+																	"name": "aliases",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 5,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L5"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 1053,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 1054,
+																					"name": "api",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 6,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L6"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1057,
+																					"name": "components",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 9,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L9"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1055,
+																					"name": "hooks",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 7,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L7"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1058,
+																					"name": "lib",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 10,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L10"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1056,
+																					"name": "ui",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 8,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L8"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"children": [
+																						1054,
+																						1057,
+																						1055,
+																						1058,
+																						1056
+																					]
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																					"line": 51,
+																					"character": 26
+																				}
+																			]
+																		}
+																	},
+																	"defaultValue": "..."
+																},
+																{
+																	"id": 1059,
+																	"name": "resolvedPaths",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 12,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L12"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 1060,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 1062,
+																					"name": "api",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 14,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L14"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1065,
+																					"name": "components",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 17,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L17"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1061,
+																					"name": "cwd",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 13,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L13"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1063,
+																					"name": "hooks",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 15,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L15"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1066,
+																					"name": "lib",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 18,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L18"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 1064,
+																					"name": "ui",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 16,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L16"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"children": [
+																						1062,
+																						1065,
+																						1061,
+																						1063,
+																						1066,
+																						1064
+																					]
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																					"line": 51,
+																					"character": 26
+																				}
+																			]
+																		}
+																	},
+																	"defaultValue": "..."
+																},
+																{
+																	"id": 1051,
+																	"name": "tsx",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 4,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L4"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "boolean"
+																	},
+																	"defaultValue": "..."
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		1052,
+																		1059,
+																		1051
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																	"line": 51,
+																	"character": 26
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 1067,
+													"name": "fileName",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 46,
+															"character": 61,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L46"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														1049,
+														1067
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 46,
+													"character": 43,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L46"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				},
+				{
+					"id": 1068,
+					"name": "generateRequestsFromSchema",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 107,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L107"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1069,
+							"name": "generateRequestsFromSchema",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 107,
+									"character": 31,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L107"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 1070,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 1074,
+													"name": "createSdkFn",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 157,
+															"character": 53,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L157"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1072,
+													"name": "generatedTypes",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 157,
+															"character": 26,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L157"
+														}
+													],
+													"type": {
+														"type": "array",
+														"elementType": {
+															"type": "intrinsic",
+															"name": "string"
+														}
+													}
+												},
+												{
+													"id": 1071,
+													"name": "schemaTypes",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 157,
+															"character": 13,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L157"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1073,
+													"name": "sdkSchema",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 157,
+															"character": 42,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L157"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														1074,
+														1072,
+														1071,
+														1073
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 157,
+													"character": 11,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L157"
+												}
+											]
+										}
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				},
+				{
+					"id": 995,
+					"name": "generateHyperFetchRequest",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 191,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L191"
+						}
+					],
+					"signatures": [
+						{
+							"id": 996,
+							"name": "generateHyperFetchRequest",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 191,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L191"
+								}
+							],
+							"parameters": [
+								{
+									"id": 997,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 998,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 999,
+													"name": "id",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 197,
+															"character": 9,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L197"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1001,
+													"name": "method",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 197,
+															"character": 35,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L197"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1000,
+													"name": "path",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 197,
+															"character": 21,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L197"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1002,
+													"name": "queryParamsRequired",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 197,
+															"character": 51,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L197"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														999,
+														1001,
+														1000,
+														1002
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 197,
+													"character": 7,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L197"
+												}
+											]
+										}
+									}
+								},
+								{
+									"id": 1003,
+									"name": "types",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+											"qualifiedName": "Record"
+										},
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "string"
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										],
+										"name": "Record",
+										"package": "typescript"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					]
+				},
+				{
+					"id": 1014,
+					"name": "generateMethodMetadata",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 277,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L277"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1015,
+							"name": "generateMethodMetadata",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 277,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L277"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1016,
+									"name": "operation",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "intersection",
+										"types": [
+											{
+												"type": "reflection",
+												"declaration": {
+													"id": 1017,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"children": [
+														{
+															"id": 1020,
+															"name": "method",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+																	"line": 278,
+																	"character": 53,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L278"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															}
+														},
+														{
+															"id": 1018,
+															"name": "operationId",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {
+																"isOptional": true
+															},
+															"sources": [
+																{
+																	"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+																	"line": 278,
+																	"character": 17,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L278"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															}
+														},
+														{
+															"id": 1019,
+															"name": "path",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+																	"line": 278,
+																	"character": 39,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L278"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															}
+														}
+													],
+													"groups": [
+														{
+															"title": "Properties",
+															"children": [
+																1020,
+																1018,
+																1019
+															]
+														}
+													],
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 278,
+															"character": 15,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L278"
+														}
+													]
+												}
+											},
+											{
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "Partial"
+												},
+												"typeArguments": [
+													{
+														"type": "reference",
+														"target": {
+															"sourceFileName": "../packages/cli/src/codegen/openapi/openapi.types.ts",
+															"qualifiedName": "Operation"
+														},
+														"name": "Operation",
+														"package": "@hyper-fetch/cli"
+													}
+												],
+												"name": "Partial",
+												"package": "typescript"
+											}
+										]
+									}
+								},
+								{
+									"id": 1021,
+									"name": "exportTypes",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../node_modules/.pnpm/@anttiviljami+dtsgenerator@3.20.0_encoding@0.1.13/node_modules/@anttiviljami/dtsgenerator/dist/core/dtsGenerator.d.ts",
+												"qualifiedName": "ExportedType"
+											},
+											"name": "ExportedType",
+											"package": "@anttiviljami/dtsgenerator"
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 1022,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 1027,
+											"name": "errorType",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 329,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L329"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 1023,
+											"name": "id",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 325,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L325"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 1030,
+											"name": "method",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 332,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L332"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											},
+											"defaultValue": "..."
+										},
+										{
+											"id": 1029,
+											"name": "path",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 331,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L331"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											},
+											"defaultValue": "..."
+										},
+										{
+											"id": 1024,
+											"name": "pathParametersType",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 326,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L326"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "string"
+													}
+												]
+											}
+										},
+										{
+											"id": 1025,
+											"name": "queryParametersType",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 327,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L327"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "string"
+													}
+												]
+											}
+										},
+										{
+											"id": 1031,
+											"name": "queryParamsRequired",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 333,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L333"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										},
+										{
+											"id": 1026,
+											"name": "requestBodyType",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 328,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L328"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "undefined"
+													},
+													{
+														"type": "intrinsic",
+														"name": "string"
+													}
+												]
+											}
+										},
+										{
+											"id": 1028,
+											"name": "responseType",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 330,
+													"character": 6,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L330"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												1027,
+												1023,
+												1030,
+												1029,
+												1024,
+												1025,
+												1031,
+												1026,
+												1028
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+											"line": 324,
+											"character": 11,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L324"
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"id": 987,
+					"name": "generateRequestModelType",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 160,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L160"
+						}
+					],
+					"signatures": [
+						{
+							"id": 988,
+							"name": "generateRequestModelType",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 160,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L160"
+								}
+							],
+							"parameters": [
+								{
+									"id": 989,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 990,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 991,
+													"name": "id",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 161,
+															"character": 51,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L161"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 992,
+													"name": "path",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 161,
+															"character": 63,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L161"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 993,
+													"name": "queryParamsRequired",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {
+														"isOptional": true
+													},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 161,
+															"character": 77,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L161"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "boolean"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														991,
+														992,
+														993
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 161,
+													"character": 49,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L161"
+												}
+											]
+										}
+									}
+								},
+								{
+									"id": 994,
+									"name": "types",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+											"qualifiedName": "Record"
+										},
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "string"
+											},
+											{
+												"type": "intrinsic",
+												"name": "string"
+											}
+										],
+										"name": "Record",
+										"package": "typescript"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					]
+				},
+				{
+					"id": 1004,
+					"name": "generateTypes",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 242,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L242"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1005,
+							"name": "generateTypes",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 242,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L242"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1006,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 1007,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 1012,
+													"name": "errorType",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 254,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L254"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1008,
+													"name": "id",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 250,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L250"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 1009,
+													"name": "pathParametersType",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 251,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L251"
+														}
+													],
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "intrinsic",
+																"name": "undefined"
+															},
+															{
+																"type": "intrinsic",
+																"name": "string"
+															}
+														]
+													}
+												},
+												{
+													"id": 1010,
+													"name": "queryParametersType",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 252,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L252"
+														}
+													],
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "intrinsic",
+																"name": "undefined"
+															},
+															{
+																"type": "intrinsic",
+																"name": "string"
+															}
+														]
+													}
+												},
+												{
+													"id": 1011,
+													"name": "requestBodyType",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 253,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L253"
+														}
+													],
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "intrinsic",
+																"name": "undefined"
+															},
+															{
+																"type": "intrinsic",
+																"name": "string"
+															}
+														]
+													}
+												},
+												{
+													"id": 1013,
+													"name": "responseType",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 255,
+															"character": 4,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L255"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														1012,
+														1008,
+														1009,
+														1010,
+														1011,
+														1013
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 249,
+													"character": 5,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L249"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../packages/cli/src/codegen/openapi/openapi.types.ts",
+									"qualifiedName": "GeneratedTypes"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									}
+								],
+								"name": "GeneratedTypes",
+								"package": "@hyper-fetch/cli"
+							}
+						}
+					]
+				},
+				{
+					"id": 964,
+					"name": "getSchemaFromUrl",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 89,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L89"
+						}
+					],
+					"signatures": [
+						{
+							"id": 965,
+							"name": "getSchemaFromUrl",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 89,
+									"character": 28,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L89"
+								}
+							],
+							"parameters": [
+								{
+									"id": 966,
+									"name": "__namedParameters",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 967,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 969,
+													"name": "config",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 89,
+															"character": 67,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L89"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 970,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"children": [
+																{
+																	"id": 972,
+																	"name": "aliases",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 5,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L5"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 973,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 974,
+																					"name": "api",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 6,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L6"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 977,
+																					"name": "components",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 9,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L9"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 975,
+																					"name": "hooks",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 7,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L7"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 978,
+																					"name": "lib",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 10,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L10"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 976,
+																					"name": "ui",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 8,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L8"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"children": [
+																						974,
+																						977,
+																						975,
+																						978,
+																						976
+																					]
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																					"line": 51,
+																					"character": 26
+																				}
+																			]
+																		}
+																	},
+																	"defaultValue": "..."
+																},
+																{
+																	"id": 979,
+																	"name": "resolvedPaths",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 12,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L12"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 980,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 982,
+																					"name": "api",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 14,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L14"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 985,
+																					"name": "components",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 17,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L17"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 981,
+																					"name": "cwd",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 13,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L13"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 983,
+																					"name": "hooks",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 15,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L15"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 986,
+																					"name": "lib",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 18,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L18"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 984,
+																					"name": "ui",
+																					"variant": "declaration",
+																					"kind": 1024,
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "packages/cli/src/config/schema.ts",
+																							"line": 16,
+																							"character": 4,
+																							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L16"
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"children": [
+																						982,
+																						985,
+																						981,
+																						983,
+																						986,
+																						984
+																					]
+																				}
+																			],
+																			"sources": [
+																				{
+																					"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																					"line": 51,
+																					"character": 26
+																				}
+																			]
+																		}
+																	},
+																	"defaultValue": "..."
+																},
+																{
+																	"id": 971,
+																	"name": "tsx",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "packages/cli/src/config/schema.ts",
+																			"line": 4,
+																			"character": 2,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/config/schema.ts#L4"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "boolean"
+																	},
+																	"defaultValue": "..."
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		972,
+																		979,
+																		971
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+																	"line": 51,
+																	"character": 26
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 968,
+													"name": "url",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 89,
+															"character": 54,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L89"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														969,
+														968
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 89,
+													"character": 52,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L89"
+												}
+											]
+										}
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				},
+				{
+					"id": 1035,
+					"name": "prepareSchema",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 369,
+							"character": 15,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L369"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1036,
+							"name": "prepareSchema",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 369,
+									"character": 15,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L369"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1037,
+									"name": "openapiDocument",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../packages/cli/src/codegen/openapi/openapi.types.ts",
+											"qualifiedName": "Document"
+										},
+										"name": "Document",
+										"package": "@hyper-fetch/cli"
+									}
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/typescript@5.2.2/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Promise"
+								},
+								"typeArguments": [
+									{
+										"type": "reflection",
+										"declaration": {
+											"id": 1038,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 1040,
+													"name": "exportedTypes",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 378,
+															"character": 26,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L378"
+														}
+													],
+													"type": {
+														"type": "array",
+														"elementType": {
+															"type": "reference",
+															"target": {
+																"sourceFileName": "../node_modules/.pnpm/@anttiviljami+dtsgenerator@3.20.0_encoding@0.1.13/node_modules/@anttiviljami/dtsgenerator/dist/core/dtsGenerator.d.ts",
+																"qualifiedName": "ExportedType"
+															},
+															"name": "ExportedType",
+															"package": "@anttiviljami/dtsgenerator"
+														}
+													}
+												},
+												{
+													"id": 1039,
+													"name": "schemaTypes",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+															"line": 378,
+															"character": 13,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L378"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														1040,
+														1039
+													]
+												}
+											],
+											"sources": [
+												{
+													"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+													"line": 378,
+													"character": 11,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L378"
+												}
+											]
+										}
+									}
+								],
+								"name": "Promise",
+								"package": "typescript"
+							}
+						}
+					]
+				},
+				{
+					"id": 1032,
+					"name": "validateSchema",
+					"variant": "declaration",
+					"kind": 2048,
+					"flags": {
+						"isStatic": true
+					},
+					"sources": [
+						{
+							"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+							"line": 337,
+							"character": 9,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L337"
+						}
+					],
+					"signatures": [
+						{
+							"id": 1033,
+							"name": "validateSchema",
+							"variant": "signature",
+							"kind": 4096,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+									"line": 337,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L337"
+								}
+							],
+							"parameters": [
+								{
+									"id": 1034,
+									"name": "openapiDocument",
+									"variant": "param",
+									"kind": 32768,
+									"flags": {},
+									"type": {
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../packages/cli/src/codegen/openapi/openapi.types.ts",
+											"qualifiedName": "Document"
+										},
+										"name": "Document",
+										"package": "@hyper-fetch/cli"
+									}
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "void"
+							}
+						}
+					]
+				}
+			],
+			"groups": [
+				{
+					"title": "Constructors",
+					"children": [
+						1041
+					]
+				},
+				{
+					"title": "Methods",
+					"children": [
+						1045,
+						1068,
+						995,
+						1014,
+						987,
+						1004,
+						964,
+						1035,
+						1032
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "packages/cli/src/codegen/openapi/generator.ts",
+					"line": 40,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/cli/src/codegen/openapi/generator.ts#L40"
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Classes",
+			"children": [
+				963
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/cli",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🪄 Hyper Fetch CLI\n\n<p align=\"center\">\n  <b>Generate typed API clients from OpenAPI/Swagger schemas. Your SDK is one command away.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://bettertyped.com/\">\n    <img src=\"https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/cli\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/cli.svg?logo=npm&color=e76f51\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/cli\">\n    <img src=\"https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/cli?logoColor=fff&logo=trending-up\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/badge/openapi-green?logo=openapiinitiative&logoColor=white\" alt=\"OpenAPI\" />\n  </a>\n</p>\n\n## 📖 About\n\nThe HyperFetch CLI reads your OpenAPI 3.x schema and generates a complete, fully typed SDK built on "
+		},
+		{
+			"kind": "code",
+			"text": "`@hyper-fetch/core`"
+		},
+		{
+			"kind": "text",
+			"text": ".\nEvery endpoint with an "
+		},
+		{
+			"kind": "code",
+			"text": "`operationId`"
+		},
+		{
+			"kind": "text",
+			"text": " becomes a typed request — params, payloads, query params, and response types are\nall extracted from the schema. The generated code is standard HyperFetch you can customize freely.\n\n## 🎯 Key Capabilities\n\n- 🪄 **One command, full SDK** — Point at an OpenAPI schema and get a complete typed client\n- 🔮 **Types extracted from your schema** — Params, payloads, query params, and responses — you write none of them\n- 🔓 **No lock-in** — Generated code is standard "
+		},
+		{
+			"kind": "code",
+			"text": "`@hyper-fetch/core`"
+		},
+		{
+			"kind": "text",
+			"text": " you can customize, extend, and override\n- 📡 **Remote or local schemas** — Pass a URL or a local "
+		},
+		{
+			"kind": "code",
+			"text": "`.json`"
+		},
+		{
+			"kind": "text",
+			"text": " file path\n- 🧭 **Interactive mode** — Run without flags and the CLI walks you through every option\n- ✏️ **Your code, your rules** — Edit the generated client, add auth, override individual requests\n\n## 🚀 Quick Start\n\n### 1. Initialize your project\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\n# Creates api.json config and the api/ directory structure\nnpx @hyper-fetch/cli init\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nThis creates an "
+		},
+		{
+			"kind": "code",
+			"text": "`api.json`"
+		},
+		{
+			"kind": "text",
+			"text": " config file at your project root and sets up the output directory (default: "
+		},
+		{
+			"kind": "code",
+			"text": "`src/api/`"
+		},
+		{
+			"kind": "text",
+			"text": ").\n\n### 2. Generate your SDK\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\n# Generate from a remote OpenAPI schema\nnpx @hyper-fetch/cli generate --url https://api.example.com/openapi.json\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### 3. Use the generated SDK\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { sdk } from \"./src/api/api-openapi.sdk\";\n\n// Every endpoint is typed — params, payloads, and responses\nconst { data } = await sdk.users.list.send();\nconst { data: user } = await sdk.users.get.setParams({ userId: 1 }).send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📋 Commands\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`init`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nSets up the project directory structure and creates the "
+		},
+		{
+			"kind": "code",
+			"text": "`api.json`"
+		},
+		{
+			"kind": "text",
+			"text": " config file.\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpx @hyper-fetch/cli init\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n| Flag                 | Description                                        |\n| -------------------- | -------------------------------------------------- |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-y`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--yes`"
+		},
+		{
+			"kind": "text",
+			"text": "        | Skip prompts and use defaults ("
+		},
+		{
+			"kind": "code",
+			"text": "`src/api/`"
+		},
+		{
+			"kind": "text",
+			"text": ")         |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-c`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--cwd <path>`"
+		},
+		{
+			"kind": "text",
+			"text": " | Set working directory (default: current directory) |\n\nWithout "
+		},
+		{
+			"kind": "code",
+			"text": "`--yes`"
+		},
+		{
+			"kind": "text",
+			"text": ", you'll be asked to choose:\n\n- **Main directory** — "
+		},
+		{
+			"kind": "code",
+			"text": "`src`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`app`"
+		},
+		{
+			"kind": "text",
+			"text": ", or a custom path\n- **API subdirectory** — name of the folder for generated files (default: "
+		},
+		{
+			"kind": "code",
+			"text": "`api`"
+		},
+		{
+			"kind": "text",
+			"text": ")\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`generate`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nReads an OpenAPI schema and generates a typed SDK file.\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpx @hyper-fetch/cli generate --url <schema> [options]\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n| Flag                      | Description                                                       |\n| ------------------------- | ----------------------------------------------------------------- |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-u`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--url <url>`"
+		},
+		{
+			"kind": "text",
+			"text": "       | Schema source — a URL or local file path (relative to cwd)        |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-t`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--template <type>`"
+		},
+		{
+			"kind": "text",
+			"text": " | Schema type: "
+		},
+		{
+			"kind": "code",
+			"text": "`openapi`"
+		},
+		{
+			"kind": "text",
+			"text": " or "
+		},
+		{
+			"kind": "code",
+			"text": "`swagger`"
+		},
+		{
+			"kind": "text",
+			"text": " (default: interactive prompt) |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-f`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--fileName <name>`"
+		},
+		{
+			"kind": "text",
+			"text": " | Output filename (default: "
+		},
+		{
+			"kind": "code",
+			"text": "`api-openapi.sdk.ts`"
+		},
+		{
+			"kind": "text",
+			"text": ")                   |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-o`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--overwrite`"
+		},
+		{
+			"kind": "text",
+			"text": "       | Overwrite existing file without asking                            |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`-c`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`--cwd <path>`"
+		},
+		{
+			"kind": "text",
+			"text": "      | Set working directory (default: current directory)                |\n\nWithout flags, the CLI runs in **interactive mode** — it prompts for every option.\n\n## ⚙️ Configuration — "
+		},
+		{
+			"kind": "code",
+			"text": "`api.json`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nThe "
+		},
+		{
+			"kind": "code",
+			"text": "`init`"
+		},
+		{
+			"kind": "text",
+			"text": " command creates an "
+		},
+		{
+			"kind": "code",
+			"text": "`api.json`"
+		},
+		{
+			"kind": "text",
+			"text": " file at your project root. This is the only config file the CLI uses.\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```json\n{\n  \"tsx\": true,\n  \"aliases\": {\n    \"api\": \"@/api\",\n    \"hooks\": \"@/hooks\",\n    \"ui\": \"@/ui\",\n    \"components\": \"@/components\",\n    \"lib\": \"@/lib\"\n  }\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n| Field     | Description                                                                                   |\n| --------- | --------------------------------------------------------------------------------------------- |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`tsx`"
+		},
+		{
+			"kind": "text",
+			"text": "     | When "
+		},
+		{
+			"kind": "code",
+			"text": "`true`"
+		},
+		{
+			"kind": "text",
+			"text": ", generates "
+		},
+		{
+			"kind": "code",
+			"text": "`.ts`"
+		},
+		{
+			"kind": "text",
+			"text": " files. When "
+		},
+		{
+			"kind": "code",
+			"text": "`false`"
+		},
+		{
+			"kind": "text",
+			"text": ", generates "
+		},
+		{
+			"kind": "code",
+			"text": "`.js`"
+		},
+		{
+			"kind": "text",
+			"text": "                             |\n| "
+		},
+		{
+			"kind": "code",
+			"text": "`aliases`"
+		},
+		{
+			"kind": "text",
+			"text": " | Path aliases resolved from your "
+		},
+		{
+			"kind": "code",
+			"text": "`tsconfig.json`"
+		},
+		{
+			"kind": "text",
+			"text": " paths. Controls where the SDK file is written |\n\nThe CLI auto-detects your "
+		},
+		{
+			"kind": "code",
+			"text": "`tsconfig.json`"
+		},
+		{
+			"kind": "text",
+			"text": " path aliases (e.g. "
+		},
+		{
+			"kind": "code",
+			"text": "`@/*`"
+		},
+		{
+			"kind": "text",
+			"text": " → "
+		},
+		{
+			"kind": "code",
+			"text": "`./src/*`"
+		},
+		{
+			"kind": "text",
+			"text": ") to resolve output directories.\n\n## 📁 Generated Output\n\nThe CLI generates a **single TypeScript file** under your configured API directory:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```\nsrc/\n  api/\n    api-openapi.sdk.ts    ← generated SDK file\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nThe generated file contains:\n\n1. **Schema types** — TypeScript interfaces for every schema component\n2. **Typed requests** — One "
+		},
+		{
+			"kind": "code",
+			"text": "`createRequest`"
+		},
+		{
+			"kind": "text",
+			"text": " call per endpoint (with "
+		},
+		{
+			"kind": "code",
+			"text": "`operationId`"
+		},
+		{
+			"kind": "text",
+			"text": ")\n3. **SDK tree** — Nested object mirroring your API paths: "
+		},
+		{
+			"kind": "code",
+			"text": "`sdk.users.get`"
+		},
+		{
+			"kind": "text",
+			"text": ", "
+		},
+		{
+			"kind": "code",
+			"text": "`sdk.posts.list`"
+		},
+		{
+			"kind": "text",
+			"text": ", etc.\n4. **"
+		},
+		{
+			"kind": "code",
+			"text": "`createSdk`"
+		},
+		{
+			"kind": "text",
+			"text": " function** — Factory to create the SDK with your custom client\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// What gets generated (simplified)\nimport { createSdk as coreCreateSdk } from \"@hyper-fetch/core\";\nimport type { ClientInstance, RequestModel } from \"@hyper-fetch/core\";\n\n// Schema types extracted from your OpenAPI document\nexport interface Components {\n  schemas: {\n    User: { id: number; name: string; email: string };\n    // ... all your schema types\n  };\n}\n\n// Request model for each endpoint with operationId\nexport type SdkSchema = {\n  users: {\n    $get: RequestModel<{ response: Components[\"schemas\"][\"User\"][]; endpoint: \"/users\" }>;\n  };\n};\n\n// SDK tree you import and use\nexport const createSdk = <Client extends ClientInstance>(client: Client) =>\n  coreCreateSdk<Client, SdkSchema>(client);\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## ⚠️ Important Notes\n\n- **"
+		},
+		{
+			"kind": "code",
+			"text": "`operationId`"
+		},
+		{
+			"kind": "text",
+			"text": " is required** — Only endpoints with an "
+		},
+		{
+			"kind": "code",
+			"text": "`operationId`"
+		},
+		{
+			"kind": "text",
+			"text": " in the schema are included. Endpoints without one\n  are silently skipped.\n- **JSON schemas only for local files** — Local file paths must point to "
+		},
+		{
+			"kind": "code",
+			"text": "`.json`"
+		},
+		{
+			"kind": "text",
+			"text": " files. YAML is not supported for local\n  files.\n- **Remote schemas are fetched with GET** — No auth headers are sent. If your schema requires authentication, download\n  it locally first and pass the file path.\n- **Path params are converted** — "
+		},
+		{
+			"kind": "code",
+			"text": "`{userId}`"
+		},
+		{
+			"kind": "text",
+			"text": " in OpenAPI becomes "
+		},
+		{
+			"kind": "code",
+			"text": "`:userId`"
+		},
+		{
+			"kind": "text",
+			"text": " in HyperFetch endpoints.\n- **Path segments are camelCased** — Kebab-case path segments become camelCase keys in the SDK tree. "
+		},
+		{
+			"kind": "code",
+			"text": "`{param}`"
+		},
+		{
+			"kind": "text",
+			"text": " segments\n  become "
+		},
+		{
+			"kind": "code",
+			"text": "`$param`"
+		},
+		{
+			"kind": "text",
+			"text": ".\n\n## 📚 Documentation\n\n- [Generate Command](https://hyperfetch.bettertyped.com/docs/cli/commands/generate)\n- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)\n- [API Reference](https://hyperfetch.bettertyped.com/api/)\n\n## 💡 Examples\n\n### Generate from a remote schema\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\n# OpenAPI 3.x schema from a URL\nnpx @hyper-fetch/cli generate --url https://petstore3.swagger.io/api/v3/openapi.json\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Generate from a local file\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\n# Local JSON file relative to your project root\nnpx @hyper-fetch/cli generate --url ./schemas/openapi.json --fileName my-api.sdk.ts\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Skip all prompts (CI/scripts)\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\n# Non-interactive: all flags provided, overwrite existing file\nnpx @hyper-fetch/cli generate \\\n  --url https://api.example.com/openapi.json \\\n  --template openapi \\\n  --fileName api.sdk.ts \\\n  --overwrite\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Use the generated SDK\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { createSdk } from \"./src/api/api-openapi.sdk\";\nimport { createClient } from \"@hyper-fetch/core\";\n\n// Create your client with any configuration you need\nconst client = createClient({ url: \"https://api.example.com\" });\n\n// Create the typed SDK from your client\nconst sdk = createSdk(client);\n\n// Every method is fully typed — params, payloads, and responses\nconst { data: users } = await sdk.users.list.send();\nconst { data: user } = await sdk.users.get.setParams({ userId: 1 }).send();\nconst { data: newUser } = await sdk.pets.create.send({\n  payload: { name: \"Buddy\", species: \"dog\" },\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Add authentication to the generated client\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { createSdk } from \"./src/api/api-openapi.sdk\";\nimport { createClient } from \"@hyper-fetch/core\";\n\nconst client = createClient({ url: \"https://api.example.com\" });\nconst sdk = createSdk(client);\n\n// Add auth header to every request through the client\nclient.onAuth((request) => {\n  return request.setHeaders({ Authorization: `Bearer ${getToken()}` });\n});\n\n// All SDK requests now include the auth header automatically\nconst { data } = await sdk.users.me.send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Programmatic usage (no CLI)\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { OpenapiRequestGenerator } from \"@hyper-fetch/cli\";\n\n// Use the generator directly in scripts or build tools\nconst schema = await OpenapiRequestGenerator.getSchemaFromUrl(url, config);\nconst generator = new OpenapiRequestGenerator(schema, config);\nconst output = await generator.generateFile(fileName);\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## Disclaimer\n\nThis package is inspired by [openapi-client-axios](https://www.npmjs.com/package/openapi-client-axios).\n\n## License\n\n[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"962": {
+			"sourceFileName": "../packages/cli/src/index.ts",
+			"qualifiedName": ""
+		},
+		"963": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator"
+		},
+		"964": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.getSchemaFromUrl"
+		},
+		"965": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.getSchemaFromUrl"
+		},
+		"966": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__0"
+		},
+		"967": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"968": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.url"
+		},
+		"969": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.config"
+		},
+		"970": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"971": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "tsx"
+		},
+		"972": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "aliases"
+		},
+		"973": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"974": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "api"
+		},
+		"975": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "hooks"
+		},
+		"976": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "ui"
+		},
+		"977": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "components"
+		},
+		"978": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "lib"
+		},
+		"979": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "resolvedPaths"
+		},
+		"980": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"981": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "cwd"
+		},
+		"982": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "api"
+		},
+		"983": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "hooks"
+		},
+		"984": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "ui"
+		},
+		"985": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "components"
+		},
+		"986": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "lib"
+		},
+		"987": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateRequestModelType"
+		},
+		"988": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateRequestModelType"
+		},
+		"989": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__0"
+		},
+		"990": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"991": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.id"
+		},
+		"992": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.path"
+		},
+		"993": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.queryParamsRequired"
+		},
+		"994": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "types"
+		},
+		"995": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateHyperFetchRequest"
+		},
+		"996": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateHyperFetchRequest"
+		},
+		"997": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__0"
+		},
+		"998": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"999": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.id"
+		},
+		"1000": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.path"
+		},
+		"1001": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.method"
+		},
+		"1002": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.queryParamsRequired"
+		},
+		"1003": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "types"
+		},
+		"1004": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateTypes"
+		},
+		"1005": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateTypes"
+		},
+		"1006": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__0"
+		},
+		"1007": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"1008": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.id"
+		},
+		"1009": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.pathParametersType"
+		},
+		"1010": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.queryParametersType"
+		},
+		"1011": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.requestBodyType"
+		},
+		"1012": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.errorType"
+		},
+		"1013": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.responseType"
+		},
+		"1014": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateMethodMetadata"
+		},
+		"1015": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateMethodMetadata"
+		},
+		"1016": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "operation"
+		},
+		"1017": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"1018": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.operationId"
+		},
+		"1019": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.path"
+		},
+		"1020": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.method"
+		},
+		"1021": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "exportTypes"
+		},
+		"1022": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object"
+		},
+		"1023": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.id"
+		},
+		"1024": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.pathParametersType"
+		},
+		"1025": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.queryParametersType"
+		},
+		"1026": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.requestBodyType"
+		},
+		"1027": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.errorType"
+		},
+		"1028": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.responseType"
+		},
+		"1029": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.path"
+		},
+		"1030": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.method"
+		},
+		"1031": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.queryParamsRequired"
+		},
+		"1032": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.validateSchema"
+		},
+		"1033": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.validateSchema"
+		},
+		"1034": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "openapiDocument"
+		},
+		"1035": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.prepareSchema"
+		},
+		"1036": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.prepareSchema"
+		},
+		"1037": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "openapiDocument"
+		},
+		"1038": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object"
+		},
+		"1039": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.schemaTypes"
+		},
+		"1040": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.exportedTypes"
+		},
+		"1041": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.__constructor"
+		},
+		"1042": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator"
+		},
+		"1043": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "openapiDocument"
+		},
+		"1045": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateFile"
+		},
+		"1046": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateFile"
+		},
+		"1047": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__0"
+		},
+		"1048": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type"
+		},
+		"1049": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.config"
+		},
+		"1050": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"1051": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "tsx"
+		},
+		"1052": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "aliases"
+		},
+		"1053": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"1054": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "api"
+		},
+		"1055": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "hooks"
+		},
+		"1056": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "ui"
+		},
+		"1057": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "components"
+		},
+		"1058": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "lib"
+		},
+		"1059": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "resolvedPaths"
+		},
+		"1060": {
+			"sourceFileName": "../node_modules/.pnpm/zod@4.4.1/node_modules/zod/v4/core/util.d.cts",
+			"qualifiedName": "__type"
+		},
+		"1061": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "cwd"
+		},
+		"1062": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "api"
+		},
+		"1063": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "hooks"
+		},
+		"1064": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "ui"
+		},
+		"1065": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "components"
+		},
+		"1066": {
+			"sourceFileName": "../packages/cli/src/config/schema.ts",
+			"qualifiedName": "lib"
+		},
+		"1067": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__type.fileName"
+		},
+		"1068": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateRequestsFromSchema"
+		},
+		"1069": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "OpenapiRequestGenerator.generateRequestsFromSchema"
+		},
+		"1070": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object"
+		},
+		"1071": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.schemaTypes"
+		},
+		"1072": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.generatedTypes"
+		},
+		"1073": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.sdkSchema"
+		},
+		"1074": {
+			"sourceFileName": "../packages/cli/src/codegen/openapi/generator.ts",
+			"qualifiedName": "__object.createSdkFn"
+		}
+	}
+}

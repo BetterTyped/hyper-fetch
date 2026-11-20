@@ -152,6 +152,37 @@ describe("useFetch [ Retry ]", () => {
       expect(result.current.loading).toBeTrue();
       expect(result.current.fetching).toBe(1);
     });
+    it("should stay loading while waiting for the retry", async () => {
+      const { result } = renderRetry(1);
+      await advance();
+      await failAttempt(0);
+      await advance(retryTime / 2);
+
+      // The failed attempt is not the result yet - another one is scheduled
+      expect(result.current.loading).toBeTrue();
+      expect(result.current.error).toBe("Attempt 1 failed");
+      expect(calls).toHaveLength(1);
+    });
+    it("should stop loading when the retry waiting for its turn is aborted", async () => {
+      const request = createRequest<Data>({ retry: 3, retryTime });
+      calls = gateRequest(request);
+      const { result } = renderHook(() => {
+        const { loading, abort } = useFetch(request);
+        return { loading, abort };
+      });
+      await advance();
+      await failAttempt(0);
+      await advance(retryTime / 2);
+      expect(result.current.loading).toBeTrue();
+
+      act(() => {
+        result.current.abort();
+      });
+      await advance(retryTime * 3);
+
+      expect(result.current.loading).toBeFalse();
+      expect(calls).toHaveLength(1);
+    });
     it("should end with the last error", async () => {
       const { result } = renderRetry(1);
       await advance();

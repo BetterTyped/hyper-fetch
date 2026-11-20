@@ -15,20 +15,20 @@ export const applyRealtimeAdminConstraint = (ref: Query, { type, values }: Realt
       return ref.orderByValue();
     }
     case SharedQueryConstraints.START_AT: {
-      const [[value]] = values;
-      return ref.startAt(value);
+      const [[value, key]] = values;
+      return ref.startAt(value, key);
     }
     case SharedQueryConstraints.START_AFTER: {
-      const [[value]] = values;
-      return ref.startAfter(value);
+      const [[value, key]] = values;
+      return ref.startAfter(value, key);
     }
     case SharedQueryConstraints.END_AT: {
-      const [[value]] = values;
-      return ref.endAt(value);
+      const [[value, key]] = values;
+      return ref.endAt(value, key);
     }
     case SharedQueryConstraints.END_BEFORE: {
-      const [[value]] = values;
-      return ref.endBefore(value);
+      const [[value, key]] = values;
+      return ref.endBefore(value, key);
     }
     case RealtimeQueryConstraints.LIMIT_TO_FIRST: {
       const [value] = values;

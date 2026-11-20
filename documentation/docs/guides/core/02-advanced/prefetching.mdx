@@ -33,8 +33,10 @@ data-fetching lifecycle, including:
 2.  Receiving the response.
 3.  **Storing the response in the cache.**
 
-Later, when a component or part of your application logic needs this data, executing the same request again will make
-Hyper Fetch find it in the cache and deliver it instantly.
+Later, when a component or part of your application logic needs this data, it reads it from the cache: `useFetch` from
+`@hyper-fetch/react` renders the cached data right away and skips the network while it is fresh, and in core you read it
+with `request.read()` or `send({ cachePolicy: "cache-first" })`. A plain `send()` always goes to the network, its
+default `cachePolicy` is `"network-only"`.
 
 ---
 
@@ -46,22 +48,20 @@ you might prefetch a list of items for a dashboard page as soon as the user logs
 Let's say we have a request to fetch a list of users.
 
 ```ts
-// highlight-next-line
-// Note: All examples on this page are live and executable.
-// highlight-next-line
-// We will use mock data to show you the result of the request.
-const getUsers = client.createRequest()({
+const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
   method: "GET",
   endpoint: "/users",
-  options: {
-    mock: {
-      data: [
-        { id: 1, name: "John" },
-        { id: 2, name: "Jane" },
-      ],
-    },
-  },
 });
+
+// highlight-next-line
+// We use a mock to show you the result of the request.
+getUsers.setMock(() => ({
+  data: [
+    { id: 1, name: "John" },
+    { id: 2, name: "Jane" },
+  ],
+  status: 200,
+}));
 ```
 
 To prefetch this data, you just need to call `.send()` on the request instance at an appropriate time in your
@@ -77,8 +77,8 @@ getUsers.send({
 });
 ```
 
-> After executing, the data is stored in the cache. Subsequent calls to the `getUsers` request will retrieve the data
-> from the cache instantly, as long as it hasn't been invalidated.
+> After executing, the data is stored in the cache. Reading it later with `getUsers.read()`,
+> `getUsers.send({ cachePolicy: "cache-first" })` or `useFetch(getUsers)` returns it instantly.
 
 ---
 
@@ -90,19 +90,17 @@ This is where prefetching truly shines, as it can make UI transitions feel seaml
 Consider a request that fetches details for a specific user by their ID.
 
 ```ts
-// highlight-next-line
-// Note: All examples on this page are live and executable.
-// highlight-next-line
-// We will use mock data to show you the result of the request.
-const getUser = client.createRequest()({
+const getUser = client.createRequest<{ response: { id: number; name: string } }>()({
   method: "GET",
   endpoint: "/users/:userId",
-  options: {
-    mock: ({ params }) => ({
-      data: { id: params.userId, name: `User ${params.userId}` },
-    }),
-  },
 });
+
+// highlight-next-line
+// We use a mock to show you the result of the request.
+getUser.setMock(({ request }) => ({
+  data: { id: Number(request.params?.userId), name: `User ${request.params?.userId}` },
+  status: 200,
+}));
 ```
 
 You can trigger a prefetch when the user hovers over a UI element associated with a particular user. This way, if they
@@ -137,9 +135,19 @@ Prefetching is effective because of Hyper Fetch's built-in caching layer. When y
 response is automatically cached. The cache key is generated based on the request's endpoint, method, parameters, and
 other properties, ensuring that each unique request has its own cache entry.
 
-When you later try to fetch the same data, Hyper Fetch checks the cache first. If a fresh (not stale) response is found,
-it's returned immediately, and **no network request is made**. This is what creates the "instant" experience for the
-user.
+When you later need the same data, read it through the cache:
+
+```ts
+// Returns the cached response, or goes to the network when there is no entry
+const { data } = await getUser.setParams({ userId: 1 }).send({ cachePolicy: "cache-first" });
+
+// Returns the cached response immediately and refreshes it in the background
+const { data: latest } = await getUser.setParams({ userId: 1 }).send({ cachePolicy: "revalidate" });
+```
+
+With a cached entry, `"cache-first"` returns it immediately and **no network request is made**. Neither policy checks
+`staleTime`, so a stale entry is returned too. In React, `useFetch` reads the same cache entry on mount and fetches only
+when the data is missing or stale. This is what creates the "instant" experience for the user.
 
 ---
 

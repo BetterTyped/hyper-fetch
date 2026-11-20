@@ -6,7 +6,7 @@ import { Key } from "@/components/ui/key";
 import { QueueStatus, getQueueStatus } from "@/utils/queue.status.utils";
 
 export const SectionHead = ({ item }: { item: QueueDataType<RequestInstance> }) => {
-  const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
+  const status = getQueueStatus(item);
   const color = useMemo(() => {
     switch (status) {
       case QueueStatus.RUNNING: {

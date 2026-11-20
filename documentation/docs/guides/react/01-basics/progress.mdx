@@ -6,23 +6,33 @@ sidebar_label: Progress
 # Tracking Request Progress
 
 For operations like file uploads or downloads, providing feedback on the request's progress is crucial for a good user
-experience. Hyper-fetch makes this easy with the `onUploadProgress` and `onDownloadProgress` callbacks available on the
-`useFetch` and `useSubmit` hooks. These callbacks provide detailed information that you can use to display progress
+experience. Hyper-fetch makes this easy with the `onUploadProgress` and `onDownloadProgress` callbacks of `useFetch`, and
+their `onSubmitUploadProgress` and `onSubmitDownloadProgress` counterparts on `useSubmit`. These callbacks provide detailed information that you can use to display progress
 bars, time remaining, and more.
 
 :::secondary What you'll learn
 
 1.  How to track **upload** and **download progress** for requests.
-2.  How to use the **`onUploadProgress`** and **`onDownloadProgress`** callbacks.
+2.  How to use the **`onSubmitUploadProgress`** and **`onSubmitDownloadProgress`** callbacks (`onUploadProgress` and
+    `onDownloadProgress` on `useFetch`).
 3.  What **progress data** is provided (percentage, time left, size left).
 4.  How to build a **progress bar** component in React.
 
 :::
 
-## `onUploadProgress` and `onDownloadProgress`
+## Progress callbacks
 
-The `onUploadProgress` and `onDownloadProgress` callbacks receive an object with `progress` (0-100), `timeLeft` (in ms),
+The progress callbacks receive an object with `progress` (0-100), `timeLeft` (in ms),
 `sizeLeft` (in bytes), and more. You can use this to update your UI in real-time.
+
+:::caution Upload progress with the default adapter
+
+The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
+once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` and `URLSearchParams`
+payloads. For a live upload percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview), which reads
+the browser upload events. Download progress works with every adapter.
+
+:::
 
 {/* Here is a live example demonstrating both upload and download progress bars. */}
 
@@ -33,16 +43,16 @@ function ProgressBars() {
 
   // Setup upload request
   // highlight-start
-  const { submit: startUpload, submitting: isUploading, onUploadProgress } = useSubmit(postFile);
-  onUploadProgress((progressData) => {
+  const { submit: startUpload, submitting: isUploading, onSubmitUploadProgress } = useSubmit(postFile);
+  onSubmitUploadProgress((progressData) => {
     setUpload(progressData);
   });
   // highlight-end
 
   // Setup download request
   // highlight-start
-  const { submit: startDownload, submitting: isDownloading, onDownloadProgress } = useSubmit(getFile);
-  onDownloadProgress((progressData) => {
+  const { submit: startDownload, submitting: isDownloading, onSubmitDownloadProgress } = useSubmit(getFile);
+  onSubmitDownloadProgress((progressData) => {
     setDownload(progressData);
   });
   // highlight-end
@@ -89,7 +99,7 @@ function ProgressBars() {
 ### How It Works
 
 1.  We set up two `useSubmit` hooks, one for uploading (`postFile`) and one for downloading (`getFile`).
-2.  We get the `onUploadProgress` and `onDownloadProgress` callback setters from their respective hooks.
+2.  We get the `onSubmitUploadProgress` and `onSubmitDownloadProgress` callback setters from their respective hooks.
 3.  We call them with our state setters (`setUpload` and `setDownload`). These will be called repeatedly by Hyper-fetch
     during the request with the latest progress information.
 4.  The state is then used to render the width of the progress bar `div`s and display text information.
@@ -105,7 +115,8 @@ This provides clear, real-time feedback to the user for long-running requests.
 You've learned how to track request progress with Hyper-fetch!
 
 - You can monitor both **upload and download progress**.
-- You know how to use **`onUploadProgress`** and **`onDownloadProgress`** to update your UI.
+- You know how to use **`onSubmitUploadProgress`** and **`onSubmitDownloadProgress`** (or `onUploadProgress` and
+  `onDownloadProgress` on `useFetch`) to update your UI.
 - You can build **interactive progress bars** to improve user experience.
 
 :::

@@ -14,5 +14,8 @@ describe("Firestore Admin [ Sockets ]", () => {
     await seedFirestoreDatabaseAdmin(firestoreDbAdmin);
   });
 
-  socketsMethodsSharedTestCases(FirebaseSocketsAdminAdapter(firestoreDbAdmin), FirebaseAdminAdapter(firestoreDbAdmin));
+  socketsMethodsSharedTestCases(
+    () => FirebaseSocketsAdminAdapter(firestoreDbAdmin),
+    FirebaseAdminAdapter(firestoreDbAdmin),
+  );
 });

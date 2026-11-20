@@ -12,7 +12,7 @@ import type { Socket, SocketInstance } from "socket";
 import type { ExtractAdapterExtraType } from "types";
 
 import { getAdapterBindings } from "./adapter.bindings";
-import type { Connector, RemoveListenerCallbackType } from "./adapter.types";
+import type { Connector, ListenerLifecycleType, RemoveListenerCallbackType } from "./adapter.types";
 
 export class SocketAdapter<
   Extra = undefined,
@@ -48,6 +48,16 @@ export class SocketAdapter<
 
   // Listeners
   public listeners = new Map<string, Map<ListenerCallbackType<this, any>, VoidFunction>>();
+  /**
+   * Start and end handlers of the registered callbacks, set by `Listener.listen()`.
+   * Adapters call them through the `onListenerStart` / `onListenerEnd` bindings.
+   */
+  public listenerLifecycle = new Map<string, Map<ListenerCallbackType<this, any>, ListenerLifecycleType>>();
+  /**
+   * `true` when the server confirms every subscription (e.g. tRPC `started`) - the adapter calls `onListenerStart`.
+   * Otherwise a listener counts as started as soon as it is registered.
+   */
+  public confirmsSubscriptions: boolean;
   public listen: (
     listener: ListenerOfAdapter<this>,
     callback: ListenerCallbackType<this, any>,
@@ -56,6 +66,8 @@ export class SocketAdapter<
   public connect: () => void;
   public reconnect: () => void;
   public disconnect: () => void;
+  /** Cleanup of the current connector - see `dispose()` */
+  private disposeConnector: (() => void) | undefined;
 
   constructor(
     public options: {
@@ -65,9 +77,15 @@ export class SocketAdapter<
       defaultConnecting?: boolean;
       defaultReconnectionAttempts?: number;
       defaultForceClosed?: boolean;
+      /**
+       * Set it when the server confirms every subscription and the adapter reports it with `onListenerStart`.
+       * @default false
+       */
+      confirmsSubscriptions?: boolean;
     },
   ) {
     this.name = options.name;
+    this.confirmsSubscriptions = options.confirmsSubscriptions ?? false;
     this.queryParams = options.queryParams;
 
     if (options.defaultConnected) {
@@ -85,17 +103,30 @@ export class SocketAdapter<
   }
 
   public initialize(socket: SocketInstance) {
+    // The adapter moves to another socket - the subscriptions of the previous connector must not keep running
+    this.dispose();
     this.socket = socket;
     this.adapterOptions = { ...this.adapterOptions, ...socket.options.adapterOptions };
 
-    const { listen, emit, connect, reconnect, disconnect } = this.getConnector();
+    const { listen, emit, connect, reconnect, disconnect, dispose } = this.getConnector();
     this.listen = listen;
     this.emit = emit;
     this.connect = connect;
     this.reconnect = reconnect;
     this.disconnect = disconnect;
+    this.disposeConnector = dispose;
 
     return this;
+  }
+
+  /**
+   * Removes the subscriptions the connector made outside of the connection (e.g. the app manager's online event).
+   * Called by `socket.destroy()` and before the adapter is initialized again. Safe to call more than once.
+   */
+  public dispose() {
+    const dispose = this.disposeConnector;
+    this.disposeConnector = undefined;
+    dispose?.();
   }
 
   public setQueryParams(queryParams: QueryParams) {
@@ -158,6 +189,41 @@ export class SocketAdapter<
 
   // Listeners
 
+  /** Registers what the callback does when its subscription starts or ends - set by `Listener.listen()` */
+  public setListenerLifecycle = ({
+    topic,
+    callback,
+    lifecycle,
+  }: {
+    topic: string;
+    callback: ListenerCallbackType<
+      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      any
+    >;
+    lifecycle: ListenerLifecycleType;
+  }) => {
+    const group = this.listenerLifecycle.get(topic) ?? new Map();
+    group.set(callback, lifecycle);
+    this.listenerLifecycle.set(topic, group);
+  };
+
+  private deleteListenerLifecycle = ({
+    topic,
+    callback,
+  }: {
+    topic: string;
+    callback: ListenerCallbackType<
+      SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>,
+      any
+    >;
+  }) => {
+    const group = this.listenerLifecycle.get(topic);
+    group?.delete(callback);
+    if (group && group.size === 0) {
+      this.listenerLifecycle.delete(topic);
+    }
+  };
+
   public removeListener = ({
     topic,
     callback,
@@ -169,6 +235,7 @@ export class SocketAdapter<
     >;
   }): boolean => {
     const listenerGroup = this.listeners.get(topic);
+    this.deleteListenerLifecycle({ topic, callback });
     // Removing a callback that is not registered (anymore) is a no-op - the remove event fires once per listener
     if (!listenerGroup?.has(callback)) {
       return false;
@@ -180,16 +247,22 @@ export class SocketAdapter<
     return true;
   };
 
+  /**
+   * Delivers a message to the listeners of the topic. Pass `callbacks` to deliver it only to those listeners -
+   * adapters use it when one topic carries several subscriptions, e.g. the same procedure with different payloads.
+   */
   public triggerListeners = ({
     topic,
     data,
     extra,
+    callbacks: targets,
   }: {
     topic: string;
     data: any;
     extra: ExtractAdapterExtraType<
       SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams, QueryParamsMapperType>
     >;
+    callbacks?: ReadonlySet<ListenerCallbackType<any, any>>;
   }) => {
     const listenerGroup = this.listeners.get(topic);
     if (!listenerGroup?.size) {
@@ -201,7 +274,7 @@ export class SocketAdapter<
     const callbacks = [...listenerGroup.keys()];
     const errors: unknown[] = [];
     callbacks.forEach((action) => {
-      if (!listenerGroup.has(action)) {
+      if (!listenerGroup.has(action) || (targets && !targets.has(action))) {
         return;
       }
       try {

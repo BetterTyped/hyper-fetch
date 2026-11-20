@@ -39,22 +39,19 @@ export const realtimeSocketsAdmin = (database: Database) => {
         const onlyOnce = options?.onlyOnce || false;
         const q = applyRealtimeAdminConstraints(path, options?.constraints || []);
         const method = onlyOnce === true ? "once" : "on";
-        q[method](
-          "value",
-          (snapshot) => {
-            const getSnapshotData = (s: DataSnapshot) => (s.val() ? { ...s.val(), __key: s.key } : null);
-            const response =
-              isDocOrQuery(fullUrl) === "doc" ? getSnapshotData(snapshot) : getOrderedResultRealtime(snapshot);
-            const status = getStatus(response);
-            const extra: RealtimeAdminOnValueMethodExtra = { ref: path, snapshot, status };
-            callback({ data: response, extra });
-            onEvent({ topic: listener.topic, data: response, extra });
-          },
-          (error) => {
-            onError({ error });
-          },
-        );
-        const unsubscribe = () => q.off("value");
+        const onValue = (snapshot: DataSnapshot) => {
+          const getSnapshotData = (s: DataSnapshot) => (s.val() ? { ...s.val(), __key: s.key } : null);
+          const response =
+            isDocOrQuery(fullUrl) === "doc" ? getSnapshotData(snapshot) : getOrderedResultRealtime(snapshot);
+          const status = getStatus(response);
+          const extra: RealtimeAdminOnValueMethodExtra = { ref: path, snapshot, status };
+          onEvent({ topic: listener.topic, data: response, extra });
+        };
+        q[method]("value", onValue, (error) => {
+          onError({ error });
+        });
+        // Detach only this listener's callback, other subscriptions on the same path keep receiving updates
+        const unsubscribe = () => q.off("value", onValue);
         const unmount = onListen({ listener, callback, onUnmount: unsubscribe });
 
         const clearListeners = () => {

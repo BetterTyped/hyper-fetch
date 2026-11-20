@@ -5,9 +5,11 @@ import {
   getTrpcAbortKey,
   getTrpcHeaders,
   getTrpcInput,
+  getTrpcProcedureUrl,
   getTrpcRequestKey,
   getTrpcResult,
   getTrpcUrl,
+  serializeTrpcInput,
   TrpcAdapter,
   trpcEndpointMapper,
 } from "../../../src/adapter";
@@ -49,6 +51,14 @@ describe("Trpc Adapter [ Utils ]", () => {
       const date = new Date("2024-01-01T00:00:00.000Z");
 
       expect(JSON.parse(getTrpcInput({ date }, superjson) as string)).toStrictEqual(superjson.serialize({ date }));
+    });
+
+    it("should serialize the input without encoding it", () => {
+      const date = new Date("2024-01-01T00:00:00.000Z");
+
+      expect(serializeTrpcInput({ id: 1 })).toStrictEqual({ id: 1 });
+      expect(serializeTrpcInput(noInput)).toBeUndefined();
+      expect(serializeTrpcInput({ date }, superjson)).toStrictEqual(superjson.serialize({ date }));
     });
   });
 
@@ -188,6 +198,21 @@ describe("Trpc Adapter [ Utils ]", () => {
     it("should append query params without the reserved ones", () => {
       expect(getTrpcUrl(getQuery(), "?source=app&input=2&batch=1", "1")).toBe(
         "http://localhost:3000/trpc/user.byId?source=app&input=1",
+      );
+    });
+
+    it("should add the protocol params after the input", () => {
+      expect(
+        getTrpcProcedureUrl({
+          url: "http://localhost:3000/trpc?tenant=a",
+          endpoint: "chat/onMessage",
+          queryParams: { region: "eu" },
+          input: '{"room":"a"}',
+          protocolParams: { lastEventId: "1 2", connectionParams: '{"token":"x"}' },
+        }),
+      ).toBe(
+        `http://localhost:3000/trpc/chat.onMessage?tenant=a&region=eu&input=${encodeURIComponent('{"room":"a"}')}` +
+          `&lastEventId=1%202&connectionParams=${encodeURIComponent('{"token":"x"}')}`,
       );
     });
   });

@@ -26,10 +26,11 @@ requests and responses, inspect and modify cache and to control the requests.
 
 ## Install the Plugin
 
-Install the DevTools plugin using npm or yarn:
+Install the DevTools plugin using npm or yarn. The plugin talks to HyperFlow through `@hyper-fetch/sockets`, so install it
+too:
 
 ```bash npm2yarn2pnpm
-npm install @hyper-fetch/plugin-devtools
+npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
 ```
 
 ---
@@ -53,6 +54,60 @@ const client = new Client({ url: "http://localhost:3000" }).addPlugin(
 ```
 
 (@import plugin-devtools DevtoolsPluginOptions type=returns)
+
+---
+
+## Inspecting sockets
+
+Pass your sockets in the `sockets` option to inspect their connection, messages and errors in HyperFlow, next to the
+requests of the client. See the [Socket Inspector](/docs/hyper-flow/features/sockets).
+
+```tsx
+const socket = new Socket({ url: "ws://localhost:3000" });
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    // highlight-next-line
+    sockets: [socket],
+  }),
+);
+```
+
+---
+
+## Node.js backends
+
+The plugin reports from servers and scripts too, so you can inspect the requests your backend sends. Use the
+`environment` option to tell the backend apart from your frontend in HyperFlow.
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My API",
+    environment: "backend",
+  }),
+);
+```
+
+On Node.js 22+, Deno and Bun the plugin uses the global `WebSocket`. On Node.js 18 and 20 install `ws` and pass its
+class:
+
+```tsx
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import { WebSocket } from "ws";
+
+const client = new Client({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My API",
+    environment: "backend",
+    // highlight-next-line
+    WebSocket: WebSocket as unknown as typeof globalThis.WebSocket,
+  }),
+);
+```
 
 <LinkCard
   type="promo"

@@ -15,6 +15,8 @@ sidebar_label: Overview
 2. **Infer types from your router or contract** through the regular `createSdk`.
 3. **Keep rich types** such as `Date`, `BigInt`, `Map`, `Set` and files, encoded by the oRPC serializer.
 4. **Cache every input separately**, without writing query keys by hand.
+5. **Listen to event iterators** over HTTP streams or WebSockets, with the
+   [socket adapters](/docs/integrations/adapter-orpc/event-iterators.mdx).
 
 :::
 
@@ -216,8 +218,9 @@ Query params are appended to the URL. The `data` key is reserved for the oRPC fo
 
 ## Limitations
 
-- Event iterators and request batching are not supported. Procedures returning an event iterator are left out of
-  `OrpcSchema`.
+- Request batching is not supported.
+- Procedures returning an event iterator are left out of `OrpcSchema`. Listen to them with the socket adapters, see
+  [Event Iterators](/docs/integrations/adapter-orpc/event-iterators.mdx).
 - The SDK can't reach a procedure named like a request property, such as `send` or `method`. Use `createRequest` with
   the procedure path for those.
 

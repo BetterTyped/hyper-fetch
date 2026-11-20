@@ -1,46 +1,15 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
-export type UseIntervalOptions = {
-  immediate?: boolean;
-  disabled?: boolean;
-};
-
-export const useInterval = (callback: () => void, interval: number | null, options?: UseIntervalOptions) => {
-  const { immediate = true, disabled = false } = options || {};
-
-  const [id, setId] = useState<null | ReturnType<typeof setInterval>>(null);
+/** Calls the latest `callback` every `interval` ms while mounted, and restarts when the interval changes. */
+export const useInterval = (callback: () => void, interval: number) => {
   const savedCallback = useRef(callback);
-
-  const stop = () => {
-    if (id) {clearInterval(id);}
-    setId(null);
-  };
-
-  const start = () => {
-    stop();
-    if ((!interval && interval !== 0) || disabled) {
-      return;
-    }
-    setId(setInterval(() => savedCallback.current(), interval));
-  };
 
   useLayoutEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
 
-  useLayoutEffect(() => {
-    savedCallback.current = callback;
-    if (immediate) {
-      start();
-      return stop;
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    savedCallback.current = callback;
-    start();
-    return stop;
+  useEffect(() => {
+    const id = setInterval(() => savedCallback.current(), interval);
+    return () => clearInterval(id);
   }, [interval]);
-
-  return { active: id !== null, start, stop };
 };

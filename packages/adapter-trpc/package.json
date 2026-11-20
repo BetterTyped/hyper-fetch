@@ -44,6 +44,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "@trpc/server": "^11.0.0"
   },
   "peerDependenciesMeta": {
@@ -55,7 +56,9 @@
     "@trpc/client": "^11.0.0",
     "@trpc/server": "^11.0.0",
     "abortcontroller-polyfill": "^1.7.5",
-    "superjson": "^2.2.6"
+    "eventsource": "^3.0.2",
+    "superjson": "^2.2.6",
+    "ws": "^8.18.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

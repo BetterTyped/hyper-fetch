@@ -699,6 +699,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // TODO: improve this
     // eslint-disable-next-line no-param-reassign
     storageItem.resolved = true;
+    // Read before the controller is dropped - adapters may map the abort error into any shape (GraphQL uses arrays)
+    const isAbortedByUser = requestManager.isCanceled(abortKey, requestId);
     // Stop listening for aborting
     requestManager.removeAbortController(abortKey, requestId);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -706,7 +708,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const isOfflineResponseStatus = !appManager.isOnline;
     // If there is no running request with this id, it means it was cancelled and removed during send
     const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
-    const isCanceled = !this.hasRunningRequest(queryKey, requestId) || isCancelMessage;
+    const isCanceled = !this.hasRunningRequest(queryKey, requestId) || isAbortedByUser || isCancelMessage;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);

@@ -1,6 +1,5 @@
 import { parseResponse } from "@hyper-fetch/core";
-import { ipcMain, BrowserWindow, app } from "electron";
-import * as net from "net";
+import { ipcMain, BrowserWindow } from "electron";
 
 import type { StartServer } from "../../server";
 import { startServer } from "../../server";
@@ -10,6 +9,8 @@ import type { Settings } from "@/store/general/settings.store";
 
 // Store server instance for control
 let serverInstance: StartServer | null = null;
+/** The port the running server listens on */
+let serverPort: number | null = null;
 const defaultPort = 2137;
 
 const getPort = (options?: { port?: number }) => {
@@ -28,144 +29,92 @@ const getPort = (options?: { port?: number }) => {
 };
 
 /**
- * Check if a port is already in use
- */
-const isPortInUse = (port: number): Promise<boolean> => {
-  appLogger.debug(`Checking if port ${port} is in use`);
-  return new Promise((resolve) => {
-    const server = net.createServer();
-
-    server.once("error", (err: NodeJS.ErrnoException) => {
-      if (err.code === "EADDRINUSE") {
-        appLogger.warning(`Port ${port} is already in use`);
-        resolve(true);
-      } else {
-        appLogger.error(`Error checking port ${port}:`, { error: err });
-        resolve(false);
-      }
-    });
-
-    server.once("listening", () => {
-      server.close();
-      appLogger.debug(`Port ${port} is available`);
-      resolve(false);
-    });
-
-    server.listen(port);
-  });
-};
-
-/**
  * Notify all renderer processes of server status change
  */
 const notifyStatusChange = (isRunning: boolean) => {
-  appLogger.info(`Notifying renderer processes of server status change: ${isRunning ? "running" : "stopped"}`);
+  appLogger.info("Notifying renderer processes of server status change", { details: { running: isRunning } });
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((window) => {
     window.webContents.send("application-server-status-change", isRunning);
   });
 };
 
-const onServerCrash = () => {
-  appLogger.error("Server crashed unexpectedly");
+/** Stops the running server and resolves once its port is free again */
+export const closeServer = async () => {
+  const instance = serverInstance;
   serverInstance = null;
+  serverPort = null;
+  if (!instance?.server) {
+    return;
+  }
+  appLogger.info("Closing server instance");
+  const { server, wss } = instance;
+  await new Promise<void>((resolve) => {
+    appLogger.info("Closing WebSocket server");
+    // Open connections would keep the port busy
+    wss.clients.forEach((client) => client.terminate());
+    wss.close(() => resolve());
+  });
+  await new Promise<void>((resolve) => {
+    server.close(() => resolve());
+  });
+};
+
+const onServerCrash = async () => {
+  appLogger.error("Server crashed unexpectedly");
+  // Free the port, so restarting on it works
+  await closeServer();
   notifyStatusChange(false);
 };
 
-export const closeServer = () => {
-  if (serverInstance && serverInstance.server) {
-    appLogger.info("Closing server instance");
-    serverInstance.server.close();
-    if (serverInstance.wss) {
-      appLogger.info("Closing WebSocket server");
-      serverInstance.wss.close();
-    }
-  }
+const start = async (port: number) => {
+  serverInstance = await startServer({ port, onServerCrash });
+  serverPort = serverInstance.server ? port : null;
 };
 
 /**
  * Initialize the server and set up IPC handlers for controlling it
  */
 export async function setupServerControl() {
-  const isDev = !app.isPackaged;
-  if (isDev) {
-    closeServer();
-  }
-  try {
-    appLogger.info("Initializing server control");
-    // Start the server immediately
-    serverInstance = await startServer({ port: getPort(), onServerCrash });
-    appLogger.info("Server started successfully");
-  } catch (error) {
-    appLogger.error("Failed to start server", { error });
-  }
+  // A hot-reloaded main process starts again while the previous server still runs
+  await closeServer();
+  appLogger.info("Initializing server control");
+  await start(getPort());
 
-  // Notify about initial server status
   const initialStatus = !!serverInstance?.server;
-  appLogger.info(`Initial server status: ${initialStatus ? "running" : "stopped"}`);
+  appLogger.info("Initial server status", { details: { running: initialStatus } });
   notifyStatusChange(initialStatus);
 
   // Server control IPC handlers
-  ipcMain.handle("application-server-status", () => {
-    const status = !!serverInstance?.server;
-    appLogger.debug(`Server status requested: ${status ? "running" : "stopped"}`);
-    return status;
-  });
+  ipcMain.handle("application-server-status", () => !!serverInstance?.server);
 
   ipcMain.on("application-server-status", (event) => {
-    const status = !!serverInstance?.server;
-    appLogger.debug(`Server status requested (sync): ${status ? "running" : "stopped"}`);
     // eslint-disable-next-line no-param-reassign
-    event.returnValue = status;
+    event.returnValue = !!serverInstance?.server;
   });
 
   ipcMain.handle("application-server-restart", async (_, options: { port?: number }) => {
     appLogger.info("Server restart requested", { details: options });
     const port = getPort(options);
 
-    // Check if port is already in use
-    const used = await isPortInUse(port);
+    // Its own server holds the current port, so it has to stop first. On another port the running server stays
+    // until the new one listens, so a taken or invalid port leaves the app connected.
+    if (port === serverPort) {
+      await closeServer();
+    }
+    const next = await startServer({ port, onServerCrash });
 
-    if (used) {
-      appLogger.warning(`Cannot restart server - port ${port} is already in use`);
-      return {
-        port,
-        running: false,
-        success: false,
-        message: `Port ${port} is already in use`,
-      };
+    if (!next.server) {
+      appLogger.warning("Cannot restart server", { details: { port, reason: next.errorMessage } });
+      notifyStatusChange(!!serverInstance?.server);
+      return { port, running: false, success: false, message: next.errorMessage };
     }
 
-    // If server is running, stop it first
-    closeServer();
+    await closeServer();
+    serverInstance = next;
+    serverPort = port;
+    notifyStatusChange(true);
 
-    // Start server with new options
-    try {
-      appLogger.info(`Starting server on port ${port}`);
-      serverInstance = await startServer({ port, onServerCrash });
-      appLogger.info("Server started successfully");
-    } catch (error) {
-      appLogger.error("Server failed to start", { error });
-      return {
-        port,
-        running: false,
-        success: false,
-        message: `Server crashed when trying to start on port ${port}`,
-        reason: error,
-      };
-    }
-
-    // Notify about status change
-    const isRunning = !!serverInstance?.server;
-    appLogger.info(`Server status after restart: ${isRunning ? "running" : "stopped"}`);
-    notifyStatusChange(isRunning);
-
-    return {
-      running: isRunning,
-      port,
-      success: true,
-      message: `Server restarted on port ${port}`,
-      reason: null,
-    };
+    return { running: true, port, success: true, message: `Server restarted on port ${port}` };
   });
 }

@@ -9,6 +9,21 @@ import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-
 
 const defaultExtra = xhrExtra;
 
+/**
+ * Size in bytes of a body that fetch sends as it is. Form data and streams get their size from the browser while they
+ * are sent, so it is unknown up front.
+ */
+const getBodySize = (body: unknown): number | undefined => {
+  if (typeof body === "string") return new Blob([body]).size;
+  if (typeof Blob !== "undefined" && body instanceof Blob) return body.size;
+  if (body instanceof ArrayBuffer) return body.byteLength;
+  if (ArrayBuffer.isView(body)) return body.byteLength;
+  if (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) {
+    return new Blob([body.toString()]).size;
+  }
+  return undefined;
+};
+
 export const getAdapter = () =>
   new Adapter<
     FetchAdapterOptionsType,
@@ -54,7 +69,6 @@ export const getAdapter = () =>
         onResponseStart,
         onBeforeRequest,
         onRequestStart,
-        onRequestProgress,
         onSuccess,
       }) => {
         const { method } = request;
@@ -81,8 +95,11 @@ export const getAdapter = () =>
           }, timeoutMs);
         }
 
+        const body = payload && method !== "GET" && method !== "HEAD" ? (payload as BodyInit) : undefined;
+        const bodySize = getBodySize(body);
+
         onBeforeRequest();
-        onRequestStart();
+        onRequestStart(bodySize ? { total: bodySize, loaded: 0 } : undefined);
 
         try {
           const init: RequestInit = {
@@ -92,18 +109,14 @@ export const getAdapter = () =>
             ...restOptions,
           };
 
-          if (payload && method !== "GET" && method !== "HEAD") {
-            init.body = payload as BodyInit;
-
-            if (typeof payload === "string") {
-              const total = new Blob([payload]).size;
-              onRequestProgress({ total, loaded: total } as ProgressEvent);
-            }
+          if (body) {
+            init.body = body;
           }
 
-          onRequestEnd();
-
           const response = await fetch(fullUrl, init);
+
+          // Fetch has no upload events. The response is the first sign that the whole body was sent.
+          onRequestEnd();
 
           // The timeout covers the whole exchange - a body that stops arriving has to end with the timeout error.
           // Only a streamed body is handed over to the user as soon as the headers arrive.

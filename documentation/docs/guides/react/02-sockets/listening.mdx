@@ -15,7 +15,7 @@ gives you fine-grained control over how to respond to incoming data and connecti
 
 1.  How to use the **`useListener`** hook to subscribe to socket events.
 2.  How to **update your component's state** with data received from the socket.
-3.  How to handle **connection states** like `connecting` and `error`.
+3.  How to handle **connection states** like `connected` and `connecting`.
 4.  How to use helper hooks like **`onEvent`**, **`onError`**, and **`onReconnecting`** for lifecycle management.
 
 :::
@@ -24,7 +24,7 @@ gives you fine-grained control over how to respond to incoming data and connecti
 
 ## Basic Usage
 
-The `useListener` hook is designed for simplicity. You provide it with a listener `request` from your backend setup, and
+The `useListener` hook is designed for simplicity. You provide it with a listener from your socket setup, and
 it gives you back the connection status and any data that arrives. Here's how you can set up a basic message listener.
 
 In this example, we'll listen for chat messages and display them in a list. The `onEvent` helper hook is the primary way
@@ -35,29 +35,25 @@ function LiveChat() {
   const [messages, setMessages] = React.useState([]);
 
   // This is our listener, it will be automatically cleaned up on unmount
-  const { connected, connecting, error, onEvent, onError, onReconnecting } = useListener(onChatMessage);
+  const { connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
 
   // Here we can listen for incoming messages
   onEvent(({ data }) => {
     setMessages((prev) => [data, ...prev]);
   });
 
-  // Optional: Handle errors
-  onError((err) => {
-    console.error("Connection error!", err);
+  // Optional: Handle socket errors
+  onError((event) => {
+    console.error("Socket error!", event);
   });
 
   // Optional: Handle reconnecting attempts
-  onReconnecting((attempt) => {
-    console.log("Attempting to reconnect...", attempt);
+  onReconnecting(({ attempts }) => {
+    console.log("Attempting to reconnect...", attempts);
   });
 
   if (connecting) {
     return <p>Connecting to the chat...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-500">Error: {error.message}</p>;
   }
 
   return (
@@ -79,7 +75,7 @@ function LiveChat() {
 }
 ```
 
-In the example above, `onChatMessage` is a pre-defined listener request. You can learn more about creating them in the
+In the example above, `onChatMessage` is a pre-defined listener. You can learn more about creating them in the
 [sockets guide](/docs/guides/sockets/listening).
 
 If the stream is fast and your component re-renders too often, configure a `delivery` strategy on the listener - see
@@ -93,7 +89,7 @@ You now know how to listen for socket events in your React applications!
 
 - You can use **`useListener`** to subscribe to events when a component mounts.
 - You can react to incoming data using the **`onEvent`** helper hook.
-- You can monitor the connection status with the **`connected`**, **`connecting`**, and **`error`** properties.
+- You can monitor the connection status with the **`connected`** and **`connecting`** properties.
 - You can add additional logic for errors and reconnections with **`onError`** and **`onReconnecting`**.
 
 :::

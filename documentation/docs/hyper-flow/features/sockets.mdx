@@ -1,0 +1,64 @@
+---
+sidebar_position: 5
+title: Socket Inspector
+---
+
+# Socket Inspector
+
+The Socket Inspector shows the realtime side of your application: every socket's connection, the messages it receives
+and sends, and its errors. It works with the WebSocket and Server-Sent Events adapters of `@hyper-fetch/sockets`.
+
+:::tip Purpose
+
+1.  **See the connection**: know at a glance whether each socket is connected, reconnecting or gave up.
+2.  **Read the traffic**: follow every message in and out, with its topic, content and size.
+3.  **Find problems fast**: errors and failed sends are listed next to the messages around them.
+
+:::
+
+---
+
+## Inspecting your sockets
+
+Pass the sockets to the devtools plugin of your client. They show up under the same application as its requests.
+
+```tsx
+import { createClient } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+const socket = new Socket({ url: "ws://localhost:3000" });
+
+const client = createClient({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    // highlight-next-line
+    sockets: [socket],
+  }),
+);
+```
+
+---
+
+## Sockets
+
+Each socket gets a card with its URL, adapter and status: connecting, connected, reconnecting, disconnected or failed.
+The card counts the messages and bytes received and sent, the errors, failed sends, reconnection attempts and topics.
+Select a card to show only that socket's messages.
+
+---
+
+## Messages
+
+The log lists the newest messages first, up to the latest 1000:
+
+- **Received** messages with their topic and data.
+- **Sent** messages with their topic and payload.
+- **Connection** events: connecting, connected, disconnected and reconnection attempts.
+- **Errors** of the socket and messages that failed to send.
+
+Filter the log by direction, search it by topic or content, or clear it while the counters keep going. Select a
+message to see its data, the adapter's extra details and any error in full.
+
+When HyperFlow restarts, the plugin reports every socket and its current state again, so nothing is lost but the
+messages sent while HyperFlow was closed.

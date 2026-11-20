@@ -32,9 +32,8 @@ mock response. With this simple concept you're able to introduce any mocking app
 
 :::warning Reference change
 
-Method `setMock()` is the only method modifying the Request reference.
-
-This will allow us to mock every request in given group.
+The mock methods `setMock()`, `clearMock()` and `setMockingEnabled()` modify the request instance and return it, instead
+of returning a clone like the other `set*` methods. Clones created later (for example with `setParams()`) copy the mock.
 
 :::
 
@@ -50,6 +49,7 @@ getNotes.setMock(
       data: {
         items: [{ text: "This is mocked note" }],
       },
+      status: 200,
     };
   },
   // Config
@@ -116,7 +116,7 @@ will make sure to simulate it for you.
 
 #### Request context
 
-The mocker is now used by passing a callback function to `setMock`. This function receives the request context and
+The mocker is used by passing a callback function to `setMock`. This function receives `{ request, requestId }` and
 returns the mock response. This allows for dynamic mocking, dependent on the passed arguments during execution.
 
 ```tsx
@@ -125,7 +125,7 @@ const mockedRequest = client
   .setMock(({ request }) => {
     const { params } = request;
     if (params.id === 11) {
-      return { data: [1, 2, 3], config: { status: 222 } };
+      return { data: [1, 2, 3], status: 222 };
     }
     return { data: [4, 5, 6], status: 200 };
   });
@@ -136,7 +136,7 @@ The passed method may also be asynchronous:
 ```tsx
 const mockedRequest = client
   .createRequest<{ response: Record<string, any> }>()({ endpoint: "users/:id" })
-  .setMock(async (request) => {
+  .setMock(async ({ request }) => {
     // Do some asynchronous processing of the payload
     const myData = await processPayload(request.payload);
 
@@ -144,12 +144,13 @@ const mockedRequest = client
   });
 ```
 
-> **Note:** Only the callback function form is supported. Passing objects, arrays, or lists of functions is no longer
-> available.
+> **Note:** Only the callback function form is supported. Passing objects, arrays, or lists of functions is not
+> available. Every mock response needs a `status` and either `data` or `error`.
 
 #### Canceling
 
-Canceling a request works the same way as in the real request. It will throw an error and the request will be canceled.
+Canceling a request works the same way as in the real request. The request is canceled and `send()` resolves with an
+abort error in the response.
 
 ```tsx live
 const request = client.createRequest()({
@@ -169,16 +170,18 @@ request.setMock(
   },
 );
 
-const response = request.send();
-
-setTimeout(() => {
-  request.abort();
-}, 1000);
+const response = await request.send({
+  onRequestStart: () => {
+    request.abort();
+  },
+});
+console.log(response.error); // Request aborted
 ```
 
 #### Timeout
 
-You can simulate timeout error by setting `timeout` to `true` in the config.
+You can simulate a timeout error by setting `timeout` in the config to a number of milliseconds. When the mocked
+request is still running after that time, it resolves with a timeout error.
 
 ```tsx live
 const request = client.createRequest()({
@@ -193,13 +196,13 @@ request.setMock(
     };
   },
   {
-    // It will take 2s to be processed
+    // It will take 4s to be processed
     requestTime: 2000,
     responseTime: 2000,
     totalUploaded: 1000,
     totalDownloaded: 1000,
-    // Timeout error will be thrown after 1s
-    timeout: 2000,
+    // Timeout error is returned after 1s
+    timeout: 1000,
   },
 );
 
@@ -216,23 +219,26 @@ When using the [SDK pattern](/docs/core/sdk), you can centralize all your mocks 
 endpoint returns mock data, and swap it in during tests.
 
 ```typescript
+import type { RequestInstance } from "@hyper-fetch/core";
 import { sdk } from "src/api/sdk";
 
 // highlight-start
 const testSdk = sdk.$configure({
-  "users.$get": (request) =>
+  "users.$get": (request: RequestInstance) =>
     request.setMock(() => ({
       data: [
         { id: 1, name: "John" },
         { id: 2, name: "Jane" },
       ],
+      status: 200,
     })),
-  "users.$userId.$get": (request) =>
-    request.setMock(({ request: req }) => ({
-      data: { id: req.params?.userId, name: "Mock User" },
+  "users.$userId.$get": (request: RequestInstance) =>
+    request.setMock(({ request: sent }) => ({
+      // The callback request is typed loosely, so read the filled endpoint ("/users/7")
+      data: { id: Number(sent.endpoint.split("/").pop()), name: "Mock User" },
+      status: 200,
     })),
-  "posts.$get": (request) =>
-    request.setMock(() => ({ data: [] })),
+  "posts.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
 });
 // highlight-end
 ```
@@ -264,7 +270,7 @@ Instead of removing mocker, you can also disable mocker and enable mocker at wil
 method. This way if you set mocking data, it will be kept and not removed as in the `clearMock` case.
 
 ```tsx
-const mockedRequest = request.setMock({ data: fixture }); // mock is set
+const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 })); // mock is set
 ... // Here mocker works as usual
 mockedRequest.setMockingEnabled(false); // Mocker is disabled
 ... // Request works as usual
@@ -274,17 +280,17 @@ mockedRequest.setMockingEnabled(true); // Mocker is enabled once again
 ### Disabling mocking for all requests
 
 If you want to disable mocking for all requests of a given `client` instance - you can use the
-`client.setMockingEnabled` method. This way all related requests will behave 'as usual' and setting/enabling mocks on
-single requests will not have any effect.
+`client.setEnableGlobalMocking` method. This way all related requests will behave 'as usual' and setting/enabling mocks
+on single requests will not have any effect.
 
 ```tsx
-const client = new Client(...);
-const mockedRequest_1 = newClient.createRequest()({ ... }).setMock({ data: fixture1 });
-const mockedRequest_2 = newClient.createRequest()({ ... }).setMock({ data: fixture2 });
+const client = createClient({ url: "http://localhost:3000" });
+const mockedRequest_1 = client.createRequest()({ ... }).setMock(() => ({ data: fixture1, status: 200 }));
+const mockedRequest_2 = client.createRequest()({ ... }).setMock(() => ({ data: fixture2, status: 200 }));
 ... // Here mocked requests return mocked data.
-client.setMockingEnabled(false) // All mocks are disabled
+client.setEnableGlobalMocking(false) // All mocks are disabled
 ... // Here requests work as usual
-client.setMockingEnabled(true) // All mocks are enabled once again
+client.setEnableGlobalMocking(true) // All mocks are enabled once again
 ```
 
 ---

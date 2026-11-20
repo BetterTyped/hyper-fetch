@@ -6,6 +6,7 @@ import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
+  connectionTimeout: 10,
 };
 
 /** A transport that reports an open connection from the start and never emits events */
@@ -105,7 +106,7 @@ describe("Socket Adapter [ Connection ]", () => {
 
     const spy = vi.fn();
     const newUrl = "ws://test";
-    socket = createSocket({ url: newUrl, reconnectTime: 1 });
+    socket = createSocket({ url: newUrl, reconnectTime: 1, connectionTimeout: 1 });
     socket.events.onReconnecting(spy);
 
     await vi.advanceTimersByTimeAsync(0);

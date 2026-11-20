@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 
 import examplesPlugin from "./plugins/examples";
+import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
 import docsVersions from "./versions.json";
 
 /**
@@ -153,6 +154,7 @@ const config: Config = {
 
   plugins: [
     "@docsearch/docusaurus-adapter",
+    hyperFlowReleasesPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {

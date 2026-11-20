@@ -11,6 +11,7 @@ export const getEndpointAndMethod = (
   return `${method}-${endpoint}`;
 };
 
+/** A ratio for display, `0` instead of `NaN` while there is nothing to divide, e.g. no requests yet */
 export const toNumber = (value: number): number => {
   if (Number.isNaN(value)) {
     return 0;
@@ -18,58 +19,33 @@ export const toNumber = (value: number): number => {
   return value;
 };
 
+/**
+ * Bytes of a body as it travels between the application and HyperFlow. Bodies reach HyperFlow as JSON, so streams never
+ * arrive here; blobs and form data are measured for callers that hold the original body.
+ */
 export const getDataSize = async (data: unknown): Promise<number> => {
-  let size = 0;
+  // No body was sent or received
+  if (data === null || data === undefined) {
+    return 0;
+  }
 
-  // Handle streams and blob-like objects
-  if (data instanceof ReadableStream) {
-    let streamSize = 0;
-    try {
-      const reader = data.getReader();
-
-      while (true) {
-        // eslint-disable-next-line no-await-in-loop
-        const { done, value } = await reader.read();
-        if (done) {break;}
-
-        // For Uint8Array or similar buffer types
-        if (value && value.byteLength) {
-          streamSize += value.byteLength;
-        } else if (value) {
-          // Fallback for other value types
-          streamSize += new Blob([String(value)]).size;
-        }
-      }
-    } catch {
-      // Handle potential stream errors silently
-    }
-
-    return toNumber(streamSize);
+  // Text bodies go over the wire as they are, without JSON quotes
+  if (typeof data === "string") {
+    return new Blob([data]).size;
   }
 
   if (data instanceof Blob) {
-    size = data.size;
-    return toNumber(size);
+    return data.size;
   }
 
   if (data instanceof FormData) {
-    // Calculate FormData size by iterating through entries
-    // eslint-disable-next-line no-restricted-syntax
-    for (const pair of data.entries()) {
-      size += pair[0].length;
-
-      const value = pair[1];
-      if (value instanceof File) {
-        size += value.size;
-      } else if (typeof value === "string") {
-        size += new Blob([value]).size;
-      } else {
-        size += new Blob([String(value)]).size;
-      }
-    }
-  } else {
-    size = new Blob([String(stringifyValue(data))]).size;
+    let size = 0;
+    data.forEach((value, key) => {
+      // Form values are strings or files, and a file is a blob
+      size += key.length + new Blob([value]).size;
+    });
+    return size;
   }
 
-  return toNumber(size);
+  return new Blob([stringifyValue(data)]).size;
 };
