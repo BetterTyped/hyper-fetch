@@ -1,7 +1,12 @@
 import { Client } from "@hyper-fetch/core";
 /* eslint-disable max-params */
 import { Socket } from "@hyper-fetch/sockets";
-import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
+import type {
+  FirebaseAdminAdapterTypes,
+  FirebaseAdminSocketAdapterTypes,
+  RealtimeAdminSocketAdapterType,
+} from "adapter";
+import { $limitToFirst, $orderByChild } from "constraints";
 import waitForExpect from "wait-for-expect";
 
 import type { Tea } from "../../../../utils";
@@ -29,7 +34,10 @@ export const onValueTestSuite = (
 
     const initialize = async () => {
       const client = new Client({ url: "teas/" }).setAdapter(initializedCoreAdapter);
-      const socket = new Socket({ url: "teas/", adapter: socketsAdapter(initializedDb) });
+      const socket = new Socket({
+        url: "teas/",
+        adapter: socketsAdapter(initializedDb) as RealtimeAdminSocketAdapterType,
+      });
       const pushReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
@@ -135,6 +143,45 @@ export const onValueTestSuite = (
       expect(received).toHaveLength(1);
 
       otherUnmount();
+    });
+
+    it("should filter with the listener's query params", async () => {
+      const { socket } = await initialize();
+      const onFirstTeas = socket
+        .createListener<Tea[]>()({ topic: "" })
+        .setQueryParams((c) => c.orderByChild("year").limitToFirst(2));
+
+      const received: Tea[][] = [];
+      const unmount = onFirstTeas.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0].map((tea) => tea.year)).toStrictEqual([1980, 2011]);
+
+      unmount();
+    });
+
+    it("should keep the deprecated options.constraints working", async () => {
+      const { socket } = await initialize();
+      const onFirstTeas = socket.createListener<Tea[]>()({
+        topic: "",
+        options: { constraints: [$orderByChild("year"), $limitToFirst(2)] },
+      });
+
+      const received: Tea[][] = [];
+      const unmount = onFirstTeas.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0].map((tea) => tea.year)).toStrictEqual([1980, 2011]);
+
+      unmount();
     });
 
     it("should return emptyResource status", async () => {
