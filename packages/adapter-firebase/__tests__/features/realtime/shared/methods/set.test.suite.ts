@@ -16,13 +16,13 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const getReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
       const setReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
-          method: "setDoc",
+          method: "set",
         })
         .setParams({ teaId: 1 })
         .setPayload(newData);
@@ -37,14 +37,14 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const getReq = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
       const setReq = client
         .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "setDoc",
+          method: "set",
         })
         .setParams({ teaId: 1 })
         .setPayload({ data: null });
@@ -59,7 +59,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const setReq = client
         .createRequest<{ response: Tea; payload: { data: null } }>()({
           endpoint: ":teaId",
-          method: "setDoc",
+          method: "set",
         })
         .setParams({ teaId: 1 })
         .setPayload({ data: null });

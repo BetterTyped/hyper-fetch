@@ -59,7 +59,7 @@ export const CardMostCached = ({ className }: { className?: string }) => {
           </TableHeader>
           <TableBody>
             {mostCachedEndpoints.map((endpoint) => (
-              <TableRow key={endpoint.endpoint}>
+              <TableRow key={`${endpoint.method}-${endpoint.endpoint}`}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <Method method={endpoint.method} />

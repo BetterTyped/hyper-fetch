@@ -398,7 +398,7 @@ When creating a request, the following defaults are applied unless overridden:
 | `staleTime`         | `300000` (5 min)         | How long cached data is considered fresh                                          |
 | `queued`            | `false`                  | Whether requests are queued (sequential execution)                                |
 | `offline`           | `true`                   | Whether requests are stored when offline                                          |
-| `deduplicate`       | `false`                  | Whether identical in-flight requests are deduplicated                             |
+| `deduplicate`       | `true` for GET and QUERY, otherwise `false` | Whether identical in-flight requests are deduplicated. The HTTP adapter turns it on for safe reads |
 | `deduplicateTime`   | `null`                   | Custom deduplication window (uses request duration when `null`)                   |
 | `structuralSharing` | `true`                   | Keep references of the unchanged parts of the data when saving responses to cache |
 

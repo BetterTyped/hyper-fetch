@@ -142,8 +142,8 @@ the hook adapts without errors.
 | `extra` | `object \| null` | Response extra metadata (headers, etc.). |
 | `status` | `number \| null` | HTTP status code from the response. |
 | `start` | `() => void` | Start consuming the stream. |
-| `abort` | `() => void` | Abort the ongoing stream. |
-| `reset` | `() => void` | Reset state to initial values, allowing a fresh stream. |
+| `abort` | `() => void` | Abort the ongoing stream: the request while it waits for the response, the body once it is being read. The text received so far stays. |
+| `reset` | `() => void` | Stop the ongoing stream and reset state to initial values, allowing a fresh stream. |
 
 ---
 

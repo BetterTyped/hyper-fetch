@@ -18,8 +18,8 @@ export const methodsSharedTestCases = (adapterFunction: () => ReturnType<typeof 
 };
 
 export const socketsMethodsSharedTestCases = (
-  adapter: FirebaseSocketAdapterTypes<any>,
+  socketsAdapter: () => FirebaseSocketAdapterTypes<any>,
   coreAdapter: () => FirebaseAdapterTypes<any>,
 ) => {
-  onSnapshotTestSuite(adapter, coreAdapter);
+  onSnapshotTestSuite(socketsAdapter, coreAdapter);
 };

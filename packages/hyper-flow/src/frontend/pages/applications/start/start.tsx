@@ -4,7 +4,7 @@ import { FolderOpen, BookText, Gauge, Database } from "lucide-react";
 import { CacheDashboard } from "./cache/cache";
 import { GeneralDashboard } from "./general/general";
 import { PerformanceDashboard } from "./performance/performance";
-import { EmptyState } from "@/components/no-content/empty-state";
+import { Badge } from "@/components/ui/badge";
 import {
   Section,
   SectionActions,
@@ -15,33 +15,29 @@ import {
 } from "@/components/ui/section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApplications } from "@/store/applications/apps.store";
-// import { Environments } from "./environments/environments";
 
 export const ApplicationStart = () => {
   const { applicationName } = useParams({ strict: false });
-  const { applications } = useApplications();
-  const application = applications[applicationName as string];
-  const iconUrl = "";
-
-  if (!application) {
-    return <EmptyState title="Application not found" description="Please connect to a application first" />;
-  }
+  // The application layout renders pages only for known applications
+  const application = useApplications((state) => state.applications[applicationName as string]);
 
   return (
     <Section id="application-details" className="h-full space-y-2 px-4 overflow-auto">
       <SectionHeader sticky>
         <SectionIcon>
-          {iconUrl ? (
-            <img src={iconUrl} alt={`${application.name} icon`} className="w-full h-full object-cover" />
-          ) : (
-            <FolderOpen className="h-6 w-6 text-zinc-400" />
-          )}
+          <FolderOpen className="h-6 w-6 text-zinc-400" />
         </SectionIcon>
         <SectionTitle className="text-2xl flex items-center gap-2">{application.name}</SectionTitle>
         <SectionDescription className="-mt-1 flex items-center gap-2">
           {application.url || "Not configured"}
         </SectionDescription>
-        <SectionActions>{/* <Environments /> */}</SectionActions>
+        {application.environment !== application.name && (
+          <SectionActions>
+            <Badge variant="outline" data-testid="application-environment">
+              {application.environment}
+            </Badge>
+          </SectionActions>
+        )}
       </SectionHeader>
 
       <Tabs defaultValue="general" className="w-full pb-4">

@@ -23,12 +23,19 @@ the number of stored items. This helps you understand how effectively your cachi
 
 ## Exploring Cached Data
 
-You can browse a list of all items currently in the cache. Each entry shows the cache key, its size, and when it was
-last updated. This allows you to:
+You can browse a list of all items currently in the cache. Each entry shows the cache key, whether it is fresh or stale,
+how many observers it has, and when it was last updated. This allows you to:
 
 - Verify that data is being cached as expected.
 - Identify and remove stale or unnecessary entries.
+- Find entries no component reads anymore.
 - Monitor the overall size and growth of your cache.
+
+### Observers
+
+Observers are the subscriptions of your application to the data of a cache key. Every mounted `useFetch`, `useSubmit`
+and `useCache` reading the key counts as one, and so does every `cache.events.onDataByKey` listener. The DevTools plugin
+reports the counts as components mount and unmount, and sends them all again each time HyperFlow connects.
 
 ---
 
@@ -37,6 +44,7 @@ last updated. This allows you to:
 For deep debugging, you can drill down into individual cache entries. This detailed view shows you:
 
 - The cached data itself.
+- How many observers read the entry.
 - Metadata such as timestamps and expiration details.
 - The request that originally populated the cache entry.
 

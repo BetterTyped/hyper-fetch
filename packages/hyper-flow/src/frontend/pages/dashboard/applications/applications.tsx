@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { FolderCode } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 
 import { Tutorial } from "./components/tutorial";
 import { ApplicationCard } from "@/components/ui/application-card";
@@ -9,7 +10,12 @@ import { useConnectionStore } from "@/store/applications/connection.store";
 
 export const Applications = () => {
   const applications = useApplications((state) => state.applications);
-  const connections = useConnectionStore((state) => state.connections);
+  // The connection store updates entries in place, so select the flags themselves to re-sort on every change.
+  const connected = useConnectionStore(
+    useShallow((state) =>
+      Object.fromEntries(Object.entries(state.connections).map(([name, connection]) => [name, connection.connected])),
+    ),
+  );
 
   const navigate = useNavigate();
 
@@ -29,12 +35,12 @@ export const Applications = () => {
           <FolderCode />
         </SectionIcon>
         <SectionTitle>Applications</SectionTitle>
-        <SectionDescription>Manage your applications and connect them to your workspace.</SectionDescription>
+        <SectionDescription>Applications that connected to HyperFlow through the devtools plugin.</SectionDescription>
       </SectionHeader>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3 mt-4">
         {Object.values(applications)
-          .toSorted((a, b) => Number(!!connections[b.name]) - Number(!!connections[a.name]))
+          .toSorted((a, b) => Number(!!connected[b.name]) - Number(!!connected[a.name]))
           .map((application) => (
             <ApplicationCard
               key={application.name}

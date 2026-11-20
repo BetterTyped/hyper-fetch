@@ -11,6 +11,12 @@ import type { Database } from "firebase-admin/database";
 import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index";
 import { getStatus, isDocOrQuery } from "utils";
 
+type DataType = {
+  constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+  payload: any;
+  options: Record<string, any>;
+};
+
 export const getRealtimeDbAdminMethods = ({
   database,
   url,
@@ -29,18 +35,11 @@ export const getRealtimeDbAdminMethods = ({
   onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
   onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
   onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
-}): ((
-  methodName: RealtimeDBMethodsUnion,
-  data: {
-    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
-    payload: any;
-    options: Record<string, any>;
-  },
-) => Promise<void>) => {
+}): ((methodName: RealtimeDBMethodsUnion, data: DataType) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = database.ref(fullUrl);
   const methods = {
-    get: async ({ constraints = [] }) => {
+    get: async ({ constraints = [] }: DataType) => {
       const docOrQuery = isDocOrQuery(fullUrl);
       const q = applyRealtimeAdminConstraints(path, constraints);
       const snapshot = await q.get();
@@ -48,17 +47,17 @@ export const getRealtimeDbAdminMethods = ({
       const status = getStatus(res);
       return { result: res, status, extra: { ref: path, snapshot } };
     },
-    set: async ({ data }: { data?: any }) => {
-      await path.set(data);
-      return { result: data, status: "success", extra: { ref: path } };
+    set: async ({ payload }: DataType) => {
+      await path.set(payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
-    push: async ({ data }: { data?: any }) => {
-      const resRef = await path.push(data);
-      return { result: { ...data, __key: resRef.key }, status: "success", extra: { ref: resRef, key: resRef.key } };
+    push: async ({ payload }: DataType) => {
+      const resRef = await path.push(payload);
+      return { result: { ...payload, __key: resRef.key }, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
-    update: async ({ data }: { data?: any }) => {
-      await path.update(data);
-      return { result: data, status: "success", extra: { ref: path } };
+    update: async ({ payload }: DataType) => {
+      await path.update(payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
     remove: async () => {
       await path.remove();
@@ -66,10 +65,10 @@ export const getRealtimeDbAdminMethods = ({
     },
   };
 
-  return async (methodName: RealtimeDBMethodsUnion, data) => {
+  return async (methodName: RealtimeDBMethodsUnion, data: DataType) => {
     try {
       onRequestStart();
-      const { result, status, extra } = await methods[methodName](data as any);
+      const { result, status, extra } = await methods[methodName](data);
       onRequestEnd();
       onResponseStart();
       onSuccess({ data: result, status, extra });

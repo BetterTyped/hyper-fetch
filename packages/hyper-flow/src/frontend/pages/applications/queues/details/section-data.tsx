@@ -1,12 +1,9 @@
 import type { QueueDataType } from "@hyper-fetch/core";
 import { motion } from "framer-motion";
 import { Activity, Clock, Database, GaugeCircle, Timer, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { useResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
-import { cn } from "@/lib/utils";
 import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { formatBytes, formatTime } from "@/utils/format";
 
@@ -45,29 +42,19 @@ export const SectionData = ({ item }: { item: QueueDataType }) => {
   const queueStats = useQueueStatsStore(useShallow((state) => state.applications[application.name]));
   const stats = queueStats?.stats.get(item.queryKey);
 
-  const { breakpoint } = useResizableSidebar();
-  const [grid, setGrid] = useState<string>("grid-cols-3");
-
-  useEffect(() => {
-    if (breakpoint.name === "xs") {
-      setGrid("grid-cols-1");
-    } else if (breakpoint.name === "sm") {
-      setGrid("grid-cols-2");
-    } else if (breakpoint.name === "md") {
-      setGrid("grid-cols-3");
-    }
-  }, [breakpoint]);
-
-  if (!stats) {return null;}
+  if (!stats) {
+    return null;
+  }
 
   return (
-    <div className="space-y-4 my-4">
-      <div className={cn("grid gap-4", grid)}>
+    // The columns follow the width of the resizable panel, not of the window
+    <div className="@container space-y-4 my-4">
+      <div className="grid gap-4 grid-cols-1 @xs:grid-cols-2 @lg:grid-cols-3">
         <StatBlock title="Request Overview" icon={Activity}>
           <StatItem label="Total Requests" value={stats.totalRequests} />
           <StatItem
             label="Success Rate"
-            value={`${Math.round((stats.totalRequestsSuccess / stats.totalRequests) * 100)}%`}
+            value={`${stats.totalRequests ? Math.round((stats.totalRequestsSuccess / stats.totalRequests) * 100) : 0}%`}
           />
           <StatItem label="Cached Requests" value={stats.totalCachedRequests} />
           <StatItem label="Non-Cached Requests" value={stats.totalNonCachedRequests} />

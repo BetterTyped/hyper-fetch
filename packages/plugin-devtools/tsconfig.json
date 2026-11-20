@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "types": ["node"],
     "paths": {
       "@hyper-fetch/plugin-devtools": ["./src"]
     }

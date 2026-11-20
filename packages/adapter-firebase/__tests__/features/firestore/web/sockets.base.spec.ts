@@ -15,5 +15,8 @@ describe("Firestore Database Browser [Sockets]", () => {
   afterEach(async () => {
     await deleteCollectionForBrowser(firestoreDbBrowser, "teas");
   });
-  socketsMethodsSharedTestCases(FirebaseSocketsAdapter(firestoreDbBrowser), () => FirebaseAdapter(firestoreDbBrowser));
+  socketsMethodsSharedTestCases(
+    () => FirebaseSocketsAdapter(firestoreDbBrowser),
+    () => FirebaseAdapter(firestoreDbBrowser),
+  );
 });

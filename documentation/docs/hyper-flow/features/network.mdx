@@ -22,6 +22,15 @@ This is invaluable for:
 - **Performance Tuning**: Identify redundant or slow API calls.
 
 Each entry in the list provides a summary of the request, including the method, endpoint, status, and response time.
+Requests are listed as soon as they are queued, so requests waiting in a stopped queue show up as **Paused**. GraphQL
+requests are listed by their operation name instead of the whole document.
+
+### Search and filters
+
+- **Search** matches the endpoint, method, query key, cache key and abort key.
+- **Status filters** narrow the list to successful, failed, in progress, paused, canceled or removed requests, and work
+  together with the search.
+- **Clear network** empties the list but keeps your search and filter, so new requests are filtered the same way.
 
 ---
 

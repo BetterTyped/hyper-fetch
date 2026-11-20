@@ -2,16 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Home, Maximize2, X, Minus } from "lucide-react";
 import React from "react";
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  // BreadcrumbPage,
-  // BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-// import { Button } from "@/components/ui/button";
-// import { NavUser } from "./nav-user";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb";
 import { useIsFocused } from "@/hooks/use-is-focused";
 
 const dragStyle = {
@@ -24,30 +15,8 @@ const noDragStyle = {
   WebkitAppRegion: "no-drag",
 } as React.CSSProperties;
 
-// type BreadcrumbsType = {
-//   name: string;
-//   breadcrumb: string;
-//   params: Record<string, string>;
-// }[];
-
-// const Item = ({ name, params, breadcrumb }: BreadcrumbsType[number]) => {
-//   switch (name) {
-//     case "application": {
-//       return (
-//         <>
-//           <AppWindowMac className="w-4 h-4" />
-//           {params.applicationName}
-//         </>
-//       );
-//     }
-//     default:
-//       return breadcrumb;
-//   }
-// };
-
 export const Navbar = () => {
   const isFocused = useIsFocused();
-  // const breadcrumbs = useBreadcrumbs();
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -119,60 +88,9 @@ export const Navbar = () => {
                   <Home className="w-4 h-4" /> Home
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {/* {breadcrumbs.map((data, index) => {
-                const { path, name } = data;
-                const isLast = index === breadcrumbs.length - 1;
-
-                if (!isLast) {
-                  return (
-                    <Fragment key={path}>
-                      <BreadcrumbSeparator className="hidden md:block" />
-                      <BreadcrumbItem>
-                        <BreadcrumbLink
-                          href={path}
-                          className="flex gap-1 items-center capitalize"
-                          style={noDragStyle}
-                          asChild
-                        >
-                          <Link href={path}>
-                            <Item {...data} />
-                          </Link>
-                        </BreadcrumbLink>
-                      </BreadcrumbItem>
-                    </Fragment>
-                  );
-                }
-
-                return (
-                  <Fragment key={name}>
-                    <BreadcrumbSeparator className="hidden md:block" />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage className="capitalize">
-                        <Item {...data} />
-                      </BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </Fragment>
-                );
-              })} */}
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-      </div>
-      <div className="flex gap-3 items-center text-sm text-zinc-400" style={noDragStyle}>
-        {/* <Button size="sm">
-          <Rocket className="w-3.5 h-3.5" />
-          Upgrade
-        </Button>
-        <Button variant="ghost" size="icon">
-          <RefreshCcw className="w-3.5 h-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Settings className="w-3.5 h-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Bell className="w-3.5 h-3.5" />
-        </Button>
-        <NavUser /> */}
       </div>
     </div>
   );

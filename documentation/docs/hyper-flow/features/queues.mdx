@@ -30,6 +30,9 @@ This overview is critical for understanding how your application handles concurr
 For more granular control, you can inspect the details of any specific queue. This view provides a complete history of
 the requests that have passed through the queue, as well as those that are currently being processed or are pending.
 
+It also shows the queue's observers: the subscriptions of your application to the loading state or the queue of its
+query key. Every mounted `useFetch`, `useSubmit` and `useQueue` using the key counts as one.
+
 ### With this detailed view, you can:
 
 - **Troubleshoot Stuck Requests**: Identify requests that are failing or taking too long to process.

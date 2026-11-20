@@ -24,7 +24,7 @@ type MethodStatsStore = {
     };
   };
   initialize: (applicationName: string) => void;
-  setMethodStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setMethodStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
 };
 
 export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
@@ -33,7 +33,7 @@ export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
     set((state) =>
       produce(state, (draft) => {
         draft.applications[applicationName] = {
-          generalStats: initialNetworkStats,
+          generalStats: { ...initialNetworkStats },
           methodsStats: new Map(),
         };
       }),
@@ -47,24 +47,21 @@ export const useMethodStatsStore = create<MethodStatsStore>((set) => ({
       payloadSize,
     };
 
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = {
-            generalStats: initialNetworkStats,
-            methodsStats: new Map(),
-          };
-        }
-        draft.applications[application].methodsStats.set(data.request.method, {
-          method: data.request.method,
-          methodStats: getNetworkStats(
-            draft.applications[application].methodsStats.get(data.request.method)?.methodStats ?? initialNetworkStats,
-            data,
-            perf,
-          ),
-          errorStats: getErrorStats(data),
-        });
-      }),
-    );
+    set((state) => {
+      const app = state.applications[application];
+      const existing = app.methodsStats.get(data.request.method);
+      const methodsStats = new Map(app.methodsStats);
+      methodsStats.set(data.request.method, {
+        method: data.request.method,
+        methodStats: getNetworkStats(existing?.methodStats ?? initialNetworkStats, data, perf),
+        errorStats: getErrorStats(data, existing?.errorStats),
+      });
+      return {
+        applications: {
+          ...state.applications,
+          [application]: { generalStats: getNetworkStats(app.generalStats, data, perf), methodsStats },
+        },
+      };
+    });
   },
 }));

@@ -8,7 +8,9 @@ import type {
 import type { Emitter, Listener } from "@hyper-fetch/sockets";
 import { Socket } from "@hyper-fetch/sockets";
 
-import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
+import { createObserversReporter } from "./devtools.observers-reporter";
+import { createSocketReporter, getSocketIds } from "./devtools.socket-reporter";
+import { CoreEvents, EventSourceType, InternalEvents, ObserverEvents } from "./types/events.types";
 import type { HFEventMessagePayload, PluginInternalMessagePayload } from "./types/messages.types";
 import { MessageOrigin, MessageType } from "./types/messages.types";
 import type { DevtoolsPluginOptions } from "./types/plugin.types";
@@ -18,6 +20,9 @@ type EventData<
   Events extends (...args: any) => Record<string, (...args: any) => any>,
   Key extends keyof ReturnType<Events>,
 > = Parameters<Parameters<ReturnType<Events>[Key]>[0]>[0];
+
+/** Events kept while HyperFlow is not connected, the oldest are dropped so an app without HyperFlow doesn't grow */
+export const MAX_QUEUED_EVENTS = 1000;
 
 export class DevtoolsEventHandler {
   client: ClientInstance;
@@ -32,10 +37,19 @@ export class DevtoolsEventHandler {
   connectionName: string;
   environment: string;
   logger: LoggerMethods;
+  socketReporters: ReturnType<typeof createSocketReporter>[] = [];
+  observersReporter: ReturnType<typeof createObserversReporter>;
 
   constructor(
     client: ClientInstance,
-    { appName, url = "ws://localhost:2137", debug = false, environment }: DevtoolsPluginOptions,
+    {
+      appName,
+      url = "ws://localhost:2137",
+      debug = false,
+      environment,
+      WebSocket,
+      sockets = [],
+    }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.isInitialized = false;
@@ -46,7 +60,7 @@ export class DevtoolsEventHandler {
     this.environment = environment || appName;
     this.socket = new Socket({
       url,
-      adapterOptions: { autoConnect: false },
+      adapterOptions: { autoConnect: false, WebSocket },
       reconnect: 100,
       reconnectTime: 3000,
     }).setQueryParams({
@@ -55,6 +69,31 @@ export class DevtoolsEventHandler {
     });
 
     this.logger = client.loggerManager.initialize(client, "DevtoolsEventHandler");
+
+    const socketIds = getSocketIds(sockets);
+    this.socketReporters = sockets.map((inspected, index) =>
+      createSocketReporter({
+        socket: inspected,
+        socketId: socketIds[index],
+        report: (eventName, data) =>
+          this.sendEvent({ eventSource: EventSourceType.SOCKET, eventName, data, isTriggeredExternally: false }),
+      }),
+    );
+
+    this.observersReporter = createObserversReporter({
+      client,
+      report: (data) => {
+        // Counts change all the time, so instead of queueing them HyperFlow gets their snapshot when it connects
+        if (this.isConnected && this.isInitialized) {
+          this.sendEvent({
+            eventSource: EventSourceType.OBSERVERS,
+            eventName: ObserverEvents.CHANGED,
+            data,
+            isTriggeredExternally: false,
+          });
+        }
+      },
+    });
 
     this.socketEmitter = this.socket.createEmitter<PluginInternalMessagePayload>()({
       topic: SocketTopics.PLUGIN_EMITTER,
@@ -101,6 +140,11 @@ export class DevtoolsEventHandler {
             }
             if (message.data.eventName === CoreEvents.ON_CACHE_INVALIDATION) {
               const data = message.data.eventData as EventData<typeof getCacheEvents, "onInvalidate">;
+              // Same as `cache.invalidate()`, without announcing the change back to HyperFlow
+              const value = client.cache.storage.get(data);
+              if (value) {
+                client.cache.storage.set(data, { ...value, staleTime: 0 });
+              }
               client.cache.events.emitInvalidation(data, true);
             }
             if (message.data.eventName === CoreEvents.ON_CACHE_DELETE) {
@@ -152,12 +196,12 @@ export class DevtoolsEventHandler {
         case MessageType.INTERNAL: {
           if (message.data.eventType === InternalEvents.APP_INITIALIZED) {
             this.isInitialized = true;
-            while (this.eventQueue.length > 0) {
-              const nextEvent = this.eventQueue.shift();
-              if (nextEvent) {
-                this.socketEmitter.emit({ payload: nextEvent });
-              }
-            }
+            this.eventQueue.splice(0).forEach((queuedEvent) => {
+              this.socketEmitter.emit({ payload: queuedEvent });
+            });
+            // A reloaded HyperFlow knows nothing about the sockets, their events so far went to the previous one
+            this.socketReporters.forEach((reporter) => reporter.sendSnapshot());
+            this.observersReporter.sendSnapshot();
           } else {
             this.logger.error({
               title: `Unknown event type ${message.data.messageType}`,
@@ -215,6 +259,9 @@ export class DevtoolsEventHandler {
         console.error("ERROR", e);
       }
     } else {
+      if (this.eventQueue.length >= MAX_QUEUED_EVENTS) {
+        this.eventQueue.shift();
+      }
       this.eventQueue.push({
         messageType: MessageType.EVENT,
         eventSource,

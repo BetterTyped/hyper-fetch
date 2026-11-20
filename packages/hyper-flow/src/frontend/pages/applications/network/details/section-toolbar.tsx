@@ -25,7 +25,7 @@ export const SectionToolbar = ({ item }: { item: DevtoolsRequestEvent }) => {
   };
 
   const remove = () => {
-    removeNetworkRequest({ application: application.name, requestId: item.requestId ?? "" });
+    removeNetworkRequest({ application: application.name, requestId: item.requestId });
   };
 
   return (

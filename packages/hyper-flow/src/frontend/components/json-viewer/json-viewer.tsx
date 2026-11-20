@@ -8,22 +8,24 @@ import { toast } from "sonner";
 
 import { Button } from "../ui/button";
 import { jsonViewerStyles } from "./json-viewer.styles";
-import { getRaw, theme, updateValue } from "./json-viewer.utils";
+import { getRaw, theme, toDataKeys, updateValue } from "./json-viewer.utils";
 import { Label } from "./label/label";
 import { Value } from "./value/value";
+import { useClipboard } from "@/hooks/use-clipboard";
 
 const CopyButton = ({ data }: { data: any }) => {
-  const handleCopy = () => {
-    const jsonString = JSON.stringify(data, null, 2);
-    navigator.clipboard.writeText(jsonString);
-    toast.success("Copied to clipboard");
-  };
+  const { copy } = useClipboard({
+    onSuccess: () => toast.success("Copied to clipboard"),
+    onError: () => toast.error("Could not copy to clipboard"),
+  });
+  const handleCopy = () => copy(JSON.stringify(data, null, 2));
 
   return (
     <Button
       type="button"
       variant="secondary"
       size="icon"
+      aria-label="Copy JSON"
       onClick={handleCopy}
       className="w-9 h-9 absolute top-1 right-1 opacity-50 group-hover:opacity-100"
     >
@@ -42,21 +44,28 @@ export const JSONViewer = ({
   data: any;
   onChange?: (value: any) => void;
 } & Partial<Omit<CommonExternalProps, "data" | "theme" | "valueRenderer">>) => {
+  // Without `onChange` the values are disabled, so they never call this
   const handleOnChange = (path: (number | string)[]) => (value: any) => {
-    if (onChange) {
-      const newData = produce(data, (draft: any) => {
-        updateValue(draft, path, value);
-      });
-      onChange(newData);
-    } else {
-      console.error("onChange is not provided");
-    }
+    onChange?.(
+      produce(data, (draft: any) => {
+        updateValue(draft, toDataKeys(path, hideRoot), value);
+      }),
+    );
   };
 
-  if (!data) {
+  if (data === null || data === undefined) {
     return (
       <div>
         <span className="inline-flex text-red-500">{String(data)}</span>
+      </div>
+    );
+  }
+
+  // A plain value (string, number, boolean) is the whole data, so it is edited and replaced as a whole
+  if (typeof data !== "object") {
+    return (
+      <div className={jsonViewerStyles.base}>
+        <Value value={String(data)} raw={data} path={[]} onChange={(value) => onChange?.(value)} disabled={!onChange} />
       </div>
     );
   }
@@ -73,7 +82,7 @@ export const JSONViewer = ({
           <Value value={value} raw={raw} path={path} onChange={handleOnChange(path)} disabled={!onChange} />
         )}
         labelRenderer={(path, _, __, expandable) => (
-          <Label label={path[0]} getRaw={() => getRaw(data, path)} expandable={expandable} />
+          <Label label={path[0]} getRaw={() => getRaw(data, toDataKeys(path, hideRoot))} expandable={expandable} />
         )}
       />
       <CopyButton data={data} />

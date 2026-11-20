@@ -10,8 +10,8 @@ export const SectionOverview = ({ item }: { item: DevtoolsRequestEvent }) => {
   const status = getStatus(item);
 
   const isValidStatusType = typeof item.response?.status === "number" || typeof item.response?.status === "string";
-  const isValidResponseTimestampType =
-    typeof item.response?.responseTimestamp === "number" || typeof item.response?.responseTimestamp === "string";
+  const responseTimestamp = item.response?.responseTimestamp;
+  const isValidResponseTimestampType = typeof responseTimestamp === "number" || typeof responseTimestamp === "string";
 
   return (
     <div>
@@ -50,10 +50,8 @@ export const SectionOverview = ({ item }: { item: DevtoolsRequestEvent }) => {
             <TableCell>
               {isValidResponseTimestampType ? (
                 <>
-                  <span className="text-muted-foreground">
-                    {format(new Date(item.response?.responseTimestamp ?? 0), "yyyy-MM-dd")}
-                  </span>
-                  <span className="ml-2">{format(new Date(item.response?.responseTimestamp ?? 0), "HH:mm:ss")}</span>
+                  <span className="text-muted-foreground">{format(new Date(responseTimestamp), "yyyy-MM-dd")}</span>
+                  <span className="ml-2">{format(new Date(responseTimestamp), "HH:mm:ss")}</span>
                 </>
               ) : (
                 <Badge variant="secondary">Unknown</Badge>

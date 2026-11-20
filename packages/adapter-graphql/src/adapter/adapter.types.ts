@@ -1,4 +1,11 @@
-import type { Adapter, DefaultMapperType, EmptyTypes, QueryParamsType, stringifyQueryParams } from "@hyper-fetch/core";
+import type {
+  Adapter,
+  DefaultMapperType,
+  EmptyTypes,
+  QueryParamsType,
+  RequestInstance,
+  stringifyQueryParams,
+} from "@hyper-fetch/core";
 import type { DocumentNode } from "graphql/language/ast";
 
 export enum GraphqlMethod {
@@ -32,7 +39,7 @@ export type GraphqlAdapterType = Adapter<
   GraphQlEndpointType,
   (endpoint: GraphQlEndpointType) => string,
   typeof stringifyQueryParams,
-  DefaultMapperType,
+  (request: RequestInstance) => HeadersInit,
   DefaultMapperType,
   GraphqlRequestOptionsType
 >;
