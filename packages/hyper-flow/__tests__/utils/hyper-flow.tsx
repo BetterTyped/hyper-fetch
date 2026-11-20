@@ -1,6 +1,7 @@
 import type { ClientInstance } from "@hyper-fetch/core";
 import { createClient } from "@hyper-fetch/core";
 import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+import type { SocketInstance } from "@hyper-fetch/sockets";
 import type { StartServer } from "@server/server";
 import { startServer } from "@server/server";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
@@ -23,6 +24,7 @@ import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { useNetworkStore } from "@/store/applications/network.store";
 import { useQueueStatsStore } from "@/store/applications/queue-stats.store";
 import { useQueueStore } from "@/store/applications/queue.store";
+import { useSocketsStore } from "@/store/applications/sockets.store";
 import { useSettings } from "@/store/general/settings.store";
 import { useTracking } from "@/store/general/tracking.store";
 
@@ -42,6 +44,7 @@ export const resetStores = () => {
   reset(useNetworkStore);
   reset(useQueueStatsStore);
   reset(useQueueStore);
+  reset(useSocketsStore);
   reset(useSettings);
   reset(useTracking);
   useConnectionStore.setState({ connections: {} });
@@ -136,13 +139,16 @@ export const createHyperFlowEnv = () => {
     appName = "App",
     client,
     environment,
+    sockets,
   }: {
     appName?: string;
     client?: Client;
     environment?: string;
+    /** Sockets to inspect, passed to the plugin's `sockets` option */
+    sockets?: SocketInstance[];
   } = {}) => {
     const resolvedClient = (client ?? createClient({ url: "http://localhost:5000" })) as Client;
-    const plugin = DevtoolsPlugin({ appName, url: `ws://localhost:${port}`, environment });
+    const plugin = DevtoolsPlugin({ appName, url: `ws://localhost:${port}`, environment, sockets });
     resolvedClient.addPlugin(plugin);
 
     const app: ConnectedApp = {

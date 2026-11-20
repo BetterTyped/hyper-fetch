@@ -1,9 +1,11 @@
 import { useDidMount } from "@better-hooks/lifecycle";
+import type { SocketEvents } from "@hyper-fetch/plugin-devtools";
 import { CoreEvents, EventSourceType, InternalEvents, MessageOrigin, MessageType } from "@hyper-fetch/plugin-devtools";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { memo, useEffect } from "react";
 
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { useSocketsStore } from "@/store/applications/sockets.store";
 
 export const Events = memo(({ application }: { application: string }) => {
   const { connections } = useConnectionStore();
@@ -22,6 +24,10 @@ export const Events = memo(({ application }: { application: string }) => {
     switch (eventSource) {
       case EventSourceType.CUSTOM_EVENT: {
         // Custom events are not presented yet
+        return;
+      }
+      case EventSourceType.SOCKET: {
+        useSocketsStore.getState().handleEvent(application, eventName as SocketEvents, eventData);
         return;
       }
       case EventSourceType.REQUEST_MANAGER:
