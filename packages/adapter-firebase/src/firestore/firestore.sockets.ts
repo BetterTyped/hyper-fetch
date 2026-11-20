@@ -1,4 +1,3 @@
-import type { DocumentSnapshot } from "@firebase/firestore";
 import type { DefaultMapperType } from "@hyper-fetch/core";
 import { SocketAdapter } from "@hyper-fetch/sockets";
 import type {
@@ -7,6 +6,7 @@ import type {
   FirestoreOnSnapshotExtra,
   FirestoreSocketAdapterType,
 } from "adapter";
+import type { DocumentSnapshot } from "firebase/firestore";
 import type { Firestore, QuerySnapshot } from "firebase/firestore";
 import { collection, disableNetwork, doc, enableNetwork, onSnapshot, query } from "firebase/firestore";
 import { getStatus, isDocOrQuery } from "utils";
