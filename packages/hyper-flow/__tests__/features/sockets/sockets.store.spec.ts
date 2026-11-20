@@ -33,9 +33,14 @@ describe("Sockets store", () => {
     expect(socket()).toMatchObject({ status: "connected", connectedAt: 2000 });
 
     handle(SocketEvents.DISCONNECTED);
-    handle(SocketEvents.RECONNECTING, { attempts: 1 });
+    // Sockets count the attempts made before this one
+    handle(SocketEvents.RECONNECTING, { attempts: 0 });
     handle(SocketEvents.CONNECTING);
     expect(socket()).toMatchObject({ status: "reconnecting", reconnectAttempts: 1, connectedAt: null });
+    expect(app().messages.find((message) => message.event === SocketEvents.RECONNECTING)?.attempts).toBe(1);
+
+    handle(SocketEvents.RECONNECTING, { attempts: 1 });
+    expect(socket().reconnectAttempts).toBe(2);
 
     handle(SocketEvents.RECONNECT_FAILED, { attempts: 3 });
     expect(socket()).toMatchObject({ status: "failed", reconnectAttempts: 3 });

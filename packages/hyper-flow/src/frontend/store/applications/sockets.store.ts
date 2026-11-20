@@ -129,6 +129,10 @@ const countTopic = ({
   return { ...topics, [topic]: { ...current, [direction]: current[direction] + 1, lastAt: timestamp } };
 };
 
+/** The 1-based number of the reconnection attempt an event announces */
+const getAttemptNumber = (data: DevtoolsSocketEventData, socket: InspectedSocket) =>
+  data.attempts === undefined ? socket.reconnectAttempts + 1 : data.attempts + 1;
+
 /** The socket after an event of the plugin */
 export const applySocketEvent = ({
   socket,
@@ -159,8 +163,9 @@ export const applySocketEvent = ({
       return { ...socket, status: "connected", connectedAt: timestamp, reconnectAttempts: 0, lastActivity: timestamp };
     case SocketEvents.DISCONNECTED:
       return { ...socket, status: "disconnected", connectedAt: null };
+    // Sockets report the attempts made before this one, so the first reconnection comes with 0
     case SocketEvents.RECONNECTING:
-      return { ...socket, status: "reconnecting", reconnectAttempts: data.attempts ?? socket.reconnectAttempts + 1 };
+      return { ...socket, status: "reconnecting", reconnectAttempts: getAttemptNumber(data, socket) };
     case SocketEvents.RECONNECT_FAILED:
       return { ...socket, status: "failed", reconnectAttempts: data.attempts ?? socket.reconnectAttempts };
     case SocketEvents.ERROR:
@@ -249,7 +254,8 @@ export const useSocketsStore = create<SocketsStore>((set) => {
           data: data.data,
           extra: data.extra,
           error: data.error,
-          attempts: data.attempts ?? null,
+          // Shown as "attempt N", so a reconnection gets its 1-based number
+          attempts: event === SocketEvents.RECONNECTING ? socket.reconnectAttempts : (data.attempts ?? null),
           timestamp: data.timestamp,
           size,
         };
