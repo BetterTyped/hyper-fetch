@@ -57,8 +57,8 @@ one line here in the same change.
 - **Subscription payload**: data a Listener sends to start a server-side subscription, set with `setPayload`, for
   example a tRPC subscription input. Listeners of one topic with different payloads are separate subscriptions.
 - **Subscription**: one server-side stream started for a topic and a payload, such as a tRPC subscription procedure or
-  an oRPC event iterator. Listeners with an equal payload share it; the last one to stop ends it on the server.
-  Adapters with `confirmsSubscriptions` report when the server started it and when it ended it, finished or failed.
+  an oRPC event iterator. Listeners with an equal payload share it; the last one to stop ends it on the server. Adapters
+  with `confirmsSubscriptions` report when the server started it and when it ended it, finished or failed.
 - **Event id**: the id of a subscription event (`tracked()` in tRPC, `withEventMeta` in oRPC, `id:` in SSE), sent back
   when a subscription restarts so the server can resume after it.
 - **Emitter**: a typed event sender for a topic.
@@ -69,5 +69,8 @@ one line here in the same change.
 - **HyperFlow**: the desktop devtools app in `packages/hyper-flow`.
 - **DevtoolsPlugin**: the plugin in `@hyper-fetch/plugin-devtools` that streams a client's events to HyperFlow and
   applies the changes HyperFlow sends back.
-- **Mirror client**: the client HyperFlow keeps for each connected application. It replays that application's events
-  and presents them with the application's adapter, but never sends requests.
+- **Mirror client**: the client HyperFlow keeps for each connected application. It replays that application's events and
+  presents them with the application's adapter, but never sends requests.
+- **Observer**: a subscription of the user's application to a `cacheKey`'s data or a `queryKey`'s loading state or
+  queue, one for each mounted `useFetch`, `useSubmit`, `useCache` or `useQueue`. The mirror client has none, so
+  DevtoolsPlugin reports their counts to HyperFlow.
