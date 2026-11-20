@@ -1,12 +1,13 @@
-import type { MockInstance } from "vitest";
-
 import { appLogger, serverLogger } from "@shared/utils/logger";
+import { stripVTControlCharacters } from "node:util";
+import type { MockInstance } from "vitest";
 
 describe("Logger", () => {
   let log: MockInstance<typeof console.log>;
   let error: MockInstance<typeof console.error>;
 
-  const printed = (spy: MockInstance<typeof console.log>) => spy.mock.calls.flat().join("\n");
+  // Terminals with color support (CI included) get chalk's escape codes between the labels, so match the plain text
+  const printed = (spy: MockInstance<typeof console.log>) => stripVTControlCharacters(spy.mock.calls.flat().join("\n"));
 
   beforeEach(() => {
     log = vi.spyOn(console, "log").mockImplementation(() => undefined);

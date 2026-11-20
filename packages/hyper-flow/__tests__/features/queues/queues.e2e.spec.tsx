@@ -2,6 +2,7 @@ import { createClient } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { screen, waitFor, within } from "@testing-library/react";
 
+import { createHold } from "../../utils/hold";
 import { createHyperFlowEnv } from "../../utils/hyper-flow";
 import { useQueueStore } from "@/store/applications/queue.store";
 
@@ -83,11 +84,13 @@ describe("Queues [ E2E ]", () => {
 
     it("should show a running fetch queue while the request is in flight and empty it when done", async () => {
       const { getUsers } = await setup();
-      mockRequest(getUsers, { data: [], delay: 300 });
+      const { until, release } = createHold();
+      mockRequest(getUsers, { data: [], until });
 
       const promise = getUsers.send();
 
       await expectCard(getUsers.queryKey, { status: "Running", active: 1 });
+      release();
       await promise;
       await expectCard(getUsers.queryKey, { status: "Pending", active: 0 });
       expect(useQueueStore.getState().applications.App.queues.get(getUsers.queryKey)?.requests).toHaveLength(0);
@@ -95,11 +98,13 @@ describe("Queues [ E2E ]", () => {
 
     it("should show a running submit queue while the request is in flight", async () => {
       const { postUser } = await setup();
-      mockRequest(postUser, { data: { id: 1, name: "Maciej" }, delay: 300 });
+      const { until, release } = createHold();
+      mockRequest(postUser, { data: { id: 1, name: "Maciej" }, until });
 
       const promise = postUser.send({ payload: { name: "Maciej" } });
 
       await expectCard(postUser.queryKey, { status: "Running", active: 1 });
+      release();
       await promise;
       await expectCard(postUser.queryKey, { status: "Pending", active: 0 });
     });
@@ -108,11 +113,13 @@ describe("Queues [ E2E ]", () => {
       const { getUsers } = await setup();
       // Queued requests wait for each other, so the second one stays in the queue behind the first
       const queued = getUsers.setQueued(true);
-      mockRequest(queued, { data: [], delay: 200 });
+      const { until, release } = createHold();
+      mockRequest(queued, { data: [], until });
       const first = queued.send();
       const second = queued.send();
 
       await expectCard(getUsers.queryKey, { status: "Running", active: 2 });
+      release();
       await Promise.all([first, second]);
       await expectCard(getUsers.queryKey, { status: "Pending", active: 0 });
     });

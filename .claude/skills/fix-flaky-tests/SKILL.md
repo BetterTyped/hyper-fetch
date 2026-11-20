@@ -1,7 +1,6 @@
 ---
 name: fix-flaky-tests
-description:
-  Find, reproduce, root-cause and permanently fix flaky (intermittently failing) tests in the hyper-fetch monorepo. Use
+description: Find, reproduce, root-cause and permanently fix flaky (intermittently failing) tests in the hyper-fetch monorepo. Use
   proactively whenever a test fails once and passes on re-run, when CI is red and then green without code changes, when
   a `waitFor` times out around 1000ms, when a test depends on sleeps or default mock delays, or when a user says
   "flaky", "intermittent", "timeout", "works locally", "fix flake". Also use after adding new async tests to prove they
@@ -50,7 +49,7 @@ widening a timeout, or marking it skipped. Find the dependency and remove it.
 
 | Symptom                                                                     | Root cause                                                                                                                                  | Fix                                                                                                                                                                  |
 | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Second hook/instance expected to see an in-flight request but sees finished | `mockRequest(request)` default delay is **20ms** (`packages/testing/src/http/http.mock.ts`) - request finishes before the next render/mount | Pass an explicit `delay` (e.g. `{ delay: 500 }`) so the window is wide enough; never rely on the default                                                             |
+| Second hook/instance expected to see an in-flight request but sees finished | `mockRequest(request)` default delay is **20ms** (`packages/testing/src/http/http.mock.ts`) - request finishes before the next render/mount | Pass `until` (a promise the test resolves after asserting) so the response waits for the test; a bigger `delay` only makes the race rarer                            |
 | Assertion right after an async emit                                         | Treating async delivery as sync                                                                                                             | Wrap in `await waitFor(() => ...)`; for sockets use `waitForConnection(socket)` before emitting                                                                      |
 | Test uses `await sleep(n)` and asserts a count                              | Real-timer race                                                                                                                             | Use `vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] })` + `vi.advanceTimersByTime`, or `waitFor`. Keep `Date`/promises real so mock servers still connect |
 | Fake timers break connection setup                                          | mock-socket / msw use timers to connect                                                                                                     | Connect with real timers first (`await waitForConnection`), then switch to fake timers inside the test or `beforeEach`                                               |
@@ -74,6 +73,6 @@ widening a timeout, or marking it skipped. Find the dependency and remove it.
 
 - Tests are Vitest; packages expose `pnpm test` and `pnpm typecheck`. Run a single file with
   `pnpm exec vitest run <path>` from the package directory.
-- `@hyper-fetch/testing` helpers: `createHttpMockingServer` (`mockRequest(request, { delay, data, status })`),
+- `@hyper-fetch/testing` helpers: `createHttpMockingServer` (`mockRequest(request, { delay, until, data, status })`),
   `createWebsocketMockingServer` (`emitListenerEvent`), `createSseMockingServer`, `waitForConnection`, `sleep`.
 - Dependents resolve sibling packages through `dist/` - if types look stale, `pnpm build` the dependency first.

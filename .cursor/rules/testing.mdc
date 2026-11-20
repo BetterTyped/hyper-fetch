@@ -67,7 +67,9 @@ If behavior could be tested and you chose not to, say so and ask before finishin
 
 ## Determinism
 
-- Never rely on the default mock delay. Pass an explicit `delay` when a test needs a request to stay in flight.
+- Never rely on the default mock delay. When a test asserts on a request while it is in flight, pass `until` (a
+  promise the test resolves after the assertion) so the response cannot arrive first. A `delay` only makes that race
+  rarer.
 - Prefer `waitFor` over `sleep`, and fake timers over long real waits.
 - Create fixtures in `beforeEach`. Stop servers, restore timers and clear clients so nothing leaks between tests.
 - No `it.skip`, `it.only`, retries or raised timeouts. Use the `fix-flaky-tests` skill and prove new async specs with
