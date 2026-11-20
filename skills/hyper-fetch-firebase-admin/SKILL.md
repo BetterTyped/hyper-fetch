@@ -149,17 +149,16 @@ untrusted input with your schema library before writing; the Admin SDK will stor
 
 ## Differences from `@hyper-fetch/firebase`
 
-| Topic                                                   | `@hyper-fetch/firebase` (web)             | `@hyper-fetch/firebase-admin` (server)                                         |
-| ------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------ |
-| Request adapter                                         | `FirebaseAdapter`                         | `FirebaseAdminAdapter`                                                         |
-| Socket adapter                                          | `FirebaseSocketsAdapter`                  | `FirebaseSocketsAdminAdapter`                                                  |
-| Security rules                                          | enforced for the signed-in user           | bypassed - authorize yourself                                                  |
-| Credentials                                             | public web config                         | service account / application default credentials                              |
-| `setDoc` response `data`                                | the payload you sent                      | the Admin SDK `WriteResult`                                                    |
-| Firestore socket `connect` / `disconnect` / `reconnect` | toggle `enableNetwork` / `disableNetwork` | throw - never call them                                                        |
-| Realtime socket `connect` / `disconnect`                | `goOnline` / `goOffline`                  | `database.goOnline()` / `database.goOffline()`                                 |
-| Realtime document listener `data`                       | `snapshot.val()`                          | object value plus `__key` (expects object values)                              |
-| Removing a Realtime listener                            | removes that subscription                 | calls `query.off("value")`, which removes every `value` listener on that query |
+| Topic                                                   | `@hyper-fetch/firebase` (web)             | `@hyper-fetch/firebase-admin` (server)            |
+| ------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------- |
+| Request adapter                                         | `FirebaseAdapter`                         | `FirebaseAdminAdapter`                            |
+| Socket adapter                                          | `FirebaseSocketsAdapter`                  | `FirebaseSocketsAdminAdapter`                     |
+| Security rules                                          | enforced for the signed-in user           | bypassed - authorize yourself                     |
+| Credentials                                             | public web config                         | service account / application default credentials |
+| `setDoc` response `data`                                | the payload you sent                      | the Admin SDK `WriteResult`                       |
+| Firestore socket `connect` / `disconnect` / `reconnect` | toggle `enableNetwork` / `disableNetwork` | throw - never call them                           |
+| Realtime socket `connect` / `disconnect`                | `goOnline` / `goOffline`                  | `database.goOnline()` / `database.goOffline()`    |
+| Realtime document listener `data`                       | `snapshot.val()`                          | object value plus `__key` (expects object values) |
 
 ## Server-side realtime listeners
 
@@ -185,10 +184,9 @@ process.on("SIGTERM", () => {
 - Listener options: Firestore `constraints`, `groupByChangeType`; Realtime Database `constraints`, `onlyOnce` (uses
   `once("value")`).
 - Firebase sockets are receive-only: `emit()` throws.
-- Listener `data` is the full current result: replace, do not append. A callback can run more than once per snapshot, so
-  make side effects (job processing, sending mail) idempotent, for example with a transaction or a status check.
-- With the Realtime Database admin socket, keep one listener per path and fan out yourself; unsubscribing one removes
-  all `value` listeners on that query.
+- Listener `data` is the full current result: replace, do not append. Every snapshot includes items you already handled,
+  so make side effects (job processing, sending mail) idempotent, for example with a transaction or a status check.
+- Keep one listener per topic on a socket: listeners that share a topic also receive each other's snapshots.
 - To shut down Firebase entirely, delete the app (`app.delete()` from `firebase-admin/app`), not the socket.
 
 ## Performance and process notes

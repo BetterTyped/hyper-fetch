@@ -66,7 +66,8 @@ the Realtime Database methods and options.
 7. **Realtime goes through sockets, not requests.** There is no `onSnapshot` / `onValue` request method; create a
    listener on a `FirebaseSocketsAdapter` socket. Firebase sockets are receive-only: `emit()` throws.
 8. **Treat each snapshot as the full current state.** Listener `data` is the whole document or result list; replace
-   state with it, never append. Callbacks can run more than once for the same snapshot.
+   state with it, never append. Keep one listener per topic on a socket: listeners that share a topic also receive each
+   other's snapshots.
 9. **`socket.disconnect()` takes the whole Firebase instance offline** (`disableNetwork` for Firestore, `goOffline` for
    Realtime Database), including your `FirebaseAdapter` requests. To stop one subscription, call its remover.
 10. **This package is for browsers and client apps.** It ships only the public Web SDK config. Server code with service
@@ -123,10 +124,9 @@ Results and `extra`:
 | `deleteDoc`           | `null`                                                               | `ref`                                                   |
 
 Firestore constraints: `$where(field, op, value)`, `$orderBy(field, "asc" | "desc")`, `$limit(n)`, and the cursors
-`$startAt`, `$startAfter`, `$endAt`, `$endBefore`. The cursor helpers forward their arguments wrapped in an array, so
-verify Firestore cursor queries against the emulator before relying on them; paginating with a `$where` range on the
-ordered field plus `$limit` is the safe option. Firestore index rules still apply (a range `$where` plus `$orderBy` on
-another field needs a composite index; the error arrives in `response.error`).
+`$startAt`, `$startAfter`, `$endAt`, `$endBefore`. Cursors take one field value per `$orderBy`, in the same order
+(`[$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")]`). Firestore index rules still apply (a range
+`$where` plus `$orderBy` on another field needs a composite index; the error arrives in `response.error`).
 
 ## Realtime Database requests
 
@@ -157,7 +157,8 @@ await pushMessage.send({ payload: { text: "hi" } }); // data gets __key, extra.k
 - Even-segment paths (`messages/abc`) return `snapshot.val()` as is.
 - `set` replaces, `update` merges, `remove` deletes; `set` with a `null` payload also deletes.
 - Constraints: `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`, `$startAt`,
-  `$startAfter`, `$endAt`, `$endBefore`. Realtime Database allows one `orderBy*` per query.
+  `$startAfter`, `$endAt`, `$endBefore`. Realtime Database allows one `orderBy*` per query. Cursors take the value and
+  an optional key that breaks ties (`$startAfter(2022, "lastKey")`).
 
 ## Realtime listeners
 
