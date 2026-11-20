@@ -16,6 +16,8 @@ const url = "ws://localhost:3001";
 
 describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
   let appManager = new AppManager();
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
 
   const createSocket = (
     adapterOptions?: TrpcWebsocketAdapterOptionsType,
@@ -41,6 +43,7 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
   let setup = createSocket({ autoConnect: false });
 
   beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
     installControlledWebSocket();
     appManager = new AppManager();
     setup = createSocket({ autoConnect: false });
@@ -50,6 +53,7 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
     await setup.socket.disconnect();
     vi.useRealTimers();
     uninstallControlledWebSocket();
+    random.mockRestore();
   });
 
   describe("when connecting", () => {
@@ -184,6 +188,10 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       const ws = await waitForWebSocket();
 
       await vi.advanceTimersByTimeAsync(300);
+      expect(ws.readyState).toBe(ws.CLOSED);
+      // The next attempt follows after the reconnect time
+      expect(ControlledWebSocket.instances).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(100);
       const next = await waitForWebSocket(2);
 
       expect(ws.readyState).toBe(ws.CLOSED);
@@ -200,6 +208,28 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
 
       expect(ControlledWebSocket.instances).toHaveLength(1);
       expect(setup.socket.adapter.connected).toBeTrue();
+    });
+
+    it("should report the disconnect and the timeout before the next attempt starts", async () => {
+      vi.useFakeTimers();
+      const events: string[] = [];
+      setup.socket.events.onDisconnected(() => events.push("disconnected"));
+      setup.socket.onError(({ error }) => {
+        events.push(`error:${(error as Error).message}`);
+      });
+      setup.socket.events.onReconnecting(({ attempts }) => events.push(`reconnecting:${attempts}`));
+      setup.socket.connect();
+      await waitForWebSocket();
+
+      await vi.advanceTimersByTimeAsync(300);
+      await vi.advanceTimersByTimeAsync(100);
+      await waitForWebSocket(2);
+
+      expect(events).toStrictEqual([
+        "disconnected",
+        "error:Connection timeout - no connection within 300ms",
+        "reconnecting:0",
+      ]);
     });
 
     it("should not cut a slow handshake short with a short reconnect time", async () => {
@@ -224,7 +254,8 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       setup.socket.connect();
       const ws = await waitForWebSocket();
       await vi.advanceTimersByTimeAsync(10);
-      // The short connection timeout started over the attempt that did not open
+      // The short connection timeout started over the attempt that did not open, after the reconnect time
+      await vi.advanceTimersByTimeAsync(1000);
       const second = await waitForWebSocket(2);
       expect(ws.readyState).toBe(ws.CLOSED);
       second.serverOpen();
@@ -258,16 +289,30 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       expect(setup.socket.adapter.connected).toBeTrue();
     });
 
-    it("should not reconnect after a normal closure by the server", async () => {
+    it("should report the disconnect before the error that explains it", async () => {
+      setup.socket.connect();
+      const ws = await openWebSocket();
+      const events: string[] = [];
+      setup.socket.events.onDisconnected(() => events.push("disconnected"));
+      setup.socket.events.onError(() => events.push("error"));
+
+      ws.serverClose({ code: 1006 });
+
+      expect(events).toStrictEqual(["disconnected", "error"]);
+    });
+
+    it("should reconnect after a normal closure by the server", async () => {
       vi.useFakeTimers();
       setup.socket.connect();
       const ws = await openWebSocket();
 
+      // Servers, proxies and load balancers close with 1000 on deploys and idle timeouts
       ws.serverClose({ code: 1000, wasClean: true });
-      await vi.advanceTimersByTimeAsync(1000);
-
-      expect(ControlledWebSocket.instances).toHaveLength(1);
       expect(setup.socket.adapter.connected).toBeFalse();
+      await vi.advanceTimersByTimeAsync(100);
+      await openWebSocket(2);
+
+      expect(setup.socket.adapter.connected).toBeTrue();
     });
 
     it("should stop reconnecting after the reconnect attempts", async () => {
@@ -389,7 +434,8 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       vi.useFakeTimers();
       setup.socket.connect();
       const ws = await waitForWebSocket();
-      await vi.advanceTimersByTimeAsync(300);
+      // The connection timeout and the reconnect time
+      await vi.advanceTimersByTimeAsync(400);
       await waitForWebSocket(2);
       const connected = vi.fn();
       setup.socket.onConnected(connected);
@@ -438,11 +484,11 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       setup = createSocket();
       await openWebSocket();
 
-      appManager.setOnline(false);
       appManager.setOnline(true);
       await flushPromises();
 
       expect(ControlledWebSocket.instances).toHaveLength(1);
+      expect(setup.socket.adapter.connected).toBeTrue();
     });
   });
 });

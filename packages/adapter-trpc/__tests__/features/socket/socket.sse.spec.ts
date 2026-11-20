@@ -326,7 +326,8 @@ describe("Trpc SSE Adapter", () => {
 
       stop();
 
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer that resets the reconnection attempts
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should do nothing for a subscription without a stream", async () => {
@@ -517,7 +518,8 @@ describe("Trpc SSE Adapter", () => {
       ControlledEventSource.last.serverOpen({ reconnectAfterInactivityMs: "soon" });
       ControlledEventSource.last.serverEvent("connected", "null");
 
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer that resets the reconnection attempts
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should stop watching a lost stream", async () => {
@@ -528,8 +530,8 @@ describe("Trpc SSE Adapter", () => {
 
       ControlledEventSource.last.serverDrop();
 
-      // Only the connection timeout of the retrying stream is left
-      expect(vi.getTimerCount()).toBe(1);
+      // Only the connection timeout of the retrying stream and the minUptime timer are left
+      expect(vi.getTimerCount()).toBe(2);
     });
   });
 
@@ -583,7 +585,8 @@ describe("Trpc SSE Adapter", () => {
       await vi.advanceTimersByTimeAsync(1000);
 
       expect(ControlledEventSource.instances).toHaveLength(1);
-      expect(vi.getTimerCount()).toBe(0);
+      // Only the minUptime timer that resets the reconnection attempts
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should guard a stream the EventSource retries on its own with the connection timeout", async () => {
@@ -806,6 +809,29 @@ describe("Trpc SSE Adapter", () => {
       await flushPromises();
 
       expect(setup.socket.adapter.connected).toBeTrue();
+    });
+
+    it("should close the streams when the network drops and reopen them with the last event id", async () => {
+      vi.useFakeTimers();
+      // Connected by hand without autoConnect - it follows the network all the same
+      await connect();
+      setup.onTick.listen(vi.fn());
+      const first = ControlledEventSource.last;
+      first.serverOpen();
+      first.serverData(1, "4");
+
+      appManager.setOnline(false);
+      expect(first.readyState).toBe(first.CLOSED);
+      expect(setup.socket.adapter.connected).toBeFalse();
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(ControlledEventSource.instances).toHaveLength(1);
+
+      appManager.setOnline(true);
+      await flushPromises();
+
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(ControlledEventSource.active).toHaveLength(1);
+      expect(ControlledEventSource.last.params.get("lastEventId")).toBe("4");
     });
 
     it("should stay disconnected after a manual disconnect", async () => {

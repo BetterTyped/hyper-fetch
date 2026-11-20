@@ -303,20 +303,25 @@ gets no event or ping for that long is restarted from the last event.
 
 ## Timeouts and cleanup
 
-Two socket options control the timing.
+The socket options control the timing, the same way as for every socket adapter (see
+[retries](/docs/guides/sockets/connection#retries)).
 
 - `connectionTimeout` (5 seconds by default) limits one connection attempt: the WebSocket handshake, or a stream that
   has not received the `connected` event yet, also while the `EventSource` retries it on its own. An attempt that takes
-  longer is started over.
-- `reconnectTime` (5 seconds by default) is the pause before the WebSocket adapter connects again after the connection
-  was lost.
+  longer is a failed attempt, and the next one follows the reconnection delay.
+- `reconnectTime` (1 second by default) and `maxReconnectTime` (30 seconds by default) bound the delay before the
+  WebSocket adapter connects again after the connection was lost. The delay grows with every failed attempt, with
+  jitter, and resets once a connection stays up for `minUptime`.
+- When the server asks the client to reconnect, the adapter moves to a new connection right away - also after the
+  `reconnect` attempts ran out.
 
 ```ts
 const socket = new Socket({
   url: "ws://localhost:3001",
   adapter: TrpcWebsocketAdapter(),
-  connectionTimeout: 10000,
-  reconnectTime: 1000,
+  connectionTimeout: 10_000,
+  reconnectTime: 500,
+  maxReconnectTime: 10_000,
 });
 ```
 
