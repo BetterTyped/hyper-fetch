@@ -10,6 +10,8 @@ type QueueStore = {
       searchTerm: string;
       detailsId: string | null;
       loadingKeys: Set<QueryKey>;
+      /** How many observers the application has for each query key, reported by the plugin */
+      observers: Map<QueryKey, number>;
     };
   };
   initialize: (applicationName: string) => void;
@@ -19,6 +21,8 @@ type QueueStore = {
   closeDetails: (application: string) => void;
   addLoadingKey: (data: { application: string; queryKey: QueryKey }) => void;
   removeLoadingKey: (data: { application: string; queryKey: QueryKey }) => void;
+  /** Store the observer counts of the listed query keys, the other keys keep theirs. */
+  setObservers: (data: { application: string; observers: Record<QueryKey, number> }) => void;
 };
 
 const getInitialState = (): QueueStore["applications"][string] => ({
@@ -26,6 +30,7 @@ const getInitialState = (): QueueStore["applications"][string] => ({
   detailsId: null,
   searchTerm: "",
   loadingKeys: new Set(),
+  observers: new Map(),
 });
 
 export const useQueueStore = create<QueueStore>((set) => {
@@ -84,6 +89,15 @@ export const useQueueStore = create<QueueStore>((set) => {
         const loadingKeys = new Set(app.loadingKeys);
         loadingKeys.delete(queryKey);
         return { ...app, loadingKeys };
+      });
+    },
+    setObservers: ({ application, observers }) => {
+      updateApplication(application, (app) => {
+        const entries = Object.entries(observers);
+        if (!entries.length) {
+          return app;
+        }
+        return { ...app, observers: new Map([...app.observers, ...entries]) };
       });
     },
   };

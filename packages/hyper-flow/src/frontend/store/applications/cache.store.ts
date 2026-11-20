@@ -9,12 +9,15 @@ type CacheKey = string;
 type CacheStore = {
   cacheSearchTerm: string;
   caches: Map<CacheKey, DevtoolsCacheEvent>;
+  /** How many observers the application has for each cache key, reported by the plugin */
+  observers: Map<CacheKey, number>;
   detailsId: string | null;
 };
 
 const getInitialState = (): CacheStore => ({
   cacheSearchTerm: "",
   caches: new Map(),
+  observers: new Map(),
   detailsId: null,
 });
 
@@ -33,6 +36,8 @@ type Store = {
   invalidateCache: (data: { application: string; cacheKey: string }) => void;
   /** Drop an entry deleted from the application's cache, and close its details if they were open. */
   removeCache: (data: { application: string; cacheKey: string }) => void;
+  /** Store the observer counts of the listed cache keys, the other keys keep theirs. */
+  setObservers: (data: { application: string; observers: Record<CacheKey, number> }) => void;
 };
 
 export const useCacheStore = create<Store>((set) => ({
@@ -101,6 +106,18 @@ export const useCacheStore = create<Store>((set) => ({
             ...cacheData.cacheData,
             staleTime: 0,
           },
+        });
+      }),
+    );
+  },
+  setObservers: ({ application, observers }) => {
+    if (!Object.keys(observers).length) {
+      return;
+    }
+    set((state) =>
+      produce(state, (draft) => {
+        Object.entries(observers).forEach(([cacheKey, count]) => {
+          draft.applications[application].observers.set(cacheKey, count);
         });
       }),
     );
