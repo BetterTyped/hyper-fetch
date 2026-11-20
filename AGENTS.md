@@ -57,6 +57,20 @@ pnpm exec vitest run __tests__/features/cache/cache.base.spec.ts
 pnpm --filter @hyper-fetch/elysia test:bun
 ```
 
+- `firebase` and `firebase-admin` specs run against the Firebase emulators, so the affected command skips them. When
+  those packages, `core` or `sockets` change, run them too. They need Java 11 or newer, and CI runs them in the
+  `firebase-tests` job:
+
+```bash
+pnpm test:firebase
+```
+
+- To run one Firebase spec, wrap vitest in the emulators from the package directory:
+
+```bash
+pnpm exec firebase emulators:exec "npx vitest run __tests__/features/constraints/constraints.base.spec.ts"
+```
+
 - Fix every error you introduced before reporting the work as complete. Never report a check you did not run.
 - `pnpm format` rewrites unrelated files. Revert those instead of committing them.
 - Changes limited to Markdown, MDX or agent rules need no package checks.
