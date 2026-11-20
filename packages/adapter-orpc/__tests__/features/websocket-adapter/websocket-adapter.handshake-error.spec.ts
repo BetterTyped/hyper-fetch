@@ -13,6 +13,8 @@ describe("Orpc Websocket Adapter [ Handshake error without close ]", () => {
 
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    // The reconnect delay is jittered - the lowest one is exactly the reconnect time
+    vi.spyOn(Math, "random").mockReturnValue(0);
     installControlledWebSocket();
     socket = new Socket({
       url: "ws://refused",
@@ -27,6 +29,7 @@ describe("Orpc Websocket Adapter [ Handshake error without close ]", () => {
     vi.clearAllTimers();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("should start the next attempt after the reconnect delay", async () => {

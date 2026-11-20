@@ -84,7 +84,8 @@ Every subscription is its own request, there is no shared connection. "Connected
 When a stream fails, for example the network drops, the error is reported and the stream starts again after the `retry`
 of the last event, or after the `reconnectTime` of the socket. After the `reconnect` attempts of the socket the
 subscription ends with an error. A stream whose response does not arrive within the `connectionTimeout` of the socket (5
-seconds by default) is aborted and starts again the same way. Offline, failed streams wait for the network to come back.
+seconds by default) is aborted and starts again the same way. Going offline aborts every stream, and coming back online
+starts them all again at once with the id of their last event.
 
 ```ts
 const socket = new Socket({
@@ -121,8 +122,9 @@ const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(sock
 });
 ```
 
-The connection follows the regular `Socket` lifecycle. A handshake that takes longer than `connectionTimeout` starts
-over. When the connection drops, the socket reconnects after `reconnectTime` and every running subscription starts again
+The connection follows the regular [socket reconnection](/docs/guides/sockets/connection#retries): a handshake that
+takes longer than `connectionTimeout` is a failed attempt, and a dropped connection - also one closed with 1000 - comes
+back after a jittered backoff between `reconnectTime` and `maxReconnectTime`. Every running subscription then starts again
 with the id of its last event.
 
 :::note When to use which?
@@ -324,7 +326,7 @@ const socket = new Socket({
 ```
 
 The socket options `connectionTimeout` (the limit of one connection attempt or stream response) and `reconnectTime` (the
-delay before the next attempt) apply to both adapters. `socket.destroy()` closes the connection and removes everything
+minimum delay before the next attempt) apply to both adapters. `socket.destroy()` closes the connection and removes everything
 the adapter subscribed to, such as the online listener of the app manager.
 
 ---
