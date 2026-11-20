@@ -1,5 +1,6 @@
 import type { CacheValueType } from "@hyper-fetch/core";
 import { Client } from "@hyper-fetch/core";
+import type { AddressInfo } from "net";
 import type { WebSocket } from "ws";
 import { WebSocket as NodeWebSocket, WebSocketServer } from "ws";
 
@@ -21,11 +22,12 @@ type ReceivedMessage = { topic: string; data: BaseMessagePayload };
  * Stands in for the HyperFlow server: records what the plugin emits and sends it messages the way HyperFlow does.
  */
 const createHyperFlowServer = async () => {
-  const port = 20_000 + Math.floor(Math.random() * 40_000);
-  const wss = new WebSocketServer({ port });
+  // A random port can be taken by another process (EADDRINUSE never emits "listening"), the system picks a free one
+  const wss = new WebSocketServer({ port: 0 });
   await new Promise<void>((resolve) => {
     wss.once("listening", () => resolve());
   });
+  const { port } = wss.address() as AddressInfo;
 
   const received: ReceivedMessage[] = [];
   let plugin: WebSocket | null = null;

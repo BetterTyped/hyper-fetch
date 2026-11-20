@@ -1,5 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
+import type { AddressInfo } from "net";
 import type { WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 
@@ -20,11 +21,12 @@ type Received = { data: BaseMessagePayload };
 
 /** Stands in for the HyperFlow server */
 const createHyperFlowServer = async () => {
-  const port = 20_000 + Math.floor(Math.random() * 40_000);
-  const wss = new WebSocketServer({ port });
+  // A random port can be taken by another process (EADDRINUSE never emits "listening"), the system picks a free one
+  const wss = new WebSocketServer({ port: 0 });
   await new Promise<void>((resolve) => {
     wss.once("listening", () => resolve());
   });
+  const { port } = wss.address() as AddressInfo;
   const received: Received[] = [];
   let plugin: WebSocket | null = null;
   wss.on("connection", (ws) => {
@@ -38,6 +40,12 @@ const createHyperFlowServer = async () => {
         topic: SocketTopics.PLUGIN_LISTENER,
         data: { messageType: MessageType.INTERNAL, eventType: InternalEvents.APP_INITIALIZED },
       }),
+    );
+
+  /** The plugin sends its handshake as soon as it connects, HyperFlow answers only after receiving it */
+  const receivedHandshake = () =>
+    received.some(
+      ({ data }) => data.messageType === MessageType.INTERNAL && data.eventType === InternalEvents.PLUGIN_INITIALIZED,
     );
 
   const observerEvents = () =>
@@ -56,7 +64,7 @@ const createHyperFlowServer = async () => {
     });
   };
 
-  return { port, received, initializeApp, observerEvents, close };
+  return { port, received, receivedHandshake, initializeApp, observerEvents, close };
 };
 
 describe("DevtoolsPlugin [ Observers ]", () => {
@@ -93,7 +101,9 @@ describe("DevtoolsPlugin [ Observers ]", () => {
     const created = DevtoolsPlugin({ appName: "App", url: `ws://localhost:${hyperFlow.port}` });
     plugin = created;
     client.addPlugin(created);
-    await vi.waitFor(() => expect(created.data.eventHandler?.isConnected).toBe(true));
+    // msw intercepts WebSocket too: it opens the plugin's socket at once and connects to this server only afterwards,
+    // so an answer sent right after the plugin connected could find no connection here and get lost
+    await vi.waitFor(() => expect(hyperFlow.receivedHandshake()).toBe(true));
     if (initialize) {
       await initializeApp();
     }
