@@ -45,6 +45,8 @@ overrides:
   '@hyper-fetch/testing': workspace:*
   '@swc/core': ^1.15.30
 
+packageExtensionsChecksum: sha256-UA9ylSCqIJdxZxIEecpeKRuiifnPXm/vgduPWSgRNGw=
+
 importers:
 
   .:
@@ -78,7 +80,7 @@ importers:
         version: 9.23.0(encoding@0.1.13)
       firebase-admin:
         specifier: '*'
-        version: 11.11.1(encoding@0.1.13)
+        version: 11.11.1(@firebase/app-compat@0.5.23)(encoding@0.1.13)
       firebase-tools:
         specifier: '*'
         version: 11.30.0(@types/node@18.16.9)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@6.0.6)
@@ -3498,7 +3500,7 @@ importers:
         version: 9.23.0(encoding@0.1.13)
       firebase-admin:
         specifier: ^11.9.0
-        version: 11.11.1(encoding@0.1.13)
+        version: 11.11.1(@firebase/app-compat@0.2.13)(encoding@0.1.13)
       formik:
         specifier: ^2.4.1
         version: 2.4.9(@types/react@19.2.14)(react@19.2.5)
@@ -3712,7 +3714,7 @@ importers:
         version: 9.23.0(encoding@0.1.13)
       firebase-admin:
         specifier: ^11.5.0
-        version: 11.11.1(encoding@0.1.13)
+        version: 11.11.1(@firebase/app-compat@0.5.23)(encoding@0.1.13)
       firebase-tools:
         specifier: ^11.23.1
         version: 11.30.0(@types/node@22.19.17)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@6.0.6)
@@ -6933,6 +6935,8 @@ packages:
 
   '@firebase/database-compat@0.3.4':
     resolution: {integrity: sha512-kuAW+l+sLMUKBThnvxvUZ+Q1ZrF/vFJ58iUY9kAcbX48U03nVzIF6Tmkf0p3WVQwMqiXguSgtOPIB6ZCeF+5Gg==}
+    peerDependencies:
+      '@firebase/app-compat': 0.x
 
   '@firebase/database-compat@2.1.8':
     resolution: {integrity: sha512-wCMI122co2+rbldcZALIgmFoVn0Pj+PAuCjo0zvppMaPm/ksmK9twpmGCrmbUVjqe6xRs0YkCrKlblNujG2cpQ==}
@@ -27815,8 +27819,19 @@ snapshots:
       '@firebase/util': 1.15.3
       tslib: 2.8.1
 
-  '@firebase/database-compat@0.3.4':
+  '@firebase/database-compat@0.3.4(@firebase/app-compat@0.2.13)':
     dependencies:
+      '@firebase/app-compat': 0.2.13
+      '@firebase/component': 0.6.4
+      '@firebase/database': 0.14.4
+      '@firebase/database-types': 0.10.4
+      '@firebase/logger': 0.4.0
+      '@firebase/util': 1.9.3
+      tslib: 2.8.1
+
+  '@firebase/database-compat@0.3.4(@firebase/app-compat@0.5.23)':
+    dependencies:
+      '@firebase/app-compat': 0.5.23
       '@firebase/component': 0.6.4
       '@firebase/database': 0.14.4
       '@firebase/database-types': 0.10.4
@@ -35308,7 +35323,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.2.0
       get-stream: 6.0.1
-      http-cache-semantics: 4.2.0
+      http-cache-semantics: 4.3.0
       keyv: 4.5.4
       mimic-response: 4.0.0
       normalize-url: 8.1.1
@@ -37803,10 +37818,10 @@ snapshots:
       locate-path: 7.2.0
       path-exists: 5.0.0
 
-  firebase-admin@11.11.1(encoding@0.1.13):
+  firebase-admin@11.11.1(@firebase/app-compat@0.2.13)(encoding@0.1.13):
     dependencies:
       '@fastify/busboy': 1.2.1
-      '@firebase/database-compat': 0.3.4
+      '@firebase/database-compat': 0.3.4(@firebase/app-compat@0.2.13)
       '@firebase/database-types': 0.10.4
       '@types/node': 22.19.17
       jsonwebtoken: 9.0.3
@@ -37817,6 +37832,25 @@ snapshots:
       '@google-cloud/firestore': 6.8.0(encoding@0.1.13)
       '@google-cloud/storage': 6.12.0(encoding@0.1.13)
     transitivePeerDependencies:
+      - '@firebase/app-compat'
+      - encoding
+      - supports-color
+
+  firebase-admin@11.11.1(@firebase/app-compat@0.5.23)(encoding@0.1.13):
+    dependencies:
+      '@fastify/busboy': 1.2.1
+      '@firebase/database-compat': 0.3.4(@firebase/app-compat@0.5.23)
+      '@firebase/database-types': 0.10.4
+      '@types/node': 22.19.17
+      jsonwebtoken: 9.0.3
+      jwks-rsa: 3.2.2
+      node-forge: 1.4.0
+      uuid: 9.0.1
+    optionalDependencies:
+      '@google-cloud/firestore': 6.8.0(encoding@0.1.13)
+      '@google-cloud/storage': 6.12.0(encoding@0.1.13)
+    transitivePeerDependencies:
+      - '@firebase/app-compat'
       - encoding
       - supports-color
 
@@ -38011,7 +38045,7 @@ snapshots:
       '@firebase/auth': 0.23.2(@firebase/app@0.9.13)(encoding@0.1.13)
       '@firebase/auth-compat': 0.4.2(@firebase/app-compat@0.2.13)(@firebase/app-types@0.9.0)(@firebase/app@0.9.13)(encoding@0.1.13)
       '@firebase/database': 0.14.4
-      '@firebase/database-compat': 0.3.4
+      '@firebase/database-compat': 0.3.4(@firebase/app-compat@0.2.13)
       '@firebase/firestore': 3.13.0(@firebase/app@0.9.13)(encoding@0.1.13)
       '@firebase/firestore-compat': 0.3.12(@firebase/app-compat@0.2.13)(@firebase/app-types@0.9.0)(@firebase/app@0.9.13)(encoding@0.1.13)
       '@firebase/functions': 0.10.0(@firebase/app@0.9.13)(encoding@0.1.13)
@@ -42134,7 +42168,7 @@ snapshots:
     dependencies:
       hosted-git-info: 4.1.0
       is-core-module: 2.16.1
-      semver: 7.7.4
+      semver: 7.8.6
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -42728,7 +42762,7 @@ snapshots:
 
   path-scurry@2.0.2:
     dependencies:
-      lru-cache: 11.3.5
+      lru-cache: 11.5.3
       minipass: 7.1.3
 
   path-to-regexp@0.1.13: {}
