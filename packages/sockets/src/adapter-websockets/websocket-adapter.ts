@@ -138,7 +138,10 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
               return;
             }
             attempt.ready();
-            onHeartbeat();
+            // A connected callback may have closed the connection already
+            if (attempt.isCurrent()) {
+              onHeartbeat();
+            }
           });
 
           transport.addEventListener("close", (event) => {

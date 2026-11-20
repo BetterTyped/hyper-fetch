@@ -320,6 +320,21 @@ describe("Websocket Adapter [ Heartbeat Timers ]", () => {
       expect(vi.getTimerCount()).toBe(0);
     });
 
+    it("should not start the heartbeat when a connected callback disconnects", async () => {
+      const socket = new Socket({ url, reconnectTime, adapterOptions: { heartbeat: true, pingTimeout, pongTimeout } });
+      sockets.push(socket);
+      socket.onConnected(() => {
+        socket.disconnect();
+      });
+
+      const websocket = await openWebSocket();
+
+      // Nothing armed for a socket that is closed already - no ping, no minUptime
+      expect(vi.getTimerCount()).toBe(0);
+      await vi.advanceTimersByTimeAsync(pingTimeout * 3);
+      expect(websocket.sent).toStrictEqual([]);
+    });
+
     it("should stop pinging when the server closes the connection", async () => {
       const { socket, websocket } = await createConnectedSocket();
       // No reconnection, so the only timers left would be the heartbeat ones

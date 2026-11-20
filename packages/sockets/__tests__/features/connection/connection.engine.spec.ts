@@ -122,6 +122,20 @@ describe("Reconnection engine", () => {
       expect(socket.adapter.connecting).toBeFalse();
     });
 
+    it("should leave no timer when a connected callback disconnects", async () => {
+      const socket = createSocket();
+      socket.onConnected(() => {
+        socket.disconnect();
+      });
+      await settle();
+
+      FakeTransport.last.serverReady();
+      await settle();
+
+      expect(socket.adapter.connected).toBeFalse();
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
     it("should resolve connect() when the connection is ready", async () => {
       const socket = createSocket({ adapterOptions: { autoConnect: false } });
 

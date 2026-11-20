@@ -181,6 +181,10 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
     attempt.ready = true;
     clearTimeout(connectionTimer);
     onConnected({ resetAttempts: false });
+    // A connected callback may have closed the connection already - nothing may outlive it
+    if (current?.id !== id) {
+      return;
+    }
 
     // Only a connection that stays up resets the counter - one that drops right away keeps backing off
     clearTimeout(uptimeTimer);
