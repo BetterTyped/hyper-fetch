@@ -16,7 +16,7 @@ you use for HTTP. Live data comes through `@hyper-fetch/sockets` listeners.
 
 1.  **One request API for Firebase**: Firestore and Realtime Database operations are regular HyperFetch requests.
 2.  **Typed results**: `data`, `payload`, `params` and the raw Firebase `extra` are typed per request.
-3.  **Constraints as data**: queries are an array of `$`-helpers in `queryParams`, part of the cache key.
+3.  **Typed queries**: `queryParams: (c) => c.where(...)` checks fields and values, and is part of the cache key.
 4.  **Live data**: `FirebaseSocketsAdapter` turns `onSnapshot` and `onValue` into socket listeners.
 5.  **No rejected promises**: Firebase errors come back in `response.error`, never as a thrown exception.
 
@@ -110,35 +110,46 @@ else render(data);
 
 ## Querying data
 
-Pass constraints as the `queryParams` array. They apply in order, and they are part of the cache key, so two requests
-with different constraints never share a cached response.
+Pass `queryParams` a callback. It receives a constraints chain, and the adapter stores the constraints it collected, so
+they apply in order and are part of the cache key: two requests with different constraints never share a cached
+response.
 
 ```tsx
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
-
 const { data } = await getTeas.send({
-  queryParams: [$where("type", "==", "Green"), $orderBy("year", "desc"), $limit(20)],
+  queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20),
 });
 ```
 
-Type the query params when you want them checked on `setQueryParams` and in hooks:
+Type the request's query params with the document type, and field names and values are checked:
 
 ```tsx
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams }>()({
+const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
   endpoint: "teas",
   method: "getDocs",
 });
+
+getTeas.setQueryParams((c) => c.where("year", ">=", 2020)); // ✓
+getTeas.setQueryParams((c) => c.where("yaer", ">=", "2020")); // ✗ unknown field, and year is a number
 ```
 
-| Database          | Constraints                                                                                               |
-| ----------------- | --------------------------------------------------------------------------------------------------------- |
-| Firestore         | `$where`, `$orderBy`, `$limit`, and the cursors `$startAt`, `$startAfter`, `$endAt`, `$endBefore`         |
-| Realtime Database | `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`, the cursors |
+| Database          | Chain methods                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------- |
+| Firestore         | `where`, `orderBy`, `limit`, and the cursors `startAt`, `startAfter`, `endAt`, `endBefore`                     |
+| Realtime Database | `orderByChild`, `orderByKey`, `orderByValue`, `limitToFirst`, `limitToLast`, then `equalTo` and the cursors    |
 
-Firebase's own query rules still apply, such as composite indexes in Firestore and one `$orderBy*` per Realtime Database
-query. When a query breaks them, the reason is in `response.error`.
+The chain follows Firebase's rules in its types: Firestore cursors take one value per `orderBy`, and a Realtime Database
+query has one `orderBy*`. Rules the types cannot see, such as Firestore composite indexes, come back in
+`response.error`.
+
+:::info Constraints as data
+
+`queryParams` also takes the constraints array the callback resolves to, built with the `$`-helpers
+(`[$where("type", "==", "Green"), $limit(20)]`). The `{ constraints: [...] }` object of earlier versions still works and
+is deprecated.
+
+:::
 
 ---
 
@@ -167,7 +178,7 @@ Firebase requests and listeners work with the regular hooks.
 import { useFetch, useListener } from "@hyper-fetch/react";
 
 function GreenTeas() {
-  const { data, loading, error } = useFetch(getTeas.setQueryParams([$where("type", "==", "Green")]));
+  const { data, loading, error } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
   const live = useListener(onTeas);
 
   // ...
@@ -189,7 +200,7 @@ function GreenTeas() {
 
 1.  Pass `getFirestore()` or `getDatabase()` to `FirebaseAdapter`; the instance decides the available methods.
 2.  `client.url + endpoint` is the Firebase path, and its segment count decides document or collection.
-3.  Constraints are the `queryParams` array, applied in order and part of the cache key.
+3.  Queries are a `queryParams` callback, `(c) => c.where(...)`, applied in order and part of the cache key.
 4.  Errors resolve the request with `status: "error"`; missing data is `status: "emptyResource"`.
 5.  Live data goes through `FirebaseSocketsAdapter` listeners.
 

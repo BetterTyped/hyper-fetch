@@ -39,8 +39,8 @@ export const applyRealtimeAdminConstraint = (ref: Query, { type, values }: Realt
       return ref.limitToLast(value);
     }
     case RealtimeQueryConstraints.EQUAL_TO: {
-      const [value] = values;
-      return ref.equalTo(value);
+      const [value, key] = values;
+      return ref.equalTo(value, key);
     }
     default:
       throw new Error(`Unknown method ${type}`);

@@ -138,42 +138,37 @@ returns entries like `{ 0: "c", __key: "2" }`. Read such data from an even-segme
 
 ## Querying
 
-Constraints go in `queryParams` as an array and apply in order.
+Pass `queryParams` a callback that builds the constraints. Type the request with the type of the list's children, and
+paths and values are checked.
 
 ```tsx
-import { $limitToLast, $orderByChild } from "@hyper-fetch/firebase";
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase";
 
 const getMessages = client.createRequest<{
   response: (Message & { __key: string })[] | null;
-  queryParams?: RealtimeDBQueryParams;
+  queryParams?: RealtimeDBQueryParams<Message>;
 }>()({
   endpoint: "rooms/:roomId/messages",
   method: "get",
 });
 
 const { data } = await getMessages.setParams({ roomId: "general" }).send({
-  queryParams: [$orderByChild("sentAt"), $limitToLast(50)],
+  queryParams: (c) => c.orderByChild("sentAt").limitToLast(50),
 });
 ```
 
-| Constraint                 | Realtime Database equivalent |
-| -------------------------- | ---------------------------- |
-| `$orderByChild(path)`      | `orderByChild(path)`         |
-| `$orderByKey()`            | `orderByKey()`               |
-| `$orderByValue()`          | `orderByValue()`             |
-| `$limitToFirst(n)`         | `limitToFirst(n)`            |
-| `$limitToLast(n)`          | `limitToLast(n)`             |
-| `$equalTo(value)`          | `equalTo(value)`             |
-| `$startAt(value, key?)`    | `startAt(value, key)`        |
-| `$startAfter(value, key?)` | `startAfter(value, key)`     |
-| `$endAt(value, key?)`      | `endAt(value, key)`          |
-| `$endBefore(value, key?)`  | `endBefore(value, key)`      |
+| Chain method                                  | Realtime Database equivalent | Notes                                            |
+| --------------------------------------------- | ---------------------------- | ------------------------------------------------ |
+| `orderByChild(path)`                          | `orderByChild(path)`         | nested children use `/`: `"author/name"`         |
+| `orderByKey()`, `orderByValue()`              | the same                     | one `orderBy*` per query, enforced by the types  |
+| `limitToFirst(n)`, `limitToLast(n)`           | the same                     |                                                  |
+| `equalTo(value, key?)`                        | `equalTo(value, key)`        | after an `orderBy*`; `value` has its type        |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | the same, with `(value, key)` | after an `orderBy*`; `value` has its type       |
 
 :::caution Realtime Database rules still apply
 
-1.  A query can have one `$orderBy*`.
-2.  `$orderByChild` needs an `.indexOn` rule for that child. Without it the request resolves with `status: "error"` and
+1.  A query can have one `orderBy*`; a second one does not compile.
+2.  `orderByChild` needs an `.indexOn` rule for that child. Without it the request resolves with `status: "error"` and
     the message `Index not defined, add ".indexOn" ...`.
 
 :::
@@ -185,9 +180,12 @@ repeat:
 const last = page1.data?.at(-1);
 
 const page2 = await getMessages.setParams({ roomId: "general" }).send({
-  queryParams: [$orderByChild("sentAt"), $startAfter(last?.sentAt, last?.__key), $limitToFirst(50)],
+  queryParams: (c) => c.orderByChild("sentAt").startAfter(last!.sentAt, last!.__key).limitToFirst(50),
 });
 ```
+
+`queryParams` also takes the constraints array the callback resolves to, built with `$orderByChild`, `$limitToLast` and
+the other `$`-helpers.
 
 ---
 
@@ -204,7 +202,7 @@ const page2 = await getMessages.setParams({ roomId: "general" }).send({
 
 1.  `get` reads; `set`, `push`, `update` and `remove` write.
 2.  Odd-segment paths return lists as arrays of objects with `__key`; even-segment paths return the value as is.
-3.  Queries are the `queryParams` array; cursors take a value and an optional tie-breaking key.
+3.  Queries are a `queryParams` callback; cursors and `equalTo` take the ordered value and an optional tie key.
 4.  Missing `.indexOn` rules and other Firebase errors arrive in `response.error`.
 
 :::

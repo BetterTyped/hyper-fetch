@@ -77,12 +77,11 @@ export const adminSocket = createSocketClient({ url: "", adapter: FirebaseSocket
 ## Requests
 
 ```ts
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
 type Order = { __key?: string; userId: string; total: number; status: "open" | "paid" };
 
-export const getOrders = adminClient.createRequest<{ response: Order[]; queryParams?: FirestoreQueryParams }>()({
+export const getOrders = adminClient.createRequest<{ response: Order[]; queryParams?: FirestoreQueryParams<Order> }>()({
   endpoint: "orders",
   method: "getDocs",
 });
@@ -101,35 +100,40 @@ export const payOrder = async (orderId: string) => {
 };
 
 const { data: open } = await getOrders.send({
-  queryParams: [$where("status", "==", "open"), $orderBy("total", "desc"), $limit(50)],
+  queryParams: (c) => c.where("status", "==", "open").orderBy("total", "desc").limit(50),
 });
 ```
 
-Methods, `queryParams` constraints and the `__key` id field are the same as in `@hyper-fetch/firebase` (see that skill).
-Realtime Database requests work the same way with `RealtimeDBQueryParams` and `$orderByChild`, `$orderByKey`,
-`$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`, `$startAt`, `$endAt`, ...
+Methods, the `queryParams` callback (or constraints array) and the `__key` id field are the same as in
+`@hyper-fetch/firebase` (see that skill). Realtime Database requests use `RealtimeDBQueryParams<Doc>` and the Realtime
+chain: `(c) => c.orderByChild("expiresAt").limitToFirst(100)`.
 
 ## Type safety
 
 Typing works like the web package: the Admin SDK instance picks the method union and option types, and you declare
 document shapes in the request generic.
 
-| Passed instance                                  | Request `method`                                                              | Socket listener `options`              | Socket `extra`                                     |
-| ------------------------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------- |
-| `getFirestore()` from `firebase-admin/firestore` | `"getDoc" \| "getDocs" \| "setDoc" \| "updateDoc" \| "addDoc" \| "deleteDoc"` | `{ constraints?, groupByChangeType? }` | `{ ref?, snapshot?, unsubscribe?, groupedResult }` |
-| `getDatabase()` from `firebase-admin/database`   | `"get" \| "push" \| "set" \| "update" \| "remove"`                            | `{ constraints?, onlyOnce? }`          | `any` - type it at the call site                   |
+| Passed instance                                  | Request `method`                                                              | Socket listener `options` | Socket `extra`                                             |
+| ------------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- |
+| `getFirestore()` from `firebase-admin/firestore` | `"getDoc" \| "getDocs" \| "setDoc" \| "updateDoc" \| "addDoc" \| "deleteDoc"` | `{ groupByChangeType? }`  | `{ ref?, snapshot?, unsubscribe?, groupedResult, status }` |
+| `getDatabase()` from `firebase-admin/database`   | `"get" \| "push" \| "set" \| "update" \| "remove"`                            | `{ onlyOnce? }`           | `any` - type it at the call site                           |
+
+Listener constraints go in `setQueryParams((c) => ...)`; the deprecated `options.constraints` still works.
 
 ```ts
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase-admin";
-import { $limitToFirst } from "@hyper-fetch/firebase-admin";
+import { $where } from "@hyper-fetch/firebase-admin";
 
 type Session = { __key: string; userId: string; expiresAt: number };
 
-const listSessions = rtdbClient.createRequest<{ response: Session[] | null; queryParams?: RealtimeDBQueryParams }>()({
+const listSessions = rtdbClient.createRequest<{
+  response: Session[] | null;
+  queryParams?: RealtimeDBQueryParams<Session>;
+}>()({
   endpoint: "sessions",
   method: "get",
 });
-await listSessions.send({ queryParams: [$limitToFirst(100)] });
+await listSessions.send({ queryParams: (c) => c.orderByChild("expiresAt").limitToFirst(100) });
 
 // @ts-expect-error - "get" is not a Firestore method
 adminClient.createRequest<{ response: Order[] }>()({ endpoint: "orders", method: "get" });
@@ -139,6 +143,8 @@ rtdbClient.createRequest<{ response: Session[] }>()({ endpoint: "sessions", meth
 markPaid.send({ payload: { status: "refunded" } });
 // @ts-expect-error - Firestore constraint in a Realtime Database query
 listSessions.send({ queryParams: [$where("userId", "==", "u1")] });
+// @ts-expect-error - one orderBy per Realtime Database query
+listSessions.send({ queryParams: (c) => c.orderByChild("expiresAt").orderByKey() });
 // @ts-expect-error - onlyOnce is a Realtime Database listener option
 adminSocket.createListener<Order[]>()({ topic: "orders", options: { onlyOnce: true } });
 ```
@@ -165,10 +171,9 @@ untrusted input with your schema library before writing; the Admin SDK will stor
 ```ts
 type Job = { __key?: string; state: "queued" | "running" | "done" };
 
-const onQueuedJobs = adminSocket.createListener<Job[]>()({
-  topic: "jobs",
-  options: { constraints: [$where("state", "==", "queued")], groupByChangeType: true },
-});
+const onQueuedJobs = adminSocket
+  .createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } })
+  .setQueryParams((c) => c.where("state", "==", "queued"));
 
 const stop = onQueuedJobs.listen(({ data, extra }) => {
   const added = extra.groupedResult?.added ?? [];
@@ -181,8 +186,8 @@ process.on("SIGTERM", () => {
 });
 ```
 
-- Listener options: Firestore `constraints`, `groupByChangeType`; Realtime Database `constraints`, `onlyOnce` (uses
-  `once("value")`).
+- Listener constraints: `setQueryParams((c) => ...)`. Listener options: Firestore `groupByChangeType`; Realtime Database
+  `onlyOnce` (uses `once("value")`).
 - Firebase sockets are receive-only: `emit()` throws.
 - Listener `data` is the full current result: replace, do not append. Every snapshot includes items you already handled,
   so make side effects (job processing, sending mail) idempotent, for example with a transaction or a status check.

@@ -6,8 +6,8 @@ sidebar_label: Adapter
 
 [Read the API Reference »](/docs/api/sockets/Classes/SocketAdapter)
 
-Adapter is a class that specifies how to communicate with the server. It defines the way to send and receive
-data, handle errors, handle reconnects, and more. The `@hyper-fetch/sockets` package ships with two built-in adapters:
+Adapter is a class that specifies how to communicate with the server. It defines the way to send and receive data,
+handle errors, handle reconnects, and more. The `@hyper-fetch/sockets` package ships with two built-in adapters:
 `WebsocketAdapter` and `ServerSentEventsAdapter`. Other integrations such as Firebase Realtime Database are available as
 separate packages (e.g., `@hyper-fetch/firebase`).
 
@@ -25,7 +25,11 @@ Both use the global `WebSocket` / `EventSource` of the runtime, so they work in 
 ```ts
 import { EventSource } from "eventsource";
 
-const socket = new Socket({ url: "http://localhost:3000/events", adapter: ServerSentEventsAdapter(), adapterOptions: { EventSource } });
+const socket = new Socket({
+  url: "http://localhost:3000/events",
+  adapter: ServerSentEventsAdapter(),
+  adapterOptions: { EventSource },
+});
 ```
 
 :::caution Server rendering
@@ -61,17 +65,17 @@ const socket = createSocketClient({
 
 You can pass adapter-specific options via the `adapterOptions` constructor option on `Socket`.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
-| `WebSocket` | `typeof WebSocket` | global `WebSocket` | The WebSocket constructor, e.g. from the `ws` package, for runtimes without the global. |
-| `protocols` | `string \| string[]` | — | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header). |
-| `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
-| `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
-| `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
-| `pongTimeout` | `number` | — | Timeout (ms) to wait for a pong response. |
-| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming frame into a listener event. Return `null` to ignore the frame. |
-| `encode` | `({ topic, payload }) => string \| ArrayBufferLike \| Blob \| ArrayBufferView` | `JSON.stringify({ topic, data })` | Turns an emitted message (and the heartbeat) into the frame passed to `websocket.send`. |
+| Option             | Type                                                                           | Default                           | Description                                                                             |
+| ------------------ | ------------------------------------------------------------------------------ | --------------------------------- | --------------------------------------------------------------------------------------- |
+| `autoConnect`      | `boolean`                                                                      | `true`                            | Automatically connect when the socket is created.                                       |
+| `WebSocket`        | `typeof WebSocket`                                                             | global `WebSocket`                | The WebSocket constructor, e.g. from the `ws` package, for runtimes without the global. |
+| `protocols`        | `string \| string[]`                                                           | —                                 | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header).   |
+| `heartbeat`        | `boolean`                                                                      | —                                 | Enable heartbeat messages to keep the connection alive.                                 |
+| `heartbeatMessage` | `string`                                                                       | —                                 | The message payload sent for heartbeats.                                                |
+| `pingTimeout`      | `number`                                                                       | —                                 | Timeout (ms) to wait for a ping response.                                               |
+| `pongTimeout`      | `number`                                                                       | —                                 | Timeout (ms) to wait for a pong response.                                               |
+| `decode`           | `(event: MessageEvent) => { topic, data } \| null`                             | JSON `{ topic, data }`            | Turns an incoming frame into a listener event. Return `null` to ignore the frame.       |
+| `encode`           | `({ topic, payload }) => string \| ArrayBufferLike \| Blob \| ArrayBufferView` | `JSON.stringify({ topic, data })` | Turns an emitted message (and the heartbeat) into the frame passed to `websocket.send`. |
 
 ```tsx
 const socket = createSocketClient({
@@ -158,19 +162,21 @@ const socket = createSocketClient({
 
 #### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
-| `EventSource` | `typeof EventSource` | global `EventSource` | The EventSource constructor, e.g. from the `eventsource` package in Node.js. |
-| `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
-| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message, named events included, into a listener event. Return `null` to ignore the message. |
+| Option            | Type                                               | Default                | Description                                                                                                   |
+| ----------------- | -------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `autoConnect`     | `boolean`                                          | `true`                 | Automatically connect when the socket is created.                                                             |
+| `EventSource`     | `typeof EventSource`                               | global `EventSource`   | The EventSource constructor, e.g. from the `eventsource` package in Node.js.                                  |
+| `eventSourceInit` | `EventSourceInit`                                  | —                      | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`).                         |
+| `decode`          | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message, named events included, into a listener event. Return `null` to ignore the message. |
 
-Unnamed messages carry `{ topic, data }` JSON. A **named event** (`event: tick` on the wire) goes to the listeners
-whose topic is the event name, with the data parsed as JSON, or kept as text when it is not JSON:
+Unnamed messages carry `{ topic, data }` JSON. A **named event** (`event: tick` on the wire) goes to the listeners whose
+topic is the event name, with the data parsed as JSON, or kept as text when it is not JSON:
 
 ```tsx
 // server: event: tick\ndata: {"count":1}
-socket.createListener<{ count: number }>()({ topic: "tick" }).listen(({ data }) => console.log(data.count));
+socket
+  .createListener<{ count: number }>()({ topic: "tick" })
+  .listen(({ data }) => console.log(data.count));
 ```
 
 ```tsx
@@ -299,6 +305,18 @@ const adapter = new SocketAdapter({ name: "rpc", confirmsSubscriptions: true }).
 
 Call `onListenerStart` again after a reconnect restarted a subscription, and for a callback that joins a subscription
 that is already running. Without `confirmsSubscriptions` a listener counts as started as soon as it is registered.
+
+#### Listener query params
+
+An adapter can let listeners carry query params, such as filters, with the seventh `SocketAdapter` generic. Your
+`listen` reads them from `listener.queryParams`. To accept a callback, register `setListenerQueryParamsResolver`: the
+resolver runs when the listener is created or `setQueryParams` is called, and the listener stores what it returns.
+
+```ts
+const adapter = new SocketAdapter<Extra, undefined, ListenerOptions, undefined, undefined, DefaultMapperType, Filters>({
+  name: "my-adapter",
+}).setListenerQueryParamsResolver((callback) => callback(createFilters()).toJSON());
+```
 
 ---
 

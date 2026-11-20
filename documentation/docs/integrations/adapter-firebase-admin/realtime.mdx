@@ -87,28 +87,27 @@ Lists should hold objects.
 ## Querying
 
 ```ts
-import { $limitToFirst, $orderByChild, $startAfter } from "@hyper-fetch/firebase-admin";
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase-admin";
 
 const getStaleSessions = client.createRequest<{
   response: (Session & { __key: string })[] | null;
-  queryParams?: RealtimeDBQueryParams;
+  queryParams?: RealtimeDBQueryParams<Session>;
 }>()({
   endpoint: "sessions",
   method: "get",
 });
 
 const { data } = await getStaleSessions.send({
-  queryParams: [$orderByChild("lastSeen"), $limitToFirst(100)],
+  queryParams: (c) => c.orderByChild("lastSeen").limitToFirst(100),
 });
 const last = data?.at(-1);
 const next = await getStaleSessions.send({
-  queryParams: [$orderByChild("lastSeen"), $startAfter(last?.lastSeen, last?.__key), $limitToFirst(100)],
+  queryParams: (c) => c.orderByChild("lastSeen").startAfter(last!.lastSeen, last!.__key).limitToFirst(100),
 });
 ```
 
-A query can have one `$orderBy*`, and `$orderByChild` needs an `.indexOn` rule; a missing one arrives in
-`response.error`. The full list of constraints is on the
+A query can have one `orderBy*`, and `orderByChild` needs an `.indexOn` rule; a missing one arrives in
+`response.error`. The full list of chain methods is on the
 [web Realtime Database page](/docs/integrations/adapter-firebase/realtime#querying).
 
 ---
@@ -117,6 +116,6 @@ A query can have one `$orderBy*`, and `$orderByChild` needs an `.indexOn` rule; 
 
 1.  `get` reads; `set` and `update` resolve with the payload, `push` adds `__key`, and `remove` resolves with `null`.
 2.  Odd-segment paths return lists of objects with `__key`; even-segment paths return the value.
-3.  Queries are the `queryParams` array, and cursors take a value and an optional tie-breaking key.
+3.  Queries are a `queryParams` callback, and cursors take a value and an optional tie-breaking key.
 
 :::

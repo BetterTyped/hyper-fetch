@@ -2,7 +2,9 @@
 import type { Adapter } from "@hyper-fetch/core";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
 import type {
+  OrderedRealtimeConstraints,
   PermittedConstraints,
+  RealtimeConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
@@ -83,16 +85,32 @@ export type RealtimeDBConstraint = PermittedConstraints<
 >;
 
 /**
- * Query params of a Realtime Database request: the constraints, applied in order.
+ * Query params of a Realtime Database request: a callback that builds typed constraints, or the constraints array it
+ * resolves to. Pass the type of the list's children to check paths and values:
+ * `queryParams?: RealtimeDBQueryParams<Message>`.
  *
  * @example
- * getMessages.send({ queryParams: [$orderByChild("sentAt"), $limitToLast(50)] });
+ * getMessages.send({ queryParams: (c) => c.orderByChild("sentAt").limitToLast(50) });
  */
-export type RealtimeDBQueryParams = RealtimeDBConstraint[];
+export type RealtimeDBQueryParams<Doc = any> =
+  | RealtimeDBConstraint[]
+  | ((constraints: RealtimeConstraints<Doc>) => RealtimeConstraints<Doc> | OrderedRealtimeConstraints<Doc, any>)
+  | RealtimeDBDeprecatedQueryParams;
 
-/** Options of a Realtime Database `onValue` listener. */
+/** @deprecated Pass the constraints directly: `queryParams: (c) => c.orderByChild(...)` or an array. */
+export type RealtimeDBDeprecatedQueryParams = {
+  /** @deprecated Pass the constraints directly: `queryParams: (c) => c.orderByChild(...)` or an array. */
+  constraints?: RealtimeDBConstraint[];
+};
+
+/** Query params of a Realtime Database listener: a callback that builds typed constraints, or the array. */
+export type RealtimeDBListenerQueryParams<Doc = any> =
+  | RealtimeDBConstraint[]
+  | ((constraints: RealtimeConstraints<Doc>) => RealtimeConstraints<Doc> | OrderedRealtimeConstraints<Doc, any>);
+
+/** Options of a Realtime Database `onValue` listener. Constraints go in the listener's `queryParams`. */
 export type RealtimeDBListenerOptions = {
-  /** Query constraints, applied in order, as in {@link RealtimeDBQueryParams}. */
+  /** @deprecated Use the listener's query params: `setQueryParams((c) => c.orderByChild(...))`. */
   constraints?: RealtimeDBConstraint[];
   /** Receive only the first value, then stop listening. */
   onlyOnce?: boolean;

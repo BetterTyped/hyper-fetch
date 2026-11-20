@@ -136,6 +136,25 @@ You can also set configuration for the query params mapper:
 client.adapter.setQueryParamsMapperConfig({ arrayFormat: "bracket" });
 ```
 
+#### Query params as a callback
+
+An adapter can let requests take query params as a callback, for example to hand users a typed query builder. Register
+a resolver with `setQueryParamsResolver`. When a request gets a function as its query params, in `setQueryParams` or
+`send`, the resolver runs right away and the request stores what it returns. The request never holds a function, so
+cache keys, query keys and `toJSON()` keep working with data.
+
+```ts
+// The adapter decides what the callback receives and what gets stored
+adapter.setQueryParamsResolver((callback) => callback(createFilters()).toJSON());
+
+// Users of that adapter can then write
+getUsers.setQueryParams((filters) => filters.where("role", "admin"));
+```
+
+It is opt-in: adapters without a resolver store query params as given. Declare the callback in the adapter's query
+params type, so requests accept it. The [Firebase adapter](/docs/integrations/adapter-firebase/overview) uses it for
+typed constraints.
+
 ---
 
 4. ### Endpoint Mapper

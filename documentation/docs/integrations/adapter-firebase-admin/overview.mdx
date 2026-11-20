@@ -84,13 +84,11 @@ Paths, responses and querying work like the web package, apart from the
   document or value.
 - Responses are `{ data, error, status, success, extra }`, with `status` `"success"`, `"emptyResource"` or `"error"`.
 - Documents and list items carry `__key`, their id.
-- Constraints are the `queryParams` array:
+- Queries are a `queryParams` callback, checked against the document type when the request declares it:
 
 ```ts
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
-
 const { data } = await getOrders.send({
-  queryParams: [$where("status", "==", "open"), $orderBy("total", "desc"), $limit(50)],
+  queryParams: (c) => c.where("status", "==", "open").orderBy("total", "desc").limit(50),
 });
 ```
 
@@ -123,7 +121,7 @@ See the [Firebase adapter overview](/docs/integrations/adapter-firebase/overview
 :::secondary Summary
 
 1.  Pass `getFirestore()` or `getDatabase()` from `firebase-admin` to `FirebaseAdminAdapter`.
-2.  Paths, responses, `__key` and `queryParams` constraints match the web package.
+2.  Paths, responses, `__key` and `queryParams` callbacks match the web package.
 3.  Admin access bypasses security rules, so authorize in your own code.
 4.  `setDoc` returns the `WriteResult`, and the Firestore socket cannot connect or disconnect.
 
