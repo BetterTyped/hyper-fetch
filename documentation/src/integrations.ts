@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, Zap } from "lucide-react";
+import { Book } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -11,7 +11,10 @@ const AxiosIcon = isBrowser() ? require("../static/img/integration-axios.svg").d
 // const AstroIcon = isBrowser() ? require("../static/img/integration-astro.svg").default : () => null;
 // const NestIcon = isBrowser() ? require("../static/img/integration-nest.svg").default : () => null;
 const GraphqlIcon = isBrowser() ? require("../static/img/integration-graphql.svg").default : () => null;
+// oxc icon, CC BY-NC-SA 4.0, see static/img/ATTRIBUTION.md
+const OxlintIcon = isBrowser() ? require("../static/img/integration-oxlint.svg").default : () => null;
 const HonoIcon = isBrowser() ? require("../static/img/integration-hono.svg").default : () => null;
+const ElysiaIcon = isBrowser() ? require("../static/img/integration-elysia.svg").default : () => null;
 const OrpcIcon = isBrowser() ? require("../static/img/integration-orpc.svg").default : () => null;
 const TrpcIcon = isBrowser() ? require("../static/img/integration-trpc.svg").default : () => null;
 // const RestIcon = isBrowser() ? require("../static/img/integration-rest.svg").default : () => null;
@@ -74,7 +77,7 @@ export const integrations: Section[] = [
     dir: "plugin-oxlint",
     isPackage: true,
     paths: ["plugin-oxlint"],
-    img: Zap,
+    img: OxlintIcon,
     text: "drop-shadow-sm !text-sky-500 dark:!text-sky-400",
     textAction: "focus:!text-sky-500 focus:dark:!text-sky-400 active:!text-sky-600 active:dark:!text-sky-300",
     textHover: "hover:!text-sky-500 hover:dark:!text-sky-400",
@@ -143,6 +146,26 @@ export const integrations: Section[] = [
     borderHover: "hover:border-orange-500 hover:dark:border-orange-400",
     category: "Service",
     package: "hono",
+  },
+  {
+    label: "Elysia",
+    description:
+      "Call your Elysia backend through a typed SDK with responses, errors and inputs read from your routes.",
+    dir: "elysia",
+    isPackage: true,
+    paths: ["elysia"],
+    img: ElysiaIcon,
+    text: "drop-shadow-sm !text-violet-500 dark:!text-violet-400",
+    textAction:
+      "focus:!text-violet-500 focus:dark:!text-violet-400 active:!text-violet-600 active:dark:!text-violet-300",
+    textHover: "hover:!text-violet-500 hover:dark:!text-violet-400",
+    icon: "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 bg-violet-400 dark:bg-violet-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-violet-200 dark:group-hover:bg-violet-500 group-hover:bg-violet-400 group-hover:dark:bg-violet-500 !bg-opacity-40",
+    border: "border-violet-500 dark:border-violet-400",
+    borderHover: "hover:border-violet-500 hover:dark:border-violet-400",
+    category: "Service",
+    package: "elysia",
   },
   {
     label: "Graphql",

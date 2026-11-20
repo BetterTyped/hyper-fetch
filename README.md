@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&logo=github&color=333" alt="GitHub stars" /></a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/core"><img src="https://img.shields.io/npm/v/@hyper-fetch/core?logo=npm&color=e76f51" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/org/hyper-fetch"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/core,@hyper-fetch/react,@hyper-fetch/sockets,@hyper-fetch/cli,@hyper-fetch/graphql,@hyper-fetch/trpc,@hyper-fetch/orpc,@hyper-fetch/hono,@hyper-fetch/firebase,@hyper-fetch/firebase-admin,@hyper-fetch/axios,@hyper-fetch/plugin-devtools,eslint-plugin-hyper-fetch&color=fbc646" alt="Monthly downloads of all packages" /></a>
+  <a href="https://www.npmjs.com/org/hyper-fetch"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/core,@hyper-fetch/react,@hyper-fetch/sockets,@hyper-fetch/cli,@hyper-fetch/graphql,@hyper-fetch/trpc,@hyper-fetch/orpc,@hyper-fetch/hono,@hyper-fetch/elysia,@hyper-fetch/firebase,@hyper-fetch/firebase-admin,@hyper-fetch/axios,@hyper-fetch/plugin-devtools,eslint-plugin-hyper-fetch&color=fbc646" alt="Monthly downloads of all packages" /></a>
   <a href="https://bundlejs.com/?q=@hyper-fetch/core"><img src="https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/core" alt="Bundle size of @hyper-fetch/core" /></a>
   <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
@@ -61,21 +61,21 @@ const { data } = await sdk.users.list.send();
 A typical app glues together a fetch wrapper, a query cache, a socket client, a codegen step and a mocking library. Each
 one brings its own types, its own retry logic and its own bugs. Hyper Fetch is one typed layer for all of it.
 
-| You usually combine         | With Hyper Fetch you get                               |
-| --------------------------- | ------------------------------------------------------ |
-| `fetch` or an Axios wrapper | `createClient()` with swappable adapters               |
-| TanStack Query or SWR       | Cache, deduplication, retries and React hooks built in |
-| A socket client             | Typed `Socket` listeners and emitters                  |
-| OpenAPI codegen             | `npx @hyper-fetch/cli generate`                        |
-| A tRPC, oRPC or Hono client | `createSdk` typed from your router                     |
-| MSW and hand-written mocks  | `setMock()` on any request                             |
+| You usually combine               | With Hyper Fetch you get                               |
+| --------------------------------- | ------------------------------------------------------ |
+| `fetch` or an Axios wrapper       | `createClient()` with swappable adapters               |
+| TanStack Query or SWR             | Cache, deduplication, retries and React hooks built in |
+| A socket client                   | Typed `Socket` listeners and emitters                  |
+| OpenAPI codegen                   | `npx @hyper-fetch/cli generate`                        |
+| A tRPC, oRPC, Hono or Eden client | `createSdk` typed from your router                     |
+| MSW and hand-written mocks        | `setMock()` on any request                             |
 
 ### 🔮 Types you never write twice
 
 - **Zero guesswork** - Params, payload, query params, response and error are typed on every request. No `any`
 - **URL params checked at compile time** - `/users/:userId` makes `userId` required. Typos fail the build
 - **Typed from your schema** - Point the CLI at OpenAPI and every endpoint becomes a typed request
-- **Typed from your server** - tRPC, oRPC and Hono routers type `createSdk` directly. No codegen step
+- **Typed from your server** - tRPC, oRPC, Hono and Elysia routers type `createSdk` directly. No codegen step
 - **One request, every layer** - The type you declare once flows into `send()`, hooks, cache and devtools
 
 ### 💾 Server state handled for you
@@ -118,6 +118,7 @@ one brings its own types, its own retry logic and its own bugs. Hyper Fetch is o
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><img src="./documentation/static/img/integration-hono.svg" width="40" height="40" alt="" /><br /><b>Hono</b></a></td>
   </tr>
   <tr>
+    <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview"><img src="./documentation/static/img/integration-elysia.svg" width="40" height="40" alt="" /><br /><b>Elysia</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/overview"><img src="./documentation/static/img/integration-firebase.svg" width="40" height="40" alt="" /><br /><b>Firebase Admin</b></a></td>
     <td align="center" width="120"><a href="https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview"><img src="./documentation/static/img/integration-axios.svg" width="40" height="40" alt="" /><br /><b>Axios</b></a></td>
@@ -166,6 +167,7 @@ Hyper Fetch is the data layer inside Hype Stack, the full-stack template I build
 | [`@hyper-fetch/trpc`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc)<br /><sub>tRPC procedures as typed requests, inferred from your router</sub>        | [![npm](https://img.shields.io/npm/v/@hyper-fetch/trpc?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/trpc)                       | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/trpc&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/trpc)                       | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/trpc&external=@hyper-fetch/core,@trpc/server,@trpc/client)](https://bundlejs.com/?q=@hyper-fetch/trpc)                                        |
 | [`@hyper-fetch/orpc`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-orpc)<br /><sub>oRPC procedures as typed requests, inferred from your router</sub>        | [![npm](https://img.shields.io/npm/v/@hyper-fetch/orpc?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/orpc)                       | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/orpc&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/orpc)                       | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/orpc&external=@hyper-fetch/core,@orpc/client,@orpc/server)](https://bundlejs.com/?q=@hyper-fetch/orpc)                                        |
 | [`@hyper-fetch/hono`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hono)<br /><sub>A typed SDK from your Hono app type. Types only, no server code</sub>             | [![npm](https://img.shields.io/npm/v/@hyper-fetch/hono?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/hono)                       | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/hono&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/hono)                       | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/hono&external=@hyper-fetch/core,hono)](https://bundlejs.com/?q=@hyper-fetch/hono)                                                             |
+| [`@hyper-fetch/elysia`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/elysia)<br /><sub>A typed SDK from your Elysia app type. Types only, no server code</sub>       | [![npm](https://img.shields.io/npm/v/@hyper-fetch/elysia?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/elysia)                   | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/elysia&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/elysia)                   | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/elysia&external=@hyper-fetch/core,elysia)](https://bundlejs.com/?q=@hyper-fetch/elysia)                                                       |
 | [`@hyper-fetch/firebase`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase)<br /><sub>Firestore and Realtime Database from the browser</sub>            | [![npm](https://img.shields.io/npm/v/@hyper-fetch/firebase?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/firebase)               | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/firebase&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/firebase)               | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/firebase&external=@hyper-fetch/core,@hyper-fetch/sockets,firebase)](https://bundlejs.com/?q=@hyper-fetch/firebase)                            |
 | [`@hyper-fetch/firebase-admin`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin)<br /><sub>Firestore and Realtime Database from the server</sub> | [![npm](https://img.shields.io/npm/v/@hyper-fetch/firebase-admin?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/firebase-admin)   | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/firebase-admin&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/firebase-admin)   | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/firebase-admin&external=@hyper-fetch/core,@hyper-fetch/sockets,firebase,firebase-admin)](https://bundlejs.com/?q=@hyper-fetch/firebase-admin) |
 | [`@hyper-fetch/axios`](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios)<br /><sub>Runs every request through Axios</sub>                                  | [![npm](https://img.shields.io/npm/v/@hyper-fetch/axios?color=e76f51)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![downloads](https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/axios&color=fbc646)](https://www.npmjs.com/package/@hyper-fetch/axios)                     | [![size](https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/axios&external=@hyper-fetch/core,axios)](https://bundlejs.com/?q=@hyper-fetch/axios)                                                          |

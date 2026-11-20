@@ -1,0 +1,241 @@
+---
+sidebar_position: 1
+title: Elysia
+sidebar_label: Overview
+---
+
+[Read the API Reference »](/docs/api/elysia/Types/ElysiaAppToHyperFetch.mdx)
+
+`@hyper-fetch/elysia` converts the type of an [Elysia](https://elysiajs.com/) app into a schema for
+[`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, errors,
+payloads, query params and URL params come from your Elysia routes and schemas. The package exports a single type and
+adds no code to your bundle.
+
+:::tip Purpose
+
+1. **One source of truth**: Elysia route definitions type the frontend, with no codegen step and no hand-written schema.
+2. **Typed inputs**: `body` and `query` schemas type `setPayload()` and `setQueryParams()`, and `:param` segments type
+   `setParams()`.
+3. **Typed errors**: Bodies returned with a 2xx status type `data`. Every other status, including the `422` Elysia sends
+   when a schema rejects the input, types `error`.
+4. **Full HyperFetch features**: Every route is a regular `Request` with cache, retries, deduplication and React hooks.
+
+:::
+
+---
+
+## Installation
+
+```bash npm2yarn2pnpm
+npm install @hyper-fetch/core @hyper-fetch/elysia
+```
+
+`elysia` 1.3 or newer is a peer dependency. Install the package where you export the schema type, usually the backend.
+The schema is a type, so it works the same whether the backend runs on Bun, Node.js or any other runtime Elysia
+supports.
+
+---
+
+## Getting Started
+
+1. Chain your routes and export the schema type from the backend. Elysia only types routes defined in one chain, the
+   same rule as its own Eden client.
+
+```ts title="backend/src/app.ts"
+import { Elysia, t } from "elysia";
+import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+
+const users = new Elysia({ prefix: "/users" })
+  .get("/", () => [{ id: "1", name: "Ann" }])
+  .get("/:userId", ({ params }) => ({ id: params.userId, name: "Ann" }))
+  .post("/", ({ body, status }) => status(201, { id: "2", name: body.name }), {
+    body: t.Object({ name: t.String() }),
+  });
+
+export const app = new Elysia().use(users);
+
+// highlight-next-line
+export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+```
+
+2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
+
+```ts title="frontend/src/api.ts"
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { AppSchema } from "@my-app/backend";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+// highlight-next-line
+export const sdk = createSdk<typeof client, AppSchema>(client);
+```
+
+3. Send requests. Types follow the Elysia route definitions.
+
+```ts
+const { data } = await sdk.users.$get.send();
+
+const { data: user } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
+
+const { data: created } = await sdk.users.$post.setPayload({ name: "Bob" }).send();
+```
+
+---
+
+## How routes map to the SDK
+
+| Elysia route                             | SDK accessor                                  | Endpoint                      |
+| ---------------------------------------- | --------------------------------------------- | ----------------------------- |
+| `app.get("/", ...)`                      | `sdk.$get`                                    | `/`                           |
+| `new Elysia({ prefix: "/users" })` + `/` | `sdk.users.$get`                              | `/users`                      |
+| `.get("/:userId", ...)`                  | `sdk.users.$userId.$get`                      | `/users/:userId`              |
+| `.get("/:userId/posts", ...)`            | `sdk.users.$userId.posts.$get`                | `/users/:userId/posts`        |
+| `.get("/google-login", ...)`             | `sdk.auth.googleLogin.$get`                   | `/auth/google-login`          |
+| `.get("/files/:fileId?", ...)`           | `sdk.files.$get` and `sdk.files.$fileId.$get` | `/files` and `/files/:fileId` |
+| `.group("/v1", (app) => app.use(users))` | `sdk.v1.users.$get`                           | `/v1/users`                   |
+
+:::note Mapping rules
+
+- Each path segment becomes a nested property.
+- `:param` segments become `$param` properties, and the param is typed on `setParams()`.
+- Routes below an optional `:param?` segment appear twice: without the param, and under `$param` with it. HyperFetch
+  params are always required, so each variant is its own request.
+- kebab-case segments become camelCase. `createSdk` turns them back into kebab-case when it builds the URL.
+- Methods become lowercase keys: `$get`, `$post`, `$put`, `$patch`, `$delete`, and custom methods registered with
+  `.route()`, such as `$propfind`.
+- The endpoint is the full Elysia path, including `prefix` and `.group()` prefixes.
+
+:::
+
+:::caution Routes the schema leaves out
+
+- **WebSocket routes** registered with `.ws()`. Use [`@hyper-fetch/sockets`](/docs/sockets/overview) for them.
+- **`.all()` routes**, because they do not map to a single HTTP method.
+- **Wildcard `*` segments**, because HyperFetch has no way to fill them.
+- **Handlers attached with `.mount()`**, because Elysia does not type them.
+- **Paths with ten or more segments**. Up to eight segments get the full request types and the SDK client. At nine,
+  `createSdk` stops injecting the client into the request.
+
+:::
+
+---
+
+## How request types are read
+
+Each route becomes a `Request` with these generics:
+
+- **Response**: the union of the bodies the handler returns with a 2xx status. A route that only returns other statuses
+  gets `undefined`.
+- **Local error**: the union of the bodies of every other status, for example `status(404, { message })` and the `422`
+  validation error of a route with a schema. It is `undefined` when every status is a success.
+- **Payload**: the route's `body` schema, or `undefined` without one. A body with a `t.File()` or `t.Files()` field is
+  typed as `FormData`, because files can only be sent as multipart form data.
+- **Query params**: the route's `query` schema, or `undefined` without one.
+- **Endpoint**: the full Elysia path, which types `setParams()`.
+
+```ts
+const { data, error } = await sdk.users.$userId.$get.setParams({ userId: "missing" }).send();
+
+if (error) {
+  // error is the 404 body or the 422 validation error
+} else {
+  // data is the 2xx body
+}
+```
+
+:::note What is not typed
+
+- `headers` schemas. HyperFetch requests do not type headers, so pass them with `setHeaders()`.
+- `params` schemas such as `t.Numeric()`. Params are typed from the path, as strings or numbers.
+
+:::
+
+---
+
+## What arrives over HTTP
+
+Elysia types the value a handler returns, but the client receives that value after it went over HTTP. The response and
+error types follow what HyperFetch actually reads:
+
+| Handler returns                                                    | Typed as     | Why                                          |
+| ------------------------------------------------------------------ | ------------ | -------------------------------------------- |
+| A `Date`, also inside objects and arrays                           | `string`     | JSON sends dates as ISO strings              |
+| `null` or `undefined`                                              | `""`         | Elysia sends an empty body                   |
+| Nothing, or `any`                                                  | `unknown`    | Elysia types both the same way               |
+| A generator, `sse()`, a `ReadableStream`, a `Response` or `form()` | `unknown`    | The body is not JSON                         |
+| An error the handler throws                                        | global error | Elysia does not type it, the status is `500` |
+
+Read a streamed route with `setOptions({ streaming: true })` and parse the stream yourself.
+
+:::caution Array query params
+
+HyperFetch encodes arrays as `tags[]=a&tags[]=b` by default, which Elysia rejects with a `422`. Send repeated keys
+instead:
+
+```ts
+client.adapter.setQueryParamsMapperConfig({ arrayFormat: "none" });
+```
+
+:::
+
+To upload files, build the `FormData` yourself. HyperFetch sends it as it is:
+
+```ts
+const form = new FormData();
+form.append("title", "report");
+form.append("file", file);
+
+await sdk.upload.$post.setPayload(form).send();
+```
+
+---
+
+## Global errors
+
+`createSdk` injects your client into every request, so the client's global error type applies to every Elysia route next
+to the local error of the route.
+
+```ts
+import { createClient, createSdk } from "@hyper-fetch/core";
+import type { AppSchema } from "@my-app/backend";
+
+type ApiError = { message: string; code: string };
+
+const client = createClient<{ error: ApiError }>({ url: "https://api.example.com" });
+const sdk = createSdk<typeof client, AppSchema>(client);
+
+const { error } = await sdk.users.$get.send();
+// error is typed with ApiError
+```
+
+---
+
+## Summary
+
+:::secondary What you learned
+
+- `ElysiaAppToHyperFetch<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
+- Paths, params, optional params, kebab-case segments, prefixes and groups all map to nested SDK properties.
+- 2xx bodies type the response, and every other status types the local error.
+- Response types follow the wire: dates are strings, empty bodies are `""`, and streams are `unknown`.
+- `body` and `query` schemas type the payload and query params of each request.
+- The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+## Next Steps
+
+<LinkCard
+  type="docs"
+  title="SDK"
+  description="Learn how createSdk builds requests from a schema and how to configure defaults per endpoint."
+  to="/docs/core/sdk"
+/>
+<LinkCard
+  type="docs"
+  title="Request"
+  description="Explore every setter and option available on the requests your Elysia routes produce."
+  to="/docs/core/request"
+/>

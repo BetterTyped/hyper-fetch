@@ -22,6 +22,7 @@ dependents.
 | `packages/adapter-firebase`       | `@hyper-fetch/firebase`        | `firebase`        |
 | `packages/adapter-firebase-admin` | `@hyper-fetch/firebase-admin`  | `firebase-admin`  |
 | `packages/hono`                   | `@hyper-fetch/hono`            | `hono`            |
+| `packages/elysia`                 | `@hyper-fetch/elysia`          | `elysia`          |
 | `packages/plugin-devtools`        | `@hyper-fetch/plugin-devtools` | `plugin-devtools` |
 | `packages/plugin-eslint`          | `eslint-plugin-hyper-fetch`    | `plugin-eslint`   |
 | `packages/plugin-oxlint`          | `oxlint-plugin-hyper-fetch`    | `plugin-oxlint`   |
@@ -47,6 +48,13 @@ While iterating, stay inside one package:
 
 ```bash
 pnpm exec vitest run __tests__/features/cache/cache.base.spec.ts
+```
+
+- `packages/elysia/__bun__` holds specs that run on Bun, outside vitest. When `packages/elysia` changes, run them too.
+  They need Bun installed and core built:
+
+```bash
+pnpm --filter @hyper-fetch/elysia test:bun
 ```
 
 - Fix every error you introduced before reporting the work as complete. Never report a check you did not run.
