@@ -282,12 +282,11 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
        * closing may report only `error` (Node.js 22).
        */
       const closeWebsocket = (transport: WebSocket): Promise<void> => {
-        if (websocket === transport) {
-          websocket = undefined;
-          loseCurrent = undefined;
-          clearTimers();
-          forgetAll();
-        }
+        // The engine closes an attempt before it opens the next one, so this is always the current transport
+        websocket = undefined;
+        loseCurrent = undefined;
+        clearTimers();
+        forgetAll();
         if (transport.readyState === WebsocketReadyState.CLOSED) {
           return Promise.resolve();
         }
@@ -318,11 +317,8 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
           }
           websocket = transport;
 
-          loseCurrent = (loss) => {
-            if (attempt.isCurrent()) {
-              attempt.lost(loss);
-            }
-          };
+          // Ignored by the engine once the attempt was replaced
+          loseCurrent = attempt.lost;
 
           /** The connection can carry subscriptions - tRPC has no handshake to wait for */
           const onOpen = () => {
@@ -373,11 +369,6 @@ export const TrpcWebsocketAdapter = ({ transformer }: TrpcAdapterOptionsType = {
               onMessage(event);
             }
           });
-
-          // No open event follows a transport that is open already
-          if (transport.readyState === WebsocketReadyState.OPEN) {
-            onOpen();
-          }
 
           return { close: () => closeWebsocket(transport) };
         },

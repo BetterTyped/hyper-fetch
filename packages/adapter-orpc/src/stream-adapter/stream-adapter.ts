@@ -270,9 +270,8 @@ export const OrpcStreamAdapter = ({
 
           return {
             close: () => {
-              if (connection === details) {
-                connection = undefined;
-              }
+              // The engine closes an attempt before it opens the next one, so these are always the current details
+              connection = undefined;
               stopStreams();
             },
           };

@@ -217,10 +217,9 @@ export const OrpcWebsocketAdapter = ({
        * error, as a transport that fails while closing may report only `error` (Node.js 22).
        */
       const closeWebsocket = (transport: WebSocket): Promise<void> => {
-        if (websocket === transport) {
-          websocket = undefined;
-          releaseAll();
-        }
+        // The engine closes an attempt before it opens the next one, so this is always the current transport
+        websocket = undefined;
+        releaseAll();
         if (transport.readyState === WebsocketReadyState.CLOSED) {
           return Promise.resolve();
         }
@@ -258,10 +257,12 @@ export const OrpcWebsocketAdapter = ({
           };
 
           transport.addEventListener("open", () => {
+            // Ignored for a replaced transport
+            attempt.ready();
+            // A replaced transport, or a connected callback that closed the connection, starts nothing
             if (!attempt.isCurrent()) {
               return;
             }
-            attempt.ready();
             subscriptions.values().forEach((subscription) => {
               // A listener added by an `onConnected` callback is running already
               if (!subscription.transport) {
