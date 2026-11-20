@@ -16,7 +16,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
     it("should return data available for endpoint", async () => {
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
@@ -31,7 +31,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const req = client
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
@@ -42,7 +42,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const req = clientBees
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
@@ -54,7 +54,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
       const req = clientBees
         .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
-          method: "getDoc",
+          method: "get",
         })
         .setParams({ teaId: 1 });
 

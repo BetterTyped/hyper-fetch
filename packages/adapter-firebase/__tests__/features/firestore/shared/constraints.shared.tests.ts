@@ -1,6 +1,6 @@
 import type { Client } from "@hyper-fetch/core";
 import type { FirestoreAdapterType, FirestoreQueryParams } from "adapter";
-import { $limit, $orderBy, $where } from "constraints";
+import { $endAt, $endBefore, $limit, $orderBy, $startAfter, $startAt, $where } from "constraints";
 
 import type { Tea } from "../../../utils";
 
@@ -67,6 +67,42 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         amount: 25,
         year: 2021,
       });
+    });
+  });
+  describe("cursors", () => {
+    it("should start and end the ordered query at field values", async () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data: fromStart } = await req.send({
+        queryParams: { constraints: [$orderBy("year"), $startAt(2022)] },
+      });
+      const { data: afterStart } = await req.send({
+        queryParams: { constraints: [$orderBy("year"), $startAfter(2022)] },
+      });
+      const { data: toEnd } = await req.send({
+        queryParams: { constraints: [$orderBy("year"), $endAt(2011)] },
+      });
+      const { data: beforeEnd } = await req.send({
+        queryParams: { constraints: [$orderBy("year"), $endBefore(2011)] },
+      });
+
+      expect(fromStart?.map((tea) => tea.year)).toStrictEqual([2022, 2022, 2023, 2023]);
+      expect(afterStart?.map((tea) => tea.year)).toStrictEqual([2023, 2023]);
+      expect(toEnd?.map((tea) => tea.year)).toStrictEqual([1980, 2011]);
+      expect(beforeEnd?.map((tea) => tea.year)).toStrictEqual([1980]);
+    });
+    it("should pass every cursor value when ordering by multiple fields", async () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data } = await req.send({
+        queryParams: { constraints: [$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")] },
+      });
+
+      expect(data?.map((tea) => tea.name)).toStrictEqual(["Taiping Hou Kui"]);
     });
   });
 };

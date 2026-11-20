@@ -66,7 +66,6 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
             const groupedResult =
               options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
             const extra = { ref: path, snapshot, groupedResult, status };
-            callback({ data: response, extra });
             onEvent({ topic: listener.topic, data: response, extra });
           },
           (error) => {

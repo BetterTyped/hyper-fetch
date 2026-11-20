@@ -50,7 +50,6 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
             const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
             const status = getStatus(response);
             const extra = { ref: path, snapshot, status };
-            callback({ data: response, extra });
             onEvent({ topic: listener.topic, data: response, extra });
           },
           (error) => {

@@ -110,7 +110,7 @@ export const $limitToLast = (num: number) => {
 
 export const $equalTo = (value: any) => {
   return {
-    toString: () => `${RealtimeQueryConstraints.LIMIT_TO_LAST}_${value}`,
+    toString: () => `${RealtimeQueryConstraints.EQUAL_TO}_${value}`,
     type: RealtimeQueryConstraints.EQUAL_TO as const,
     values: [value],
   };
