@@ -26,20 +26,21 @@ The best way to create new plugin is to wrap the `Plugin` class into a function.
 configuration options and return the plugin instance.
 
 ```ts title="Creating a new plugin"
-import { Plugin } from "@hyper-fetch/core";
+import { createClient, Plugin } from "@hyper-fetch/core";
 
 const MyPlugin = ({ module }: { module: string }) => {
   // highlight-start
-  return new Plugin({
-    // Hook into creation of the request and log it
-    onRequestCreate: (request) => {
-      console.log(`[${module}] Request created`, request);
-    },
-  });
+  return (
+    new Plugin({ name: "my-plugin" })
+      // Hook into creation of the request and log it
+      .onRequestCreate(({ request }) => {
+        console.log(`[${module}] Request created`, request);
+      })
+  );
   // highlight-end
 };
 
-const client = new Client({
+const client = createClient({
   url: "https://api.example.com",
   // highlight-start
 }).addPlugin(MyPlugin({ module: "MyApp" }));
@@ -51,7 +52,7 @@ const client = new Client({
 ## Lifecycle Hooks
 
 Plugins can subscribe to events across the entire Hyper Fetch system. Each hook method registers a callback and returns
-the `Plugin` instance for chaining.
+the `Plugin` instance for chaining. A hook holds one callback: calling the same method again replaces the previous one.
 
 A plugin only observes the lifecycle. When one of its hooks throws, the request, the cache and the other plugins carry
 on, and the error is logged and thrown from a timer, outside of the lifecycle - it reaches `window.onerror` or the
@@ -69,18 +70,19 @@ on, and the error is logged and thrown from a timer, outside of the lifecycle - 
 | Hook                | When it fires                                         | Data received           |
 | ------------------- | ----------------------------------------------------- | ----------------------- |
 | `onRequestCreate`   | A new request instance is created via `createRequest` | `{ request }`           |
-| `onRequestTrigger`  | A request is about to enter the dispatcher            | `{ request }`           |
-| `onRequestStart`    | The adapter begins executing the request              | `{ request }`           |
+| `onRequestTrigger`  | The adapter is about to send the request              | `{ request }`           |
+| `onRequestStart`    | The adapter starts sending the request                | `{ request }`           |
 | `onRequestSuccess`  | The adapter returns a successful response             | `{ response, request }` |
 | `onRequestError`    | The adapter returns an error response                 | `{ response, request }` |
 | `onRequestFinished` | The request completes (success or error)              | `{ response, request }` |
 
 ### Cache Lifecycle
 
-| Hook                | When it fires                       | Data received                            |
-| ------------------- | ----------------------------------- | ---------------------------------------- |
-| `onCacheItemChange` | A cache entry is created or updated | `{ cache, cacheKey, prevData, newData }` |
-| `onCacheItemDelete` | A cache entry is deleted            | `{ cacheKey, cache }`                    |
+| Hook                    | When it fires                       | Data received                            |
+| ----------------------- | ----------------------------------- | ---------------------------------------- |
+| `onCacheItemChange`     | A cache entry is created or updated | `{ cache, cacheKey, prevData, newData }` |
+| `onCacheItemDelete`     | A cache entry is deleted            | `{ cacheKey, cache }`                    |
+| `onCacheItemInvalidate` | A cache entry is invalidated        | `{ cacheKey, cache }`                    |
 
 ### Dispatcher Lifecycle
 
@@ -215,7 +217,7 @@ to the Dispatcher and trigger them or wait a bit waiting for the app to load.
 ```ts live title="Triggering requests" size=md console
 // Create a plugin to persist the requests
 const PersistPlugin = () => {
-  return new Plugin()
+  return new Plugin({ name: "persist" })
     .onDispatcherItemAdded(({ queueItem }) => {
       localStorage.setItem(queueItem.requestId, JSON.stringify(queueItem.request.toJSON()));
     })

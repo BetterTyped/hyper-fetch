@@ -31,8 +31,8 @@
 ## 📖 About
 
 The HyperFetch CLI reads your OpenAPI 3.x schema and generates a complete, fully typed SDK built on `@hyper-fetch/core`.
-Every endpoint with an `operationId` becomes a typed request — params, payloads, query params, and response types are
-all extracted from the schema. The generated code is standard HyperFetch you can customize freely.
+Every operation becomes a typed request — params, payloads, query params, and response types are all extracted from the
+schema. The generated code is standard HyperFetch you can customize freely.
 
 ## 🎯 Key Capabilities
 
@@ -64,11 +64,14 @@ npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
 ### 3. Use the generated SDK
 
 ```ts
-import { sdk } from "./src/api/api-openapi.sdk";
+import { createClient } from "@hyper-fetch/core";
+import { createSdk } from "./src/api/api-openapi.sdk";
+
+const sdk = createSdk(createClient({ url: "https://api.example.com" }));
 
 // Every endpoint is typed — params, payloads, and responses
-const { data } = await sdk.users.list.send();
-const { data: user } = await sdk.users.get.setParams({ userId: 1 }).send();
+const { data } = await sdk.users.$get.send();
+const { data: user } = await sdk.users.$userId.$get.send({ params: { userId: 1 } });
 ```
 
 ## 📋 Commands
@@ -119,7 +122,7 @@ The `init` command creates an `api.json` file at your project root. This is the 
   "aliases": {
     "api": "@/api",
     "hooks": "@/hooks",
-    "ui": "@/ui",
+    "ui": "@/components/ui",
     "components": "@/components",
     "lib": "@/lib"
   }
@@ -146,8 +149,9 @@ src/
 The generated file contains:
 
 1. **Schema types** — TypeScript interfaces for every schema component
-2. **Typed requests** — One `createRequest` call per endpoint (with `operationId`)
-3. **SDK tree** — Nested object mirroring your API paths: `sdk.users.get`, `sdk.posts.list`, etc.
+2. **Operation types** — `ResponseType`, `RequestBody`, `QueryParams`, `PathParams` and `ErrorType` for every operation
+3. **SDK schema** — An `SdkSchema` tree mirroring your API paths, with a `$`-prefixed key per HTTP method:
+   `sdk.users.$get`, `sdk.users.$userId.$put`, etc.
 4. **`createSdk` function** — Factory to create the SDK with your custom client
 
 ```ts
@@ -156,36 +160,48 @@ import { createSdk as coreCreateSdk } from "@hyper-fetch/core";
 import type { ClientInstance, RequestModel } from "@hyper-fetch/core";
 
 // Schema types extracted from your OpenAPI document
-export interface Components {
-  schemas: {
-    User: { id: number; name: string; email: string };
+declare namespace Components {
+  namespace Schemas {
+    export interface User {
+      id: number;
+      name: string;
+      email: string;
+    }
     // ... all your schema types
-  };
+  }
 }
 
-// Request model for each endpoint with operationId
+export type GetUsersResponseType = Components.Schemas.User[];
+
+// Request model for each operation, keyed by path and then by method
 export type SdkSchema = {
   users: {
-    $get: RequestModel<{ response: Components["schemas"]["User"][]; endpoint: "/users" }>;
+    $get: RequestModel<{ response: GetUsersResponseType; endpoint: "/users" }>;
   };
 };
 
+export type { Components };
+
 // SDK tree you import and use
-export const createSdk = <Client extends ClientInstance>(client: Client) =>
-  coreCreateSdk<Client, SdkSchema>(client);
+export const createSdk = <Client extends ClientInstance>(
+  client: Client,
+  options?: Parameters<typeof coreCreateSdk>[1] | undefined,
+) => {
+  return coreCreateSdk<Client, SdkSchema>(client, options);
+};
 ```
 
 ## ⚠️ Important Notes
 
-- **`operationId` is required** — Only endpoints with an `operationId` in the schema are included. Endpoints without one
-  are silently skipped.
+- **`operationId` is optional** — Operations without one are included too. Their type names are derived from the method
+  and path, for example `GetUsers$userIdResponseType` for `GET /users/{userId}`.
 - **JSON schemas only for local files** — Local file paths must point to `.json` files. YAML is not supported for local
   files.
 - **Remote schemas are fetched with GET** — No auth headers are sent. If your schema requires authentication, download
   it locally first and pass the file path.
 - **Path params are converted** — `{userId}` in OpenAPI becomes `:userId` in HyperFetch endpoints.
 - **Path segments are camelCased** — Kebab-case path segments become camelCase keys in the SDK tree. `{param}` segments
-  become `$param`.
+  become `$param` and each HTTP method becomes `$get`, `$post`, `$put`, `$patch` or `$delete`.
 
 ## 📚 Documentation
 
@@ -233,9 +249,9 @@ const client = createClient({ url: "https://api.example.com" });
 const sdk = createSdk(client);
 
 // Every method is fully typed — params, payloads, and responses
-const { data: users } = await sdk.users.list.send();
-const { data: user } = await sdk.users.get.setParams({ userId: 1 }).send();
-const { data: newUser } = await sdk.pets.create.send({
+const { data: users } = await sdk.users.$get.send();
+const { data: user } = await sdk.users.$userId.$get.setParams({ userId: 1 }).send();
+const { data: newPet } = await sdk.pets.$post.send({
   payload: { name: "Buddy", species: "dog" },
 });
 ```
@@ -255,7 +271,7 @@ client.onAuth((request) => {
 });
 
 // All SDK requests now include the auth header automatically
-const { data } = await sdk.users.me.send();
+const { data } = await sdk.users.me.$get.send();
 ```
 
 ### Programmatic usage (no CLI)
@@ -263,10 +279,24 @@ const { data } = await sdk.users.me.send();
 ```ts
 import { OpenapiRequestGenerator } from "@hyper-fetch/cli";
 
+// The generator reads relative schema paths from `resolvedPaths.cwd` and writes to `resolvedPaths.api`
+const config = {
+  tsx: true,
+  aliases: { api: "@/api", hooks: "@/hooks", ui: "@/components/ui", components: "@/components", lib: "@/lib" },
+  resolvedPaths: {
+    cwd: process.cwd(),
+    api: "./src/api",
+    hooks: "./src/hooks",
+    ui: "./src/components/ui",
+    components: "./src/components",
+    lib: "./src/lib",
+  },
+};
+
 // Use the generator directly in scripts or build tools
-const schema = await OpenapiRequestGenerator.getSchemaFromUrl(url, config);
-const generator = new OpenapiRequestGenerator(schema, config);
-const output = await generator.generateFile(fileName);
+const schema = await OpenapiRequestGenerator.getSchemaFromUrl({ url: "./openapi.json", config });
+const generator = new OpenapiRequestGenerator(schema);
+const filePath = await generator.generateFile({ fileName: "api.sdk.ts", config });
 ```
 
 ## Disclaimer
@@ -275,4 +305,4 @@ This package is inspired by [openapi-client-axios](https://www.npmjs.com/package
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

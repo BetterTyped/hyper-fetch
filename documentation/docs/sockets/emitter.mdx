@@ -94,7 +94,7 @@ const emitter = sendMessageEmitter;
 
 emitter.setPayload({ message: "some message" }); // Returns CLONED emitter with assigned data
 
-emitter.emit(); // Server error - no data
+emitter.emit(); // Type error - the original emitter has no payload
 ```
 
 ```tsx

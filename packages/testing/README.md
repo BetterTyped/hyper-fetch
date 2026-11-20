@@ -34,15 +34,15 @@ suites. It is primarily used internally across the HyperFetch monorepo.
 ```ts
 import { getUser } from "./api";
 
-const mockedRequest = getUser.setMock({
+const mockedRequest = getUser.setMock(() => ({
   data: { id: 1, name: "John Doe", email: "john@example.com" },
   status: 200,
-});
+}));
 
 const { data } = await mockedRequest.send();
-console.log(data.name); // "John Doe"
+console.log(data?.name); // "John Doe"
 ```
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

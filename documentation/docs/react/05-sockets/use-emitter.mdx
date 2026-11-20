@@ -16,8 +16,8 @@ efficient event-emitting experience.
 
 1.  **Declarative event emitting**: Provide an `Emitter` and let the hook manage the process.
 2.  **Automatic connection management**: Handles `connected` state for you.
-3.  **Lifecycle callbacks**: Easily run side effects on events, errors, or reconnections.
-4.  **Deep core integration**: Uses a central event dispatcher to send events.
+3.  **Lifecycle callbacks**: Easily run side effects on emits, failed emits, or reconnections.
+4.  **Typed payloads**: `emit` is typed from the emitter, so a wrong payload shape is a compile error.
 
 :::
 
@@ -37,7 +37,7 @@ First, let's define an emitter.
 // src/api/chat.ts
 import { socketInstance } from "./socket";
 
-export const emitMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+export const emitMessage = socketInstance.createEmitter<ChatMessageType>()({
   topic: "chat-message", // topic of the event
 });
 ```
@@ -50,19 +50,14 @@ import { useEmitter } from "@hyper-fetch/react";
 import { emitMessage } from "./api/chat";
 
 const MessageComponent: React.FC = () => {
-  const { emit, connected } = useEmitter(emitMessage);
+  const { emit, connected, onEmitError } = useEmitter(emitMessage);
+
+  onEmitError(({ error }) => {
+    alert(`Message not sent: ${error.message}`);
+  });
 
   const onSubmit = (values: { message: string }) => {
-    // ResponseDataType is automatically inherited from Emitter class
-    const acknowledge = (error: Error, data: ResponseDataType) => {
-      if (error) {
-        alert("No server response!");
-      } else {
-        alert("Message received on server.");
-      }
-    };
-
-    emit({ data: values }, acknowledge);
+    emit({ payload: values });
   };
 
   return (
@@ -91,7 +86,8 @@ To handle side effects such as notifications, logging, or triggering other actio
 handler hooks. This keeps your component's rendering logic clean and separates side effects from state management.
 
 1.  `onEmit`: Fires before we send event message.
-2.  `onEmitError`: Fires when an error occurs during the emission.
+2.  `onEmitError`: Fires when a message of this topic could not be sent (socket not connected, payload mapper, encoder
+    or transport failure). It receives `{ error }`.
 3.  `onConnected`: Fires when the socket connection is successfully opened.
 4.  `onDisconnected`: Fires when the socket connection is closed.
 5.  `onConnecting`: Fires when the socket is connecting.
@@ -111,8 +107,8 @@ const MessageComponent: React.FC = () => {
     console.log(emitter); // Emitter instance
   });
 
-  onEmitError((error) => {
-    console.log(error); // Error Event
+  onEmitError(({ error }) => {
+    console.log(error.message); // Why the message was not sent
   });
 
   onConnected(() => {
@@ -143,28 +139,29 @@ const MessageComponent: React.FC = () => {
 
 ## Sending Data
 
-Data can be passed in several ways. One option is to use `setData` method on the [`Emitter`](/docs/sockets/emitter).
+Data can be passed in several ways. One option is to use the `setPayload` method on the
+[`Emitter`](/docs/sockets/emitter).
 
 ```tsx
-const { emit } = useEmitter(emitMessage.setData({ message: "New message" }));
+const { emit } = useEmitter(emitMessage.setPayload({ message: "New message" }));
+
+// The payload is already set, so no arguments are needed
+emit();
 ```
 
-However, you may need to pass data dynamically, which requires using the `emit` function.
+However, you may need to pass data dynamically, which requires passing a `payload` to the `emit` function.
 
 ```tsx
 const { emit } = useEmitter(emitMessage);
 
 const handleSubmit = (message: string) => {
-  // ResponseDataType is automatically inherited from Emitter class
-  emit({ data: { message } }, (error: Error, data: ResponseDataType) => {
-    if (error) {
-      alert("No server response!");
-    } else {
-      alert("Message received on server.");
-    }
-  });
+  emit({ payload: { message } });
 };
 ```
+
+`emit` returns `void` and takes no acknowledgement callback. Nothing is queued: a message emitted while the socket is
+not connected is dropped and reported through `onEmitError`. When the server needs to answer, listen for the reply on
+its own topic with [`useListener`](/docs/react/sockets/use-listener).
 
 ---
 

@@ -50,7 +50,7 @@ import { onChatMessage } from "./api/socket";
 
 function App() {
   const [messages, setMessages] = useState([]);
-  const { data, connected, connecting, onEvent, onError, onReconnecting } = useListener(onChatMessage);
+  const { connected, connecting, onEvent } = useListener(onChatMessage);
 
   onEvent(({ data: message }) => {
     if (message) {
@@ -86,7 +86,7 @@ function App() {
 cluttering your component's rendering logic.
 
 1.  **`onEvent`**: Fires whenever a new event is received from the server.
-2.  **`onError`**: Fires when a connection or subscription error occurs.
+2.  **`onError`**: Fires when the socket reports an error. It receives the socket error event.
 3.  **`onConnected`**: Fires when the socket connection is successfully opened.
 4.  **`onDisconnected`**: Fires when the socket connection is closed.
 5.  **`onConnecting`**: Fires when the socket is connecting.
@@ -107,8 +107,8 @@ function App() {
     setMessages((prev) => [...prev, message]);
   });
 
-  onError((error) => {
-    toast({ type: "error", message: `Connection error: ${error.message}` });
+  onError((event) => {
+    console.error("Socket error", event);
   });
 
   onConnected(() => {
@@ -235,10 +235,12 @@ Configuration options for `useListener` must be provided as the second parameter
 
 ```tsx
 const { ... } = useListener(listener, {
-  disabled: false,
-  // ... and more
+  dependencyTracking: true,
+  select: (data) => data.text,
 });
 ```
+
+There is no `disabled` option. To stop listening, stop rendering the component that calls the hook.
 
 Below is a full list of available options.
 

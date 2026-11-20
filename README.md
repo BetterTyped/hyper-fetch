@@ -50,10 +50,12 @@ npx @hyper-fetch/cli generate --url https://api.example.com/openapi.json
 ```
 
 ```ts
-import { sdk } from "./generated";
+import { createSdk } from "./api-openapi.sdk";
 
-// Every endpoint from your schema is available as a typed method
-const { data } = await sdk.users.list.send();
+const sdk = createSdk(client);
+
+// Every endpoint from your schema is available as a typed request
+const { data } = await sdk.users.$get.send();
 ```
 
 ## 💥 Why HyperFetch?

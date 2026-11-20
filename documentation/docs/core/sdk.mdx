@@ -313,20 +313,21 @@ const configuredSdk = sdk.$configure({
 });
 ```
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `headers` | `HeadersInit` | Default headers |
-| `auth` | `boolean` | Enable authentication |
-| `cache` | `boolean` | Enable/disable caching |
-| `cacheTime` | `number` | Cache TTL in milliseconds |
-| `staleTime` | `number` | Stale time in milliseconds |
-| `retry` | `number` | Number of retries |
-| `retryTime` | `number` | Delay between retries |
-| `cancelable` | `boolean` | Enable auto-cancellation |
-| `queued` | `boolean` | Enable queueing |
-| `offline` | `boolean` | Enable offline support |
-| `deduplicate` | `boolean` | Enable deduplication |
-| `deduplicateTime` | `number` | Deduplication window |
+| Key | Type | Request default | Description |
+|-----|------|-----------------|-------------|
+| `headers` | `HeadersInit` | `undefined` | Default headers |
+| `auth` | `boolean` | `true` | Enable authentication |
+| `cache` | `boolean` | `true` | Enable/disable caching |
+| `cacheTime` | `number` | `300000` (5 min) | Cache TTL in milliseconds |
+| `staleTime` | `number` | `300000` (5 min) | Stale time in milliseconds |
+| `retry` | `number` | `0` | Number of retries |
+| `retryTime` | `number` | `500` | Delay between retries in milliseconds |
+| `cancelable` | `boolean` | `false` | Enable auto-cancellation |
+| `queued` | `boolean` | `false` | Enable queueing |
+| `offline` | `boolean` | `true` | Enable offline support |
+| `deduplicate` | `boolean` | `false` | Enable deduplication |
+| `deduplicateTime` | `number \| null` | `null` | Deduplication window in milliseconds, `null` joins any in-flight request |
+| `structuralSharing` | `boolean` | `true` | Keep references of unchanged response data |
 
 ### Application Order
 

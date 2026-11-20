@@ -70,7 +70,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // 2. Create a Hyper-fetch client with the Firebase admin adapter
-const client = new Client({ url: "teas/" }).setAdapter(() => FirebaseAdminAdapter(db));
+const client = new Client({ url: "teas/" }).setAdapter(FirebaseAdminAdapter(db));
 
 // 3. Create a request
 const getTeas = client.createRequest<{ response: Tea[] }>()({
