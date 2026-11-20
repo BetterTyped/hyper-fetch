@@ -105,4 +105,49 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
       expect(data?.map((tea) => tea.name)).toStrictEqual(["Taiping Hou Kui"]);
     });
   });
+  describe("constraints callback", () => {
+    it("should filter, order and limit with a callback", async () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data } = await req.send({
+        queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(2),
+      });
+
+      expect(data?.map((tea) => tea.name)).toStrictEqual(["Taiping Hou Kui", "Bi Luo Chun"]);
+    });
+    it("should page with cursors from a callback", async () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data } = await req.send({
+        queryParams: (c) => c.orderBy("year").orderBy("name").startAfter(2023, "Hong Yu"),
+      });
+
+      expect(data?.map((tea) => tea.name)).toStrictEqual(["Taiping Hou Kui"]);
+    });
+    it("should store the resolved constraints, sharing the cache key with the array form", () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const fromCallback = req.setQueryParams((c) => c.where("type", "==", "Green").limit(2));
+      const fromArray = req.setQueryParams([$where("type", "==", "Green"), $limit(2)]);
+
+      expect(Array.isArray(fromCallback.queryParams)).toBe(true);
+      expect(fromCallback.cacheKey).toBe(fromArray.cacheKey);
+      expect(fromCallback.cacheKey).not.toBe(req.setQueryParams((c) => c.limit(3)).cacheKey);
+    });
+    it("should keep the deprecated constraints object working", async () => {
+      const req = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data } = await req.send({ queryParams: { constraints: [$where("type", "==", "Green")] } });
+
+      expect(data).toHaveLength(3);
+    });
+  });
 };

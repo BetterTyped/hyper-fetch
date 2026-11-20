@@ -39,8 +39,8 @@ hooks, the same API you use for HTTP. Live data comes through `@hyper-fetch/sock
 - 🔥 **Firebase calls that look like the rest of your app** — `getDocs`, `addDoc`, `push`, `update` and friends are
   regular requests with `send()`, hooks and devtools
 - 🔮 **Typed from path to payload** — Params, payloads, responses and the raw Firebase `extra` are typed per request
-- 🧭 **Queries as plain arrays** — `queryParams: [$where("type", "==", "Green"), $limit(20)]`, part of the cache key so
-  every filter is cached on its own
+- 🧭 **Typed queries** — `queryParams: (c) => c.where("type", "==", "Green").limit(20)` checks field names and
+  values, and every filter is cached on its own
 - 📡 **Live data without wiring** — `onSnapshot` and `onValue` become socket listeners and `useListener` state
 - 🛡️ **Errors you can render** — Permission and index errors arrive in `response.error`; `send()` never rejects
 - 🗂️ **Clean results** — Documents and list items carry their id as `__key`, and Realtime Database lists come back as
@@ -76,7 +76,7 @@ const { data, error } = await getTeas.send();
 ### Read a document
 
 ```ts
-type User = { __key: string; name: string; email: string };
+type User = { __key: string; name: string; email: string; role: "admin" | "member" };
 
 const getUser = client.createRequest<{ response: User | null }>()({
   endpoint: "users/:userId",
@@ -90,16 +90,16 @@ const { data, status } = await getUser.setParams({ userId: "abc123" }).send();
 ### Query a collection
 
 ```ts
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-const getUsers = client.createRequest<{ response: User[]; queryParams?: FirestoreQueryParams }>()({
+const getUsers = client.createRequest<{ response: User[]; queryParams?: FirestoreQueryParams<User> }>()({
   endpoint: "users",
   method: "getDocs",
 });
 
+// field names and values are checked against User
 const { data: admins } = await getUsers.send({
-  queryParams: [$where("role", "==", "admin"), $orderBy("name"), $limit(20)],
+  queryParams: (c) => c.where("role", "==", "admin").orderBy("name").limit(20),
 });
 ```
 
@@ -112,7 +112,9 @@ const createUser = client.createRequest<{ response: User; payload: Omit<User, "_
 });
 
 // data is the payload plus __key, the id of the new document
-const { data: created, error } = await createUser.send({ payload: { name: "Jane", email: "jane@example.com" } });
+const { data: created, error } = await createUser.send({
+  payload: { name: "Jane", email: "jane@example.com", role: "member" },
+});
 ```
 
 ### Listen to changes
@@ -123,10 +125,9 @@ import { FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
 
 const socket = new Socket({ url: "", adapter: FirebaseSocketsAdapter(getFirestore(app)) });
 
-const onAdmins = socket.createListener<User[]>()({
-  topic: "users",
-  options: { constraints: [$where("role", "==", "admin")] },
-});
+const onAdmins = socket
+  .createListener<User[]>()({ topic: "users" })
+  .setQueryParams((c) => c.where("role", "==", "admin"));
 
 const stop = onAdmins.listen(({ data }) => console.log(data.length, "admins"));
 ```
