@@ -208,6 +208,25 @@ describe("Canvas effects", () => {
       expect(frames.pending()).toBe(1);
     });
 
+    it("should draw every particle once in the frame one of them is replaced", () => {
+      const frames = controlAnimationFrames();
+      // Each particle takes x, y, size, opacity, dx, dy and magnetism, in this order. The first one starts at the
+      // right edge (x 199 of 200) with the smallest size and leaves on the second frame, the second one at x 0.
+      const randoms = [0.999, 0.5, 0, 0.5, 0.5, 0.5, 0.5, 0, 0.5, 0, 0.5, 0.5, 0.5, 0.5];
+      vi.spyOn(Math, "random").mockImplementation(() => randoms.shift() ?? 0.5);
+      renderParticles({ quantity: 2, vx: 1 });
+      const before = recording.calls.length;
+
+      frames.step(16);
+
+      const drawnAt = recording.calls
+        .slice(before)
+        .filter((call) => call.name === "arc")
+        .map(({ args }) => args[0]);
+      // The replacement in the middle of the canvas, and the second particle moved by 1px on both frames
+      expect(drawnAt).toStrictEqual([100, 2]);
+    });
+
     it("should replace particles that leave the canvas", () => {
       const frames = controlAnimationFrames();
       renderParticles({ quantity: 5, vx: 500 });

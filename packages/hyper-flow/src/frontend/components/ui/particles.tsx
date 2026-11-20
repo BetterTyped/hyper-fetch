@@ -253,21 +253,20 @@ export const Particles: React.FC<ParticlesProps> = ({
       circle.translateX += (mouse.current.x / (staticity / circle.magnetism) - circle.translateX) / ease;
       circle.translateY += (mouse.current.y / (staticity / circle.magnetism) - circle.translateY) / ease;
 
-      drawCircle(circle, true);
-
-      // circle gets out of the canvas
+      // A circle out of the canvas is replaced in place - removing it while iterating would skip the next one
       if (
         circle.x < -circle.size ||
         circle.x > canvasSize.current.w + circle.size ||
         circle.y < -circle.size ||
         circle.y > canvasSize.current.h + circle.size
       ) {
-        // remove the circle from the array
-        circles.current.splice(i, 1);
-        // create a new circle
         const newCircle = circleParams();
-        drawCircle(newCircle);
+        circles.current[i] = newCircle;
+        drawCircle(newCircle, true);
+        return;
       }
+
+      drawCircle(circle, true);
     });
     rafID.current = window.requestAnimationFrame(animate);
   };
