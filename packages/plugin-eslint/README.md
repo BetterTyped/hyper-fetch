@@ -34,26 +34,33 @@ errors.
 ## 🚀 Quick Start
 
 ```bash
-npm install -D eslint-plugin-hyper-fetch
+npm install -D eslint eslint-plugin-hyper-fetch typescript-eslint
 ```
 
-```json
-{
-  "extends": ["plugin:hyper-fetch/recommended"]
-}
+```js
+// eslint.config.mjs
+import hyperFetch from "eslint-plugin-hyper-fetch";
+import tseslint from "typescript-eslint";
+
+export default [
+  { files: ["**/*.{ts,tsx}"], languageOptions: { parser: tseslint.parser } },
+  hyperFetch.configs.recommended,
+];
 ```
 
-Or configure individual rules:
+Or register the plugin and configure individual rules:
 
-```json
+```js
 {
-  "plugins": ["hyper-fetch"],
-  "rules": {
+  plugins: { "hyper-fetch": hyperFetch },
+  rules: {
     "hyper-fetch/client-generic-types": "error",
-    "hyper-fetch/request-generic-types": "error"
-  }
+    "hyper-fetch/request-generic-types": "error",
+  },
 }
 ```
+
+Using `.eslintrc` on ESLint 8? Extend `"plugin:hyper-fetch/recommended-legacy"`.
 
 ## 📚 Documentation
 

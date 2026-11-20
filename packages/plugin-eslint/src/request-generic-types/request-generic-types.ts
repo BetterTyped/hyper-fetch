@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic-utilities.types";
+import {
+  getEmptyGenerics,
+  getNotMatchingGeneric,
+  getTypeArguments,
+  getUnexpectedGenerics,
+} from "utils/generic-utilities.types";
 
 // The Rule creator returns a function that is used to create a well-typed ESLint rule
 // The parameter passed into RuleCreator is a URL generator function.
-export const createRule = ESLintUtils.RuleCreator((name) => `https://my-website.io/eslint/${name}`);
+export const createRule = ESLintUtils.RuleCreator(
+  (name) => `https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint/rules#${name}`,
+);
 
 /**
  * Rule for extending typescript possibilities for generic types with HyperFetch
@@ -34,8 +41,8 @@ export const requestGenericTypes = createRule({
           node.callee.property.type === "Identifier" &&
           node.callee.property.name === "createRequest"
         ) {
-          const typeParameters = "typeParameters" in node ? node.typeParameters : undefined;
-          const notMatchingGeneric = getNotMatchingGeneric({ typeParameters });
+          const typeArguments = getTypeArguments(node);
+          const notMatchingGeneric = getNotMatchingGeneric({ typeArguments });
 
           if (notMatchingGeneric) {
             // skip other checks if format is incorrect
@@ -45,17 +52,17 @@ export const requestGenericTypes = createRule({
             });
           }
 
-          if (typeParameters?.params[0].type === "TSTypeReference") {
+          if (typeArguments?.params[0].type === "TSTypeReference") {
             // doSomething<RequestType> are considered matching.
             // Do not check for unexpected generics in this case.
             return;
           }
 
           const unexpectedGenericElements = getUnexpectedGenerics({
-            typeParameters,
+            typeArguments,
             allowedGenerics: ["response", "queryParams", "error", "payload", "endpoint", "params"],
           });
-          const isEmpty = getEmptyGenerics({ typeParameters });
+          const isEmpty = getEmptyGenerics({ typeArguments });
 
           if (unexpectedGenericElements.length > 0) {
             context.report({

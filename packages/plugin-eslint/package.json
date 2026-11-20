@@ -19,12 +19,12 @@
     "tests": "pnpm lint-staged"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^7.18.0"
+    "@typescript-eslint/utils": "^8.73.0"
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
     "@hyper-fetch/sockets": "*",
-    "eslint": ">= 8.0.0",
+    "eslint": ">=8.57.0",
     "react": ">= 16.8.0"
   },
   "peerDependenciesMeta": {
@@ -36,11 +36,13 @@
     }
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^7.18.0",
-    "@typescript-eslint/rule-tester": "^7.18.0",
+    "@typescript-eslint/parser": "^8.73.0",
+    "@typescript-eslint/rule-tester": "^8.73.0",
     "assert": "2.1.0",
-    "eslint": "8.57.0",
-    "path": "0.12.7"
+    "eslint": "10.15.0",
+    "eslint-v8": "npm:eslint@8.57.1",
+    "path": "0.12.7",
+    "typescript-eslint-parser-v7": "npm:@typescript-eslint/parser@7.18.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

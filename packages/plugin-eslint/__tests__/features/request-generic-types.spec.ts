@@ -1,13 +1,11 @@
+import tsParser from "@typescript-eslint/parser";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import { requestGenericTypes } from "request-generic-types";
 
 const ruleTester = new RuleTester({
-  parser: "@typescript-eslint/parser",
-  parserOptions: { ecmaVersion: 2015 },
+  languageOptions: { parser: tsParser },
 });
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 ruleTester.run("request-generics-types", requestGenericTypes, {
   valid: [
     {
