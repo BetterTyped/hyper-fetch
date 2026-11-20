@@ -70,4 +70,24 @@ describe("Http Mocking [ Base ]", () => {
     expect(error?.message).toBe(getErrorMessage("abort").message);
     expect(extra?.headers).toStrictEqual({});
   });
+
+  it("should hold the response until the given promise settles", async () => {
+    let release!: () => void;
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const onResponse = vi.fn();
+    const expected = mockRequest(request, { data: [1], until: released });
+
+    const requestPromise = request.send().then(onResponse);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+    expect(onResponse).not.toHaveBeenCalled();
+
+    release();
+    await requestPromise;
+
+    expect(onResponse).toHaveBeenCalledWith(expect.objectContaining({ data: expected, status: 200 }));
+  });
 });
