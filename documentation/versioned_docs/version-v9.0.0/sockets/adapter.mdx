@@ -1,0 +1,222 @@
+---
+sidebar_position: 6
+title: Adapter
+sidebar_label: Adapter
+---
+
+[Read the API Reference »](/docs/api/sockets/Classes/SocketAdapter)
+
+Adapter is a class that specifies how to communicate with the server. It defines the way to send and receive
+data, handle errors, handle reconnects, and more. The `@hyper-fetch/sockets` package ships with two built-in adapters:
+`WebsocketAdapter` and `ServerSentEventsAdapter`. Other integrations such as Firebase Realtime Database are available as
+separate packages (e.g., `@hyper-fetch/firebase`).
+
+---
+
+## Built in Adapters
+
+There are two built in adapters - `WebsocketAdapter` and `ServerSentEventsAdapter` providing basic functionality for the
+`Websocket` and `Server Sent Events (SSE)` connection types.
+
+---
+
+### Websocket Adapter
+
+The default adapter is used to communicate with the `Websocket` server.
+
+(@import sockets WebsocketAdapter type=import)
+
+```tsx
+import { createSocketClient, WebsocketAdapter } from "@hyper-fetch/sockets";
+
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  adapter: WebsocketAdapter(),
+});
+```
+
+#### Options
+
+You can pass adapter-specific options via the `adapterOptions` constructor option on `Socket`.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `protocols` | `string \| string[]` | — | Subprotocols passed to the `WebSocket` constructor (`Sec-WebSocket-Protocol` header). |
+| `heartbeat` | `boolean` | — | Enable heartbeat messages to keep the connection alive. |
+| `heartbeatMessage` | `string` | — | The message payload sent for heartbeats. |
+| `pingTimeout` | `number` | — | Timeout (ms) to wait for a ping response. |
+| `pongTimeout` | `number` | — | Timeout (ms) to wait for a pong response. |
+| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming frame into a listener event. Return `null` to ignore the frame. |
+| `encode` | `({ topic, payload }) => string \| ArrayBufferLike \| Blob \| ArrayBufferView` | `JSON.stringify({ topic, data })` | Turns an emitted message (and the heartbeat) into the frame passed to `websocket.send`. |
+
+```tsx
+const socket = createSocketClient({
+  url: "ws://localhost:3000",
+  adapterOptions: {
+    autoConnect: false,
+    protocols: ["v1"],
+    heartbeat: true,
+    heartbeatMessage: "ping",
+  },
+});
+```
+
+#### Custom message format
+
+By default every frame is a JSON `{ topic, data }` object. When your server speaks a different format - for example
+`{ type, payload }` - map it with the `decode` and `encode` options instead of writing a custom adapter. Frames decoded
+to `null` (pings, unknown messages) are ignored, and errors thrown by either function are reported through `onError`.
+
+```tsx
+const socket = createSocketClient({
+  url: "wss://example.com/ws",
+  adapterOptions: {
+    // highlight-start
+    decode: (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "pong") return null;
+      return { topic: message.type, data: message.payload };
+    },
+    encode: ({ topic, payload }) => JSON.stringify({ type: topic, payload }),
+    // highlight-end
+  },
+});
+```
+
+#### Dynamic options
+
+Every adapter option can be resolved right before a connection attempt with the `onConnect` interceptor on the socket.
+It runs for the initial connection, automatic reconnects and manual reconnects, so short-lived values such as auth
+tokens passed through `protocols` are always fresh.
+
+```tsx
+const socket = createSocketClient({
+  url: "wss://example.com/ws",
+}).onConnect(({ connection }) => ({
+  ...connection,
+  adapterOptions: {
+    ...connection.adapterOptions,
+    protocols: ["authorization", authStore.getState().accessToken],
+  },
+}));
+```
+
+<LinkCard
+  type="api"
+  title="WebsocketAdapter"
+  description="Read the API Reference for the WebsocketAdapter class."
+  to="/docs/api/sockets/Functions/WebsocketAdapter"
+/>
+
+---
+
+### Server Sent Events (SSE) Adapter
+
+The `ServerSentEventsAdapter` is used to communicate with the `Server Sent Events (SSE)` server.
+
+:::caution SSE is receive-only
+
+The SSE adapter does **not** support emitting events. Calling `emit` on an emitter with this adapter will throw an
+error. Use the `WebsocketAdapter` if you need bidirectional communication.
+
+:::
+
+(@import sockets ServerSentEventsAdapter type=import)
+
+```tsx
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+});
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `autoConnect` | `boolean` | `true` | Automatically connect when the socket is created. |
+| `eventSourceInit` | `EventSourceInit` | — | Options passed to the underlying `EventSource` constructor (e.g., `withCredentials`). |
+| `decode` | `(event: MessageEvent) => { topic, data } \| null` | JSON `{ topic, data }` | Turns an incoming message into a listener event. Return `null` to ignore the message. |
+
+```tsx
+const socket = createSocketClient({
+  url: "http://localhost:3000",
+  adapter: ServerSentEventsAdapter(),
+  adapterOptions: {
+    autoConnect: false,
+    eventSourceInit: { withCredentials: true },
+  },
+});
+```
+
+<LinkCard
+  type="api"
+  title="ServerSentEventsAdapter"
+  description="Read the API Reference for the ServerSentEventsAdapter class."
+  to="/docs/api/sockets/Functions/ServerSentEventsAdapter"
+/>
+
+---
+
+## Custom Adapter
+
+There is nothing to prevent you from changing this and creating the adapter you need. Thanks to event communication, you
+can set your own adapter as you wish by only fulfilling the typescript requirements. This way you can create your own
+adapters for existing libraries like `socket.io`. Refer to the `SocketAdapter` API reference for the full contract your
+custom adapter must satisfy.
+
+The connector receives a set of bindings that keep your adapter consistent with the rest of the system. The most
+important one is `onConnect` - call it at the start of every connection attempt. It marks the socket as connecting, runs
+the `onConnect` interceptors registered on the socket and resolves with the connection details to use (`url`,
+`queryParams`, `adapterOptions`), or with `null` when no attempt should be made (already connected, offline, another
+attempt in progress or an interceptor failed).
+
+```ts
+const connect = async () => {
+  const connection = await onConnect();
+  if (!connection) {
+    return socket.adapter.connected;
+  }
+
+  const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
+  // ...open the transport with `url` and `connection.adapterOptions`
+};
+```
+
+Use `onConnectFailed({ error })` when the transport cannot be created, and `onConnected` / `onDisconnected` /
+`onError` / `onEvent` to report what happens afterwards.
+
+---
+
+## See More
+
+<LinkCard
+  type="docs"
+  title="Socket"
+  description="Learn more about the Socket class and its configuration options."
+  to="/docs/sockets/socket"
+/>
+
+<LinkCard
+  type="docs"
+  title="Emitter"
+  description="Learn more about the Emitter class and its configuration options."
+  to="/docs/sockets/emitter"
+/>
+
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Learn more about the Listener class and its configuration options."
+  to="/docs/sockets/listener"
+/>
+
+<LinkCard
+  type="integrations"
+  title="Firebase Realtime Database"
+  description="Learn more about the Firebase Realtime Database integration."
+  to="/docs/integrations/adapter-firebase/realtime-queries"
+/>

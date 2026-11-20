@@ -1,0 +1,545 @@
+{
+	"id": 5637,
+	"name": "eslint-plugin-hyper-fetch",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 5638,
+			"name": "configs",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 5,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L5"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 5639,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 5640,
+							"name": "recommended",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 6,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L6"
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 5641,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 5642,
+											"name": "plugins",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "index.ts",
+													"line": 7,
+													"character": 4,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L7"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "intrinsic",
+													"name": "string"
+												}
+											},
+											"defaultValue": "..."
+										},
+										{
+											"id": 5643,
+											"name": "rules",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "index.ts",
+													"line": 8,
+													"character": 4,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L8"
+												}
+											],
+											"type": {
+												"type": "reflection",
+												"declaration": {
+													"id": 5644,
+													"name": "__type",
+													"variant": "declaration",
+													"kind": 65536,
+													"flags": {},
+													"children": [
+														{
+															"id": 5646,
+															"name": "hyper-fetch/client-generic-types",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "index.ts",
+																	"line": 10,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L10"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															},
+															"defaultValue": "\"error\""
+														},
+														{
+															"id": 5645,
+															"name": "hyper-fetch/request-generic-types",
+															"variant": "declaration",
+															"kind": 1024,
+															"flags": {},
+															"sources": [
+																{
+																	"fileName": "index.ts",
+																	"line": 9,
+																	"character": 6,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L9"
+																}
+															],
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															},
+															"defaultValue": "\"error\""
+														}
+													],
+													"groups": [
+														{
+															"title": "Properties",
+															"children": [
+																5646,
+																5645
+															]
+														}
+													],
+													"sources": [
+														{
+															"fileName": "index.ts",
+															"line": 8,
+															"character": 11,
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L8"
+														}
+													]
+												}
+											},
+											"defaultValue": "..."
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												5642,
+												5643
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "index.ts",
+											"line": 6,
+											"character": 15,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L6"
+										}
+									]
+								}
+							},
+							"defaultValue": "..."
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								5640
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 5,
+							"character": 23,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L5"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 5647,
+			"name": "rules",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 15,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L15"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 5648,
+					"name": "__type",
+					"variant": "declaration",
+					"kind": 65536,
+					"flags": {},
+					"children": [
+						{
+							"id": 5650,
+							"name": "client-generic-types",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 17,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L17"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/@typescript-eslint+utils@7.18.0_eslint@8.57.0_typescript@5.9.3/node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+									"qualifiedName": "RuleModule"
+								},
+								"typeArguments": [
+									{
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": "emptyGeneric"
+											},
+											{
+												"type": "literal",
+												"value": "unexpectedGenerics"
+											},
+											{
+												"type": "literal",
+												"value": "notMatchingGenerics"
+											}
+										]
+									},
+									{
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "never"
+										}
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/@typescript-eslint+utils@7.18.0_eslint@8.57.0_typescript@5.9.3/node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+											"qualifiedName": "RuleListener"
+										},
+										"name": "RuleListener",
+										"package": "@typescript-eslint/utils"
+									}
+								],
+								"name": "RuleModule",
+								"package": "@typescript-eslint/utils"
+							},
+							"defaultValue": "clientGenericTypes"
+						},
+						{
+							"id": 5649,
+							"name": "request-generic-types",
+							"variant": "declaration",
+							"kind": 1024,
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "index.ts",
+									"line": 16,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L16"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../node_modules/.pnpm/@typescript-eslint+utils@7.18.0_eslint@8.57.0_typescript@5.9.3/node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+									"qualifiedName": "RuleModule"
+								},
+								"typeArguments": [
+									{
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": "emptyGeneric"
+											},
+											{
+												"type": "literal",
+												"value": "unexpectedGenerics"
+											},
+											{
+												"type": "literal",
+												"value": "notMatchingGenerics"
+											}
+										]
+									},
+									{
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "never"
+										}
+									},
+									{
+										"type": "reference",
+										"target": {
+											"sourceFileName": "../node_modules/.pnpm/@typescript-eslint+utils@7.18.0_eslint@8.57.0_typescript@5.9.3/node_modules/@typescript-eslint/utils/src/ts-eslint/Rule.ts",
+											"qualifiedName": "RuleListener"
+										},
+										"name": "RuleListener",
+										"package": "@typescript-eslint/utils"
+									}
+								],
+								"name": "RuleModule",
+								"package": "@typescript-eslint/utils"
+							},
+							"defaultValue": "requestGenericTypes"
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								5650,
+								5649
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 15,
+							"character": 21,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-eslint/src/index.ts#L15"
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				5638,
+				5647
+			]
+		}
+	],
+	"packageName": "eslint-plugin-hyper-fetch",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🧹 Hyper Fetch ESLint Plugin\n\n<p align=\"center\">\n  <b>ESLint rules to enforce HyperFetch best practices and catch type issues early.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat\" alt=\"GitHub stars\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/eslint-plugin-hyper-fetch\">\n    <img src=\"https://img.shields.io/npm/v/eslint-plugin-hyper-fetch\" alt=\"npm version\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://img.shields.io/github/license/BetterTyped/hyper-fetch\" alt=\"License\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" alt=\"TypeScript\" />\n  </a>\n</p>\n\n## 📖 About\n\nThis ESLint plugin provides static analysis rules specific to HyperFetch. It catches generic type issues like typos,\nmissing values, or incorrect usage of "
+		},
+		{
+			"kind": "code",
+			"text": "`createClient`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`createRequest`"
+		},
+		{
+			"kind": "text",
+			"text": " type parameters before they cause runtime\nerrors.\n\n## 🎯 Key Capabilities\n\n- 🔮 **Catch type bugs before they run** — Validates "
+		},
+		{
+			"kind": "code",
+			"text": "`createClient`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`createRequest`"
+		},
+		{
+			"kind": "text",
+			"text": " generic parameters at lint time\n- ✨ **No more typo-induced "
+		},
+		{
+			"kind": "code",
+			"text": "`any`"
+		},
+		{
+			"kind": "text",
+			"text": "** — Detects misspelled keys like "
+		},
+		{
+			"kind": "code",
+			"text": "`rsponse`"
+		},
+		{
+			"kind": "text",
+			"text": " instead of "
+		},
+		{
+			"kind": "code",
+			"text": "`response`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🔧 **Plug and play** — Use the recommended preset or configure rules one by one\n\n## 🚀 Quick Start\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install -D eslint-plugin-hyper-fetch\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```json\n{\n  \"extends\": [\"plugin:hyper-fetch/recommended\"]\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nOr configure individual rules:\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```json\n{\n  \"plugins\": [\"hyper-fetch\"],\n  \"rules\": {\n    \"hyper-fetch/client-generic-types\": \"error\",\n    \"hyper-fetch/request-generic-types\": \"error\"\n  }\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📚 Documentation\n\n- [ESLint Plugin Docs](https://hyperfetch.bettertyped.com/docs/integrations/plugin-eslint)\n- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)\n\n## 💡 Examples\n\n### Catches incorrect generic types\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// ❌ This will be flagged by hyper-fetch/request-generic-types\nconst getUser = client.createRequest<{\n  rsponse: User; // Typo: \"rsponse\" instead of \"response\"\n}>()({\n  endpoint: \"/users/:userId\",\n  method: \"GET\",\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// ✅ Correct usage — no lint error\nconst getUser = client.createRequest<{\n  response: User;\n}>()({\n  endpoint: \"/users/:userId\",\n  method: \"GET\",\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## License\n\n[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"5637": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": ""
+		},
+		"5638": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "configs"
+		},
+		"5639": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"5640": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.recommended"
+		},
+		"5641": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"5642": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.plugins"
+		},
+		"5643": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.rules"
+		},
+		"5644": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"5645": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.hyper-fetch/request-generic-types"
+		},
+		"5646": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.hyper-fetch/client-generic-types"
+		},
+		"5647": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "rules"
+		},
+		"5648": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object"
+		},
+		"5649": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.request-generic-types"
+		},
+		"5650": {
+			"sourceFileName": "../packages/plugin-eslint/src/index.ts",
+			"qualifiedName": "__object.client-generic-types"
+		}
+	}
+}
