@@ -1,5 +1,5 @@
 import type { EmptyTypes, QueryParamsType, RequestInstance } from "@hyper-fetch/core";
-import { HttpMethods, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
+import { HttpMethods, Request, stringifyKey, stringifyQueryParams } from "@hyper-fetch/core";
 import type { DocumentNode, OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
@@ -207,4 +207,32 @@ export const gqlRequestKeyMapper = (request: RequestInstance): string => {
   const variables = stringifyKey(request.payload);
 
   return variables ? `${key}-${variables}` : key;
+};
+
+const escapeRegExp = (text: string) => text.replaceAll(/[$()*+.?[\\\]^{|}]/g, String.raw`\$&`);
+
+/**
+ * Matches the cache keys of every request of a GraphQL operation - with any variables, params, query params and
+ * method. Pass it to `client.cache.invalidate()` after a mutation, so the active queries of the operation refetch, like
+ * `refetchQueries` in Apollo.
+ *
+ * - A document matches its requests on every url path of the `document` option.
+ * - A request matches the requests of its document on its own url path.
+ * - Documents with the same operation name but other selections are other operations, they do not match.
+ *
+ * @example
+ * ```ts
+ * await updateUser.send({ payload: { id: "1", name: "Ann" } });
+ * client.cache.invalidate(matchGqlOperation(GetUserDocument));
+ * ```
+ */
+export const matchGqlOperation = (operation: GraphQlEndpointType | RequestInstance): RegExp => {
+  if (operation instanceof Request) {
+    const name = escapeRegExp(gqlRequestNameMapper(operation));
+    return new RegExp(`^[A-Z]+_${name}@${getDocumentHash(getGqlDocument(operation))}-`);
+  }
+
+  const name = escapeRegExp(gqlEndpointNameMapper(operation));
+  // The path of the `document` option follows the name and never holds the fingerprint separator
+  return new RegExp(`^[A-Z]+_${name}(?:/[^@]*)?@${getDocumentHash(operation)}-`);
 };

@@ -1,5 +1,6 @@
+import type { RequestInstance } from "@hyper-fetch/core";
 import { Client } from "@hyper-fetch/core";
-import { GraphqlAdapter } from "adapter";
+import { GraphqlAdapter, GraphqlMethod, matchGqlOperation } from "adapter";
 import gql from "graphql-tag";
 
 const url = "https://shared-base-url/graphql";
@@ -125,5 +126,110 @@ describe("Graphql Adapter [ Keys ]", () => {
     const second = client.createRequest()({ endpoint: "query GetUser { user { email } }" });
 
     expect(first.abortKey).toBe(second.abortKey);
+  });
+});
+
+/** Refetching every variant of an operation after a mutation - `refetchQueries` in Apollo */
+describe("Graphql Adapter [ Operation matcher ]", () => {
+  const createClient = () => new Client({ url, mode: "client" }).setAdapter(GraphqlAdapter());
+  const getUser = "query GetUser($id: ID!) { user(id: $id) { name } }";
+  const getUserEmail = "query GetUser($id: ID!) { user(id: $id) { email } }";
+
+  let client = createClient();
+  let fetchSpy = vi.spyOn(globalThis, "fetch");
+
+  beforeEach(() => {
+    client = createClient();
+    fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => Response.json({ data: { user: {} } }));
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
+  });
+
+  /** Send the request, so its response is cached under its cache key */
+  const cacheRequest = async (request: RequestInstance) => {
+    await request.send();
+    return request.cacheKey;
+  };
+
+  const isStale = (cacheKey: string) => client.cache.get(cacheKey)?.staleTime === 0;
+
+  it("should match every variant of a document", async () => {
+    const request = client.createRequest<{ response: UserResponse; payload: { id: number } }>()({ endpoint: getUser });
+    const first = await cacheRequest(request.setPayload({ id: 1 }));
+    const second = await cacheRequest(request.setPayload({ id: 2 }));
+    const asGet = await cacheRequest(
+      client
+        .createRequest<{ response: UserResponse; payload: { id: number } }>()({
+          endpoint: getUser,
+          method: GraphqlMethod.GET,
+        })
+        .setPayload({ id: 3 }),
+    );
+    const otherSelection = await cacheRequest(
+      client
+        .createRequest<{ response: UserResponse; payload: { id: number } }>()({ endpoint: getUserEmail })
+        .setPayload({
+          id: 1,
+        }),
+    );
+
+    expect([first, second, asGet, otherSelection].map(isStale)).toStrictEqual([false, false, false, false]);
+
+    client.cache.invalidate(matchGqlOperation(getUser));
+
+    expect([first, second, asGet].map(isStale)).toStrictEqual([true, true, true]);
+    expect(isStale(otherSelection)).toBeFalse();
+  });
+
+  it("should match a DocumentNode like the request built from it", async () => {
+    const document = gql`
+      query GetUser($id: ID!) {
+        user(id: $id) {
+          name
+        }
+      }
+    `;
+    const cacheKey = await cacheRequest(
+      client.createRequest<{ response: UserResponse; payload: { id: number } }>()({ endpoint: document }).setPayload({
+        id: 1,
+      }),
+    );
+
+    expect(matchGqlOperation(document).test(cacheKey)).toBeTrue();
+  });
+
+  it("should match the document on every url path of the document option", () => {
+    const first = client.createRequest()({ endpoint: "/a", document: getUser });
+    const second = client.createRequest()({ endpoint: "/tenant/:tenantId/b", document: getUser }).setParams({
+      tenantId: 1,
+    });
+
+    expect(matchGqlOperation(getUser).test(first.cacheKey)).toBeTrue();
+    expect(matchGqlOperation(getUser).test(second.cacheKey)).toBeTrue();
+  });
+
+  it("should match only the url path of a request", () => {
+    const onA = client.createRequest()({ endpoint: "/a", document: getUser });
+    const onB = client.createRequest()({ endpoint: "/b", document: getUser });
+
+    expect(matchGqlOperation(onA).test(onA.setQueryParams({ x: 1 }).cacheKey)).toBeTrue();
+    expect(matchGqlOperation(onA).test(onB.cacheKey)).toBeFalse();
+  });
+
+  it("should not let regular expression characters in the path widen the match", () => {
+    const dotted = client.createRequest()({ endpoint: "/a.b", document: getUser });
+    const other = client.createRequest()({ endpoint: "/aXb", document: getUser });
+
+    expect(matchGqlOperation(dotted).test(other.cacheKey)).toBeFalse();
+  });
+
+  it("should match every variant when it is used more than once", () => {
+    const matcher = matchGqlOperation(getUser);
+    const request = client.createRequest<{ response: UserResponse; payload: { id: number } }>()({ endpoint: getUser });
+
+    expect(matcher.test(request.setPayload({ id: 1 }).cacheKey)).toBeTrue();
+    expect(matcher.test(request.setPayload({ id: 2 }).cacheKey)).toBeTrue();
   });
 });
