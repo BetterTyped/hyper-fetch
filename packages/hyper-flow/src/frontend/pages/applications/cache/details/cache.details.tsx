@@ -1,5 +1,4 @@
-import { getLoadingByCacheKey } from "@hyper-fetch/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { SectionData } from "./section-data";
 import { SectionHead } from "./section-head";
@@ -8,21 +7,14 @@ import { SectionToolbar } from "./section-toolbar";
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar";
 import { useDevtools } from "@/context/applications/devtools/use-devtools";
 import type { DevtoolsCacheEvent } from "@/context/applications/types";
+import { useCacheStore } from "@/store/applications/cache.store";
 
 export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
-  const { client } = useDevtools();
+  const { application } = useDevtools();
 
   const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.staleTime < Date.now());
 
-  const [listeners, setListeners] = useState(
-    client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length,
-  );
-
-  useEffect(() => {
-    return client.requestManager.emitter.onListener(getLoadingByCacheKey(item.cacheKey), (count) => {
-      setListeners(count);
-    });
-  }, [client.requestManager.emitter, item.cacheKey]);
+  const observers = useCacheStore((state) => state.applications[application.name]?.observers.get(item.cacheKey) ?? 0);
 
   return (
     <ResizableSidebar
@@ -41,7 +33,7 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
           <SectionHead item={item} stale={stale} />
         </div>
         <div className="px-4 overflow-auto">
-          <SectionOverview item={item} listeners={listeners} setStale={setStale} />
+          <SectionOverview item={item} observers={observers} setStale={setStale} />
           <SectionData item={item} />
         </div>
       </div>

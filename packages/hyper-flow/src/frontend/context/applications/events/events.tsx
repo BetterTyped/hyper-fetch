@@ -1,10 +1,12 @@
 import { useDidMount } from "@better-hooks/lifecycle";
-import type { SocketEvents } from "@hyper-fetch/plugin-devtools";
+import type { DevtoolsObserversEventData, SocketEvents } from "@hyper-fetch/plugin-devtools";
 import { CoreEvents, EventSourceType, InternalEvents, MessageOrigin, MessageType } from "@hyper-fetch/plugin-devtools";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { memo, useEffect } from "react";
 
+import { useCacheStore } from "@/store/applications/cache.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
+import { useQueueStore } from "@/store/applications/queue.store";
 import { useSocketsStore } from "@/store/applications/sockets.store";
 
 export const Events = memo(({ application }: { application: string }) => {
@@ -28,6 +30,13 @@ export const Events = memo(({ application }: { application: string }) => {
       }
       case EventSourceType.SOCKET: {
         useSocketsStore.getState().handleEvent(application, eventName as SocketEvents, eventData);
+        return;
+      }
+      case EventSourceType.OBSERVERS: {
+        // Only the user's application has observers, the mirrored client has none to count
+        const { cache, queues } = eventData as DevtoolsObserversEventData;
+        useCacheStore.getState().setObservers({ application, observers: cache });
+        useQueueStore.getState().setObservers({ application, observers: queues });
         return;
       }
       case EventSourceType.REQUEST_MANAGER:
