@@ -1,4 +1,4 @@
-import type { WebsocketImplementationType } from "@hyper-fetch/sockets";
+import type { SocketInstance, WebsocketImplementationType } from "@hyper-fetch/sockets";
 
 export type DevtoolsPluginOptions = {
   /**
@@ -27,4 +27,10 @@ export type DevtoolsPluginOptions = {
    * On Node.js 18 and 20 pass the one from the `ws` package: `import { WebSocket } from "ws"`.
    */
   webSocketImpl?: WebsocketImplementationType;
+  /**
+   * Sockets to inspect in HyperFlow next to the requests of the client: their connection, the messages they receive
+   * and send, and their errors.
+   * @example DevtoolsPlugin({ appName: "My App", sockets: [socket] })
+   */
+  sockets?: SocketInstance[];
 };
