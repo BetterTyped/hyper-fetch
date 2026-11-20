@@ -6,7 +6,7 @@ import type { StartServer } from "@server/server";
 import { startServer } from "@server/server";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
 import type { RenderResult } from "@testing-library/react";
-import { act, render, waitFor } from "@testing-library/react";
+import { act, cleanup, getConfig, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import type { StoreApi } from "zustand";
@@ -80,8 +80,9 @@ export const createHyperFlowEnv = () => {
   let apps: ConnectedApp[] = [];
   let unmount: (() => void) | null = null;
   let port = getRandomPort();
+  let isWarm = false;
 
-  const start = async () => {
+  const boot = async () => {
     resetStores();
     resetElectronStore();
     port = getRandomPort();
@@ -174,6 +175,50 @@ export const createHyperFlowEnv = () => {
       expect(useConnectionStore.getState().connections[appName]?.connected).toBe(true);
       expect(plugin.data.eventHandler?.isInitialized).toBe(true);
     });
+  };
+
+  /**
+   * Every spec file runs in a new process, so its first render runs React, the router, the stores and the socket code
+   * for the first time, while V8 still compiles them. On a busy machine that costs several times a later render, and
+   * whichever test came first spent it inside its 1000ms `waitFor`. The warm-up spends it before the first test: it
+   * connects an application and renders HyperFlow until the handshake is done. Waiting for the handshake event, not
+   * polling with a deadline, is what lets it absorb the cold start.
+   */
+  const warmUp = async () => {
+    await boot();
+    const { plugin } = connectApp();
+    renderApp();
+    await getConfig().asyncWrapper(
+      () =>
+        new Promise<void>((resolve) => {
+          const isReady = () =>
+            !!useConnectionStore.getState().connections.App?.connected && !!plugin.data.eventHandler?.isInitialized;
+          const finish = () => {
+            if (!isReady()) {
+              return;
+            }
+            unsubscribeStore();
+            unsubscribePlugin?.();
+            resolve();
+          };
+          const unsubscribeStore = useConnectionStore.subscribe(finish);
+          // Registered after the plugin's own listener, so it runs once the plugin marked itself initialized
+          const unsubscribePlugin = plugin.data.eventHandler?.socketListener.listen(finish);
+          finish();
+        }),
+    );
+    await stop();
+    // Removes the container too, so the first test starts with an empty document
+    cleanup();
+  };
+
+  /** Starts the HyperFlow server with fresh stores, the first call of a spec file warms the renderer up before */
+  const start = async () => {
+    if (!isWarm) {
+      isWarm = true;
+      await warmUp();
+    }
+    await boot();
   };
 
   return {
