@@ -13,6 +13,15 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ SSE ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const { startServer, emitError, getSource } = createSseMockingServer();
   let socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
   let originalEventSource: typeof EventSource;
@@ -95,18 +104,20 @@ describe("Socket Adapter [ SSE ]", () => {
 
     socket.events.onConnected(spy);
 
-    startServer();
+    await startServer();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
+    const source = getSource();
 
     socket.appManager.setOnline(true);
-    startServer();
+    // A repeated open event of the same stream is not a new connection
+    await startServer();
 
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(2);
-    });
+    expect(getSource()).toBe(source);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(socket.adapter.connected).toBeTrue();
   });
 
   it("should not connect again when connection is open", async () => {

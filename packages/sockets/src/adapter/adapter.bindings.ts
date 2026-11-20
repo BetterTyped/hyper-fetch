@@ -109,13 +109,22 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     return true;
   };
 
+  /**
+   * Replaces the connection with a new one. Automatic attempts count towards `socket.reconnectAttempts` and stop at it.
+   * A `manual` reconnection - `socket.reconnect()` - is a fresh start: it resets the counter and is never refused.
+   */
   const onReconnect = async ({
     disconnect,
     connect,
+    manual = false,
   }: {
     disconnect: () => Promise<any>;
     connect: () => Promise<any>;
+    manual?: boolean;
   }): Promise<boolean> => {
+    if (manual) {
+      adapter.setReconnectionAttempts(0);
+    }
     // Capture attempts before disconnect/connect reset them
     const currentAttempts = adapter.reconnectionAttempts;
 
@@ -125,8 +134,9 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     socket.events.emitReconnecting({ attempts: currentAttempts });
 
     await disconnect();
-    if (currentAttempts < socket.reconnectAttempts) {
-      const nextAttempts = currentAttempts + 1;
+    if (manual || currentAttempts < socket.reconnectAttempts) {
+      // A reconnection by hand is a fresh connection - `onConnect` gets attempt 0, like for the first one
+      const nextAttempts = manual ? 0 : currentAttempts + 1;
       socket.adapter.setReconnectionAttempts(nextAttempts);
       logger.debug({
         title: "Reconnecting",
@@ -137,16 +147,21 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
       return true;
     }
 
+    onReconnectFailed(currentAttempts);
+    return false;
+  };
+
+  /** Reports that reconnecting stopped - the attempts ran out or the retry policy returned `null` */
+  const onReconnectFailed = (attempts: number = adapter.reconnectionAttempts) => {
     logger.error({
       title: "Stopped reconnecting",
       type: "system",
-      extra: { reconnectionAttempts: currentAttempts },
+      extra: { reconnectionAttempts: attempts },
     });
     socket.unstable_onReconnectFailedCallbacks.forEach((callback) => {
       callback();
     });
-    socket.events.emitReconnectingFailed({ attempts: currentAttempts });
-    return false;
+    socket.events.emitReconnectingFailed({ attempts });
   };
 
   // Listeners
@@ -210,11 +225,17 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
 
   // Lifecycle
 
-  const onConnected = () => {
+  /**
+   * The connection is open. `resetAttempts: false` keeps the reconnection attempt counter - the reconnection engine
+   * resets it only once the connection proved stable.
+   */
+  const onConnected = ({ resetAttempts = true }: { resetAttempts?: boolean } = {}) => {
     logger.info({ title: "Connection open", type: "system", extra: {} });
     adapter.setConnected(true);
     adapter.setConnecting(false);
-    adapter.setReconnectionAttempts(0);
+    if (resetAttempts) {
+      adapter.setReconnectionAttempts(0);
+    }
     socket.events.emitConnecting({ connecting: false });
     socket.events.emitConnected();
     socket.unstable_onConnectedCallbacks.forEach((callback) => {
@@ -356,6 +377,7 @@ export const getAdapterBindings = <T extends SocketAdapterInstance>(socket: Sock
     onConnect,
     onConnectFailed,
     onReconnect,
+    onReconnectFailed,
     onDisconnect,
     onListen,
     onEmit,

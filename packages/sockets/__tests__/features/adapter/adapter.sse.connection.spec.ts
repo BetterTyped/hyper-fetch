@@ -19,9 +19,20 @@ const openConnection = async (start: () => Promise<void>) => {
 };
 
 describe("Socket SSE [ Connection ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     vi.resetAllMocks();
+    // Reset above clears the jitter pin
+    random.mockReturnValue(0);
   });
 
   afterEach(() => {
@@ -78,7 +89,11 @@ describe("Socket SSE [ Connection ]", () => {
     expect(onConnecting).toHaveBeenCalledTimes(1);
     expect(onReconnecting).toHaveBeenCalledTimes(0);
 
+    // The attempt times out at 30ms, the next one starts after the reconnect delay
     await vi.advanceTimersByTimeAsync(1);
+    expect(onReconnecting).toHaveBeenCalledTimes(0);
+
+    await vi.advanceTimersByTimeAsync(30);
 
     expect(onConnecting).toHaveBeenCalledTimes(3);
     expect(onReconnecting).toHaveBeenCalledTimes(1);

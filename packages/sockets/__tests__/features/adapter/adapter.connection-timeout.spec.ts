@@ -21,6 +21,16 @@ import {
  */
 describe("Socket Adapter [ Connection timeout ]", () => {
   const sockets: Socket<any>[] = [];
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+
+  afterEach(() => {
+    random.mockRestore();
+  });
 
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
@@ -65,15 +75,15 @@ describe("Socket Adapter [ Connection timeout ]", () => {
     ["WebSocket", "ws" as const, () => ControlledWebSocket.instances],
     ["SSE", "sse" as const, () => ControlledEventSource.instances],
   ])("When using the %s adapter", (_, adapter, instances) => {
-    it("should wait for the connection timeout before starting a new attempt", async () => {
+    it("should wait for the connection timeout and the reconnect delay before starting a new attempt", async () => {
       createSocket({ adapter, reconnectTime: 10, connectionTimeout: 1000 });
       await flushPromises();
       expect(instances()).toHaveLength(1);
 
-      await vi.advanceTimersByTimeAsync(500);
+      await vi.advanceTimersByTimeAsync(1000);
       expect(instances()).toHaveLength(1);
 
-      await vi.advanceTimersByTimeAsync(500);
+      await vi.advanceTimersByTimeAsync(10);
       expect(instances()).toHaveLength(2);
     });
 
@@ -84,7 +94,9 @@ describe("Socket Adapter [ Connection timeout ]", () => {
       await flushPromises();
 
       await vi.advanceTimersByTimeAsync(100);
+      expect(onReconnecting).not.toHaveBeenCalled();
 
+      await vi.advanceTimersByTimeAsync(5000);
       expect(onReconnecting).toHaveBeenCalledTimes(1);
       expect(instances()).toHaveLength(2);
     });

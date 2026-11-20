@@ -26,6 +26,9 @@ const createLifecycle = () => {
 };
 
 describe("Trpc Websocket Adapter [ Subscription lifecycle ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+
   const createSocket = () => {
     const socket = new Socket({
       url: "ws://localhost:3001",
@@ -49,6 +52,7 @@ describe("Trpc Websocket Adapter [ Subscription lifecycle ]", () => {
   };
 
   beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
     installControlledWebSocket();
     setup = createSocket();
   });
@@ -57,6 +61,7 @@ describe("Trpc Websocket Adapter [ Subscription lifecycle ]", () => {
     await setup.socket.disconnect();
     vi.useRealTimers();
     uninstallControlledWebSocket();
+    random.mockRestore();
   });
 
   it("should tell the socket that the server confirms subscriptions", () => {
@@ -204,7 +209,8 @@ describe("Trpc Websocket Adapter [ Subscription lifecycle ]", () => {
       ws.serverResult(1, { type: "stopped" });
 
       expect(lifecycle.calls).toStrictEqual(["data:a,b", "ended"]);
-      expect(vi.getTimerCount()).toBe(0);
+      // No batch timer is left - only the minUptime timer that resets the reconnection attempts
+      expect(vi.getTimerCount()).toBe(1);
     });
 
     it("should not call the end after unsubscribing", async () => {

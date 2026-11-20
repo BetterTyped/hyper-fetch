@@ -2,7 +2,12 @@
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { stringifyQueryParams } from "@hyper-fetch/core";
 import type { SocketConnectionType } from "@hyper-fetch/sockets";
-import { EventSourceReadyState, SocketAdapter, getEventSourceConstructor } from "@hyper-fetch/sockets";
+import {
+  EventSourceReadyState,
+  SocketAdapter,
+  createReconnectingConnection,
+  getEventSourceConstructor,
+} from "@hyper-fetch/sockets";
 
 import type { TrpcAdapterOptionsType } from "../adapter/adapter.types";
 import { getTrpcProcedureUrl } from "../adapter/adapter.utils";
@@ -51,24 +56,10 @@ export const TrpcSseAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
   })
     .setQueryParamsMapper(stringifyQueryParams)
     .setConnector((bindings) => {
-      const {
-        socket,
-        adapter,
-        getQueryParams,
-        onConnect,
-        onReconnect,
-        onDisconnect,
-        onConnected,
-        onDisconnected,
-        onError,
-      } = bindings;
-
-      const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
+      const { socket, adapter, getQueryParams, onError } = bindings;
 
       // Connection details of the active connection (after onConnect interceptors), `null` while disconnected
       let connection: SocketConnectionType<TrpcSseAdapterType> | null = null;
-      // Connection attempt in progress - concurrent `connect()` calls join it
-      let pendingConnection: Promise<boolean> | undefined;
 
       // The stream in use for each subscription. Events of any other instance (replaced or closed) are ignored.
       const streams = new Map<TrpcSubscriptionType, StreamType>();
@@ -273,77 +264,30 @@ export const TrpcSseAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
        * Connection
        */
 
-      const openConnection = async (): Promise<boolean> => {
-        const details = await onConnect();
-        if (!details) {
-          return adapter.connected;
-        }
-        connection = details;
-        // Streams have no shared handshake - the socket is connected as soon as it can open them
-        onConnected();
-        subscriptions.getAll().forEach(openStream);
-        return true;
-      };
-
-      const connect = (): Promise<boolean> => {
-        // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
-        if (adapter.connecting && pendingConnection) {
-          return pendingConnection;
-        }
-
-        const attempt = openConnection();
-        pendingConnection = attempt;
-        const release = () => {
-          if (pendingConnection === attempt) {
-            pendingConnection = undefined;
-          }
-        };
-        attempt.then(release, release);
-
-        return attempt;
-      };
-
       /**
-       * Closes every stream and resets the connection state. Subscriptions are kept and opened again on the next
-       * connection. A closed stream is detached - whatever it reports later does not reach the socket anymore.
+       * Streams have no shared transport and no shared handshake - the connection is ready as soon as its details are
+       * resolved, and every stream recovers on its own. Closing the connection closes every stream, the subscriptions
+       * are kept and opened again on the next connection.
        */
-      const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
-        const wasActive = adapter.connected || adapter.connecting;
-        connection = null;
-        [...streams.keys()].forEach(closeStream);
-
-        onDisconnect();
-        if (!manual) {
-          // Closing the streams is a part of reconnecting - only `disconnect()` keeps the socket closed
-          adapter.setForceClosed(false);
-        }
-        if (wasActive) {
-          onDisconnected();
-        }
-        return true;
-      };
-
-      /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
-      const disconnect = (): Promise<boolean> => {
-        return closeConnection({ manual: true });
-      };
-
-      const reconnect = async () => {
-        // Reconnecting is a request to be connected, also after a manual disconnect
-        adapter.setForceClosed(false);
-
-        await onReconnect({
-          disconnect: () => closeConnection({ manual: false }),
-          connect: async () => {
-            // `disconnect()` called in the meantime wins over the reconnection
-            if (adapter.forceClosed) {
-              adapter.setReconnectionAttempts(0);
-              return false;
-            }
-            return connect();
-          },
-        });
-      };
+      const reconnecting = createReconnectingConnection({
+        bindings,
+        autoConnect: adapter.adapterOptions?.autoConnect ?? true,
+        open: (attempt) => {
+          const details = attempt.connection;
+          connection = details;
+          attempt.ready();
+          subscriptions.getAll().forEach(openStream);
+          return {
+            close: () => {
+              // A closed stream is detached - whatever it reports later does not reach the socket anymore
+              if (connection === details) {
+                connection = null;
+              }
+              [...streams.keys()].forEach(closeStream);
+            },
+          };
+        },
+      });
 
       // Server-Sent Events are receive-only. Throwing synchronously makes `emitter.emit()` fail right at the
       // call site instead of leaving a rejected promise nobody awaits.
@@ -351,27 +295,13 @@ export const TrpcSseAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
         throw new Error("Cannot emit events with the tRPC SSE adapter, it supports subscriptions only");
       };
 
-      // Initialize
-      if (autoConnect) {
-        connect();
-      }
-
-      const unmountOnline = socket.appManager.events.onOnline(() => {
-        // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
-        if (autoConnect && !adapter.connected && !adapter.forceClosed) {
-          connect();
-        }
-      });
-
       return {
-        connect,
-        reconnect,
-        disconnect,
+        connect: reconnecting.connect,
+        reconnect: reconnecting.reconnect,
+        disconnect: reconnecting.disconnect,
         listen: subscriptions.listen,
         emit,
         // The socket is destroyed or the adapter moves to another socket - stop following the network state
-        dispose: () => {
-          unmountOnline();
-        },
+        dispose: reconnecting.dispose,
       };
     });

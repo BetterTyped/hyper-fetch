@@ -233,12 +233,13 @@ The `WebsocketAdapter` decides from the close code the Hono handler sends.
 | Server side                           | Client                                          |
 | ------------------------------------- | ----------------------------------------------- |
 | `ws.close(1000)`                      | Stays closed until `connect()` or `reconnect()` |
-| `ws.close()` (sends 1005), other code | Reconnects after `reconnectTime`                |
+| `ws.close()` (sends 1005), other code | Reconnects after a backoff with jitter          |
 | Server crash or restart               | Keeps reconnecting until the server is back     |
 
 Two socket options control the timing:
 
-- `reconnectTime` is the delay before the next attempt after the connection was lost.
+- `reconnectTime` and `maxReconnectTime` bound the delay before the next attempt after the connection was lost - it
+  grows with every failed attempt, see [retries](/docs/guides/sockets/connection#retries).
 - `connectionTimeout` (default `5000`) limits one connection attempt. A handshake that does not finish in time is
   abandoned and a new attempt starts.
 

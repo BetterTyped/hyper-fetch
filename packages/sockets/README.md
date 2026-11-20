@@ -38,8 +38,8 @@ streams, and authentication support.
 
 - 🔮 **Type-safe events** — Every listener and emitter is typed end-to-end, no more `JSON.parse` guessing
 - 📡 **WebSocket + SSE, one API** — Switch between protocols without rewriting your event handlers
-- 🔁 **Never lose connection** — Auto-reconnect on a fixed interval (`reconnect`, `reconnectTime`), with listeners kept
-  across reconnects
+- 🔁 **Never lose connection** — Auto-reconnect with jittered backoff, back online and back in focus at once, with
+  listeners kept across reconnects
 - 🚦 **Tame fast streams** — `latest` and `batch` delivery strategies throttle or batch messages per listener
 - 🔐 **Auth built in** — Resolve tokens per connection attempt with the `onConnect` interceptor
 - ⚛️ **React hooks included** — `useListener` and `useEmitter` plug real-time data straight into components

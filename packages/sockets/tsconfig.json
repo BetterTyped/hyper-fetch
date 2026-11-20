@@ -10,6 +10,8 @@
       "adapter-sse/*": ["./src/adapter-sse/*"],
       "adapter-websockets": ["./src/adapter-websockets"],
       "adapter-websockets/*": ["./src/adapter-websockets/*"],
+      "connection": ["./src/connection"],
+      "connection/*": ["./src/connection/*"],
       "delivery": ["./src/delivery"],
       "delivery/*": ["./src/delivery/*"],
       "emitter": ["./src/emitter"],

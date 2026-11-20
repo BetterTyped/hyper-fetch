@@ -288,15 +288,18 @@ describe("Orpc Stream Adapter [ Lifecycle ]", () => {
       expect(server.active()).toHaveLength(0);
     });
 
-    it("should stop after the reconnect attempts of the socket", async () => {
+    it("should not be refused by the reconnect attempts of the socket", async () => {
       await recreate({ reconnect: 0 });
+      await subscribe();
       const failed = vi.fn();
       setup.socket.events.onReconnectingFailed(failed);
 
       await setup.socket.reconnect();
+      await flushPromises();
 
-      expect(failed).toHaveBeenCalledOnce();
-      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(failed).not.toHaveBeenCalled();
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(server.active()).toHaveLength(1);
     });
   });
 
@@ -438,13 +441,16 @@ describe("Orpc Stream Adapter [ Lifecycle ]", () => {
       server.calls[0].fail();
       await flushPromises();
 
+      // Going offline aborts the running stream and the wait of the failed one, online starts both again
+      setup.socket.appManager.setOnline(false);
       setup.socket.appManager.setOnline(true);
       await flushPromises();
-      expect(server.calls).toHaveLength(3);
+      expect(server.calls).toHaveLength(4);
+      expect(server.active().map((call) => call.body)).toStrictEqual([{ json: { id: 1 } }, { json: { id: 2 } }]);
 
       // The cleared delay does not start it once more
       await advance(5000);
-      expect(server.calls).toHaveLength(3);
+      expect(server.calls).toHaveLength(4);
     });
 
     it("should not start a stream that waits when its last listener unsubscribes", async () => {
@@ -494,6 +500,49 @@ describe("Orpc Stream Adapter [ Lifecycle ]", () => {
       expect(setup.socket.adapter.connected).toBeTrue();
       expect(server.calls).toHaveLength(1);
       expect(server.last().url).toBe(`${streamUrl}/planet/onUpdate`);
+    });
+
+    it("should abort every stream offline and start them again with the last event id online", async () => {
+      const { callback } = await subscribe();
+      const first = server.last();
+      first.open();
+      first.send({ data: serialize({ id: 1, name: "a" }), id: "6" });
+      await flushPromises();
+
+      setup.socket.appManager.setOnline(false);
+      await flushPromises();
+      first.send({ data: serialize({ id: 1, name: "late" }) });
+      await advance(60_000);
+
+      expect(first.aborted).toBeTrue();
+      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(server.calls).toHaveLength(1);
+
+      setup.socket.appManager.setOnline(true);
+      await flushPromises();
+      server.last().open();
+      server.last().send({ data: serialize({ id: 1, name: "b" }) });
+      await flushPromises();
+
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(server.calls).toHaveLength(2);
+      expect(server.last().headers["last-event-id"]).toBe("6");
+      expect(callback.mock.calls.map(([data]) => data.name)).toStrictEqual(["a", "b"]);
+    });
+
+    it("should connect a socket connected by hand without autoConnect again", async () => {
+      await recreate({ adapterOptions: { autoConnect: false } });
+      await subscribe();
+      await setup.socket.connect();
+      await flushPromises();
+
+      setup.socket.appManager.setOnline(false);
+      setup.socket.appManager.setOnline(true);
+      await flushPromises();
+
+      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(server.calls).toHaveLength(2);
+      expect(server.active()).toHaveLength(1);
     });
 
     it("should not connect a socket without autoConnect", async () => {

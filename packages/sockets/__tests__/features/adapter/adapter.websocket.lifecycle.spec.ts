@@ -24,6 +24,15 @@ const trackEvents = (socket: Socket) => {
 };
 
 describe("Websocket Adapter [ Lifecycle ]", () => {
+  // The lower end of the reconnection jitter - every delay is exactly `reconnectTime`
+  let random = vi.spyOn(Math, "random");
+  beforeEach(() => {
+    random = vi.spyOn(Math, "random").mockReturnValue(0);
+  });
+  afterEach(() => {
+    random.mockRestore();
+  });
+
   const sockets: Socket[] = [];
 
   const createSocket = (options?: Partial<ConstructorParameters<typeof Socket>[0]>) => {
@@ -435,6 +444,18 @@ describe("Websocket Adapter [ Lifecycle ]", () => {
         "error:Normal closure, meaning that the purpose for which the connection was established has been fulfilled.",
       ]);
       expect(ControlledWebSocket.instances).toHaveLength(1);
+    });
+
+    it("should reconnect a normal closure when shouldReconnect allows it", async () => {
+      // Behind a proxy that closes idle connections with 1000
+      const socket = createSocket({ reconnectTime: 100, shouldReconnect: () => true });
+      const websocket = await openWebSocket();
+      socket.onError(() => null);
+
+      websocket.serverClose({ code: 1000, wasClean: true });
+      await vi.advanceTimersByTimeAsync(100);
+
+      expect(ControlledWebSocket.instances).toHaveLength(2);
     });
 
     it("should deliver the message that arrived right before the close", async () => {
