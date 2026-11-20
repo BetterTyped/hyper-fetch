@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 
 import type { FirebaseAdminAdapter } from "../../../../src";
-import { $endAt, $limitToFirst, $orderByChild, $startAt } from "../../../../src";
+import { $endAt, $limitToFirst, $orderByChild, $startAfter, $startAt } from "../../../../src";
 import type { Tea } from "../../../utils";
 
 export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
@@ -10,7 +10,7 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
         queryParams: { constraints: [$orderByChild("origin")] },
@@ -34,7 +34,7 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
         queryParams: { constraints: [$orderByChild("origin"), $limitToFirst(5)] },
@@ -45,13 +45,24 @@ export const constraintsSharedTestCases = (adapterFunction: () => ReturnType<typ
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDocs",
+        method: "get",
       });
       const { data } = await req.send({
         queryParams: { constraints: [$orderByChild("year"), $startAt(2021), $endAt(2022)] },
       });
       expect(data).toHaveLength(5);
       expect(data?.map((tea) => tea.year)).toStrictEqual([2021, 2021, 2021, 2022, 2022]);
+    });
+    it("Should pass the key to cursors as the tie-breaker", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
+      const req = client.createRequest<{ response: Tea[] }>()({
+        endpoint: "",
+        method: "get",
+      });
+      const { data } = await req.send({
+        queryParams: { constraints: [$orderByChild("year"), $startAfter(2022, "0")] },
+      });
+      expect(data?.map((tea) => tea.name)).toStrictEqual(["Yunnan Golden Silk", "Taiping Hou Kui", "Hong Yu"]);
     });
   });
 };

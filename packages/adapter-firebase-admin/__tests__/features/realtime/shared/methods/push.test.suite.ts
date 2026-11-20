@@ -15,12 +15,12 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
       const getReq = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
-        method: "getDoc",
+        method: "get",
       });
       const pushReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
-          method: "setDoc",
+          method: "push",
           options: {},
         })
         .setPayload(newData);
@@ -37,7 +37,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
       const pushReq = client
         .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "teas/",
-          method: "setDoc",
+          method: "push",
           options: {},
         })
         .setPayload(newData);

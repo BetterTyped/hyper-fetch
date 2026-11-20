@@ -47,7 +47,6 @@ export const firestoreAdminSockets = (database: Firestore) => {
           const groupedResult =
             options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
-          callback({ data: response, extra });
           onEvent({ topic: listener.topic, data: response, extra });
         },
         (error) => {

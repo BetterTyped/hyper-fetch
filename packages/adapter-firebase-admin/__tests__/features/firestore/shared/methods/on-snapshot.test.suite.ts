@@ -7,7 +7,7 @@ import waitForExpect from "wait-for-expect";
 import type { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
-  adapter: FirebaseAdminSocketAdapterTypes<any>,
+  socketsAdapter: () => FirebaseAdminSocketAdapterTypes<any>,
   coreAdapter: FirebaseAdminAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
@@ -19,14 +19,14 @@ export const onSnapshotTestSuite = (
   });
   const initialize = async () => {
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-    const socket = new Socket({ url: "teas/", adapter });
+    const socket = new Socket({ url: "teas/", adapter: socketsAdapter() });
     const pushReq = client
       .createRequest<{ response: Tea; payload: Tea }>()({
         endpoint: "",
         method: "addDoc",
       })
       .setPayload(newData);
-    const socketBees = new Socket({ url: "bees/", adapter });
+    const socketBees = new Socket({ url: "bees/", adapter: socketsAdapter() });
 
     return { client, socket, socketBees, pushReq };
   };
@@ -38,6 +38,33 @@ export const onSnapshotTestSuite = (
       });
       const unmount = onSnapshotReq.listen(spy);
       expect(typeof unmount).toBe("function");
+      unmount();
+    });
+
+    it("should deliver each snapshot to the listener once", async () => {
+      const { socket, pushReq } = await initialize();
+      const onSnapshotReq = socket.createListener<Tea[]>()({
+        topic: "",
+      });
+
+      const received: (Tea[] | null)[] = [];
+      const unmount = onSnapshotReq.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received.length).toBeGreaterThan(0);
+      });
+      expect(received).toHaveLength(1);
+
+      const { data: added } = await pushReq.send();
+
+      await waitForExpect(async () => {
+        expect(received.at(-1)).toEqual(expect.arrayContaining([{ ...newData, __key: added?.__key }]));
+      });
+      expect(received).toHaveLength(2);
+
+      unmount();
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
@@ -80,7 +107,7 @@ export const onSnapshotTestSuite = (
       await waitForExpect(async () => {
         expect(spy).toHaveBeenCalled();
         expect(ref).toBeDefined();
-        expect(receivedData).toBeNull();
+        expect(receivedData).toStrictEqual([]);
         expect(receivedExtra.status).toBe("emptyResource");
       });
 
