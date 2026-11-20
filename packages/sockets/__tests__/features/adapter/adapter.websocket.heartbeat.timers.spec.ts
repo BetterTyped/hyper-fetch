@@ -337,8 +337,6 @@ describe("Websocket Adapter [ Heartbeat Timers ]", () => {
 
     it("should stop pinging when the server closes the connection", async () => {
       const { socket, websocket } = await createConnectedSocket();
-      // No reconnection, so the only timers left would be the heartbeat ones
-      socket.shouldReconnect = () => false;
       socket.onError(() => null);
 
       websocket.serverClose({ code: 1000, wasClean: true });

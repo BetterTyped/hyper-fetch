@@ -301,18 +301,16 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
       expect(events).toStrictEqual(["disconnected", "error"]);
     });
 
-    it("should reconnect after a normal closure by the server", async () => {
+    it("should not reconnect after a normal closure by the server", async () => {
       vi.useFakeTimers();
       setup.socket.connect();
       const ws = await openWebSocket();
 
-      // Servers, proxies and load balancers close with 1000 on deploys and idle timeouts
       ws.serverClose({ code: 1000, wasClean: true });
-      expect(setup.socket.adapter.connected).toBeFalse();
-      await vi.advanceTimersByTimeAsync(100);
-      await openWebSocket(2);
+      await vi.advanceTimersByTimeAsync(1000);
 
-      expect(setup.socket.adapter.connected).toBeTrue();
+      expect(ControlledWebSocket.instances).toHaveLength(1);
+      expect(setup.socket.adapter.connected).toBeFalse();
     });
 
     it("should stop reconnecting after the reconnect attempts", async () => {

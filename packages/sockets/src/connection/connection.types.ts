@@ -61,7 +61,10 @@ export type ReconnectingConnectionOptionsType<Adapter extends SocketAdapterInsta
   open: (attempt: ConnectionAttemptType<Adapter>) => ConnectionTransportType | null;
   /** Connect when the engine is created. @default true */
   autoConnect?: boolean;
-  /** The protocol's default for retried closes, e.g. its fatal close codes. The socket's `shouldReconnect` wins. */
+  /**
+   * The protocol's default for retried closes, e.g. its fatal close codes. The socket's `shouldReconnect` wins.
+   * Without it a normal closure (1000) stays closed and every other loss is retried (`defaultShouldReconnect`).
+   */
   shouldReconnect?: ShouldReconnectType;
 };
 

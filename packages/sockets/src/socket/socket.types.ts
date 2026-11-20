@@ -30,7 +30,8 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   reconnectDelay?: ReconnectDelayType;
   /**
    * Decides whether a lost connection is retried, from its close `code`, `reason` or `error`. Overrides the adapter's
-   * protocol default. Closes started by the client are never retried. @default every loss is retried
+   * protocol default. Closes started by the client are never retried.
+   * @default a normal closure (1000) stays closed, every other loss is retried
    */
   shouldReconnect?: ShouldReconnectType;
   /**

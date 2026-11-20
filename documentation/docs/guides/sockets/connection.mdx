@@ -204,8 +204,9 @@ same reconnection rules:
 - **Stable connections reset the counter.** The attempt counter resets only once a connection stays up for `minUptime`.
   A connection that drops right after opening - for example a server that accepts and then closes over an expired
   token - keeps backing off and counts towards `reconnect`.
-- **Every loss is retried** unless `shouldReconnect` says otherwise, also a close with code 1000 - servers, proxies and
-  load balancers close with 1000 on deploys and idle timeouts too. Closing the socket yourself is never retried.
+- **Every loss is retried** unless `shouldReconnect` says otherwise - except a normal closure (1000) of the server,
+  which means it finished on purpose. That one stays closed until `connect()`, `reconnect()` or the network coming
+  back. Closing the socket yourself is never retried.
 - **One timeout to be connected.** `connectionTimeout` limits how long an attempt may take until the connection can
   carry messages, including protocol handshakes. A timed out attempt is a failed attempt and the next one follows the
   backoff.
@@ -218,7 +219,7 @@ same reconnection rules:
 | `minUptime`         | `5000`     | How long in ms a connection stays up before the attempt counter resets              |
 | `connectionTimeout` | `5000`     | How long in ms one attempt may take until the connection is ready                   |
 | `reconnectDelay`    | jitter     | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff           |
-| `shouldReconnect`   | retry all  | `({ code, reason, error }) => boolean` - decides which lost connections are retried |
+| `shouldReconnect`   | 1000 stays | `({ code, reason, error }) => boolean` - decides which lost connections are retried |
 
 ### Customizing Retry Logic
 
@@ -227,7 +228,7 @@ of the outage (from 0), the time since the outage began and why the connection w
 milliseconds, or `null` to stop reconnecting.
 
 ```ts
-import { Socket } from "@hyper-fetch/sockets";
+import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
 
 const socket = new Socket({
   url: "ws://localhost:8080",
@@ -236,8 +237,8 @@ const socket = new Socket({
     if (elapsed > 5 * 60_000) return null;
     return attempt < 3 ? 500 : 10_000;
   },
-  // A rejected token won't get better by retrying
-  shouldReconnect: ({ code }) => code !== 4401,
+  // A rejected token won't get better by retrying - and a normal closure (1000) stays closed, like by default
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
 });
 ```
 

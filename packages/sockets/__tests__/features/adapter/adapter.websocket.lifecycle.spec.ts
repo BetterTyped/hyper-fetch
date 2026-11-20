@@ -430,32 +430,32 @@ describe("Websocket Adapter [ Lifecycle ]", () => {
       expect(vi.getTimerCount()).toBe(1);
     });
 
-    it("should reconnect after a normal closure from the server", async () => {
-      // Servers, proxies and load balancers close with 1000 on deploys and idle timeouts too
+    it("should not reconnect after a normal closure from the server", async () => {
       const socket = createSocket({ reconnectTime: 100 });
       const websocket = await openWebSocket();
       const events = trackEvents(socket);
 
       websocket.serverClose({ code: 1000, wasClean: true });
-      await vi.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(1000);
 
-      expect(events.slice(0, 3)).toStrictEqual([
+      expect(events).toStrictEqual([
         "connecting:false",
         "disconnected",
         "error:Normal closure, meaning that the purpose for which the connection was established has been fulfilled.",
       ]);
-      expect(ControlledWebSocket.instances).toHaveLength(2);
+      expect(ControlledWebSocket.instances).toHaveLength(1);
     });
 
-    it("should not reconnect a normal closure refused by shouldReconnect", async () => {
-      const socket = createSocket({ reconnectTime: 100, shouldReconnect: ({ code }) => code !== 1000 });
+    it("should reconnect a normal closure when shouldReconnect allows it", async () => {
+      // Behind a proxy that closes idle connections with 1000
+      const socket = createSocket({ reconnectTime: 100, shouldReconnect: () => true });
       const websocket = await openWebSocket();
       socket.onError(() => null);
 
       websocket.serverClose({ code: 1000, wasClean: true });
-      await vi.advanceTimersByTimeAsync(1000);
+      await vi.advanceTimersByTimeAsync(100);
 
-      expect(ControlledWebSocket.instances).toHaveLength(1);
+      expect(ControlledWebSocket.instances).toHaveLength(2);
     });
 
     it("should deliver the message that arrived right before the close", async () => {

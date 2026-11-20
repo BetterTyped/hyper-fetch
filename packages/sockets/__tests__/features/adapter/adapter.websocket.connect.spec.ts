@@ -18,8 +18,7 @@ describe("Websocket Adapter [ Connect ]", () => {
 
   const { url, getServer, startServer, stopServer } = createWebsocketMockingServer();
 
-  // Sockets are closed after every test - a server stopping with 1000 is retried, so a socket left open would
-  // reconnect to the server of the next test
+  // Sockets are closed after every test - a socket left open would reconnect to the server of the next test
   const sockets: ReturnType<typeof createTestSocket>[] = [];
   const createSocket: typeof createTestSocket = (config) => {
     const socket = createTestSocket(config);

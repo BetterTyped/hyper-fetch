@@ -212,7 +212,12 @@ shares: one attempt at a time, the connection timeout, backoff with jitter, the 
 handling, and closing on purpose.
 
 ```ts
-import { SocketAdapter, createReconnectingConnection, getSocketUrl } from "@hyper-fetch/sockets";
+import {
+  SocketAdapter,
+  createReconnectingConnection,
+  defaultShouldReconnect,
+  getSocketUrl,
+} from "@hyper-fetch/sockets";
 
 const MyAdapter = () =>
   new SocketAdapter({ name: "my-adapter" }).setConnector((bindings) => {
@@ -222,8 +227,8 @@ const MyAdapter = () =>
     const connection = createReconnectingConnection({
       bindings,
       autoConnect: bindings.adapter.adapterOptions?.autoConnect ?? true,
-      // The protocol's close codes that retrying can't fix - the socket's `shouldReconnect` wins over it
-      shouldReconnect: ({ code }) => code !== 4401,
+      // The protocol's close codes that retrying can't fix, on top of the default - the socket's option wins over it
+      shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
       open: (attempt) => {
         const url = getSocketUrl(attempt.connection.url, bindings.getQueryParams(attempt.connection.queryParams));
         const current = new MyTransport(url, attempt.connection.adapterOptions);

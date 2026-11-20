@@ -1,3 +1,11 @@
+import type { ShouldReconnectType } from "./connection.types";
+
+/**
+ * The default of `shouldReconnect`: a normal closure (1000) means the server finished on purpose, so the socket stays
+ * closed until `connect()` or `reconnect()`. Every other loss - another close code, an error, a timeout - is retried.
+ */
+export const defaultShouldReconnect: ShouldReconnectType = ({ code }) => code !== 1000;
+
 /** Above this exponent `min * 2 ** attempt` is past any sane maximum, and a larger one only risks Infinity */
 const maxBackoffExponent = 30;
 

@@ -7,7 +7,7 @@ import type {
   ReconnectingConnectionOptionsType,
   ReconnectingConnectionType,
 } from "./connection.types";
-import { getReconnectDelay } from "./connection.utils";
+import { defaultShouldReconnect, getReconnectDelay } from "./connection.utils";
 
 type AttemptStateType = {
   /** Generation of the attempt - events of any other generation are ignored */
@@ -27,7 +27,8 @@ const toError = (error: unknown) => (error instanceof Error ? error : new Error(
  *
  * - An attempt succeeds when the adapter calls `ready()`. The connection timeout covers the whole way there.
  * - A lost connection is retried after `reconnectDelay` (full jitter between `reconnectTime` and `maxReconnectTime`
- *   by default), unless `shouldReconnect` says otherwise. The client's own closes are never retried.
+ *   by default), unless `shouldReconnect` says otherwise - by default a normal closure (1000) of the server stays
+ *   closed. The client's own closes are never retried.
  * - The attempt counter resets only after the connection stayed ready for `minUptime`, so `reconnect` also bounds
  *   connections that drop right after opening.
  * - Offline drops the transport and pauses, without counting attempts. Online connects at once.
@@ -98,10 +99,7 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
   };
 
   const shouldReconnect = (loss: ConnectionLossType) => {
-    const decide = socket.shouldReconnect ?? protocolShouldReconnect;
-    if (!decide) {
-      return true;
-    }
+    const decide = socket.shouldReconnect ?? protocolShouldReconnect ?? defaultShouldReconnect;
     try {
       return decide(loss);
     } catch (error) {
@@ -152,9 +150,8 @@ export const createReconnectingConnection = <Adapter extends SocketAdapterInstan
       onDisconnected();
     }
 
+    // A refused loss is not retried on its own - the socket still comes back with the network, or by hand
     if (!shouldReconnect(loss)) {
-      wanted = false;
-      adapter.setForceClosed(true);
       return;
     }
     scheduleRetry(loss);

@@ -247,10 +247,40 @@ describe("Reconnection engine", () => {
       expect(gaps).toStrictEqual([2000, 3000, 5000, 9000]);
     });
 
-    it("should retry a server close with code 1000", async () => {
-      await createConnectedSocket();
+    it("should keep a normal closure of the server closed", async () => {
+      const socket = await createConnectedSocket();
 
       FakeTransport.last.serverLost({ code: 1000 });
+      await advance(maxReconnectTime);
+
+      expect(FakeTransport.instances).toHaveLength(1);
+      expect(socket.adapter.connected).toBeFalse();
+    });
+
+    it("should connect a socket closed normally by the server when the network comes back", async () => {
+      const socket = await createConnectedSocket();
+      FakeTransport.last.serverLost({ code: 1000 });
+
+      socket.appManager.setOnline(false);
+      socket.appManager.setOnline(true);
+      await settle();
+
+      expect(FakeTransport.instances).toHaveLength(2);
+    });
+
+    it("should retry a normal closure when shouldReconnect allows it", async () => {
+      await createConnectedSocket({ shouldReconnect: () => true });
+
+      FakeTransport.last.serverLost({ code: 1000 });
+      await advance(reconnectTime);
+
+      expect(FakeTransport.instances).toHaveLength(2);
+    });
+
+    it("should retry a loss without a close code", async () => {
+      await createConnectedSocket();
+
+      FakeTransport.last.serverLost({ error: new Error("Network") });
       await advance(reconnectTime);
 
       expect(FakeTransport.instances).toHaveLength(2);
@@ -396,7 +426,7 @@ describe("Reconnection engine", () => {
 
       expect(shouldReconnect).toHaveBeenCalledWith({ code: 4401, reason: "Unauthorized" });
       expect(FakeTransport.instances).toHaveLength(1);
-      expect(socket.adapter.forceClosed).toBeTrue();
+      expect(socket.adapter.connected).toBeFalse();
     });
 
     it("should use the protocol default of the adapter", async () => {

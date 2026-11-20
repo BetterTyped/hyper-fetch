@@ -16,24 +16,22 @@ The copies share their gaps. Two are proven by failing specs in `adapter.websock
 
 1. A socket connected by hand with `autoConnect: false` never recovers after a network drop. The scheduled attempt is
    skipped while offline, and the online listener only connects when `autoConnect` is set.
-2. A connection that drops right after every open (a server that accepts and then closes with 4401) retries forever
-   at a fixed delay, whatever `reconnect` says, because every open resets the attempt counter.
+2. A connection that drops right after every open (a server that accepts and then closes with 4401) retries forever at a
+   fixed delay, whatever `reconnect` says, because every open resets the attempt counter.
 
 Read from the code:
 
-- The delay before the next attempt is fixed (`reconnectTime`, 5 s). No backoff, no jitter - every client of a
-  restarted server comes back at the same moment.
+- The delay before the next attempt is fixed (`reconnectTime`, 5 s). No backoff, no jitter - every client of a restarted
+  server comes back at the same moment.
 - Attempts skipped while offline count towards `reconnect`.
-- A server close with 1000 is never retried, although servers, proxies and load balancers close with 1000 on deploys
-  and idle timeouts.
 - Nothing reacts to the tab becoming visible again. A connection lost in the background waits for the full delay.
 - No hook decides which close codes are fatal. A protocol with "do not retry" codes (graphql-ws 4400, 4401, 4406,
   4409, 4429) can't express them.
 
 `reconnecting-websocket` is the usual reference, and it is not one to copy: it has no per-attempt jitter, wedges
-`reconnect()` after `close()` or exhausted retries through a stuck lock (issue #165), crashes Node.js when a
-connecting socket is closed (#197), and is unmaintained. We compared it with `partysocket`, the `graphql-ws` client,
-Socket.IO, Phoenix, Centrifuge, SignalR, Ably and the AWS "Exponential Backoff And Jitter" article.
+`reconnect()` after `close()` or exhausted retries through a stuck lock (issue #165), crashes Node.js when a connecting
+socket is closed (#197), and is unmaintained. We compared it with `partysocket`, the `graphql-ws` client, Socket.IO,
+Phoenix, Centrifuge, SignalR, Ably and the AWS "Exponential Backoff And Jitter" article.
 
 ## Decision
 
@@ -55,14 +53,16 @@ transport - how to open it, when it is ready, how to read a close - and the engi
   stop, replacing the default (SignalR `IRetryPolicy`).
 - **Stable connections reset the counter.** The attempt counter resets only after the connection stays ready for
   `minUptime`. A connection that drops sooner keeps backing off and counts towards `reconnect`.
-- **Which closes are retried.** `shouldReconnect({ code, reason, error })` decides. The default retries every close
-  the client did not start, 1000 included (Phoenix, `reconnecting-websocket`). Adapters pass their protocol's fatal
-  codes as their default, the user option wins over it.
+- **Which closes are retried.** `shouldReconnect({ code, reason, error })` decides. The default keeps a normal closure
+  of the server (1000) closed - RFC 6455 defines it as "the purpose was fulfilled", the graphql-ws protocol treats it as
+  final, and the Hono integration documents it as the way a handler ends a session - and retries every other loss, so
+  restarts (1001, 1012) and crashes come back. A refused loss still reconnects when the network comes back. Adapters
+  pass their protocol's fatal codes as their default, the user option wins over it (behind a proxy that closes idle
+  connections with 1000, `shouldReconnect: () => true`).
 - **Network.** Going offline drops the transport and pauses: no attempts run and none are counted. Coming back online
   cancels the pending delay and connects at once, also aborting an attempt opened while offline (Centrifuge, Ably).
-- **Visibility.** When the app gets the focus back and the socket should be connected but is not, the pending delay
-  is skipped and it connects at once (Phoenix). Attempts still run in the background - background notifications need
-  them.
+- **Visibility.** When the app gets the focus back and the socket should be connected but is not, the pending delay is
+  skipped and it connects at once (Phoenix). Attempts still run in the background - background notifications need them.
 - **What "should be connected" means.** After the first `connect()` - automatic with `autoConnect` or called by hand -
   and until `disconnect()`. `autoConnect` only decides the first connection, recovery never depends on it.
 - **Cleanup.** `disconnect()` cancels every timer and attempt. `dispose()` also removes the app manager listeners.
@@ -79,23 +79,23 @@ resubscribing after a reconnect, and the protocol's fatal close codes.
 
 On the socket, next to the existing `reconnect` (attempt limit), `reconnectTime`, and `connectionTimeout`:
 
-| Option | Default | Meaning |
-| --- | --- | --- |
-| `reconnectTime` | 1000 | Minimum delay before an attempt (was the fixed delay, 5000) |
-| `maxReconnectTime` | 30000 | Maximum delay before an attempt |
-| `minUptime` | 5000 | Time a connection stays ready before the attempt counter resets |
-| `reconnectDelay` | full jitter | `({ attempt, elapsed, reason }) => number \| null` |
-| `shouldReconnect` | retry all but client closes | `({ code, reason, error }) => boolean` |
+| Option             | Default                                | Meaning                                                         |
+| ------------------ | -------------------------------------- | --------------------------------------------------------------- |
+| `reconnectTime`    | 1000                                   | Minimum delay before an attempt (was the fixed delay, 5000)     |
+| `maxReconnectTime` | 30000                                  | Maximum delay before an attempt                                 |
+| `minUptime`        | 5000                                   | Time a connection stays ready before the attempt counter resets |
+| `reconnectDelay`   | full jitter                            | `({ attempt, elapsed, reason }) => number \| null`              |
+| `shouldReconnect`  | 1000 stays closed, the rest is retried | `({ code, reason, error }) => boolean`                          |
 
 ## Consequences
 
 - One implementation to test hard, instead of five copies to keep in sync. The engine gets its own specs and a seeded
   randomized spec that checks the invariants (one live transport, no timers after `disconnect()`, paired connect and
   disconnect events, `reconnect()` always starts an attempt while online) over thousands of event sequences.
-- Reconnect timing changes for every socket user: the first retry comes after 1-2 s instead of 5 s, later ones back
-  off to 30 s, a server close with 1000 is retried, offline drops the connection right away, and a lost connection
-  comes back as soon as the tab is focused again. No API is removed and the new options are optional, but the
-  defaults change behavior, so the release type (minor or major) is decided when it ships - v10 is already out.
+- Reconnect timing changes for every socket user: the first retry comes after 1-2 s instead of 5 s, later ones back off
+  to 30 s, offline drops the connection right away, and a lost connection comes back as soon as the tab is focused
+  again. No API is removed and the new options are optional, but the defaults change behavior, so the release type
+  (minor or major) is decided when it ships - v10 is already out.
 - `reconnect: 3` now bounds connections that open and fail right away, which used to retry forever.
-- Not part of this decision: buffering emits while disconnected, liveness detection beyond the WebSocket heartbeat,
-  and a `suspended` state for long outages. They can build on the engine later.
+- Not part of this decision: buffering emits while disconnected, liveness detection beyond the WebSocket heartbeat, and
+  a `suspended` state for long outages. They can build on the engine later.

@@ -123,7 +123,7 @@ const sdk = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(sock
 ```
 
 The connection follows the regular [socket reconnection](/docs/guides/sockets/connection#retries): a handshake that
-takes longer than `connectionTimeout` is a failed attempt, and a dropped connection - also one closed with 1000 - comes
+takes longer than `connectionTimeout` is a failed attempt, and a dropped connection comes
 back after a jittered backoff between `reconnectTime` and `maxReconnectTime`. Every running subscription then starts again
 with the id of its last event.
 

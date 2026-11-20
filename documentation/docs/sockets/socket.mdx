@@ -181,7 +181,7 @@ The `Socket` constructor (and `createSocketClient` helper) accepts the following
 | `minUptime` | `number` | `5000` | How long in milliseconds a connection stays up before the attempt counter resets. |
 | `connectionTimeout` | `number` | `5000` | How long in milliseconds one connection attempt may take until the connection is ready. |
 | `reconnectDelay` | `function` | jittered backoff | `({ attempt, elapsed, reason }) => number \| null` - replaces the backoff, `null` stops reconnecting. |
-| `shouldReconnect` | `function` | retry every loss | `({ code, reason, error }) => boolean` - decides which lost connections are retried. |
+| `shouldReconnect` | `function` | 1000 stays closed | `({ code, reason, error }) => boolean` - decides which lost connections are retried. |
 
 ---
 

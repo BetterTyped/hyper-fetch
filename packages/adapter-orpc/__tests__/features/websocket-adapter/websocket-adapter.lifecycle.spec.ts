@@ -203,14 +203,14 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       expect(callback.mock.calls.map(([data]) => data.name)).toStrictEqual(["a", "b"]);
     });
 
-    it("should reconnect after the server closed the connection normally", async () => {
+    it("should not reconnect after the server closed the connection normally", async () => {
       const ws = await open();
 
       ws.serverClose({ code: 1000 });
-      await advance(1000);
+      await advance(60_000);
 
-      expect(Controlled.instances).toHaveLength(2);
-      expect(setup.socket.adapter.connecting).toBeTrue();
+      expect(Controlled.instances).toHaveLength(1);
+      expect(setup.socket.adapter.connected).toBeFalse();
     });
 
     it("should reconnect when the app goes online", async () => {
@@ -233,19 +233,6 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
       await flushPromises();
 
       expect(Controlled.instances).toHaveLength(1);
-    });
-
-    it("should start the subscriptions again after the server closed the connection normally", async () => {
-      subscribe();
-      const first = await open();
-      first.serverStartIterator("1");
-      first.serverEvent("1", { data: serialize({ id: 1, name: "a" }), meta: { id: "4" } });
-
-      first.serverClose({ code: 1000 });
-      await advance(1000);
-      const second = await open();
-
-      expect(second.requests.map(({ p }) => p?.h)).toStrictEqual([{ "last-event-id": "4" }]);
     });
 
     it("should report the disconnect before the error that explains it", async () => {
