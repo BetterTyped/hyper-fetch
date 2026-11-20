@@ -388,6 +388,38 @@ describe("Adapter [ Base ]", () => {
       );
     });
 
+    it("should resolve with the error when an async fetcher rejects", async () => {
+      const testError = new Error("Test error");
+
+      const client = new Client({ url: "test" });
+      const newAdapter = new Adapter({
+        name: "test-adapter",
+        defaultMethod: HttpMethods.GET,
+        defaultExtra: {},
+        systemErrorStatus: 500,
+        systemErrorExtra: { systemError: true },
+      }).setFetcher(async () => {
+        throw testError;
+      });
+
+      const request = client.createRequest()({
+        endpoint: "test",
+      });
+      client.setAdapter(newAdapter);
+
+      const response = await request.send();
+
+      expect(response).toEqual(
+        expect.objectContaining({
+          data: null,
+          error: testError,
+          status: 500,
+          success: false,
+          extra: { systemError: true },
+        }),
+      );
+    });
+
     it("should use current timestamp if startTime is not set during error", async () => {
       const fetcherSpy = vi.fn().mockImplementation(() => {
         throw new Error("Test error");
