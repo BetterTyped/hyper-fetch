@@ -49,7 +49,17 @@ export type FetchGraphqlAdapterOptionsType = Omit<RequestInit, "method" | "heade
    * @default "none"
    */
   errorPolicy?: GraphqlErrorPolicy;
+  /**
+   * Automatic persisted queries. The request sends the SHA-256 hash of the query instead of the query, and the full
+   * query only when the server does not know the hash yet. Hashed `GET` requests stay short, so CDNs can cache them.
+   * Without Web Crypto (`crypto.subtle`) the full query is sent.
+   * @default false
+   */
+  persistedQueries?: boolean;
 };
+
+/** The `persistedQuery` extension of automatic persisted queries */
+export type GraphqlPersistedQueryType = { version: 1; sha256Hash: string };
 
 export type GraphqlRequestOptionsType = {
   /**

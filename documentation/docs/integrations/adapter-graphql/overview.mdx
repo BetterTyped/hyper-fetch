@@ -179,6 +179,33 @@ Each operation is sent in the [GraphQL over HTTP](https://graphql.github.io/grap
 
 ---
 
+## Persisted queries
+
+With automatic persisted queries, the request sends the SHA-256 hash of the query instead of the full text. Servers that
+support them, like Apollo Server, run the query they stored under the hash. Requests get smaller, and hashed `GET`
+requests have short urls, so a CDN can cache them.
+
+```ts
+const getUser = client.createRequest()({
+  endpoint: GetUserDocument,
+  method: GraphqlMethod.GET, // optional - lets a CDN cache the response
+  options: { persistedQueries: true },
+});
+
+// Or for every request of the client
+const adapter = GraphqlAdapter().setAdapterDefaults(() => ({ persistedQueries: true }));
+```
+
+- The first request sends only the hash, in `extensions.persistedQuery`.
+- When the server answers `PersistedQueryNotFound`, the request is sent again with the query, so the server stores it.
+  The response of that request is the one you get.
+- When the server answers `PersistedQueryNotSupported`, the request is sent again with the query, and the adapter sends
+  full queries from then on.
+- Without Web Crypto (`crypto.subtle`, missing on insecure origins) the full query is sent.
+- One `timeout` covers the hashed request and the one that registers the query.
+
+---
+
 ## Errors
 
 GraphQL reports most errors in the `errors` list of a `200` response. The adapter turns them into a failed response, with

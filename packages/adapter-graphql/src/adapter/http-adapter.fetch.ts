@@ -11,6 +11,9 @@ import type {
 } from "./adapter.types";
 import { GraphqlMethod } from "./adapter.types";
 import {
+  getGqlDocument,
+  getPersistedQueryHash,
+  getPersistedQueryMiss,
   getRequestValues,
   gqlEndpointMapper,
   gqlEndpointNameMapper,
@@ -18,8 +21,11 @@ import {
   gqlRequestNameMapper,
 } from "./adapter.utils";
 
-export const getGqlAdapter = (): GraphqlAdapterType =>
-  new Adapter<
+export const getGqlAdapter = (): GraphqlAdapterType => {
+  // Turned off for this adapter once the server reports that it does not support persisted queries
+  let persistedQueriesSupported = true;
+
+  return new Adapter<
     FetchGraphqlAdapterOptionsType,
     GraphqlMethod,
     number,
@@ -71,10 +77,13 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         onRequestProgress,
         onSuccess,
       }) => {
-        const { fullUrl, payload } = getRequestValues(request, queryParams);
-
         const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, errorPolicy = "none", ...restOptions } = adapterOptions || {};
+        const {
+          timeout: timeoutMs = defaultTimeout,
+          errorPolicy = "none",
+          persistedQueries = false,
+          ...restOptions
+        } = adapterOptions || {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -84,6 +93,7 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
           extra: gqlExtra,
         });
 
+        // One timeout for the whole operation - a persisted query miss and the request that registers it
         if (timeoutMs > 0 && controller) {
           timeoutId = setTimeout(() => {
             timedOut = true;
@@ -105,33 +115,22 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
             ...restOptions,
           };
 
-          if (payload) {
-            init.body = payload;
+          const sendAttempt = (values: { fullUrl: string; payload: string | null }) => {
+            return fetch(values.fullUrl, values.payload ? { ...init, body: values.payload } : init);
+          };
 
-            if (typeof payload === "string") {
-              const total = new Blob([payload]).size;
-              onRequestProgress({ total, loaded: total } as ProgressEvent);
+          const clearTimer = () => {
+            if (timeoutId) {
+              clearTimeout(timeoutId);
             }
-          }
+          };
 
-          onRequestEnd();
+          /** Reads the body. Without `reportProgress` it reports the whole body at once, after reading it. */
+          const readBody = async (response: Response, reportProgress: boolean) => {
+            if (!response.body || typeof response.body.getReader !== "function") {
+              return response.text();
+            }
 
-          const response = await fetch(fullUrl, init);
-
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-
-          onResponseStart();
-
-          const responseHeaders: Record<string, string> = {};
-          response.headers.forEach((value, key) => {
-            responseHeaders[key] = value;
-          });
-
-          let body: string;
-
-          if (response.body && typeof response.body.getReader === "function") {
             const reader = response.body.getReader();
             const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
             let receivedLength = 0;
@@ -146,7 +145,13 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
               }
               chunks.push(value);
               receivedLength += value.length;
-              onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
+              if (reportProgress) {
+                onResponseProgress({ total: contentLength || receivedLength, loaded: receivedLength } as ProgressEvent);
+              }
+            }
+
+            if (!reportProgress) {
+              onResponseProgress({ total: receivedLength, loaded: receivedLength } as ProgressEvent);
             }
 
             const allChunks = new Uint8Array(receivedLength);
@@ -156,10 +161,54 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
               allChunks.set(chunk, position);
               position += chunk.length;
             }
-            body = new TextDecoder().decode(allChunks);
-          } else {
-            body = await response.text();
+            return new TextDecoder().decode(allChunks);
+          };
+
+          const sha256Hash =
+            persistedQueries && persistedQueriesSupported
+              ? await getPersistedQueryHash(gqlEndpointMapper(getGqlDocument(request)))
+              : null;
+          const persistedQuery = sha256Hash ? ({ version: 1, sha256Hash } as const) : null;
+
+          const firstValues = getRequestValues(
+            request,
+            queryParams,
+            persistedQuery ? { persistedQuery, withQuery: false } : undefined,
+          );
+          if (firstValues.payload) {
+            const total = new Blob([firstValues.payload]).size;
+            onRequestProgress({ total, loaded: total } as ProgressEvent);
           }
+
+          onRequestEnd();
+
+          let response = await sendAttempt(firstValues);
+          // The timeout covers the time to the response headers. A hashed request can still be a miss, so it waits.
+          if (!persistedQuery) {
+            clearTimer();
+          }
+          onResponseStart();
+
+          // A hashed request can be a miss, so its body is reported only once it is known to be the answer
+          let body = await readBody(response, !persistedQuery);
+
+          const miss = persistedQuery ? getPersistedQueryMiss(parseResponse(body)) : null;
+          if (persistedQuery && miss) {
+            if (miss === "not-supported") {
+              persistedQueriesSupported = false;
+            }
+            const persisted = miss === "not-found" ? { persistedQuery, withQuery: true } : undefined;
+            response = await sendAttempt(getRequestValues(request, queryParams, persisted));
+            clearTimer();
+            body = await readBody(response, true);
+          } else {
+            clearTimer();
+          }
+
+          const responseHeaders: Record<string, string> = {};
+          response.headers.forEach((value, key) => {
+            responseHeaders[key] = value;
+          });
 
           onResponseEnd();
           unmountListener();
@@ -199,3 +248,4 @@ export const getGqlAdapter = (): GraphqlAdapterType =>
         }
       },
     );
+};

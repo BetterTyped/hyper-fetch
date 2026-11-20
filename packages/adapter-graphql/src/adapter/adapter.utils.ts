@@ -3,7 +3,7 @@ import { HttpMethods, Request, stringifyKey, stringifyQueryParams } from "@hyper
 import type { DocumentNode, OperationDefinitionNode } from "graphql";
 import { print, parse } from "graphql";
 
-import type { GraphQlEndpointType, GraphqlRequestOptionsType } from "./adapter.types";
+import type { GraphQlEndpointType, GraphqlPersistedQueryType, GraphqlRequestOptionsType } from "./adapter.types";
 
 const getDocumentOption = (request: RequestInstance) => {
   return (request.requestOptions as unknown as GraphqlRequestOptionsType).document;
@@ -17,7 +17,7 @@ export const getGqlDocument = (request: RequestInstance): GraphQlEndpointType =>
 };
 
 /** Query string keys owned by the GraphQL over HTTP GET format - they win over the user query params */
-const reservedQueryParams = new Set(["query", "operationName", "variables"]);
+const reservedQueryParams = new Set(["query", "operationName", "variables", "extensions"]);
 
 const isReservedQueryParam = (param: string) => {
   const [rawKey] = param.split("=");
@@ -46,16 +46,22 @@ const joinQueryStrings = (...queryStrings: string[]) => {
   return joined ? `?${joined}` : "";
 };
 
+/**
+ * Url and body of the request in the GraphQL over HTTP format.
+ * With `persisted`, the `persistedQuery` extension is sent, and the query only when `withQuery` is set.
+ */
 export const getRequestValues = <R extends RequestInstance>(
   request: R,
   queryParams: unknown = request.client.adapter.unstable_queryParamsMapper(request.queryParams),
+  persisted?: { persistedQuery: GraphqlPersistedQueryType; withQuery: boolean },
 ) => {
   const isPostRequest = request.method === HttpMethods.POST;
 
   const document = getGqlDocument(request);
-  const query = gqlEndpointMapper(document);
+  const query = !persisted || persisted.withQuery ? gqlEndpointMapper(document) : undefined;
   const operationName = getGqlOperationName(document);
   const variables = request.payload;
+  const extensions = persisted ? { persistedQuery: persisted.persistedQuery } : undefined;
 
   const url = hasDocumentOption(request) ? `${request.client.url}${request.endpoint}` : request.client.url;
   // Mappers can return anything, so we normalize their result to the query string
@@ -64,13 +70,17 @@ export const getRequestValues = <R extends RequestInstance>(
   const fullUrl = isPostRequest
     ? url + joinQueryStrings(queryString)
     : url +
-      joinQueryStrings(stringifyQueryParams({ query, operationName, variables }), omitReservedQueryParams(queryString));
+      joinQueryStrings(
+        stringifyQueryParams({ query, operationName, variables, extensions }),
+        omitReservedQueryParams(queryString),
+      );
 
   const payload = isPostRequest
     ? JSON.stringify({
         query,
         operationName,
         variables,
+        extensions,
       })
     : null;
 
@@ -235,4 +245,41 @@ export const matchGqlOperation = (operation: GraphQlEndpointType | RequestInstan
   const name = escapeRegExp(gqlEndpointNameMapper(operation));
   // The path of the `document` option follows the name and never holds the fingerprint separator
   return new RegExp(`^[A-Z]+_${name}(?:/[^@]*)?@${getDocumentHash(operation)}-`);
+};
+
+/**
+ * SHA-256 hash of the query for automatic persisted queries, as lowercase hex.
+ * `null` when the runtime has no Web Crypto - the full query is sent then.
+ */
+export const getPersistedQueryHash = async (query: string): Promise<string | null> => {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
+    return null;
+  }
+
+  const digest = await subtle.digest("SHA-256", new TextEncoder().encode(query));
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
+/**
+ * How the server answered a hashed request it could not run: it does not know the hash yet (`"not-found"`), or it does
+ * not support persisted queries (`"not-supported"`). `null` for every other response. Servers report it by the message
+ * or by the error code.
+ */
+export const getPersistedQueryMiss = (body: unknown): "not-found" | "not-supported" | null => {
+  const errors: unknown[] = Array.isArray((body as { errors?: unknown })?.errors)
+    ? (body as { errors: unknown[] }).errors
+    : [];
+
+  for (const error of errors) {
+    const { message, extensions } = (error ?? {}) as { message?: unknown; extensions?: { code?: unknown } };
+    if (message === "PersistedQueryNotSupported" || extensions?.code === "PERSISTED_QUERY_NOT_SUPPORTED") {
+      return "not-supported";
+    }
+    if (message === "PersistedQueryNotFound" || extensions?.code === "PERSISTED_QUERY_NOT_FOUND") {
+      return "not-found";
+    }
+  }
+
+  return null;
 };
