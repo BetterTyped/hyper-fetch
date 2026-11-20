@@ -37,7 +37,8 @@ Use the `createClient` from `@hyper-fetch/core`.
 
 - **Singleton Client**: Create a single `Client` instance for your application to ensure consistent configuration.
 - **Base URL**: Always configure the `url` on the client. Avoid hardcoding base URLs in individual requests.
-- **Feature Configuration**: Configure features like `cache`, `queue`, and `storage` at the client level.
+- **Feature Configuration**: Swap modules like `cache` (`() => new Cache({ lazyStorage })`) at the client level, and set
+  per-request behavior (`cache`, `queued`, `offline`, `retry`) on the requests or through the SDK `$configure`.
 
 #### Example:
 
@@ -75,7 +76,7 @@ const request = client.createRequest<{
   // What we send to backend
   payload: SomePayload;
   // Adds ability to specify query params
-  queryParams?: { search?: string };
+  queryParams: { search?: string };
   // It will extend global error and add ability to specify errors for particular endpoint only
   error: ZodValidationErrors;
 }>()({
@@ -100,7 +101,7 @@ const getUser = client.createRequest<{ response: User }>()({
 });
 
 // Using the request with the client
-const { data, error, success, extra, responseTime, requestTime } = getUser
+const { data, error, status, success, extra, requestTimestamp, responseTimestamp } = await getUser
   .setParams({ userId: 1 }) // taken from endpoint string `:userId`
   .send();
 ```
@@ -121,15 +122,15 @@ const getUser = client.createRequest<{ response: User }>()({
 });
 
 // Using the request with the client
-const { data, error, success, extra, responseTime, requestTime } = getUser.send({
+const { data, error, status, success, extra, requestTimestamp, responseTimestamp } = await getUser.send({
   // pass params dynamically
   params: { userId: 1 },
 
-  onBeforeSent: ({ response, requestId }) => {
-    console.log(`Request ${requestId} has settled. Final response:`, response);
+  onBeforeSent: ({ request, requestId }) => {
+    console.log(`Request ${requestId} is about to be sent.`);
     // Called right before the request is sent—useful for quickly accessing the requestId for tracking or logging
   },
-  onStart: ({ requestId, request }) => {
+  onRequestStart: ({ requestId, request }) => {
     console.log(`Request ${requestId} has started.`);
     // Called when the request is started—useful for showing a loading indicator
   },
@@ -142,8 +143,8 @@ const { data, error, success, extra, responseTime, requestTime } = getUser.send(
     // Called when the download progress is updated—useful for showing a progress bar
   },
   onResponse: ({ response, requestId }) => {
-    console.log(`Request ${requestId} finished with data:`, response.data);
-    // Called when the request succeeds—useful for processing successful data
+    console.log(`Request ${requestId} finished:`, response.success ? response.data : response.error);
+    // Called with the final response, successful or not
   },
   onRemove: ({ request, requestId }) => {
     console.log(`Request ${requestId} removed.`);
@@ -163,19 +164,17 @@ When using HyperFetch with React, follow these guidelines for the `useFetch` hoo
   state variables to track this.
 - **Dependencies**: Use the `dependencies` array in `useFetch` to automatically re-fetch data when component props or
   other state changes.
-- **Manual Fetching**: The `revalidate` function returned by `useFetch` can be used to manually trigger a re-fetch.
+- **Manual Fetching**: The `refetch` function returned by `useFetch` can be used to manually trigger a re-fetch.
 
 #### Example:
 
 ```tsx
 import { useFetch } from "@hyper-fetch/react";
-import { client } from "./client";
 import { getUser } from "./requests";
 
 function UserProfile({ userId }) {
-  const { data, loading, error, extra, success, responseTime, requestTime, onSuccess, onError, onFinished } = useFetch(
-    client.request(getUser).setParams({ userId }),
-  );
+  const { data, loading, error, extra, success, requestTimestamp, responseTimestamp, onSuccess, onError, onFinished } =
+    useFetch(getUser.setParams({ userId }));
 
   onSuccess(({ response, request }) => {
     console.log(response, request);
@@ -198,8 +197,7 @@ function UserProfile({ userId }) {
 ```
 
 ```tsx
-import { useFetch } from "@hyper-fetch/react";
-import { client } from "./client";
+import { useSubmit } from "@hyper-fetch/react";
 import { createUser } from "./requests";
 
 function CreateUser({ userId }) {
@@ -210,12 +208,12 @@ function CreateUser({ userId }) {
     error,
     extra,
     success,
-    responseTime,
-    requestTime,
+    requestTimestamp,
+    responseTimestamp,
     onSubmitSuccess,
     onSubmitError,
     onSubmitFinished,
-  } = useSubmit(client.request(createUser).setParams({ userId }));
+  } = useSubmit(createUser.setParams({ userId }));
 
   onSubmitSuccess(({ response, request }) => {
     console.log(response, request);
@@ -230,7 +228,11 @@ function CreateUser({ userId }) {
   });
 
 
-  return <button onSubmit={() => submit()}>Create user</h1>;
+  return (
+    <button disabled={submitting} onClick={() => submit()}>
+      Create user
+    </button>
+  );
 }
 ```
 
@@ -240,20 +242,22 @@ HyperFetch offers powerful features that should be used consistently.
 
 ### Caching
 
-- **Enable on Client**: Enable caching on the `Client` instance for global caching.
-- **Per-Request Cache**: You can override the client's cache setting on individual requests.
+- **On by default**: Every request caches successful responses (`cache: true`, `staleTime` and `cacheTime` 5 minutes).
+- **Per-Request Cache**: Set `cache: false` or tune `staleTime` / `cacheTime` on individual requests.
+- **Reading**: `send()` defaults to `cachePolicy: "network-only"`. Use `"cache-first"` or `"revalidate"`, or
+  `request.read()`, to use cached data.
 - **Cache Invalidation**: Use `client.cache.invalidate` to manually invalidate cached data when mutations occur.
 
-### Queuing
+### Queuing and offline
 
-- **Offline Support**: Use queuing to support offline functionality. Requests will be queued and sent when the
-  connection is restored.
-- **Request Prioritization**: Configure request priorities on the client to control the order of execution.
+- **Queued**: `queued: true` sends requests with the same `queryKey` one by one.
+- **Offline Support**: `offline: true` (the default) keeps requests that failed while offline and sends them again when
+  the connection is restored.
 
 ### Persistence
 
-- **Local Storage**: Use `storage` with a `localStorage` adapter to persist data across sessions. This is useful for
-  offline-first applications.
+- **Lazy storage**: Pass an async `lazyStorage` (IndexedDB, AsyncStorage, or a wrapper around `localStorage`) to
+  `new Cache({ lazyStorage })` to persist cached data across sessions.
 
 ## 5. Adapters
 

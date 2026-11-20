@@ -20,7 +20,7 @@ describe("E2E [ Environments ]", () => {
   beforeAll(async () => {
     websocketUrl = await websocketServer.startServer();
     sseUrl = await sseServer.startServer();
-    // Like any Node.js app or server render: no window, but Node.js 22+ has a global WebSocket
+    // Like any Node.js app: no window, only globals
     browserWindow = Reflect.get(globalThis, "window");
     Reflect.deleteProperty(globalThis, "window");
   });
@@ -40,7 +40,7 @@ describe("E2E [ Environments ]", () => {
       expect(nativeWebSocket).toBeFunction();
       const socket = new Socket({
         url: websocketUrl,
-        adapterOptions: { autoConnect: false, webSocketImpl: nativeWebSocket },
+        adapterOptions: { autoConnect: false, WebSocket: nativeWebSocket },
       });
 
       await socket.connect();
@@ -50,24 +50,9 @@ describe("E2E [ Environments ]", () => {
       await socket.disconnect();
     });
 
-    it("should not connect with the global WebSocket on its own, so server renders stay offline", async () => {
+    it("should connect with the global WebSocket when none is passed", async () => {
       expect(globalThis.WebSocket).toBeFunction();
-      const onError = vi.fn();
-      const socket = new Socket({ url: websocketUrl, reconnect: 0, adapterOptions: { autoConnect: false } });
-      socket.events.onError(onError);
-
-      await socket.connect();
-
-      await vi.waitFor(() => expect(onError).toHaveBeenCalled());
-      expect(socket.adapter.connected).toBeFalse();
-      expect(websocketServer.getConnectedCount()).toBe(0);
-    });
-
-    it("should connect with the global WebSocket when it is passed", async () => {
-      const socket = new Socket({
-        url: websocketUrl,
-        adapterOptions: { autoConnect: false, webSocketImpl: globalThis.WebSocket },
-      });
+      const socket = new Socket({ url: websocketUrl, adapterOptions: { autoConnect: false } });
 
       await socket.connect();
       await waitForConnection(socket);
@@ -76,11 +61,11 @@ describe("E2E [ Environments ]", () => {
       await socket.disconnect();
     });
 
-    it("should connect with ws passed as webSocketImpl when there is no global WebSocket", async () => {
+    it("should connect with ws passed as WebSocket when there is no global WebSocket", async () => {
       await withoutGlobal("WebSocket", async () => {
         const socket = new Socket({
           url: websocketUrl,
-          adapterOptions: { autoConnect: false, webSocketImpl: NodeWebSocket },
+          adapterOptions: { autoConnect: false, WebSocket: NodeWebSocket as unknown as typeof WebSocket },
         });
 
         await socket.connect();
@@ -92,11 +77,11 @@ describe("E2E [ Environments ]", () => {
       });
     });
 
-    it("should exchange messages through webSocketImpl", async () => {
+    it("should exchange messages through the passed WebSocket", async () => {
       await withoutGlobal("WebSocket", async () => {
         const socket = new Socket({
           url: websocketUrl,
-          adapterOptions: { autoConnect: false, webSocketImpl: NodeWebSocket },
+          adapterOptions: { autoConnect: false, WebSocket: NodeWebSocket as unknown as typeof WebSocket },
         });
         const clientPromise = websocketServer.waitForClient();
         await socket.connect();
@@ -127,28 +112,12 @@ describe("E2E [ Environments ]", () => {
   });
 
   describe("given the sse adapter", () => {
-    it("should not connect without eventSourceImpl", async () => {
-      const onError = vi.fn();
-      const socket = new Socket({
-        url: sseUrl,
-        reconnect: 0,
-        adapter: ServerSentEventsAdapter(),
-        adapterOptions: { autoConnect: false },
-      });
-      socket.events.onError(onError);
-
-      await socket.connect();
-
-      await vi.waitFor(() => expect(onError).toHaveBeenCalled());
-      expect(socket.adapter.connected).toBeFalse();
-    });
-
-    it("should connect with eventsource passed as eventSourceImpl when there is no global EventSource", async () => {
+    it("should connect with eventsource passed as EventSource when there is no global EventSource", async () => {
       await withoutGlobal("EventSource", async () => {
         const socket = new Socket({
           url: sseUrl,
           adapter: ServerSentEventsAdapter(),
-          adapterOptions: { autoConnect: false, eventSourceImpl: NodeEventSource },
+          adapterOptions: { autoConnect: false, EventSource: NodeEventSource as unknown as typeof EventSource },
         });
 
         await socket.connect();
@@ -156,6 +125,24 @@ describe("E2E [ Environments ]", () => {
 
         expect(socket.adapter.connected).toBeTrue();
         await socket.disconnect();
+      });
+    });
+
+    it("should fail the connection when there is no EventSource at all", async () => {
+      await withoutGlobal("EventSource", async () => {
+        const onError = vi.fn();
+        const socket = new Socket({
+          url: sseUrl,
+          reconnect: 0,
+          adapter: ServerSentEventsAdapter(),
+          adapterOptions: { autoConnect: false },
+        });
+        socket.events.onError(onError);
+
+        await socket.connect();
+
+        await vi.waitFor(() => expect(onError).toHaveBeenCalled());
+        expect(socket.adapter.connected).toBeFalse();
       });
     });
   });

@@ -76,7 +76,7 @@ interface Message {
   createdAt: number;
 }
 
-const addMessage = client.createRequest<{ payload: Message; response: null }>()({
+const addMessage = client.createRequest<{ payload: Message; response: Message & { __key: string } }>()({
   endpoint: "/messages",
   method: "addDoc",
 });
@@ -91,13 +91,13 @@ await addMessage.send({
 });
 
 const { data: messages } = await getMessages.send();
-messages.forEach((msg) => console.log(`${msg.author}: ${msg.text}`));
+messages?.forEach((msg) => console.log(`${msg.author}: ${msg.text}`));
 ```
 
 ### Update and delete
 
 ```ts
-const updateMessage = client.createRequest<{ payload: Partial<Message>; response: null }>()({
+const updateMessage = client.createRequest<{ payload: Partial<Message>; response: Partial<Message> }>()({
   endpoint: "/messages/:messageId",
   method: "updateDoc",
 });
@@ -107,10 +107,10 @@ const deleteMessage = client.createRequest<{ response: null }>()({
   method: "deleteDoc",
 });
 
-await updateMessage.setParams({ messageId: "abc" }).send({ data: { text: "Updated!" } });
+await updateMessage.setParams({ messageId: "abc" }).send({ payload: { text: "Updated!" } });
 await deleteMessage.setParams({ messageId: "abc" }).send();
 ```
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

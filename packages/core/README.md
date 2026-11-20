@@ -39,7 +39,7 @@ edge — and connects to any API through pluggable adapters.
 - 🔮 **Zero guesswork** — Full autocompletion for every request, response, param, and error. Never cast to `any` again
 - 📡 **One interface for everything** — REST, GraphQL, Firebase, WebSockets, SSE — switch APIs without rewriting a line
 - 💾 **Stop re-fetching what you already have** — Smart cache with TTL and invalidation out of the box
-- 🔁 **Failed requests retry themselves** — Configurable retry with backoff so users never see random failures
+- 🔁 **Failed requests retry themselves** — Configurable retry count and delay so users never see random failures
 - 📴 **Works without internet** — Queues requests offline and replays them when connection returns
 - 🚫 **No duplicate requests** — Concurrent identical calls are deduplicated automatically
 - ⏱️ **Know exactly what's happening** — Upload and download progress with time estimates for every request
@@ -101,7 +101,7 @@ const createUser = client.createRequest<{
   method: "POST",
 });
 
-// Params are type-checked: { userId: number } required here
+// Params are type-checked: { userId: string | number } required here
 const { data } = await getUser.setParams({ userId: 1 }).send();
 
 // Payload is type-checked: { name, email } required here
@@ -131,7 +131,7 @@ const { data } = await listUsers.setQueryParams({ page: 1, limit: 20, search: "j
 ```ts
 // Hook into the request lifecycle — track progress, log events, handle responses
 const { data } = await getUser.setParams({ userId: 1 }).send({
-  onStart: ({ requestId }) => console.log(`Request ${requestId} started`),
+  onRequestStart: ({ requestId }) => console.log(`Request ${requestId} started`),
   onResponse: ({ response }) => console.log("Got data:", response.data),
   onUploadProgress: ({ progress }) => console.log(`Upload: ${progress}%`),
   onDownloadProgress: ({ progress }) => console.log(`Download: ${progress}%`),
@@ -149,10 +149,10 @@ const getUser = client
   })
   .setResponseMapper((response) => ({
     ...response,
-    data: { ...response.data, name: response.data.name.toUpperCase() },
+    data: response.data ? { ...response.data, name: response.data.name.toUpperCase() } : null,
   }));
 ```
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

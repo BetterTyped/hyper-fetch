@@ -1,11 +1,11 @@
 import { createSseMockingServer } from "@hyper-fetch/testing";
-import { ServerSentEventsAdapter } from "adapter-sse";
-import { EventSourceReadyState } from "adapter-sse/sse-adapter.types";
+import { EventSourceReadyState, ServerSentEventsAdapter } from "adapter-sse";
 
 import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
+  connectionTimeout: 10,
   adapter: ServerSentEventsAdapter,
 };
 const { startServer } = createSseMockingServer();
@@ -65,6 +65,7 @@ describe("Socket SSE [ Connection ]", () => {
       ...socketOptions,
       url,
       reconnectTime: 30,
+      connectionTimeout: 30,
       adapterOptions: { autoConnect: false },
     });
     newSocket.events.onReconnecting(onReconnecting);

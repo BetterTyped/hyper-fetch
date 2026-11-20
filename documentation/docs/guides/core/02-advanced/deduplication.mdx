@@ -6,8 +6,9 @@ sidebar_label: Deduplication
 # Deduplication
 
 When we need to limit and optimize the number of requests sent to a server, we can use **deduplication**. This feature,
-when enabled, combines multiple identical requests made in a short period into a single request, preventing redundant
-data fetching and reducing server load. We can enable it by setting the `deduplicate: true` option on a request.
+when enabled, combines identical requests sent while the first one is still in flight into a single request, preventing
+redundant data fetching and reducing server load. We can enable it by setting the `deduplicate: true` option on a
+request.
 
 ---
 
@@ -22,7 +23,7 @@ data fetching and reducing server load. We can enable it by setting the `dedupli
 ## Setup
 
 To enable deduplication, you need to set the `deduplicate` option to `true` on your request. This tells Hyper-fetch to
-prevent identical requests from being sent multiple times within a short timeframe.
+prevent identical requests (same `queryKey`) from being sent again while one of them is still in flight.
 
 ```ts
 const getUsers = client.createRequest()({
@@ -63,12 +64,13 @@ getUsers.send();
 
 ## Deduplication Time
 
-By default, deduplication occurs over a very short period (16ms). However, you can customize this window using the
-`deduplicateTime` option. This allows you to control how long Hyper-fetch should wait for identical requests to be
-deduplicated.
+By default `deduplicateTime` is `null`: a new request joins an identical request for as long as that request is in
+flight. Set `deduplicateTime` to a number of milliseconds to shorten this window. A new request then joins only an
+in-flight request that started at most that many milliseconds ago. Once the first request has finished, the next call
+is always sent, whatever the window.
 
-In this example, we set `deduplicateTime` to 2000 milliseconds. Any identical request made within this window will be
-deduplicated.
+In this example, we set `deduplicateTime` to 2000 milliseconds. An identical request sent within 2000ms of the first one
+joins it, as long as the first one has not finished yet.
 
 ```typescript
 // We are using pre-build 'getUsers' request and 'client' instance
@@ -90,7 +92,7 @@ getUsersWithTime.send({
 setTimeout(() => {
   getUsersWithTime.send({
     onRequestStart: ({ request, requestId }) => {
-      // This will not be logged because it's within the 2000ms window
+      // Not logged when the first request is still in flight, because it's within the 2000ms window
       console.log("Second request starting...", { requestId, request });
     },
   });
@@ -113,7 +115,7 @@ setTimeout(() => {
 You've learned how to use request deduplication in Hyper-fetch!
 
 - You can **enable deduplication** with the `deduplicate: true` option.
-- You can **customize the deduplication window** using `deduplicateTime`.
+- You can **shorten the deduplication window** using `deduplicateTime`.
 - You understand how deduplication **optimizes network requests** by bundling identical calls.
 
 :::

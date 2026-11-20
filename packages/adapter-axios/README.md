@@ -37,9 +37,9 @@ queuing, and React hooks.
 ## 🎯 Key Capabilities
 
 - 🔌 **One line to switch** — Replace the default HTTP engine with Axios without touching your requests
-- 🎯 **Keep your interceptors** — Use existing Axios request/response interceptors and error transforms
+- 🎯 **Keep your interceptors** — Interceptors and defaults registered on the default `axios` export apply to every request
 - ✨ **All HyperFetch features stay** — Caching, queuing, types, offline support, React hooks — nothing lost
-- 🔧 **Bring your own instance** — Pass a pre-configured Axios instance with custom defaults and auth headers
+- 🔧 **Axios options per request** — Pass `timeout`, `responseType`, `withCredentials` and other Axios config through `options`
 
 ## 🚀 Quick Start
 
@@ -64,19 +64,20 @@ const client = createClient({ url: "https://api.example.com" }).setAdapter(Axios
 
 ### Use with Axios interceptors
 
+`AxiosAdapter` is a ready-made adapter instance, not a factory, and it sends every request through the default `axios`
+export. Register interceptors on that export. Custom instances from `axios.create()` are not used by the adapter.
+
 ```ts
 import axios from "axios";
 import { createClient } from "@hyper-fetch/core";
 import { AxiosAdapter } from "@hyper-fetch/axios";
 
-const axiosInstance = axios.create({ baseURL: "https://api.example.com" });
-
-axiosInstance.interceptors.request.use((config) => {
+axios.interceptors.request.use((config) => {
   config.headers.Authorization = `Bearer ${getToken()}`;
   return config;
 });
 
-axiosInstance.interceptors.response.use(
+axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) refreshToken();
@@ -84,7 +85,15 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter({ instance: axiosInstance }));
+const client = createClient({ url: "https://api.example.com" }).setAdapter(AxiosAdapter);
+```
+
+### Set Axios defaults for every request
+
+```ts
+const client = createClient({ url: "https://api.example.com" }).setAdapter(
+  AxiosAdapter.setAdapterDefaults(() => ({ timeout: 5000 })),
+);
 ```
 
 ### Create typed requests (same as core)
@@ -100,4 +109,4 @@ const { data, error } = await getUsers.send();
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

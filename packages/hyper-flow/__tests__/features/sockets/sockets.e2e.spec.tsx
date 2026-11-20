@@ -231,7 +231,7 @@ describe("Sockets [ E2E ]", () => {
       url: sseUrl,
       reconnect: 0,
       adapter: ServerSentEventsAdapter(),
-      adapterOptions: { autoConnect: false, eventSourceImpl: NodeEventSource },
+      adapterOptions: { autoConnect: false, EventSource: NodeEventSource as unknown as typeof EventSource },
     });
     sockets.push(socket as unknown as Socket);
     await setup([socket as unknown as Socket]);

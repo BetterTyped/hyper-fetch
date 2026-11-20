@@ -20,15 +20,6 @@ type EventData<
   Key extends keyof ReturnType<Events>,
 > = Parameters<Parameters<ReturnType<Events>[Key]>[0]>[0];
 
-/**
- * Sockets don't connect without a window, so server renders stay offline. Devtools are meant to report from
- * servers too, so the plugin opts in to the runtime's global `WebSocket` there (Node.js 22+, Deno, Bun).
- */
-const getServerWebSocket = () => {
-  const hasWindow = typeof window !== "undefined";
-  return hasWindow ? undefined : globalThis.WebSocket;
-};
-
 /** Events kept while HyperFlow is not connected, the oldest are dropped so an app without HyperFlow doesn't grow */
 export const MAX_QUEUED_EVENTS = 1000;
 
@@ -37,7 +28,7 @@ export class DevtoolsEventHandler {
   socket: Socket;
   // TODO - fix type, it can be either internal or simply an event
   socketEmitter: Emitter<PluginInternalMessagePayload | HFEventMessagePayload, any, any>;
-  socketListener: Listener<any, any, any>;
+  socketListener: Listener<any, any, any, any>;
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   isInitialized: boolean;
@@ -49,14 +40,7 @@ export class DevtoolsEventHandler {
 
   constructor(
     client: ClientInstance,
-    {
-      appName,
-      url = "ws://localhost:2137",
-      debug = false,
-      environment,
-      webSocketImpl,
-      sockets = [],
-    }: DevtoolsPluginOptions,
+    { appName, url = "ws://localhost:2137", debug = false, environment, WebSocket, sockets = [] }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.isInitialized = false;
@@ -67,7 +51,7 @@ export class DevtoolsEventHandler {
     this.environment = environment || appName;
     this.socket = new Socket({
       url,
-      adapterOptions: { autoConnect: false, webSocketImpl: webSocketImpl ?? getServerWebSocket() },
+      adapterOptions: { autoConnect: false, WebSocket },
       reconnect: 100,
       reconnectTime: 3000,
     }).setQueryParams({

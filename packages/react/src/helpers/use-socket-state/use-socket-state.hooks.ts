@@ -3,10 +3,20 @@ import type { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/socket
 import type { UseSocketStateType, UseSocketStateProps } from "helpers";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
-export const useSocketState = <DataType, Socket extends SocketInstance>(
+/**
+ * Tracked socket state shared by the socket hooks. `extendedState` adds hook-specific fields (e.g. the listener
+ * status) that are tracked the same way and changed with `actions.setExtendedState`.
+ */
+export const useSocketState = <
+  DataType,
+  Socket extends SocketInstance,
+  ExtendedState extends Record<string, unknown> = Record<never, never>,
+>(
   socket: Socket,
-  { dependencyTracking }: UseSocketStateProps,
+  { dependencyTracking, extendedState }: UseSocketStateProps & { extendedState?: ExtendedState },
 ) => {
+  type StateType = UseSocketStateType<Socket, DataType> & ExtendedState;
+  const initialExtendedState = useRef(extendedState);
   const onDisconnectCallback = useRef<null | VoidFunction>(null);
   const onErrorCallback = useRef<null | ((event: any) => void)>(null);
   const onConnectedCallback = useRef<null | VoidFunction>(null);
@@ -14,14 +24,15 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   const onReconnectingCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
   const onReconnectingFailedCallback = useRef<null | ((data: { attempts: number }) => void)>(null);
 
-  const state = useRef<UseSocketStateType<Socket, DataType>>({
+  const state = useRef<StateType>({
+    ...initialExtendedState.current,
     data: null,
     extra: null,
     connected: socket.adapter.connected,
     connecting: socket.adapter.connecting,
     timestamp: null,
-  });
-  const renderKeys = useRef<(keyof UseSocketStateType<Socket, DataType>)[]>([]);
+  } as StateType);
+  const renderKeys = useRef<(keyof StateType)[]>([]);
 
   // ******************
   // useSyncExternalStore
@@ -50,12 +61,14 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: (keyof UseSocketStateType<Socket, DataType>)[]) => {
+  const renderKeyTrigger = (keys: (keyof StateType)[]) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) {emitChange();}
+    if (shouldRerender) {
+      emitChange();
+    }
   };
 
-  const setRenderKey = (renderKey: keyof UseSocketStateType<Socket, DataType>) => {
+  const setRenderKey = (renderKey: keyof StateType) => {
     if (!renderKeys.current.includes(renderKey)) {
       renderKeys.current.push(renderKey);
     }
@@ -106,13 +119,14 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
     },
     clearState: () => {
       state.current = {
+        ...initialExtendedState.current,
         data: null,
         extra: null,
         connected: false,
         connecting: false,
         timestamp: null,
-      };
-      renderKeyTrigger(Object.keys(state.current) as (keyof UseSocketStateType<Socket, DataType>)[]);
+      } as StateType;
+      renderKeyTrigger(Object.keys(state.current) as (keyof StateType)[]);
     },
   };
 
@@ -187,5 +201,16 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 
   const getState = () => state.current;
 
-  return [state.current, actions, callbacks, { setRenderKey, getState, rerender: emitChange }] as const;
+  /** Changes the hook-specific fields added with `extendedState` */
+  const setExtendedState = (newState: Partial<ExtendedState>) => {
+    Object.assign(state.current, newState);
+    renderKeyTrigger(Object.keys(newState) as (keyof StateType)[]);
+  };
+
+  return [
+    state.current,
+    actions,
+    callbacks,
+    { setRenderKey, getState, rerender: emitChange, setExtendedState },
+  ] as const;
 };

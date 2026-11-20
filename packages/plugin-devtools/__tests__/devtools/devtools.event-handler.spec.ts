@@ -407,10 +407,12 @@ describe("DevtoolsPlugin [ Event handler ]", () => {
       }
     });
 
-    it("should connect with the webSocketImpl option where there is no global WebSocket", async () => {
+    it("should connect with the WebSocket option where there is no global WebSocket", async () => {
       const globalWebSocket = globalThis.WebSocket;
       Reflect.deleteProperty(globalThis, "WebSocket");
-      const { other, otherPlugin, cleanup } = await connectPlugin({ webSocketImpl: NodeWebSocket });
+      const { other, otherPlugin, cleanup } = await connectPlugin({
+        WebSocket: NodeWebSocket as unknown as typeof globalThis.WebSocket,
+      });
       try {
         await vi.waitFor(() => expect(otherPlugin.data.eventHandler?.isConnected).toBe(true));
         await vi.waitFor(() => expect(other.received[0]?.data.eventType).toBe(InternalEvents.PLUGIN_INITIALIZED));

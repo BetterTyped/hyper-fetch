@@ -118,6 +118,7 @@ describe("E2E [ SSE Adapter ]", () => {
       url,
       adapter: ServerSentEventsAdapter,
       reconnectTime: 300,
+      connectionTimeout: 300,
       reconnect: 2,
       adapterOptions: { autoConnect: false },
     });

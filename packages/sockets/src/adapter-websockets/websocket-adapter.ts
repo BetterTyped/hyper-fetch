@@ -9,8 +9,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { WebsocketAdapterOptionsType, WebsocketDecodedMessageType } from "./websocket-adapter.types";
-import { WebsocketReadyState } from "./websocket-adapter.types";
-import { getWebsocketAdapter } from "./websocket-adapter.utils";
+import { getWebsocketAdapter, WebsocketReadyState } from "./websocket-adapter.utils";
 
 /**
  * -------------------------------------------
@@ -73,11 +72,12 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
         // Connection timeout while connecting, reconnection delay after the connection was lost
         let timeout: ReturnType<typeof setTimeout> | undefined;
 
-        const scheduleReconnect = () => {
+        /** Starts over after `delay` - the attempt timeout while connecting, the reconnect delay after a loss */
+        const scheduleReconnect = (delay = socket.reconnectTime) => {
           clearTimeout(timeout);
           timeout = setTimeout(() => {
             reconnect();
-          }, socket.reconnectTime);
+          }, delay);
         };
 
         const openConnection = async (): Promise<boolean> => {
@@ -102,7 +102,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           const isCurrent = () => websocket === newWebsocket;
 
           // Connection timeout - when the server does not answer in time, start over
-          scheduleReconnect();
+          scheduleReconnect(socket.connectionTimeout);
 
           /**
            *  Mount listeners
@@ -117,10 +117,8 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             onHeartbeat();
           });
 
-          newWebsocket.addEventListener("close", (event) => {
-            if (!isCurrent()) {
-              return;
-            }
+          /** The transport is gone - report it and get the connection back unless it was closed normally */
+          const onTransportClosed = (event: Pick<CloseEvent, "code"> & Event) => {
             clearTimeout(timeout);
             clearTimers();
             onDisconnected();
@@ -131,6 +129,30 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             if (event.code !== 1000) {
               scheduleReconnect();
             }
+          };
+
+          newWebsocket.addEventListener("close", (event) => {
+            if (!isCurrent()) {
+              return;
+            }
+            onTransportClosed(event);
+          });
+
+          // Node.js 22 reports a failed handshake with `error` only - no `close` follows and the transport stays
+          // CONNECTING. Browsers set CLOSED before the error and send the close event, which handles it as usual.
+          // Here the transport is detached and treated as an abnormally closed one (1006).
+          newWebsocket.addEventListener("error", () => {
+            if (!isCurrent() || newWebsocket.readyState !== WebsocketReadyState.CONNECTING) {
+              return;
+            }
+            websocket = undefined;
+            newWebsocket.clearListeners();
+            try {
+              newWebsocket.close();
+            } catch {
+              // Closing a transport that never connected may throw in some runtimes - it is detached already
+            }
+            onTransportClosed(Object.assign(new Event("close"), { code: 1006 }));
           });
 
           newWebsocket.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
@@ -224,8 +246,11 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
             const resolveDisconnected = () => {
               resolve(true);
               currentWebsocket.removeEventListener("close", resolveDisconnected);
+              currentWebsocket.removeEventListener("error", resolveDisconnected);
             };
             currentWebsocket.addEventListener("close", resolveDisconnected, { disableCleanup: true });
+            // A transport that fails while closing may report only `error` (Node.js 22) - don't wait for a close
+            currentWebsocket.addEventListener("error", resolveDisconnected, { disableCleanup: true });
             currentWebsocket.close(1000);
           });
         };
@@ -371,7 +396,7 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           connect();
         }
 
-        socket.appManager.events.onOnline(() => {
+        const unmountOnline = socket.appManager.events.onOnline(() => {
           // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
           if (autoConnect && !socket.adapter.connected && !socket.adapter.forceClosed) {
             connect();
@@ -384,6 +409,9 @@ export const WebsocketAdapter = (): WebsocketAdapterType =>
           disconnect,
           listen,
           emit,
+          dispose: () => {
+            unmountOnline();
+          },
         };
       },
     );

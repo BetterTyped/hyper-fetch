@@ -33,20 +33,37 @@ import { createClient, Cache } from "@hyper-fetch/core";
 
 // Initialize the client with default cache
 const client = createClient({ url: "http://localhost:3000" });
+const getNotes = client.createRequest<{ response: { text: string }[] }>()({ endpoint: "/notes" });
+
+// Fill the cache - every successful send() stores its response
+await getNotes.send();
 
 // Read from cache
-const data = client.cache.get("key");
+const response = getNotes.read();
 
-// Write to cache
-client.cache.set("key", { data: "value" });
+// Patch the cached entry (no-op when there is no entry yet)
+client.cache.update(getNotes, (previous) => ({
+  data: [...(previous?.data ?? []), { text: "New note" }],
+}));
 ```
 
-You can also customize the cache storage:
+You can also customize the cache storage. `storage` replaces the in-memory `Map` with any sync storage implementing
+`get`, `set`, `keys`, `delete` and `clear`, and `lazyStorage` mirrors every entry to an async storage like IndexedDB:
 
 ```tsx title="Custom Cache Storage"
+import { del, get, keys, set } from "idb-keyval";
+
 const client = createClient({
   url: "http://localhost:3000",
-  cache: () => new Cache({ storage: localStorage }),
+  cache: () =>
+    new Cache({
+      lazyStorage: {
+        get: (key) => get(key),
+        set: (key, value) => set(key, value),
+        keys: () => keys() as Promise<string[]>,
+        delete: (key) => del(key),
+      },
+    }),
 });
 ```
 
@@ -231,7 +248,8 @@ console.log(data); // Note or undefined
 
 2. ### Writing to Cache
 
-Use the `set` method to store data under a given key. Pass the request instance to ensure correct configuration:
+Use the `set` method to store a response for a request. Pass the request instance to ensure correct configuration (cache
+key, scope, `staleTime` and `cacheTime`). `set` takes a full response together with its details:
 
 ```tsx
 const getNote = client.createRequest()({
@@ -245,8 +263,19 @@ client.cache.set(getNote.setParams({ noteId: 1 }), {
   status: 200,
   success: true,
   extra: xhrExtra,
+  requestTimestamp: Date.now(),
+  responseTimestamp: Date.now(),
+  // Response details
+  retries: 0,
+  isCanceled: false,
+  isOffline: false,
+  willRetry: false,
+  addedTimestamp: Date.now(),
+  triggerTimestamp: Date.now(),
 });
 ```
+
+To seed the cache with server data prefer `client.hydrate()`, and to change an existing entry prefer `update`.
 
 ---
 
@@ -365,12 +394,21 @@ getPublicConfig.setScope("public").send();
 
 ## Persistence
 
-Enable persistent cache by providing a compatible storage interface (e.g., localStorage, IndexedDB):
+Enable persistent cache by providing an async `lazyStorage` (e.g. IndexedDB, AsyncStorage). It implements `get`, `set`,
+`keys` and `delete`, each returning a promise. `localStorage` itself does not fit, wrap it in such an object:
 
 ```tsx
 const client = createClient({
   url: "http://localhost:3000",
-  cache: () => new Cache({ storage: localStorage }),
+  cache: () =>
+    new Cache({
+      lazyStorage: {
+        get: async (key) => JSON.parse(localStorage.getItem(key) ?? "null") ?? undefined,
+        set: async (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+        keys: async () => Object.keys(localStorage),
+        delete: async (key) => localStorage.removeItem(key),
+      },
+    }),
 });
 ```
 

@@ -31,16 +31,17 @@
 ## 📖 About
 
 `@hyper-fetch/sockets` provides a typed abstraction for real-time communication. It wraps WebSockets and Server-Sent
-Events behind a consistent API with typed listeners and emitters, automatic reconnection, offline queuing, and
-authentication support.
+Events behind a consistent API with typed listeners and emitters, automatic reconnection, delivery strategies for fast
+streams, and authentication support.
 
 ## 🎯 Key Capabilities
 
 - 🔮 **Type-safe events** — Every listener and emitter is typed end-to-end, no more `JSON.parse` guessing
 - 📡 **WebSocket + SSE, one API** — Switch between protocols without rewriting your event handlers
-- 🔁 **Never lose connection** — Auto-reconnect with exponential backoff handles flaky networks for you
-- 📴 **Offline event queuing** — Events you emit offline are saved and sent when connection returns
-- 🔐 **Auth built in** — Token and session-based authentication flows for socket connections
+- 🔁 **Never lose connection** — Auto-reconnect on a fixed interval (`reconnect`, `reconnectTime`), with listeners kept
+  across reconnects
+- 🚦 **Tame fast streams** — `latest` and `batch` delivery strategies throttle or batch messages per listener
+- 🔐 **Auth built in** — Resolve tokens per connection attempt with the `onConnect` interceptor
 - ⚛️ **React hooks included** — `useListener` and `useEmitter` plug real-time data straight into components
 - 🖥️ **SSR safe** — Import in server-rendered apps without breaking hydration
 
@@ -51,15 +52,15 @@ npm install @hyper-fetch/sockets
 ```
 
 ```ts
-import { Socket } from "@hyper-fetch/sockets";
+import { createSocketClient } from "@hyper-fetch/sockets";
 
-const socket = new Socket({ url: "ws://localhost:3000" });
+const socket = createSocketClient({ url: "ws://localhost:3000" });
 
-const onMessage = socket.createListener<{ response: { text: string; author: string } }>()({
-  endpoint: "chat-message",
+const onMessage = socket.createListener<{ text: string; author: string }>()({
+  topic: "chat-message",
 });
 
-onMessage.listen({ callback: ({ data }) => console.log(`${data.author}: ${data.text}`) });
+const stopListening = onMessage.listen(({ data }) => console.log(`${data.author}: ${data.text}`));
 ```
 
 ## 📚 Documentation
@@ -73,12 +74,15 @@ onMessage.listen({ callback: ({ data }) => console.log(`${data.author}: ${data.t
 ### Emitting typed events
 
 ```ts
-const sendMessage = socket.createEmitter<{ payload: { text: string; room: string } }>()({
-  endpoint: "send-message",
+const sendMessage = socket.createEmitter<{ text: string; room: string }>()({
+  topic: "send-message",
 });
 
-sendMessage.emit({ data: { text: "Hello!", room: "general" } });
+sendMessage.emit({ payload: { text: "Hello!", room: "general" } });
 ```
+
+`emit()` returns `void` and nothing is queued: a message emitted while the socket is not connected is dropped and
+reported through `socket.events.onEmitterError`.
 
 ### Listening with React hooks
 
@@ -91,7 +95,7 @@ const ChatMessages = ({ room }: { room: string }) => {
   return (
     <div>
       <p>Status: {connected ? "Connected" : "Disconnected"}</p>
-      {data && (
+      {data && timestamp && (
         <div>
           <strong>{data.author}</strong>: {data.text}
           <small>{new Date(timestamp).toLocaleTimeString()}</small>
@@ -105,17 +109,22 @@ const ChatMessages = ({ room }: { room: string }) => {
 ### Server-Sent Events
 
 ```ts
-const sseSocket = new Socket({ url: "https://api.example.com/events" });
+import { createSocketClient, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
 
-const onUpdate = sseSocket.createListener<{ response: { type: string; payload: unknown } }>()({
-  endpoint: "data-update",
+const sseSocket = createSocketClient({
+  url: "https://api.example.com/events",
+  adapter: ServerSentEventsAdapter(),
 });
 
-onUpdate.listen({
-  callback: ({ data }) => console.log(`Event: ${data.type}`, data.payload),
+const onUpdate = sseSocket.createListener<{ type: string; payload: unknown }>()({
+  topic: "data-update",
 });
+
+onUpdate.listen(({ data }) => console.log(`Event: ${data.type}`, data.payload));
 ```
+
+Server-Sent Events are receive-only: calling `emit()` on an SSE socket throws.
 
 ## License
 
-[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

@@ -61,7 +61,7 @@ const createSseCase = (): SocketCase => {
         reconnectTime,
         adapter: ServerSentEventsAdapter(),
         // jsdom has no EventSource
-        adapterOptions: { autoConnect: false, eventSourceImpl: NodeEventSource },
+        adapterOptions: { autoConnect: false, EventSource: NodeEventSource as unknown as typeof EventSource },
       }) as unknown as SocketInstance,
     push: (topic, data) => server.sendEvent(topic, data),
     dropConnections: () => server.closeAllClients(),

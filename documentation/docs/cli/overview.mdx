@@ -5,7 +5,7 @@ sidebar_label: Overview
 ---
 
 CLI is a tool that allows to automate some of the hyper-fetch features. It's a great way to get started with Hyper-Fetch
-and to automate your workflow by generating code and adding sdks.
+and to automate your workflow by generating a typed SDK from your API schema.
 
 ```bash
 npx @hyper-fetch/cli@latest
@@ -17,9 +17,9 @@ This basic command will open the wizard to guide you through the setup process.
 
 :::tip Purpose
 
-1.  **Generate code** from your api schema.
-2.  **Add sdks** to your project from the remote locations.
-3.  **Automate your workflow** by generating code and adding sdks.
+1.  **Generate code** from your OpenAPI or Swagger schema.
+2.  **Configure once** with an `api.json` file that decides where generated files go.
+3.  **Automate your workflow** by regenerating the SDK in scripts and CI.
 
 :::
 
@@ -37,7 +37,7 @@ To use the wizard, run the following command:
 npx @hyper-fetch/cli@latest
 ```
 
-It will guide you through the process of generating the client, requests and data models.
+It lets you pick a command (`init` or `generate`) and asks for every value it needs.
 
 ### Custom arguments
 
@@ -69,7 +69,7 @@ npx @hyper-fetch/cli@latest generate --url https://api.example.com/openapi.json
 ```
 
 The auto-init creates:
-- An `api.json` configuration file in your project root
+- An `api.json` configuration file in the working directory (`--cwd`)
 - A `src/api` directory for generated code
 - Default path aliases for api, hooks, components, and lib directories
 

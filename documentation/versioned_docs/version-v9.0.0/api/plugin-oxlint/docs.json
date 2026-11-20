@@ -1,0 +1,392 @@
+{
+	"id": 5651,
+	"name": "oxlint-plugin-hyper-fetch",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 5653,
+			"name": "clientGenericTypes",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Reports typos and unknown keys in the generic passed to "
+					},
+					{
+						"kind": "code",
+						"text": "`createClient<{ ... }>()`"
+					},
+					{
+						"kind": "text",
+						"text": ".\n\nOnly "
+					},
+					{
+						"kind": "code",
+						"text": "`createClient`"
+					},
+					{
+						"kind": "text",
+						"text": " imported from "
+					},
+					{
+						"kind": "code",
+						"text": "`@hyper-fetch/core`"
+					},
+					{
+						"kind": "text",
+						"text": " is checked, by name, alias or namespace\n("
+					},
+					{
+						"kind": "code",
+						"text": "`import * as HF`"
+					},
+					{
+						"kind": "text",
+						"text": " then "
+					},
+					{
+						"kind": "code",
+						"text": "`HF.createClient`"
+					},
+					{
+						"kind": "text",
+						"text": "). Files that do not mention both "
+					},
+					{
+						"kind": "code",
+						"text": "`@hyper-fetch/core`"
+					},
+					{
+						"kind": "text",
+						"text": " and\n"
+					},
+					{
+						"kind": "code",
+						"text": "`createClient`"
+					},
+					{
+						"kind": "text",
+						"text": " are skipped before oxlint deserializes their AST, which is where nearly all of the\nrule's cost would go."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "rules/client-generic-types.ts",
+					"line": 18,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-oxlint/src/rules/client-generic-types.ts#L18"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../node_modules/.pnpm/@oxlint+plugins@1.62.0/node_modules/@oxlint/plugins/index.d.ts",
+					"qualifiedName": "CreateOnceRule"
+				},
+				"name": "CreateOnceRule",
+				"package": "@oxlint/plugins"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 5652,
+			"name": "default",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Oxlint JS plugin with the HyperFetch rules. Rules are exposed as "
+					},
+					{
+						"kind": "code",
+						"text": "`hyper-fetch/<rule>`"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				],
+				"blockTags": [
+					{
+						"tag": "@example",
+						"content": [
+							{
+								"kind": "code",
+								"text": "```json\n{\n  \"jsPlugins\": [\"oxlint-plugin-hyper-fetch\"],\n  \"rules\": {\n    \"hyper-fetch/client-generic-types\": \"error\",\n    \"hyper-fetch/request-generic-types\": \"error\"\n  }\n}\n```"
+							}
+						]
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 23,
+					"character": 6,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-oxlint/src/index.ts#L23"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../node_modules/.pnpm/@oxlint+plugins@1.62.0/node_modules/@oxlint/plugins/index.d.ts",
+					"qualifiedName": "Plugin"
+				},
+				"name": "Plugin",
+				"package": "@oxlint/plugins"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 5654,
+			"name": "requestGenericTypes",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Reports typos and unknown keys in the generic passed to "
+					},
+					{
+						"kind": "code",
+						"text": "`client.createRequest<{ ... }>()`"
+					},
+					{
+						"kind": "text",
+						"text": ".\n\nFiles without a "
+					},
+					{
+						"kind": "code",
+						"text": "`createRequest<`"
+					},
+					{
+						"kind": "text",
+						"text": " call are skipped before oxlint deserializes their AST, which is\nwhere nearly all of the rule's cost would go."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "rules/request-generic-types.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/plugin-oxlint/src/rules/request-generic-types.ts#L17"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"sourceFileName": "../node_modules/.pnpm/@oxlint+plugins@1.62.0/node_modules/@oxlint/plugins/index.d.ts",
+					"qualifiedName": "CreateOnceRule"
+				},
+				"name": "CreateOnceRule",
+				"package": "@oxlint/plugins"
+			},
+			"defaultValue": "..."
+		}
+	],
+	"groups": [
+		{
+			"title": "Variables",
+			"children": [
+				5653,
+				5652,
+				5654
+			]
+		}
+	],
+	"packageName": "oxlint-plugin-hyper-fetch",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🐂 Hyper Fetch Oxlint Plugin\n\n<p align=\"center\">\n  <b>The HyperFetch lint rules on Oxlint, 16x faster than the ESLint plugin on the HyperFetch codebase.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat\" alt=\"GitHub stars\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/oxlint-plugin-hyper-fetch\">\n    <img src=\"https://img.shields.io/npm/v/oxlint-plugin-hyper-fetch\" alt=\"npm version\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/oxlint-plugin-hyper-fetch\">\n    <img src=\"https://img.shields.io/npm/dm/oxlint-plugin-hyper-fetch\" alt=\"npm downloads\" />\n  </a>\n  <a href=\"https://bundlephobia.com/package/oxlint-plugin-hyper-fetch\">\n    <img src=\"https://img.shields.io/bundlephobia/minzip/oxlint-plugin-hyper-fetch\" alt=\"Bundle size\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://img.shields.io/github/license/BetterTyped/hyper-fetch\" alt=\"License\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" alt=\"TypeScript\" />\n  </a>\n  <a href=\"https://oxc.rs/docs/guide/usage/linter\">\n    <img src=\"https://img.shields.io/badge/oxlint-JS%20plugin-1c2c4c\" alt=\"Oxlint\" />\n  </a>\n</p>\n\n## 📖 About\n\nThis is an [Oxlint](https://oxc.rs/docs/guide/usage/linter) JS plugin with the HyperFetch rules. It catches typos and\nunknown keys in the generics of "
+		},
+		{
+			"kind": "code",
+			"text": "`createClient`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`createRequest`"
+		},
+		{
+			"kind": "text",
+			"text": " before they quietly turn a response into "
+		},
+		{
+			"kind": "code",
+			"text": "`any`"
+		},
+		{
+			"kind": "text",
+			"text": ". Rule\nnames match "
+		},
+		{
+			"kind": "code",
+			"text": "`eslint-plugin-hyper-fetch`"
+		},
+		{
+			"kind": "text",
+			"text": ", so moving from ESLint is a config change.\n\n## 🎯 Key Capabilities\n\n- ⚡ **Lints a large codebase in about a second** - Files without a HyperFetch generic are skipped before their AST is\n  built\n- ✨ **No more typo-induced "
+		},
+		{
+			"kind": "code",
+			"text": "`any`"
+		},
+		{
+			"kind": "text",
+			"text": "** - Flags "
+		},
+		{
+			"kind": "code",
+			"text": "`rsponse`"
+		},
+		{
+			"kind": "text",
+			"text": " instead of "
+		},
+		{
+			"kind": "code",
+			"text": "`response`"
+		},
+		{
+			"kind": "text",
+			"text": " in "
+		},
+		{
+			"kind": "code",
+			"text": "`createRequest<{ ... }>()`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🔮 **Knows the real generics** - Accepts every key of "
+		},
+		{
+			"kind": "code",
+			"text": "`RequestGenericType`"
+		},
+		{
+			"kind": "text",
+			"text": ", including "
+		},
+		{
+			"kind": "code",
+			"text": "`params`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🧩 **Handles composed types** - Checks each object part of "
+		},
+		{
+			"kind": "code",
+			"text": "`GqlResponse<User> & { payload: Input }`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🎯 **Only your HyperFetch client** - "
+		},
+		{
+			"kind": "code",
+			"text": "`createClient`"
+		},
+		{
+			"kind": "text",
+			"text": " is checked when it comes from "
+		},
+		{
+			"kind": "code",
+			"text": "`@hyper-fetch/core`"
+		},
+		{
+			"kind": "text",
+			"text": ", by name, alias\n  or namespace\n- 🔁 **Same rule names as ESLint** - "
+		},
+		{
+			"kind": "code",
+			"text": "`hyper-fetch/request-generic-types`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`hyper-fetch/client-generic-types`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 🚀 Quick Start\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install -D oxlint oxlint-plugin-hyper-fetch\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```json\n{\n  \"jsPlugins\": [\"oxlint-plugin-hyper-fetch\"],\n  \"rules\": {\n    \"hyper-fetch/client-generic-types\": \"error\",\n    \"hyper-fetch/request-generic-types\": \"error\"\n  }\n}\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📚 Documentation\n\n- [Oxlint Plugin Docs](https://hyperfetch.bettertyped.com/docs/integrations/plugin-oxlint)\n- [Rules](https://hyperfetch.bettertyped.com/docs/integrations/plugin-oxlint/rules)\n- [Oxlint JS plugins](https://oxc.rs/docs/guide/usage/linter/js-plugins)\n\n## 💡 Examples\n\n### Catches a misspelled generic\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// ❌ hyper-fetch/request-generic-types: Unexpected generic type(s) found: rsponse\nconst getUser = client.createRequest<{ rsponse: User }>()({\n  endpoint: \"/users/:userId\",\n});\n\n// ✅\nconst getUser = client.createRequest<{ response: User }>()({\n  endpoint: \"/users/:userId\",\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### Checks composed generics part by part\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// ❌ hyper-fetch/request-generic-types: Unexpected generic type(s) found: paylod\nconst updateUser = client.createRequest<GqlResponse<{ user: User }> & { paylod: UserInput }>()({\n  endpoint: updateUserMutation,\n});\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## License\n\n[MIT](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"5651": {
+			"sourceFileName": "../packages/plugin-oxlint/src/index.ts",
+			"qualifiedName": ""
+		},
+		"5652": {
+			"sourceFileName": "../packages/plugin-oxlint/src/index.ts",
+			"qualifiedName": "plugin"
+		},
+		"5653": {
+			"sourceFileName": "../packages/plugin-oxlint/src/rules/client-generic-types.ts",
+			"qualifiedName": "clientGenericTypes"
+		},
+		"5654": {
+			"sourceFileName": "../packages/plugin-oxlint/src/rules/request-generic-types.ts",
+			"qualifiedName": "requestGenericTypes"
+		}
+	}
+}

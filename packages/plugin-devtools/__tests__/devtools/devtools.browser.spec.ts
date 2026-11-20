@@ -9,8 +9,8 @@ describe("DevtoolsPlugin [ Browser ]", () => {
     new Client({ url: "http://localhost:5000" }).addPlugin(plugin);
     const socket = plugin.data.eventHandler!.socket;
 
-    // Without an option the sockets adapter takes window.WebSocket
-    expect(socket.adapter.adapterOptions?.webSocketImpl).toBeUndefined();
+    // Without an option the sockets adapter takes the global WebSocket
+    expect(socket.adapter.adapterOptions?.WebSocket).toBeUndefined();
 
     socket.reconnectAttempts = 0;
     await socket.disconnect();

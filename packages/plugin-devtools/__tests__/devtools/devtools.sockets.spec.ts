@@ -72,12 +72,8 @@ describe("DevtoolsPlugin [ Sockets ]", () => {
 
   beforeEach(async () => {
     hyperFlow = await createHyperFlowServer();
-    // A Node.js app passes its WebSocket, sockets don't connect without a window otherwise
-    socket = new Socket({
-      url: backendUrl,
-      reconnect: 0,
-      adapterOptions: { autoConnect: false, webSocketImpl: globalThis.WebSocket },
-    });
+    // A Node.js app's socket, on the global WebSocket
+    socket = new Socket({ url: backendUrl, reconnect: 0, adapterOptions: { autoConnect: false } });
   });
 
   afterEach(async () => {

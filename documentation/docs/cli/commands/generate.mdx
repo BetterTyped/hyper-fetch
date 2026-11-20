@@ -4,8 +4,8 @@ title: Generate
 sidebar_label: Generate
 ---
 
-The `generate` command is a tool that allows you to generate a ready-to-use Hyper-Fetch client, typed requests and data
-models based on your schema. It supports templates, including OpenAPI and Swagger.
+The `generate` command reads your OpenAPI or Swagger JSON schema and writes one TypeScript file with typed requests and
+data models, plus a `createSdk` factory you call with your own Hyper-Fetch client.
 
 ```bash
 npx @hyper-fetch/cli@latest generate
@@ -17,7 +17,7 @@ npx @hyper-fetch/cli@latest generate
 
 By using the code generator, you can:
 
-1.  **Automatically generate** a ready-to-use Hyper-Fetch client.
+1.  **Automatically generate** a ready-to-use SDK for your Hyper-Fetch client.
 2.  **Create typed requests** for all your API endpoints.
 3.  **Define data models** based on your schema components.
 4.  **Boost productivity** by eliminating manual setup for API integration.
@@ -51,14 +51,14 @@ To use the wizard, run the following command:
 npx @hyper-fetch/cli@latest generate
 ```
 
-It will guide you through the process of generating the client, requests and data models.
+It will guide you through the process of generating the typed requests and data models.
 
 2. ### Custom arguments
 
 You can also pass individual arguments to the command. Which is useful for the scripts.
 
 ```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
 ```
 
 <LinkCard
@@ -73,8 +73,11 @@ npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.
 ## Example
 
 ```bash
-npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --output ./client.ts
+npx @hyper-fetch/cli@latest generate --template openapi --url https://petstore3.swagger.io/api/v3/openapi.json --fileName petstore.sdk.ts
 ```
+
+This writes `petstore.sdk.ts` to the `api` directory configured in `api.json` (`src/api` by default). Each path becomes a
+nested key and each HTTP method a `$`-prefixed key on it, so `GET /store/inventory` is `sdk.store.inventory.$get`.
 
 Then to use generated SDK you can do the following:
 
@@ -99,7 +102,7 @@ import { sdk } from "./client";
 
 // Use the sdk
 // highlight-start
-const { data, error } = await sdk.store.inventory.get.send();
+const { data, error } = await sdk.store.inventory.$get.send();
 // highlight-end
 
 if (error) {
@@ -113,7 +116,25 @@ console.log(data);
 
 ## Available arguments
 
-Run the following command to see the available arguments:
+| Flag                      | Description                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `-t`, `--template <name>` | Schema template: `openapi` or `swagger`                                              |
+| `-u`, `--url <source>`    | Schema source: an `http(s)` URL or a local `.json` path relative to `--cwd`          |
+| `-f`, `--fileName <name>` | Name of the generated file. It is written to the `api` directory from `api.json`     |
+| `-o`, `--overwrite`       | Overwrite an existing file without asking                                            |
+| `-c`, `--cwd <dir>`       | Working directory (default: the current directory)                                   |
+| `-h`, `--help`            | Print the available arguments                                                        |
+
+Every value you leave out is asked for interactively. Pass `-t`, `-u`, `-f` and `-o` in scripts and CI so the command
+never prompts.
+
+:::info Output location
+
+There is no `--output` flag. The folder comes from `aliases.api` in `api.json`, and `--fileName` only sets the file name.
+
+:::
+
+Run the following command to print the arguments in your terminal:
 
 ```bash
 npx @hyper-fetch/cli@latest generate --help

@@ -61,7 +61,7 @@ describe("E2E [ Lifecycle ]", () => {
 
     it("should stay disconnected after disconnecting a connection that is still opening", async () => {
       const silent = await createSilentServer();
-      const socket = new Socket({ url: `ws://127.0.0.1:${silent.port}`, reconnectTime: 100 });
+      const socket = new Socket({ url: `ws://127.0.0.1:${silent.port}`, reconnectTime: 100, connectionTimeout: 100 });
       const reconnecting = vi.fn();
       const connecting = vi.fn();
       const errors = vi.fn();
@@ -84,7 +84,12 @@ describe("E2E [ Lifecycle ]", () => {
 
     it("should give up after the configured attempts when the handshake never finishes", async () => {
       const silent = await createSilentServer();
-      const socket = new Socket({ url: `ws://127.0.0.1:${silent.port}`, reconnect: 2, reconnectTime: 40 });
+      const socket = new Socket({
+        url: `ws://127.0.0.1:${silent.port}`,
+        reconnect: 2,
+        reconnectTime: 40,
+        connectionTimeout: 40,
+      });
       const attempts: number[] = [];
       const failed = vi.fn();
       socket.onError(() => null);
@@ -181,7 +186,12 @@ describe("E2E [ Lifecycle ]", () => {
     it("should report the disconnection when the server drops the stream", async () => {
       const { startServer, stopServer, closeAllClients } = createSseE2EServer();
       const url = await startServer();
-      const socket = new Socket({ url, adapter: ServerSentEventsAdapter, reconnectTime: 10_000 });
+      const socket = new Socket({
+        url,
+        adapter: ServerSentEventsAdapter,
+        reconnectTime: 10_000,
+        connectionTimeout: 10_000,
+      });
       const disconnected = vi.fn();
       socket.onError(() => null);
       socket.events.onDisconnected(disconnected);
@@ -198,7 +208,7 @@ describe("E2E [ Lifecycle ]", () => {
     it("should receive messages again after the dropped stream is back", async () => {
       const { startServer, stopServer, closeAllClients, sendEvent, getConnectedCount } = createSseE2EServer();
       const url = await startServer();
-      const socket = new Socket({ url, adapter: ServerSentEventsAdapter, reconnectTime: 100 });
+      const socket = new Socket({ url, adapter: ServerSentEventsAdapter, reconnectTime: 100, connectionTimeout: 100 });
       const received = vi.fn();
       const connected = vi.fn();
       socket.onError(() => null);
@@ -225,6 +235,7 @@ describe("E2E [ Lifecycle ]", () => {
         url: `http://127.0.0.1:${silent.port}`,
         adapter: ServerSentEventsAdapter,
         reconnectTime: 100,
+        connectionTimeout: 100,
       });
       const reconnecting = vi.fn();
       const connecting = vi.fn();

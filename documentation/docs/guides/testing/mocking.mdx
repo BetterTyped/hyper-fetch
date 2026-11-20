@@ -37,17 +37,23 @@ affected by external factors like network issues or backend changes. Mocking all
 
 ## Built-in Mock Handlers
 
-You can create a mock handler for your requests. This function will take a Hyper Fetch request and a mock response.
+You can attach a mock handler to your requests with `setMock`. The handler receives `{ request, requestId }` and returns
+the mocked response: a `status` plus `data` (success) or `error` (failure).
 
 ```typescript
 import { getUsers } from "src/api/users";
 
-getUsers.setMock(() => ({ data: mockUsers }));
+getUsers.setMock(() => ({ data: mockUsers, status: 200 }));
 
 const response = await getUsers.send();
 
-console.log(response); // { data: mockUsers }
+console.log(response.data); // mockUsers
+console.log(response.success); // true
 ```
+
+The mock runs inside the adapter step, so deduplication, retries, cache writes and lifecycle callbacks behave the same
+as with a real server. Pass a config as the second argument to control timings (`requestTime`, `responseTime`, both
+`20` ms by default) or to simulate a timeout (`timeout` in milliseconds).
 
 ---
 
@@ -69,7 +75,7 @@ it("should render a list of users", async () => {
 
   // 2. Create and apply the mock handler
   // highlight-start
-  getUsers.setMock(() => ({ data: mockUsers }));
+  getUsers.setMock(() => ({ data: mockUsers, status: 200 }));
   // highlight-end
 
   // 3. Render your component that's using HyperFetch to get the data
@@ -107,14 +113,14 @@ const mockUsers = [
 
 // highlight-start
 export const testSdk = sdk.$configure({
-  "users.$get": (request: RequestInstance) =>
-    request.setMock(() => ({ data: mockUsers })),
+  "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: mockUsers, status: 200 })),
   "users.$userId.$get": (request: RequestInstance) =>
-    request.setMock(({ request: req }) => ({
-      data: mockUsers.find((u) => u.id === Number(req.params?.userId)),
-    })),
-  "posts.$get": (request: RequestInstance) =>
-    request.setMock(() => ({ data: [] })),
+    request.setMock(({ request: sent }) => {
+      // The callback request is typed loosely, so read the filled endpoint ("/users/1")
+      const user = mockUsers.find((u) => u.id === Number(sent.endpoint.split("/").pop()));
+      return user ? { data: user, status: 200 } : { error: new Error("Not found"), status: 404 };
+    }),
+  "posts.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
 });
 // highlight-end
 ```
@@ -175,8 +181,7 @@ import type { RequestInstance } from "@hyper-fetch/core";
 it("should show empty state when no users", async () => {
   // highlight-start
   const emptyUsersSdk = testSdk.$configure({
-    "users.$get": (request: RequestInstance) =>
-      request.setMock(() => ({ data: [] })),
+    "users.$get": (request: RequestInstance) => request.setMock(() => ({ data: [], status: 200 })),
   });
   // highlight-end
 
@@ -188,7 +193,7 @@ it("should show error state", async () => {
   // highlight-start
   const errorSdk = testSdk.$configure({
     "users.$get": (request: RequestInstance) =>
-      request.setMock(() => ({ data: null, error: { message: "Server error" }, status: 500 })),
+      request.setMock(() => ({ error: new Error("Server error"), status: 500 })),
   });
   // highlight-end
 
@@ -205,8 +210,9 @@ You can also inject response mappers through `$configure` to test how your compo
 const mappedSdk = sdk.$configure({
   "users.$get": (request: RequestInstance) =>
     request
-      .setMock(() => ({ data: rawApiResponse }))
-      .setResponseMapper((response) => response.data.users),
+      .setMock(() => ({ data: rawApiResponse, status: 200 }))
+      // A response mapper receives the whole response and returns a response
+      .setResponseMapper((response) => ({ ...response, data: response.data?.users ?? null })),
 });
 ```
 

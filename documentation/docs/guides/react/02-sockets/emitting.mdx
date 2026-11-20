@@ -8,16 +8,15 @@ sidebar_label: Emitting
 
 While listening for events is crucial, your application also needs to send data to the server. Hyper-fetch's
 `useEmitter` hook provides a clean and efficient way to emit socket events. It gives you a dedicated `emit` function to
-trigger events on demand, along with helpers to track the emitter's state and handle server acknowledgements. This hook
-is perfect for actions like sending messages, updating user status, or any other client-to-server communication.
+trigger events on demand, along with helpers to track the connection state and react to messages that could not be
+sent. This hook is perfect for actions like sending messages, updating user status, or any other client-to-server communication.
 
 :::secondary What you'll learn
 
 1.  How to use the **`useEmitter`** hook to send data to a socket server.
 2.  How to trigger an event using the returned **`emit` function**.
-3.  How to handle server **acknowledgements** for sent events.
-4.  How to use helper hooks like **`onEmit`**, **`onError`**, and **`onReconnecting`** to manage the emitter's
-    lifecycle.
+3.  How to react to messages that could not be sent with **`onEmitError`**.
+4.  How to use helper hooks like **`onEmit`** and **`onReconnecting`** to manage the emitter's lifecycle.
 
 :::
 
@@ -25,31 +24,32 @@ is perfect for actions like sending messages, updating user status, or any other
 
 ## Basic Usage
 
-The `useEmitter` hook takes an emitter `request` and returns an `emit` function, connection status, and several helper
+The `useEmitter` hook takes an emitter and returns an `emit` function, connection status, and several helper
 hooks. You call the `emit` function whenever you want to send data to the server. A common use case is sending data from
 a form.
 
-A powerful feature of the `emit` function is its ability to handle **acknowledgements**. You can pass a callback
-function as the second argument to `emit`, which will be executed when the server acknowledges receipt of the event.
-This is useful for confirming that a message was received or for handling any server-side validation errors.
+`emit` returns `void` and has no acknowledgement callback. Messages are not queued: a message emitted while the socket
+is not connected (or one whose payload cannot be encoded) is dropped and reported through `onEmitError`. Disable the
+send action while `connected` is `false`, and render a [`useListener`](/docs/react/sockets/use-listener) on a reply
+topic when the server needs to answer.
 
 ```tsx
 function ChatInput() {
   const [message, setMessage] = React.useState("");
   const [status, setStatus] = React.useState("Waiting for message...");
 
-  const { emit, connected, onEmit, onError, onReconnecting } = useEmitter(sendMessage);
+  const { emit, connected, onEmit, onEmitError, onReconnecting } = useEmitter(sendMessage);
 
   onEmit((emitter) => {
     console.log("Event was sent!", emitter);
   });
 
-  onError((err) => {
-    setStatus(`Connection error: ${err.message}`);
+  onEmitError(({ error }) => {
+    setStatus(`Message not sent: ${error.message}`);
   });
 
-  onReconnecting((attempt) => {
-    setStatus(`Attempting to reconnect... (${attempt})`);
+  onReconnecting(({ attempts }) => {
+    setStatus(`Attempting to reconnect... (${attempts})`);
   });
 
   const handleSubmit = (e) => {
@@ -90,7 +90,7 @@ function ChatInput() {
 }
 ```
 
-In this example, `sendMessage` is a pre-defined emitter request. You can learn more about creating them in the
+In this example, `sendMessage` is a pre-defined emitter. You can learn more about creating them in the
 [sockets guide](/docs/guides/sockets/emitting). The `emit` function takes an options object with a `payload` property.
 
 ---
@@ -101,7 +101,7 @@ You've mastered emitting socket events from your React application!
 
 - You can use **`useEmitter`** to get an `emit` function for sending data.
 - You can call the **`emit` function** with a data payload to send an event.
-- You can handle server responses using **acknowledgement callbacks**.
-- You can monitor the emitter's lifecycle with **`onEmit`**, **`onError`**, and **`onReconnecting`**.
+- You can react to messages that could not be sent with **`onEmitError`**.
+- You can monitor the emitter's lifecycle with **`onEmit`** and **`onReconnecting`**.
 
 :::

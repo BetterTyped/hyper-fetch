@@ -1,0 +1,140 @@
+---
+sidebar_position: 6
+title: React - Hydrate (server rendering)
+sidebar_label: Hydrate (SSR)
+---
+
+# Hydrate
+
+**`Hydrate`** passes data fetched on the server to the hooks rendered below it. Hooks render the data on the first
+render - during server rendering too - and the [`Client`](/core/client.mdx) cache receives it before any hook mounts, so
+the browser does not fetch it again.
+
+---
+
+:::tip Purpose
+
+1. Server rendering (Next.js, Remix, custom SSR) without a loading state on the first paint
+2. Passing data from server components to client components
+3. Seeding the cache from data you already have
+
+:::
+
+---
+
+## Usage
+
+Fetch on the server, turn the responses into a portable payload with `request.dehydrate()`, and render `Hydrate` around
+the components that use them.
+
+```tsx title="app/users/page.tsx (server component)"
+import { getUsers } from "@/api";
+import { UsersList } from "./users-list";
+
+export default async function Page() {
+  const response = await getUsers.send();
+
+  return <UsersList hydration={[getUsers.dehydrate({ response })]} />;
+}
+```
+
+```tsx title="app/users/users-list.tsx"
+"use client";
+
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import type { HydrateProps } from "@hyper-fetch/react";
+import { client, getUsers } from "@/api";
+
+export const UsersList = ({ hydration }: { hydration: HydrateProps["data"] }) => (
+  <Hydrate client={client} data={hydration}>
+    <Users />
+  </Hydrate>
+);
+
+const Users = () => {
+  // Renders the server data immediately - no loading state, no request while the data is fresh
+  const { data } = useFetch(getUsers);
+  return (
+    <ul>
+      {data?.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+};
+```
+
+:::info Client components
+
+A client instance cannot be passed from a server component to a client component. Render `Hydrate` in a client component
+that imports the client, and pass only the dehydrated data across.
+
+:::
+
+With the pages router, render `Hydrate` in `_app.tsx` with the payload returned by `getServerSideProps` or
+`getStaticProps`:
+
+```tsx title="pages/_app.tsx"
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <Hydrate client={client} data={pageProps.hydration}>
+      <Component {...pageProps} />
+    </Hydrate>
+  );
+}
+```
+
+---
+
+## How it works
+
+- **First render.** Hooks below `Hydrate` (`useFetch`, `useSubmit`, `useCache`) start with the hydrated data. On the
+  server nothing is written to the cache - in server mode the cache stores only scoped requests - so concurrent server
+  renders never see each other's data.
+- **Before the hooks mount.** In the browser the data is written to the cache before the hooks run their mount logic, so
+  fresh data is not fetched again. With the default `revalidate: true`, `useFetch` still refreshes the data in the
+  background while showing the hydrated value; use `revalidate: false` and a `staleTime` to rely on it.
+- **Newer data wins.** Cached data that is newer than the snapshot is kept, and an older cache entry is replaced - hooks
+  that already show it update. Re-rendering with the same items does not write them again.
+- **After the cache is cleared** (for example on logout) the snapshot is not used again by hooks mounted later.
+- **Scopes** are respected: a snapshot of `request.setScope("user-1")` hydrates only that scope.
+- **Suspense:** hooks with `suspense: true` do not suspend when their data is hydrated.
+
+---
+
+## Several clients and boundaries
+
+Every `Hydrate` serves only its own client, so they can be nested and combined freely. A nested `Hydrate` adds its items
+to the ones above; for the same key the newer data wins.
+
+```tsx
+<Hydrate client={apiClient} data={apiHydration}>
+  <Hydrate client={cmsClient} data={cmsHydration}>
+    <Page />
+  </Hydrate>
+</Hydrate>
+```
+
+Empty values are ignored, so the payload can be built conditionally and `Hydrate` can be rendered only when there is
+something to hydrate:
+
+```tsx
+<Hydrate client={client} data={[user && getUser.dehydrate({ response: user }), settings]}>
+  {children}
+</Hydrate>
+```
+
+---
+
+## Props
+
+| Prop       | Type                                                  | Description                                                              |
+| ---------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `client`   | `ClientInstance`                                      | Client which cache receives the data                                     |
+| `data`     | `(HydrateDataType \| null \| undefined)[]`            | Items created with `request.dehydrate()`; empty values are ignored       |
+| `options`  | `Partial<HydrationOptions> \| (item) => Partial<...>` | Same as the second argument of `client.hydrate()`, applied to every item |
+| `children` | `ReactNode`                                           | Components that use the hydrated data                                    |
+
+Set `override: false` in the item or in `options` to never replace existing cache data, even when it is older.
+
+Without React, call `client.hydrate(items)` directly - see [Client hydration](/core/client.mdx).

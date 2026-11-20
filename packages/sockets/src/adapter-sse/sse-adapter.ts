@@ -8,8 +8,7 @@ import type { ListenerCallbackType, ListenerOfAdapter } from "listener";
 import { getSocketUrl, parseMessageEvent } from "../utils";
 import { getSocketError } from "../utils/socket.errors";
 import type { SSEAdapterOptionsType, SSEDecodedMessageType } from "./sse-adapter.types";
-import { EventSourceReadyState } from "./sse-adapter.types";
-import { getServerSentEventsAdapter } from "./sse-adapter.utils";
+import { EventSourceReadyState, getServerSentEventsAdapter } from "./sse-adapter.utils";
 
 /**
  * -------------------------------------------
@@ -83,11 +82,62 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           }
         };
 
-        const scheduleReconnect = () => {
+        // Named events (`event: tick`) of the current EventSource, one handler per listened topic
+        let namedEvents = new Map<string, (event: MessageEvent<SocketData>) => void>();
+        // Decoder of the current connection attempt (after the `onConnect` interceptors)
+        let connectionDecode: SSEAdapterOptionsType["decode"];
+
+        /** Named events go to the listeners whose topic is the event name - the data is JSON or the raw text */
+        const decodeNamedEvent = (
+          event: MessageEvent<SocketData>,
+          decode: SSEAdapterOptionsType["decode"],
+        ): SSEDecodedMessageType | null => {
+          if (decode) {
+            return decodeMessage(event, decode);
+          }
+          try {
+            return { topic: event.type, data: JSON.parse(String(event.data)) };
+          } catch {
+            return { topic: event.type, data: event.data };
+          }
+        };
+
+        /** Starts receiving the named events of the topic on the current EventSource */
+        const listenToNamedEvent = (topic: string) => {
+          const eventSource = sse;
+          // `message` is the unnamed event, it is handled for every topic already
+          if (!eventSource || topic === "message" || namedEvents.has(topic)) {
+            return;
+          }
+          const handler = (event: MessageEvent<SocketData>) => {
+            if (sse !== eventSource) {
+              return;
+            }
+            const message = decodeNamedEvent(event, connectionDecode);
+            if (message) {
+              onEvent({ topic: message.topic, data: message.data, extra: event });
+            }
+          };
+          namedEvents.set(topic, handler);
+          eventSource.addEventListener(topic as keyof EventSourceEventMap, handler as never);
+        };
+
+        /** Stops receiving the named events of a topic nobody listens to anymore */
+        const stopNamedEvent = (topic: string) => {
+          const handler = namedEvents.get(topic);
+          if (!handler || adapter.listeners.get(topic)?.size) {
+            return;
+          }
+          namedEvents.delete(topic);
+          sse?.removeEventListener(topic as keyof EventSourceEventMap, handler as never);
+        };
+
+        /** Starts over after `delay` - the attempt timeout while connecting, the reconnect delay after a loss */
+        const scheduleReconnect = (delay = socket.reconnectTime) => {
           clearTimeout(timeout);
           timeout = setTimeout(() => {
             reconnect();
-          }, socket.reconnectTime);
+          }, delay);
         };
 
         const openConnection = async (): Promise<boolean> => {
@@ -110,8 +160,17 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
 
           const isCurrent = () => sse === eventSource;
 
+          // Named events are registered per EventSource - start them again for every topic that has listeners
+          connectionDecode = connection.adapterOptions?.decode;
+          namedEvents = new Map();
+          adapter.listeners.forEach((callbacks, topic) => {
+            if (callbacks.size > 0) {
+              listenToNamedEvent(topic);
+            }
+          });
+
           // Connection timeout - when the server does not answer in time, start over
-          scheduleReconnect();
+          scheduleReconnect(socket.connectionTimeout);
 
           /**
            *  Mount listeners
@@ -134,16 +193,18 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
             onError({ error: new Error(error) });
 
             // An open stream broke. The browser either retries on its own (CONNECTING) or gives up (CLOSED) -
-            // in both cases the socket is not connected anymore. The timeout takes over when the stream
-            // does not come back in time, the same way it guards the initial connection.
+            // in both cases the socket is not connected anymore. A retrying stream is a connection attempt, so the
+            // connection timeout guards it - keeping it lets the browser resume with `Last-Event-ID`. A stream
+            // that gave up is replaced after the reconnect delay.
             const isLost = adapter.connected && eventSource.readyState !== EventSourceReadyState.OPEN;
             if (isLost) {
               onDisconnected();
-              if (eventSource.readyState === EventSourceReadyState.CONNECTING) {
+              const isRetrying = eventSource.readyState === EventSourceReadyState.CONNECTING;
+              if (isRetrying) {
                 adapter.setConnecting(true);
                 socket.events.emitConnecting({ connecting: true });
               }
-              scheduleReconnect();
+              scheduleReconnect(isRetrying ? socket.connectionTimeout : socket.reconnectTime);
             }
           });
 
@@ -270,7 +331,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           listener: ListenerOfAdapter<ServerSentEventsAdapterType>,
           callback: ListenerCallbackType<ServerSentEventsAdapterType, any>,
         ) => {
-          return onListen({ listener, callback });
+          const removeListener = onListen({ listener, callback, onUnmount: () => stopNamedEvent(listener.topic) });
+          listenToNamedEvent(listener.topic);
+          return removeListener;
         };
 
         // Server-Sent Events are receive-only. Throwing synchronously makes `emitter.emit()` fail right at the
@@ -284,7 +347,7 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           connect();
         }
 
-        socket.appManager.events.onOnline(() => {
+        const unmountOnline = socket.appManager.events.onOnline(() => {
           // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
           if (autoConnect && !adapter.connected && !adapter.forceClosed) {
             connect();
@@ -297,6 +360,9 @@ export const ServerSentEventsAdapter = (): ServerSentEventsAdapterType =>
           disconnect,
           listen,
           emit,
+          dispose: () => {
+            unmountOnline();
+          },
         };
       },
     );

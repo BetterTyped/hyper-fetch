@@ -5,7 +5,9 @@ import type { ListenerInstance } from "listener";
 import type { SocketInstance } from "socket";
 import type {
   ExtractListenerResponseType,
+  ExtractListenerPayloadType,
   ExtractListenerTopicType,
+  ExtractListenerHasPayloadType,
   ExtractListenerHasParamsType,
   ExtractListenerDeliveredType,
   ExtractEmitterPayloadType,
@@ -33,8 +35,10 @@ export type InjectSocket<T, S extends SocketInstance, Depth extends unknown[] = 
   : T extends ListenerInstance
     ? Listener<
         ExtractListenerResponseType<T>,
+        ExtractListenerPayloadType<T>,
         ExtractListenerTopicType<T> extends string ? ExtractListenerTopicType<T> : string,
         S,
+        ExtractListenerHasPayloadType<T> extends boolean ? ExtractListenerHasPayloadType<T> : false,
         ExtractListenerHasParamsType<T> extends boolean ? ExtractListenerHasParamsType<T> : false,
         ExtractListenerDeliveredType<T>
       >

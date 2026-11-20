@@ -1,26 +1,25 @@
 import type { EmptyTypes } from "@hyper-fetch/core";
 
-import { getWindowImplementation } from "../utils/environment.utils";
 import type { SSEAdapterOptionsType } from "./sse-adapter.types";
 
-/** The `EventSource` class to use: the one from the options, else the page's. `null` when there is none. */
-export const getEventSourceImplementation = (
-  adapterOptions: SSEAdapterOptionsType | EmptyTypes,
-): typeof EventSource | null => {
-  // Callers pass `eventsource` or another class with the browser API, which the adapter is limited to
-  const implementation = (adapterOptions?.eventSourceImpl ?? getWindowImplementation("EventSource")) as
-    | typeof EventSource
-    | undefined;
-  return typeof implementation === "function" ? implementation : null;
+/** `readyState` values of an EventSource - read without the global, which some runtimes don't have */
+export const EventSourceReadyState = { CONNECTING: 0, OPEN: 1, CLOSED: 2 } as const;
+
+/**
+ * The EventSource constructor to use: the one from `adapterOptions`, otherwise the global one
+ * (browsers, Deno, Bun). `null` when the runtime has none - pass one from the `eventsource` package in Node.js.
+ */
+export const getEventSourceConstructor = (adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
+  return adapterOptions?.EventSource ?? (typeof globalThis.EventSource === "function" ? globalThis.EventSource : null);
 };
 
 export const getServerSentEventsAdapter = (url: string, adapterOptions: SSEAdapterOptionsType | EmptyTypes) => {
-  const EventSourceImplementation = getEventSourceImplementation(adapterOptions);
-  if (!EventSourceImplementation) {
+  const EventSourceConstructor = getEventSourceConstructor(adapterOptions);
+  if (!EventSourceConstructor) {
     return null;
   }
 
-  class HyperFetchEventSource extends EventSourceImplementation {
+  class HyperFetchEventSource extends EventSourceConstructor {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
     public registeredHandlers = new Map<
       (...args: any[]) => any,

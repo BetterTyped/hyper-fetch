@@ -8,8 +8,8 @@ sidebar_label: Overview
 
 `@hyper-fetch/hono` converts the type of a [Hono](https://hono.dev/) app into a schema for
 [`createSdk`](/docs/core/sdk). The frontend then calls the backend through a typed SDK whose responses, payloads, query
-params and URL params come from your Hono routes and validators. The package exports a single type and adds no code to
-your bundle.
+params and URL params come from your Hono routes and validators. The package exports types only and adds no code to your
+bundle. For WebSocket and Server-Sent Events routes, see [Realtime](/docs/integrations/hono/realtime).
 
 :::tip Purpose
 
@@ -204,6 +204,12 @@ const { error } = await sdk.users.$get.send();
   title="SDK"
   description="Learn how createSdk builds requests from a schema and how to configure defaults per endpoint."
   to="/docs/core/sdk"
+/>
+<LinkCard
+  type="integrations"
+  title="Hono Realtime"
+  description="Connect sockets to upgradeWebSocket and streamSSE routes, with typed paths and messages."
+  to="/docs/integrations/hono/realtime"
 />
 <LinkCard
   type="docs"

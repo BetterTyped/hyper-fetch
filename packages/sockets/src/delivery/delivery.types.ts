@@ -27,6 +27,11 @@ export type DeliveryControllerType<Input, Extra = any> = {
    * state here. Nothing may be delivered after `dispose` was called. Must be safe to call more than once.
    */
   dispose: () => void;
+  /**
+   * Called when the server ends the subscription, right before `dispose`. Deliver what is still pending, so the
+   * last messages of a finished stream are not lost. Optional - without it pending messages are dropped.
+   */
+  flush?: () => void;
 };
 
 /**
