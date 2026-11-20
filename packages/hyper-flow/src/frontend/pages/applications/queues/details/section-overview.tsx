@@ -11,7 +11,12 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
   const { application } = useDevtools();
   const queueStats = useQueueStatsStore(useShallow((state) => state.applications[application.name]));
 
+  // A queue is listed as soon as its first request is added, the stats only once a request finishes
   const stats = queueStats?.stats.get(item.queryKey);
+  const total = stats?.totalRequests ?? 0;
+  const success = stats?.totalRequestsSuccess ?? 0;
+  const failed = stats?.totalRequestsFailed ?? 0;
+  const canceled = stats?.totalRequestsCanceled ?? 0;
 
   return (
     <div>
@@ -24,7 +29,7 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
             </TableCell>
             <TableCell>
               <Badge variant="secondary">
-                {stats?.totalRequests} request{stats?.totalRequests === 1 ? "" : "s"}
+                {total} request{total === 1 ? "" : "s"}
               </Badge>
             </TableCell>
           </TableRow>
@@ -34,8 +39,8 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
               Successful Requests:
             </TableCell>
             <TableCell>
-              <Badge variant={stats?.totalRequestsSuccess ? "success" : "secondary"}>
-                {stats?.totalRequestsSuccess} request{stats?.totalRequestsSuccess === 1 ? "" : "s"}
+              <Badge variant={success ? "success" : "secondary"}>
+                {success} request{success === 1 ? "" : "s"}
               </Badge>
             </TableCell>
           </TableRow>
@@ -45,8 +50,8 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
               Failed Requests:
             </TableCell>
             <TableCell>
-              <Badge variant={stats?.totalRequestsFailed ? "destructive" : "secondary"}>
-                {stats?.totalRequestsFailed} request{stats?.totalRequestsFailed === 1 ? "" : "s"}
+              <Badge variant={failed ? "destructive" : "secondary"}>
+                {failed} request{failed === 1 ? "" : "s"}
               </Badge>
             </TableCell>
           </TableRow>
@@ -56,8 +61,8 @@ export const SectionOverview = ({ item }: { item: QueueDataType }) => {
               Canceled Requests:
             </TableCell>
             <TableCell>
-              <Badge variant={stats?.totalRequestsCanceled ? "warning" : "secondary"}>
-                {stats?.totalRequestsCanceled} request{stats?.totalRequestsCanceled === 1 ? "" : "s"}
+              <Badge variant={canceled ? "warning" : "secondary"}>
+                {canceled} request{canceled === 1 ? "" : "s"}
               </Badge>
             </TableCell>
           </TableRow>

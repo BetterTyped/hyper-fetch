@@ -67,3 +67,7 @@ one line here in the same change.
 ## Tooling
 
 - **HyperFlow**: the desktop devtools app in `packages/hyper-flow`.
+- **DevtoolsPlugin**: the plugin in `@hyper-fetch/plugin-devtools` that streams a client's events to HyperFlow and
+  applies the changes HyperFlow sends back.
+- **Mirror client**: the client HyperFlow keeps for each connected application. It replays that application's events
+  and presents them with the application's adapter, but never sends requests.

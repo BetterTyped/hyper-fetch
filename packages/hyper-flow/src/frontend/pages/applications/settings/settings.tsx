@@ -1,4 +1,5 @@
 import { Settings2, Network, AlertTriangle, Trash, Server, Globe, Cpu } from "lucide-react";
+import { useState } from "react";
 
 import { AddErrorDialog } from "./add-error-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +16,19 @@ export const ApplicationSettings = () => {
   const settings = useApplications((state) => state.applications[application.name].settings);
   const setSettings = useApplications((state) => state.setSettings);
   const setSimulatedErrors = useApplications((state) => state.setSimulatedErrors);
+  // The field may be empty or invalid while the user types, the stored limit must always stay a positive integer.
+  const [historyLimitDraft, setHistoryLimitDraft] = useState<string | null>(null);
+
+  const handleHistoryLimitChange = (value: string) => {
+    setHistoryLimitDraft(value);
+    const limit = Number(value);
+    if (value.trim() && Number.isInteger(limit) && limit >= 1) {
+      setSettings(application.name, { maxRequestsHistorySize: limit });
+    }
+  };
 
   const handleAddError = ({ initialName, ...data }: SimulatedError & { initialName?: string }) => {
-    const newSimulatedErrors: Record<string, SimulatedError> = { ...settings?.simulatedErrors };
+    const newSimulatedErrors: Record<string, SimulatedError> = { ...settings.simulatedErrors };
     if (initialName) {
       delete newSimulatedErrors[initialName];
     }
@@ -26,10 +37,9 @@ export const ApplicationSettings = () => {
     setSimulatedErrors(application.name, newSimulatedErrors);
   };
 
+  // The default error has no remove button
   const handleRemoveError = (errorName: string) => {
-    if (errorName === "Default") {return;} // Don't allow removing default error
-
-    const newSimulatedErrors = { ...settings?.simulatedErrors };
+    const newSimulatedErrors = { ...settings.simulatedErrors };
     delete newSimulatedErrors[errorName];
 
     setSimulatedErrors(application.name, newSimulatedErrors);
@@ -66,14 +76,14 @@ export const ApplicationSettings = () => {
                   <Server className="h-5 w-5 text-primary" />
                   <p className="text-sm font-medium text-muted-foreground">Environment</p>
                 </div>
-                <p className="text-base">{application?.environment || "Development"}</p>
+                <p className="text-base">{application.environment}</p>
               </div>
               <div className="p-6 border rounded-xl bg-card/40 duration-200">
                 <div className="flex items-center gap-3 mb-2">
                   <Cpu className="h-5 w-5 text-primary" />
                   <p className="text-sm font-medium text-muted-foreground">Adapter</p>
                 </div>
-                <p className="text-base">{client.adapter.name || "Not configured"}</p>
+                <p className="text-base">{client.adapter.name}</p>
               </div>
             </div>
           </CardContent>
@@ -93,10 +103,9 @@ export const ApplicationSettings = () => {
               <div className="flex gap-3 items-center">
                 <Input
                   type="number"
-                  value={settings.maxRequestsHistorySize}
-                  onChange={(e) =>
-                    setSettings(application.name, { maxRequestsHistorySize: parseInt(e.target.value, 10) })
-                  }
+                  value={historyLimitDraft ?? settings.maxRequestsHistorySize}
+                  onChange={(e) => handleHistoryLimitChange(e.target.value)}
+                  onBlur={() => setHistoryLimitDraft(null)}
                   className="max-w-[200px] h-10"
                   min="1"
                   max="100000"
@@ -126,7 +135,7 @@ export const ApplicationSettings = () => {
           <CardContent>
             <div className="space-y-4">
               <div className="space-y-3">
-                {Object.entries(settings?.simulatedErrors || {}).map(([name, error]) => (
+                {Object.entries(settings.simulatedErrors).map(([name, error]) => (
                   <div
                     key={name}
                     className="flex items-center justify-between p-4 border rounded-xl bg-card/50 transition-colors duration-200 group"

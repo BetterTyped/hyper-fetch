@@ -60,27 +60,34 @@ export const createMenu = () => {
           label: "Take screenshot",
           accelerator: "CmdOrCtrl+Shift+I",
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            if (focusedWindow)
-              {focusedWindow.capturePage().then((image) => {
+            if (focusedWindow) {
+              focusedWindow.capturePage().then((image) => {
                 clipboard.writeImage(image);
-              });}
+              });
+            }
           },
         },
         {
           label: "Reload",
           accelerator: "CmdOrCtrl+R",
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            if (focusedWindow) {focusedWindow.reload();}
+            if (focusedWindow) {
+              focusedWindow.reload();
+            }
           },
         },
         {
           label: "Toggle Developer Tools",
           accelerator: (() => {
-            if (process.platform === "darwin") {return "Alt+Command+I";}
+            if (process.platform === "darwin") {
+              return "Alt+Command+I";
+            }
             return "Ctrl+Shift+I";
           })(),
           click(_: Electron.MenuItem, focusedWindow: Electron.BrowserWindow) {
-            if (focusedWindow) {focusedWindow.webContents.openDevTools();}
+            if (focusedWindow) {
+              focusedWindow.webContents.openDevTools();
+            }
           },
         },
       ].filter(Boolean),
@@ -114,7 +121,7 @@ export const createMenu = () => {
         {
           label: "Documentation",
           click() {
-            shell.openExternal("https://hyperfetch.bettertyped.com/docs/devtools");
+            shell.openExternal("https://hyperfetch.bettertyped.com/docs/hyper-flow");
           },
         },
       ],

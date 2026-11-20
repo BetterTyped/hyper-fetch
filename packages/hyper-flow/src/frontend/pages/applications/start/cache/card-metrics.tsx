@@ -10,6 +10,7 @@ import { useCacheStatsStore } from "@/store/applications/cache-stats.store";
 import { useCacheStore } from "@/store/applications/cache.store";
 import { useNetworkStatsStore } from "@/store/applications/network-stats.store";
 import { toNumber } from "@/store/applications/utils";
+import { formatBytes } from "@/utils/format";
 
 export const CardMetrics = ({ className }: { className?: string }) => {
   const { application } = useDevtools();
@@ -60,7 +61,7 @@ export const CardMetrics = ({ className }: { className?: string }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">Cache Size</h3>
-            <p className="text-2xl font-bold">{generalStats.cacheSize} KB</p>
+            <p className="text-2xl font-bold">{formatBytes(generalStats.cacheSize)}</p>
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">Entries</h3>

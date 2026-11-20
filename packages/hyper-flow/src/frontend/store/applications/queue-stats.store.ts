@@ -5,7 +5,7 @@ import { create } from "zustand/react";
 import type { ErrorStats } from "./error-stats.store";
 import { getErrorStats } from "./error-stats.store";
 import type { NetworkStats } from "./network-stats.store";
-import { getNetworkStats, initialNetworkStats } from "./network-stats.store";
+import { addCanceledRequest, getNetworkStats, initialNetworkStats } from "./network-stats.store";
 import { getDataSize } from "./utils";
 import type { DevtoolsRequestEvent } from "@/context/applications/types";
 
@@ -17,7 +17,8 @@ type QueueStatsStore = {
     };
   };
   initialize: (applicationName: string) => void;
-  setQueueStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => void;
+  setQueueStats: (data: { application: string; data: NonNullableKeys<DevtoolsRequestEvent> }) => Promise<void>;
+  countCanceledRequest: (data: { application: string; queryKey: string }) => void;
 };
 
 export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
@@ -32,6 +33,14 @@ export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
       }),
     );
   },
+  countCanceledRequest: ({ application, queryKey }) => {
+    set((state) => {
+      const app = state.applications[application];
+      const stats = new Map(app.stats);
+      stats.set(queryKey, addCanceledRequest(app.stats.get(queryKey) ?? initialNetworkStats));
+      return { applications: { ...state.applications, [application]: { ...app, stats } } };
+    });
+  },
   setQueueStats: async ({ application, data }) => {
     const responseSize = await getDataSize(data.response);
     const payloadSize = await getDataSize(data.request.payload);
@@ -40,24 +49,14 @@ export const useQueueStatsStore = create<QueueStatsStore>((set) => ({
       payloadSize,
     };
 
-    set((state) =>
-      produce(state, (draft) => {
-        if (!draft.applications[application]) {
-          draft.applications[application] = {
-            stats: new Map(),
-            errorStats: new Map(),
-          };
-        }
-        draft.applications[application].stats.set(
-          data.request.queryKey,
-          getNetworkStats(
-            draft.applications[application].stats.get(data.request.queryKey) ?? initialNetworkStats,
-            data,
-            perf,
-          ),
-        );
-        draft.applications[application].errorStats.set(data.request.queryKey, getErrorStats(data));
-      }),
-    );
+    set((state) => {
+      const app = state.applications[application];
+      const { queryKey } = data.request;
+      const stats = new Map(app.stats);
+      stats.set(queryKey, getNetworkStats(app.stats.get(queryKey) ?? initialNetworkStats, data, perf));
+      const errorStats = new Map(app.errorStats);
+      errorStats.set(queryKey, getErrorStats(data, app.errorStats.get(queryKey)));
+      return { applications: { ...state.applications, [application]: { stats, errorStats } } };
+    });
   },
 }));

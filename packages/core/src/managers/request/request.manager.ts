@@ -14,6 +14,8 @@ export class RequestManager {
   }
 
   abortControllers = new Map<string, Map<string, AbortController>>();
+  /** Controllers aborted through this manager, i.e. by the user and not by an adapter's own timeout */
+  private canceledControllers = new WeakSet<AbortController>();
 
   addAbortController = (abortKey: string, requestId: string) => {
     let abortGroup = this.abortControllers.get(abortKey);
@@ -47,7 +49,19 @@ export class RequestManager {
 
   useAbortController = (abortKey: string, requestId: string) => {
     const controller = this.abortControllers.get(abortKey)?.get(requestId);
-    controller?.abort();
+    if (controller) {
+      this.canceledControllers.add(controller);
+      controller.abort();
+    }
+  };
+
+  /**
+   * Whether the request was aborted on purpose (`request.abort()`, `abortByKey`...). Tells canceled requests apart
+   * from failed ones whatever shape the adapter gives its errors.
+   */
+  isCanceled = (abortKey: string, requestId: string) => {
+    const controller = this.abortControllers.get(abortKey)?.get(requestId);
+    return !!controller && this.canceledControllers.has(controller);
   };
 
   abortByKey = (abortKey: string) => {

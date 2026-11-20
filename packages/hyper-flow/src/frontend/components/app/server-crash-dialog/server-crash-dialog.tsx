@@ -1,103 +1,97 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useShallow } from "zustand/react/shallow";
 
 import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/store/general/settings.store";
 
-const handledServerCrash = {
-  notified: false,
-  handled: true,
-};
-
-const onCrash = () => {
-  if (handledServerCrash.handled) {
-    handledServerCrash.notified = true;
-    handledServerCrash.handled = false;
-  }
-};
-
 export const ServerCrashDialog = () => {
   const navigate = useNavigate();
-  const { setServerStatus, serverStatus } = useSettings(
-    useShallow((state) => ({
-      setServerStatus: state.setServerStatus,
-      serverStatus: state.serverStatus,
-    })),
-  );
+  const serverStatus = useSettings((state) => state.serverStatus);
 
   useEffect(() => {
-    // Show toast when server is down
-    const showServerDownToast = () => {
-      if (!handledServerCrash.notified) {return;}
-      handledServerCrash.notified = false;
-      handledServerCrash.handled = false;
+    const { setServerStatus } = useSettings.getState();
+    // Each outage gets its own notification, reusing one id would let a closing notification swallow the next outage
+    let serverDownToast: string | number | undefined;
+    let unmounted = false;
 
-      toast("Server is not running", {
+    const restartServer = async () => {
+      const result = await window.electron.server.restart();
+      if (result.success) {
+        setServerStatus("running");
+        toast("Server started", {
+          description: `Server is now running on port ${result.port}`,
+        });
+      } else {
+        toast("Failed to start server", {
+          description: result.message,
+          action: {
+            label: "Open settings",
+            onClick: () => {
+              navigate({ to: "/settings" });
+            },
+          },
+        });
+      }
+    };
+
+    // The status is read from the store, the listener below outlives the render it was created in
+    const reportCrash = () => {
+      if (useSettings.getState().serverStatus === "crashed") {
+        return;
+      }
+      setServerStatus("crashed");
+      serverDownToast = toast("Server is not running", {
         description: "Please start the server to continue",
         duration: Infinity,
         action: {
           label: "Restart Server",
-          onClick: async () => {
-            handledServerCrash.notified = false;
-            handledServerCrash.handled = true;
-            const result = await window.electron.server.restart();
-            if (result.success) {
-              setServerStatus("running");
-              toast("Server started", {
-                description: `Server is now running on port ${result.port}`,
-              });
-            } else {
-              toast("Failed to start server", {
-                description: result.message,
-                action: {
-                  label: "Open settings",
-                  onClick: () => {
-                    navigate({ to: "/settings" });
-                  },
-                },
-              });
-            }
-          },
+          onClick: restartServer,
         },
       });
     };
 
-    // Initial status check
+    const reportRunning = () => {
+      setServerStatus("running");
+      // Without an id sonner would dismiss every notification
+      if (serverDownToast !== undefined) {
+        toast.dismiss(serverDownToast);
+      }
+    };
+
     const checkInitialStatus = async () => {
+      let running = false;
       try {
-        const running = await window.electron.server.status();
-        if (running) {
-          setServerStatus("running");
-        } else {
-          onCrash();
-          setServerStatus("crashed");
-          showServerDownToast();
-        }
+        running = await window.electron.server.status();
       } catch {
-        setServerStatus("crashed");
+        // A status that cannot be read means the server cannot be reached either
+      }
+      // Effects of an unmounted dialog, like the first run in StrictMode, must not notify
+      if (unmounted) {
+        return;
+      }
+      if (running) {
+        reportRunning();
+      } else {
+        reportCrash();
       }
     };
 
     checkInitialStatus();
 
-    // Set up listener for server status changes
     const unsubscribe = window.electron.server.onStatusChange((isRunning: boolean) => {
-      if (isRunning && serverStatus === "crashed") {
-        setServerStatus("running");
-      } else if (!isRunning && serverStatus !== "crashed") {
-        onCrash();
-        setServerStatus("crashed");
-        showServerDownToast();
+      if (isRunning) {
+        reportRunning();
+      } else {
+        reportCrash();
       }
     });
 
-    // Clean up the listener on unmount
     return () => {
+      unmounted = true;
       unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (serverStatus === "crashed") {
     return (

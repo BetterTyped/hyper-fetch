@@ -30,37 +30,50 @@ export const theme: Theme = {
   },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateValue = <S extends object>(target: S, path: KeyPath, value: any): S => {
-  const keys = [...path].toReversed();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let reference: any = typeof target === "object" ? new Proxy(target, {}) : target;
-  if (typeof target === "object" && target !== null) {
-    keys.forEach((key, index) => {
-      if (keys.length - 2 >= index && key in reference) {
-        reference = reference[key];
-      }
-    });
-    const lastKey = keys.at(-1);
-    if (lastKey !== undefined && lastKey in reference) {
-      reference[lastKey] = value;
+type DataKeys = (string | number)[];
+
+/**
+ * react-json-tree key paths go from the leaf up. With the root shown they end with its "root" label, with `hideRoot`
+ * they don't. Returns the keys from the top of the data down to the leaf.
+ */
+export const toDataKeys = (path: KeyPath, hideRoot: boolean): DataKeys => {
+  const keys = hideRoot ? [...path] : [...path].slice(0, -1);
+  return keys.toReversed();
+};
+
+const isContainer = (value: unknown): value is Record<string | number, unknown> => {
+  return typeof value === "object" && value !== null;
+};
+
+/** Set the value at the given keys. Keys that don't exist in the data leave it unchanged. */
+export const updateValue = <S extends object>(target: S, keys: DataKeys, value: unknown): S => {
+  const lastKey = keys.at(-1);
+  if (lastKey === undefined) {
+    return target;
+  }
+
+  let reference: unknown = target;
+  for (const key of keys.slice(0, -1)) {
+    if (!isContainer(reference) || !(key in reference)) {
+      return target;
     }
-  } else {
-    return value;
+    reference = reference[key];
+  }
+
+  if (isContainer(reference) && lastKey in reference) {
+    reference[lastKey] = value;
   }
   return target;
 };
 
-export const getRaw = (target: any, path: KeyPath): any => {
-  const keys = path;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let reference: any = target;
-  if (typeof target === "object" && target !== null) {
-    keys.forEach((key, index) => {
-      if (keys.length - 1 >= index && key in reference) {
-        reference = reference[key];
-      }
-    });
+/** Read the value at the given keys, `undefined` when it does not exist. */
+export const getRaw = (target: unknown, keys: DataKeys): unknown => {
+  let reference: unknown = target;
+  for (const key of keys) {
+    if (!isContainer(reference) || !(key in reference)) {
+      return undefined;
+    }
+    reference = reference[key];
   }
   return reference;
 };

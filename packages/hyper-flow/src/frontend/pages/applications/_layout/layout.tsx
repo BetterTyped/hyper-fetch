@@ -1,15 +1,29 @@
-import { Outlet } from "@tanstack/react-router";
-import { Plug2 } from "lucide-react";
+import { Outlet, useParams } from "@tanstack/react-router";
+import { Loader2, Plug2 } from "lucide-react";
 
 import { ApplicationSidebar } from "./sidebar/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Content } from "@/components/ui/content";
-import { useDevtools } from "@/context/applications/devtools/use-devtools";
+import { useApplications } from "@/store/applications/apps.store";
 import { useConnectionStore } from "@/store/applications/connection.store";
 
 export const ApplicationLayout = () => {
-  const { application } = useDevtools();
-  const connected = useConnectionStore((state) => !!state.connections[application.name]?.connected);
+  const { applicationName = "" } = useParams({ strict: false });
+  const isKnown = useApplications((state) => !!state.applications[applicationName]);
+  const connected = useConnectionStore((state) => !!state.connections[applicationName]?.connected);
+
+  // Opened before the application ever connected, e.g. a restored route
+  if (!isKnown) {
+    return (
+      <div
+        data-testid="application-waiting"
+        className="flex flex-col items-center justify-center gap-3 h-full w-full text-muted-foreground"
+      >
+        <Loader2 className="size-6 animate-spin" />
+        <p className="text-sm">Waiting for {applicationName} to connect...</p>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="application-page" className="grid grid-cols-[70px_1fr] h-full w-full py-2 px-1">

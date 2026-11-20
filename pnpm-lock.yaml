@@ -965,6 +965,12 @@ importers:
       '@electron/fuses':
         specifier: ^1.8.0
         version: 1.8.0
+      '@hyper-fetch/orpc':
+        specifier: workspace:*
+        version: link:../adapter-orpc
+      '@hyper-fetch/trpc':
+        specifier: workspace:*
+        version: link:../adapter-trpc
       '@tanstack/react-router-devtools':
         specifier: 1.121.34
         version: 1.121.34(@tanstack/react-router@1.121.34(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tanstack/router-core@1.168.18)(csstype@3.2.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)

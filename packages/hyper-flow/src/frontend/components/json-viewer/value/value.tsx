@@ -4,6 +4,29 @@ import TextareaAutosize from "react-textarea-autosize";
 import { jsonViewerStyles } from "../json-viewer.styles";
 import { cn } from "@/lib/utils";
 
+const dateKeys = ["date", "createdat", "updatedat", "created_at", "updated_at", "timestamp"];
+
+/** ISO string of a value stored under a date-like key, or `null` when it isn't a valid date */
+export const getDateValue = (key: string | number | undefined, raw: unknown): string | null => {
+  if (typeof key !== "string" || !dateKeys.some((dateKey) => key.toLowerCase().includes(dateKey))) {
+    return null;
+  }
+  if (typeof raw !== "string" && typeof raw !== "number") {
+    return null;
+  }
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+};
+
+/** Turn the date input value back into the type the data had: a timestamp stays a number, a string an ISO string */
+export const fromDateInput = (value: string, raw: unknown): string | number => {
+  const parsed = new Date(`${value}Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    return typeof raw === "number" ? raw : value;
+  }
+  return typeof raw === "number" ? parsed.getTime() : parsed.toISOString();
+};
+
 export const Value = ({
   value,
   raw,
@@ -18,24 +41,12 @@ export const Value = ({
   disabled?: boolean;
 }) => {
   const disabledStyles = disabled ? "bg-transparent" : "bg-light-200 dark:bg-dark-400";
+  // Key paths go from the leaf up, so the label reads them the other way round, e.g. "data.user.name"
+  const label = [...path].toReversed().join(".");
 
-  const isDate = useMemo(() => {
-    const last = path.at(-1);
-    // TODO - just do the proper lookup for the date value, do not check for the keys
-    if (typeof last === "string") {
-      const keys = ["date", "createdAt", "updatedAt", "created_at", "updated_at", "timestamp"];
-      return keys.some((key) => last.toLowerCase().includes(key));
-    }
-    return false;
-  }, [path]);
+  const date = useMemo(() => getDateValue(path[0], raw), [path, raw]);
 
-  const date = useMemo(() => {
-    if (!isDate || !raw) {return;}
-    const parsed = new Date(raw);
-    return parsed.toISOString();
-  }, [isDate, raw]);
-
-  if (isDate) {
+  if (date) {
     return (
       <span className={cn(jsonViewerStyles.value, disabledStyles)} style={{ paddingLeft: !disabled ? "28px" : "8px" }}>
         <input
@@ -43,8 +54,9 @@ export const Value = ({
           className={cn(jsonViewerStyles.input, "w-fit")}
           type="datetime-local"
           step="1"
-          value={date?.slice(0, 19)}
-          onChange={(e) => onChange(e.target.value)}
+          aria-label={label}
+          value={date.slice(0, 19)}
+          onChange={(e) => onChange(fromDateInput(e.target.value, raw))}
         />
       </span>
     );
@@ -58,6 +70,7 @@ export const Value = ({
             disabled={disabled}
             className={cn(jsonViewerStyles.checkbox)}
             type="checkbox"
+            aria-label={label}
             value={value}
             onChange={(e) => onChange(e.target.checked)}
             checked={raw}
@@ -75,6 +88,7 @@ export const Value = ({
           disabled={disabled}
           className={cn(jsonViewerStyles.input)}
           type="number"
+          aria-label={label}
           value={raw}
           onChange={(e) => onChange(Number(e.target.value))}
         />
@@ -83,8 +97,8 @@ export const Value = ({
   }
 
   if (typeof raw === "string") {
-    const lines = Math.min(10, raw?.split(/\r\n|\r|\n/)?.length || 1);
-    const resize = lines > 1 ? "vertical" : "none";
+    // Multi-line text can be made taller by hand
+    const resize = /\r|\n/.test(raw) ? "vertical" : "none";
 
     return (
       <span className={cn(jsonViewerStyles.value, disabledStyles)}>
@@ -92,6 +106,7 @@ export const Value = ({
           maxRows={10}
           disabled={disabled}
           className={cn(jsonViewerStyles.input)}
+          aria-label={label}
           value={raw}
           onChange={(e) => onChange(e.target.value)}
           style={{ resize }}

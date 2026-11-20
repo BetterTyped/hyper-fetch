@@ -1,57 +1,33 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { useInterval } from "@/hooks/use-interval";
 
-export type UseCountdownOptions = {
-  updateFrequency?: number;
-};
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
 
-export function getTimeRemaining(endTime: string | number, hasEnded: boolean) {
-  const now = hasEnded ? new Date(endTime) : new Date();
-  const end = hasEnded ? new Date() : new Date(endTime);
-
-  let total = 0;
-
-  if (now < end) {
-    total = Date.parse(new Date(endTime) as unknown as string) - Date.parse(new Date() as unknown as string);
-  }
-  if (now > end) {
-    total = Date.parse(new Date() as unknown as string) - Date.parse(new Date(endTime) as unknown as string);
-  }
-
-  const sign = now < end ? 1 : -1;
-
-  const seconds = sign * Math.floor((total / 1000) % 60);
-  const minutes = sign * Math.floor((total / 1000 / 60) % 60);
-  const hours = sign * Math.floor((total / (1000 * 60 * 60)) % 24);
-  const days = sign * Math.floor(total / (1000 * 60 * 60 * 24));
+/** Time left until `endTime`: `total` in ms (negative once it passed), and the parts of what is left */
+export const getTimeRemaining = (endTime: number) => {
+  const total = endTime - Date.now();
+  const left = Math.max(total, 0);
 
   return {
-    total: sign * total,
-    days: hasEnded ? -days : days,
-    hours: hasEnded ? -hours : hours,
-    minutes: hasEnded ? -minutes : minutes,
-    seconds: hasEnded ? -seconds : seconds,
+    total,
+    days: Math.floor(left / DAY),
+    hours: Math.floor(left / HOUR) % 24,
+    minutes: Math.floor(left / MINUTE) % 60,
+    seconds: Math.floor(left / SECOND) % 60,
   };
-}
+};
 
-export const useCountdown = (endTime: Date | string | number, options?: UseCountdownOptions) => {
-  const { updateFrequency = 1000 } = options || {};
-  const time = endTime instanceof Date ? endTime.toISOString() : endTime;
-  // Ref as we need only initial value
-  const ended = useRef(new Date(time) < new Date());
-  const hasEnded = ended.current;
-
-  const [countdown, setCountdown] = useState(getTimeRemaining(time, hasEnded));
-
-  useLayoutEffect(() => {
-    ended.current = new Date(time) < new Date();
-    setCountdown(getTimeRemaining(time, hasEnded));
-  }, [hasEnded, time]);
+/** Time left until `time` (a timestamp), re-rendering every second */
+export const useCountdown = (time: number) => {
+  const [, setTick] = useState(0);
 
   useInterval(() => {
-    setCountdown(getTimeRemaining(time, hasEnded));
-  }, updateFrequency);
+    setTick((tick) => tick + 1);
+  }, SECOND);
 
-  return countdown;
+  return getTimeRemaining(time);
 };

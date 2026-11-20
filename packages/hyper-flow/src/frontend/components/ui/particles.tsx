@@ -50,9 +50,7 @@ function hexToRgb(hex: string): number[] {
   hex = hex.replace("#", "");
 
   if (hex.length === 3) {
-    hex = [...hex]
-      .map((char) => char + char)
-      .join("");
+    hex = [...hex].map((char) => char + char).join("");
   }
 
   const hexInt = parseInt(hex, 16);
@@ -128,19 +126,17 @@ export const Particles: React.FC<ParticlesProps> = ({
       }
       window.removeEventListener("resize", handleResize);
     };
-  }, [color]);
+    // Changing the color or `refresh` sets the canvas up again
+  }, [color, refresh]);
 
   useEffect(() => {
     onMouseMove();
   }, [mousePosition.x, mousePosition.y]);
 
-  useEffect(() => {
-    initCanvas();
-  }, [refresh]);
-
+  /** Sizes the canvas and creates `quantity` new particles */
   const initCanvas = () => {
+    clearContext();
     resizeCanvas();
-    drawParticles();
   };
 
   const onMouseMove = () => {
@@ -223,15 +219,6 @@ export const Particles: React.FC<ParticlesProps> = ({
   const clearContext = () => {
     if (context.current) {
       context.current.clearRect(0, 0, canvasSize.current.w, canvasSize.current.h);
-    }
-  };
-
-  const drawParticles = () => {
-    clearContext();
-    const particleCount = quantity;
-    for (let i = 0; i < particleCount; i += 1) {
-      const circle = circleParams();
-      drawCircle(circle);
     }
   };
 
