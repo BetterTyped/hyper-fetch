@@ -14,7 +14,7 @@ Firestore `onSnapshot` and Realtime Database `onValue` run through `@hyper-fetch
 :::tip Purpose
 
 1.  **Listen** to Firestore documents and queries, or Realtime Database paths, with typed data.
-2.  **Filter** live queries with the same constraints as requests.
+2.  **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
 3.  **React** to changes with `useListener`, or group Firestore changes into added, modified and removed.
 
 :::
@@ -82,24 +82,34 @@ Every snapshot is delivered once, as the full current document or list. Replace 
 
 ---
 
+## Filtering
+
+Listeners take query params like requests do: a callback that builds the constraints, set in `createListener` or with
+`setQueryParams`.
+
+```tsx
+const onGreenTeas = firestoreSocket
+  .createListener<TeaDoc[]>()({ topic: "teas" })
+  .setQueryParams((c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(20));
+
+type Message = { __key: string; text: string; sentAt: number };
+
+const onLastMessages = realtimeSocket
+  .createListener<Message[]>()({ topic: "rooms/general/messages" })
+  .setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50));
+```
+
+Field names are not checked on listeners, because a listener's query params are not tied to a document type. The
+constraints array works here too, and the `options.constraints` of earlier versions still works and is deprecated.
+
+---
+
 ## Options
 
 | Option              | Database          | Effect                                                                                                                                   |
 | ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `constraints`       | both              | Constraints for the live query, the same `$`-helpers as `queryParams` in requests.                                                       |
 | `groupByChangeType` | Firestore         | On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents. Document listeners get `null`. |
 | `onlyOnce`          | Realtime Database | Receives the first value and stops.                                                                                                      |
-
-### Filtering
-
-```tsx
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
-
-const onGreenTeas = firestoreSocket.createListener<TeaDoc[]>()({
-  topic: "teas",
-  options: { constraints: [$where("type", "==", "Green"), $orderBy("year", "desc"), $limit(20)] },
-});
-```
 
 ### Grouping changes
 
@@ -163,7 +173,7 @@ function GreenTeas() {
 
 1.  Create each socket with its own `FirebaseSocketsAdapter(db)`.
 2.  The listener path is `socket.url + topic`, and every snapshot arrives once as the full current result.
-3.  Filter with `options.constraints`; group Firestore changes with `groupByChangeType`; read once with `onlyOnce`.
+3.  Filter with `setQueryParams((c) => ...)`; group Firestore changes with `groupByChangeType`; read once with `onlyOnce`.
 4.  Keep one listener per topic on a socket, and stop listeners with the function `listen` returns.
 
 :::

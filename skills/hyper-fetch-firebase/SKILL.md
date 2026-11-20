@@ -57,9 +57,11 @@ the Realtime Database methods and options.
    an even number of segments is a document (`teas/1`), odd is a collection (`teas`). `getDoc`/`setDoc`/`updateDoc`/
    `deleteDoc` need a document path, `getDocs`/`addDoc` a collection path. Mind the slash when concatenating:
    `url: "teas"` + `endpoint: ":id"` gives `teas1`; use `url: "teas/"` or `endpoint: "/:id"`.
-4. **Filter with constraints in `queryParams`, not in the endpoint.** `queryParams` is the array of `$`-helpers itself
-   (`queryParams: [$where(...), $limit(20)]`), applied in order. Type the request with
-   `queryParams?: FirestoreQueryParams` / `RealtimeDBQueryParams`. Constraints are part of the cache key.
+4. **Filter with a `queryParams` callback, not in the endpoint.** `queryParams: (c) => c.where(...).limit(20)` receives
+   a constraints chain; the adapter stores the constraints it collected, applied in order and part of the cache key.
+   Type the request with `queryParams?: FirestoreQueryParams<Doc>` / `RealtimeDBQueryParams<Doc>` so field names and
+   values are checked. The constraints array (`[$where(...), $limit(20)]`) is accepted too; the `{ constraints }` object
+   is deprecated.
 5. **Writes use `setPayload` (or `send({ payload })`).** There is no `setData`. `setDoc` merges only with
    `options: { merge: true }`.
 6. **Errors come back in the response.** `send()` resolves with `{ data, error, status, success, extra }`; Firebase
@@ -78,12 +80,11 @@ the Realtime Database methods and options.
 ## Firestore requests
 
 ```ts
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
 type Tea = { __key?: string; name: string; type: string; year: number };
 
-export const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams }>()({
+export const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams<Tea> }>()({
   endpoint: "teas",
   method: "getDocs",
 });
@@ -109,7 +110,7 @@ export const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: 
 export const deleteTea = client.createRequest<{ response: null }>()({ endpoint: "teas/:teaId", method: "deleteDoc" });
 
 const greens = await getTeas.send({
-  queryParams: [$where("type", "==", "Green"), $orderBy("year", "desc"), $limit(10)],
+  queryParams: (c) => c.where("type", "==", "Green").orderBy("year", "desc").limit(10),
 });
 const one = await getTea.setParams({ teaId: "abc" }).send();
 const created = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
@@ -125,24 +126,28 @@ Results and `extra`:
 | `setDoc`, `updateDoc` | the payload you sent                                                 | `ref`                                                   |
 | `deleteDoc`           | `null`                                                               | `ref`                                                   |
 
-Firestore constraints: `$where(field, op, value)`, `$orderBy(field, "asc" | "desc")`, `$limit(n)`, and the cursors
-`$startAt`, `$startAfter`, `$endAt`, `$endBefore`. Cursors take one field value per `$orderBy`, in the same order
-(`[$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")]`). Firestore index rules still apply (a range
-`$where` plus `$orderBy` on another field needs a composite index; the error arrives in `response.error`).
+Firestore chain: `where(field, op, value)`, `orderBy(field, "asc" | "desc")`, `limit(n)`, and the cursors `startAt`,
+`startAfter`, `endAt`, `endBefore`. With `FirestoreQueryParams<Doc>`, fields (dot paths for nested ones, never `__key`)
+and values are typed, `"in"` takes an array, and cursors take one value per `orderBy`, in order
+(`(c) => c.orderBy("year").orderBy("name").startAfter(2023, "Hong Yu")`). Firestore index rules still apply (a range
+`where` plus `orderBy` on another field needs a composite index; the error arrives in `response.error`). The same
+constraints as an array use `$where`, `$orderBy`, `$limit` and the `$`-cursors.
 
 ## Realtime Database requests
 
 ```ts
 import { Client } from "@hyper-fetch/core";
-import { $limitToFirst, $orderByChild, FirebaseAdapter } from "@hyper-fetch/firebase";
+import { FirebaseAdapter } from "@hyper-fetch/firebase";
 import type { RealtimeDBQueryParams } from "@hyper-fetch/firebase";
 import { getDatabase } from "firebase/database";
 
 const rtdbClient = new Client({ url: "" }).setAdapter(FirebaseAdapter(getDatabase(app)));
 
+type Message = { text: string; createdAt: number };
+
 export const getMessages = rtdbClient.createRequest<{
-  response: { __key: string; text: string }[];
-  queryParams?: RealtimeDBQueryParams;
+  response: (Message & { __key: string })[] | null;
+  queryParams?: RealtimeDBQueryParams<Message>;
 }>()({ endpoint: "messages", method: "get" });
 
 export const pushMessage = rtdbClient.createRequest<{ response: { text: string }; payload: { text: string } }>()({
@@ -150,27 +155,27 @@ export const pushMessage = rtdbClient.createRequest<{ response: { text: string }
   method: "push",
 });
 
-await getMessages.send({ queryParams: [$orderByChild("createdAt"), $limitToFirst(20)] });
+await getMessages.send({ queryParams: (c) => c.orderByChild("createdAt").limitToFirst(20) });
 await pushMessage.send({ payload: { text: "hi" } }); // data gets __key, extra.key is the new key
 ```
 
-- Odd-segment paths (`messages`) return an array of children with `__key`, or `null` when there are none - Realtime
-  Database objects with numeric gaps (`{ 2: "c", 4: "e" }`) also come back as arrays.
+- Odd-segment paths (`messages`) return an array of children, each spread into an object with its `__key`, or `null`
+  when there are none. Lists should hold objects: a primitive child comes back as `{ 0: "c", __key: "2" }`.
 - Even-segment paths (`messages/abc`) return `snapshot.val()` as is.
 - `set` replaces, `update` merges, `remove` deletes; `set` with a `null` payload also deletes.
-- Constraints: `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`, `$startAt`,
-  `$startAfter`, `$endAt`, `$endBefore`. Realtime Database allows one `orderBy*` per query. Cursors take the value and
-  an optional key that breaks ties (`$startAfter(2022, "lastKey")`).
+- Realtime chain: `orderByChild(path)` (nested paths use `/`), `orderByKey()`, `orderByValue()`, `limitToFirst`,
+  `limitToLast`, then `equalTo` and the cursors. One `orderBy*` per query, enforced by the types; `equalTo` and cursors
+  exist only after it and take the ordered value plus an optional tie key (`.startAfter(2022, "lastKey")`).
+  `orderByChild` needs an `.indexOn` rule, or the request resolves with an `Index not defined` error.
 
 ## Realtime listeners
 
 ```ts
 declare function render(teas: Tea[] | null): void;
 
-export const onGreenTeas = socket.createListener<Tea[]>()({
-  topic: "teas",
-  options: { constraints: [$where("type", "==", "Green")], groupByChangeType: true },
-});
+export const onGreenTeas = socket
+  .createListener<Tea[]>()({ topic: "teas", options: { groupByChangeType: true } })
+  .setQueryParams((c) => c.where("type", "==", "Green"));
 
 export const onTea = socket.createListener<Tea | null>()({ topic: "teas/:teaId" });
 
@@ -182,11 +187,13 @@ const off = onGreenTeas.listen(({ data, extra }) => {
 off(); // stops this onSnapshot subscription
 ```
 
-| Listener `options`  | Database          | Effect                                                                                                  |
-| ------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
-| `constraints`       | both              | Same `$`-helpers as requests (Firestore helpers for Firestore, Realtime helpers for Realtime Database). |
-| `groupByChangeType` | Firestore         | `extra.groupedResult` with `added` / `modified` / `removed` document data.                              |
-| `onlyOnce`          | Realtime Database | `onValue` fires once.                                                                                   |
+Listener constraints go in `setQueryParams((c) => ...)` (or `queryParams` in `createListener`), the same chain as
+requests, without field typing. `options.constraints` still works and is deprecated.
+
+| Listener `options`  | Database          | Effect                                                                     |
+| ------------------- | ----------------- | -------------------------------------------------------------------------- |
+| `groupByChangeType` | Firestore         | `extra.groupedResult` with `added` / `modified` / `removed` document data. |
+| `onlyOnce`          | Realtime Database | `onValue` fires once.                                                      |
 
 `extra` holds `ref` and `snapshot` (raw Firebase objects). Topic params work as in any listener
 (`onTea.setParams({ teaId })`). The socket is connected from the start; `connect()` / `disconnect()` toggle the Firebase
@@ -205,7 +212,7 @@ import { $orderByChild } from "@hyper-fetch/firebase";
 
 type TeaDoc = { __key?: string; name: string; type: "Green" | "Black"; year: number };
 
-const listTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams }>()({
+const listTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<TeaDoc> }>()({
   endpoint: "teas",
   method: "getDocs",
 });
@@ -218,6 +225,10 @@ const createTea = client.createRequest<{ response: TeaDoc; payload: Omit<TeaDoc,
 client.createRequest<{ response: TeaDoc }>()({ endpoint: "teas", method: "get" });
 // @ts-expect-error - Realtime Database constraint in a Firestore query
 listTeas.send({ queryParams: [$orderByChild("year")] });
+// @ts-expect-error - unknown field, and year is a number
+listTeas.send({ queryParams: (c) => c.where("yaer", "==", "2024") });
+// @ts-expect-error - two orderBy, so a cursor takes at most two values
+listTeas.send({ queryParams: (c) => c.orderBy("year").orderBy("name").startAfter(2024, "a", "b") });
 // @ts-expect-error - payload shape is checked
 createTea.send({ payload: { name: 1, type: "Green", year: 2024 } });
 // @ts-expect-error - Firestore where operators are checked
@@ -232,7 +243,8 @@ What the types enforce:
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `method` belongs to the database the adapter was created with                                                                                                 | that `response` matches what the method returns (`getDoc` vs `getDocs`) |
 | constraints are Firestore helpers for Firestore, Realtime helpers for Realtime Database (with `queryParams?: FirestoreQueryParams` / `RealtimeDBQueryParams`) | that the path parity fits the method (document vs collection)           |
-| `$where` operator (`WhereFilterOp`), `$orderBy` direction                                                                                                     | that field names in constraints exist on your document type             |
+| with `FirestoreQueryParams<Doc>` / `RealtimeDBQueryParams<Doc>`: callback field names, values, cursor arity, one Realtime `orderBy*`                          | field names in the `$`-helper array form and in listener query params   |
+| `$where` operator (`WhereFilterOp`), `$orderBy` direction                                                                                                     | Firestore composite indexes and Realtime `.indexOn` rules               |
 | `payload` and `params` shapes you declared                                                                                                                    | that Firestore actually stores that shape (no runtime validation)       |
 | request `options`: only `merge`                                                                                                                               |                                                                         |
 
@@ -243,22 +255,20 @@ What the types enforce:
 Realtime listeners: the generic is the delivered data, `extra` and `options` come from the adapter.
 
 ```ts
-const onTeasLive = socket.createListener<TeaDoc[]>()({
-  topic: "teas",
-  options: { constraints: [$where("type", "==", "Green")], groupByChangeType: true },
-});
+const onTeasLive = socket
+  .createListener<TeaDoc[]>()({ topic: "teas", options: { groupByChangeType: true } })
+  .setQueryParams((c) => c.where("type", "==", "Green"));
 onTeasLive.listen(({ data, extra }) => {
   data; // TeaDoc[] (the generic you declared; collections can arrive as [] or null at runtime)
-  extra.groupedResult?.added; // Firestore extra: ref, snapshot, unsubscribe, groupedResult
+  extra.groupedResult?.added; // Firestore extra: ref, snapshot, unsubscribe, groupedResult, status
+  extra.status; // "success" | "emptyResource" | "error"
 });
 
 // @ts-expect-error - onlyOnce is a Realtime Database listener option
 socket.createListener<TeaDoc[]>()({ topic: "teas", options: { onlyOnce: true } });
-// @ts-expect-error - status exists at runtime but is not part of the typed extra
-onTeasLive.listen(({ extra }) => extra.status);
 ```
 
-For Realtime Database sockets `options` is `{ onlyOnce?, constraints? }` and `extra` is `{ ref, snapshot }`
+For Realtime Database sockets `options` is `{ onlyOnce? }` and `extra` is `{ ref, snapshot, status }`
 (`DatabaseReference`, `DataSnapshot`). Declare the listener data as `T | null` for single documents. `useListener`
 returns `data: T | null` from the same generic (see `hyper-fetch-sockets`, `references/type-safety.md`).
 
@@ -268,7 +278,7 @@ returns `data: T | null` from the same generic (see `hyper-fetch-sockets`, `refe
 import { useFetch, useListener, useSubmit } from "@hyper-fetch/react";
 
 export function TeaList() {
-  const { data, loading, error } = useFetch(getTeas.setQueryParams([$limit(20)]));
+  const { data, loading, error } = useFetch(getTeas.setQueryParams((c) => c.limit(20)));
   const { submit, submitting } = useSubmit(addTea);
   const live = useListener(onGreenTeas); // live.data: Tea[] | null, replaced on every snapshot
 
@@ -304,7 +314,8 @@ can rely on a live listener, or invalidate: `client.cache.invalidate(getTeas)`. 
 | `.setAdapter(() => FirebaseAdapter(db))`                                    | `.setAdapter(FirebaseAdapter(db))`                   |
 | A Firestore method (`"getDocs"`) on a Realtime Database client              | `"get"`, `"set"`, `"push"`, `"update"` or `"remove"` |
 | `getDoc` on `teas` / `getDocs` on `teas/1`                                  | document paths have an even number of segments       |
-| `queryParams: { constraints: [...] }`                                       | `queryParams: [...]`                                 |
+| `queryParams: { constraints: [...] }` (deprecated)                          | `queryParams: (c) => c.where(...)`                   |
+| listener `options: { constraints: [...] }` (deprecated)                     | `listener.setQueryParams((c) => c.where(...))`       |
 | `.setData(payload)`                                                         | `.setPayload(payload)` or `send({ payload })`        |
 | `listener.listen({ callback })`                                             | `listener.listen(({ data, extra }) => ...)`          |
 | Appending snapshot data to state                                            | replace state with `data`                            |

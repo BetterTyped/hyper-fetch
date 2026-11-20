@@ -1,6 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
-import type { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
+import type {
+  FirebaseAdminAdapterTypes,
+  FirebaseAdminSocketAdapterTypes,
+  FirestoreAdminSocketAdapterType,
+} from "adapter";
 import { $where } from "constraints";
 import waitForExpect from "wait-for-expect";
 
@@ -19,7 +23,7 @@ export const onSnapshotTestSuite = (
   });
   const initialize = async () => {
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-    const socket = new Socket({ url: "teas/", adapter: socketsAdapter() });
+    const socket = new Socket({ url: "teas/", adapter: socketsAdapter() as FirestoreAdminSocketAdapterType });
     const pushReq = client
       .createRequest<{ response: Tea; payload: Tea }>()({
         endpoint: "",
@@ -106,6 +110,26 @@ export const onSnapshotTestSuite = (
       });
       expect(received[0].data).toMatchObject({ name: "Taiping Hou Kui", __key: "1" });
       expect(received[0].groupedResult).toBeNull();
+
+      unmount();
+    });
+
+    it("should filter with the listener's query params", async () => {
+      const { socket } = await initialize();
+      const onGreenTeas = socket
+        .createListener<Tea[]>()({ topic: "" })
+        .setQueryParams((c) => c.where("type", "==", "Green").limit(2));
+
+      const received: Tea[][] = [];
+      const unmount = onGreenTeas.listen(({ data }) => {
+        received.push(data);
+      });
+
+      await waitForExpect(async () => {
+        expect(received).toHaveLength(1);
+      });
+      expect(received[0]).toHaveLength(2);
+      expect(received[0].map((tea) => tea.type)).toStrictEqual(["Green", "Green"]);
 
       unmount();
     });
