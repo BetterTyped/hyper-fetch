@@ -26,20 +26,20 @@ export const mapRealtimeConstraint = ({ type, values }: RealtimePermittedMethods
       return orderByValue();
     }
     case SharedQueryConstraints.START_AT: {
-      const [[value]] = values;
-      return startAt(value);
+      const [[value, key]] = values;
+      return startAt(value, key);
     }
     case SharedQueryConstraints.START_AFTER: {
-      const [[value]] = values;
-      return startAfter(value);
+      const [[value, key]] = values;
+      return startAfter(value, key);
     }
     case SharedQueryConstraints.END_AT: {
-      const [[value]] = values;
-      return endAt(value);
+      const [[value, key]] = values;
+      return endAt(value, key);
     }
     case SharedQueryConstraints.END_BEFORE: {
-      const [[value]] = values;
-      return endBefore(value);
+      const [[value, key]] = values;
+      return endBefore(value, key);
     }
     case RealtimeQueryConstraints.LIMIT_TO_FIRST: {
       const [value] = values;

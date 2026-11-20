@@ -53,17 +53,17 @@ export const getRealtimeDbBrowserMethods = ({
       const status = getStatus(res);
       return { result: res, status, extra: { ref: path, snapshot } };
     },
-    set: async ({ data }: { data?: any }) => {
-      await set(path, data);
-      return { result: data, status: "success", extra: { ref: path } };
+    set: async ({ payload }: DataType) => {
+      await set(path, payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
-    push: async ({ data }: { data?: any }) => {
-      const resRef = await push(path, data);
-      return { result: { ...data, __key: resRef.key }, status: "success", extra: { ref: resRef, key: resRef.key } };
+    push: async ({ payload }: DataType) => {
+      const resRef = await push(path, payload);
+      return { result: { ...payload, __key: resRef.key }, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
-    update: async ({ data }: { data?: any }) => {
-      await update(path, data);
-      return { result: data, status: "success", extra: { ref: path } };
+    update: async ({ payload }: DataType) => {
+      await update(path, payload);
+      return { result: payload, status: "success", extra: { ref: path } };
     },
     remove: async () => {
       await remove(path);

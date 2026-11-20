@@ -495,7 +495,8 @@ export class Adapter<
           >(bindings);
         }
 
-        return this.unstable_fetcher(bindings);
+        // Awaited so a rejected async fetcher lands in the catch below and resolves the request with the error
+        return await this.unstable_fetcher(bindings);
       } catch (error) {
         const onError = getAdapterOnError({
           request,

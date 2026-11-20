@@ -20,19 +20,19 @@ export const applyFireStoreAdminConstraint = (collectionRef: Query, { type, valu
     }
     case SharedQueryConstraints.START_AT: {
       const [docOrFields] = values;
-      return collectionRef.startAt(docOrFields);
+      return collectionRef.startAt(...docOrFields);
     }
     case SharedQueryConstraints.START_AFTER: {
       const [docOrFields] = values;
-      return collectionRef.startAfter(docOrFields);
+      return collectionRef.startAfter(...docOrFields);
     }
     case SharedQueryConstraints.END_AT: {
       const [docOrFields] = values;
-      return collectionRef.endAt(docOrFields);
+      return collectionRef.endAt(...docOrFields);
     }
     case SharedQueryConstraints.END_BEFORE: {
       const [docOrFields] = values;
-      return collectionRef.endBefore(docOrFields);
+      return collectionRef.endBefore(...docOrFields);
     }
     default:
       throw new Error(`Unknown method ${type}`);

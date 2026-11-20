@@ -50,13 +50,15 @@ the Realtime Database methods and options.
 1. **Pass an adapter instance, one per client or socket.** `setAdapter(FirebaseAdapter(db))`, not
    `setAdapter(() => FirebaseAdapter(db))` - `Client.setAdapter` takes an instance. Never share one
    `FirebaseSocketsAdapter(db)` between two sockets; the adapter binds to the socket it is initialized with.
-2. **Always set `method`.** The default method is `"getDoc"`, which only exists for Firestore. Realtime Database
-   requests must say `"get"`, `"set"`, `"push"`, `"update"` or `"remove"`.
+2. **Set `method` for anything but a read.** Without it, Firestore requests use `"getDoc"` and Realtime Database
+   requests use `"get"`. A method the database does not have (`"getDocs"` on Realtime Database) resolves with
+   `status: "error"`.
 3. **Path parity decides document vs collection.** The full path (`client.url + endpoint`, or `socket.url + topic`) with
    an even number of segments is a document (`teas/1`), odd is a collection (`teas`). `getDoc`/`setDoc`/`updateDoc`/
    `deleteDoc` need a document path, `getDocs`/`addDoc` a collection path. Mind the slash when concatenating:
    `url: "teas"` + `endpoint: ":id"` gives `teas1`; use `url: "teas/"` or `endpoint: "/:id"`.
-4. **Filter with constraints in `queryParams`, not in the endpoint.** Use the `$`-helpers and type the request with
+4. **Filter with constraints in `queryParams`, not in the endpoint.** `queryParams` is the array of `$`-helpers itself
+   (`queryParams: [$where(...), $limit(20)]`), applied in order. Type the request with
    `queryParams?: FirestoreQueryParams` / `RealtimeDBQueryParams`. Constraints are part of the cache key.
 5. **Writes use `setPayload` (or `send({ payload })`).** There is no `setData`. `setDoc` merges only with
    `options: { merge: true }`.
@@ -66,7 +68,8 @@ the Realtime Database methods and options.
 7. **Realtime goes through sockets, not requests.** There is no `onSnapshot` / `onValue` request method; create a
    listener on a `FirebaseSocketsAdapter` socket. Firebase sockets are receive-only: `emit()` throws.
 8. **Treat each snapshot as the full current state.** Listener `data` is the whole document or result list; replace
-   state with it, never append. Callbacks can run more than once for the same snapshot.
+   state with it, never append. Keep one listener per topic on a socket: listeners that share a topic also receive each
+   other's snapshots.
 9. **`socket.disconnect()` takes the whole Firebase instance offline** (`disableNetwork` for Firestore, `goOffline` for
    Realtime Database), including your `FirebaseAdapter` requests. To stop one subscription, call its remover.
 10. **This package is for browsers and client apps.** It ships only the public Web SDK config. Server code with service
@@ -106,7 +109,7 @@ export const mergeTea = client.createRequest<{ response: Partial<Tea>; payload: 
 export const deleteTea = client.createRequest<{ response: null }>()({ endpoint: "teas/:teaId", method: "deleteDoc" });
 
 const greens = await getTeas.send({
-  queryParams: { constraints: [$where("type", "==", "Green"), $orderBy("year", "desc"), $limit(10)] },
+  queryParams: [$where("type", "==", "Green"), $orderBy("year", "desc"), $limit(10)],
 });
 const one = await getTea.setParams({ teaId: "abc" }).send();
 const created = await addTea.send({ payload: { name: "Sencha", type: "Green", year: 2024 } });
@@ -123,10 +126,9 @@ Results and `extra`:
 | `deleteDoc`           | `null`                                                               | `ref`                                                   |
 
 Firestore constraints: `$where(field, op, value)`, `$orderBy(field, "asc" | "desc")`, `$limit(n)`, and the cursors
-`$startAt`, `$startAfter`, `$endAt`, `$endBefore`. The cursor helpers forward their arguments wrapped in an array, so
-verify Firestore cursor queries against the emulator before relying on them; paginating with a `$where` range on the
-ordered field plus `$limit` is the safe option. Firestore index rules still apply (a range `$where` plus `$orderBy` on
-another field needs a composite index; the error arrives in `response.error`).
+`$startAt`, `$startAfter`, `$endAt`, `$endBefore`. Cursors take one field value per `$orderBy`, in the same order
+(`[$orderBy("year"), $orderBy("name"), $startAfter(2023, "Hong Yu")]`). Firestore index rules still apply (a range
+`$where` plus `$orderBy` on another field needs a composite index; the error arrives in `response.error`).
 
 ## Realtime Database requests
 
@@ -148,7 +150,7 @@ export const pushMessage = rtdbClient.createRequest<{ response: { text: string }
   method: "push",
 });
 
-await getMessages.send({ queryParams: { constraints: [$orderByChild("createdAt"), $limitToFirst(20)] } });
+await getMessages.send({ queryParams: [$orderByChild("createdAt"), $limitToFirst(20)] });
 await pushMessage.send({ payload: { text: "hi" } }); // data gets __key, extra.key is the new key
 ```
 
@@ -157,7 +159,8 @@ await pushMessage.send({ payload: { text: "hi" } }); // data gets __key, extra.k
 - Even-segment paths (`messages/abc`) return `snapshot.val()` as is.
 - `set` replaces, `update` merges, `remove` deletes; `set` with a `null` payload also deletes.
 - Constraints: `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`, `$startAt`,
-  `$startAfter`, `$endAt`, `$endBefore`. Realtime Database allows one `orderBy*` per query.
+  `$startAfter`, `$endAt`, `$endBefore`. Realtime Database allows one `orderBy*` per query. Cursors take the value and
+  an optional key that breaks ties (`$startAfter(2022, "lastKey")`).
 
 ## Realtime listeners
 
@@ -214,7 +217,7 @@ const createTea = client.createRequest<{ response: TeaDoc; payload: Omit<TeaDoc,
 // @ts-expect-error - "get" is a Realtime Database method, this client is Firestore
 client.createRequest<{ response: TeaDoc }>()({ endpoint: "teas", method: "get" });
 // @ts-expect-error - Realtime Database constraint in a Firestore query
-listTeas.send({ queryParams: { constraints: [$orderByChild("year")] } });
+listTeas.send({ queryParams: [$orderByChild("year")] });
 // @ts-expect-error - payload shape is checked
 createTea.send({ payload: { name: 1, type: "Green", year: 2024 } });
 // @ts-expect-error - Firestore where operators are checked
@@ -265,7 +268,7 @@ returns `data: T | null` from the same generic (see `hyper-fetch-sockets`, `refe
 import { useFetch, useListener, useSubmit } from "@hyper-fetch/react";
 
 export function TeaList() {
-  const { data, loading, error } = useFetch(getTeas.setQueryParams({ constraints: [$limit(20)] }));
+  const { data, loading, error } = useFetch(getTeas.setQueryParams([$limit(20)]));
   const { submit, submitting } = useSubmit(addTea);
   const live = useListener(onGreenTeas); // live.data: Tea[] | null, replaced on every snapshot
 
@@ -296,18 +299,19 @@ can rely on a live listener, or invalidate: `client.cache.invalidate(getTeas)`. 
 
 ## Pitfalls
 
-| Wrong                                                                       | Right                                                           |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `.setAdapter(() => FirebaseAdapter(db))`                                    | `.setAdapter(FirebaseAdapter(db))`                              |
-| `method` omitted on a Realtime Database request                             | always set `"get"`, `"set"`, `"push"`, `"update"` or `"remove"` |
-| `getDoc` on `teas` / `getDocs` on `teas/1`                                  | document paths have an even number of segments                  |
-| `.setData(payload)`                                                         | `.setPayload(payload)` or `send({ payload })`                   |
-| `listener.listen({ callback })`                                             | `listener.listen(({ data, extra }) => ...)`                     |
-| Appending snapshot data to state                                            | replace state with `data`                                       |
-| `socket.disconnect()` to stop one listener                                  | call the function returned by `listen()`                        |
-| One `FirebaseSocketsAdapter` instance for two sockets                       | create the adapter inline per socket                            |
-| `try { await req.send() } catch` for Firebase errors                        | check `response.error` / `response.status`                      |
-| Importing from `@hyper-fetch/firebase` in server code with service accounts | `@hyper-fetch/firebase-admin`                                   |
+| Wrong                                                                       | Right                                                |
+| --------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `.setAdapter(() => FirebaseAdapter(db))`                                    | `.setAdapter(FirebaseAdapter(db))`                   |
+| A Firestore method (`"getDocs"`) on a Realtime Database client              | `"get"`, `"set"`, `"push"`, `"update"` or `"remove"` |
+| `getDoc` on `teas` / `getDocs` on `teas/1`                                  | document paths have an even number of segments       |
+| `queryParams: { constraints: [...] }`                                       | `queryParams: [...]`                                 |
+| `.setData(payload)`                                                         | `.setPayload(payload)` or `send({ payload })`        |
+| `listener.listen({ callback })`                                             | `listener.listen(({ data, extra }) => ...)`          |
+| Appending snapshot data to state                                            | replace state with `data`                            |
+| `socket.disconnect()` to stop one listener                                  | call the function returned by `listen()`             |
+| One `FirebaseSocketsAdapter` instance for two sockets                       | create the adapter inline per socket                 |
+| `try { await req.send() } catch` for Firebase errors                        | check `response.error` / `response.status`           |
+| Importing from `@hyper-fetch/firebase` in server code with service accounts | `@hyper-fetch/firebase-admin`                        |
 
 ## Testing
 
