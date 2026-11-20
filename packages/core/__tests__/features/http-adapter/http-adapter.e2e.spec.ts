@@ -868,6 +868,38 @@ describe("E2E [ Fetch adapter ]", () => {
       expect(progress.at(-1)).toEqual({ loaded: size, total: size });
     });
 
+    it("should report the finished upload only once the server has the body", async () => {
+      // Fetch has no upload events - the response is the first sign that the whole body was sent
+      const finishedAfterServerGotBody: boolean[] = [];
+
+      await createEcho().send({
+        payload: { text: "x".repeat(10_000) },
+        onUploadProgress: ({ loaded, total }) => {
+          if (loaded === total) finishedAfterServerGotBody.push(hits.includes("/echo"));
+        },
+      });
+
+      expect(finishedAfterServerGotBody).toEqual([true]);
+    });
+
+    it.each([
+      ["Blob", () => new Blob(["a".repeat(2048)]), 2048],
+      ["ArrayBuffer", () => new Uint8Array(1024).buffer, 1024],
+      ["typed array", () => new Uint8Array(512), 512],
+      ["URLSearchParams", () => new URLSearchParams({ name: "żółw" }), Buffer.byteLength("name=%C5%BC%C3%B3%C5%82w")],
+    ])("should report the size of a %s payload as the upload total", async (_, createPayload, size) => {
+      const progress: { loaded: number; total: number }[] = [];
+
+      const { data } = await createEcho().send({
+        payload: createPayload(),
+        onUploadProgress: ({ loaded, total }) => progress.push({ loaded, total }),
+      });
+
+      expect(data?.bodyLength).toBe(size);
+      expect(progress[0]).toEqual({ loaded: 0, total: size });
+      expect(progress.at(-1)).toEqual({ loaded: size, total: size });
+    });
+
     it("should call the lifecycle callbacks once", async () => {
       const onRequestStart = vi.fn();
       const onResponseStart = vi.fn();

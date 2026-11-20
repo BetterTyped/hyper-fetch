@@ -171,10 +171,8 @@ export const getOrpcAdapter = ({
 
             const total = getBodySize(httpRequest.body);
             if (total) {
-              onRequestProgress({ total, loaded: total } as ProgressEvent);
+              onRequestProgress({ total, loaded: 0 } as ProgressEvent);
             }
-
-            onRequestEnd();
 
             const response = await fetch(httpRequest.url, {
               ...restOptions,
@@ -183,6 +181,9 @@ export const getOrpcAdapter = ({
               body: httpRequest.body,
               signal: controller.signal,
             });
+
+            // Fetch has no upload events. The response is the first sign that the whole body was sent.
+            onRequestEnd();
 
             onResponseStart();
 
