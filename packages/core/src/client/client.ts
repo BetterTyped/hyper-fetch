@@ -16,7 +16,13 @@ import type { LogLevel } from "managers";
 import { AppManager, LoggerManager, RequestManager } from "managers";
 import { resetOptimisticState } from "optimistic";
 import type { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
-import type { RequestInstance, RequestJSON, RequestOptionsType } from "request";
+import type {
+  ExtractEndpointPayloadType,
+  ExtractEndpointResponseType,
+  RequestInstance,
+  RequestJSON,
+  RequestOptionsType,
+} from "request";
 import { getRequestKey, getSimpleKey, Request, scopeKey } from "request";
 import type {
   EmptyTypes,
@@ -590,8 +596,6 @@ export class Client<
   ) => {
     type DefaultQueryParams = ExtractAdapterDefaultQueryParamsType<Adapter>;
 
-    type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
-    type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
     type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
     /** we pass never to prevent the type from being empty, but we allow it to be undefined (optional) */
     type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", DefaultQueryParams, never>;
@@ -604,6 +608,9 @@ export class Client<
       params: RequestOptionsType<EndpointType, AdapterOptions, MethodType> & ExtractAdapterRequestOptionsType<Adapter>,
     ) => {
       type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", EndpointType>;
+      // A typed endpoint (like a TypedDocumentNode) fills the response and the payload the generics leave out
+      type Response = TypeWithDefaults<RequestProperties, "response", ExtractEndpointResponseType<EndpointType>>;
+      type Payload = TypeWithDefaults<RequestProperties, "payload", ExtractEndpointPayloadType<EndpointType>>;
 
       const endpoint = this.adapter.unstable_endpointMapper(params.endpoint);
 

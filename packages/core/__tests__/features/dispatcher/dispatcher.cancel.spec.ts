@@ -65,7 +65,8 @@ describe("Dispatcher [ Cancel detection ]", () => {
     const response = await request.send();
 
     expect(response.success).toBeFalse();
-    expect(response.error).toMatchObject({ message: getErrorMessage("timeout").message });
+    // The timeout goes through the adapter's error mapping, like an abort does
+    expect(response.error).toMatchObject([{ message: getErrorMessage("timeout").message }]);
     expect(details.mock.calls.at(-1)?.[0].isCanceled).toBeFalse();
   });
 });

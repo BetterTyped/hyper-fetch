@@ -14,6 +14,12 @@ one line here in the same change.
   payload.
 - **Response**: the object `send()` resolves with: `data`, `error`, `status`, `success`, `extra`, `requestTimestamp` and
   `responseTimestamp`.
+- **Typed endpoint**: an endpoint that carries its response and payload types in the `__apiType` decoration, like a
+  `TypedDocumentNode`. `createRequest` reads them when its generics leave them out.
+- **Persisted query**: a GraphQL request that sends the SHA-256 hash of its query instead of the text
+  (`persistedQueries`), and the full query only when the server does not know the hash yet.
+- **Error policy**: what a GraphQL response with both `data` and `errors` resolves to (`errorPolicy`): a failure
+  (`"none"`) or a success with partial data and the errors in `extra.errors` (`"all"`).
 - **Mapper**: a function that transforms a request before sending or a response after receiving.
 - **Mock**: a handler attached with `request.setMock()` that replaces the adapter for that request instance.
 - **SDK schema**: the nested type `createSdk` reads, with `$method` keys holding a `Request`. `HonoAppToHyperFetch` in

@@ -543,16 +543,13 @@ importers:
       '@hyper-fetch/core':
         specifier: workspace:*
         version: link:../core
-      events:
-        specifier: ^3.3.0
-        version: 3.3.0
-      graphql:
-        specifier: '*'
-        version: 16.13.2
     devDependencies:
       abortcontroller-polyfill:
         specifier: ^1.7.5
         version: 1.7.8
+      graphql:
+        specifier: ^16.13.2
+        version: 16.13.2
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.13.2)
