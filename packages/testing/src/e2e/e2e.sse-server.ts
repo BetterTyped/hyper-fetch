@@ -1,15 +1,17 @@
-import http from "http";
 import type { Socket } from "net";
+// `node:` always means the builtin, also in browser-like test environments (jsdom) where "http" may resolve to a package
+import type { Server, ServerResponse } from "node:http";
+import { createServer } from "node:http";
 
 export const createSseE2EServer = () => {
-  let server: http.Server | null = null;
+  let server: Server | null = null;
   let port = 0;
-  const responses: http.ServerResponse[] = [];
+  const responses: ServerResponse[] = [];
   const sockets: Socket[] = [];
 
   const startServer = (): Promise<string> => {
     return new Promise((resolve, reject) => {
-      server = http.createServer((req, res) => {
+      server = createServer((req, res) => {
         res.writeHead(200, {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
@@ -22,7 +24,9 @@ export const createSseE2EServer = () => {
 
         req.on("close", () => {
           const idx = responses.indexOf(res);
-          if (idx !== -1) {responses.splice(idx, 1);}
+          if (idx !== -1) {
+            responses.splice(idx, 1);
+          }
         });
       });
 
@@ -30,7 +34,9 @@ export const createSseE2EServer = () => {
         sockets.push(socket);
         socket.on("close", () => {
           const idx = sockets.indexOf(socket);
-          if (idx !== -1) {sockets.splice(idx, 1);}
+          if (idx !== -1) {
+            sockets.splice(idx, 1);
+          }
         });
       });
 
@@ -66,8 +72,11 @@ export const createSseE2EServer = () => {
       }
       server.close((err) => {
         server = null;
-        if (err) {reject(err);}
-        else {resolve();}
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
       });
     });
   };
