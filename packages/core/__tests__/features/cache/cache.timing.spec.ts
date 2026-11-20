@@ -24,6 +24,40 @@ describe("Cache [ Timing ]", () => {
     vi.useRealTimers();
   });
 
+  describe("When the cached data gets updated locally", () => {
+    it("should count the cache time from the update", () => {
+      client.cache.set(request, createCacheResponse({ id: 1 }));
+      vi.advanceTimersByTime(800);
+
+      client.cache.update(request, { data: { id: 2 } });
+      vi.advanceTimersByTime(cacheTime - 1);
+
+      expect(client.cache.get(request.cacheKey)?.data).toStrictEqual({ id: 2 });
+
+      vi.advanceTimersByTime(1);
+      expect(client.cache.get(request.cacheKey)).toBeUndefined();
+    });
+
+    it("should set the response timestamp to the time of the update", () => {
+      client.cache.set(request, createCacheResponse({ id: 1 }));
+      vi.advanceTimersByTime(800);
+
+      client.cache.update(request, (previous) => ({ data: { id: (previous?.data.id ?? 0) + 1 } }));
+
+      expect(client.cache.get(request.cacheKey)?.responseTimestamp).toBe(Date.now());
+      expect(client.cache.get(request.cacheKey)?.data).toStrictEqual({ id: 2 });
+    });
+
+    it("should refresh the response timestamp when the callback spreads the previous value", () => {
+      client.cache.set(request, createCacheResponse({ id: 1 }));
+      vi.advanceTimersByTime(800);
+
+      client.cache.update(request, (previous) => ({ ...previous, data: { id: 2 } }));
+
+      expect(client.cache.get(request.cacheKey)?.responseTimestamp).toBe(Date.now());
+    });
+  });
+
   describe("When cache time passes", () => {
     it("should keep the element just before the cache time passes", () => {
       client.cache.set(request, createCacheResponse({ id: 1 }));
@@ -181,18 +215,6 @@ describe("Cache [ Timing ]", () => {
 
       vi.advanceTimersByTime(4999);
       expect(client.cache.get(request.cacheKey)).toBeDefined();
-
-      vi.advanceTimersByTime(1);
-      expect(client.cache.get(request.cacheKey)).toBeUndefined();
-    });
-
-    it("should not extend the cache time with the update which keeps the response timestamp", () => {
-      client.cache.set(request, createCacheResponse({ id: 1 }));
-      vi.advanceTimersByTime(600);
-      client.cache.update(request, { data: { id: 2 } });
-
-      vi.advanceTimersByTime(399);
-      expect(client.cache.get(request.cacheKey)?.data).toStrictEqual({ id: 2 });
 
       vi.advanceTimersByTime(1);
       expect(client.cache.get(request.cacheKey)).toBeUndefined();
