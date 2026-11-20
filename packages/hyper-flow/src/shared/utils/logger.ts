@@ -1,4 +1,3 @@
-/* eslint-disable class-methods-use-this */
 /* eslint-disable no-console */
 import chalk from "chalk";
 
@@ -6,142 +5,92 @@ type LogLevel = "info" | "success" | "warning" | "error" | "debug";
 type LogLocation = "server" | "app";
 
 interface LogOptions {
-  level?: LogLevel;
-  timestamp?: boolean;
   context?: string;
-  error?: any;
-  details?: any;
+  /** Printed below the message as JSON */
+  details?: unknown;
+  /** An `Error` prints its message and stack, anything else prints as JSON */
+  error?: unknown;
 }
 
+const emojis: Record<LogLevel, string> = {
+  info: "ℹ️",
+  success: "✅",
+  warning: "⚠️",
+  error: "❌",
+  debug: "🔍",
+};
+
+const levelStyles: Record<LogLevel, (text: string) => string> = {
+  info: chalk.bgBlue.white.bold,
+  success: chalk.bgGreen.white.bold,
+  warning: chalk.bgYellow.black.bold,
+  error: chalk.bgRed.white.bold,
+  debug: chalk.bgMagenta.white.bold,
+};
+
+const colors: Record<LogLevel, (text: string) => string> = {
+  info: chalk.hex("#3498db"), // Bright blue
+  success: chalk.hex("#2ecc71"), // Emerald green
+  warning: chalk.hex("#f1c40f"), // Sunflower yellow
+  error: chalk.hex("#e74c3c"), // Alizarin red
+  debug: chalk.hex("#9b59b6"), // Amethyst purple
+};
+
+const locationLabels: Record<LogLocation, string> = {
+  app: chalk.hex("#FFD700")("[APPLICATION]"),
+  server: chalk.hex("#4ECDC4")("[SERVER]"),
+};
+
+const getEnvironment = () => import.meta.env.VITE_ENVIRONMENT;
+
+const formatError = (error: unknown) => {
+  if (error instanceof Error) {
+    return [error.message, error.stack].filter(Boolean).join("\n");
+  }
+  return JSON.stringify(error, null, 2);
+};
+
+/**
+ * Logs of the Electron main process. Methods are bound, so they can be passed as callbacks like `.catch(logger.error)`.
+ * Production builds only print errors, and debug messages only print while developing.
+ */
 class Logger {
-  private static instances = new Map<LogLocation, Logger>();
-  private isDebugEnabled: boolean;
   private location: LogLocation;
-  private isProduction: boolean;
 
-  private constructor(location: LogLocation) {
+  constructor(location: LogLocation) {
     this.location = location;
-    this.isDebugEnabled = import.meta.env.VITE_ENVIRONMENT === "development";
-    this.isProduction = import.meta.env.VITE_ENVIRONMENT === "production";
   }
 
-  public static getInstance(location: LogLocation): Logger {
-    if (!Logger.instances.has(location)) {
-      Logger.instances.set(location, new Logger(location));
+  private print(level: LogLevel, message: string, options: LogOptions = {}) {
+    const environment = getEnvironment();
+    // Production only prints errors, debug only prints while developing
+    if ((environment === "production" && level !== "error") || (level === "debug" && environment !== "development")) {
+      return;
     }
-    return Logger.instances.get(location)!;
-  }
+    const { context, details, error } = options;
+    const write = level === "error" ? console.error : console.log;
+    const contextLabel = context ? chalk.cyan(`[${context}]`) : "";
+    const header = `${chalk.gray(`[${new Date().toISOString()}]`)} ${locationLabels[this.location]} ${levelStyles[level](`[${level.toUpperCase()}]`)} ${emojis[level]} ${contextLabel} ${message}`;
 
-  private getTimestamp(): string {
-    return new Date().toISOString();
-  }
-
-  private getEmoji(level: LogLevel): string {
-    const emojis = {
-      info: "ℹ️",
-      success: "✅",
-      warning: "⚠️",
-      error: "❌",
-      debug: "🔍",
-    };
-    return emojis[level];
-  }
-
-  private formatMessage(message: string, options: LogOptions = {}): string {
-    const { level = "info", timestamp = true, context } = options;
-    const timestampStr = timestamp ? chalk.gray(`[${this.getTimestamp()}]`) : "";
-    const locationStr =
-      this.location === "app"
-        ? chalk.hex("#FFD700")(`[APPLICATION]`)
-        : chalk.hex("#4ECDC4")(`[${this.location.toUpperCase()}]`);
-    const contextStr = context ? chalk.cyan(`[${context}]`) : "";
-    const levelStr = this.getLevelStyle(level);
-    const emoji = this.getEmoji(level);
-
-    return `${timestampStr} ${locationStr} ${levelStr} ${emoji} ${contextStr} ${message}`;
-  }
-
-  private getLevelStyle(level: LogLevel): string {
-    const styles = {
-      info: chalk.bgBlue.white.bold(`[${level.toUpperCase()}]`),
-      success: chalk.bgGreen.white.bold(`[${level.toUpperCase()}]`),
-      warning: chalk.bgYellow.black.bold(`[${level.toUpperCase()}]`),
-      error: chalk.bgRed.white.bold(`[${level.toUpperCase()}]`),
-      debug: chalk.bgMagenta.white.bold(`[${level.toUpperCase()}]`),
-    };
-    return styles[level];
-  }
-
-  private getColor(level: LogLevel): (text: string) => string {
-    const colors = {
-      info: chalk.hex("#3498db"), // Bright blue
-      success: chalk.hex("#2ecc71"), // Emerald green
-      warning: chalk.hex("#f1c40f"), // Sunflower yellow
-      error: chalk.hex("#e74c3c"), // Alizarin red
-      debug: chalk.hex("#9b59b6"), // Amethyst purple
-    };
-    return colors[level];
-  }
-
-  private formatDetails(details: any): string {
-    if (typeof details === "object") {
-      return chalk.white(JSON.stringify(details, null, 2));
+    write(colors[level](header));
+    if (details !== undefined) {
+      write(chalk.white(JSON.stringify(details, null, 2)));
     }
-    return chalk.white(details);
-  }
-
-  private shouldLog(level: LogLevel): boolean {
-    if (this.isProduction) {
-      return level === "error"; // Only log errors in production
-    }
-    return true;
-  }
-
-  public info(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("info")) {return;}
-    const formattedMessage = this.formatMessage(message, { ...options, level: "info" });
-    console.log(this.getColor("info")(formattedMessage));
-    if (options?.details) {
-      console.log(this.formatDetails(options.details));
+    if (error !== undefined) {
+      write(colors[level](formatError(error)));
     }
   }
 
-  public success(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("success")) {return;}
-    const formattedMessage = this.formatMessage(message, { ...options, level: "success" });
-    console.log(this.getColor("success")(formattedMessage));
-    if (options?.details) {
-      console.log(this.formatDetails(options.details));
-    }
-  }
+  info = (message: string, options?: LogOptions) => this.print("info", message, options);
 
-  public warning(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("warning")) {return;}
-    const formattedMessage = this.formatMessage(message, { ...options, level: "warning" });
-    console.log(this.getColor("warning")(formattedMessage));
-    if (options?.details) {
-      console.log(this.formatDetails(options.details));
-    }
-  }
+  success = (message: string, options?: LogOptions) => this.print("success", message, options);
 
-  public error(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("error")) {return;}
-    const formattedMessage = this.formatMessage(message, { ...options, level: "error" });
-    console.error(this.getColor("error")(formattedMessage));
-    if (options?.error) {
-      console.error(this.getColor("error")(options.error?.message || JSON.stringify(options.error, null, 2)));
-      if (options.error?.stack) {
-        console.error(this.getColor("error")(options.error.stack));
-      }
-    }
-  }
+  warning = (message: string, options?: LogOptions) => this.print("warning", message, options);
 
-  public debug(message: string, options?: Omit<LogOptions, "level">): void {
-    if (!this.shouldLog("debug") || !this.isDebugEnabled) {return;}
-    const formattedMessage = this.formatMessage(message, { ...options, level: "debug" });
-    console.log(this.getColor("debug")(formattedMessage));
-  }
+  error = (message: unknown, options?: LogOptions) => this.print("error", String(message), options);
+
+  debug = (message: string, options?: LogOptions) => this.print("debug", message, options);
 }
 
-export const appLogger = Logger.getInstance("app");
-export const serverLogger = Logger.getInstance("server");
+export const appLogger = new Logger("app");
+export const serverLogger = new Logger("server");

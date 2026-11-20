@@ -1,33 +1,35 @@
 import type { BaseMessagePayload, MessageOrigin } from "@hyper-fetch/plugin-devtools";
 import { serverLogger } from "@shared/utils/logger";
-import type { Server } from "http";
+import type { IncomingMessage, Server } from "http";
 import { createServer } from "http";
-import url from "url";
 import type { RawData, WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 
 import { ConnectionHandler } from "./handlers/connection-handler";
 import type { ConnectionMap } from "./types/connection.type";
 
-const getConnectionInfo = (requestUrl: string) => {
-  const queryParams = url.parse(requestUrl, true).query;
-  const { connectionName, origin } = (queryParams || {}) as { connectionName?: string; origin?: MessageOrigin };
+const getConnectionInfo = (request: IncomingMessage) => {
+  const { searchParams } = new URL(`${request.url}`, "http://localhost");
+  const connectionName = searchParams.get("connectionName");
+  const origin = searchParams.get("origin") as MessageOrigin | null;
   if (!connectionName || !origin) {
     return null;
   }
   return { connectionName, origin };
 };
 
-export type StartServer = {
-  server: Server | null;
-  wss: WebSocketServer | null;
+type StartServerResult = {
   connections: ConnectionMap;
   /** The HyperFlow renderer connection at the moment of reading. */
   readonly DEVTOOLS_FRONTEND_WS_CONNECTION: WebSocket | null;
   /** The HyperFlow renderer connection, or `null` while the renderer is not connected. */
   getAppConnection: () => WebSocket | null;
-  errorMessage?: string;
 };
+
+/** A running server, or `null`s and the reason it could not listen */
+export type StartServer =
+  | (StartServerResult & { server: Server; wss: WebSocketServer; errorMessage?: undefined })
+  | (StartServerResult & { server: null; wss: null; errorMessage: string });
 
 const parseMessage = (raw: RawData): { data: BaseMessagePayload } | null => {
   try {
@@ -49,7 +51,7 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
   const connectionHandler = new ConnectionHandler();
 
   wss.on("connection", (wsConn, request) => {
-    const connectionInfo = getConnectionInfo(request.url || "");
+    const connectionInfo = getConnectionInfo(request);
 
     if (!connectionInfo) {
       serverLogger.error("WebSocket connection attempt failed", {
@@ -98,7 +100,8 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
           context: "WebSocketServer",
           details: {
             connectionInfo,
-            error: error instanceof Error ? error.message : String(error),
+            // Only the runtime throws here, e.g. a payload too deep to serialize again
+            error: String(error),
             messageType: message.data.messageType,
           },
         });
@@ -116,54 +119,23 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     });
   });
 
-  if (onServerCrash) {
-    process.on("unhandledRejection", onServerCrash);
-  }
-
-  server
-    .listen(port, () => {
-      serverLogger.success("Application Server started", {
-        context: "Server",
-        details: {
-          port,
-          protocol: "http",
-        },
-      });
-    })
-    .on("close", () => {
-      if (onServerCrash) {
-        process.off("unhandledRejection", onServerCrash);
-      }
-    })
-    .on("error", (error) => {
-      if (onServerCrash) {
-        process.off("unhandledRejection", onServerCrash);
-      }
-      serverLogger.error("Server error occurred", {
-        context: "Server",
-        details: {
-          port,
-          error: error.message,
-          stack: error.stack,
-        },
-      });
-    });
-
-  const startingServer = new Promise<{ isReady: boolean; message?: string }>((resolve) => {
-    server.on(`listening`, () => {
-      resolve({ isReady: true });
-    });
-    server.on("error", (err: { code: string }) => {
-      if (err.code === "EADDRINUSE") {
-        return resolve({ isReady: false, message: `Port ${port} is already in use` });
-      }
-      return resolve({ isReady: false, message: `Error: ${err.code}` });
-    });
+  // A port out of range throws instead of emitting "error"
+  const listenError = await new Promise<NodeJS.ErrnoException | null>((resolve) => {
+    server.once("listening", () => resolve(null));
+    server.once("error", resolve);
+    try {
+      server.listen(port);
+    } catch (error) {
+      resolve(error as NodeJS.ErrnoException);
+    }
   });
 
-  const { isReady, message } = await startingServer;
-
-  if (isReady) {
+  if (!listenError) {
+    serverLogger.success("Application Server started", { context: "Server", details: { port, protocol: "http" } });
+    if (onServerCrash) {
+      process.on("unhandledRejection", onServerCrash);
+      server.once("close", () => process.off("unhandledRejection", onServerCrash));
+    }
     const getAppConnection = () => connectionHandler.connectionState.appConnection;
     return {
       server,
@@ -175,12 +147,11 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
       getAppConnection,
     };
   }
+  const errorMessage =
+    listenError.code === "EADDRINUSE" ? `Port ${port} is already in use` : `Error: ${listenError.message}`;
   serverLogger.error("Server failed to start", {
     context: "Server",
-    details: {
-      port,
-      error: "Server failed to start",
-    },
+    details: { port, error: errorMessage },
   });
   return {
     server: null,
@@ -188,6 +159,6 @@ export const startServer = async (options: { port: number; onServerCrash?: () =>
     connections: {},
     DEVTOOLS_FRONTEND_WS_CONNECTION: null,
     getAppConnection: () => null,
-    errorMessage: message,
+    errorMessage,
   };
 };
