@@ -22,6 +22,21 @@ type MappedResponse =
   | Promise<ResponseType<any, any, AdapterInstance>>
   | undefined;
 
+/**
+ * Turns query params given as a callback into data with the adapter's resolver, so a request never stores a function.
+ * Without a resolver the value is kept as given.
+ */
+export const resolveQueryParams = <T>(
+  client: { adapter: Pick<AdapterInstance, "unstable_queryParamsResolver"> },
+  queryParams: T,
+): T => {
+  const resolver = client.adapter.unstable_queryParamsResolver;
+  if (typeof queryParams === "function" && resolver) {
+    return resolver(queryParams as (...args: any[]) => unknown) as T;
+  }
+  return queryParams;
+};
+
 export const scopeKey = (key: string, scope: string | null): string => {
   return scope ? `${scope}__${key}` : key;
 };
