@@ -149,7 +149,11 @@ export const getAdapter = () =>
 
             if (response.body && typeof response.body.getReader === "function") {
               const reader = response.body.getReader();
-              const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
+              // Fetch gives the decompressed body, while Content-Length tells the size of the encoded one - the total
+              // of an encoded body is unknown
+              const contentEncoding = response.headers.get("content-encoding");
+              const isEncoded = !!contentEncoding && contentEncoding !== "identity";
+              const contentLength = isEncoded ? 0 : parseInt(response.headers.get("content-length") || "0", 10);
               let receivedLength = 0;
               const chunks: Uint8Array[] = [];
 

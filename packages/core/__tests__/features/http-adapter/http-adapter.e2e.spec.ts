@@ -4,6 +4,7 @@
 import { Client } from "@hyper-fetch/core";
 import http from "http";
 import type { AddressInfo } from "net";
+import { gzipSync } from "zlib";
 
 import { createDeferred } from "../../utils/controlled-adapter.utils";
 
@@ -20,6 +21,7 @@ type Echo = {
  * teardown) releases them, so nothing here depends on how fast the machine is.
  */
 describe("E2E [ Fetch adapter ]", () => {
+  const gzipData = Array.from({ length: 5000 }, (_, index) => ({ id: index, name: "compressible user name" }));
   let server: http.Server;
   let baseUrl = "";
   let hits: string[] = [];
@@ -90,6 +92,18 @@ describe("E2E [ Fetch adapter ]", () => {
       res.write('{"partial":');
       heldResponses.push(res);
       return received.resolve(res);
+    }
+    // Compressed body - Content-Length tells the size of the compressed bytes, fetch reads the decompressed ones
+    if (pathname === "/gzip") {
+      const compressed = gzipSync(JSON.stringify(gzipData));
+      res.writeHead(200, {
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip",
+        "Content-Length": String(compressed.length),
+      });
+      const half = Math.floor(compressed.length / 2);
+      res.write(compressed.subarray(0, half));
+      return setImmediate(() => res.end(compressed.subarray(half)));
     }
     if (pathname === "/chunks") {
       res.writeHead(200, { "Content-Type": "text/plain", "Content-Length": "9" });
@@ -473,6 +487,36 @@ describe("E2E [ Fetch adapter ]", () => {
       const response = await get("/status/404").exec({});
 
       expect(response).toMatchObject({ success: false, status: 404, error: { status: 404 } });
+    });
+  });
+
+  describe("When the response is compressed", () => {
+    it("should decompress the body", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+
+      const { data } = await request.send();
+
+      expect(data).toStrictEqual(gzipData);
+    });
+
+    it("should never report the download progress above 100%", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+      const progress: number[] = [];
+
+      await request.send({ onDownloadProgress: (event) => progress.push(event.progress) });
+
+      expect(progress.length).toBeGreaterThan(1);
+      expect(Math.max(...progress)).toBe(100);
+      expect(progress.at(-1)).toBe(100);
+    });
+
+    it("should report the size of the decompressed body as the total", async () => {
+      const request = createClient().createRequest<{ response: typeof gzipData }>()({ endpoint: "/gzip" });
+      const totals: number[] = [];
+
+      await request.send({ onDownloadProgress: (event) => totals.push(event.total) });
+
+      expect(totals.at(-1)).toBe(Buffer.byteLength(JSON.stringify(gzipData)));
     });
   });
 
