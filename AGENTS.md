@@ -27,7 +27,7 @@ dependents.
 | `packages/plugin-eslint`          | `eslint-plugin-hyper-fetch`    | `plugin-eslint`   |
 | `packages/plugin-oxlint`          | `oxlint-plugin-hyper-fetch`    | `plugin-oxlint`   |
 | `packages/cli`                    | `@hyper-fetch/cli`             | `cli`             |
-| `packages/testing`                | `@hyper-fetch/testing`         | `testing`         |
+| `packages/testing`                | internal, never published      | `testing`         |
 | `packages/hyper-flow`             | desktop app, not on npm        | `hyper-flow`      |
 
 `documentation/` is the docs site. `examples/` holds sample apps.
@@ -71,6 +71,9 @@ pnpm --filter @hyper-fetch/elysia test:bun
 6. **The commit type decides the release.** `feat`, `fix`, `perf` and `revert` publish every package to npm. Read
    `.cursor/rules/commit-conventions.mdc` before committing.
 7. **Never hand-edit `dist/`** or other build output.
+8. **`@hyper-fetch/testing` is internal.** It exists only for this repo's own specs. Never mention, recommend or market
+   it in READMEs, documentation, blog posts, the landing page, examples, changelogs or social posts, and never list it
+   among the packages. Never publish it. Users mock requests with `request.setMock()`.
 
 ## Rules by area
 
