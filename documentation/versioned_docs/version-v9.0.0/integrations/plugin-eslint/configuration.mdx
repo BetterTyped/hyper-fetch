@@ -1,0 +1,74 @@
+---
+sidebar_position: 2
+title: Configuration
+---
+
+# Configuration
+
+This guide explains how to configure the Hyper Fetch ESLint plugin to match your project's needs.
+
+---
+
+## Basic Configuration
+
+After [installing the plugin](/integrations/plugin-eslint/index.mdx), you have two options for configuration:
+
+1. ### Using the Recommended Configuration
+
+The recommended configuration enables all rules with their suggested severity levels:
+
+```json
+{
+  "plugins": [
+    // ... your other plugins
+    "hyper-fetch"
+  ]
+}
+```
+
+2. ### Manual Configuration
+
+For more control, you can manually configure each rule:
+
+```json
+{
+  "plugins": [
+    // ... your other plugins
+    "hyper-fetch"
+  ],
+  "rules": {
+    // ... your other rules
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "error"
+  }
+}
+```
+
+---
+
+## Rule Severity Levels
+
+Each rule can be set to one of these severity levels:
+
+- `"off"` or `0` - Turn the rule off
+- `"warn"` or `1` - Turn the rule on as a warning (doesn't affect exit code)
+- `"error"` or `2` - Turn the rule on as an error (exit code will be 1)
+
+Example of setting different severity levels:
+
+```json
+{
+  "plugins": ["hyper-fetch"],
+  "rules": {
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "warn"
+  }
+}
+```
+
+---
+
+## Next Steps
+
+Now that you've configured the plugin, proceed to the [Rules](/docs/integrations/plugin-eslint/rules.mdx) section to
+learn about the specific rules and what issues they help you identify.

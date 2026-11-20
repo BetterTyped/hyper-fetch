@@ -1,0 +1,463 @@
+{
+	"id": 5539,
+	"name": "@hyper-fetch/hono",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 5540,
+			"name": "HonoAppToHyperFetch",
+			"variant": "declaration",
+			"kind": 2097152,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "Converts the type of a Hono app into a Hyper Fetch SDK schema for "
+					},
+					{
+						"kind": "code",
+						"text": "`createSdk`"
+					},
+					{
+						"kind": "text",
+						"text": ".\n\nEvery route becomes a "
+					},
+					{
+						"kind": "code",
+						"text": "`Request`"
+					},
+					{
+						"kind": "text",
+						"text": " whose response, JSON payload, query params and endpoint come\nfrom the Hono route definition and its validators. Path segments become nested properties,\n"
+					},
+					{
+						"kind": "code",
+						"text": "`:param`"
+					},
+					{
+						"kind": "text",
+						"text": " segments become "
+					},
+					{
+						"kind": "code",
+						"text": "`$param`"
+					},
+					{
+						"kind": "text",
+						"text": " properties, and kebab-case segments become camelCase.\n\nPass the type of the app returned by your route chain, including apps mounted with\n"
+					},
+					{
+						"kind": "code",
+						"text": "`app.route()`"
+					},
+					{
+						"kind": "text",
+						"text": " and "
+					},
+					{
+						"kind": "code",
+						"text": "`basePath()`"
+					},
+					{
+						"kind": "text",
+						"text": ". Anything that is not a Hono app resolves to "
+					},
+					{
+						"kind": "code",
+						"text": "`{}`"
+					},
+					{
+						"kind": "text",
+						"text": "."
+					}
+				],
+				"blockTags": [
+					{
+						"tag": "@example",
+						"content": [
+							{
+								"kind": "code",
+								"text": "```ts\n// backend\nconst app = new Hono().get(\"/users/:userId\", (c) => c.json({ id: c.req.param(\"userId\") }));\nexport type AppSchema = HonoAppToHyperFetch<typeof app>;\n\n// frontend\nconst sdk = createSdk<typeof client, AppSchema>(client);\nconst { data } = await sdk.users.$userId.$get.send({ params: { userId: \"1\" } });\n```"
+							}
+						]
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "hono.types.ts",
+					"line": 111,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/hono/src/hono.types.ts#L111"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 5542,
+					"name": "App",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The Hono app type, usually "
+							},
+							{
+								"kind": "code",
+								"text": "`typeof app`"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					}
+				},
+				{
+					"id": 5543,
+					"name": "Client",
+					"variant": "typeParam",
+					"kind": 131072,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "The client the requests belong to. "
+							},
+							{
+								"kind": "code",
+								"text": "`createSdk`"
+							},
+							{
+								"kind": "text",
+								"text": " injects its own client, so\nthis is only needed when the schema is used outside of "
+							},
+							{
+								"kind": "code",
+								"text": "`createSdk`"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/client/client.types.ts",
+							"qualifiedName": "ClientInstance"
+						},
+						"name": "ClientInstance",
+						"package": "@hyper-fetch/core"
+					},
+					"default": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../packages/core/src/client/client.types.ts",
+							"qualifiedName": "ClientInstance"
+						},
+						"name": "ClientInstance",
+						"package": "@hyper-fetch/core"
+					}
+				}
+			],
+			"type": {
+				"type": "conditional",
+				"checkType": {
+					"type": "reference",
+					"target": 5542,
+					"name": "App",
+					"package": "@hyper-fetch/hono",
+					"refersToTypeParameter": true
+				},
+				"extendsType": {
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../node_modules/.pnpm/hono@4.13.19/node_modules/hono/dist/types/hono-base.d.ts",
+						"qualifiedName": "Hono"
+					},
+					"typeArguments": [
+						{
+							"type": "intrinsic",
+							"name": "any"
+						},
+						{
+							"type": "inferred",
+							"name": "S"
+						},
+						{
+							"type": "intrinsic",
+							"name": "any"
+						},
+						{
+							"type": "intrinsic",
+							"name": "any"
+						}
+					],
+					"name": "HonoBase",
+					"package": "hono",
+					"qualifiedName": "Hono"
+				},
+				"trueType": {
+					"type": "reference",
+					"target": {
+						"sourceFileName": "../packages/hono/src/hono.types.ts",
+						"qualifiedName": "Prettify"
+					},
+					"typeArguments": [
+						{
+							"type": "reference",
+							"target": {
+								"sourceFileName": "../packages/hono/src/hono.types.ts",
+								"qualifiedName": "NestFlatRecord"
+							},
+							"typeArguments": [
+								{
+									"type": "reference",
+									"target": {
+										"sourceFileName": "../packages/hono/src/hono.types.ts",
+										"qualifiedName": "ConvertToRequest"
+									},
+									"typeArguments": [
+										{
+											"type": "reference",
+											"target": {
+												"sourceFileName": "../packages/hono/src/hono.types.ts",
+												"qualifiedName": "MergeUnionToRecord"
+											},
+											"typeArguments": [
+												{
+													"type": "reference",
+													"target": {
+														"sourceFileName": "../packages/hono/src/hono.types.ts",
+														"qualifiedName": "S"
+													},
+													"name": "S",
+													"package": "@hyper-fetch/hono",
+													"refersToTypeParameter": true
+												}
+											],
+											"name": "MergeUnionToRecord",
+											"package": "@hyper-fetch/hono"
+										},
+										{
+											"type": "reference",
+											"target": 5543,
+											"name": "Client",
+											"package": "@hyper-fetch/hono",
+											"refersToTypeParameter": true
+										}
+									],
+									"name": "ConvertToRequest",
+									"package": "@hyper-fetch/hono"
+								}
+							],
+							"name": "NestFlatRecord",
+							"package": "@hyper-fetch/hono"
+						}
+					],
+					"name": "Prettify",
+					"package": "@hyper-fetch/hono"
+				},
+				"falseType": {
+					"type": "reflection",
+					"declaration": {
+						"id": 5541,
+						"name": "__type",
+						"variant": "declaration",
+						"kind": 65536,
+						"flags": {},
+						"sources": [
+							{
+								"fileName": "hono.types.ts",
+								"line": 116,
+								"character": 6,
+								"url": "https://github.com/BetterTyped/hyper-fetch/blob/f16282e0921e247f338a3b9d7452e8e9074c854d/packages/hono/src/hono.types.ts#L116"
+							}
+						]
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"title": "Type Aliases",
+			"children": [
+				5540
+			]
+		}
+	],
+	"packageName": "@hyper-fetch/hono",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# 🏯 Hyper Fetch Hono\n\n<p align=\"center\">\n  <b>Call your Hono backend from a fully typed HyperFetch SDK. No codegen, no duplicated types.</b>\n</p>\n\n<p align=\"center\">\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/github/stars/BetterTyped/hyper-fetch?logo=github&color=118ab2\" alt=\"GitHub stars\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/hono\">\n    <img src=\"https://img.shields.io/npm/v/@hyper-fetch/hono?logo=npm&color=e76f51\" alt=\"npm version\" />\n  </a>\n  <a href=\"https://www.npmjs.com/package/@hyper-fetch/hono\">\n    <img src=\"https://img.shields.io/npm/dm/@hyper-fetch/hono?logo=npm\" alt=\"npm downloads\" />\n  </a>\n  <a href=\"https://bundlephobia.com/package/@hyper-fetch/hono\">\n    <img src=\"https://img.shields.io/bundlephobia/minzip/@hyper-fetch/hono?color=64BC4B\" alt=\"bundle size\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch/blob/main/License.md\">\n    <img src=\"https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=yellow\" alt=\"license\" />\n  </a>\n  <a href=\"https://github.com/BetterTyped/hyper-fetch\">\n    <img src=\"https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white\" alt=\"TypeScript\" />\n  </a>\n  <a href=\"https://hono.dev/\">\n    <img src=\"https://img.shields.io/badge/hono-E36002?logo=hono&logoColor=white\" alt=\"Hono\" />\n  </a>\n</p>\n\n## 📖 About\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "`@hyper-fetch/hono`"
+		},
+		{
+			"kind": "text",
+			"text": " turns the type of a Hono app into a HyperFetch SDK schema. Your frontend calls the backend through\n"
+		},
+		{
+			"kind": "code",
+			"text": "`createSdk`"
+		},
+		{
+			"kind": "text",
+			"text": " with response, payload, query and param types read straight from your Hono routes and validators. It ships\ntypes only, so nothing from your server ends up in the client bundle.\n\n## 🎯 Key Capabilities\n\n- 🔗 **Backend types, frontend calls** - Change a Hono route and every SDK call that uses it fails to compile\n- 🧭 **Paths become properties** - "
+		},
+		{
+			"kind": "code",
+			"text": "`/users/:userId/posts`"
+		},
+		{
+			"kind": "text",
+			"text": " is "
+		},
+		{
+			"kind": "code",
+			"text": "`sdk.users.$userId.posts.$get`"
+		},
+		{
+			"kind": "text",
+			"text": ", with typed "
+		},
+		{
+			"kind": "code",
+			"text": "`setParams()`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🛂 **Validators drive the payload** - "
+		},
+		{
+			"kind": "code",
+			"text": "`json`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`query`"
+		},
+		{
+			"kind": "text",
+			"text": " validators type "
+		},
+		{
+			"kind": "code",
+			"text": "`setPayload()`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`setQueryParams()`"
+		},
+		{
+			"kind": "text",
+			"text": "\n- 🧩 **Mounted routers included** - "
+		},
+		{
+			"kind": "code",
+			"text": "`app.route()`"
+		},
+		{
+			"kind": "text",
+			"text": " and "
+		},
+		{
+			"kind": "code",
+			"text": "`basePath()`"
+		},
+		{
+			"kind": "text",
+			"text": " prefixes land in the endpoint and the nesting\n- 🪶 **Zero runtime** - A single type export, so it adds no code to your bundle\n- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline and React hooks work on every route\n\n## 🚀 Quick Start\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```bash\nnpm install @hyper-fetch/core @hyper-fetch/hono\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// backend\nimport { Hono } from \"hono\";\nimport type { HonoAppToHyperFetch } from \"@hyper-fetch/hono\";\n\nconst app = new Hono().get(\"/users/:userId\", (c) => c.json({ id: c.req.param(\"userId\"), name: \"Ann\" }));\n\nexport type AppSchema = HonoAppToHyperFetch<typeof app>;\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\n// frontend\nimport { createClient, createSdk } from \"@hyper-fetch/core\";\nimport type { AppSchema } from \"@my-app/backend\";\n\nconst client = createClient({ url: \"https://api.example.com\" });\nconst sdk = createSdk<typeof client, AppSchema>(client);\n\nconst { data } = await sdk.users.$userId.$get.setParams({ userId: \"1\" }).send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## 📚 Documentation\n\n- [Hono Integration Docs](https://hyperfetch.bettertyped.com/docs/integrations/hono/overview)\n- [SDK Guide](https://hyperfetch.bettertyped.com/docs/core/sdk)\n- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)\n\n## 💡 Examples\n\n### Mounted routers with validators\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nimport { Hono } from \"hono\";\nimport { validator } from \"hono/validator\";\nimport type { HonoAppToHyperFetch } from \"@hyper-fetch/hono\";\n\nconst users = new Hono()\n  .get(\"/\", (c) => c.json([{ id: \"1\", name: \"Ann\" }]))\n  .post(\n    \"/\",\n    validator(\"json\", (value: { name: string }) => value),\n    (c) => c.json({ id: \"2\", name: c.req.valid(\"json\").name }, 201),\n  );\n\nconst auth = new Hono().get(\"/google-login\", (c) => c.json({ authUrl: \"https://accounts.example.com\" }));\n\nconst app = new Hono().route(\"/users\", users).route(\"/auth\", auth);\n\nexport type AppSchema = HonoAppToHyperFetch<typeof app>;\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```ts\nconst sdk = createSdk<typeof client, AppSchema>(client);\n\nawait sdk.users.$post.setPayload({ name: \"Bob\" }).send();\n// kebab-case paths become camelCase properties: GET /auth/google-login\nawait sdk.auth.googleLogin.$get.send();\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n### React hooks on a Hono route\n\n"
+		},
+		{
+			"kind": "code",
+			"text": "```tsx\nimport { useFetch } from \"@hyper-fetch/react\";\n\nimport { sdk } from \"./api\";\n\nexport const UserName = ({ userId }: { userId: string }) => {\n  const { data, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));\n\n  if (loading) return <p>Loading...</p>;\n  return <p>{data?.name}</p>;\n};\n```"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n## License\n\n[Apache-2.0](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)"
+		}
+	],
+	"symbolIdMap": {
+		"5539": {
+			"sourceFileName": "../packages/hono/src/index.ts",
+			"qualifiedName": ""
+		},
+		"5540": {
+			"sourceFileName": "../packages/hono/src/hono.types.ts",
+			"qualifiedName": "HonoAppToHyperFetch"
+		},
+		"5541": {
+			"sourceFileName": "../packages/hono/src/hono.types.ts",
+			"qualifiedName": "__type"
+		},
+		"5542": {
+			"sourceFileName": "../packages/hono/src/hono.types.ts",
+			"qualifiedName": "App"
+		},
+		"5543": {
+			"sourceFileName": "../packages/hono/src/hono.types.ts",
+			"qualifiedName": "Client"
+		}
+	}
+}

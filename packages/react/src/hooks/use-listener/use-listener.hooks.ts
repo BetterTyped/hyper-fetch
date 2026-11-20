@@ -1,28 +1,44 @@
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import { replaceEqualDeep } from "@hyper-fetch/core";
-import type { ListenerInstance, ExtractListenerDeliveredType } from "@hyper-fetch/sockets";
+import { replaceEqualDeep, stringifyKey } from "@hyper-fetch/core";
+import type {
+  ExtractListenerDeliveredType,
+  ListenerEndType,
+  ListenerInstance,
+  ListenerLifecycleOptionsType,
+  ListenerRequiresPayload,
+} from "@hyper-fetch/sockets";
 import { getDeliveryKey } from "@hyper-fetch/sockets";
 import { useSocketState } from "helpers";
-import type { UseListenerOptionsType } from "hooks/use-listener";
+import type { ListenerStatusType, UseListenerOptionsType } from "hooks/use-listener";
 import { useProvider } from "provider";
 import { useRef } from "react";
 import { createTrackedProxy } from "utils";
 
-/** Subscribe to incoming socket messages on a given listener topic with tracked connection state and callbacks. */
+/** A listener whose subscription payload is required has to get it with `setPayload()` before it is passed */
+type ListenerWithPayloadType<ListenerType extends ListenerInstance> =
+  ListenerRequiresPayload<ListenerType> extends true
+    ? ListenerType & { "Set the payload with setPayload() before passing the listener": never }
+    : ListenerType;
+
+/**
+ * Subscribe to incoming socket messages on a given listener topic with tracked connection state and callbacks.
+ * Changing the topic params, payload, options, delivery or socket of the listener starts a new subscription.
+ */
 export const useListener = <
   ListenerType extends ListenerInstance,
   TSelected = ExtractListenerDeliveredType<ListenerType>,
 >(
-  listener: ListenerType,
+  listener: ListenerWithPayloadType<ListenerType>,
   options?: UseListenerOptionsType<ExtractListenerDeliveredType<ListenerType>, TSelected>,
 ) => {
   const { config: globalConfig } = useProvider();
   const { dependencyTracking = true, structuralSharing = true } = { ...globalConfig.useListener, ...options };
   const select = options?.select;
-  const [state, actions, callbacks, { setRenderKey, getState, rerender }] = useSocketState<
+  const [state, actions, callbacks, { setRenderKey, getState, rerender, setExtendedState }] = useSocketState<
     TSelected,
-    ListenerType["socket"]
-  >(listener.socket, { dependencyTracking });
+    ListenerType["socket"],
+    { status: ListenerStatusType; error: Error | null }
+  >(listener.socket, { dependencyTracking, extendedState: { status: "idle", error: null } });
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
 
   /**
@@ -66,6 +82,8 @@ export const useListener = <
   const onEventCallback = useRef<
     null | ((response: { data: ExtractListenerDeliveredType<ListenerType>; extra: Record<string, any> }) => void)
   >(null);
+  const onStartCallback = useRef<null | ((data: { topic: string }) => void)>(null);
+  const onEndCallback = useRef<null | ((data: ListenerEndType) => void)>(null);
 
   /**
    * Actions
@@ -77,7 +95,25 @@ export const useListener = <
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen(({ data, extra }) => {
+    // Set before subscribing - adapters without confirmation start the subscription synchronously
+    setExtendedState({ status: "starting", error: null });
+    const lifecycle = {
+      onStart: (data: { topic: string }) => {
+        setExtendedState({ status: "listening" });
+        onStartCallback.current?.(data);
+      },
+      onEnd: (data: ListenerEndType) => {
+        removeListenerRef.current = null;
+        setExtendedState({ status: data.error ? "failed" : "ended", error: data.error });
+        onEndCallback.current?.(data);
+      },
+    };
+    // The payload is set on the listener, so only the lifecycle callbacks are passed
+    const listenWithLifecycle = listener.listen as (
+      callback: Parameters<typeof listener.listen>[0],
+      options: ListenerLifecycleOptionsType,
+    ) => VoidFunction;
+    removeListenerRef.current = listenWithLifecycle(({ data, extra }) => {
       onEventCallback.current?.({ data, extra });
       rawData.current = { data };
       appliedSelect.current = selectRef.current;
@@ -98,12 +134,20 @@ export const useListener = <
       }
       actions.setExtra(extra);
       actions.setTimestamp(Date.now());
-    });
+    }, lifecycle);
   };
 
   const additionalCallbacks = {
     onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
       onEventCallback.current = callback;
+    },
+    /** The subscription started - with tRPC and oRPC when the server confirmed it, also after a reconnect */
+    onStart: (callback: NonNullable<typeof onStartCallback.current>) => {
+      onStartCallback.current = callback;
+    },
+    /** The server ended the subscription, with `error` when it failed */
+    onEnd: (callback: NonNullable<typeof onEndCallback.current>) => {
+      onEndCallback.current = callback;
     },
   };
 
@@ -116,8 +160,15 @@ export const useListener = <
       listen();
     },
     // Topic already contains resolved params. Delivery presets compare by value, custom strategies by identity.
-    // The socket is a dependency too - the same topic on another socket is a different subscription.
-    [listener.socket, listener.topic, JSON.stringify(listener.options), getDeliveryKey(listener.delivery)],
+    // The socket is a dependency too - the same topic on another socket is a different subscription, the same
+    // goes for the payload - the same procedure with another input is another subscription.
+    [
+      listener.socket,
+      listener.topic,
+      stringifyKey(listener.payload),
+      JSON.stringify(listener.options),
+      getDeliveryKey(listener.delivery),
+    ],
     true,
   );
 
@@ -125,7 +176,7 @@ export const useListener = <
     stopListener();
   });
 
-  const trackedKeys = ["data", "extra", "connected", "connecting", "timestamp"] as const;
+  const trackedKeys = ["data", "extra", "connected", "connecting", "timestamp", "status", "error"] as const;
 
   return createTrackedProxy(
     {
@@ -134,6 +185,8 @@ export const useListener = <
       connected: state.connected,
       connecting: state.connecting,
       timestamp: state.timestamp,
+      status: state.status,
+      error: state.error,
       ...actions,
       ...callbacks,
       ...additionalCallbacks,

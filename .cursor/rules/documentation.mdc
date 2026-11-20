@@ -6,6 +6,9 @@ alwaysApply: false
 
 # Documentation Writing Rules
 
+> **`@hyper-fetch/testing` is internal.** Never mention, recommend or list it here. It is not published and not part of
+> the public API. Mocking for users is `request.setMock()`.
+
 This document outlines the rules and best practices for creating guides for the documentation.
 
 ## 1. Comprehensive and Practical Focus

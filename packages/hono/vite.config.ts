@@ -23,6 +23,8 @@ export default defineConfig({
   test: {
     alias: {
       "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
+      "@hyper-fetch/react": path.resolve(__dirname, "../react/src/index.ts"),
+      "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
     },
     coverage: {
       include: ["src/**/*.ts"],

@@ -30,6 +30,7 @@ from your router through `createSdk`.
 - 💾 **Smart caching included** — Every procedure input is cached separately
 - ⚛️ **React-ready** — Use `useFetch` and `useSubmit` with your procedures
 - 🔁 **Transformers** — Works with `superjson` and any `serialize` / `deserialize` pair
+- 📡 **Live subscriptions** - Listen over WebSocket or SSE and resume from the last `tracked()` event
 
 ## 🚀 Quick Start
 
@@ -55,8 +56,33 @@ const { data: created } = await api.user.create.$mutation.setPayload({ name: "Jo
 ## 📚 Documentation
 
 - [tRPC Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview)
+- [tRPC Subscriptions](https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/subscriptions)
 - [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
+
+## 💡 Examples
+
+### Realtime subscriptions
+
+Subscription procedures become typed listeners of a `Socket` from `@hyper-fetch/sockets`. Listeners with the same input
+share one server subscription, and after a reconnect it resumes from the last `tracked()` event.
+
+```ts
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
+import type { TrpcSocketSchema } from "@hyper-fetch/trpc";
+
+import type { AppRouter } from "./server";
+
+// Use TrpcSseAdapter() with the url of the HTTP handler to receive them as Server-Sent Events
+const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter() });
+
+const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, { camelCaseToKebabCase: false });
+
+const stop = realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(({ data, extra }) => {
+  console.log(data.text, extra.eventId);
+});
+```
 
 ## License
 

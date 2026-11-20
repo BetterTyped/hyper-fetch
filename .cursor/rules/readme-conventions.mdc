@@ -6,6 +6,9 @@ alwaysApply: false
 
 # README Conventions
 
+> **`@hyper-fetch/testing` is internal.** Never mention, recommend or list it here. It is not published and not part of
+> the public API. Mocking for users is `request.setMock()`.
+
 ## Badge Rules
 
 - Always use `img.shields.io` for badges — NEVER `custom-icon-badges.demolab.com` (unreliable, frequently down)

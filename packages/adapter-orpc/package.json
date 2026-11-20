@@ -44,6 +44,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "@orpc/client": "^1.0.0",
     "@orpc/server": "^1.0.0"
   },
@@ -56,6 +57,7 @@
     "@orpc/client": "^1.16.4",
     "@orpc/contract": "^1.16.4",
     "@orpc/server": "^1.16.4",
+    "ws": "^8.18.0",
     "zod": "^4.4.1"
   },
   "lint-staged": {

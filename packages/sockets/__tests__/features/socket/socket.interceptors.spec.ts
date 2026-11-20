@@ -55,6 +55,30 @@ describe("Socket [ Interceptors ]", () => {
       expect(spy).toHaveBeenCalledWith({ value: 1 });
     });
 
+    it("should pass the topic and the adapter extra to the interceptor", async () => {
+      const websocket = await connect();
+      const seen: { topic: string; extra: unknown }[] = [];
+      socket.onMessage<Message>(({ event, topic, extra }) => {
+        seen.push({ topic, extra });
+        return event;
+      });
+      socket.createListener<Message>()({ topic: "numbers" }).listen(vi.fn());
+
+      websocket.serverEmit("numbers", { value: 1 });
+
+      expect(seen).toHaveLength(1);
+      expect(seen[0].topic).toBe("numbers");
+      expect(seen[0].extra).toBeInstanceOf(MessageEvent);
+    });
+
+    it("should type the extra of the adapter in the interceptor", () => {
+      socket.onMessage(({ extra }) => {
+        expectTypeOf(extra).toEqualTypeOf<MessageEvent<any>>();
+        return extra;
+      });
+      expect(true).toBeTrue();
+    });
+
     it("should keep the original MessageEvent as extra", async () => {
       const websocket = await connect();
       socket.onMessage(({ event }) => event);
@@ -107,7 +131,11 @@ describe("Socket [ Interceptors ]", () => {
 
       websocket.serverEmit("nobody-listens", { value: 1 });
 
-      expect(interceptor).toHaveBeenCalledWith({ event: { value: 1 } });
+      expect(interceptor).toHaveBeenCalledWith({
+        event: { value: 1 },
+        topic: "nobody-listens",
+        extra: expect.any(MessageEvent),
+      });
     });
 
     it("should pass the intercepted data to the socket events", async () => {

@@ -138,6 +138,65 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ---
 
+### Subscription Payload
+
+Some servers need data to start a subscription, for example the input of a tRPC subscription or an oRPC event iterator
+procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
+to the server when the subscription starts.
+
+```ts
+type RoomInput = { roomId: string };
+
+export const onMessage = socket.createListener<ChatMessage, RoomInput>()({
+  topic: "chat/onMessage",
+});
+
+onMessage.setPayload({ roomId: "1" }).listen(({ data }) => {
+  console.log(data.text);
+});
+
+// Or pass it for one subscription only - the listener itself stays unchanged
+onMessage.listen(({ data }) => console.log(data.text), { payload: { roomId: "2" } });
+```
+
+Listeners of the same topic with different payloads are separate subscriptions. Each one receives only its own
+messages, while listeners with an equal payload share one subscription on the server.
+
+- A required payload must be set before listening. `listen` without it is a TypeScript error.
+- An optional payload (`{ cursor?: number } | undefined`) can be skipped.
+- `useListener` from `@hyper-fetch/react` subscribes again when the payload changes.
+- The payload is used by adapters that start server-side subscriptions, such as the tRPC and oRPC socket adapters. The
+  built-in WebSocket and SSE adapters route messages by topic and do not send it.
+
+---
+
+### Subscription Lifecycle
+
+`listen` takes `onStart` and `onEnd` callbacks. They matter for adapters where the server starts and ends each
+subscription, such as the tRPC and oRPC socket adapters.
+
+```ts
+onJobProgress.listen(({ data }) => render(data), {
+  payload: { jobId: "1" },
+  onStart: ({ topic }) => console.log("Server accepted", topic),
+  onEnd: ({ error }) => {
+    if (error) console.error("Subscription failed", error);
+    else console.log("Job finished");
+  },
+});
+```
+
+- `onStart` runs when the server confirmed the subscription, and again when a reconnect restarted it. With adapters that
+  route messages by topic, like the WebSocket and SSE adapters, it runs right after `listen()`.
+- `onEnd` runs once, when the server ended the subscription. `error` is `null` when it finished normally.
+- Before `onEnd`, messages still waiting in a [delivery strategy](#delivery-strategies) are delivered and the listener
+  unsubscribes. A reconnect does not restart it - call `listen()` again for a new subscription.
+- Unsubscribing yourself does not call `onEnd`.
+
+To observe every subscription of a socket, use `socket.events.onListenerStart` and `socket.events.onListenerEnd`.
+
+---
+
 ### Delivery Strategies {#delivery-strategies}
 
 High-frequency streams (prices, trades, logs) can call your callbacks hundreds of times per second. The `delivery`
@@ -377,6 +436,35 @@ onChatMessage.listen(({ data }) => {
 
 This simple yet powerful feature eliminates guesswork and ensures that your application correctly handles the data
 structures sent by the server.
+
+### Payload Type
+
+The second generic of `createListener` is the subscription payload. TypeScript requires it before `listen` runs and
+types `setPayload` with it.
+
+```ts
+const onMessage = socket.createListener<ChatMessage, { roomId: string }>()({ topic: "chat/onMessage" });
+
+// error-next-line
+onMessage.listen(() => {}); // TypeScript Error - the payload is required
+
+onMessage.setPayload({ roomId: "1" }).listen(() => {}); // OK
+onMessage.listen(() => {}, { payload: { roomId: "1" } }); // OK
+
+type Payload = ExtractListenerPayloadType<typeof onMessage>; // { roomId: string }
+```
+
+In a socket SDK schema the payload is a field of `ListenerModel`:
+
+```ts
+type ChatSchema = {
+  chat: {
+    onMessage: {
+      $listener: ListenerModel<{ response: ChatMessage; payload: { roomId: string }; topic: "chat/onMessage" }>;
+    };
+  };
+};
+```
 
 ### Delivered Type
 

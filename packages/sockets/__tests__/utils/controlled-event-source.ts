@@ -75,6 +75,11 @@ export class ControlledEventSource extends EventTarget {
     this.dispatchEvent(new MessageEvent("message", { data, ...init }));
   }
 
+  /** The server sends a named event (`event: <name>`) with raw `data` */
+  serverSendNamed(event: string, data: unknown, init: { lastEventId?: string } = {}) {
+    this.dispatchEvent(new MessageEvent(event, { data, ...init }));
+  }
+
   /** The server sends a `{ topic, data }` message in the default wire format */
   serverEmit(topic: string, data: unknown, init: { lastEventId?: string } = {}) {
     this.serverSend(JSON.stringify({ topic, data }), init);

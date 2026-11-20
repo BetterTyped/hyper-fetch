@@ -11,7 +11,8 @@ describe("useListener & useEmitter [ SSR ]", () => {
   let socket: Socket;
 
   beforeEach(() => {
-    socket = new Socket({ url: "ws://ssr" });
+    // Node has a global WebSocket, so a socket created on the server connects - SSR apps turn it off there
+    socket = new Socket({ url: "ws://ssr", adapterOptions: { autoConnect: false } });
     socket.onError(() => null);
   });
 
@@ -21,6 +22,26 @@ describe("useListener & useEmitter [ SSR ]", () => {
 
   it("should run without window", () => {
     expect(typeof window).toBe("undefined");
+  });
+
+  it("should report the connection of a socket that auto connects on the server", async () => {
+    const connecting = new Socket({ url: "ws://ssr-connecting" });
+    connecting.onError(() => null);
+    const listener = connecting.createListener<Message>()({ topic: "chat" });
+    const Component = () => {
+      const { connected, connecting: isConnecting } = useListener(listener);
+      return (
+        <p>
+          {String(connected)}|{String(isConnecting)}
+        </p>
+      );
+    };
+
+    const html = renderToString(<Component />);
+
+    expect(typeof globalThis.WebSocket).toBe("function");
+    expect(html.replaceAll("<!-- -->", "")).toBe("<p>false|true</p>");
+    await connecting.destroy();
   });
 
   it("should render useListener on the server with the empty state", () => {

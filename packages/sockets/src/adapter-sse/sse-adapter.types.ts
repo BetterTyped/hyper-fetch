@@ -4,6 +4,11 @@
 export type SSEDecodedMessageType = { topic: string; data: unknown };
 
 export type SSEAdapterOptionsType = {
+  /**
+   * The EventSource constructor, e.g. from the `eventsource` package. Defaults to the global `EventSource` of
+   * browsers, Deno and Bun. Node.js has no global one - pass it there.
+   */
+  EventSource?: typeof EventSource;
   eventSourceInit?: EventSourceInit;
   autoConnect?: boolean;
   /**

@@ -6,6 +6,9 @@ alwaysApply: false
 
 # Landing Page & Docs Component Copy Style
 
+> **`@hyper-fetch/testing` is internal.** Never mention, recommend or list it here. It is not published and not part of
+> the public API. Mocking for users is `request.setMock()`.
+
 ## Voice
 
 Write like a senior engineer talking to another engineer. Direct, concrete, no filler.

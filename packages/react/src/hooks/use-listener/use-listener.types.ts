@@ -1,3 +1,15 @@
+/**
+ * Where the subscription of `useListener` is:
+ * - `idle` - not listening yet (e.g. during server rendering)
+ * - `starting` - subscribed, waiting for the server to confirm it (tRPC, oRPC)
+ * - `listening` - messages can arrive. Adapters without confirmation get here right after subscribing
+ * - `ended` - the server finished the subscription
+ * - `failed` - the server ended the subscription with an error, see `error`
+ *
+ * After `ended` or `failed` the hook stays unsubscribed until `listen()` is called or the listener changes.
+ */
+export type ListenerStatusType = "idle" | "starting" | "listening" | "ended" | "failed";
+
 export type UseListenerOptionsType<DataType = any, TSelected = DataType> = {
   /** When true (default), only re-renders when accessed state properties change */
   dependencyTracking?: boolean;

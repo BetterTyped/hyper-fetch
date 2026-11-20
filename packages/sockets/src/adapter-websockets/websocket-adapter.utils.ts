@@ -2,18 +2,24 @@ import type { EmptyTypes } from "@hyper-fetch/core";
 
 import type { WebsocketAdapterOptionsType } from "./websocket-adapter.types";
 
+/** `readyState` values of a WebSocket - read without the global, which some runtimes don't have */
+export const WebsocketReadyState = { CONNECTING: 0, OPEN: 1, CLOSING: 2, CLOSED: 3 } as const;
+
+/**
+ * The WebSocket constructor to use: the one from `adapterOptions`, otherwise the global one
+ * (browsers, Node.js 22+, Bun, Deno). `null` when the runtime has none.
+ */
+export const getWebsocketConstructor = (adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
+  return adapterOptions?.WebSocket ?? (typeof globalThis.WebSocket === "function" ? globalThis.WebSocket : null);
+};
+
 export const getWebsocketAdapter = (url: string, adapterOptions: WebsocketAdapterOptionsType | EmptyTypes) => {
-  /** istanbul ignore next */
-  try {
-    /** istanbul ignore next */
-    if (!window?.WebSocket) {
-      return null;
-    }
-  } catch {
+  const WebSocketConstructor = getWebsocketConstructor(adapterOptions);
+  if (!WebSocketConstructor) {
     return null;
   }
 
-  class HyperFetchWebsocket extends WebSocket {
+  class HyperFetchWebsocket extends WebSocketConstructor {
     // Named to avoid shadowing EventEmitter.listeners() in Node.js environments
     public registeredHandlers = new Map<
       (...args: any[]) => any,
