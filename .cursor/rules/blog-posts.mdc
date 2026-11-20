@@ -6,6 +6,9 @@ alwaysApply: false
 
 # Blog Post Conventions
 
+> **`@hyper-fetch/testing` is internal.** Never mention, recommend or list it here. It is not published and not part of
+> the public API. Mocking for users is `request.setMock()`.
+
 ## BlogPostImage is required
 
 Every blog post (tutorial, release, feature) must use the `<BlogPostImage>` component as its hero image. Import it from
