@@ -108,8 +108,8 @@ const createPost = client
     endpoint: "/posts",
   })
   .setRequestMapper((request) => {
-    // We access the data payload of the request
-    const dataToValidate = request.data;
+    // We access the payload of the request
+    const dataToValidate = request.payload;
 
     // We parse it against our schema
     PostSchema.parse(dataToValidate); // This will throw if validation fails

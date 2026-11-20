@@ -480,6 +480,13 @@ const { ... } = useFetch(request, {
 | `structuralSharing` | `true` | Keep references of the unchanged parts of the selected data |
 | `throwOnError` | `false` | Throw settled request errors to the closest Error Boundary |
 
+:::caution Refreshing continues in background tabs
+
+`refetchBlurred` is `true` by default, so a request with `refresh` keeps polling while the tab is hidden or the window is
+not focused. Set `refetchBlurred: false` to pause the refresh until the user comes back.
+
+:::
+
 :::info Refetch restarts the refresh timer
 
 Calling `refetch()` not only triggers an immediate fetch but also **restarts the refresh timer** if `refresh` is
