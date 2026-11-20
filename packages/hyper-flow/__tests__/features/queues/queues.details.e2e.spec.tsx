@@ -1,6 +1,7 @@
 import { createClient } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
-import { screen, waitFor, within } from "@testing-library/react";
+import { renderHook, screen, waitFor, within } from "@testing-library/react";
 
 import { createHyperFlowEnv } from "../../utils/hyper-flow";
 import { useNetworkStore } from "@/store/applications/network.store";
@@ -74,6 +75,26 @@ describe("Queues [ Details ]", () => {
     expect(await screen.findByText("Network is empty")).toBeInTheDocument();
     await view.navigate("/applications/App/queues");
   };
+
+  describe("When components of the app use the query key", () => {
+    it("should show how many observe the queue", async () => {
+      const { getUsers, view } = await setup();
+      mockRequest(getUsers, { data: [] });
+
+      const first = renderHook(() => useFetch(getUsers));
+      const second = renderHook(() => useFetch(getUsers));
+      await waitFor(() => expect(first.result.current.data).toStrictEqual([]));
+      await openDetails(view, getUsers.queryKey);
+
+      await waitFor(() => expect(getOverviewValue("Observers:")).toHaveTextContent("2"));
+
+      second.unmount();
+
+      await waitFor(() => expect(getOverviewValue("Observers:")).toHaveTextContent("1"));
+      first.unmount();
+      await waitFor(() => expect(getOverviewValue("Observers:")).toHaveTextContent("0"));
+    });
+  });
 
   describe("When the queue has no finished request yet", () => {
     it("should count zero processed requests and show the stats once the first one finishes", async () => {

@@ -1,11 +1,16 @@
+import type { DefaultMapperType } from "@hyper-fetch/core";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
-import type { FirestoreListenerOptions, FirestoreStatuses } from "adapter";
+import type { FirestoreListenerOptions, FirestoreListenerQueryParams, FirestoreStatuses } from "adapter";
 import type { DocumentReference, DocumentSnapshot, DocumentData, Query, QuerySnapshot } from "firebase-admin/firestore";
 
 export type FirestoreAdminSocketAdapterType = SocketAdapter<
   FirestoreAdminOnSnapshotExtra,
   undefined,
-  FirestoreListenerOptions
+  FirestoreListenerOptions,
+  undefined,
+  undefined,
+  DefaultMapperType,
+  FirestoreListenerQueryParams
 >;
 
 export type FirestoreAdminOnSnapshotExtra = {

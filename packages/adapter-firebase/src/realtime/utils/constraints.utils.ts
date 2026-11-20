@@ -50,8 +50,8 @@ export const mapRealtimeConstraint = ({ type, values }: RealtimePermittedMethods
       return limitToLast(value);
     }
     case RealtimeQueryConstraints.EQUAL_TO: {
-      const [value] = values;
-      return equalTo(value);
+      const [value, key] = values;
+      return equalTo(value, key);
     }
     default:
       throw new Error(`Unknown method ${type}`);

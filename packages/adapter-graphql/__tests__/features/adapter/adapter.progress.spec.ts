@@ -25,7 +25,7 @@ describe("Graphql Adapter [ Progress ]", () => {
 
   it("should report the finished upload only once the body was sent", async () => {
     const progress: { loaded: number; total: number; bodySent: boolean }[] = [];
-    const size = new Blob([JSON.stringify({ query: getUsers })]).size;
+    const size = new Blob([JSON.stringify({ query: getUsers, operationName: "GetUsers" })]).size;
 
     await client
       .createRequest()({ endpoint: getUsers })

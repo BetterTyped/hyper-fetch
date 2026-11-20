@@ -137,56 +137,69 @@ await deleteTea.setParams({ teaId: "sencha" }).send();
 
 ## Querying
 
-Constraints go in `queryParams` as an array and apply in order.
+Pass `queryParams` a callback that builds the constraints. With the document type on the request, fields and values are
+checked.
 
 ```tsx
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
 
-const getTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams }>()({
+const getTeas = client.createRequest<{ response: TeaDoc[]; queryParams?: FirestoreQueryParams<Tea> }>()({
   endpoint: "teas",
   method: "getDocs",
 });
 
 const { data } = await getTeas.send({
-  queryParams: [$where("type", "==", "Green"), $where("year", ">=", 2020), $orderBy("year", "desc"), $limit(20)],
+  queryParams: (c) => c.where("type", "==", "Green").where("year", ">=", 2020).orderBy("year", "desc").limit(20),
 });
 ```
 
-| Constraint                    | Firestore equivalent        |
-| ----------------------------- | --------------------------- |
-| `$where(field, op, value)`    | `where(field, op, value)`   |
-| `$orderBy(field, direction?)` | `orderBy(field, direction)` |
-| `$limit(n)`                   | `limit(n)`                  |
-| `$startAt(...values)`         | `startAt(...values)`        |
-| `$startAfter(...values)`      | `startAfter(...values)`     |
-| `$endAt(...values)`           | `endAt(...values)`          |
-| `$endBefore(...values)`       | `endBefore(...values)`      |
+| Chain method                               | Firestore equivalent        | Typed by the document                                    |
+| ------------------------------------------ | --------------------------- | -------------------------------------------------------- |
+| `where(field, op, value)`                  | `where(field, op, value)`   | `field` exists; `value` matches it (an array for `"in"`) |
+| `orderBy(field, direction?)`               | `orderBy(field, direction)` | `field` exists                                           |
+| `limit(n)`                                 | `limit(n)`                  |                                                          |
+| `startAt`, `startAfter`, `endAt`, `endBefore` | the same cursors         | one value per `orderBy`, in order                        |
+
+Nested fields use dots (`"origin.country"`). `__key` is the document id, not a field, so it cannot be filtered on.
 
 :::caution Firestore rules still apply
 
-Range filters on one field combined with `$orderBy` on another need a composite index. Firestore reports a missing index
+Range filters on one field combined with `orderBy` on another need a composite index. Firestore reports a missing index
 in `response.error`, with a link that creates it.
 
 :::
 
 ### Pagination
 
-Cursors take one value per `$orderBy`, in the same order. To load the next page, start after the values of the last
+Cursors take one value per `orderBy`, in the same order. To load the next page, start after the values of the last
 document you have.
 
 ```tsx
-const byYear = [$orderBy("year", "desc"), $orderBy("name")];
-
-const page1 = await getTeas.send({ queryParams: [...byYear, $limit(20)] });
+const page1 = await getTeas.send({ queryParams: (c) => c.orderBy("year", "desc").orderBy("name").limit(20) });
 const last = page1.data?.at(-1);
 
 const page2 = await getTeas.send({
-  queryParams: [...byYear, $startAfter(last?.year, last?.name), $limit(20)],
+  queryParams: (c) => c.orderBy("year", "desc").orderBy("name").startAfter(last!.year, last!.name).limit(20),
 });
 ```
 
 Each page has its own cache entry, because the constraints are part of the cache key.
+
+### Constraints as data
+
+`queryParams` also takes the constraints array the callback resolves to, built with `$where`, `$orderBy`, `$limit` and
+the `$`-cursors. Use it to build a query step by step:
+
+```tsx
+import { $orderBy, $where } from "@hyper-fetch/firebase";
+import type { FirestoreConstraint } from "@hyper-fetch/firebase";
+
+const constraints: FirestoreConstraint[] = [];
+if (onlyGreen) constraints.push($where("type", "==", "Green"));
+constraints.push($orderBy("year", "desc"));
+
+getTeas.setQueryParams(constraints);
+```
 
 ---
 
@@ -206,6 +219,6 @@ Each page has its own cache entry, because the constraints are part of the cache
 1.  `getDocs` and `getDoc` read; `addDoc`, `setDoc`, `updateDoc` and `deleteDoc` write.
 2.  Documents and list items come with `__key`, their document id.
 3.  `setDoc` replaces unless the request has `options: { merge: true }`.
-4.  Queries are the `queryParams` array; cursors take one value per `$orderBy`.
+4.  Queries are a `queryParams` callback checked against the document; cursors take one value per `orderBy`.
 
 :::

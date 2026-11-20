@@ -2,7 +2,7 @@
 import type { QueryParamsType } from "@hyper-fetch/core";
 import { parseResponse, stringifyQueryParams } from "@hyper-fetch/core";
 import type { SocketConnectionType } from "@hyper-fetch/sockets";
-import { SocketAdapter } from "@hyper-fetch/sockets";
+import { createReconnectingConnection, SocketAdapter } from "@hyper-fetch/sockets";
 import { isORPCErrorStatus } from "@orpc/client";
 
 import { createOrpcSerializer, getOrpcCallRequest, orpcEndpointMapper } from "../adapter/adapter.utils";
@@ -58,25 +58,11 @@ export const OrpcStreamAdapter = ({
   >({ name: "orpc-stream", confirmsSubscriptions: true })
     .setQueryParamsMapper(stringifyQueryParams)
     .setConnector((bindings) => {
-      const {
-        socket,
-        adapter,
-        getQueryParams,
-        onConnect,
-        onConnectFailed,
-        onReconnect,
-        onDisconnect,
-        onConnected,
-        onDisconnected,
-      } = bindings;
-
-      const autoConnect = adapter.adapterOptions?.autoConnect ?? true;
+      const { socket, adapter, getQueryParams, onConnectFailed } = bindings;
 
       // Details of the current connection (after onConnect interceptors), every stream is opened with them.
       // Set only while the adapter is connected.
       let connection: SocketConnectionType<OrpcStreamAdapterType> | undefined;
-      // Connection attempt in progress - concurrent `connect()` calls join it
-      let pendingConnection: Promise<boolean> | undefined;
 
       const subscriptions = createOrpcSubscriptions<OrpcStreamAdapterType, StreamTransportType>({
         bindings,
@@ -111,11 +97,9 @@ export const OrpcStreamAdapter = ({
         }
 
         const transport: StreamTransportType = { controller: undefined, timer: undefined, attempts, timedOut: false };
+        // Going offline closes the connection and stops the wait, coming back online starts the stream right away
         transport.timer = setTimeout(() => {
-          // Offline the stream waits for the network and starts again when the app is back online
-          if (socket.appManager.isOnline) {
-            startStream(subscription, attempts);
-          }
+          startStream(subscription, attempts);
         }, subscription.lastEventRetry ?? socket.reconnectTime);
         subscription.transport = transport;
       };
@@ -256,84 +240,44 @@ export const OrpcStreamAdapter = ({
         );
       };
 
-      const openConnection = async (): Promise<boolean> => {
-        const details = await onConnect();
-        if (!details) {
-          return adapter.connected;
-        }
-
-        if (typeof (details.adapterOptions?.fetch ?? globalThis.fetch) !== "function") {
-          onConnectFailed({ error: new Error("fetch is not available in this environment") });
-          return false;
-        }
-
-        connection = details;
-        onConnected();
-        [...subscriptions.values()].forEach((subscription) => {
-          // A listener added by an `onConnected` callback is running already
-          if (!subscription.transport) {
-            startStream(subscription, 0);
-          }
-        });
-        return true;
-      };
-
-      const connect = (): Promise<boolean> => {
-        // Another attempt is already on its way (e.g. the automatic one) - resolve together with it
-        if (adapter.connecting && pendingConnection) {
-          return pendingConnection;
-        }
-
-        const attempt = openConnection();
-        pendingConnection = attempt;
-        const release = () => {
-          if (pendingConnection === attempt) {
-            pendingConnection = undefined;
-          }
-        };
-        attempt.then(release, release);
-
-        return attempt;
-      };
-
       /** Aborts every stream. Listeners stay registered and keep the id of their last event for the next connection. */
-      const closeConnection = async ({ manual }: { manual: boolean }): Promise<boolean> => {
-        const wasActive = adapter.connected || adapter.connecting;
-        connection = undefined;
-        [...subscriptions.values()].forEach(stopStream);
-
-        onDisconnect();
-        if (!manual) {
-          // Closing the previous streams is a part of reconnecting - only `disconnect()` keeps the socket closed
-          adapter.setForceClosed(false);
-        }
-        if (wasActive) {
-          onDisconnected();
-        }
-        return true;
+      const stopStreams = () => {
+        subscriptions.values().forEach(stopStream);
       };
 
-      /** Manual disconnect - the socket stays closed until `connect()` or `reconnect()` is called */
-      const disconnect = (): Promise<boolean> => {
-        return closeConnection({ manual: true });
-      };
+      /**
+       * There is no shared transport - the connection is the set of streams opened with its details. It is ready at
+       * once, and it is never lost as a whole: every stream fails and starts again on its own (`scheduleRestart`).
+       */
+      const connectionLifecycle = createReconnectingConnection({
+        bindings,
+        autoConnect: adapter.adapterOptions?.autoConnect ?? true,
+        open: (attempt) => {
+          const details = attempt.connection;
+          if (typeof (details.adapterOptions?.fetch ?? globalThis.fetch) !== "function") {
+            onConnectFailed({ error: new Error("fetch is not available in this environment") });
+            return null;
+          }
 
-      const reconnect = async () => {
-        // Reconnecting is a request to be connected, also after a manual disconnect
-        adapter.setForceClosed(false);
-
-        await onReconnect({
-          disconnect: () => closeConnection({ manual: false }),
-          connect: async () => {
-            // `disconnect()` called in the meantime wins over the reconnection
-            if (adapter.forceClosed) {
-              adapter.setReconnectionAttempts(0);
-              return false;
+          connection = details;
+          attempt.ready();
+          subscriptions.values().forEach((subscription) => {
+            // A listener added by an `onConnected` callback is running already
+            if (!subscription.transport) {
+              startStream(subscription, 0);
             }
-            return connect();
-          },
-        });
-      };
+          });
+
+          return {
+            close: () => {
+              if (connection === details) {
+                connection = undefined;
+              }
+              stopStreams();
+            },
+          };
+        },
+      });
 
       // Event iterators only send data from the server. Throwing synchronously makes `emitter.emit()` fail right at
       // the call site, the same as in the Server-Sent Events adapter.
@@ -341,40 +285,17 @@ export const OrpcStreamAdapter = ({
         throw new Error("Cannot emit events in the oRPC stream adapter, it only receives events of subscriptions");
       };
 
-      // Initialize
-      if (autoConnect) {
-        connect();
-      }
-
-      const unmountOnline = socket.appManager.events.onOnline(() => {
-        if (connection) {
-          // Streams that failed while offline start again right away
-          [...subscriptions.values()].forEach((subscription) => {
-            const { transport } = subscription;
-            if (transport && !transport.controller) {
-              clearTimeout(transport.timer);
-              startStream(subscription, transport.attempts);
-            }
-          });
-          return;
-        }
-        // A socket disconnected on purpose stays closed until `connect()` or `reconnect()` is called
-        if (autoConnect && !adapter.forceClosed) {
-          connect();
-        }
-      });
-
       return {
-        connect,
-        reconnect,
-        disconnect,
+        connect: connectionLifecycle.connect,
+        reconnect: connectionLifecycle.reconnect,
+        disconnect: connectionLifecycle.disconnect,
         listen: subscriptions.listen,
         emit,
-        // Nothing of this connector outlives the socket - no online subscription, no running or waiting streams
+        // Nothing of this connector outlives the socket - no app manager subscriptions, no running or waiting streams
         dispose: () => {
-          unmountOnline();
+          connectionLifecycle.dispose();
           connection = undefined;
-          [...subscriptions.values()].forEach(stopStream);
+          stopStreams();
         },
       };
     });

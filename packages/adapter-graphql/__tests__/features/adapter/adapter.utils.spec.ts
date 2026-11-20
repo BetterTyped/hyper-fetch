@@ -36,7 +36,9 @@ describe("Graphql Adapter [ Utils ]", () => {
       const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe("https://shared-base-url/graphql");
-      expect(payload).toBe('{"query":"query GetUser {\\n  username {\\n    username\\n    firstName\\n  }\\n}"}');
+      expect(payload).toBe(
+        String.raw`{"query":"query GetUser {\n  username {\n    username\n    firstName\n  }\n}","operationName":"GetUser"}`,
+      );
       expect(request.method).toBe("POST");
       expect(request.endpoint).toBeString();
     });
@@ -44,7 +46,7 @@ describe("Graphql Adapter [ Utils ]", () => {
       const { fullUrl, payload } = getRequestValues(requestGet);
 
       expect(fullUrl).toBe(
-        "https://shared-base-url/graphql?query=%0Aquery%20GetUser%20%7B%0A%20%20username%20%7B%0A%20%20%20%20username%0A%20%20%20%20firstName%0A%20%20%7D%0A%7D%0A",
+        "https://shared-base-url/graphql?query=%0Aquery%20GetUser%20%7B%0A%20%20username%20%7B%0A%20%20%20%20username%0A%20%20%20%20firstName%0A%20%20%7D%0A%7D%0A&operationName=GetUser",
       );
       expect(payload).toBeNull();
       expect(requestGet.method).toBe("GET");

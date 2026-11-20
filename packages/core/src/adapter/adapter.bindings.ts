@@ -345,7 +345,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
         requestId,
       },
     });
-    const error = getErrorMessage("timeout");
+    const error = internalErrorMapping(getErrorMessage("timeout"));
     return onError({ error, status, extra });
   };
 
@@ -364,7 +364,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
         requestId,
       },
     });
-    const error = getErrorMessage();
+    const error = internalErrorMapping(getErrorMessage());
     return onError({ error, status, extra });
   };
 

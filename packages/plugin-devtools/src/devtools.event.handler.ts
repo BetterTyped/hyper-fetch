@@ -8,8 +8,9 @@ import type {
 import type { Emitter, Listener } from "@hyper-fetch/sockets";
 import { Socket } from "@hyper-fetch/sockets";
 
+import { createObserversReporter } from "./devtools.observers-reporter";
 import { createSocketReporter, getSocketIds } from "./devtools.socket-reporter";
-import { CoreEvents, EventSourceType, InternalEvents } from "./types/events.types";
+import { CoreEvents, EventSourceType, InternalEvents, ObserverEvents } from "./types/events.types";
 import type { HFEventMessagePayload, PluginInternalMessagePayload } from "./types/messages.types";
 import { MessageOrigin, MessageType } from "./types/messages.types";
 import type { DevtoolsPluginOptions } from "./types/plugin.types";
@@ -37,10 +38,18 @@ export class DevtoolsEventHandler {
   environment: string;
   logger: LoggerMethods;
   socketReporters: ReturnType<typeof createSocketReporter>[] = [];
+  observersReporter: ReturnType<typeof createObserversReporter>;
 
   constructor(
     client: ClientInstance,
-    { appName, url = "ws://localhost:2137", debug = false, environment, WebSocket, sockets = [] }: DevtoolsPluginOptions,
+    {
+      appName,
+      url = "ws://localhost:2137",
+      debug = false,
+      environment,
+      WebSocket,
+      sockets = [],
+    }: DevtoolsPluginOptions,
   ) {
     this.isConnected = false;
     this.isInitialized = false;
@@ -70,6 +79,21 @@ export class DevtoolsEventHandler {
           this.sendEvent({ eventSource: EventSourceType.SOCKET, eventName, data, isTriggeredExternally: false }),
       }),
     );
+
+    this.observersReporter = createObserversReporter({
+      client,
+      report: (data) => {
+        // Counts change all the time, so instead of queueing them HyperFlow gets their snapshot when it connects
+        if (this.isConnected && this.isInitialized) {
+          this.sendEvent({
+            eventSource: EventSourceType.OBSERVERS,
+            eventName: ObserverEvents.CHANGED,
+            data,
+            isTriggeredExternally: false,
+          });
+        }
+      },
+    });
 
     this.socketEmitter = this.socket.createEmitter<PluginInternalMessagePayload>()({
       topic: SocketTopics.PLUGIN_EMITTER,
@@ -177,6 +201,7 @@ export class DevtoolsEventHandler {
             });
             // A reloaded HyperFlow knows nothing about the sockets, their events so far went to the previous one
             this.socketReporters.forEach((reporter) => reporter.sendSnapshot());
+            this.observersReporter.sendSnapshot();
           } else {
             this.logger.error({
               title: `Unknown event type ${message.data.messageType}`,

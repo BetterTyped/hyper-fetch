@@ -39,8 +39,8 @@ request API as `@hyper-fetch/firebase` in the browser.
 - 🔮 **The same requests on server and client** — Methods, constraints and responses match `@hyper-fetch/firebase`, so
   request code reads the same on both sides
 - 🔁 **Retries and queues for backend work** — HyperFetch retry, deduplication and queueing on top of Admin SDK calls
-- 🧭 **Queries as plain arrays** — `queryParams: [$where("status", "==", "open"), $limit(50)]` for Firestore and
-  Realtime Database
+- 🧭 **Typed queries** — `queryParams: (c) => c.where("status", "==", "open").limit(50)`, checked against your
+  document type, for Firestore and Realtime Database
 - 📡 **Server-side listeners** — React to Firestore and Realtime Database changes in workers through
   `@hyper-fetch/sockets`
 - 🛡️ **Errors in the response** — Firebase errors arrive in `response.error`; `send()` never rejects
@@ -101,16 +101,15 @@ await deleteMessage.setParams({ messageId: created!.__key }).send();
 ### Query with constraints
 
 ```ts
-import { $limit, $orderBy, $where } from "@hyper-fetch/firebase-admin";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
-const getMessages = client.createRequest<{ response: Message[]; queryParams?: FirestoreQueryParams }>()({
+const getMessages = client.createRequest<{ response: Message[]; queryParams?: FirestoreQueryParams<Message> }>()({
   endpoint: "messages",
   method: "getDocs",
 });
 
 const { data: recent } = await getMessages.send({
-  queryParams: [$where("author", "==", "system"), $orderBy("createdAt", "desc"), $limit(50)],
+  queryParams: (c) => c.where("author", "==", "system").orderBy("createdAt", "desc").limit(50),
 });
 ```
 
@@ -122,10 +121,9 @@ import { FirebaseSocketsAdminAdapter } from "@hyper-fetch/firebase-admin";
 
 const socket = new Socket({ url: "", adapter: FirebaseSocketsAdminAdapter(getFirestore()) });
 
-const onQueued = socket.createListener<Job[]>()({
-  topic: "jobs",
-  options: { constraints: [$where("state", "==", "queued")], groupByChangeType: true },
-});
+const onQueued = socket
+  .createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } })
+  .setQueryParams((c) => c.where("state", "==", "queued"));
 
 const stop = onQueued.listen(({ extra }) => {
   extra.groupedResult?.added.forEach((job) => enqueue(job));

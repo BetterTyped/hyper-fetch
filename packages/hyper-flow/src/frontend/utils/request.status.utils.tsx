@@ -30,13 +30,14 @@ export const getStatus = (
   return Status.IN_PROGRESS;
 };
 
-/** The fill of each status icon, a paused request has no icon */
-const iconColors: Record<Exclude<Status, Status.PAUSED>, string> = {
+/** The fill of each status icon */
+const iconColors: Record<Status, string> = {
   [Status.REMOVED]: "#9e9e9e", // gray-400
   [Status.CANCELED]: "#f97316", // orange-500
   [Status.FAILED]: "#ef4444", // red-500
   [Status.SUCCESS]: "#22c55e", // green-500
   [Status.IN_PROGRESS]: "#3b82f6", // blue-500
+  [Status.PAUSED]: "#eab308", // yellow-500
 };
 
 export const RequestStatusIcon = ({ status, className }: { status: Status; className?: string }) => {
@@ -159,6 +160,22 @@ export const RequestStatusIcon = ({ status, className }: { status: Status; class
             fill={iconColors[status]}
             d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"
           />
+        </svg>
+      );
+    }
+    case Status.PAUSED: {
+      // Waits in a stopped queue
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-label={Status.PAUSED}
+          className={cn(baseClassName, className)}
+        >
+          <circle fill={iconColors[status]} cx="12" cy="12" r="11" />
+          <rect fill="#fff" x="8" y="7" width="2.5" height="10" rx="1" />
+          <rect fill="#fff" x="13.5" y="7" width="2.5" height="10" rx="1" />
         </svg>
       );
     }

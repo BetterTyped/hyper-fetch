@@ -15,7 +15,7 @@ Server code can listen to Firestore and Realtime Database changes through `@hype
 :::tip Purpose
 
 1.  **Listen** to Firestore queries and Realtime Database paths from workers and long-running servers.
-2.  **Filter** live queries with the same constraints as requests.
+2.  **Filter** live queries with `setQueryParams((c) => ...)`, the same chain as requests.
 3.  **Process** changes with `groupByChangeType`, or read once with `onlyOnce`.
 
 :::
@@ -44,14 +44,11 @@ Create the adapter inside each `new Socket(...)`. An adapter binds to the socket
 ## Listening
 
 ```ts
-import { $where } from "@hyper-fetch/firebase-admin";
-
 type Job = { __key: string; state: "queued" | "running" | "done"; payload: unknown };
 
-const onQueuedJobs = firestoreSocket.createListener<Job[]>()({
-  topic: "jobs",
-  options: { constraints: [$where("state", "==", "queued")], groupByChangeType: true },
-});
+const onQueuedJobs = firestoreSocket
+  .createListener<Job[]>()({ topic: "jobs", options: { groupByChangeType: true } })
+  .setQueryParams((c) => c.where("state", "==", "queued"));
 
 const stop = onQueuedJobs.listen(({ data, extra }) => {
   const added = extra.groupedResult?.added ?? [];
@@ -66,9 +63,11 @@ effects such as sending mail idempotent, for example with a transaction or a sta
 
 | Option              | Database          | Effect                                                                                                                                   |
 | ------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `constraints`       | both              | Constraints for the live query, the same `$`-helpers as `queryParams`.                                                                   |
 | `groupByChangeType` | Firestore         | On collection listeners, adds `extra.groupedResult` with the `added`, `modified` and `removed` documents. Document listeners get `null`. |
 | `onlyOnce`          | Realtime Database | Uses `once("value")`: receives the first value and stops.                                                                                |
+
+Listener query params work like the web package: a callback or the constraints array, while the deprecated
+`options.constraints` still works.
 
 `extra` holds `ref`, `snapshot` and `status`, plus `unsubscribe` and `groupedResult` for Firestore. `groupedResult` is
 `null` when the snapshot has no document changes, and its documents have no `__key`.
@@ -98,7 +97,7 @@ const onSettings = realtimeSocket.createListener<Settings | null>()({
 
 1.  Create each socket with its own `FirebaseSocketsAdminAdapter(db)`.
 2.  Listeners deliver every snapshot once as the full current result; keep side effects idempotent.
-3.  Filter with `options.constraints`, group with `groupByChangeType`, read once with `onlyOnce`.
+3.  Filter with `setQueryParams((c) => ...)`, group with `groupByChangeType`, read once with `onlyOnce`.
 4.  Stop listeners with their stop function; the Firestore socket cannot disconnect.
 
 :::

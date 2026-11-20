@@ -94,22 +94,24 @@ document with `getDoc` when you need its saved state.
 ## Querying
 
 ```ts
-import { $limit, $orderBy, $startAfter, $where } from "@hyper-fetch/firebase-admin";
 import type { FirestoreQueryParams } from "@hyper-fetch/firebase-admin";
 
-const getOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams }>()({
+const getOrders = client.createRequest<{ response: OrderDoc[]; queryParams?: FirestoreQueryParams<Order> }>()({
   endpoint: "orders",
   method: "getDocs",
 });
 
-const newest = [$where("status", "==", "open"), $orderBy("createdAt", "desc")];
-
-const page1 = await getOrders.send({ queryParams: [...newest, $limit(100)] });
+const page1 = await getOrders.send({
+  queryParams: (c) => c.where("status", "==", "open").orderBy("createdAt", "desc").limit(100),
+});
 const last = page1.data?.at(-1);
-const page2 = await getOrders.send({ queryParams: [...newest, $startAfter(last?.createdAt), $limit(100)] });
+const page2 = await getOrders.send({
+  queryParams: (c) => c.where("status", "==", "open").orderBy("createdAt", "desc").startAfter(last!.createdAt).limit(100),
+});
 ```
 
-Constraints apply in order, and cursors take one value per `$orderBy`. The full list is on the
+Constraints apply in order, fields and values are checked against `Order`, and cursors take one value per `orderBy`.
+The constraints array built with the `$`-helpers works too. The full list is on the
 [web Firestore page](/docs/integrations/adapter-firebase/firestore#querying).
 
 ---
@@ -118,6 +120,6 @@ Constraints apply in order, and cursors take one value per `$orderBy`. The full 
 
 1.  The same six methods as the web package, with `getDoc` as the default.
 2.  `setDoc` resolves with the `WriteResult`, unlike the web package; the other methods return the same data as there.
-3.  Queries are the `queryParams` array, and cursors page through ordered results.
+3.  Queries are a `queryParams` callback, and cursors page through ordered results.
 
 :::

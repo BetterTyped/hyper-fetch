@@ -8,11 +8,12 @@ import type { DevtoolsCacheEvent } from "@/context/applications/types";
 
 export const SectionOverview = ({
   item,
-  listeners,
+  observers,
   setStale,
 }: {
   item: DevtoolsCacheEvent;
-  listeners: number;
+  /** Subscriptions of the user's application to the data of the cache key */
+  observers: number;
   setStale: (stale: boolean) => void;
 }) => {
   return (
@@ -22,10 +23,10 @@ export const SectionOverview = ({
           <TableRow>
             <TableCell className="flex items-center gap-2 h-11 text-muted-foreground">
               <ScanEye className="w-5 h-5" />
-              Cache Listeners:
+              Observers:
             </TableCell>
             <TableCell>
-              <div className="flex items-center gap-2">{listeners}</div>
+              <div className="flex items-center gap-2">{observers}</div>
             </TableCell>
           </TableRow>
           <TableRow>

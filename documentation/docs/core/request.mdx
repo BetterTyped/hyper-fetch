@@ -1128,6 +1128,10 @@ console.log(data); // { name: "John" }
 console.log(error); // undefined
 ```
 
+When the endpoint is a typed document, like a GraphQL `TypedDocumentNode` from graphql-codegen or a gql.tada document,
+the request reads `response` and `payload` from it, so you can leave them out. Declared generics still win. See
+[typed documents](/docs/integrations/adapter-graphql/overview#typed-documents).
+
 :::warning Install Eslint plugin
 
 To ensure type safety, we recommend installing the

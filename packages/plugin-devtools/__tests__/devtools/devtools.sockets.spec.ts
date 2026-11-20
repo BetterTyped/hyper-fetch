@@ -1,6 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, waitForConnection } from "@hyper-fetch/testing";
+import type { AddressInfo } from "net";
 import type { WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 
@@ -19,11 +20,12 @@ type Received = { data: BaseMessagePayload };
 
 /** Stands in for the HyperFlow server */
 const createHyperFlowServer = async () => {
-  const port = 20_000 + Math.floor(Math.random() * 40_000);
-  const wss = new WebSocketServer({ port });
+  // A random port can be taken by another process (EADDRINUSE never emits "listening"), the system picks a free one
+  const wss = new WebSocketServer({ port: 0 });
   await new Promise<void>((resolve) => {
     wss.once("listening", () => resolve());
   });
+  const { port } = wss.address() as AddressInfo;
   const received: Received[] = [];
   let plugin: WebSocket | null = null;
   wss.on("connection", (ws) => {

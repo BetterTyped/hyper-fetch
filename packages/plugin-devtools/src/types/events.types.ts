@@ -22,6 +22,8 @@ export enum EventSourceType {
   CUSTOM_EVENT = "customEvent",
   /** Events of the sockets passed in the `sockets` option */
   SOCKET = "socket",
+  /** How many observers the application has, see `ObserverEvents` */
+  OBSERVERS = "observers",
 }
 
 /** What happens to the sockets HyperFlow inspects */
@@ -62,6 +64,33 @@ export type DevtoolsSocketEventData = {
   error?: { name: string; message: string } | unknown;
   /** Reconnection attempt */
   attempts?: number;
+};
+
+/** What happens to the observers of the application's cache keys and query keys */
+export enum ObserverEvents {
+  /**
+   * Observer counts changed. Sent with the counts of one key whenever an observer subscribes or unsubscribes, and with
+   * the counts of every key the plugin knows each time HyperFlow connects.
+   */
+  CHANGED = "OBSERVERS_CHANGED",
+}
+
+/**
+ * The data of `ObserverEvents.CHANGED`. Only the user's application knows its observers, so the plugin reports them.
+ * Keys not listed keep their previous counts.
+ */
+export type DevtoolsObserversEventData = {
+  /**
+   * Observers by cache key: subscriptions to the data of the key, one for every mounted `useFetch`, `useSubmit` and
+   * `useCache` reading it, plus every `cache.events.onDataByKey` of the application.
+   */
+  cache: Record<string, number>;
+  /**
+   * Observers by query key: subscriptions to the loading state or the queue of the key, one for every mounted
+   * `useFetch`, `useSubmit` and `useQueue` using it, plus every `onLoadingByQueue` and `onQueueChangeByKey` of the
+   * application.
+   */
+  queues: Record<string, number>;
 };
 
 /*

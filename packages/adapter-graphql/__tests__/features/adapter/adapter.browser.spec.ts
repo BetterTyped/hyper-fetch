@@ -44,7 +44,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -58,7 +58,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -72,8 +72,9 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(status).toBe(400);
     expect(error).toStrictEqual(expected.errors);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "42" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "42" },
       extensions: {},
+      errors: expected.errors,
     });
   });
 
@@ -97,7 +98,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -157,7 +158,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error).toStrictEqual(getErrorMessage("timeout"));
+    expect(error).toStrictEqual([getErrorMessage("timeout")]);
   });
 
   it("should handle undefined response data as null", async () => {

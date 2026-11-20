@@ -9,6 +9,7 @@ import type {
   ExtractListenerTopicType,
   ExtractListenerResponseType,
   ExtractAdapterListenerOptionsType,
+  ExtractAdapterListenerQueryParamsType,
   ExtractAdapterExtraType,
   ExtractListenerSocketType,
   ExtractSocketAdapterType,
@@ -120,11 +121,12 @@ export type ListenerModel<ListenerProperties extends ListenerInstanceProperties 
 
 /**
  * The listener as adapters receive it in `listen()` - the data that describes the subscription.
- * Adapters read it, they never call the listener methods.
+ * Adapters read it, they never call the listener methods. `queryParams` holds what the listener asks for, typed by
+ * the adapter's `ListenerQueryParams` generic (`undefined` for adapters that do not declare it).
  */
 export type ListenerOfAdapter<A extends SocketAdapterInstance> = Pick<
   Listener<any, any, any, Socket<A>, any, any, any>,
-  "topic" | "params" | "payload" | "options" | "delivery" | "socket" | "listenerOptions"
+  "topic" | "params" | "payload" | "options" | "queryParams" | "delivery" | "socket" | "listenerOptions"
 >;
 
 /** Configuration options for creating a Listener instance. */
@@ -140,6 +142,11 @@ export type ListenerOptionsType<
   topic: Topic;
   /** Adapter-specific listener options */
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
+  /**
+   * What the listener asks for, such as filters or limits. Only for adapters that support it (Firebase); a callback
+   * is turned into data by the adapter as soon as it is set.
+   */
+  queryParams?: ExtractAdapterListenerQueryParamsType<AdapterType>;
   /**
    * Controls how incoming messages reach `listen` callbacks. Omit it for immediate delivery of every message.
    *

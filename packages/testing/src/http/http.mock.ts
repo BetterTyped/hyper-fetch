@@ -107,11 +107,12 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     if (delayTime) {
       await delay(delayTime);
     }
+    await options.until;
 
     const { requestManager } = request.client;
     const controllers = requestManager.abortControllers.get(request.abortKey);
     const size = controllers?.size || 0;
-    const abortController: any = [...controllers || []][size - 1];
+    const abortController: any = [...(controllers || [])][size - 1];
     // Todo: something generic?
     const timeoutTime = (request.options as any)?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;

@@ -212,13 +212,14 @@ export const $limitToLast = (num: number) => {
  * `$orderBy*` that picks the compared value.
  *
  * @param value - Value the ordered field must equal
+ * @param key - Optional key that breaks ties between children with the same value
  * @example
  * getTeas.send({ queryParams: [$orderByChild("type"), $equalTo("Green")] });
  */
-export const $equalTo = (value: any) => {
+export const $equalTo = (value: any, key?: string) => {
   return {
-    toString: () => `${RealtimeQueryConstraints.EQUAL_TO}_${value}`,
+    toString: () => `${RealtimeQueryConstraints.EQUAL_TO}_${value}${key === undefined ? "" : `_${key}`}`,
     type: RealtimeQueryConstraints.EQUAL_TO as const,
-    values: [value],
+    values: key === undefined ? [value] : [value, key],
   };
 };

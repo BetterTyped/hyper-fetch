@@ -8,6 +8,7 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "dev": "vite",
+    "build": "vite build -c configs/vite.renderer.config.mts --outDir dist/renderer --emptyOutDir",
     "clean": "npx rimraf dist",
     "test": "vitest run",
     "start": "rimraf node_modules/.vite && pnpm electron-forge start",

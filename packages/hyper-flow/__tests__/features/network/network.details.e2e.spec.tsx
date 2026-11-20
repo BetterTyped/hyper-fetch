@@ -2,6 +2,7 @@ import { createClient } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { screen, waitFor, within } from "@testing-library/react";
 
+import { createHold } from "../../utils/hold";
 import { createHyperFlowEnv } from "../../utils/hyper-flow";
 import { useNetworkStore } from "@/store/applications/network.store";
 
@@ -70,7 +71,8 @@ describe("Network [ List and details ]", () => {
     it("should show only requests still in flight", async () => {
       const { getUsers, getPosts, view } = await setup();
       mockRequest(getPosts, { data: [] });
-      mockRequest(getUsers, { data: [], delay: 400 });
+      const { until, release } = createHold();
+      mockRequest(getUsers, { data: [], until });
       await getPosts.send();
       const promise = getUsers.send();
       await waitFor(() => expect(getEndpoints()).toHaveLength(2));
@@ -78,6 +80,7 @@ describe("Network [ List and details ]", () => {
       await filterBy(view, "In progress");
 
       await waitFor(() => expect(getEndpoints()).toStrictEqual(["/users"]));
+      release();
       await promise;
       expect(await screen.findByText("No matching requests")).toBeInTheDocument();
     });

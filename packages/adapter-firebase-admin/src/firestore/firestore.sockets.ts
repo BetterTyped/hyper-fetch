@@ -4,6 +4,8 @@ import type { DocumentReference, Firestore, Query, QuerySnapshot } from "firebas
 import { CollectionReference, DocumentSnapshot } from "firebase-admin/firestore";
 import { getStatus } from "utils";
 
+import { createFirestoreConstraints, getConstraints, resolveConstraints } from "../constraints";
+import type { FirestorePermittedMethods } from "../constraints";
 import { getGroupedResultFirestore, getOrderedResultFirestore, getRef, applyFireStoreAdminConstraints } from "./utils";
 
 export const firestoreAdminSockets = (database: Firestore) => {
@@ -12,68 +14,74 @@ export const firestoreAdminSockets = (database: Firestore) => {
       name: "firebase-admin-firestore",
       defaultConnected: true,
     }) as unknown as FirestoreAdminSocketAdapterType
-  ).setConnector(({ socket, onReconnect, onListen, onEvent, onError }) => {
-    const connect = () => {
-      throw new Error("Connect function is not implemented for Firestore Admin socket.");
-    };
-
-    const disconnect = () => {
-      throw new Error("Cannot disconnect from Firestore database socket. Use 'app.delete()' instead.");
-    };
-
-    const reconnect = () => {
-      onReconnect({ disconnect, connect });
-    };
-
-    const listen: FirestoreAdminSocketAdapterType["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.topic;
-      const { options } = listener;
-      let pathRef: DocumentReference | Query = getRef(database, fullUrl);
-      if (pathRef instanceof CollectionReference) {
-        pathRef = applyFireStoreAdminConstraints(pathRef, options?.constraints || []);
-      }
-      let unsubscribe = () => {};
-      let unmount = () => {};
-      let clearListeners = () => {};
-
-      unsubscribe = pathRef.onSnapshot(
-        (snapshot) => {
-          const getSnapshotData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
-          const response =
-            snapshot instanceof DocumentSnapshot
-              ? getSnapshotData(snapshot)
-              : getOrderedResultFirestore(snapshot as QuerySnapshot);
-          const status = getStatus(response);
-          const groupedResult =
-            options?.groupByChangeType === true && !(snapshot instanceof DocumentSnapshot)
-              ? getGroupedResultFirestore(snapshot as QuerySnapshot)
-              : null;
-          const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
-          onEvent({ topic: listener.topic, data: response, extra });
-        },
-        (error) => {
-          onError({ error });
-        },
-      );
-      unmount = onListen({ listener, callback, onUnmount: unsubscribe });
-      clearListeners = () => {
-        unsubscribe();
-        unmount();
+  )
+    .setListenerQueryParamsResolver(resolveConstraints(createFirestoreConstraints))
+    .setConnector(({ socket, onReconnect, onListen, onEvent, onError }) => {
+      const connect = () => {
+        throw new Error("Connect function is not implemented for Firestore Admin socket.");
       };
 
-      return clearListeners;
-    };
+      const disconnect = () => {
+        throw new Error("Cannot disconnect from Firestore database socket. Use 'app.delete()' instead.");
+      };
 
-    const emit = async () => {
-      throw new Error("Cannot emit from Firestore database socket.");
-    };
+      const reconnect = () => {
+        onReconnect({ disconnect, connect });
+      };
 
-    return {
-      connect,
-      reconnect,
-      disconnect,
-      emit,
-      listen,
-    };
-  });
+      const listen: FirestoreAdminSocketAdapterType["listen"] = (listener, callback) => {
+        const fullUrl = socket.url + listener.topic;
+        const { options } = listener;
+        let pathRef: DocumentReference | Query = getRef(database, fullUrl);
+        if (pathRef instanceof CollectionReference) {
+          // `options.constraints` is the deprecated place for constraints, kept working in v10
+          pathRef = applyFireStoreAdminConstraints(
+            pathRef,
+            getConstraints<FirestorePermittedMethods>(listener.queryParams ?? options?.constraints),
+          );
+        }
+        let unsubscribe = () => {};
+        let unmount = () => {};
+        let clearListeners = () => {};
+
+        unsubscribe = pathRef.onSnapshot(
+          (snapshot) => {
+            const getSnapshotData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
+            const response =
+              snapshot instanceof DocumentSnapshot
+                ? getSnapshotData(snapshot)
+                : getOrderedResultFirestore(snapshot as QuerySnapshot);
+            const status = getStatus(response);
+            const groupedResult =
+              options?.groupByChangeType === true && !(snapshot instanceof DocumentSnapshot)
+                ? getGroupedResultFirestore(snapshot as QuerySnapshot)
+                : null;
+            const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
+            onEvent({ topic: listener.topic, data: response, extra });
+          },
+          (error) => {
+            onError({ error });
+          },
+        );
+        unmount = onListen({ listener, callback, onUnmount: unsubscribe });
+        clearListeners = () => {
+          unsubscribe();
+          unmount();
+        };
+
+        return clearListeners;
+      };
+
+      const emit = async () => {
+        throw new Error("Cannot emit from Firestore database socket.");
+      };
+
+      return {
+        connect,
+        reconnect,
+        disconnect,
+        emit,
+        listen,
+      };
+    });
 };

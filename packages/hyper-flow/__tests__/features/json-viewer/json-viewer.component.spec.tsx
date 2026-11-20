@@ -31,6 +31,41 @@ describe("JSON viewer [ Component ]", () => {
     expect(screen.queryByRole("button", { name: "Copy JSON" })).not.toBeInTheDocument();
   });
 
+  describe("given a plain value instead of an object", () => {
+    it("should edit a string", () => {
+      const onChange = vi.fn();
+      renderViewer({ data: "hello", onChange });
+
+      fireEvent.change(screen.getByRole("textbox"), { target: { value: "hello world" } });
+
+      expect(onChange).toHaveBeenCalledWith("hello world");
+    });
+
+    it("should edit a number, also 0", () => {
+      const onChange = vi.fn();
+      renderViewer({ data: 0, onChange });
+
+      fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "42" } });
+
+      expect(onChange).toHaveBeenCalledWith(42);
+    });
+
+    it("should edit false", () => {
+      const onChange = vi.fn();
+      renderViewer({ data: false, onChange });
+
+      fireEvent.click(screen.getByRole("checkbox"));
+
+      expect(onChange).toHaveBeenCalledWith(true);
+    });
+
+    it("should show an empty string as an empty value, not as missing", () => {
+      renderViewer({ data: "", onChange: vi.fn() });
+
+      expect(screen.getByRole("textbox")).toHaveValue("");
+    });
+  });
+
   it("should copy the whole data and confirm it", async () => {
     const { user } = renderViewer({ data: { user: { name: "Maciej" } } });
 

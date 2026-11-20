@@ -2,8 +2,8 @@ import Link from "@docusaurus/Link";
 import { motion } from "motion/react";
 
 /*
- * The backends Hyper Fetch talks to, shown under the hero description. Each one is an adapter or a transport that
- * keeps the same createRequest() and send() calls, and each logo links to its docs.
+ * The backends and runtimes Hyper Fetch works with, shown under the hero description. Each backend is an adapter or a
+ * transport that keeps the same createRequest() and send() calls, and each logo links to its docs.
  */
 const backends: { name: string; src: string; to: string; scale?: number }[] = [
   { name: "OpenAPI", to: "/docs/cli/commands/generate", src: "/img/integration-openapi.svg", scale: 1.35 },
@@ -12,6 +12,8 @@ const backends: { name: string; src: string; to: string; scale?: number }[] = [
   { name: "oRPC", to: "/docs/integrations/adapter-orpc/overview", src: "/img/integration-orpc-dark.svg" },
   { name: "Hono", to: "/docs/integrations/hono/overview", src: "/img/integration-hono.svg" },
   { name: "Elysia", to: "/docs/integrations/elysia/overview", src: "/img/integration-elysia.svg" },
+  { name: "Node.js", to: "/docs/getting-started/installation", src: "/img/integration-node.svg" },
+  { name: "Bun", to: "/docs/getting-started/installation", src: "/img/integration-bun.svg", scale: 1.1 },
   { name: "Firebase", to: "/docs/integrations/adapter-firebase/overview", src: "/img/integration-firebase.svg" },
   { name: "Axios", to: "/docs/integrations/adapter-axios/overview", src: "/img/integration-axios.svg" },
   { name: "WebSockets", to: "/docs/sockets/overview", src: "/img/integration-sockets.svg" },
@@ -20,7 +22,7 @@ const backends: { name: string; src: string; to: string; scale?: number }[] = [
 
 export const Ecosystem = () => {
   return (
-    <ul className="grid grid-cols-3 sm:flex sm:flex-wrap justify-center gap-x-2 gap-y-4 sm:gap-x-3 md:gap-x-5 list-none !p-0 !m-0 mt-6 md:mt-4 max-w-[90vw]">
+    <ul className="grid grid-cols-3 sm:grid-cols-6 xl:flex justify-center justify-items-center gap-x-2 gap-y-4 sm:gap-x-3 md:gap-x-4 xl:gap-x-3 list-none !p-0 !m-0 mt-6 md:mt-4 max-w-[90vw]">
       {backends.map((backend, index) => (
         <motion.li
           key={backend.name}

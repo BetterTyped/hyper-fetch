@@ -3,8 +3,9 @@
  */
 import { Socket } from "@hyper-fetch/sockets";
 import { createWebsocketE2EServer, sleep, waitForConnection } from "@hyper-fetch/testing";
+import { WebSocket as WsWebSocket } from "ws";
 
-const { startServer, stopServer, waitForClient } = createWebsocketE2EServer();
+const { startServer, stopServer, waitForClient, getConnectedCount } = createWebsocketE2EServer();
 
 describe("E2E [ WebSocket Connection ]", () => {
   let url: string;
@@ -46,6 +47,21 @@ describe("E2E [ WebSocket Connection ]", () => {
 
     expect(events).toStrictEqual(["connecting", "connected"]);
     await socket.disconnect();
+  });
+
+  it.each([
+    ["the global WebSocket", undefined],
+    ["the ws package", WsWebSocket as unknown as typeof WebSocket],
+  ])("should end the connection on the server when disconnecting with %s", async (_name, WebSocketClass) => {
+    const socket = new Socket({ url, adapterOptions: { autoConnect: false, WebSocket: WebSocketClass } });
+    await socket.connect();
+    await waitForConnection(socket);
+    expect(getConnectedCount()).toBe(1);
+
+    await socket.disconnect();
+    await sleep(200);
+
+    expect(getConnectedCount()).toBe(0);
   });
 
   it("should not connect when autoConnect is false", async () => {

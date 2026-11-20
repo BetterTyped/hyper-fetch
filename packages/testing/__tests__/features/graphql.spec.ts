@@ -59,7 +59,7 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -73,7 +73,7 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -144,8 +144,9 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(status).toBe(400);
     expect(expected.errors).toStrictEqual(error);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "47" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "47" },
       extensions: {},
+      errors: expected.errors,
     });
   });
 
@@ -191,7 +192,7 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "48" },
+      headers: { "content-type": "application/graphql-response+json", "content-length": "48" },
       extensions: {},
     });
   });
@@ -218,7 +219,7 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(error).toStrictEqual([{ message: getErrorMessage("timeout").message }]);
     expect(extra?.headers).toStrictEqual({
       "content-length": "42",
-      "content-type": "application/json",
+      "content-type": "application/graphql-response+json",
     });
   });
 

@@ -1,5 +1,6 @@
 export * from "./socket";
 export * from "./adapter";
+export * from "./connection";
 export * from "./emitter";
 export * from "./listener";
 export * from "./delivery";
