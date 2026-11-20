@@ -11,6 +11,25 @@ import { Firestore } from "firebase-admin/firestore";
 import { getFirestoreAdminMethods } from "../firestore";
 import { getRealtimeDbAdminMethods } from "../realtime";
 
+/**
+ * Request adapter for the Firebase Admin SDK. Pass a Firestore or Realtime Database instance from `firebase-admin` and
+ * the adapter picks the matching methods and types. Admin access bypasses security rules.
+ *
+ * - Firestore methods: `getDoc` (default), `getDocs`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc`
+ * - Realtime Database methods: `get` (default), `set`, `push`, `update`, `remove`
+ *
+ * The full path is `client.url + endpoint`. Constraints go in `queryParams` as an array. Firebase errors resolve the
+ * request with `status: "error"`; `send()` never rejects.
+ *
+ * @param database - Instance from `getFirestore()` or `getDatabase()` of `firebase-admin`
+ * @example
+ * const client = new Client({ url: "orders/" }).setAdapter(FirebaseAdminAdapter(getFirestore()));
+ * const getOpenOrders = client.createRequest<{ response: Order[]; queryParams?: FirestoreQueryParams }>()({
+ *   endpoint: "",
+ *   method: "getDocs",
+ * });
+ * const { data } = await getOpenOrders.send({ queryParams: [$where("status", "==", "open")] });
+ */
 export const FirebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T): FirebaseAdminAdapterTypes<T> => {
   const adapter = new Adapter({
     name: "firebase-admin",

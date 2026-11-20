@@ -5,6 +5,25 @@ import { Database } from "firebase/database";
 import { getFirestoreBrowserMethods } from "firestore";
 import { getRealtimeDbBrowserMethods } from "realtime";
 
+/**
+ * Request adapter for the Firebase Web SDK. Pass a Firestore or Realtime Database instance and the adapter picks the
+ * matching methods and types.
+ *
+ * - Firestore methods: `getDoc` (default), `getDocs`, `addDoc`, `setDoc`, `updateDoc`, `deleteDoc`
+ * - Realtime Database methods: `get` (default), `set`, `push`, `update`, `remove`
+ *
+ * The full path is `client.url + endpoint`. Constraints go in `queryParams` as an array. Firebase errors resolve the
+ * request with `status: "error"`; `send()` never rejects.
+ *
+ * @param database - Instance from `getFirestore()` or `getDatabase()`
+ * @example
+ * const client = new Client({ url: "teas/" }).setAdapter(FirebaseAdapter(getFirestore(app)));
+ * const getTeas = client.createRequest<{ response: Tea[]; queryParams?: FirestoreQueryParams }>()({
+ *   endpoint: "",
+ *   method: "getDocs",
+ * });
+ * const { data } = await getTeas.send({ queryParams: [$where("type", "==", "Green"), $limit(20)] });
+ */
 export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T): FirebaseAdapterTypes<T> => {
   const adapter = new Adapter({
     name: "firebase",
