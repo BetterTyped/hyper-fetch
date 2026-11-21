@@ -1,7 +1,7 @@
 # 🎡 Hyper Fetch GraphQL
 
 <p align="center">
-  <b>GraphQL adapter for HyperFetch. Typed queries and mutations over HTTP.</b>
+  <b>GraphQL adapters for HyperFetch. Typed queries and mutations over HTTP, subscriptions over WebSocket.</b>
 </p>
 
 <p align="center">
@@ -33,16 +33,19 @@
 
 ## 📖 About
 
-This adapter connects HyperFetch to GraphQL APIs over HTTP. You get typed queries and mutations that work with
-HyperFetch's caching, queuing, and React hooks — the same request patterns you use for REST, but with GraphQL
-operations. Subscriptions are not supported.
+This package connects HyperFetch to GraphQL APIs. `GraphqlAdapter` sends typed queries and mutations over HTTP that work
+with HyperFetch's caching, queuing, and React hooks — the same request patterns you use for REST, but with GraphQL
+operations. `GraphqlWsAdapter` listens to subscriptions over WebSocket with the `graphql-transport-ws` protocol of
+`graphql-ws`.
 
 ## 🎯 Key Capabilities
 
 - 🎡 **GraphQL meets HyperFetch** — Typed queries and mutations with cache and queue support
 - 🔮 **End-to-end types** — Full TypeScript types for operations, variables, and responses
 - 📡 **Any GraphQL server** — Compatible with Apollo, Yoga, Hasura, and any spec-compliant endpoint
-- ⚛️ **React-ready** — Use `useFetch` and `useSubmit` for GraphQL operations in components
+- 🔴 **Subscriptions** — `graphql-transport-ws` over WebSocket, with reconnecting, shared subscriptions and lazy
+  connections
+- ⚛️ **React-ready** — Use `useFetch`, `useSubmit` and `useListener` for GraphQL operations in components
 - 💾 **Smart caching included** — Cache and offline support work the same as REST — no extra config
 
 ## 🚀 Quick Start
@@ -61,6 +64,7 @@ const client = createClient({ url: "https://api.example.com/graphql" }).setAdapt
 ## 📚 Documentation
 
 - [GraphQL Adapter Docs](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/overview)
+- [GraphQL Subscriptions](https://hyperfetch.bettertyped.com/docs/integrations/adapter-graphql/subscriptions)
 - [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
 - [API Reference](https://hyperfetch.bettertyped.com/api/)
 
@@ -140,6 +144,28 @@ const UserList = () => {
     </ul>
   );
 };
+```
+
+### Subscription
+
+Subscriptions need `@hyper-fetch/sockets`. A typed document from graphql-codegen or gql.tada types the data and the
+variables.
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { GraphqlWsAdapter } from "@hyper-fetch/graphql";
+
+const socket = new Socket({
+  url: "wss://api.example.com/graphql",
+  adapter: GraphqlWsAdapter(),
+  adapterOptions: { connectionParams: async () => ({ token: await getToken() }) },
+});
+
+const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
+
+onMessage.setPayload({ room: "general" }).listen(({ data }) => {
+  console.log(data.onMessage.text);
+});
 ```
 
 ## License

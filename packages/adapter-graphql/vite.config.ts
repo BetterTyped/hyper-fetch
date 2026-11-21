@@ -23,6 +23,7 @@ export default defineConfig({
   test: {
     alias: {
       "@hyper-fetch/core": path.resolve(__dirname, "../core/src/index.ts"),
+      "@hyper-fetch/react": path.resolve(__dirname, "../react/src/index.ts"),
       "@hyper-fetch/sockets": path.resolve(__dirname, "../sockets/src/index.ts"),
       "@hyper-fetch/testing": path.resolve(__dirname, "../testing/src/index.ts"),
     },
@@ -33,6 +34,9 @@ export default defineConfig({
     },
     environment: "node",
     globals: true,
+    // The e2e server's graphql-ws must load the same graphql module as the specs - two copies reject each other's
+    // schemas ("Cannot use GraphQLSchema from another module or realm")
+    server: { deps: { inline: ["graphql-ws"] } },
     include: ["__tests__/**/*.spec.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
     setupFiles: ["./__tests__/vitest.setup.ts"],
   },
