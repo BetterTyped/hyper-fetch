@@ -23,7 +23,8 @@
     "test:release": "node --test scripts/release.test.mjs scripts/version-docs.test.mjs",
     "readme:banners": "node ./scripts/readme-banners/render.mjs",
     "examples": "nx run-many --target=typecheck,build --parallel=3 --projects='@hyper-fetch-examples/*'",
-    "test:examples": "node --test scripts/examples.test.mjs"
+    "test:examples": "node --test scripts/examples.test.mjs",
+    "test:skills": "node --test scripts/skills.test.mjs"
   },
   "dependencies": {
     "@nx/js": "22.6.5",

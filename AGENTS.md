@@ -119,7 +119,8 @@ Workflows in `.claude/skills/`:
 - `publish-new-package`: first npm publish and trusted publishing for a package that is not on npm yet.
 
 These are for working on this repo. Every `SKILL.md` outside `skills/` sets `metadata.internal: true` so the
-[skills](https://skills.sh) CLI never installs it for users.
+[skills](https://skills.sh) CLI never installs it for users and skills.sh never lists it. `pnpm test:skills` checks it
+in CI.
 
 `skills/` holds the public skills, one per package, installed with `npx skills add BetterTyped/hyper-fetch/skills`.
 Their readers build apps with HyperFetch. Verify every API name, option, default and type claim in them against
