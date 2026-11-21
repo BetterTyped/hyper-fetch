@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./.github/assets/readme.png" alt="Hyper Fetch. From REST to realtime. Fully typed. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, Node.js, Bun, Firebase, Axios, WebSockets and React." />
+  <img src="./.github/assets/readme.png" alt="Hyper Fetch. Fetch anything. Type everything. Cache, retries, dedupe, offline and realtime, built in. Works with OpenAPI, GraphQL, tRPC, oRPC, Hono, Elysia, Node.js, Bun, Firebase, Axios, WebSockets and React." />
 </p>
 
 <p align="center">
