@@ -51,6 +51,25 @@ const sdk = createSdk<typeof client, MyApiSchema>(client);
   to="/docs/core/client"
 />
 
+### Options
+
+| Option                 | Default                            | Description                                                                         |
+| ---------------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `camelCaseToKebabCase` | `true`                             | Turn camelCase keys into kebab-case url segments (`userProfiles` → `user-profiles`) |
+| `pathSegments`         | `undefined`                        | Url segment of a key when it differs from the key. Mapped keys are not converted    |
+| `methodTransform`      | `(method) => method.toUpperCase()` | Turn the `$`-prefixed key into the request method                                   |
+| `defaults`             | `undefined`                        | Request defaults per endpoint, see [`$configure`](#sdk-configuration-configure)     |
+
+```typescript
+// `findByStatus` stays camelCase in the url, `userProfiles` becomes `user-profiles`
+const sdk = createSdk<typeof client, MyApiSchema>(client, {
+  pathSegments: { findByStatus: "findByStatus" },
+});
+
+sdk.pet.findByStatus.$get; // GET /pet/findByStatus
+sdk.userProfiles.$get; // GET /user-profiles
+```
+
 ---
 
 ## Defining the Schema
