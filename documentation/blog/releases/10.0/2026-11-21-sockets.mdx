@@ -1,0 +1,465 @@
+---
+slug: hyper-fetch-10-sockets
+title: "Sockets in HyperFetch 10"
+authors: [maciej]
+tags: [Release, Sockets, WebSockets, SSE]
+date: 2026-11-21T15:00:00
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="Sockets in HyperFetch 10"
+  description="Throttled, typed and back online on their own."
+  badge="feature"
+  href="/blog/hyper-fetch-10-sockets"
+  pattern="hexagon"
+  patternMask="sides"
+  file="prices.ts"
+>
+
+```ts
+const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  delivery: { strategy: "latest", interval: 16 },
+});
+
+onPrice.listen(({ data }) => render(data));
+```
+
+</BlogPostImage>
+
+Realtime streams are fast, servers restart, and RPC subscriptions need input before they send anything. HyperFetch 10
+gives listeners delivery strategies for busy streams, typed subscription payloads with a lifecycle, and one reconnection
+engine that every socket adapter shares, in the browser, Node.js, Bun and Deno.
+
+{/* truncate */}
+
+:::info Version
+
+This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+
+:::
+
+:::success What's new
+
+1. **Delivery strategies**: sample or batch messages per listener before they reach callbacks and renders.
+2. **Subscription payloads**: typed input a listener sends to start a server-side subscription.
+3. **Listener lifecycle**: `onStart` and `onEnd` on `listen()`, `status` and `error` in `useListener`.
+4. **Reconnection engine**: one connection lifecycle with jittered backoff for every socket adapter.
+5. **Any runtime**: the built-in adapters run in Node.js, Bun and Deno without a `window` shim.
+6. **SSE named events**: `event: tick` reaches the listeners of the `tick` topic.
+7. **Listener query params**: filters and ordering for adapters that support them.
+8. **Typed documents**: a GraphQL document types a listener without generics.
+
+:::
+
+---
+
+## Delivery strategies
+
+A price ticker can push hundreds of updates per second, and in React every one of them is a render. The screen refreshes
+60 times a second, so most of that work is thrown away. The `delivery` option decides how messages reach your callbacks,
+right on the listener.
+
+```ts title="listeners.ts"
+// State-like data: only the newest value matters
+export const onPrice = socket.createListener<Price>()({
+  topic: "prices",
+  // highlight-next-line
+  delivery: { strategy: "latest", interval: 16 }, // about one animation frame
+});
+
+// Event-like data: every message must be processed
+export const onTrade = socket.createListener<Trade>()({
+  topic: "trades",
+  // highlight-next-line
+  delivery: { strategy: "batch", interval: 100, maxSize: 500 },
+});
+
+onTrade.listen(({ data }) => {
+  // data is Trade[], inferred from the "batch" strategy
+  appendRows(data);
+});
+```
+
+- **`latest`** delivers the first message of an idle period at once, then at most one message per `interval`, always the
+  newest. Set `leading: false` to wait a full interval first.
+- **`batch`** collects the messages of one `interval` and delivers them as an array, in arrival order. Nothing is
+  dropped. `maxSize` delivers early once that many messages are waiting.
+- Each `listen()` call gets its own timers and buffers. Unsubscribing clears them, so nothing arrives after it.
+- Without `delivery` the callback is registered as it is, with no wrapper and no timers.
+
+Because the strategy lives inside the listener, `useListener` and the socket SDK follow it with no extra options. With
+`batch`, the hook's `data` and `onEvent` are arrays, so one state update covers the whole window:
+
+```tsx title="TradeLog.tsx"
+import { useState } from "react";
+import { useListener } from "@hyper-fetch/react";
+import { onTrade } from "./listeners";
+
+export function TradeLog() {
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const { onEvent } = useListener(onTrade);
+
+  onEvent(({ data }) => {
+    // One render per 100ms window instead of one per trade
+    setTrades((previous) => [...previous, ...data].slice(-1000));
+  });
+
+  return <TradeTable trades={trades} />;
+}
+```
+
+When the presets do not fit, `createDeliveryStrategy` takes a factory that receives `deliver` and returns `push` and
+`dispose`. `setDelivery()` returns a clone with another strategy, which lets the user pick the refresh rate at runtime.
+
+Delivery strategies first shipped in a 9.x minor. In 10 they work with the new subscription lifecycle: when the server
+ends a subscription, messages still waiting in a window are delivered before `onEnd` runs. A typed document also types
+the strategy, so `batch` delivers arrays of the document's data.
+
+---
+
+## Subscription payloads
+
+tRPC, oRPC and GraphQL start one server-side subscription per input. A listener could only name a topic, so there was no
+typed place for that input. Listeners now carry a payload, declared as the second generic of `createListener`.
+
+```ts title="jobs.ts"
+type JobInput = { jobId: string };
+
+export const onJobProgress = socket.createListener<JobProgress, JobInput>()({
+  topic: "jobs.onProgress",
+});
+
+onJobProgress.setPayload({ jobId: "1" }).listen(({ data }) => render(data));
+
+// Or for one subscription only, the listener itself stays unchanged
+onJobProgress.listen(({ data }) => render(data), { payload: { jobId: "2" } });
+
+// @ts-expect-error the payload is required
+onJobProgress.listen(({ data }) => render(data));
+```
+
+- Listeners of one topic with different payloads are separate subscriptions. Each one receives only its own messages.
+- Listeners with an equal payload share one subscription. The last one to stop ends it on the server.
+- In a socket SDK schema the payload is a field of `ListenerModel`, for example
+  `ListenerModel<{ response: JobProgress; payload: JobInput; topic: "jobs.onProgress" }>`.
+- The built-in WebSocket and SSE adapters route messages by topic and do not send the payload. It is for adapters that
+  start subscriptions on the server.
+
+---
+
+## Listener lifecycle
+
+A subscription can end on the server: a job finishes, an input fails validation, a stream completes. `listen()` now
+takes `onStart` and `onEnd`.
+
+```ts
+onJobProgress.listen(({ data }) => render(data), {
+  payload: { jobId: "1" },
+  onStart: ({ topic }) => console.log("Server accepted", topic),
+  onEnd: ({ error }) => {
+    if (error) console.error("Subscription failed", error);
+    else console.log("Job finished");
+  },
+});
+```
+
+With adapters whose subscriptions start on the server, like tRPC, oRPC and GraphQL, `onStart` runs when the server
+accepted the subscription, and again when a reconnect restarted it. With the WebSocket and SSE adapters it runs right
+after `listen()`. `onEnd` runs once, and unsubscribing yourself does not call it. To watch every subscription of a
+socket, use `socket.events.onListenerStart` and `socket.events.onListenerEnd`.
+
+In React, `useListener` subscribes again when the payload changes and reports where the subscription is:
+
+```tsx title="JobProgress.tsx"
+import { useListener } from "@hyper-fetch/react";
+
+export function JobProgressBar({ jobId }: { jobId: string }) {
+  // highlight-next-line
+  const { data, status, error, listen } = useListener(
+    onJobProgress.setPayload({ jobId }),
+  );
+
+  if (status === "failed")
+    return <Retry message={error?.message} onClick={listen} />;
+  if (status === "starting") return <Spinner />;
+  return <ProgressBar value={data?.percent ?? 0} done={status === "ended"} />;
+}
+```
+
+`status` is `"idle"`, `"starting"`, `"listening"`, `"ended"` or `"failed"`. During server rendering the hook does not
+subscribe and stays `"idle"`. After `"ended"` or `"failed"` it stays unsubscribed until you call `listen()` or pass
+another listener. Passing a listener whose required payload is not set yet is a type error.
+
+---
+
+## One reconnection engine
+
+Every adapter used to carry its own copy of the connection lifecycle, with the same gaps: a fixed 5 second delay with no
+jitter, attempts that reset on every open, and nothing that reacted to the network or the tab coming back. In 10,
+`createReconnectingConnection` owns the lifecycle and adapters only open transports.
+
+```ts title="socket.ts"
+import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
+
+const socket = new Socket({
+  url: "wss://api.example.com",
+  // The defaults, shown for reference
+  reconnectTime: 1000, // the first retry comes 1 to 2 seconds after the loss
+  maxReconnectTime: 30_000, // the backoff window stops growing here
+  minUptime: 5000, // a connection must hold this long before the attempt counter resets
+  connectionTimeout: 5000, // one attempt, protocol handshake included
+  // highlight-next-line
+  // A rejected token won't get better by retrying
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
+});
+```
+
+- **Backoff with full jitter.** The window doubles with every attempt, and each client picks a random moment in it, so
+  the clients of a restarted server do not all come back at once.
+- **Stable connections reset the counter.** A server that accepts and then closes right away, for example over an
+  expired token, keeps backing off and counts towards `reconnect`.
+- **A normal closure stays closed.** A server that closes with 1000 finished on purpose. Every other loss is retried,
+  so restarts (1001, 1012) and crashes come back. `shouldReconnect: () => true` retries 1000 too.
+- **The network and the tab count.** Going offline closes the connection and pauses without counting attempts. Coming
+  back online connects at once, and getting the focus back skips the rest of a pending delay.
+- **`autoConnect` only decides the first connection.** A socket connected by hand also recovers from a dropped network.
+- **A reconnection by hand is a fresh start.** `socket.reconnect()` resets the counter and is never refused, also with
+  `reconnect: 0` or after an outage used up the attempts.
+
+`reconnectDelay` replaces the backoff. It receives the `attempt` of the outage, the `elapsed` time and the `reason`, and
+returns the delay or `null` to stop. Custom adapters get the same behavior by building on `createReconnectingConnection`
+and reporting their transport `ready`, `lost` or `interrupted`. The SSE adapter keeps the browser's own retry with
+`Last-Event-ID` and gives it the connection timeout to come back.
+
+The tRPC, oRPC and GraphQL socket adapters run on this engine too, and Hono WebSocket routes connect with the built-in
+`WebsocketAdapter`. The [backend packages post](/blog/hyper-fetch-10-backends) covers them.
+
+---
+
+## Node.js, Bun and Deno
+
+Sockets connected with `window.WebSocket` and `window.EventSource` only, so nothing connected on a server or in a
+script. The built-in adapters now use the global constructor of the runtime, or the one you pass in `adapterOptions`.
+
+```ts title="worker.ts"
+import { EventSource } from "eventsource";
+import { Socket, ServerSentEventsAdapter } from "@hyper-fetch/sockets";
+
+// Node.js has a global WebSocket since 22, but no EventSource
+const socket = new Socket({
+  url: "http://localhost:3000/events",
+  adapter: ServerSentEventsAdapter(),
+  // highlight-next-line
+  adapterOptions: { EventSource },
+});
+```
+
+The WebSocket adapter takes a `WebSocket` option the same way. A side effect is that sockets created during server
+rendering now connect from the server. The [upgrading section](#upgrading) shows how to keep them in the browser.
+
+---
+
+## SSE named events
+
+Servers often send typed events, like `event: tick`, that never reached the `message` handler the SSE adapter listened
+to. The adapter now delivers a named event to the listeners whose topic is the event name.
+
+```ts
+// Server: event: tick
+//         data: {"count":1}
+const onTick = sseSocket.createListener<{ count: number }>()({ topic: "tick" });
+
+onTick.listen(({ data }) => console.log(data.count));
+```
+
+Data that is not JSON arrives as the raw text. The handlers are registered again on the new `EventSource` after a
+reconnect, removed when the last listener of the topic leaves, and the `decode` option applies to them too.
+
+---
+
+## Listener query params
+
+Requests can say what they ask for through query params, but listeners could not. Listeners now take `queryParams` in
+`createListener` and `setQueryParams()`, for adapters that declare them. The Firebase socket adapters do.
+
+```ts
+// Firebase: listen only to green teas, newest first
+const onGreenTeas = socket
+  .createListener<Tea[]>()({ topic: "teas" })
+  .setQueryParams((c) =>
+    c.where("type", "==", "Green").orderBy("year", "desc"),
+  );
+```
+
+A callback is turned into data by the adapter as soon as it is set, so the listener never holds a function. Query params
+describe what to receive, the payload is what the server needs to start. The WebSocket and SSE adapters do not declare
+listener query params, so `setQueryParams` does not compile for them.
+
+---
+
+## Typed documents on listeners
+
+`createListener()` reads the `__apiType` decoration of a listener option, the one graphql-codegen and gql.tada put on
+their documents. With the `GraphqlWsAdapter`, the document alone types the data and the payload:
+
+```ts
+const onMessage = graphqlSocket.createListener()({
+  topic: "OnMessage",
+  // highlight-next-line
+  options: { document: OnMessageDocument },
+});
+
+onMessage
+  .setPayload({ room: "general" })
+  .listen(({ data }) => data.onMessage.text);
+```
+
+Declared generics still win, and adapters without typed options are unchanged. The
+[GraphQL post](/blog/hyper-fetch-10-graphql) covers the adapter.
+
+---
+
+## Reliability fixes
+
+- Sockets reconnect when the network comes back. The socket never initialized its app manager, so online and offline
+  events went unnoticed. In React Native or Node.js, pass your own with the `appManager` option.
+- A manual `disconnect()` sticks: no reconnect after a close while connecting, after going online, or from a pending SSE
+  attempt.
+- A transport that was already open when it was created no longer reconnects when the attempt timeout fires.
+- A WebSocket handshake that Node.js 22 refuses with only an `error` event is retried at once, and `disconnect()` no
+  longer waits for a close that never comes.
+- Closing a WebSocket wrapped by a library such as msw closes the real connection on the server.
+- Calling `disconnect()` inside `onConnected` leaves no uptime or heartbeat timers behind, so there are no false
+  heartbeat timeouts.
+- A pong timeout marks the socket disconnected right away.
+- `connect()` resolves once the connection is open, also when it joins an attempt in progress.
+- One throwing listener no longer stops the other listeners of its topic.
+- Emit failures from interceptors, payload mappers, encoders or a closed connection reach the emitter error event
+  instead of unhandled rejections. Async payload mappers are awaited.
+- Topic params: `:id` no longer matches inside `:idx`, and setting params again replaces the topic.
+- `useListener` follows the socket of the listener, so a listener of another socket with the same topic subscribes
+  there.
+- `socket.destroy()` removes the online listeners of the adapter.
+
+---
+
+## Upgrading
+
+The breaking changes are in `@hyper-fetch/sockets`. Most apps only need the server rendering change.
+
+### Listener generics
+
+`Listener` gained the payload and its flag. This matters only if you write the generics by hand.
+
+```ts
+// diff-remove-next-line
+type PriceListener = Listener<Price, "prices", typeof socket, false, Price>;
+// diff-add-start
+type PriceListener = Listener<
+  Price,
+  undefined, // Payload
+  "prices",
+  typeof socket,
+  false, // HasPayload
+  false, // HasParams
+  Price
+>;
+// diff-add-end
+```
+
+`ListenType` takes `<Payload, HasPayload, Socket, Delivered>` instead of `<Listener, Socket>`. Prefer
+`ListenerInstance<{ response: Price }>` for constraints and `ListenerModel` in SDK schemas, which read the fields by
+name and do not change with the generic order. For custom adapters, `ListenerOfAdapter` holds only the listener data
+they read: `topic`, `params`, `payload`, `options`, `queryParams`, `delivery`, `socket` and `listenerOptions`.
+
+### Connection timeout and reconnect delay
+
+`reconnectTime` used to be both the delay between attempts and how long one attempt could take, with a default of 5
+seconds. It is now only the minimum delay, 1 second by default, and grows with backoff up to `maxReconnectTime`.
+`connectionTimeout` (5 seconds by default) limits each attempt.
+
+```ts
+const socket = new Socket({
+  url,
+  // diff-remove-next-line
+  reconnectTime: 10_000,
+  // diff-add-start
+  reconnectTime: 10_000, // minimum delay before an attempt
+  connectionTimeout: 10_000, // how long one attempt may take
+  // diff-add-end
+});
+```
+
+To keep a fixed delay, return it from `reconnectDelay: () => 5000`.
+
+### Server rendering
+
+Sockets connect wherever a global `WebSocket` exists, Node.js 22+ included. To keep sockets created during server
+rendering from connecting, turn off the automatic connection outside the browser:
+
+```ts
+const socket = new Socket({
+  url: "wss://api.example.com",
+  // diff-add-next-line
+  adapterOptions: { autoConnect: typeof window !== "undefined" },
+});
+```
+
+### onMessage interceptors
+
+`onMessage` interceptors receive `{ event, topic, extra }`, where `extra` is the adapter extra, such as the
+`MessageEvent`. Interceptors that read only `event` keep working.
+
+```ts
+// diff-remove-next-line
+socket.onMessage(({ event }) => event);
+// diff-add-start
+socket.onMessage(({ event, topic }) =>
+  topic === "prices" ? roundPrice(event) : event,
+);
+// diff-add-end
+```
+
+---
+
+## Learn more
+
+<LinkCard
+  type="docs"
+  title="Throttling & Batching"
+  description="Timelines, semantics and custom delivery strategies."
+  href="/docs/guides/sockets/throttling"
+/>
+<LinkCard
+  type="docs"
+  title="React Throttling & Batching"
+  description="Delivery strategies with useListener."
+  href="/docs/guides/react/sockets/throttling"
+/>
+<LinkCard
+  type="docs"
+  title="Listener"
+  description="Payloads, lifecycle, query params and delivery on the Listener."
+  href="/docs/sockets/listener"
+/>
+<LinkCard
+  type="docs"
+  title="Connection"
+  description="Reconnection rules, options and a custom retry policy."
+  href="/docs/guides/sockets/connection"
+/>
+<LinkCard
+  type="docs"
+  title="useListener"
+  description="Status, error and lifecycle callbacks in React."
+  href="/docs/react/sockets/use-listener"
+/>
+<LinkCard
+  type="docs"
+  title="Socket Adapters"
+  description="The built-in adapters and custom adapters on the reconnection engine."
+  href="/docs/sockets/adapter"
+/>

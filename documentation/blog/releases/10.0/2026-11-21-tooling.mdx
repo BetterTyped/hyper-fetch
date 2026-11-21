@@ -1,0 +1,286 @@
+---
+slug: hyper-fetch-10-tooling
+title: "HyperFlow, Linting and Examples"
+authors: [maciej]
+tags: [Release, HyperFlow, DevTools, Tooling]
+date: 2026-11-21T12:00:00
+---
+
+import { BlogPostImage, LinkCard } from "@site/src/components";
+
+<BlogPostImage
+  title="HyperFlow, Linting and Examples"
+  description="See your sockets, lint 16x faster, start from 88 apps."
+  badge="feature"
+  href="/blog/hyper-fetch-10-tooling"
+  pattern="retro"
+  patternMask="rectangle"
+  file="client.ts"
+>
+
+```ts
+client.addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    sockets: [socket],
+  }),
+);
+```
+
+</BlogPostImage>
+
+A library is only as good as the tools around it. In the v10 cycle HyperFlow learned to inspect sockets and Node.js
+servers, the lint rules got an Oxlint plugin and a fix for typescript-eslint 8, and the docs gained 88 runnable
+examples and agent skills for every package.
+
+{/* truncate */}
+
+:::info Version
+
+This post covers **HyperFetch 10**. Read the [release overview](/blog/hyper-fetch-10-0) for the rest of the series.
+
+:::
+
+:::success What's new
+
+1. **Socket Inspector**: HyperFlow shows every socket's connection, messages and errors.
+2. **Server devtools**: the devtools plugin reports from Node.js, Deno and Bun.
+3. **Live observers**: HyperFlow shows how many subscriptions each cache key really has.
+4. **Oxlint plugin**: the HyperFetch lint rules for Oxlint, with the same rule ids.
+5. **ESLint fixes**: the rules report on typescript-eslint 8 and ship a flat recommended config.
+6. **88 examples**: runnable apps with StackBlitz and CodeSandbox previews.
+7. **Agent skills**: one skill per package for coding agents.
+
+:::
+
+---
+
+## Socket Inspector
+
+Requests were always visible in HyperFlow, but the realtime side of an app was not. When a chat stops updating, the
+first question is whether the socket is still connected, and the answer used to live in `console.log`.
+
+Pass your sockets to the devtools plugin with the new `sockets` option:
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+const socket = new Socket({ url: "ws://localhost:3000" });
+
+const client = createClient({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My App",
+    // highlight-next-line
+    sockets: [socket],
+  }),
+);
+```
+
+The new **Sockets** page lists each socket with its URL, adapter and status (connecting, connected, reconnecting,
+disconnected or failed), and counts the messages, bytes, errors, failed sends and reconnection attempts. Below it, a log
+shows received and sent messages, connection events and errors, with search, a direction filter and per-socket
+selection. It works with the WebSocket and Server-Sent Events adapters.
+
+When HyperFlow restarts, the plugin reports the sockets and their state again, so you do not lose them. Events waiting
+for HyperFlow are capped at the newest 1000, so an app running without HyperFlow open no longer keeps every event in
+memory.
+
+---
+
+## Devtools on the server
+
+Backends send requests too, and debugging them meant adding logs. The devtools plugin now uses the runtime's global
+`WebSocket` when there is no `window`, so it reports from Node.js 22+, Deno and Bun with no extra setup. Use
+`environment` to tell the backend apart from the frontend in HyperFlow:
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+const client = createClient({ url: "http://localhost:3000" }).addPlugin(
+  DevtoolsPlugin({
+    appName: "My API",
+    // highlight-next-line
+    environment: "backend",
+  }),
+);
+```
+
+On Node.js 18 and 20, install `ws` and pass its class in the `WebSocket` option.
+
+Invalidating a cache entry from HyperFlow now marks the data stale in your app, the same as `cache.invalidate()`. Before,
+it only notified listeners and the data stayed fresh.
+
+---
+
+## Real observer counts
+
+HyperFlow mirrors your app's cache with its own client, and that client has no subscriptions, so the observers column
+always showed 0. The plugin now reports how many subscriptions your app has per cache key and query key, on every change
+and as a snapshot each time HyperFlow connects. You can see which data is still on screen and which is safe to drop.
+
+---
+
+## A tested compatibility table
+
+HyperFlow inspects requests from any adapter, but "any" is a claim. Every HyperFlow flow now runs end to end against each
+adapter: fetch, axios, GraphQL, tRPC, oRPC, Firebase, Firebase Admin and a custom one. A real client reports through the
+devtools plugin to a real HyperFlow, and the
+[compatibility page](/docs/hyper-flow/compatibility) shows the results. Every mark there is a test that runs on each
+change.
+
+Writing those tests found real bugs, and they are fixed in the current build:
+
+- The server survives crashes, invalid ports, restarts and reopened windows.
+- Canceled requests are counted, and paused requests get their own icon.
+- Plain string, number and boolean values can be edited in the cache view.
+- Dialogs, crash badges and queue actions reset to the real state of your app.
+- Charts label their legends and draw every particle, even when one leaves the canvas.
+
+The [download page](/docs/hyper-flow/download) now finds the newest release that carries HyperFlow installers and offers
+the one for your system in one click.
+
+---
+
+## Oxlint plugin
+
+The lint rules catch what TypeScript lets through: every generic key on `createClient` and `createRequest` is optional,
+so a typo like `rsponse` silently types your data as `unknown`. Teams moving to [Oxlint](https://oxc.rs) lost that
+check. **`oxlint-plugin-hyper-fetch`** brings both rules over with the same rule ids:
+
+```bash npm2yarn2pnpm
+npm install -D oxlint oxlint-plugin-hyper-fetch
+```
+
+```json title=".oxlintrc.json"
+{
+  "jsPlugins": ["oxlint-plugin-hyper-fetch"],
+  "rules": {
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "error"
+  }
+}
+```
+
+The rules skip files that cannot contain a HyperFetch client or request before Oxlint builds their AST, which is nearly
+all of the cost. On the 4960 files of the HyperFetch repository it lints in 1.09s, against 17.8s for ESLint, with the
+same findings. Moving from ESLint only changes how the plugin is registered.
+
+---
+
+## ESLint plugin fixes
+
+`eslint-plugin-hyper-fetch` read generics from `typeParameters`, which typescript-eslint 8 removed in favor of
+`typeArguments`. On current parsers the rules found no generics and reported nothing. They now read `typeArguments` and
+fall back for older parsers.
+
+`configs.recommended` is now a flat config object, the format of ESLint 9 and the only one ESLint 10 reads:
+
+```js title="eslint.config.mjs"
+import hyperFetch from "eslint-plugin-hyper-fetch";
+import tseslint from "typescript-eslint";
+
+export default [
+  {
+    files: ["**/*.{ts,tsx,mts,cts}"],
+    languageOptions: { parser: tseslint.parser },
+  },
+  // highlight-next-line
+  hyperFetch.configs.recommended,
+];
+```
+
+If you still use `.eslintrc` on ESLint 8, switch to the preset that moved:
+
+```js title=".eslintrc.cjs"
+module.exports = {
+  // diff-remove-next-line
+  extends: ["plugin:hyper-fetch/recommended"],
+  // diff-add-next-line
+  extends: ["plugin:hyper-fetch/recommended-legacy"],
+};
+```
+
+---
+
+## 88 runnable examples
+
+Reading an API reference tells you what exists. An app that runs tells you how the pieces fit. The docs now have an
+[examples catalog](/examples) with 88 standalone apps in ten groups: getting started, data fetching, caching,
+mutations, request control, offline, realtime, integrations, frameworks and complete apps.
+
+Each example has a page with its real source files and a click-to-run preview, and opens in StackBlitz or CodeSandbox
+straight from GitHub. CI type-checks and builds every one of them against the current source, so the code you read works
+with the latest release. To copy one locally:
+
+```bash
+npx tiged BetterTyped/hyper-fetch/examples/offline/offline-first my-app
+```
+
+The [offline-first](/examples/offline/offline-first) app is the flagship: it persists both the cache and the request
+queue, so a whole offline session survives a reload.
+
+---
+
+## Agent skills
+
+Coding agents write a lot of data-fetching code, and they write it from what they remember about a library. Every
+HyperFetch package now has a public [agent skill](/docs/getting-started/ai) with setup, golden rules, patterns, pitfalls
+and type safety, each checked against the package source:
+
+```bash
+npx skills add BetterTyped/hyper-fetch/skills
+```
+
+Or install only the packages you use:
+
+```bash
+npx skills add BetterTyped/hyper-fetch/skills --skill hyper-fetch-core --skill hyper-fetch-react
+```
+
+There are fifteen skills, one each for core, React, sockets, axios, GraphQL, tRPC, oRPC, Firebase, Firebase Admin, Hono,
+Elysia, the CLI, devtools, ESLint and Oxlint.
+
+---
+
+## CLI fixes
+
+- Generated SDKs call the real paths of the schema. The generator turns path segments into camelCase keys, so
+  `sdk.pet.findByStatus.$get` used to call `/pet/find-by-status`. The generated file now passes
+  [`pathSegments`](/blog/hyper-fetch-10-core-react) for every key the conversion would get wrong.
+- `init` writes aliases that point to the directories it creates, and `generate` creates the output directory when it is
+  missing. Before, a project without tsconfig `paths` failed its first `generate` with `ENOENT`.
+
+---
+
+## Learn more
+
+<LinkCard
+  type="docs"
+  title="Socket Inspector"
+  description="Inspect connections, messages and errors of your sockets."
+  href="/docs/hyper-flow/features/sockets"
+/>
+
+<LinkCard
+  type="docs"
+  title="Devtools plugin"
+  description="Connect browser apps and Node.js servers to HyperFlow."
+  href="/docs/integrations/plugin-devtools"
+/>
+
+<LinkCard
+  type="docs"
+  title="Oxlint plugin"
+  description="Install the rules and migrate from ESLint."
+  href="/docs/integrations/plugin-oxlint"
+/>
+
+<LinkCard
+  type="docs"
+  title="Examples"
+  description="88 runnable HyperFetch apps."
+  href="/examples"
+/>
