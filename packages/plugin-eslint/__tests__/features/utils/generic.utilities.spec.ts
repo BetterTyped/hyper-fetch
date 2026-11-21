@@ -1,14 +1,63 @@
+import { parse } from "@typescript-eslint/parser";
+import type { TSESTree } from "@typescript-eslint/utils";
+import { createRequire } from "node:module";
+
 import {
   getUnexpectedGenerics,
   getEmptyGenerics,
   getNotMatchingGeneric,
+  getTypeArguments,
 } from "../../../src/utils/generic-utilities.types";
 
+const require = createRequire(import.meta.url);
+// typescript-eslint 7 is installed under an alias and sets both `typeArguments` and the old `typeParameters`.
+const { parse: parseV7 } = require("typescript-eslint-parser-v7") as { parse: typeof parse };
+
+const getCall = (program: TSESTree.Program): TSESTree.CallExpression => {
+  const [statement] = program.body;
+  if (statement.type !== "ExpressionStatement" || statement.expression.type !== "CallExpression") {
+    throw new Error("Expected a call expression");
+  }
+  return statement.expression;
+};
+
 describe("Generic Utilities", () => {
+  describe("getTypeArguments", () => {
+    const code = "client.createRequest<{ response: User }>();";
+
+    it("should read typeArguments from typescript-eslint 8", () => {
+      const call = getCall(parse(code));
+
+      expect("typeParameters" in call).toBe(false);
+      expect(getTypeArguments(call)?.params[0].type).toBe("TSTypeLiteral");
+    });
+
+    it("should read typeArguments from typescript-eslint 7", () => {
+      const call = getCall(parseV7(code));
+
+      expect(getTypeArguments(call)?.params[0].type).toBe("TSTypeLiteral");
+    });
+
+    it("should fall back to typeParameters from parsers older than typescript-eslint 6", () => {
+      const { typeArguments, ...call } = getCall(parse(code));
+      const legacyCall: TSESTree.CallExpression & { typeParameters?: TSESTree.TSTypeParameterInstantiation } = {
+        ...call,
+        typeArguments: undefined,
+        typeParameters: typeArguments,
+      };
+
+      expect(getTypeArguments(legacyCall)).toBe(typeArguments);
+    });
+
+    it("should return undefined for a call without generics", () => {
+      expect(getTypeArguments(getCall(parse("client.createRequest();")))).toBeUndefined();
+    });
+  });
+
   describe("getUnexpectedGenerics", () => {
     it("should return empty array when no type parameters are provided", () => {
       const result = getUnexpectedGenerics({
-        typeParameters: undefined,
+        typeArguments: undefined,
         allowedGenerics: ["endpoint", "headers"],
       });
 
@@ -16,7 +65,7 @@ describe("Generic Utilities", () => {
     });
 
     it("should return unexpected generic members", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -36,7 +85,7 @@ describe("Generic Utilities", () => {
       };
 
       const result = getUnexpectedGenerics({
-        typeParameters,
+        typeArguments,
         allowedGenerics: ["endpoint", "headers"],
       });
 
@@ -44,7 +93,7 @@ describe("Generic Utilities", () => {
     });
 
     it("should handle non-object generic type", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -54,7 +103,7 @@ describe("Generic Utilities", () => {
       };
 
       const result = getUnexpectedGenerics({
-        typeParameters,
+        typeArguments,
         allowedGenerics: ["endpoint", "headers"],
       });
 
@@ -65,14 +114,14 @@ describe("Generic Utilities", () => {
   describe("getEmptyGenerics", () => {
     it("should return false when no type parameters are provided", () => {
       const result = getEmptyGenerics({
-        typeParameters: undefined,
+        typeArguments: undefined,
       });
 
       expect(result).toBe(false);
     });
 
     it("should return true for empty generic object", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -83,14 +132,14 @@ describe("Generic Utilities", () => {
       };
 
       const result = getEmptyGenerics({
-        typeParameters,
+        typeArguments,
       });
 
       expect(result).toBe(true);
     });
 
     it("should return false for non-empty generic object", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -106,7 +155,7 @@ describe("Generic Utilities", () => {
       };
 
       const result = getEmptyGenerics({
-        typeParameters,
+        typeArguments,
       });
 
       expect(result).toBe(false);
@@ -116,14 +165,14 @@ describe("Generic Utilities", () => {
   describe("getNotMatchingGeneric", () => {
     it("should return false when no type parameters are provided", () => {
       const result = getNotMatchingGeneric({
-        typeParameters: undefined,
+        typeArguments: undefined,
       });
 
       expect(result).toBe(false);
     });
 
     it("should return false for object generic type", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -139,14 +188,14 @@ describe("Generic Utilities", () => {
       };
 
       const result = getNotMatchingGeneric({
-        typeParameters,
+        typeArguments,
       });
 
       expect(result).toBe(false);
     });
 
     it("should return true for non-object generic type", () => {
-      const typeParameters: any = {
+      const typeArguments: any = {
         type: "TSTypeParameterInstantiation",
         params: [
           {
@@ -156,7 +205,7 @@ describe("Generic Utilities", () => {
       };
 
       const result = getNotMatchingGeneric({
-        typeParameters,
+        typeArguments,
       });
 
       expect(result).toBe(true);

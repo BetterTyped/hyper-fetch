@@ -23,7 +23,15 @@ export const getIsHyperFetchDeclaration = () => {
               defaultImports.add(specifier.local.name);
             }
 
-            if (specifier.type === "ImportSpecifier" && specifier.imported.name === "createClient") {
+            if (specifier.type !== "ImportSpecifier") {
+              return;
+            }
+
+            // `import { "createClient" as make }` names the import with a string.
+            const importedName =
+              specifier.imported.type === "Identifier" ? specifier.imported.name : specifier.imported.value;
+
+            if (importedName === "createClient") {
               clientImports.add(specifier.local.name);
             }
           });

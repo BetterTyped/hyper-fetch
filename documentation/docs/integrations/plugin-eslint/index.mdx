@@ -27,33 +27,37 @@ TypeScript alone might miss, such as typos, missing values, or incorrect type us
 
 ## Install the Plugin
 
-Install the ESLint plugin using npm or yarn:
+The rules read TypeScript generics, so files must be parsed by [typescript-eslint](https://typescript-eslint.io).
+Install both packages:
 
 ```bash npm2yarn2pnpm
-npm install eslint-plugin-hyper-fetch
+npm install -D eslint eslint-plugin-hyper-fetch typescript-eslint
 ```
+
+The plugin works with ESLint 8.57 and newer, including ESLint 10. The rules only read syntax, so no type information
+(`parserOptions.project`) is needed.
 
 ---
 
 ## Quick Start
 
-1. ### Update ESLint Configuration
+Add the recommended preset to your flat config (`eslint.config.mjs`, the only format in ESLint 10). It registers the
+plugin and turns on every rule as `"error"`:
 
-After installing the plugin, you need to update your ESLint configuration file (`.eslintrc.js`, `.eslintrc.json`, or
-equivalent) to use the plugin.
+```js title="eslint.config.mjs"
+import hyperFetch from "eslint-plugin-hyper-fetch";
+import tseslint from "typescript-eslint";
 
-2. ### Recommended Configuration
-
-The simplest way to use the plugin is to extend the recommended configuration:
-
-```json
-{
-  "extends": [
-    // ... your other extends
-    "plugin:hyper-fetch/recommended"
-  ]
-}
+export default [
+  {
+    files: ["**/*.{ts,tsx,mts,cts}"],
+    languageOptions: { parser: tseslint.parser },
+  },
+  hyperFetch.configs.recommended,
+];
 ```
+
+Still on `.eslintrc`? Use the legacy preset, see [Configuration](/docs/integrations/plugin-eslint/configuration.mdx).
 
 ---
 

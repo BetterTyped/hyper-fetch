@@ -1,6 +1,7 @@
 import type { TSESTree } from "@typescript-eslint/utils";
 
-type GenericType = NonNullable<TSESTree.NewExpression["typeParameters"]>["params"][number];
+type TypeArguments = TSESTree.TSTypeParameterInstantiation;
+type GenericType = TypeArguments["params"][number];
 type GenericMember = TSESTree.TSTypeLiteral["members"][number];
 
 /**
@@ -17,6 +18,19 @@ const getObjectParts = (generic: GenericType): TSESTree.TSTypeLiteral[] => {
   return [];
 };
 
+/**
+ * Generics passed to a call, as in `createRequest<{ response: User }>()`.
+ * typescript-eslint 6 and newer put them on `typeArguments`. Older parsers set only `typeParameters`,
+ * which typescript-eslint 8 removed, so both are read.
+ */
+export const getTypeArguments = (node: TSESTree.CallExpression): TypeArguments | undefined => {
+  if (node.typeArguments) {
+    return node.typeArguments;
+  }
+  const legacyNode: TSESTree.CallExpression & { typeParameters?: TypeArguments } = node;
+  return legacyNode.typeParameters;
+};
+
 const getMemberName = (member: GenericMember) => {
   if ("key" in member) {
     if (!member.computed && member.key.type === "Identifier") {
@@ -30,21 +44,21 @@ const getMemberName = (member: GenericMember) => {
 };
 
 export function getUnexpectedGenerics({
-  typeParameters,
+  typeArguments,
   allowedGenerics,
 }: {
-  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
+  typeArguments: TypeArguments | undefined;
   allowedGenerics: string[];
 }) {
   /**
    * This is valid: doSomething({ endpoint: "/ping" });
    */
-  if (!typeParameters) {
+  if (!typeArguments) {
     return [];
   }
 
   // <{ ... }>
-  const mainGenericParam = typeParameters.params[0];
+  const mainGenericParam = typeArguments.params[0];
 
   if (mainGenericParam.type !== "TSTypeLiteral" && mainGenericParam.type !== "TSIntersectionType") {
     return [mainGenericParam.type];
@@ -55,20 +69,16 @@ export function getUnexpectedGenerics({
     .filter((key) => !allowedGenerics.includes(key));
 }
 
-export function getEmptyGenerics({
-  typeParameters,
-}: {
-  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
-}) {
+export function getEmptyGenerics({ typeArguments }: { typeArguments: TypeArguments | undefined }) {
   /**
    * This is valid: doSomething({ endpoint: "/ping" });
    */
-  if (!typeParameters) {
+  if (!typeArguments) {
     return false;
   }
 
   // <{ ... }>
-  const mainGenericParam = typeParameters.params[0];
+  const mainGenericParam = typeArguments.params[0];
 
   if (mainGenericParam && "members" in mainGenericParam) {
     return mainGenericParam.members.length === 0;
@@ -76,20 +86,16 @@ export function getEmptyGenerics({
   return false;
 }
 
-export function getNotMatchingGeneric({
-  typeParameters,
-}: {
-  typeParameters: TSESTree.NewExpression["typeParameters"] | undefined;
-}) {
+export function getNotMatchingGeneric({ typeArguments }: { typeArguments: TypeArguments | undefined }) {
   /**
    * This is valid: doSomething({ endpoint: "/ping" });
    */
-  if (!typeParameters) {
+  if (!typeArguments) {
     return false;
   }
 
   // <{ ... }>
-  const mainGenericParam = typeParameters.params[0];
+  const mainGenericParam = typeArguments.params[0];
 
   // doSomething<{ ... }> is a TSTypeLiteral, which is the valid case.
   if (mainGenericParam.type === "TSTypeLiteral") {
