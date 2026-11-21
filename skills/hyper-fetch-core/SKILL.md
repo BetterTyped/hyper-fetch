@@ -124,7 +124,8 @@ local and global errors, adapter methods/options/extra, and whether params/paylo
   with `Expected 1 arguments, but got 0`. Setters flip per-request flags (`HasParams`, `HasPayload`, `HasQuery`) on the
   returned clone, so a discarded setter result keeps the requirement.
 - **Methods and adapter options are checked** against the adapter
-  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` + `responseType` for HTTP).
+  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` + `responseType`
+  for HTTP).
 - **`setResponseMapper` changes types** (`data` and the local error follow the mapper's return); `setPayloadMapper` and
   `setRequestMapper` do not.
 - **`success` is not a discriminant**: `data: T | null` stays nullable after `if (success)`; check `data`.

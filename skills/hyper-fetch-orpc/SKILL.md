@@ -3,13 +3,16 @@ name: hyper-fetch-orpc
 description:
   oRPC adapter for HyperFetch (`@hyper-fetch/orpc`). Calls oRPC procedures with the RPC protocol of `RPCHandler`, typed
   from the router or a contract through the regular `createSdk` of `@hyper-fetch/core`, with HyperFetch caching,
-  deduplication, queueing, retries, offline support and React hooks. Use when the user installs or configures
-  `@hyper-fetch/orpc`, imports `OrpcAdapter`, `OrpcSchema`, `OrpcMethods`, `OrpcErrorType` or `OrpcQueryMethod`, writes
-  `createSdk<typeof client, OrpcSchema<typeof router>>` or `OrpcSchema<ContractRouterClient<typeof contract>>`, calls
-  `api.planet.find.$query` / `$mutation`, uses oRPC with `useFetch` / `useSubmit`, sends queries with GET
-  (`queryMethod`), uploads files, keeps `Date` / `BigInt` / `Map` / `Set` types, sets `customJsonSerializers`, narrows
-  `ORPCError` codes from `.errors()`, or asks about oRPC batching, event iterators, or replacing `RPCLink` /
-  `@orpc/tanstack-query` with HyperFetch.
+  deduplication, queueing, retries, offline support and React hooks. Event iterator procedures become typed socket
+  listeners over HTTP event streams or a WebSocket. Use when the user installs or configures `@hyper-fetch/orpc`,
+  imports `OrpcAdapter`, `OrpcSchema`, `OrpcMethods`, `OrpcErrorType`, `OrpcQueryMethod`, `OrpcStreamAdapter`,
+  `OrpcWebsocketAdapter`, `OrpcSocketSchema` or `OrpcSocketError`, writes `createSdk<typeof client, OrpcSchema<typeof
+  router>>`, `OrpcSchema<ContractRouterClient<typeof contract>>` or `createSocketSdk<typeof socket,
+  OrpcSocketSchema<typeof router>>`, calls `api.planet.find.$query` / `$mutation` or `sdk.planet.onUpdate.$listener`,
+  uses oRPC with `useFetch` / `useSubmit` / `useListener`, sends queries with GET (`queryMethod`), uploads files, keeps
+  `Date` / `BigInt` / `Map` / `Set` types, sets `customJsonSerializers`, narrows `ORPCError` codes from `.errors()`,
+  resumes streams with `withEventMeta` and `lastEventId`, or asks about oRPC batching, event iterators, async generator
+  procedures, or replacing `RPCLink` / `@orpc/tanstack-query` with HyperFetch.
 ---
 
 # HyperFetch oRPC adapter
@@ -20,7 +23,12 @@ payload is the procedure input, encoded with the official oRPC serializer from `
 not a new client: `OrpcSchema<typeof router>` goes into the regular `createSdk`, and every procedure becomes a normal
 HyperFetch `Request` under both `$query` and `$mutation`.
 
-Read `hyper-fetch-core` for requests, cache and the SDK, and `hyper-fetch-react` for hooks.
+Procedures that return an event iterator go through a `Socket` of `@hyper-fetch/sockets` instead: `OrpcStreamAdapter()`
+(HTTP event streams) or `OrpcWebsocketAdapter()` (one WebSocket) plus the `OrpcSocketSchema<typeof router>` helper for
+`createSocketSdk` turn each one into a typed `$listener` (see Event iterators).
+
+Read `hyper-fetch-core` for requests, cache and the SDK, `hyper-fetch-react` for hooks and `hyper-fetch-sockets` for
+sockets and listeners.
 
 ## Install and set up
 
@@ -100,8 +108,10 @@ This works without `@orpc/server`. `OrpcSchema<RouterClient<typeof router>>` is 
 6. **Share serializers.** `customJsonSerializers` must be the same list on `RPCHandler` and in `OrpcAdapter`.
 7. **Narrow `error` before reading oRPC fields**: it is the `ORPCError` JSON or a plain `Error` (network, abort,
    timeout). Use `"defined" in error`.
-8. **No batching, no event iterators.** One call is one HTTP request. Procedures returning an event iterator are left
-   out of `OrpcSchema`.
+8. **No batching.** One call is one HTTP request.
+9. **Event iterators live on a `Socket`, not on the client.** They are left out of `OrpcSchema` and come from
+   `createSocketSdk` with `OrpcSocketSchema`. Pass `{ camelCaseToKebabCase: false }` there too, and the same
+   `customJsonSerializers` to the socket adapter.
 
 ## Core patterns
 
@@ -229,6 +239,88 @@ const findPlanet = client.createRequest<{ response: Planet; payload: { id: numbe
 `QUERY` is the default method. `planet/find` and `/planet/find` share the cache. Use this for procedures named like a
 request property (`send`, `method`), which the SDK can't reach.
 
+### Event iterators
+
+`OrpcStreamAdapter()` calls the procedure like the `RPCLink` of `@orpc/client/fetch` (a `POST` answered with
+`text/event-stream`), so the HTTP `RPCHandler` that serves your queries serves it too. `OrpcWebsocketAdapter()` speaks
+the `RPCHandler` of `@orpc/server/ws` and puts every subscription on one connection. Install `@hyper-fetch/sockets`.
+
+```ts
+// server
+export const router = {
+  planet: {
+    onUpdate: os.input(z.object({ id: z.number() })).handler(async function* ({ input, signal, lastEventId }) {
+      for await (const planet of publisher.subscribe(`planet/${input.id}`, { signal })) {
+        yield withEventMeta(planet, { id: String(planet.version) });
+      }
+    }),
+  },
+};
+```
+
+```ts
+// client/live.ts
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+import { OrpcStreamAdapter } from "@hyper-fetch/orpc";
+import type { OrpcSocketSchema } from "@hyper-fetch/orpc";
+
+import type { router } from "../server/router";
+
+// Or: new Socket({ url: "ws://localhost:3000", adapter: OrpcWebsocketAdapter() })
+export const socket = new Socket({ url: "http://localhost:3000/rpc", adapter: OrpcStreamAdapter() });
+
+export const live = createSocketSdk<typeof socket, OrpcSocketSchema<typeof router>>(socket, {
+  camelCaseToKebabCase: false,
+});
+
+const stop = live.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(({ data, extra }) => {
+  data; // the yielded planet, rich types kept
+  extra.id; // "42", the id set with withEventMeta
+  extra.retry; // the retry delay in ms, when the server set one
+});
+```
+
+- The input is the listener payload (`setPayload()` or `listen(cb, { payload })`). The topic is the procedure path,
+  `planet/onUpdate`. Regular procedures are not in the schema, and `emit()` on these sockets throws.
+- Listeners with the same topic and payload share one server subscription, and the last one to leave cancels it.
+  Payloads are compared in the oRPC wire format, so `{ at: new Date(0) }` and `{ at: new Date(1) }` differ.
+- When a subscription starts again (a reconnect, a failed stream, coming back online) the adapter sends the last event
+  id as `last-event-id`, and oRPC passes it to the handler as `lastEventId`. Read it to send what was missed.
+- Stream adapter: every subscription is its own request. A failed stream restarts after the last event's `retry`, or the
+  socket's `reconnectTime`, and a response slower than `connectionTimeout` is aborted and retried. After the socket's
+  `reconnect` attempts the subscription ends with an error.
+- Contract-first: `OrpcSocketSchema<ContractRouterClient<typeof contract>>`.
+
+Lifecycle and errors:
+
+```ts
+import { OrpcSocketError } from "@hyper-fetch/orpc";
+
+live.planet.onUpdate.$listener.setPayload({ id: 1 }).listen(onPlanet, {
+  onStart: ({ topic }) => {}, // the server answered with the iterator, again after every restart
+  onEnd: ({ topic, error }) => {}, // the iterator finished (error null) or failed
+});
+
+socket.onError(({ error }) => {
+  if (error instanceof OrpcSocketError && error.defined && error.code === "UNAUTHORIZED") {
+    error.topic; // "planet/onUpdate"
+    error.payload; // { id: 1 }
+    error.data; // the data of the defined error (unknown here, cast it to your .errors() shape)
+  }
+});
+```
+
+`OrpcSocketError` has `topic`, `payload`, `shape` (the `ORPCError` JSON, or `null` for network, timeout and protocol
+failures), `defined`, `code`, `status`, `data` and the original `cause`. A recovered failure (a dropped connection that
+reconnects) is reported but does not end the subscription. An ended one is never restarted by a reconnect: call
+`listen()` again. In React, `useListener(live.planet.onUpdate.$listener.setPayload({ id }))` returns `data`, `extra` and
+`status` (`"starting"`, `"listening"`, `"ended"`, `"failed"` with `error`).
+
+Options go in the socket's `adapterOptions` (or per attempt in `socket.onConnect`, e.g. a fresh token): `autoConnect`
+and `headers` for both, `fetch` and `fetchOptions` for the stream adapter, `WebSocket` and `protocols` for the WebSocket
+adapter. `customJsonSerializers` goes to the adapter factory: `OrpcStreamAdapter({ customJsonSerializers })`. Inputs
+with files are not supported over WebSocket, and client streaming (an event iterator as input) is not supported.
+
 ## Type safety
 
 Types flow from the router or contract to every call without codegen: `typeof router` (or
@@ -241,7 +333,7 @@ Types flow from the router or contract to every call without codegen: `typeof ro
 | `response`   | the output, with `Date`, `bigint`, `Set`, `Map`, `File` kept (the serializer restores them)                      |
 | `payload`    | the schema **input** (before `.transform()`), `undefined` without input, optional if the input is optional       |
 | local error  | `OrpcErrorType<Code, Data> & { defined: true }` per `.errors()` entry, plus `OrpcErrorType & { defined: false }` |
-| endpoint     | `"/planet/find"` (names exactly as written); event iterators omitted                                             |
+| endpoint     | `"/planet/find"` (names exactly as written); event iterators omitted (see `OrpcSocketSchema`)                    |
 
 ```ts
 // @ts-expect-error the input is required
@@ -291,7 +383,9 @@ const listPlanets = api.planet.list.$query.setOptions({ credentials: "include", 
 | `Property 'code' does not exist on type 'Error \| ...'` | `error` also includes the global `Error`     | Narrow with `"defined" in error`                        |
 | 405 `METHOD_NOT_SUPPORTED` with `queryMethod: "GET"`    | Procedure has no `.route({ method: "GET" })` | Add the route, or `setOptions({ queryMethod: "POST" })` |
 | Custom class arrives as a plain object                  | Serializer missing on one side               | Same `customJsonSerializers` on server and adapter      |
-| Event iterator procedure missing from `api`             | Not supported                                | Use `RPCLink` or `hyper-fetch-sockets` for streams      |
+| Event iterator procedure missing from `api`             | `OrpcSchema` omits event iterators           | `createSocketSdk` with `OrpcSocketSchema`               |
+| Stream ends, a reconnect does not bring it back         | Ended subscriptions are never restarted      | Call `listen()` again                                   |
+| Events missed while the stream was down                 | Handler ignores `lastEventId`                | Yield `withEventMeta(value, { id })` and resume from it |
 | `$query` and `$mutation` results don't share cache      | Method is part of the key                    | Read with `$query`, then invalidate or update it        |
 | Runtime error importing the adapter                     | `@orpc/client` not installed                 | `npm install @orpc/client`                              |
 
@@ -304,5 +398,6 @@ with `{ json: errorJson }`). See the [testing guide](https://hyperfetch.betterty
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview
+- Event iterators: https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/event-iterators
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-trpc`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-sockets`, `hyper-fetch-trpc`.
