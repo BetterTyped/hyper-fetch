@@ -8,7 +8,7 @@ sidebar_label: Offline
 
 An offline-first app treats the network as something that comes and goes. Reads show the last data you had, and writes
 made without a connection wait in a queue and go out when it returns. Users on a train or a flaky cafe network keep
-working instead of staring at error screens. Hyper Fetch's request queue supports this out of the box: when the app
+working instead of staring at error screens. HyperFetch's request queue supports this out of the box: when the app
 goes offline, outgoing requests are held, and they are sent once the connection is back.
 
 This is managed by the `AppManager`, which tracks whether the app is online and whether its window is focused.
@@ -18,7 +18,7 @@ This is managed by the `AppManager`, which tracks whether the app is online and 
 :::secondary What you'll learn
 
 1.  What **offline first** means for reads and writes.
-2.  How Hyper Fetch **automates offline request handling**.
+2.  How HyperFetch **automates offline request handling**.
 3.  The role of the **`AppManager`** in detecting network status.
 4.  How to show an **offline mode in React**.
 5.  How to provide **custom logic** for online/offline detection in environments like React Native.
@@ -29,9 +29,9 @@ This is managed by the `AppManager`, which tracks whether the app is online and 
 
 ## What offline first needs
 
-An offline-first setup has three parts, plus an optional fourth. Each one has a Hyper Fetch piece:
+An offline-first setup has three parts, plus an optional fourth. Each one has a HyperFetch piece:
 
-| Part                          | What it does                                             | In Hyper Fetch                                |
+| Part                          | What it does                                             | In HyperFetch                                |
 | ----------------------------- | -------------------------------------------------------- | --------------------------------------------- |
 | Network detection             | Knows when the connection drops and comes back           | `AppManager` (`online` / `offline` events)    |
 | Reads from local data         | Shows the last response instead of an error              | [Cache](./cache-revalidation.mdx)             |
@@ -47,7 +47,7 @@ the fast path and still handle request errors.
 
 ## Default behavior
 
-By default, Hyper Fetch listens to the browser's `online` and `offline` events. No extra configuration is needed in a
+By default, HyperFetch listens to the browser's `online` and `offline` events. No extra configuration is needed in a
 standard web environment. When the browser reports a lost connection, the dispatcher stops sending requests and keeps
 them in its queues. When the connection returns, it sends them.
 
@@ -129,7 +129,7 @@ cases, give the `AppManager` your own detection logic.
 ### React Native example
 
 In React Native, `@react-native-community/netinfo` is the standard way to get information about the device's network
-status. You can connect it to Hyper Fetch's `AppManager` like this:
+status. You can connect it to HyperFetch's `AppManager` like this:
 
 ```typescript
 import { Client, AppManager } from "@hyper-fetch/core";
@@ -174,7 +174,7 @@ More React Native setup is in the [React Native environment guide](../../../reac
 
 :::success Congratulations!
 
-You've learned how to handle offline state with Hyper Fetch.
+You've learned how to handle offline state with HyperFetch.
 
 - You know the parts of an **offline-first** app: detection, cached reads, and writes that wait.
 - Requests are **held while offline** by default, and `offline: false` makes them fail fast instead.

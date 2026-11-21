@@ -1,12 +1,13 @@
 ---
 sidebar_position: 2
 title: TypeScript - Local Error
+description: "Add a local error type to a single HyperFetch request that extends the global one, for endpoint-specific cases like typed form validation errors."
 sidebar_label: Local Error
 ---
 
 # Local Error
 
-While global errors provide a consistent foundation, some endpoints have unique error cases. Hyper-fetch supports
+While global errors provide a consistent foundation, some endpoints have unique error cases. HyperFetch supports
 defining **local error types** on a per-request basis. This local type extends the global error type, allowing you to
 handle specific error scenarios, like form validation, without cluttering your global error definition.
 
@@ -93,7 +94,7 @@ if (error) {
 
 :::success Congratulations!
 
-You've learned how to use local error types in Hyper-fetch!
+You've learned how to use local error types in HyperFetch!
 
 - You can define a **specific error type** for individual requests.
 - You understand that **local errors extend the global error type**, giving you more flexibility.

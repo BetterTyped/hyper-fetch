@@ -1,11 +1,11 @@
 ---
 sidebar_position: 4
-title: "RTK Query Alternative: Hyper Fetch vs RTK Query"
-description: Hyper Fetch vs RTK Query compared on API definitions, tags and invalidation, hooks, streaming, codegen and devtools. RTK Query fits Redux apps.
+title: "RTK Query Alternative: HyperFetch vs RTK Query"
+description: HyperFetch vs RTK Query compared on API definitions, tags and invalidation, hooks, streaming, codegen and devtools. RTK Query fits Redux apps.
 sidebar_label: vs RTK Query
 ---
 
-# Hyper Fetch vs RTK Query
+# HyperFetch vs RTK Query
 
 RTK Query is the data fetching layer that ships with Redux Toolkit. If your app already runs on Redux, it is the obvious
 first choice, and this page says so up front. If you are looking for an rtk query alternative because you don't use
@@ -17,8 +17,8 @@ where the state lives and what comes built in.
 
 :::secondary What you'll learn
 
-1.  How **RTK queries** and mutations are defined with `createApi`, and the Hyper Fetch equivalent.
-2.  How **tags** compare to Hyper Fetch **cache invalidation**.
+1.  How **RTK queries** and mutations are defined with `createApi`, and the HyperFetch equivalent.
+2.  How **tags** compare to HyperFetch **cache invalidation**.
 3.  How **streaming updates**, **codegen** and **devtools** differ.
 4.  Where **React Query vs RTK Query** fits in, and when to pick each.
 
@@ -73,7 +73,7 @@ export const { useGetPostsQuery } = api;
 `fetchBaseQuery` is described in the docs as "a small wrapper around `fetch`". The slice is then registered with your
 Redux store, or wrapped in `<ApiProvider />` if you don't have a store.
 
-The same API in Hyper Fetch is a client and a set of requests. No store, no provider required:
+The same API in HyperFetch is a client and a set of requests. No store, no provider required:
 
 ```ts
 import { createClient } from "@hyper-fetch/core";
@@ -104,7 +104,7 @@ RTK Query's docs define tags as "just a name that you can give to a specific col
 invalidation behavior". Queries `providesTags`, mutations `invalidatesTags`, and matching subscribed queries refetch.
 Tags can carry ids, so editing post 5 only refetches data tagged `{ type: "Post", id: 5 }`.
 
-Hyper Fetch has no tags. You invalidate by request, by cache key string, or by RegExp:
+HyperFetch has no tags. You invalidate by request, by cache key string, or by RegExp:
 
 ```ts
 // One request
@@ -118,7 +118,7 @@ editPost.setOptimistic(() => ({ invalidate: [getPosts] }));
 ```
 
 Any mounted `useFetch` for an invalidated key fetches again. Tags are more declarative once you have many endpoints
-sharing data. Hyper Fetch's approach is more direct and needs no naming scheme. See
+sharing data. HyperFetch's approach is more direct and needs no naming scheme. See
 [cache revalidation](../core/02-advanced/cache-revalidation.mdx).
 
 ---
@@ -127,7 +127,7 @@ sharing data. Hyper Fetch's approach is more direct and needs no naming scheme. 
 
 RTK Query generates a hook per endpoint (`useGetPostsQuery`), returning `data`, `error` and `isLoading` among others.
 
-Hyper Fetch uses two generic hooks that take any request:
+HyperFetch uses two generic hooks that take any request:
 
 ```tsx
 import { useFetch, useSubmit } from "@hyper-fetch/react";
@@ -152,7 +152,7 @@ RTK Query handles [streaming updates](https://redux.js.org/toolkit/rtk-query/usa
 `cacheDataLoaded`, apply messages with `updateCachedData`, and close the socket when `cacheEntryRemoved` resolves. The
 docs suggest polling or tag invalidation for most updates and streaming for small, frequent changes.
 
-Hyper Fetch ships the socket layer as a separate package. The [sockets package](../../sockets/overview.mdx) has WebSocket
+HyperFetch ships the socket layer as a separate package. The [sockets package](../../sockets/overview.mdx) has WebSocket
 and SSE adapters, reconnection, and typed listeners and emitters:
 
 ```ts
@@ -171,7 +171,7 @@ onPostEdited.listen(() => client.cache.invalidate(getPosts));
 RTK Query has a code generation tool for OpenAPI and GraphQL schemas. Its comparison page calls it "currently
 experimental".
 
-Hyper Fetch's [CLI](../../cli/overview.mdx) generates a typed SDK from an OpenAPI or Swagger spec. The output is a
+HyperFetch's [CLI](../../cli/overview.mdx) generates a typed SDK from an OpenAPI or Swagger spec. The output is a
 [`createSdk`](../../core/sdk.mdx) schema you plug your own client into.
 
 ---
@@ -181,14 +181,14 @@ Hyper Fetch's [CLI](../../cli/overview.mdx) generates a typed SDK from an OpenAP
 RTK Query requests are Redux actions, so Redux DevTools shows every request and state change. If you already debug with
 Redux DevTools, that is hard to beat.
 
-Hyper Fetch uses [HyperFlow](../../hyper-flow/index.mdx), a desktop app connected through `DevtoolsPlugin`. It shows
+HyperFetch uses [HyperFlow](../../hyper-flow/index.mdx), a desktop app connected through `DevtoolsPlugin`. It shows
 requests, cache entries and queues, and lets you pause or resume a queue.
 
 ---
 
 ## Offline and queues
 
-Hyper Fetch sends requests through dispatcher queues. Requests made offline wait for the connection by default
+HyperFetch sends requests through dispatcher queues. Requests made offline wait for the connection by default
 (`offline: true`), `queued: true` sends them one by one, and queues can be paused, resumed and persisted. This is useful
 for React Native apps and forms that must not lose a submit. See [offline](../core/02-advanced/offline.mdx) and
 [queueing](../core/02-advanced/queueing.mdx).
@@ -199,14 +199,14 @@ for React Native apps and forms that must not lose a submit. See [offline](../co
 
 If your choice is really between TanStack Query and RTK Query, the RTK docs put it well: with React Query and SWR "you
 usually define your hooks yourself", while RTK Query defines everything in one API slice. Use RTK Query in a Redux app,
-TanStack Query when there is no Redux store. Our [Hyper Fetch vs TanStack Query](./tanstack-query.mdx) page has the
+TanStack Query when there is no Redux store. Our [HyperFetch vs TanStack Query](./tanstack-query.mdx) page has the
 details on TanStack Query.
 
 ---
 
 ## Side by side
 
-| Capability            | RTK Query                                  | Hyper Fetch                                  |
+| Capability            | RTK Query                                  | HyperFetch                                  |
 | --------------------- | ------------------------------------------ | -------------------------------------------- |
 | Requires Redux        | Yes (or `ApiProvider` without a store)     | No                                           |
 | API definition        | One `createApi` slice                      | Separate `createRequest` objects             |
@@ -227,7 +227,7 @@ details on TanStack Query.
 - Other Redux logic (middleware, listeners, reducers) needs to react to API calls.
 - You like one API slice file with tags describing what invalidates what.
 
-**Pick Hyper Fetch when:**
+**Pick HyperFetch when:**
 
 - You don't use Redux and don't want to add a store just for data fetching.
 - You need WebSockets or SSE as a first-class part of the API, not a lifecycle callback.
@@ -238,7 +238,7 @@ details on TanStack Query.
 
 - RTK Query is the natural choice in Redux apps and ships inside Redux Toolkit.
 - Both define the API up front and send requests themselves.
-- RTK Query invalidates with tags. Hyper Fetch invalidates by request, key or RegExp.
-- Hyper Fetch adds a socket package, request queues and offline handling, with no store.
+- RTK Query invalidates with tags. HyperFetch invalidates by request, key or RegExp.
+- HyperFetch adds a socket package, request queues and offline handling, with no store.
 
 :::

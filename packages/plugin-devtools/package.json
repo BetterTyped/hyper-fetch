@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/plugin-devtools",
   "version": "0.0.0",
-  "description": "Socket devtool plugin for HyperFetch",
+  "description": "Devtools plugin for HyperFetch: streams requests, cache and queues from your app to the HyperFlow desktop devtools",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/plugin-devtools/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -54,6 +54,9 @@
   },
   "keywords": [
     "devtools",
-    "hyper-fetch"
+    "debugging",
+    "network-inspector",
+    "hyperflow",
+    "hyperfetch"
   ]
 }

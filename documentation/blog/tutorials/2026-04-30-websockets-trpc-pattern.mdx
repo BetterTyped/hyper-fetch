@@ -34,7 +34,7 @@ handlers, untyped event names, and bespoke client APIs. We applied the same patt
 
 :::info Version
 
-This tutorial was written for **Hyper Fetch 8.0**.
+This tutorial was written for **HyperFetch 8.0**.
 
 :::
 
@@ -73,7 +73,7 @@ proxy you can autocomplete through. The other three corners are still wide open.
 
 ## One mental model, every transport
 
-Hyper Fetch's SDK is the same idea: a TypeScript type describes the API surface, a `Proxy` walks the property chain, and
+HyperFetch's SDK is the same idea: a TypeScript type describes the API surface, a `Proxy` walks the property chain, and
 request instances appear on demand. No codegen step, no build pipeline. The schema is a type, not a file.
 
 ```ts title="schema.ts"
@@ -109,7 +109,7 @@ const { data } = await sdk.users.$userId.$get
   .send();
 ```
 
-A quick note on the `RequestModel` type used above. Hyper Fetch ships **two** request types, and they look similar enough
+A quick note on the `RequestModel` type used above. HyperFetch ships **two** request types, and they look similar enough
 that mixing them up silently leaks `any`:
 
 - `RequestModel<{...}>` — for **defining one specific endpoint**. Omitted fields stay strict (`unknown`, `undefined`,

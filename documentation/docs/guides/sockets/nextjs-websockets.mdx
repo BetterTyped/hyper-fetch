@@ -161,7 +161,7 @@ export default async function ChatPage() {
 }
 ```
 
-If the history comes through a Hyper Fetch request instead of `fetch`, [Hydrate](../../react/06-hydrate.mdx) passes the
+If the history comes through a HyperFetch request instead of `fetch`, [Hydrate](../../react/06-hydrate.mdx) passes the
 server response into the client cache so the browser does not request it again.
 
 ---
@@ -233,7 +233,7 @@ own, and the adapter follows it. [SSE vs WebSocket](./sse-vs-websocket.mdx) comp
 
 - Next.js route handlers answer HTTP requests and cannot upgrade them to WebSockets. Run the socket server separately,
   in a custom server, through a managed service, or with `upgradeWebSocket()` on Vercel.
-- Create the Hyper Fetch `Socket` at module level with `autoConnect: typeof window !== "undefined"` and a
+- Create the HyperFetch `Socket` at module level with `autoConnect: typeof window !== "undefined"` and a
   `NEXT_PUBLIC_` URL.
 - Use `useListener` and `useEmitter` in a `"use client"` component, and load history in a Server Component.
 - Resolve tokens per attempt with `onConnect`.

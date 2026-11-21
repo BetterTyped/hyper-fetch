@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
-title: "Hyper Fetch Core Overview"
-description: "What Hyper Fetch core is and why it is built this way: typed requests, swappable adapters, cache, queues and events in one framework-agnostic package."
+title: "HyperFetch Core Overview"
+description: "What HyperFetch core is and why it is built this way: typed requests, swappable adapters, cache, queues and events in one framework-agnostic package."
 sidebar_label: Overview
 ---
 
@@ -9,7 +9,7 @@ import { LinkCard } from "@site/src/components";
 
 # Overview
 
-> To truly understand the purpose of Hyper Fetch and the reasoning behind its design choices, it's helpful to explore
+> To truly understand the purpose of HyperFetch and the reasoning behind its design choices, it's helpful to explore
 > the core principles that shape its development. Gaining insight into these foundations will help you decide if Hyper
 > Fetch aligns with your project's needs.
 
@@ -27,7 +27,7 @@ also makes it difficult to achieve uniformity even within a single project.
 <LinkCard
   type="docs"
   title="Development"
-  description="Development tips for using Hyper Fetch"
+  description="Development tips for using HyperFetch"
   to="/docs/getting-started/development"
 />
 
@@ -141,7 +141,7 @@ This flexibility empowers you to manage loading states and data flow more effect
 ### Access to whole request lifecycle
 
 Unlike many popular data fetching libraries, such as React Query or SWR, which are decoupled from the underlying
-fetchers like Axios or the native Fetch API, Hyper Fetch provides comprehensive access to the entire request lifecycle.
+fetchers like Axios or the native Fetch API, HyperFetch gives you access to the whole request lifecycle.
 
 Important information such as progress updates, abort signals, or authentication handling does not need to be
 implemented manually for each project. This unified approach makes it easy to track when a request starts uploading,
@@ -190,7 +190,7 @@ new technologies as they emerge.
 An event-driven architecture facilitates communication between modules, making it exceptionally easy to extend the
 library with new features, such as custom devtools or advanced analytics.
 
-This approach also integrates seamlessly with other tools, like the React hooks provided by Hyper Fetch, enabling you to
+This approach also works directly with other tools, like the React hooks provided by HyperFetch, enabling you to
 build live and realtime experiences with minimal effort. Modifying the core Client's cache is straightforward, allowing
 you to create dynamic, responsive applications that can adapt to changing data in real time.
 
@@ -212,6 +212,6 @@ console.log(client.appManager.events); // all emitters and listeners
 :::info Event-driven architecture
 
 With this simple approach, we can redirect all events to other systems, such as devtools. At the same time, it serves
-the internal logic of Hyper Fetch well and plays a significant role in its React implementation.
+the internal logic of HyperFetch well and plays a significant role in its React implementation.
 
 :::

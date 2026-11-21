@@ -1,13 +1,13 @@
 ---
 sidebar_position: 6
 title: Cache
-description: "The Hyper Fetch cache stores responses by cache key and handles staleTime, cacheTime, invalidation, garbage collection and persistent storage."
+description: "The HyperFetch cache stores responses by cache key and handles staleTime, cacheTime, invalidation, garbage collection and persistent storage."
 sidebar_label: Cache
 ---
 
 [Read the API Reference »](/docs/api/core/Classes/Cache.mdx)
 
-The `Cache` class is a core subsystem in Hyper Fetch, responsible for storing and managing response data from requests.
+The `Cache` class is a core subsystem in HyperFetch, responsible for storing and managing response data from requests.
 It provides a flexible, event-driven system for data retention, validation, and propagation throughout your application.
 By default, it uses an in-memory `Map` for storage, but you can easily swap in persistent storage solutions like
 `localStorage` or `IndexedDB`.
@@ -27,7 +27,7 @@ By default, it uses an in-memory `Map` for storage, but you can easily swap in p
 
 ## Quick Start
 
-Here's how to get started with the Cache in Hyper Fetch:
+Here's how to get started with the Cache in HyperFetch:
 
 ```tsx title="Basic Cache Usage"
 import { createClient, Cache } from "@hyper-fetch/core";
@@ -342,7 +342,7 @@ client.cache.invalidate();
 
 ## Cache Modes
 
-The client `mode` option (default **`"auto"`**) decides how Hyper Fetch resolves **`client.mode`** to **`"client"`** or
+The client `mode` option (default **`"auto"`**) decides how HyperFetch resolves **`client.mode`** to **`"client"`** or
 **`"server"`**:
 
 - **`mode: "auto"`** (or omit) — browser → **`client.mode === "client"`**, Node.js → **`"server"`**.

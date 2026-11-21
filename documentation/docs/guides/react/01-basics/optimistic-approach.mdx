@@ -7,7 +7,7 @@ sidebar_label: Optimistic Updates
 # Optimistic Updates in React
 
 Optimistic updates change the UI right after a user action, before the server answers. If the request fails, the change
-is reverted. That's what makes a like button or a todo checkbox feel instant on a slow connection. Hyper Fetch splits
+is reverted. That's what makes a like button or a todo checkbox feel instant on a slow connection. HyperFetch splits
 this in two: a **helper describes the change** of a cached request, and **`.rollback()` describes the undo**. Core
 applies the change, runs the undo when needed, refreshes the data afterwards and protects the change from stale
 responses, for `send()`, `$hooks` and React hooks alike.
@@ -47,14 +47,14 @@ mutation's `variables` in the UI while it's pending. The other writes to the cac
 queries, snapshot the data with `getQueryData`, write with `setQueryData`, return the snapshot as context, restore it in
 `onError`, and invalidate in `onSettled`.
 
-Hyper Fetch covers the cache approach, and you write less of it. The helper is step 1, `.rollback()` is step 3, and core
+HyperFetch covers the cache approach, and you write less of it. The helper is step 1, `.rollback()` is step 3, and core
 does steps 2 and 4 on its own: it discards stale responses and refetches the targets once the last pending mutation
 settles.
 The mutation itself is a normal [`useSubmit`](./submitting.mdx) call, and the refetch is the same
 [cache invalidation](../../core/02-advanced/cache-revalidation.mdx) you would trigger by hand. Full hook options are in the
 [useSubmit reference](../../../react/04-hooks/use-submit.mdx).
 
-| Step      | React Query (cache approach)            | Hyper Fetch                           |
+| Step      | React Query (cache approach)            | HyperFetch                           |
 | --------- | --------------------------------------- | ------------------------------------- |
 | Apply     | `setQueryData` in `onMutate`            | `optimistic(target).patch(...)` etc.  |
 | Protect   | `cancelQueries` in `onMutate`           | Automatic                             |

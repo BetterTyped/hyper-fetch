@@ -1,13 +1,13 @@
 ---
 sidebar_position: 10
 title: SDK
-description: "Describe your whole API as one typed object and get request instances by dot notation. The Hyper Fetch SDK is built on proxies, inspired by tRPC."
+description: "Describe your whole API as one typed object and get request instances by dot notation. The HyperFetch SDK is built on proxies, inspired by tRPC."
 sidebar_label: SDK
 ---
 
 [Read the API Reference »](/docs/api/core/Functions/createSdk.mdx)
 
-The **`SDK`** feature in Hyper Fetch provides a powerful, type-safe way to structure your API interactions. It allows
+The **`SDK`** feature in HyperFetch provides a powerful, type-safe way to structure your API interactions. It allows
 you to define your entire API surface as a typed object, which then **uses recursive proxies to generate request
 instances on-the-fly**. This approach, **inspired by tRPC**, promotes a highly organized and maintainable codebase where
 endpoints are accessed with an intuitive dot-notation.
@@ -48,7 +48,7 @@ const sdk = createSdk<typeof client, MyApiSchema>(client);
 <LinkCard
   type="docs"
   title="Client"
-  description="Learn about the central configuration class for Hyper Fetch."
+  description="Learn about the central configuration class for HyperFetch."
   to="/docs/core/client"
 />
 
@@ -129,7 +129,7 @@ type MyApiSchema = {
 
 ### `RequestModel` vs `RequestInstance` — two mindsets
 
-Hyper Fetch ships **two complementary types** for describing requests at the type level. They look similar but solve
+HyperFetch ships **two complementary types** for describing requests at the type level. They look similar but solve
 opposite problems. Picking the right one is the difference between strict end-to-end safety and accidental `any` leaks.
 
 | | `RequestModel<{...}>` | `RequestInstance<{...}>` |
@@ -410,7 +410,7 @@ Configuration keys support four patterns:
 
 :::secondary Summary
 
-In this guide, you've learned how to leverage the Hyper Fetch SDK to create a type-safe, organized, and intuitive API
+In this guide, you've learned how to use the HyperFetch SDK to create a type-safe, organized, and intuitive API
 layer for your application. We've covered how to initialize the SDK, define a schema, use it to make requests, and
 configure per-request defaults with `$configure` and `createConfiguration`. Configuration supports both plain-object
 shorthand for common settings and function-based values for full access to mappers, mocking, hooks, and every Request
@@ -425,7 +425,7 @@ setter.
 <LinkCard
   type="docs"
   title="Client"
-  description="Learn about the central configuration class for Hyper Fetch."
+  description="Learn about the central configuration class for HyperFetch."
   to="/docs/core/client"
 />
 

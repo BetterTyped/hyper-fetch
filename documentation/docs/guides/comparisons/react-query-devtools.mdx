@@ -1,0 +1,201 @@
+---
+sidebar_position: 7
+title: "React Query Devtools Alternative: HyperFlow"
+description: What React Query Devtools show, how they differ from the React DevTools Chrome extension, and how HyperFlow inspects HyperFetch requests, cache and queues.
+sidebar_label: React Query Devtools
+---
+
+# React Query Devtools alternative: HyperFlow
+
+If you use TanStack Query, react query devtools are the first thing to add after the provider: a panel inside your app
+that shows every query in the cache and its data. People also search for "chrome react devtools" when they mean the
+same thing, but that extension is a different tool. This page explains what each one shows, then covers HyperFlow, the
+devtools for HyperFetch, which run as a desktop app instead of a panel in your page.
+
+:::secondary What you'll learn
+
+1.  What **React Query Devtools** (TanStack Query Devtools) do and how they're set up.
+2.  How they differ from the **React Developer Tools** browser extension.
+3.  What **HyperFlow** and `@hyper-fetch/plugin-devtools` show for a HyperFetch app.
+4.  Which tool fits which job.
+
+:::
+
+---
+
+## What React Query Devtools do
+
+TanStack ships its devtools as a separate package, `@tanstack/react-query-devtools`. Per the
+[devtools docs](https://tanstack.com/query/latest/docs/framework/react/devtools):
+
+- **Two modes.** `ReactQueryDevtools` is a floating panel with a toggle button in a corner, and it remembers whether it
+  was open in `localStorage`. `ReactQueryDevtoolsPanel` is an embedded panel you open and close with your own UI.
+- **Development only by default.** They're bundled only when `process.env.NODE_ENV` is `'development'`. To ship them
+  to production you lazy load a separate production build.
+- **A Data Explorer.** You can filter queries by key or data, search nested values, and edit query data.
+- **Mutations too.** Since version 5 they observe mutations as well as queries.
+- **Error simulation.** The `errorTypes` option defines errors you can toggle on from the UI to test error states.
+
+Setup is a component inside your `QueryClientProvider`:
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* your app */}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  );
+}
+```
+
+There are also third-party browser extensions for Chrome, Firefox and Edge that put the same panel in the browser's
+DevTools, and the docs mention a third-party macOS app for React Native. TanStack lists them, but doesn't build them.
+
+---
+
+## React DevTools in Chrome is a different tool
+
+The React Developer Tools extension, for Chrome, Firefox and Edge, lets you
+["inspect React components, edit props and state, and identify performance problems"](https://react.dev/learn/react-developer-tools).
+It adds the Components and Profiler panels. React Native has it built into React Native DevTools.
+
+It knows about components, not about requests. It can show you that a component holds `data` in its state, but not
+which request produced it, whether that cached value is stale, or what else is waiting in a queue. The browser's Network
+tab shows the HTTP traffic, but not your data library's cache. A data library's devtools fill the gap between the two.
+
+| Tool                         | Shows                                                     | Lives in                  |
+| ---------------------------- | --------------------------------------------------------- | ------------------------- |
+| React Developer Tools        | Component tree, props, state, render profiling            | Browser extension         |
+| Browser Network tab          | Raw HTTP requests and responses                           | Browser DevTools          |
+| React Query Devtools         | TanStack Query cache: queries, mutations, their data      | A panel inside your app   |
+| HyperFlow                    | HyperFetch requests, cache, queues and sockets            | A desktop app             |
+
+---
+
+## HyperFlow: devtools for HyperFetch
+
+[HyperFlow](../../hyper-flow/index.mdx) is a desktop app for macOS, Windows and Linux. Your HyperFetch client reports to
+it through `@hyper-fetch/plugin-devtools` over a local WebSocket. Nothing renders inside your page, so it doesn't add a
+panel to your UI or styles to your DOM. It's in alpha, so expect rough edges.
+
+### Connecting a client
+
+[Download HyperFlow](../../hyper-flow/download.mdx), then install the plugin. It talks to HyperFlow through
+`@hyper-fetch/sockets`:
+
+```bash
+npm install @hyper-fetch/plugin-devtools @hyper-fetch/sockets
+```
+
+```ts title="api/client.ts"
+import { createClient } from "@hyper-fetch/core";
+import { DevtoolsPlugin } from "@hyper-fetch/plugin-devtools";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+if (process.env.NODE_ENV === "development") {
+  client.addPlugin(
+    DevtoolsPlugin({
+      // highlight-next-line
+      appName: "Storefront", // the name you'll see in HyperFlow
+      environment: "web",
+    }),
+  );
+}
+```
+
+The plugin connects wherever you add it, so the `NODE_ENV` check is yours to write (use your bundler's equivalent, like
+`import.meta.env.DEV` in Vite). By default it connects to `ws://localhost:2137`. Set `url` if you changed HyperFlow's
+port. Full steps are in [connecting devtools](../../hyper-flow/connecting.mdx) and the
+[plugin reference](../../integrations/plugin-devtools/index.mdx).
+
+### What you can see and do
+
+- **Network.** Every request with method, endpoint, status and time, listed as soon as it's queued. Search matches the
+  endpoint, method and the query, cache and abort keys. Filters narrow to successful, failed, in progress, paused,
+  canceled or removed. The detail view has headers, payload, response and timings. See
+  [network inspector](../../hyper-flow/features/network.mdx).
+- **Cache.** Each entry with its key, whether it's fresh or stale, when it was updated and how many observers read it
+  (every mounted `useFetch`, `useSubmit` and `useCache` on that key counts). You can invalidate or delete an entry from
+  HyperFlow and the app reacts. See [cache management](../../hyper-flow/features/cache.mdx).
+- **Queues.** Pending and in-flight requests per queue, with stop, start and clear. Stopping a queue is how you test what
+  your UI does while a request hangs. See [queue management](../../hyper-flow/features/queues.mdx).
+- **Sockets.** Pass your sockets in the `sockets` option to see their connection status and every message in and out.
+  See [socket inspector](../../hyper-flow/features/sockets.mdx).
+
+It works the same with every adapter. The [compatibility table](../../hyper-flow/compatibility.mdx) lists what's tested
+for fetch, Axios, GraphQL, tRPC, oRPC and Firebase. GraphQL requests show up under their operation name.
+
+### Backends too
+
+Because it's a separate app and the plugin only needs a WebSocket, a Node.js server can report to the same HyperFlow as
+your frontend. Use `environment` to tell them apart:
+
+```ts
+import { WebSocket } from "ws";
+
+client.addPlugin(
+  DevtoolsPlugin({
+    appName: "Storefront API",
+    environment: "backend",
+    // Only on Node.js 18 and 20. Node.js 22+, Deno and Bun have a global WebSocket.
+    WebSocket: WebSocket as unknown as typeof globalThis.WebSocket,
+  }),
+);
+```
+
+---
+
+## Side by side
+
+| Capability                    | React Query Devtools                          | HyperFlow                                         |
+| ----------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| Works with                    | TanStack Query                                | HyperFetch, any adapter                           |
+| Where it runs                 | Panel rendered in your app                    | Desktop app (macOS, Windows, Linux)               |
+| Setup                         | Render `<ReactQueryDevtools />`               | `client.addPlugin(DevtoolsPlugin({ appName }))`   |
+| Excluded from production      | Yes, by default                               | You add the plugin conditionally                  |
+| Cache data                    | Browse, search and edit                       | Browse, invalidate and delete                     |
+| Mutations                     | Observed since v5                             | Listed in the network view like other requests    |
+| Request timings and headers   | Not described in the docs                     | Yes                                               |
+| Request queues                | Not applicable                                | Stop, start and clear                             |
+| WebSocket and SSE traffic     | Not applicable                                | Yes, with the `sockets` option                    |
+| Error simulation              | `errorTypes` toggles                          | Not built in. Use `request.setMock()` in your app |
+| Server-side apps              | Not described in the docs                     | Yes, Node.js, Deno and Bun                        |
+| Maturity                      | Stable                                        | Alpha                                             |
+
+---
+
+## Which one fits you
+
+**React Query Devtools fit when:**
+
+- Your app uses TanStack Query. They're the official tool for it, and HyperFlow doesn't read a TanStack cache.
+- You want the panel next to your UI, in the same window, with no extra app to run.
+- You want to edit cached data or toggle error states from the panel while you click through the app.
+
+**HyperFlow fits when:**
+
+- Your app uses HyperFetch, on any adapter.
+- You want timings, headers and queue control, not only cached data.
+- You debug WebSocket or SSE traffic next to HTTP.
+- You want the frontend and a Node backend in one inspector.
+
+**React Developer Tools fit when** the question is about components: why something re-rendered, what props it got, or
+where time goes in a render. Use them with either of the above, not instead of them.
+
+Moving from TanStack Query? [HyperFetch vs TanStack Query](./tanstack-query.mdx) compares the libraries themselves.
+
+:::secondary Summary
+
+- React Query Devtools are an in-app panel for the TanStack Query cache, left out of production builds by default.
+- The React DevTools Chrome extension inspects components, props and state, not requests or caches.
+- HyperFlow is a desktop app. `DevtoolsPlugin` streams HyperFetch requests, cache, queues and sockets to it.
+- Pick the devtools that match your data library, and keep React DevTools for component questions.
+
+:::

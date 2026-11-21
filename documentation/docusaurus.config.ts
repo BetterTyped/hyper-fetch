@@ -9,6 +9,7 @@ import path from "path";
 
 import examplesPlugin from "./plugins/examples";
 import hyperFlowReleasesPlugin from "./src/plugins/hyperflow-releases";
+import llmsTxtPlugin from "./src/plugins/llms-txt";
 import docsVersions from "./versions.json";
 
 /**
@@ -44,8 +45,7 @@ const getPackagesList = () => {
   return result
     .filter((item) => !item.includes("tokens"))
     .map((dir) => {
-      const dirName = dir.split("/").pop();
-      const title = dirName[0] + dirName.slice(1);
+      const title = path.basename(dir);
 
       return {
         title,
@@ -160,6 +160,7 @@ const config: Config = {
   plugins: [
     "@docsearch/docusaurus-adapter",
     hyperFlowReleasesPlugin,
+    llmsTxtPlugin,
     "docusaurus-plugin-sass",
     async function tailwindPlugin() {
       return {
@@ -302,10 +303,31 @@ const config: Config = {
         {
           title: "Docs",
           items: [
-            {
-              label: "Documentation",
-              to: "/docs/getting-started",
-            },
+            { label: "Getting started", to: "/docs/getting-started/" },
+            { label: "React", to: "/docs/react/overview/" },
+            { label: "WebSockets and SSE", to: "/docs/sockets/overview/" },
+            { label: "OpenAPI client", to: "/docs/cli/openapi-typescript-client/" },
+            { label: "Migrating from React Query", to: "/docs/guides/react/basics/migrating-from-react-query/" },
+          ],
+        },
+        {
+          title: "Compare",
+          items: [
+            { label: "Data fetching libraries", to: "/docs/guides/comparisons/" },
+            { label: "vs TanStack Query", to: "/docs/guides/comparisons/tanstack-query/" },
+            { label: "vs SWR", to: "/docs/guides/comparisons/swr/" },
+            { label: "vs RTK Query", to: "/docs/guides/comparisons/rtk-query/" },
+            { label: "Axios vs fetch", to: "/docs/guides/comparisons/axios-vs-fetch/" },
+          ],
+        },
+        {
+          title: "Guides",
+          items: [
+            { label: "SSE vs WebSocket", to: "/docs/guides/sockets/sse-vs-websocket/" },
+            { label: "WebSockets in React", to: "/docs/guides/sockets/websockets-in-react/" },
+            { label: "File upload progress", to: "/docs/guides/react/basics/progress/" },
+            { label: "Next.js data fetching", to: "/docs/guides/react/basics/nextjs-data-fetching/" },
+            { label: "Optimistic updates", to: "/docs/guides/react/basics/optimistic-approach/" },
           ],
         },
         {

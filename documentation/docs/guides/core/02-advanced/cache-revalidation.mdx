@@ -10,7 +10,7 @@ Once you cache API responses, you have to decide when a cached copy stops being 
 background job changes a total, or your own form creates a new item that the cached list doesn't have. Cache
 invalidation is how you tell the cache "this is out of date", and revalidation is the fresh request that replaces it.
 This guide covers the general strategies, how React Query and React's own `cache()` handle it, and how to invalidate
-cache in Hyper Fetch with `client.cache.invalidate`.
+cache in HyperFetch with `client.cache.invalidate`.
 
 ---
 
@@ -38,7 +38,7 @@ cache in Hyper Fetch with `client.cache.invalidate`.
 Most apps use all three. A sensible `staleTime` covers the background drift, and explicit invalidation after mutations
 covers the changes your own app makes.
 
-In Hyper Fetch the time-based part is two request options:
+In HyperFetch the time-based part is two request options:
 
 - `staleTime` (default 5 minutes): how long a cached response counts as fresh. After that, the next consumer refetches.
 - `cacheTime` (default 5 minutes): how long the entry stays in memory at all before garbage collection.
@@ -57,7 +57,7 @@ const getUsers = client.createRequest<{ response: { id: number; name: string }[]
 
 If you're coming from React Query, `queryClient.invalidateQueries({ queryKey: ["todos"] })` marks every query whose key
 starts with `todos` as stale and refetches the ones on screen
-([TanStack docs](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation)). Hyper Fetch does
+([TanStack docs](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation)). HyperFetch does
 the same with `client.cache.invalidate`. Instead of array prefixes, you pass the request itself, an exact key, or a
 `RegExp` over the keys.
 
@@ -275,7 +275,7 @@ keep the cache across reloads, see [persistence](./persistence.mdx), and for the
 
 :::success Congratulations!
 
-You've learned how to handle cache invalidation in Hyper Fetch.
+You've learned how to handle cache invalidation in HyperFetch.
 
 - You know the **time-based**, **event-based** and **pattern-based** ways to keep a cache fresh.
 - You can invalidate cache using `client.cache.invalidate` with **request instances**, **strings**, or **RegExp**.

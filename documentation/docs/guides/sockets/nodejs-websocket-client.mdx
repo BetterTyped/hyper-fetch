@@ -1,0 +1,269 @@
+---
+sidebar_position: 12
+title: Node.js WebSocket client with the global or ws
+description: How to open a WebSocket from Node.js. The built-in WebSocket global from Node.js 22, the ws package for older versions and headers, and a typed client.
+sidebar_label: Node.js WebSocket client
+---
+
+# Node.js WebSocket client
+
+You have two ways to build a node websocket client today. Node.js 22 and later ship a global `WebSocket` with the same
+API as the browser, so for most scripts you need no package at all. On older versions, or when you need things the
+browser API does not allow, like custom request headers, use the `ws` package.
+
+This page shows both, then what it takes to keep a connection alive in a long-running Node.js process, and how the
+HyperFetch sockets client runs there with typed listeners and reconnects.
+
+:::secondary What you'll learn
+
+1.  Which **Node.js version** has the built-in `WebSocket` and how it behaves.
+2.  When the **`ws` package** is still the right choice.
+3.  How to run the **HyperFetch `Socket`** in Node.js, with either constructor.
+4.  What a **long-running Node.js process** needs: reconnects, offline detection and a clean shutdown.
+
+:::
+
+---
+
+## The built-in WebSocket in Node.js
+
+Node.js added a global `WebSocket` in v21.0.0 (and v20.10.0) behind the `--experimental-websocket` flag. Since v22.0.0
+it is on without a flag, and since v22.4.0 it is no longer experimental. The Node.js docs describe it as "a
+browser-compatible implementation" of `WebSocket`
+([Node.js: globals, WebSocket](https://nodejs.org/api/globals.html#websocket)).
+
+Browser-compatible means the code you know from the frontend runs unchanged:
+
+```js title="client.mjs"
+const ws = new WebSocket("wss://stream.example.com/prices");
+
+ws.addEventListener("open", () => {
+  ws.send(JSON.stringify({ topic: "subscribe", data: { symbol: "BTC" } }));
+});
+
+ws.addEventListener("message", (event) => {
+  console.log("Received:", event.data);
+});
+
+ws.addEventListener("close", (event) => {
+  console.log("Closed with code", event.code);
+});
+```
+
+It also means the browser's limits come along. The constructor takes a URL and optional subprotocols, nothing else, so
+there is no standard way to set an `Authorization` header. And like in the browser, a closed socket stays closed. The
+[reconnection guide](./websocket-reconnection-and-errors.mdx) explains what a reconnect loop has to handle, including one
+Node.js 22 quirk: a failed handshake can fire `error` without a `close` after it.
+
+The global is a client only. Node.js has no built-in WebSocket server, so the server side still needs a library.
+
+---
+
+## The ws package
+
+Before the global existed, every nodejs websocket client went through
+[`ws`](https://github.com/websockets/ws), and it is still the standard library for the job. It has both a client and a
+server, and its README states plainly that it "does not work in the browser". Install it with `npm install ws` (and
+`@types/ws` for TypeScript).
+
+```ts title="client.ts"
+import WebSocket from "ws";
+
+const ws = new WebSocket("wss://stream.example.com/prices", {
+  headers: { Authorization: `Bearer ${process.env.STREAM_TOKEN}` },
+});
+
+ws.on("open", () => ws.send(JSON.stringify({ topic: "subscribe", data: { symbol: "BTC" } })));
+ws.on("message", (data) => console.log("Received:", data.toString()));
+ws.on("error", console.error);
+ws.on("close", (code) => console.log("Closed with code", code));
+```
+
+The options object accepts anything `http.request()` or `https.request()` accepts
+([ws docs](https://github.com/websockets/ws/blob/master/doc/ws.md)), which is where `headers` comes from. `ws` also
+implements `addEventListener` and `onmessage`, so browser-style code works on it too.
+
+| | Global `WebSocket` | `ws` |
+| --- | --- | --- |
+| Node.js version | 22+ without a flag | Any supported version |
+| Install | Nothing | `ws`, plus `@types/ws` |
+| API | Browser `WebSocket` | Browser-style events and Node.js `EventEmitter` |
+| Custom headers on the handshake | No | Yes, through `http.request` options |
+| Server | No | Yes, `WebSocketServer` |
+| Same code in the browser | Yes | No |
+
+Pick the global when you run Node.js 22 or later and the server accepts tokens in the URL or a subprotocol. Pick `ws`
+when you are on an older Node.js, need headers, or already use it for the server.
+
+---
+
+## A node js websocket server to test against
+
+You usually write a client for a server you do not control. To try things locally, a `ws` server is a few lines.
+`WebSocketServer` needs exactly one of `port`, `server` or `noServer`:
+
+```ts title="server.ts"
+import { WebSocketServer } from "ws";
+
+const wss = new WebSocketServer({ port: 8080 });
+
+wss.on("connection", (client) => {
+  const timer = setInterval(() => {
+    client.send(JSON.stringify({ topic: "prices", data: { symbol: "BTC", price: 64000 } }));
+  }, 1000);
+
+  client.on("close", () => clearInterval(timer));
+});
+```
+
+It sends JSON shaped `{ topic, data }`, which is the format the HyperFetch adapter reads by default.
+
+---
+
+## HyperFetch sockets in Node.js
+
+The `Socket` from `@hyper-fetch/sockets` uses the global `WebSocket` of the runtime, so on Node.js 22 and later the code
+is the same as in the browser. The package's own tests run it in a Node.js environment with no `window`, against the
+global, against an explicitly passed constructor, and against `ws`.
+
+```ts title="src/socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+type Price = { symbol: string; price: number };
+
+export const socket = new Socket({
+  url: "ws://localhost:8080",
+  adapterOptions: { autoConnect: false },
+});
+
+export const onPrice = socket.createListener<Price>()({ topic: "prices" });
+export const subscribe = socket.createEmitter<{ symbol: string }>()({ topic: "subscribe" });
+```
+
+```ts title="src/worker.ts"
+import { onPrice, socket, subscribe } from "./socket";
+
+socket
+  .onError(({ error }) => console.warn("Socket error:", error.message))
+  .onReconnectFailed(() => console.error("Gave up reconnecting"));
+
+const unlisten = onPrice.listen(({ data }) => {
+  // data is typed as Price
+  console.log(`${data.symbol}: ${data.price}`);
+});
+
+// Resolves once the first attempt has opened or failed
+await socket.connect();
+
+if (socket.adapter.connected) {
+  subscribe.emit({ payload: { symbol: "BTC" } });
+}
+```
+
+`emit()` does not queue. A message sent while the socket is down is dropped and reported as an emitter error, so check
+the connection first or listen for errors as shown in the [emitting guide](./emitting.mdx).
+
+### Using ws as the constructor
+
+On a Node.js version without the global, pass the `ws` class in `adapterOptions.WebSocket`. Its type differs from the
+DOM `WebSocket` type, so it needs a cast:
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { WebSocket as NodeWebSocket } from "ws";
+
+export const socket = new Socket({
+  url: "ws://localhost:8080",
+  adapterOptions: { WebSocket: NodeWebSocket as unknown as typeof WebSocket },
+});
+```
+
+The adapter creates every connection as `new WebSocket(url, protocols)` with your constructor. If you need a header on
+every handshake, wrap `ws` in a subclass that adds it:
+
+```ts
+import { Socket } from "@hyper-fetch/sockets";
+import { WebSocket as NodeWebSocket } from "ws";
+
+class AuthorizedWebSocket extends NodeWebSocket {
+  constructor(url: string, protocols?: string | string[]) {
+    super(url, protocols, { headers: { Authorization: `Bearer ${process.env.STREAM_TOKEN}` } });
+  }
+}
+
+export const socket = new Socket({
+  url: "wss://stream.example.com/ws",
+  adapterOptions: { WebSocket: AuthorizedWebSocket as unknown as typeof WebSocket },
+});
+```
+
+The environment variable is read on every attempt, so a rotated token is picked up on the next reconnect. For tokens in
+the URL or a subprotocol, which work on both constructors, see [socket authentication](./authentication.mdx).
+
+---
+
+## What a long-running process needs
+
+A script that reads ten messages and exits can use any of the snippets above. A worker that runs for days cannot,
+because the connection will drop: deploys on the other side, idle timeouts on a load balancer, network blips.
+
+**Reconnects.** The adapter retries every lost connection except a deliberate one. The first retry waits between
+`reconnectTime` and twice that, the window doubles with each attempt, and no delay is longer than `maxReconnectTime`.
+The jitter keeps a fleet of workers from reconnecting at the same moment when the server restarts.
+
+```ts
+export const socket = new Socket({
+  url: "wss://stream.example.com/ws",
+  reconnect: 20, // attempts per outage, default Infinity
+  reconnectTime: 1000, // default 1000
+  maxReconnectTime: 30_000, // default 30000
+  adapterOptions: { heartbeat: true, pingTimeout: 10_000, pongTimeout: 5000 },
+});
+```
+
+**Dead connections.** A half-open TCP connection can look alive for a long time. The `heartbeat` option sends a message
+on the `heartbeat` topic after `pingTimeout` of silence and reconnects if nothing comes back within `pongTimeout`. Your
+server has to answer it.
+
+**Offline detection.** In the browser the socket follows the `online` and `offline` events. Node.js has neither, so the
+socket assumes it is always online and relies on the reconnect loop. If your process can tell when the network goes away,
+pass an `AppManager` with your own `onlineEvent`, as the [connection guide](./connection.mdx) shows.
+
+**Shutdown.** Pending reconnect timers keep the event loop busy. When the process should stop, call `destroy()`, which
+disconnects and removes the socket's subscriptions:
+
+```ts
+process.on("SIGTERM", async () => {
+  unlisten();
+  await socket.destroy();
+  process.exit(0);
+});
+```
+
+---
+
+## When to use it
+
+:::note When HyperFetch in Node.js is helpful
+
+- A worker or bot that consumes a feed for hours and must come back after every drop.
+- Code shared between a browser app and a Node.js service, with the same typed listeners on both.
+- Integration scripts that talk to your own socket server and want typed payloads instead of `JSON.parse` everywhere.
+- Tools that switch between WebSocket and SSE, since the [SSE adapter](./sse-vs-websocket.mdx) shares the listener API.
+  Node.js has no global `EventSource` without a flag, so pass one from the `eventsource` package.
+
+:::
+
+If your code renders on the server, as in Next.js, the opposite problem shows up: the global `WebSocket` makes the
+socket connect from the server when you did not want it to. The [Next.js guide](./nextjs-websockets.mdx) covers that
+case.
+
+:::secondary Summary
+
+- Node.js 22 and later have a browser-compatible global `WebSocket`. It was added behind a flag in v21.0.0 and became
+  stable in v22.4.0.
+- Use `ws` for older Node.js versions, for custom handshake headers, and for the server side.
+- The HyperFetch `Socket` uses the global by default. Pass `ws` with `adapterOptions.WebSocket` when you need it.
+- For long-running processes, configure reconnects and the heartbeat, and call `destroy()` on shutdown.
+
+:::

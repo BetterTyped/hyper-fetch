@@ -1,6 +1,6 @@
 ---
 slug: introducing-hyper-fetch
-title: Introducing Hyper Fetch
+title: Introducing HyperFetch
 authors: [maciej]
 tags: [Release]
 date: 2021-12-29
@@ -8,19 +8,19 @@ date: 2021-12-29
 
 ## Welcome! 👋
 
-We are very happy to introduce [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch) tool that helps to interact
+We are very happy to introduce [HyperFetch](https://github.com/BetterTyped/hyper-fetch) tool that helps to interact
 with requests on the frontend side. We start from alpha stage as we believe that our ideas with the community
 involvement may resolve with the best fetching tool out there.
 
-The idea for Hyper Fetch was shaped over the years of work on many projects in which I encountered various problems in
+The idea for HyperFetch was shaped over the years of work on many projects in which I encountered various problems in
 the subject of fetching, request queueing, persistence, offline and data caching. This project was created to solve most
 of them, and the most problematic or seemingly inaccessible - due to the level of complexity.
 
 <!--truncate-->
 
-## What is Hyper Fetch?
+## What is HyperFetch?
 
-Hyper Fetch is a response to the needs related to all types of interaction with the server and maintaining high
+HyperFetch is a response to the needs related to all types of interaction with the server and maintaining high
 maintainability thanks to architectural patterns. You don't need fetch or axios to use our library, but if you want to -
 just do it! Creation of logic based on class patterns crystallized from my observations about the requests interactions
 in systems that need offline or even persistent cache and request queues. It was obvious for me to keep the logic around

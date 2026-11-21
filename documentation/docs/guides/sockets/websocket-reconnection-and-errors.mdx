@@ -1,7 +1,7 @@
 ---
 sidebar_position: 10
 title: WebSocket errors, onerror and reconnect handling
-description: Handle websocket errors and reconnection. onerror vs onclose, close codes, ping/pong heartbeats, backoff, and what the Hyper Fetch adapter does for you.
+description: Handle websocket errors and reconnection. onerror vs onclose, close codes, ping/pong heartbeats, backoff, and what the HyperFetch adapter does for you.
 sidebar_label: Errors & Reconnection
 ---
 
@@ -10,7 +10,7 @@ sidebar_label: Errors & Reconnection
 Most websocket errors are not bugs in your code. They are the network, a deploy, a proxy timeout or a laptop lid. The
 browser reports them through two events, `error` and `close`, and neither one brings the connection back. This page
 explains what each event tells you, what the close codes mean, how to detect a dead connection with a heartbeat, and how
-to write a reconnect loop that does not hammer your server. The last section shows which parts the Hyper Fetch socket
+to write a reconnect loop that does not hammer your server. The last section shows which parts the HyperFetch socket
 adapter already does.
 
 :::secondary What you'll learn
@@ -19,7 +19,7 @@ adapter already does.
 2.  What the common **close codes** mean and which ones are worth retrying.
 3.  How a **ping/pong heartbeat** finds connections that died without closing.
 4.  How to **reconnect** with a delay, a limit and backoff.
-5.  What the Hyper Fetch **`WebsocketAdapter`** handles, and how to configure it.
+5.  What the HyperFetch **`WebsocketAdapter`** handles, and how to configure it.
 
 :::
 
@@ -145,9 +145,9 @@ connection state. That is the part worth handing to a library.
 
 ---
 
-## What the Hyper Fetch adapter does
+## What the HyperFetch adapter does
 
-The `WebsocketAdapter`, the default adapter of a Hyper Fetch `Socket`, implements this loop. Here is what it does,
+The `WebsocketAdapter`, the default adapter of a HyperFetch `Socket`, implements this loop. Here is what it does,
 according to its source:
 
 - **Reconnects lost connections with backoff and jitter.** Every lost connection is retried. The delay is exponential
@@ -269,7 +269,7 @@ covers the hooks from the start.
 - `1000` means done. `1006` means the connection dropped. `1008` usually needs new credentials before a retry.
 - Browsers cannot send ping frames, so client heartbeats are ordinary messages with a reply timeout.
 - A reconnect loop needs backoff, jitter, a limit, a reset on success and fresh credentials.
-- The Hyper Fetch `WebsocketAdapter` reconnects with jittered backoff, limits attempts, times out handshakes and runs an
+- The HyperFetch `WebsocketAdapter` reconnects with jittered backoff, limits attempts, times out handshakes and runs an
   optional heartbeat. Tune it with `reconnectTime`, `maxReconnectTime`, `shouldReconnect` and `reconnectDelay`.
 
 :::

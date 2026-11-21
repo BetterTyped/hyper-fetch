@@ -1,6 +1,6 @@
 ---
 title: File Upload Progress Bar in React
-description: Build a file upload progress bar in React. Why fetch cannot report upload progress, and how Hyper Fetch gives you percent, bytes and time left.
+description: Build a file upload progress bar in React. Why fetch cannot report upload progress, and how HyperFetch gives you percent, bytes and time left.
 sidebar_label: Upload Progress
 ---
 
@@ -8,7 +8,7 @@ sidebar_label: Upload Progress
 
 A file upload with a progress bar needs two things: a transport that reports how many bytes have left the browser, and
 a component that turns those numbers into a bar. This guide covers both. You'll see why a plain `fetch` call can't
-drive a file upload progress bar, which browser API can, and how Hyper Fetch hands you `progress`, `loaded`, `total`
+drive a file upload progress bar, which browser API can, and how HyperFetch hands you `progress`, `loaded`, `total`
 and `timeLeft` through `onSubmitUploadProgress` and `onSubmitDownloadProgress` on `useSubmit` (and `onUploadProgress`
 and `onDownloadProgress` on `useFetch`).
 
@@ -50,9 +50,9 @@ as you enqueue them also tells you what you handed to the browser, not what reac
 
 ---
 
-## How Hyper Fetch reports upload progress
+## How HyperFetch reports upload progress
 
-Hyper Fetch normalizes progress for every adapter into one shape. The adapter reports raw `loaded` and `total` numbers,
+HyperFetch normalizes progress for every adapter into one shape. The adapter reports raw `loaded` and `total` numbers,
 and the core turns them into a `ProgressType` object that your callbacks receive:
 
 | Field            | Meaning                                          |
@@ -93,7 +93,7 @@ export const uploadAvatar = client.createRequest<{
 });
 ```
 
-`FormData`, `Blob` and `ArrayBuffer` payloads are sent as they are. Hyper Fetch doesn't JSON-encode them and doesn't set
+`FormData`, `Blob` and `ArrayBuffer` payloads are sent as they are. HyperFetch doesn't JSON-encode them and doesn't set
 a `Content-Type` header, so the browser writes the multipart boundary itself.
 
 ---
@@ -247,7 +247,7 @@ function ProgressBars() {
 
 1.  We set up two `useSubmit` hooks, one for uploading (`postFile`) and one for downloading (`getFile`).
 2.  We get the `onSubmitUploadProgress` and `onSubmitDownloadProgress` callback setters from their respective hooks.
-3.  We call them with our state setters (`setUpload` and `setDownload`). Hyper Fetch calls them repeatedly during the
+3.  We call them with our state setters (`setUpload` and `setDownload`). HyperFetch calls them repeatedly during the
     request with the latest progress information.
 4.  The state drives the width of the progress bar `div`s and the text next to them.
 5.  Clicking the buttons triggers the respective `submit` functions (`startUpload`, `startDownload`).
@@ -260,7 +260,7 @@ With `useFetch` the callbacks are named `onUploadProgress` and `onDownloadProgre
 
 :::success Congratulations!
 
-You've learned how to build a file upload progress bar with Hyper Fetch.
+You've learned how to build a file upload progress bar with HyperFetch.
 
 - `fetch` can report **download** progress but has no **upload** progress event. XHR, and Axios on top of it, does.
 - Switching to the **Axios adapter** gives you real upload progress without changing your hooks.

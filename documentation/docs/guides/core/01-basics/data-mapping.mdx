@@ -1,13 +1,14 @@
 ---
 sidebar_position: 9
-title: Guide - Data Mapping
+title: Data mapping for requests and responses
+description: "Transform API data in HyperFetch with setRequestMapper and setResponseMapper, build type-safe FormData payloads and keep frontend models apart from the API."
 sidebar_label: Data Mapping
 ---
 
 # Data Mapping
 
 In real-world applications, the data structures used by your frontend often differ from what your API provides or
-expects. Data mapping is the process of transforming data from one shape to another. Hyper-Fetch provides powerful
+expects. Data mapping is the process of transforming data from one shape to another. HyperFetch provides powerful
 mapping capabilities to keep your application's data models clean and decoupled from the API's implementation details.
 
 ---
@@ -142,7 +143,7 @@ const getUsers = client
 
 ## Type-Safety for Response Mapping
 
-When you use `.setResponseMapper()`, Hyper-Fetch ensures end-to-end type safety. By defining the expected response type
+When you use `.setResponseMapper()`, HyperFetch ensures end-to-end type safety. By defining the expected response type
 in `createRequest` and specifying the return type of your mapper, you can guarantee that the data flowing into your
 application is always correctly typed.
 
@@ -189,7 +190,7 @@ const getUser = client
 
 ## Multiple Mappers on Cached Data
 
-A powerful feature of Hyper-Fetch is that response mapping occurs _after_ caching. The raw, untransformed data from the
+A powerful feature of HyperFetch is that response mapping occurs _after_ caching. The raw, untransformed data from the
 API is stored in the cache. This allows you to create multiple requests for the same resource, each with a different
 mapper, to get different views of the same data without making extra network calls.
 
@@ -249,7 +250,7 @@ Every request accessed through the SDK will automatically have its mapper applie
 
 :::success Congratulations!
 
-You are now an expert in Hyper-Fetch data mapping!
+You are now an expert in HyperFetch data mapping!
 
 - You can use **`.setRequestMapper()`** to modify requests for auth, logging, or creating type-safe `FormData`.
 - You can use **`.setResponseMapper()`** to transform API data structures into clean, application-ready models.

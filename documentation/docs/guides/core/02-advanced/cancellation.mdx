@@ -1,7 +1,7 @@
 ---
 sidebar_position: 2
 title: Cancel Requests with AbortController
-description: How AbortController cancels a fetch request, how to abort fetch on unmount or timeout, and how Hyper Fetch cancels stale and in-flight requests.
+description: How AbortController cancels a fetch request, how to abort fetch on unmount or timeout, and how HyperFetch cancels stale and in-flight requests.
 sidebar_label: Cancellation
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: Cancellation
 
 A request you no longer need still costs bandwidth, and its late response can overwrite newer data. The browser's
 answer is `AbortController`: you hand its `signal` to `fetch`, call `abort()`, and the request stops. This guide shows
-how AbortController works on its own, then how Hyper Fetch uses it to cancel stale requests automatically and to abort
+how AbortController works on its own, then how HyperFetch uses it to cancel stale requests automatically and to abort
 in-flight requests by hand.
 
 :::secondary What you'll learn
@@ -67,7 +67,7 @@ useEffect(() => {
 }, [search]);
 ```
 
-Hyper Fetch creates and tracks these controllers for you. Every request gets its own `AbortController`, grouped by the
+HyperFetch creates and tracks these controllers for you. Every request gets its own `AbortController`, grouped by the
 request's `abortKey`, and the adapter passes the signal to `fetch` (or to Axios with the
 [Axios adapter](../../../integrations/adapter-axios/overview.mdx)).
 
@@ -79,7 +79,7 @@ When a user performs actions that trigger rapid, successive requests (like typin
 a race condition: responses arrive out of order. The response to an earlier request might arrive after a later one,
 leaving the UI showing results for an old query.
 
-Hyper Fetch solves this with the `cancelable` option. When it is `true`, a new request cancels the pending requests in
+HyperFetch solves this with the `cancelable` option. When it is `true`, a new request cancels the pending requests in
 the same queue. The queue is picked by `queryKey`. By default the `queryKey` includes the query params, so a search
 request with a different `search` value lands in a different queue. Give the request a fixed `queryKey` to make every
 search share one queue:
@@ -118,7 +118,7 @@ all, combine it with debouncing (`bounce` in [useFetch](../../../react/04-hooks/
 ## Manual cancellation
 
 There are times when you need to manually abort a request. For instance, a user might navigate away from a page while a
-request is still pending, or click a "cancel" button on a file upload. Hyper Fetch provides an `abort` method on the
+request is still pending, or click a "cancel" button on a file upload. HyperFetch provides an `abort` method on the
 `request` instance. It aborts every in-flight request that shares the request's `abortKey`.
 
 ```ts
@@ -231,7 +231,7 @@ More on keeping requests through a lost connection in [offline-first requests](.
 
 :::success Congratulations!
 
-You've learned how to cancel and manage requests in Hyper Fetch.
+You've learned how to cancel and manage requests in HyperFetch.
 
 - You know how **AbortController** cancels a fetch request and how to handle `AbortError`.
 - You can automatically **cancel stale requests** with `cancelable: true` and a shared `queryKey`.

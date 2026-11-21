@@ -11,7 +11,7 @@ The short answer to sse vs websocket: Server-Sent Events send data one way, from
 response. WebSockets open a separate two-way channel where both sides can send at any time. If the client only needs to
 receive, SSE is usually the simpler choice. If the client sends a steady stream too, use a WebSocket.
 
-The rest of this page explains why, where each one hurts, and how Hyper Fetch lets you switch between them without
+The rest of this page explains why, where each one hurts, and how HyperFetch lets you switch between them without
 touching the code that reads the messages.
 
 :::secondary What you'll learn
@@ -109,7 +109,7 @@ is enough, and [useStream](../../react/04-hooks/use-stream.mdx) reads it chunk b
 
 ## One listener API over both adapters
 
-In Hyper Fetch the transport is an adapter on the `Socket`. Listeners, `useListener`, delivery strategies and the
+In HyperFetch the transport is an adapter on the `Socket`. Listeners, `useListener`, delivery strategies and the
 interceptors are the same for both, so the choice above stays a one-line decision you can change later.
 
 ```ts title="src/realtime.ts"
@@ -184,7 +184,7 @@ The [listening guide](./listening.mdx) shows the rest of the listener API, which
 - SSE is one-way, text-only HTTP with reconnection and resume built into `EventSource`. Serve it over HTTP/2.
 - WebSockets are two-way, carry binary, and leave reconnects and resume to you.
 - Pick by direction first: receive only means SSE, a steady stream from the client means WebSocket.
-- In Hyper Fetch, `ServerSentEventsAdapter` and `WebsocketAdapter` share listeners and `useListener`. Only emitting,
+- In HyperFetch, `ServerSentEventsAdapter` and `WebsocketAdapter` share listeners and `useListener`. Only emitting,
   heartbeat and credentials differ.
 
 :::

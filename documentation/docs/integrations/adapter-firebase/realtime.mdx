@@ -1,11 +1,16 @@
 ---
 sidebar_position: 3
-title: Working with Realtime Database
+title: Firebase Realtime Database in React with Typed Requests
+description: Read and write the Firebase Realtime Database from React with typed paths, lists as arrays, ordering and limits, and cached results per query.
 sidebar_label: Realtime Database
 ---
 
-Realtime Database operations are HyperFetch requests with a Realtime Database `method`. This page covers reading and
-writing data, how lists are returned, and how to query them.
+# Firebase Realtime Database in React
+
+In firebase realtime database react code, the usual pattern is an `onValue` subscription inside an effect and a snapshot
+converted into state by hand. With HyperFetch, each Realtime Database operation is a request with a Realtime Database `method`,
+so `useFetch` and `useSubmit` handle loading, caching and types. This page covers reading and writing data, how lists
+are returned, and how to query them.
 
 ---
 
@@ -16,6 +21,21 @@ writing data, how lists are returned, and how to query them.
 3.  **Query** lists with ordering, limits and cursors.
 
 :::
+
+---
+
+## Realtime Database or Firestore
+
+Firebase has two databases, and this adapter supports both with the same request API.
+
+|                 | Realtime Database                              | Firestore                                        |
+| --------------- | ---------------------------------------------- | ------------------------------------------------ |
+| Data model      | One JSON tree, addressed by path               | Documents in collections                         |
+| Queries         | Order by one child, key or value, then limit or range | Several filters, sorting, cursors          |
+| Indexes         | `.indexOn` in the security rules               | Single-field by default, composite on demand     |
+| Good fit        | Small, fast-changing state: chat, presence, counters | Structured app data with richer queries    |
+
+The [Firestore page](./firestore.mdx) covers the other one.
 
 ---
 
@@ -186,6 +206,25 @@ const page2 = await getMessages.setParams({ roomId: "general" }).send({
 
 `queryParams` also takes the constraints array the callback resolves to, built with `$orderByChild`, `$limitToLast` and
 the other `$`-helpers.
+
+---
+
+## Realtime Database in React components
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+function LastMessages({ roomId }: { roomId: string }) {
+  const { data, loading } = useFetch(
+    getMessages.setParams({ roomId }).setQueryParams((c) => c.orderByChild("sentAt").limitToLast(50)),
+  );
+
+  // data is a list of messages with __key, or null
+}
+```
+
+`useFetch` reads once. To show new messages as they arrive, use a listener, see
+[realtime listening](./realtime-queries.mdx).
 
 ---
 

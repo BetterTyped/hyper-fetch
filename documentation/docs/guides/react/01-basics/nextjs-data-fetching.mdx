@@ -12,7 +12,7 @@ Server Component. Data that changes while the user is on the page (filters, poll
 in a Client Component. When the same data is needed in both places, you fetch it on the server and hand the result to
 the client cache, so the browser doesn't request it again.
 
-This page shows all three with Hyper Fetch, and the one server rendering problem every data library has to solve:
+This page shows all three with HyperFetch, and the one server rendering problem every data library has to solve:
 keeping one user's cached data away from the next request.
 
 :::secondary What you'll learn
@@ -77,7 +77,7 @@ and it is why TanStack Query's
 [SSR guide](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr) creates a new `QueryClient` for
 every server request.
 
-Hyper Fetch solves it in the client instead. In `"server"` mode the cache **stores nothing** unless the request has a
+HyperFetch solves it in the client instead. In `"server"` mode the cache **stores nothing** unless the request has a
 scope:
 
 ```ts
@@ -264,7 +264,7 @@ If you are coming from SWR or React Query, this is the same idea as SWR's
 
 Be clear about the limits before you design around them:
 
-- **No Next.js-specific package.** Hyper Fetch has no route handler helpers or Next.js cache integration of its own.
+- **No Next.js-specific package.** HyperFetch has no route handler helpers or Next.js cache integration of its own.
   First-class framework integrations are on the roadmap in the 8.0 release notes.
 - **No streaming of pending requests.** `request.dehydrate()` captures a finished response. To stream, await the
   request inside a component wrapped in `Suspense` on the server, or use `suspense: true` in a Client Component.

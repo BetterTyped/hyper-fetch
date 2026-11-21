@@ -1,10 +1,11 @@
 ---
 sidebar_position: 0
 title: Typescript - Extend Request
+description: "Type reusable functions and components that accept any HyperFetch request of a given shape with RequestInstance, and learn when to use RequestModel instead."
 sidebar_label: Extend Request
 ---
 
-In Hyper-Fetch, you can create highly reusable functions and components by building them to work with generic
+In HyperFetch, you can create highly reusable functions and components by building them to work with generic
 `RequestInstance` objects. This approach lets you enforce a **partial shape constraint** on a request - for example "any
 request whose response is an array of strings" - while letting the caller decide every other detail.
 
@@ -12,7 +13,7 @@ This guide walks you through that pattern. Before diving in, make sure you pick 
 
 :::tip `RequestInstance` vs `RequestModel` — pick the right tool
 
-Hyper Fetch ships two complementary types. They look similar but mean opposite things at the type level. Using the wrong
+HyperFetch ships two complementary types. They look similar but mean opposite things at the type level. Using the wrong
 one silently leaks `any` into your codebase.
 
 |                               | `RequestInstance<{...}>` (this guide)                                                        | `RequestModel<{...}>`                                                       |
@@ -156,7 +157,7 @@ See the [SDK guide](/docs/core/sdk#defining-the-schema) for the full schema patt
 
 :::success Congratulations!
 
-You've learned how to extend Hyper-Fetch requests for building flexible and type-safe components!
+You've learned how to extend HyperFetch requests for building flexible and type-safe components!
 
 - You can create **generic functions** that constrain request types.
 - You understand how to enforce a specific **response shape** on a request.

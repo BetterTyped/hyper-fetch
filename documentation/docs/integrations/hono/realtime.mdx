@@ -1,13 +1,17 @@
 ---
 sidebar_position: 2
-title: Hono Realtime
+title: Hono WebSocket and SSE Client with Typed Messages
+description: Connect a typed client to Hono WebSocket and streamSSE routes. Listen, emit and use React hooks, with socket URLs checked against your app.
 sidebar_label: Realtime
 ---
 
+# Hono WebSocket and SSE client with typed messages
+
 [Read the API Reference »](/docs/api/hono/Types/HonoWebSocketPath.mdx)
 
-Hono has no realtime protocol of its own. `upgradeWebSocket()` and `streamSSE()` carry whatever messages your handlers
-write, so a HyperFetch [`Socket`](/docs/sockets/socket) connects to them with the built-in `WebsocketAdapter` and
+A hono websocket route is a plain pipe: `upgradeWebSocket()` and `streamSSE()` carry whatever messages your handlers
+write, and Hono has no realtime protocol of its own. That makes the client side simple. A HyperFetch
+[`Socket`](/docs/sockets/socket) connects to those routes with the built-in `WebsocketAdapter` and
 `ServerSentEventsAdapter`. Write `{ topic, data }` messages on the server and every listener, emitter and React hook
 works without extra setup. `@hyper-fetch/hono` adds `HonoWebSocketPath`, which checks the address a socket connects to
 against your app.
@@ -22,6 +26,23 @@ against your app.
 4. **Any message format**: `decode` and `encode` adapter options read apps that do not send `{ topic, data }`.
 
 :::
+
+---
+
+## How WebSockets work in Hono
+
+Hono gives every runtime its own `upgradeWebSocket()` helper. On Node it comes from `@hono/node-ws`, which also returns
+`injectWebSocket` to attach to the HTTP server. The helper turns a `GET` route into a WebSocket endpoint and hands you
+`onOpen`, `onMessage`, `onClose` and `onError` callbacks. What goes through the connection is up to you, so the server
+and the client have to agree on a message shape.
+
+Hono's own RPC client can open these routes with `$ws()`, which returns a raw `WebSocket`. You still parse messages,
+route them by type and reconnect by hand. A HyperFetch `Socket` does that part: it reconnects, routes each
+`{ topic, data }` message to the listeners of that topic, and types the data through a socket schema.
+
+For one-way streams, `streamSSE()` sends Server-Sent Events over plain HTTP. They pass through proxies that block
+WebSockets and need no upgrade, and the browser's `EventSource` reconnects on its own. See
+[Server-Sent Events](#server-sent-events) below.
 
 ---
 

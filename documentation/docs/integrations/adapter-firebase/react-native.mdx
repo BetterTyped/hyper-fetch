@@ -1,0 +1,241 @@
+---
+sidebar_position: 5
+title: React Native Firebase with HyperFetch
+description: Use Firestore and Realtime Database in React Native with the Firebase JS SDK and HyperFetch, and know when you need the @react-native-firebase native library.
+sidebar_label: React Native
+---
+
+# React Native Firebase with HyperFetch
+
+There are two ways to do react native firebase work, and they are different libraries. The Firebase JavaScript SDK
+(`firebase` on npm) is the same SDK you use on the web, running in your app's JavaScript. React Native Firebase
+(`@react-native-firebase/*`) wraps the native Android and iOS SDKs. `@hyper-fetch/firebase` is built on the first one.
+This page explains the difference, which Firebase products each covers in React Native, and how to set up Firestore and
+Realtime Database requests with HyperFetch in a React Native or Expo app.
+
+:::tip Purpose
+
+1.  **Pick the right SDK**: know what the Firebase JS SDK supports in React Native and when you need native modules.
+2.  **Run HyperFetch on the JS SDK**: Firestore and Realtime Database requests with `useFetch`, `useSubmit` and
+    `useListener`.
+3.  **Detect the network on a device**: connect `NetInfo` so offline handling works without browser events.
+
+:::
+
+---
+
+## Firebase JS SDK vs React Native Firebase
+
+| Question                       | Firebase JS SDK (`firebase`)                                   | React Native Firebase (`@react-native-firebase/*`)     |
+| ------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------ |
+| What it is                     | The web SDK, pure JavaScript                                   | A wrapper around the native Android and iOS SDKs       |
+| Works in Expo Go               | Yes                                                            | No, needs a development build                          |
+| Native code                    | None                                                           | Yes, configured with Expo config plugins or by hand    |
+| Analytics, Messaging, Crashlytics | Not supported in React Native                               | Yes                                                    |
+| Works with `@hyper-fetch/firebase` | Yes                                                        | No                                                     |
+
+The sources for that table:
+
+- Firebase's [supported environments page](https://firebase.google.com/docs/web/environments-js-sdk) lists React Native
+  for the JS SDK. Cloud Firestore is supported "except persistence", Realtime Database is supported, Authentication is
+  supported except phone auth and popup or redirect OAuth, and Cloud Storage is supported except uploads. Analytics,
+  Cloud Messaging, Crashlytics, Performance Monitoring and Remote Config are not.
+- [rnfirebase.io](https://rnfirebase.io/) says React Native Firebase wraps the native SDKs directly, cannot be used in
+  the pre-compiled Expo Go app, and works with Expo through a development build.
+- [Expo's Firebase guide](https://docs.expo.dev/guides/using-firebase/) says the JS SDK works in Expo Go and that Expo
+  SDK supports `firebase@12.0.0` and above.
+
+So the choice usually goes like this. If your app reads and writes Firestore or Realtime Database and signs users in
+with email or a token, the JS SDK covers it and you skip native setup. If you need push notifications, Crashlytics or
+Analytics, you need React Native Firebase for those.
+
+---
+
+## Why the adapter needs the JS SDK
+
+`FirebaseAdapter` and `FirebaseSocketsAdapter` import from `firebase/firestore` and `firebase/database`, the modular
+JS SDK. They call its functions (`getDocs`, `onSnapshot`, `get`, `onValue` and the rest) with the database you pass in,
+and they tell Firestore from Realtime Database with `instanceof` checks against the JS SDK classes.
+
+An instance from `@react-native-firebase/firestore` is not one of those classes. React Native Firebase's modular API
+looks like the web SDK, but it's a different package with its own objects, so the adapter can't run on it.
+`FirebaseSocketsAdapter` throws `Unknown database type` when it gets one.
+
+:::caution One SDK per job
+
+If you add React Native Firebase for messaging or crash reports, keep reading and writing data through the JS SDK.
+Each SDK initializes its own app instance and keeps its own signed-in user, so sign users in with the JS SDK's
+`firebase/auth` when HyperFetch requests depend on security rules.
+
+:::
+
+---
+
+## Installation
+
+```bash
+npx expo install firebase @react-native-community/netinfo
+npm install @hyper-fetch/core @hyper-fetch/firebase @hyper-fetch/sockets @hyper-fetch/react
+```
+
+Outside Expo, install `firebase` and `@react-native-community/netinfo` with npm as usual. `@hyper-fetch/sockets` is
+only needed for live listeners.
+
+---
+
+## Setup
+
+The default `AppManager` listens to browser online and offline events, which React Native doesn't have. Give the client
+and the socket an `AppManager` driven by `NetInfo`, the same way the
+[React Native environment guide](../../react/03-environments/react-native.mdx) does for HTTP:
+
+```ts title="api/firebase.ts"
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import NetInfo from "@react-native-community/netinfo";
+import { AppManager, Client } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+import { FirebaseAdapter, FirebaseSocketsAdapter } from "@hyper-fetch/firebase";
+
+const app = initializeApp({
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  projectId: "my-project",
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+});
+const db = getFirestore(app);
+
+// highlight-start
+const createAppManager = () =>
+  new AppManager({
+    initiallyOnline: () => NetInfo.fetch().then((state) => !!state.isConnected),
+    onlineEvent: (setOnline) => NetInfo.addEventListener((state) => setOnline(!!state.isConnected)),
+  });
+// highlight-end
+
+export const client = new Client({ url: "", appManager: createAppManager }).setAdapter(FirebaseAdapter(db));
+
+export const socket = new Socket({ url: "", appManager: createAppManager, adapter: FirebaseSocketsAdapter(db) });
+```
+
+With this in place, requests sent while the device is offline wait and go out when `NetInfo` reports a connection
+again. That's HyperFetch's default `offline: true` behaviour, described in [offline](../../guides/core/02-advanced/offline.mdx).
+
+For Realtime Database, pass `getDatabase(app)` from `firebase/database` instead. The rest of this page works the same.
+
+---
+
+## Reading and writing in components
+
+Requests are the same as on the web. See [Firestore](./firestore.mdx) for every method.
+
+```ts title="api/tasks.ts"
+import type { FirestoreQueryParams } from "@hyper-fetch/firebase";
+import { client } from "./firebase";
+
+export type Task = { title: string; done: boolean; createdAt: number };
+
+export const getTasks = client.createRequest<{
+  response: (Task & { __key: string })[];
+  queryParams?: FirestoreQueryParams<Task>;
+}>()({
+  endpoint: "tasks",
+  method: "getDocs",
+});
+
+export const addTask = client.createRequest<{ response: Task; payload: Task }>()({
+  endpoint: "tasks",
+  method: "addDoc",
+});
+```
+
+```tsx title="screens/tasks.tsx"
+import { FlatList, Pressable, Text, View } from "react-native";
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+import { client } from "../api/firebase";
+import { addTask, getTasks } from "../api/tasks";
+
+const openTasks = getTasks.setQueryParams((c) => c.where("done", "==", false).orderBy("createdAt", "desc"));
+
+export function TasksScreen() {
+  const { data, loading, error } = useFetch(openTasks);
+  const { submit, submitting, onSubmitSuccess } = useSubmit(addTask);
+
+  onSubmitSuccess(() => client.cache.invalidate(openTasks));
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>{error.message}</Text>;
+
+  return (
+    <View>
+      <FlatList data={data ?? []} keyExtractor={(task) => task.__key} renderItem={({ item }) => <Text>{item.title}</Text>} />
+      <Pressable
+        disabled={submitting}
+        onPress={() => submit({ payload: { title: "New task", done: false, createdAt: Date.now() } })}
+      >
+        <Text>Add task</Text>
+      </Pressable>
+    </View>
+  );
+}
+```
+
+Firebase errors such as a denied permission or a missing index come back in `error` with `status: "error"`. `send()`
+and the hooks never throw them, so there's no `try/catch` to write.
+
+---
+
+## Live data
+
+For updates as they happen, use a listener on the socket from the setup. It runs Firestore's `onSnapshot` under the
+hood. More in [realtime listening](./realtime-queries.mdx).
+
+```tsx
+import { Text } from "react-native";
+import { useListener } from "@hyper-fetch/react";
+import { socket } from "../api/firebase";
+import type { Task } from "../api/tasks";
+
+const onTasks = socket.createListener<Task[]>()({ topic: "tasks" });
+
+export function LiveTaskCount() {
+  const { data } = useListener(onTasks);
+  return <Text>{data?.length ?? 0} tasks</Text>;
+}
+```
+
+Calling `socket.disconnect()` and `socket.connect()` turns the network of the whole Firestore instance off and on, not
+only this listener.
+
+---
+
+## What to keep in mind
+
+- **No Firestore offline persistence.** The JS SDK doesn't support it in React Native, so cached Firestore data doesn't
+  survive an app restart. HyperFetch's cache lives in memory too. To keep queued writes across restarts, give the
+  dispatcher persistent storage, as shown in [persistence](../../guides/core/02-advanced/persistence.mdx) and the React
+  Native environment guide.
+- **Auth.** Phone sign-in and popup or redirect OAuth flows aren't supported by the JS SDK in React Native. For keeping
+  users signed in between reloads, Expo points to its own setup guide from the Firebase page linked above.
+- **Admin SDK is for servers.** `@hyper-fetch/firebase-admin` uses `firebase-admin` and belongs in your backend, never
+  in an app bundle. See the [Firebase Admin adapter](../adapter-firebase-admin/overview.mdx).
+
+:::note When to use it
+
+- Your React Native or Expo app reads and writes Firestore or Realtime Database with the Firebase JS SDK.
+- You want caching, deduplication and loading state for Firebase calls without wiring them in every screen.
+- You want Firebase requests and HTTP requests to share one client setup and the same hooks.
+
+:::
+
+---
+
+:::secondary Summary
+
+1.  The Firebase JS SDK runs in React Native and Expo Go. React Native Firebase wraps the native SDKs and needs a
+    development build.
+2.  `@hyper-fetch/firebase` works with the JS SDK only, because it calls `firebase/firestore` and `firebase/database`.
+3.  Give the client and the socket a `NetInfo`-based `AppManager` so offline handling works on a device.
+4.  Requests, `useFetch`, `useSubmit` and `useListener` work as on the web. Errors resolve in `error`, never as throws.
+5.  Use React Native Firebase alongside for Messaging, Crashlytics or Analytics, and keep data on the JS SDK.
+
+:::

@@ -9,7 +9,7 @@ sidebar_label: Response Type
 
 Typing API responses in TypeScript is where most of the safety in a frontend comes from. If `data.user.name` is typed,
 the compiler catches the typo, the renamed field and the forgotten `null` check before your users do. This guide shows
-why the usual `fetch` approach gives you less safety than it looks, and how Hyper Fetch attaches a **response type** to
+why the usual `fetch` approach gives you less safety than it looks, and how HyperFetch attaches a **response type** to
 each request so every caller gets it for free.
 
 :::secondary What you'll learn
@@ -165,7 +165,7 @@ The other extractors (payload, params, query params, error) work the same way. S
 ## Checking the type at runtime
 
 Types disappear when the code is compiled. If you can't trust the API, or it's a third-party one, validate the response
-with a schema library and derive the type from the schema, so the two can't drift. Hyper Fetch runs the check in
+with a schema library and derive the type from the schema, so the two can't drift. HyperFetch runs the check in
 `setResponseMapper`, and a failed parse ends up in `error`. The full example with Zod is in the
 [validation guide](../core/02-advanced/validation.mdx).
 
@@ -173,7 +173,7 @@ with a schema library and derive the type from the schema, so the two can't drif
 
 :::success Congratulations!
 
-You've learned how to type API responses in TypeScript with Hyper Fetch.
+You've learned how to type API responses in TypeScript with HyperFetch.
 
 - You know why a **cast** on `response.json()` is a promise to the compiler, not a check.
 - You can define a **`response` type** for any request to get strongly-typed data.

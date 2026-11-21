@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/orpc",
   "version": "0.0.0",
-  "description": "oRPC adapter for Hyper Fetch",
+  "description": "oRPC adapter for HyperFetch: call oRPC procedures with typed requests, caching and React hooks",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -66,13 +66,11 @@
     ]
   },
   "keywords": [
-    "fetch",
-    "requests",
-    "js",
-    "fetcher",
     "orpc",
     "rpc",
     "typescript",
-    "end-to-end-types"
+    "end-to-end-types",
+    "react",
+    "hyperfetch"
   ]
 }

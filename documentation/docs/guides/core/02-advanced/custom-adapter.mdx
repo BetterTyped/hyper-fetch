@@ -1,11 +1,12 @@
 ---
-title: Guide - Custom Adapter
+title: Custom adapter for any data source
+description: "Write a custom HyperFetch adapter with the Adapter class and setFetcher to support another protocol or HTTP client, then type its options and return values."
 sidebar_label: Custom Adapter
 ---
 
 # Custom Adapter
 
-In Hyper Fetch, an adapter is a class responsible for handling the actual data exchange with a server. While Hyper Fetch
+In HyperFetch, an adapter is a class responsible for handling the actual data exchange with a server. While HyperFetch
 comes with a built-in `http-adapter`, you might need to create a custom adapter to support different protocols (like
 WebSockets), integrate with a specific service (like Firebase), or use a different HTTP client (like `axios`).
 
@@ -15,7 +16,7 @@ This guide will walk you through creating your own custom adapter, from a basic 
 
 :::secondary What you'll learn
 
-1.  How to create a **custom adapter** for Hyper Fetch using the `Adapter` class.
+1.  How to create a **custom adapter** for HyperFetch using the `Adapter` class.
 2.  How to use the `setFetcher` method to **implement the core logic**.
 3.  The role of the **adapter bindings** in the adapter lifecycle.
 4.  How to **strongly-type your adapter** with custom options and return values.
@@ -58,7 +59,7 @@ network request.
 
 The `setFetcher` method is where you'll implement your adapter's core functionality. It takes a callback function that
 receives a set of bindings—utilities and request details—to help you build your fetching logic. This approach abstracts
-away the complex internal logic of Hyper Fetch and provides a clean way to integrate your adapter.
+away the complex internal logic of HyperFetch and provides a clean way to integrate your adapter.
 
 This ensures that all lifecycle hooks, request queueing, and other features work correctly.
 
@@ -207,7 +208,7 @@ const { extra: extra2 } = await request2.send();
 
 :::success Congratulations!
 
-You've learned how to create custom adapters for Hyper Fetch!
+You've learned how to create custom adapters for HyperFetch!
 
 - You know how to create a **basic adapter** using the `Adapter` class.
 - You can use the `setFetcher` method to **implement the core logic** of your adapter.

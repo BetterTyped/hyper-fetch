@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/elysia",
   "version": "0.0.0",
-  "description": "Turn an Elysia app type into a fully typed Hyper Fetch SDK schema",
+  "description": "Turn an Elysia app type into a fully typed HyperFetch SDK schema",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -58,7 +58,8 @@
     "sdk",
     "rpc",
     "type-safe",
-    "hyper fetch"
+    "typescript",
+    "hyperfetch"
   ],
   "devDependencies": {
     "@hono/node-server": "^2.1.9",

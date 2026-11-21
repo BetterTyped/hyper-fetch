@@ -1,13 +1,20 @@
 ---
 sidebar_position: 4
-title: Realtime listening
+title: Firestore Realtime Updates in React with onSnapshot
+description: Listen to Firestore onSnapshot and Realtime Database onValue in React with typed listeners, live query filters and the useListener hook.
 sidebar_label: Realtime listening
 ---
 
+# Firestore realtime updates in React
+
 [Read the API Reference »](/api/adapter-firebase/Functions/FirebaseSocketsAdapter.mdx)
 
-Firestore `onSnapshot` and Realtime Database `onValue` run through `@hyper-fetch/sockets`. You create a socket with
-`FirebaseSocketsAdapter`, create a listener for a path, and receive the full current result every time it changes.
+Firestore realtime updates come from `onSnapshot`, and the Realtime Database has `onValue`. Both call you back with the
+full current result every time the data changes, and both return a function you must call to stop listening. In React
+that means a subscription in an effect, cleanup on unmount, and a new subscription whenever the query changes.
+
+Here both run through `@hyper-fetch/sockets`. You create a socket with `FirebaseSocketsAdapter`, create a listener for a
+path, and receive the full current result every time it changes. `useListener` starts and stops it with the component.
 
 ---
 

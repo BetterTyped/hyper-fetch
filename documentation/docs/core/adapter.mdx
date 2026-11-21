@@ -1,13 +1,13 @@
 ---
 sidebar_position: 5
 title: Adapter
-description: "The Adapter decides how Hyper Fetch sends requests. Swap HTTP for GraphQL, Firebase or your own transport and keep the same request API."
+description: "The Adapter decides how HyperFetch sends requests. Swap HTTP for GraphQL, Firebase or your own transport and keep the same request API."
 sidebar_label: Adapter
 ---
 
 [Read the API Reference »](/docs/api/core/Classes/Adapter.mdx)
 
-The `Adapter` class is the backbone of Hyper Fetch's communication system. It abstracts the details of how requests are
+The `Adapter` class is the backbone of HyperFetch's communication system. It abstracts the details of how requests are
 executed, allowing you to swap between HTTP, GraphQL, Firebase, or any custom transport layer with ease. Adapters are
 responsible for executing requests, mapping payloads and headers, handling query parameters, and integrating with the
 request lifecycle—including progress tracking, cancellation, and error handling.
@@ -28,7 +28,7 @@ request lifecycle—including progress tracking, cancellation, and error handlin
 
 ## Initialization
 
-By default, Hyper Fetch provides a unified HTTP adapter built on the native `fetch` API, which works in both browser and
+By default, HyperFetch provides a unified HTTP adapter built on the native `fetch` API, which works in both browser and
 Node.js environments (Node 18+). You can also create your own adapters to support other protocols or advanced use cases.
 
 ```ts title="GraphQL Adapter"
@@ -201,7 +201,7 @@ client.adapter.setRequestDefaults((options) => ({ ...options, deduplicate: true 
 
 6. ### HyperFetch internal error mapping
 
-Customize how Hyper Fetch internal errors are mapped and handled:
+Customize how HyperFetch internal errors are mapped and handled:
 
 ```ts
 client.adapter.setInternalErrorMapping((error) => {

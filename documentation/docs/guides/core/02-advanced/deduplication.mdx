@@ -57,7 +57,7 @@ They work together. Deduplication covers the window while the request is in flig
 
 ## Setup
 
-In Hyper Fetch, `GET` requests sent through the default HTTP adapter are deduplicated already. The adapter turns on
+In HyperFetch, `GET` requests sent through the default HTTP adapter are deduplicated already. The adapter turns on
 `deduplicate` for safe methods, and an explicit `deduplicate` option on the request still wins. For other methods, or
 other adapters, set it yourself:
 
@@ -74,7 +74,7 @@ endpoint with its params, and the query string, so `/users?page=1` and `/users?p
 ## How it works
 
 In the example below, we call the `getUsers.send()` method four times in quick succession. Since `deduplicate` is
-enabled, Hyper Fetch sends a single request to the backend. The other calls receive the response from the first one.
+enabled, HyperFetch sends a single request to the backend. The other calls receive the response from the first one.
 
 ```typescript
 // We are using pre-build 'getUsers' request and 'client' instance
@@ -164,7 +164,7 @@ A request with `cancelable: true` or `queued: true` is never deduplicated. Those
 
 :::success Congratulations!
 
-You've learned how to use request deduplication in Hyper Fetch.
+You've learned how to use request deduplication in HyperFetch.
 
 - You know the common causes of **duplicate API calls** in React.
 - You can **enable deduplication** with the `deduplicate: true` option, and `GET` requests have it on by default.

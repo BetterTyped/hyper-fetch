@@ -1,12 +1,13 @@
 ---
 title: Query Parameters
+description: "Pass query params to a WebSocket connection in HyperFetch: set initial queryParams, update them with setQueryParams and resolve them per attempt in onConnect."
 sidebar_label: Query Params
 ---
 
 # Query Parameters
 
 Query parameters are a powerful feature for passing additional data to the server when establishing a socket connection.
-With Hyper-fetch, you can set initial query parameters, update the defaults with `setQueryParams` and resolve them
+With HyperFetch, you can set initial query parameters, update the defaults with `setQueryParams` and resolve them
 fresh for every connection attempt with `onConnect`. This guide will walk you through managing `queryParams` for your
 socket connections.
 
@@ -40,7 +41,7 @@ const socket = new Socket({
 });
 ```
 
-Hyper-fetch will automatically infer the types of your `queryParams` from the initial values, providing you with type
+HyperFetch will automatically infer the types of your `queryParams` from the initial values, providing you with type
 safety from the start.
 
 ## Dynamic Updates
@@ -122,7 +123,7 @@ The interceptor can be async and receives the reconnection `attempt` number. See
 
 ## Type-Safety
 
-While Hyper-fetch infers types automatically, you can also enforce stricter type-safety by providing an explicit type
+While HyperFetch infers types automatically, you can also enforce stricter type-safety by providing an explicit type
 for your `queryParams`. This is done by passing a generic type to the `Socket` class.
 
 This practice is highly recommended to prevent runtime errors and ensure that your `queryParams` always have the correct
@@ -157,7 +158,7 @@ socket.setQueryParams({ userId: 456, token: "new-token" });
 
 :::success Congratulations!
 
-You now know how to effectively manage query parameters with Hyper-fetch sockets.
+You now know how to effectively manage query parameters with HyperFetch sockets.
 
 - You can set **initial query parameters** in the `Socket` constructor.
 - You can update the defaults with **`setQueryParams`** and apply them with **`reconnect`**.

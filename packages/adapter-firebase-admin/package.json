@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/firebase-admin",
   "version": "0.0.0",
-  "description": "First class Firebase Admin adapter for Hyper Fetch",
+  "description": "Firebase Admin adapter for HyperFetch: typed Firestore and Realtime Database requests from Node.js servers",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/adapter-firebase-admin/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -59,10 +59,11 @@
   },
   "keywords": [
     "firebase",
+    "firebase-admin",
     "firestore",
-    "realtime",
-    "storage",
-    "database",
-    "authentication"
+    "realtime-database",
+    "nodejs",
+    "typescript",
+    "hyperfetch"
   ]
 }

@@ -1,11 +1,22 @@
 ---
 sidebar_position: 5
-title: Using graphql-tag
+title: "graphql-tag: Write GraphQL Queries with the gql Tag"
+description: What graphql-tag does, how the gql template literal parses a query into a DocumentNode, and how to send gql documents with the GraphQL adapter.
 sidebar_label: graphql-tag
 ---
 
-The `graphql-tag` library is a development dependency of the GraphQL adapter and is used to parse GraphQL query strings
-into the standard AST format.
+# graphql-tag and the gql template literal
+
+`graphql-tag` is a small library that exports one template literal tag, `gql`. It parses a GraphQL query string into a
+`DocumentNode`, the AST that the `graphql` package and most GraphQL tools work with. A syntax error in the query throws
+when the document is created, not when the server answers.
+
+The GraphQL adapter accepts a `DocumentNode` or a plain string as the `endpoint`. `graphql-tag` is not required, it is
+a separate install, and most projects that write queries by hand use it.
+
+```bash
+npm install graphql graphql-tag
+```
 
 :::tip Why use `graphql-tag`?
 
@@ -19,8 +30,8 @@ into the standard AST format.
 
 ## Usage
 
-You should use the `gql` tag from `graphql-tag` to define all your queries and mutations. The GraphQL adapter will then
-automatically handle the conversion to a printable string that can be sent to your server.
+Write queries and mutations with `gql` and pass the result as the `endpoint`. The adapter prints the document back to a
+string when it sends the request, and reads the operation name from it for the cache key.
 
 ```ts
 import { Client } from "@hyper-fetch/core";
@@ -49,3 +60,17 @@ const getUser = client.createRequest<{ response: User }>()({
 
 const { data, error } = await getUser.send();
 ```
+
+---
+
+## gql documents, strings and typed documents
+
+| Endpoint                           | Response and variables types     | When to use                                     |
+| ---------------------------------- | -------------------------------- | ----------------------------------------------- |
+| Plain string                       | Declare them with generics       | Quick scripts, no parsing step                  |
+| `gql` from `graphql-tag`           | Declare them with generics       | Hand-written queries with editor support        |
+| Typed document from codegen or gql.tada | Read from the document      | Larger apps that want types generated from the schema |
+
+Editor plugins for GraphQL highlight and autocomplete the content of `gql` template literals, which is a large part of
+why the tag is popular. For typed documents, see [typed documents](./overview.mdx#typed-documents). For more
+examples, see [queries](./queries.mdx) and [mutations](./mutations.mdx).

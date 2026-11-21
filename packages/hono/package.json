@@ -1,9 +1,9 @@
 {
   "name": "@hyper-fetch/hono",
   "version": "0.0.0",
-  "description": "Turn a Hono app type into a fully typed Hyper Fetch SDK schema",
+  "description": "Turn a Hono app type into a fully typed HyperFetch SDK schema, a typed Hono client with caching and React hooks",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>, Kacper Skawina <kacper.skawina@gmail.com>",
-  "homepage": "https://hyperfetch.bettertyped.com/",
+  "homepage": "https://hyperfetch.bettertyped.com/docs/integrations/hono/overview/",
   "license": "Apache-2.0",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -54,10 +54,12 @@
   },
   "keywords": [
     "hono",
+    "hono-client",
     "sdk",
     "rpc",
     "type-safe",
-    "hyper fetch"
+    "typescript",
+    "hyperfetch"
   ],
   "devDependencies": {
     "@hono/node-server": "^2.1.9",

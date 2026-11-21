@@ -1,17 +1,18 @@
 ---
-title: Guide - React - Provider
+title: React Provider for global hook defaults
+description: "Wrap your React app in the HyperFetch Provider to set global defaults for useFetch and useSubmit, so every hook shares one config without repeating it."
 sidebar_label: ConfigProvider
 ---
 
 # React Config Provider
 
-In Hyper-fetch, you can set default configurations for hooks using the `<Provider />` component. This allows you
+In HyperFetch, you can set default configurations for hooks using the `<Provider />` component. This allows you
 to create a consistent behavior for data fetching and submission across your entire application, avoiding repetitive
 setup in individual components.
 
 :::secondary What you'll learn
 
-1.  How to use the **`<Provider />`** to set **global configurations** for Hyper-fetch hooks.
+1.  How to use the **`<Provider />`** to set **global configurations** for HyperFetch hooks.
 2.  What are the **configurable options** for `useFetch` and `useSubmit`.
 3.  How to **structure your application** to use the provider effectively.
 
@@ -21,7 +22,7 @@ setup in individual components.
 
 The `<Provider />` acts as a context wrapper. You should place it at the root of your component tree, for example
 in your main `App.tsx` or `index.tsx` file. It takes a `config` prop where you can specify default settings for all
-Hyper-fetch hooks.
+HyperFetch hooks.
 
 Here's how you can wrap your application with it:
 
@@ -68,7 +69,7 @@ ensuring that your application maintains a consistent user experience with minim
 
 :::success Congratulations!
 
-You've learned how to use the `<Provider />` to manage global settings for Hyper-fetch hooks in React!
+You've learned how to use the `<Provider />` to manage global settings for HyperFetch hooks in React!
 
 - You can set **default options** for `useFetch` and `useSubmit` across your app.
 - You can **centralize configuration** to keep your components cleaner.

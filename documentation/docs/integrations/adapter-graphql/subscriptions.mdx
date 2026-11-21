@@ -1,13 +1,19 @@
 ---
 sidebar_position: 4
-title: GraphQL Subscriptions
+title: GraphQL Subscriptions in React over WebSocket
+description: How GraphQL subscriptions work over WebSocket with graphql-ws, and how to listen to them in React with typed listeners and automatic reconnects.
 sidebar_label: Subscriptions
 ---
 
+# GraphQL subscriptions in React over WebSocket
+
 [Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlWsAdapter.mdx)
 
-> `GraphqlWsAdapter` connects a HyperFetch `Socket` to GraphQL subscriptions over WebSocket. Subscription documents
-> become typed listeners, with the variables as the payload.
+A GraphQL subscription is an operation the server keeps answering: you subscribe once and get a new result every time
+the event happens, such as a new message or a changed order status. To use graphql subscriptions in react you need a
+WebSocket that stays open, a protocol both sides agree on, and a hook that starts and stops the subscription with the
+component. `GraphqlWsAdapter` connects a HyperFetch `Socket` to the server, and each subscription document becomes a
+typed listener, with the variables as the payload.
 
 :::tip Purpose
 
@@ -20,6 +26,29 @@ sidebar_label: Subscriptions
 5. **Recover on its own**: reconnects with backoff, sends fresh connection params and starts every subscription again.
 
 :::
+
+---
+
+## How GraphQL subscriptions work
+
+```graphql
+subscription OnMessage($roomId: ID!) {
+  messageAdded(roomId: $roomId) {
+    id
+    text
+  }
+}
+```
+
+A subscription looks like a query with `subscription` in front, and it has exactly one top-level field. The difference is
+the transport. A query is one HTTP request and one response. A subscription needs a connection that stays open, so the
+server can push a result for every event.
+
+Most servers use WebSocket with the `graphql-transport-ws` protocol from the `graphql-ws` library. The client opens the
+socket, sends `connection_init` with optional params such as an auth token, then one `subscribe` message per
+subscription. The server answers with `next` messages, and `complete` when it ends. The older
+`subscriptions-transport-ws` protocol (`graphql-ws` as the subprotocol name, confusingly) is deprecated, and this adapter
+does not speak it.
 
 ---
 

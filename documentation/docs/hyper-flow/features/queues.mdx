@@ -1,9 +1,11 @@
 ---
 sidebar_position: 4
-title: Queue Management
+title: Request Queue Inspector in HyperFlow
+description: Watch HyperFetch request queues in HyperFlow, see pending and in-flight requests with their history, and stop, start or clear a queue.
+sidebar_label: Queue Management
 ---
 
-# Queue Management
+# Request queue inspector in HyperFlow
 
 HyperFlow's queue management tools allow you to monitor and control the request queues in your application. This is
 essential for managing offline support, request prioritization, and concurrency.
@@ -39,5 +41,5 @@ query key. Every mounted `useFetch`, `useSubmit` and `useQueue` using the key co
 - **Analyze Queue Flow**: Understand the order of execution and how priorities are being handled.
 - **Optimize Concurrency**: Adjust your queueing strategy for better performance and reliability.
 
-Full visibility into your queues gives you the confidence to build robust applications that can handle complex data
-synchronization and network conditions gracefully.
+Stopping a queue from HyperFlow is the quickest way to see how your UI behaves while requests wait, without throttling
+the network.
