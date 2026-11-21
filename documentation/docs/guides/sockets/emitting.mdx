@@ -1,12 +1,13 @@
 ---
 sidebar_position: 4
-title: Guide - Socket Emitting
+title: Emitting socket events with typed payloads
+description: "Send WebSocket events with a HyperFetch emitter: pass data with setPayload() or emit(), use parameters in topics, map payloads and read replies from the server."
 sidebar_label: Emitting
 ---
 
 # Emitting Events
 
-In real-time applications, you often need to send data from the client to the server. With Hyper-Fetch's socket module,
+In real-time applications, you often need to send data from the client to the server. With HyperFetch's socket module,
 you can **emit events** to send data to a topic on the server.
 
 :::secondary What you'll learn
@@ -158,7 +159,7 @@ sendJoin.emit({ payload: { requestId, roomId: "general" } });
 
 :::success Congratulations!
 
-You've learned how to emit events with Hyper-Fetch Sockets!
+You've learned how to emit events with HyperFetch Sockets!
 
 - You can create an **emitter** for a specific event topic.
 - You can send data using **`.setPayload()`** or by passing it directly to **`.emit()`**.

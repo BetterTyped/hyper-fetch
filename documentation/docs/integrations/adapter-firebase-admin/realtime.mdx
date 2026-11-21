@@ -1,11 +1,14 @@
 ---
 sidebar_position: 3
-title: Working with Realtime Database
+title: Realtime Database with the Firebase Admin SDK
+description: Read and write the Firebase Realtime Database from Node.js with the Admin SDK, using typed get, set, push, update and remove requests and queries.
 sidebar_label: Realtime Database
 ---
+# Realtime Database with the Firebase Admin SDK
 
-Realtime Database operations from server code are HyperFetch requests with a Realtime Database `method`. They behave
-like the [web package](/docs/integrations/adapter-firebase/realtime), with the Admin SDK underneath.
+Realtime Database operations from Node.js through the firebase admin sdk become HyperFetch requests with a Realtime
+Database `method`. They behave like the [web package](/docs/integrations/adapter-firebase/realtime), with the Admin SDK
+underneath. `initializeApp` needs a `databaseURL` for the Realtime Database.
 
 ---
 

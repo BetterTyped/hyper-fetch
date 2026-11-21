@@ -1,13 +1,15 @@
 ---
 sidebar_position: 2
-title: Rules
+title: Oxlint Rules for Typed Requests and Clients
+description: What the request-generic-types and client-generic-types Oxlint rules report in HyperFetch generics, with examples and the keys each one allows.
+sidebar_label: Rules
 ---
 
-# Rules
+# Oxlint rules for typed requests and clients
 
 The Oxlint plugin has two rules. Both check the first generic passed to a HyperFetch factory and report keys the factory
-does not know about. Every generic key is optional, so TypeScript accepts a typo like `rsponse` and your data quietly
-falls back to the default type.
+does not know about. Every generic key is optional, so next to any valid key TypeScript accepts a typo like `rsponse` and
+your data quietly falls back to the default type.
 
 :::tip Purpose
 

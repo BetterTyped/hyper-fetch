@@ -12,7 +12,7 @@ messages into state, close it on cleanup. That version works in a demo. It break
 component mounts twice, or a second component needs the same stream.
 
 This page starts with the plain browser `WebSocket` in a React component, walks through what goes wrong with it, and then
-shows the same feature built with Hyper Fetch sockets and the `useListener` / `useEmitter` hooks.
+shows the same feature built with HyperFetch sockets and the `useListener` / `useEmitter` hooks.
 
 :::secondary What you'll learn
 
@@ -111,7 +111,7 @@ each branch are whatever you claim they are.
 The fix for all four is the same: the connection is application state, not component state. Create it once at module
 level, and let components subscribe to the parts they need.
 
-With Hyper Fetch, the connection is a `Socket`. Messages are described once with typed listeners and emitters:
+With HyperFetch, the connection is a `Socket`. Messages are described once with typed listeners and emitters:
 
 ```ts title="src/socket.ts"
 import { Socket } from "@hyper-fetch/sockets";
@@ -188,7 +188,7 @@ export function ChatRoom() {
 
 Here is how each problem from the plain version is handled:
 
-| Problem | Plain `useEffect` | Hyper Fetch |
+| Problem | Plain `useEffect` | HyperFetch |
 | --- | --- | --- |
 | Lost connection | Stays dead | Reconnects with jittered backoff, up to `reconnect` attempts |
 | Send while connecting | `send()` throws `InvalidStateError` | `emit()` never throws; the failure arrives in `onEmitError` |
@@ -225,7 +225,7 @@ full setup.
 
 React Native provides the same `WebSocket` global as the browser
 ([React Native: Networking](https://reactnative.dev/docs/network)), so the plain version, its problems, and the
-Hyper Fetch version all carry over unchanged. `@hyper-fetch/sockets` uses the global `WebSocket`, and `useListener` and
+HyperFetch version all carry over unchanged. `@hyper-fetch/sockets` uses the global `WebSocket`, and `useListener` and
 `useEmitter` work the same way in a React Native component.
 
 The one difference is network detection. In the browser the socket listens to the window `online` and `offline` events
@@ -245,7 +245,7 @@ You do not always need a library. The `useEffect` version is fine when:
 - There is one message type and you control both ends.
 
 Once you need reconnects, more than one subscriber, or several message types, the connection belongs outside the
-component, and that is the part Hyper Fetch takes over.
+component, and that is the part HyperFetch takes over.
 
 :::secondary Summary
 

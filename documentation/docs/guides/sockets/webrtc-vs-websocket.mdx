@@ -1,0 +1,220 @@
+---
+sidebar_position: 14
+title: WebRTC vs WebSocket, plus gRPC, MQTT and alternatives
+description: WebRTC vs WebSocket explained. Peer-to-peer media versus client-server messages, why WebRTC signaling runs over WebSocket, and how gRPC and MQTT compare.
+sidebar_label: WebRTC vs WebSocket
+---
+
+# WebRTC vs WebSocket
+
+The short answer to webrtc vs websocket: WebRTC connects two browsers directly, peer to peer, and is built for audio,
+video and low-latency data between them. A WebSocket connects a client to a server and carries messages through that
+server. They are not competitors so much as partners. Most WebRTC apps use a WebSocket to set up the call, then send the
+media over WebRTC.
+
+This page explains that split, then compares WebSocket with the other options that come up in the same search: gRPC
+streams, MQTT and the rest of the WebSocket alternatives.
+
+:::secondary What you'll learn
+
+1.  What **WebRTC** does that a WebSocket cannot, and the other way round.
+2.  Why **WebRTC signaling** usually runs over a WebSocket, with a typed example.
+3.  How **gRPC vs WebSocket** and **WebSocket vs MQTT** compare.
+4.  Which **WebSocket alternatives** exist, and where HyperFetch fits among them.
+
+:::
+
+---
+
+## What WebRTC is for
+
+MDN describes WebRTC as a way to "capture and optionally stream audio and/or video media, as well as to exchange
+arbitrary data between browsers without requiring an intermediary"
+([MDN: WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)). The pieces you touch are
+`RTCPeerConnection` for the connection and media tracks, and `RTCDataChannel` for arbitrary data between the two peers.
+
+"Without an intermediary" has fine print. Peers usually sit behind NAT and firewalls, so the browser uses ICE with STUN
+and TURN servers to find a route. TURN exists for the cases where two devices cannot reach each other directly
+([MDN: TURN](https://developer.mozilla.org/en-US/docs/Glossary/TURN)). And before any of that, the peers need some way to
+exchange connection details. WebRTC leaves that part to you.
+
+A data channel can also give up guarantees a WebSocket always keeps. Set `ordered: false` and `maxRetransmits` or
+`maxPacketLifeTime`, and messages may arrive out of order or not at all
+([MDN: createDataChannel](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel)). For
+game state or cursor positions, a late update is worthless anyway, so dropping it is the right call.
+
+## What a WebSocket is for
+
+A WebSocket is one long-lived, two-way connection between a client and a server
+([MDN: WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)). Messages arrive in order and
+none are skipped while the connection is up. Everything goes through the server, which is exactly what you want for
+chat, notifications, live dashboards and shared state, because the server is the one that stores, checks and fans out
+the data.
+
+---
+
+## WebRTC vs WebSocket side by side
+
+| | WebRTC | WebSocket |
+| --- | --- | --- |
+| Who talks | Peer to peer, browser to browser | Client to server |
+| Built for | Audio, video, low-latency data | Messages |
+| Media tracks | Yes | No, you would ship encoded bytes yourself |
+| Delivery | Configurable per data channel, ordered or not, reliable or not | Ordered and reliable |
+| Setup | Signaling, ICE, STUN and often TURN servers | One URL |
+| Server sees the data | No, unless it relays through TURN or a media server | Always |
+| Typical use | Calls, screen sharing, peer file transfer | Chat, feeds, notifications, collaboration |
+
+If every message has to be stored, checked or sent to many people, a server is in the path anyway, and a WebSocket is
+simpler. If two users need to see and hear each other with the least delay, WebRTC.
+
+---
+
+## WebRTC signaling over WebSocket
+
+MDN is direct about the gap: "WebRTC doesn't specify a transport mechanism for the signaling information"
+([MDN: Signaling and video calling](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling)).
+Each side has to send the other an SDP offer or answer and a series of ICE candidates. The signaling server does not need
+to understand them, it only forwards them to the right user. A WebSocket fits well, because both the offer and the
+candidates have to arrive quickly and the server has to push them to the other peer.
+
+Here is the caller's side with a HyperFetch socket as the signaling channel. The server forwards whatever arrives on
+`signal/<peerId>` to that peer.
+
+```ts title="src/signaling.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+type Signal =
+  | { type: "offer" | "answer"; from: string; sdp: RTCSessionDescriptionInit }
+  | { type: "candidate"; from: string; candidate: RTCIceCandidateInit };
+
+export const signaling = new Socket({ url: "wss://signal.example.com/ws" });
+
+export const onSignal = signaling.createListener<Signal>()({ topic: "signal/:peerId" });
+export const sendSignal = signaling.createEmitter<Signal>()({ topic: "signal/:peerId" });
+```
+
+```ts title="src/call.ts"
+import { onSignal, sendSignal } from "./signaling";
+
+const peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.example.com" }] });
+const toBob = sendSignal.setParams({ peerId: "bob" });
+
+// Send every ICE candidate to the other peer as it is found
+peer.onicecandidate = ({ candidate }) => {
+  if (candidate) toBob.emit({ payload: { type: "candidate", from: "ana", candidate: candidate.toJSON() } });
+};
+
+// Read Bob's answer and candidates
+onSignal.setParams({ peerId: "ana" }).listen(async ({ data }) => {
+  if (data.type === "answer") await peer.setRemoteDescription(data.sdp);
+  if (data.type === "candidate") await peer.addIceCandidate(data.candidate);
+});
+
+// Cursor positions: unordered, never retransmitted
+const cursors = peer.createDataChannel("cursors", { ordered: false, maxRetransmits: 0 });
+
+const offer = await peer.createOffer();
+await peer.setLocalDescription(offer);
+toBob.emit({ payload: { type: "offer", from: "ana", sdp: offer } });
+```
+
+The WebRTC calls are the browser's own API. HyperFetch only carries the signaling messages, with a typed payload, a
+topic per peer and reconnects if the signaling connection drops. Keep in mind that `emit()` does not queue: a candidate
+sent while the socket is down is lost, so restart the negotiation after a reconnect instead of assuming it went through.
+The [emitting guide](./emitting.mdx) shows how to catch those errors.
+
+---
+
+## gRPC vs WebSocket
+
+gRPC is an RPC framework. You describe services in Protocol Buffers, its default interface definition language, and
+generate clients and servers from that. It has four kinds of methods: unary, server streaming, client streaming and
+bidirectional streaming ([gRPC: Core concepts](https://grpc.io/docs/what-is-grpc/core-concepts/)), and it runs over
+HTTP/2 ([gRPC over HTTP2](https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md)).
+
+Between your own services, gRPC is often the better tool: a typed contract, generated code in many languages, and
+streaming in both directions.
+
+In the browser it is a different story. Browsers use gRPC-Web, which "currently supports 2 RPC modes": unary and
+server-side streaming. Client-side and bidirectional streaming are not supported, and clients connect through a proxy,
+Envoy by default ([gRPC-Web](https://github.com/grpc/grpc-web)). So for two-way realtime traffic from a browser, a
+WebSocket is still the usual choice, and many teams run gRPC behind the server and a WebSocket in front of it.
+
+---
+
+## WebSocket vs MQTT
+
+MQTT is "an OASIS standard messaging protocol for the Internet of Things" and "an extremely lightweight
+publish/subscribe messaging transport" ([mqtt.org](https://mqtt.org/)). Clients do not talk to each other or to your app
+server. They publish to topics on a broker, and the broker delivers to subscribers. It has three quality of service
+levels: at most once, at least once and exactly once.
+
+The two are not on the same layer. MQTT is a messaging protocol, and WebSocket is one of the transports it can use. The
+MQTT 5 specification has a section on it: packets go in binary WebSocket frames, and the client must offer the `mqtt`
+subprotocol ([MQTT 5.0, section 6](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)). That is how a
+browser dashboard reads the same topics as the sensors in the field.
+
+Choose MQTT when you have many devices, unreliable networks and a broker in the middle anyway. Choose a plain WebSocket
+when the client talks to your own app server and the server decides what each user sees. If a browser needs MQTT, use an
+MQTT client library over WebSocket. HyperFetch does not speak MQTT.
+
+---
+
+## WebSocket alternatives
+
+| Option | Direction | Good for | Watch out for |
+| --- | --- | --- | --- |
+| [Server-Sent Events](./sse-vs-websocket.mdx) | Server to client | Feeds, notifications, AI token streams | Text only, and HTTP/2 matters |
+| [Polling](./http-vs-websocket.mdx) | Client asks | Data that changes every few seconds or less often | Requests that come back empty |
+| WebTransport | Both | Multiple streams and unreliable datagrams over HTTP/3 | Newer, secure contexts only |
+| WebRTC data channel | Peer to peer | Low-latency data between users | Signaling, NAT traversal |
+| gRPC streaming | Both, between services | Typed service-to-service streams | Browsers only get unary and server streaming |
+| MQTT | Through a broker | IoT and device fleets | Needs a broker, and WebSocket in the browser |
+
+MDN calls WebTransport "a modern update to WebSockets" over HTTP/3, with multiple streams and UDP-like datagrams. Its
+compatibility box marks it Baseline 2026, newly available since March 2026, so older browsers will not have it
+([MDN: WebTransport API](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API)).
+
+---
+
+## Where HyperFetch fits
+
+HyperFetch sockets cover the client-server half of this page. The `@hyper-fetch/sockets` package ships a
+`WebsocketAdapter` and a `ServerSentEventsAdapter`, with typed listeners and emitters, reconnects with jittered backoff
+between `reconnectTime` and `maxReconnectTime`, an optional heartbeat, and React hooks.
+
+It has no WebRTC, gRPC, MQTT or WebTransport adapter. For a call, it is the signaling channel and the realtime layer
+around the call (presence, chat, who is in the room), while the media goes through WebRTC.
+
+:::note When HyperFetch is the right layer
+
+- Signaling for a WebRTC call, with typed offer, answer and candidate messages.
+- Chat, notifications and presence next to a call.
+- Client-server realtime for a browser, React or React Native app.
+- Receive-only feeds over SSE, with the same listener API as WebSocket.
+
+:::
+
+The [Node.js WebSocket client](./nodejs-websocket-client.mdx) page shows the same socket running in a Node.js worker,
+and [errors and reconnection](./websocket-reconnection-and-errors.mdx) explains what happens when the connection drops.
+
+---
+
+## Which one fits you
+
+- **Video or voice calls, screen sharing, peer file transfer:** WebRTC, with a WebSocket for signaling.
+- **Chat, notifications, collaboration, live data from your server:** WebSocket, or SSE if the client only receives.
+- **Service-to-service streaming with a typed contract:** gRPC.
+- **Sensors and devices publishing through a broker:** MQTT, over WebSocket when a browser joins in.
+- **Many independent streams or unreliable datagrams in new browsers:** look at WebTransport.
+
+:::secondary Summary
+
+- WebRTC is peer to peer and built for media and low-latency data. WebSocket is client to server and built for messages.
+- WebRTC does not define signaling, and a WebSocket is the usual way to exchange offers, answers and ICE candidates.
+- gRPC suits service-to-service streams, but browsers only get unary and server streaming through gRPC-Web.
+- MQTT is broker-based pub/sub and can run over WebSocket.
+- HyperFetch is a WebSocket and SSE client. It carries signaling and client-server realtime, not media.
+
+:::

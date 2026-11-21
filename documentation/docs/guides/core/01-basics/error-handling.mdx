@@ -1,20 +1,21 @@
 ---
-title: Guide - Error Handling
+title: Error handling for typed API requests
+description: "Handle API errors in HyperFetch without try/catch, since requests never reject, and give them typed global and local error shapes you can narrow in code."
 sidebar_label: Error Handling
 ---
 
 # Error Handling
 
-Error handling is a crucial part of any application that communicates with an API. In Hyper-Fetch, error handling is
+Error handling is a crucial part of any application that communicates with an API. In HyperFetch, error handling is
 designed to be robust, type-safe, and developer-friendly. Unlike traditional promise-based libraries that might reject
-on failure, Hyper-Fetch requests **never reject**. Instead, they return an `error` object alongside the `data`, ensuring
+on failure, HyperFetch requests **never reject**. Instead, they return an `error` object alongside the `data`, ensuring
 that you can handle both success and failure states gracefully.
 
 This approach simplifies your async code by avoiding the need for `try...catch` blocks around your requests.
 
 :::secondary What you'll learn
 
-1.  How Hyper-Fetch handles errors without **rejecting promises**.
+1.  How HyperFetch handles errors without **rejecting promises**.
 2.  How to define a **global error type** for all requests made with a client instance.
 3.  How to specify **local error types** for individual requests.
 4.  How to access and **differentiate between error types** in your application.
@@ -69,7 +70,7 @@ This setup ensures that any request created from this client instance will have 
 ## Local Errors
 
 While global errors are great for consistency, some endpoints may return different error structures. For example, a form
-submission endpoint might return detailed validation errors for each field. Hyper-Fetch allows you to define a **local
+submission endpoint might return detailed validation errors for each field. HyperFetch allows you to define a **local
 error type** for specific requests.
 
 This local error type will be combined with the global error type, creating a union type for the `error` property.
@@ -157,7 +158,7 @@ from TypeScript's static analysis.
 
 :::success Congratulations!
 
-You've learned how to effectively handle errors in Hyper-Fetch!
+You've learned how to effectively handle errors in HyperFetch!
 
 - You can define **global** and **local error types** to match your API's responses.
 - You can access error information from requests without using **`try...catch`**.

@@ -8,7 +8,7 @@ sidebar_label: Pagination
 
 Pagination in React comes down to one piece of state, the current page, and a request that depends on it. Change the
 page, fetch the new slice, show it. The hard parts are around that: not flashing a spinner on every click, not
-refetching pages the user already saw, and knowing when there is no next page. With Hyper Fetch you put the page in
+refetching pages the user already saw, and knowing when there is no next page. With HyperFetch you put the page in
 the request's query params, and `useFetch` refetches when it changes. Each page gets its own cache entry, so going back
 to a page you visited is instant.
 
@@ -17,7 +17,7 @@ to a page you visited is instant.
 1.  How to implement **pagination** using the `useFetch` hook.
 2.  How to manage the **current page state** in a React component.
 3.  How to create **"Next"** and **"Previous"** buttons to navigate through pages.
-4.  How Hyper Fetch's **automatic re-fetching** and **caching** simplify pagination logic.
+4.  How HyperFetch's **automatic re-fetching** and **caching** simplify pagination logic.
 5.  How to keep the **previous page visible** and **prefetch** the next one.
 
 :::
@@ -103,7 +103,7 @@ function PaginatedPosts() {
 2.  The `useFetch` hook is given a request that includes the `page` in its query parameters:
     `getPosts.setQueryParams({ page, limit: 5 })`.
 3.  Whenever `page` changes (by clicking the "Next" or "Previous" buttons), the component re-renders.
-4.  Hyper-fetch detects that a dependency of the request (`page`) has changed and automatically triggers a new fetch for
+4.  HyperFetch detects that a dependency of the request (`page`) has changed and automatically triggers a new fetch for
     the new page's data.
 5.  The `loading` state from `useFetch` is used to give feedback to the user while the new page is being loaded.
 6.  The "Next" button is disabled if the current page has fewer items than the limit, indicating we've reached the end.
@@ -147,11 +147,11 @@ router instead of `useState`, and the same code works with shareable links.
 
 :::success Congratulations!
 
-You've learned how to implement pagination in your React applications with Hyper-fetch!
+You've learned how to implement pagination in your React applications with HyperFetch!
 
 - You can create a **paginated list** controlled by React state.
 - You can use **automatic re-fetching** when request parameters change.
 - You can build a **user-friendly navigation** for large datasets.
-- You understand how Hyper-fetch's **caching** makes navigating between pages fast.
+- You understand how HyperFetch's **caching** makes navigating between pages fast.
 
 :::

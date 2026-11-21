@@ -1,6 +1,6 @@
 ---
 title: Request Interceptors for Fetch and Axios Users
-description: Request interceptors add headers, log calls and refresh tokens in one place. How axios interceptors and fetch wrappers compare to Hyper Fetch.
+description: Request interceptors add headers, log calls and refresh tokens in one place. How axios interceptors and fetch wrappers compare to HyperFetch.
 sidebar_label: Intercepting
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: Intercepting
 A request interceptor is a function that runs on every request before it leaves your app, or on every response before
 your code sees it. It's where you put logic that would otherwise be copied into every call: the `Authorization` header,
 logging, error reporting, refreshing an expired token. This guide explains how interceptors work in Axios and with plain
-`fetch`, then shows the Hyper Fetch versions: `onRequest`, `onAuth`, `onSuccess`, `onError` and `onResponse` on the
+`fetch`, then shows the HyperFetch versions: `onRequest`, `onAuth`, `onSuccess`, `onError` and `onResponse` on the
 `Client`.
 
 :::secondary What you'll learn
@@ -52,10 +52,10 @@ export async function apiFetch(input: string, init: RequestInit = {}) {
 It works, but every feature you add (retries, logging, a second token type) goes into that one function, and code that
 calls `fetch` directly skips it.
 
-In Hyper Fetch the interceptors live on the `Client`, so every request created from it goes through them, no matter
+In HyperFetch the interceptors live on the `Client`, so every request created from it goes through them, no matter
 which adapter sends it.
 
-| Step                      | Axios                              | Hyper Fetch                        |
+| Step                      | Axios                              | HyperFetch                        |
 | ------------------------- | ---------------------------------- | ---------------------------------- |
 | Before the request        | `interceptors.request.use(fn)`     | `client.onRequest(fn)`             |
 | Only for `auth: true`     | Not built in                       | `client.onAuth(fn)`                |
@@ -112,7 +112,7 @@ with `auth: true`. The [authentication guide](../01-basics/authentication.mdx) c
 
 ## Response interceptors
 
-Response interceptors process responses before they reach your request's callbacks and the cache. Hyper Fetch has three:
+Response interceptors process responses before they reach your request's callbacks and the cache. HyperFetch has three:
 `onResponse` runs for every response, then `onSuccess` or `onError` runs depending on the result. Each receives the
 `response` and the `request`, and must return a `response`.
 
@@ -266,9 +266,9 @@ For logic that should observe requests without changing them, like metrics or de
 
 :::success Congratulations!
 
-You've learned how request interceptors work in Hyper Fetch.
+You've learned how request interceptors work in HyperFetch.
 
-- You know how **axios interceptors** and **fetch wrappers** map to Hyper Fetch's client methods.
+- You know how **axios interceptors** and **fetch wrappers** map to HyperFetch's client methods.
 - You can hook into the request lifecycle using **`onRequest`** and **`onAuth`**.
 - You can handle responses globally with **`onSuccess`**, **`onError`**, and **`onResponse`**.
 - You can refresh a token and resend a request with **`setUsed(true)`**.

@@ -1,5 +1,6 @@
 ---
-title: Guide - Request Queueing
+title: Request queueing for sequential requests
+description: "Queue HyperFetch requests so they run one by one in order, enable queueing per request or globally, and use it for large file uploads and offline support."
 sidebar_label: Queueing
 ---
 
@@ -7,7 +8,7 @@ sidebar_label: Queueing
 
 In modern web applications, managing network requests efficiently is crucial for a smooth user experience. Sometimes,
 you need to ensure that requests are sent one by one, in a specific order. This is where **request queueing** comes in.
-Hyper-fetch provides a powerful queueing mechanism to handle these scenarios gracefully.
+HyperFetch provides a powerful queueing mechanism to handle these scenarios gracefully.
 
 This guide will walk you through setting up and using the request queue, from basic configurations to more advanced use
 cases.
@@ -26,7 +27,7 @@ cases.
 ## Basic Setup
 
 Enabling queueing on a request is as simple as setting the `queued` property to `true`. When multiple requests
-configured this way are triggered, Hyper-fetch will automatically add them to a queue and execute them sequentially.
+configured this way are triggered, HyperFetch will automatically add them to a queue and execute them sequentially.
 
 Here's how you define a queued request:
 
@@ -112,7 +113,7 @@ When combined with persistence solutions like `localStorage`, the queue can even
 
 :::success Congratulations!
 
-You've learned how to use Hyper-fetch's request queueing feature!
+You've learned how to use HyperFetch's request queueing feature!
 
 - You can enable queueing on **individual requests** using the `queued: true` option.
 - You can set up **global queueing** on the `Client` instance.

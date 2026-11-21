@@ -1,17 +1,17 @@
 ---
 title: Migrating from React Query (TanStack Query)
-description: Map useQuery, useMutation, query keys, invalidateQueries, staleTime and React Query Devtools to Hyper Fetch, then move one feature over step by step.
+description: Map useQuery, useMutation, query keys, invalidateQueries, staleTime and React Query Devtools to HyperFetch, then move one feature over step by step.
 sidebar_label: From React Query
 ---
 
 # Migrating from React Query (TanStack Query)
 
 TanStack Query caches the result of any async function you give it. You pick a `queryKey`, write a `queryFn` that calls
-`fetch`, and `useQuery` keeps the result in sync. Migrating from react query to Hyper Fetch moves that work into the
+`fetch`, and `useQuery` keeps the result in sync. Migrating from react query to HyperFetch moves that work into the
 request itself: a request knows its endpoint, method, params and types, and its cache key comes from those values. Hooks
 take the request instead of a key and a function.
 
-This page maps every TanStack Query concept you are likely using to its Hyper Fetch counterpart, lists what has no
+This page maps every TanStack Query concept you are likely using to its HyperFetch counterpart, lists what has no
 counterpart, and then moves one small feature over with before and after code.
 
 :::secondary What you'll learn
@@ -19,7 +19,7 @@ counterpart, and then moves one small feature over with before and after code.
 1.  How **`useQuery`, `useMutation` and query keys** map to `useFetch`, `useSubmit` and cache keys.
 2.  Which **defaults differ** (`staleTime`, `gcTime`, retries, refetch on focus) and how to match them.
 3.  How to replace **`invalidateQueries`** and **React Query Devtools**.
-4.  What has **no equivalent** in Hyper Fetch.
+4.  What has **no equivalent** in HyperFetch.
 
 :::
 
@@ -32,7 +32,7 @@ and `fetch` calls alike. It has a large community, a lot of answered questions, 
 including [streaming pending queries](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr) from
 the server. If your app is happy on it, stay.
 
-Hyper Fetch is worth the move when you also want the parts TanStack Query leaves to you: typed request definitions, one
+HyperFetch is worth the move when you also want the parts TanStack Query leaves to you: typed request definitions, one
 place for headers and auth, request queues, offline replay, upload and download progress, sockets with the same API, and
 an SDK generated from OpenAPI. Both libraries can run side by side while you move screen by screen. They don't share a
 cache, so a screen should read a given resource through one of them.
@@ -50,7 +50,7 @@ const { data } = useQuery({
 ```
 
 ```tsx
-// Hyper Fetch: the request is defined once, the key is derived from it
+// HyperFetch: the request is defined once, the key is derived from it
 const getTodo = client.createRequest<{ response: Todo }>()({ endpoint: "/todos/:todoId" });
 
 const { data } = useFetch(getTodo.setParams({ todoId }));
@@ -69,7 +69,7 @@ Every TanStack name below comes from the
 [useMutation](https://tanstack.com/query/latest/docs/framework/react/reference/useMutation) and
 [QueryClient](https://tanstack.com/query/latest/docs/reference/QueryClient) references.
 
-| TanStack Query                                     | Hyper Fetch                                                 | Notes                                                                                   |
+| TanStack Query                                     | HyperFetch                                                 | Notes                                                                                   |
 | -------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `QueryClient` + `QueryClientProvider`              | `createClient({ url })`                                     | Requests carry their client, so no provider is required                                 |
 | `defaultOptions` on the `QueryClient`              | `<Provider config={{ useFetchConfig }}>`                    | Default hook options for the tree                                                       |
@@ -105,7 +105,7 @@ Copying your hooks one to one gives you different timing, because the defaults d
 [important defaults](https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults) treat cached
 data as stale right away, retry failed queries 3 times, and refetch stale queries on mount, window focus and reconnect.
 
-Hyper Fetch requests default to `staleTime` and `cacheTime` of 5 minutes and `retry: 0`. On the hook side, `useFetch`
+HyperFetch requests default to `staleTime` and `cacheTime` of 5 minutes and `retry: 0`. On the hook side, `useFetch`
 defaults to `revalidate: true`, which refetches in the background on every mount even when the cache is fresh.
 `refetchOnFocus` and `refetchOnReconnect` are off.
 
@@ -128,9 +128,9 @@ and pass `revalidate: false` to the hook, so `useFetch` only fetches when the ca
 
 Two more differences are worth knowing:
 
-- **`cacheTime` is not `gcTime`.** TanStack starts the `gcTime` timer when the last observer unmounts. Hyper Fetch
+- **`cacheTime` is not `gcTime`.** TanStack starts the `gcTime` timer when the last observer unmounts. HyperFetch
   counts `cacheTime` from the moment the response is stored, and `client.cache.update()` restarts it.
-- **Deduplication depends on the method.** TanStack shares one promise between identical queries. In Hyper Fetch, the
+- **Deduplication depends on the method.** TanStack shares one promise between identical queries. In HyperFetch, the
   default HTTP adapter deduplicates `GET` requests already, so identical reads in flight share one network call. For
   other methods it is opt-in with `setDeduplicate(true)`, and an explicit `deduplicate` option always wins.
 
@@ -275,7 +275,7 @@ For updates that show before the server answers, move the logic to the request w
 ### 4. Replace React Query Devtools
 
 [React Query Devtools](https://tanstack.com/query/latest/docs/framework/react/devtools) is a component you render in
-the page, and it is left out of production builds. The Hyper Fetch counterpart is
+the page, and it is left out of production builds. The HyperFetch counterpart is
 [HyperFlow](../../../hyper-flow/index.mdx), a desktop app for macOS, Windows and Linux. Your app streams requests,
 cache and queue events to it through a plugin:
 
@@ -304,7 +304,7 @@ export const App = () => (
 export const App = () => <Todos />;
 ```
 
-Add the Hyper Fetch `Provider` only if you want different hook defaults for the tree. Once the last `useQuery` is gone,
+Add the HyperFetch `Provider` only if you want different hook defaults for the tree. Once the last `useQuery` is gone,
 uninstall `@tanstack/react-query` and `@tanstack/react-query-devtools`.
 
 ---
@@ -337,7 +337,7 @@ Some TanStack Query features have no direct counterpart. Plan for these before y
 
 - **`useQueries`.** There is no hook that takes a dynamic list of requests. Call `useFetch` once per request when the
   number is fixed, or render a child component per item that calls `useFetch` itself.
-- **Caching any async function.** A `queryFn` can read IndexedDB or call a vendor SDK. Hyper Fetch caches requests sent
+- **Caching any async function.** A `queryFn` can read IndexedDB or call a vendor SDK. HyperFetch caches requests sent
   through an [adapter](../../../core/adapter.mdx). For a non-HTTP source, write an adapter for it.
 - **`gcTime` counted from the last unmount.** `cacheTime` starts when the response is stored, as described above.
 - **Streaming pending queries from the server.** `request.dehydrate()` captures finished responses only.

@@ -1,12 +1,13 @@
 ---
 sidebar_position: 3
-title: Guide - Payload
+title: Request payload and typed request body
+description: "Send a typed request body with HyperFetch for POST, PUT and PATCH calls, using setPayload() or send(), so TypeScript catches payload errors at compile time."
 sidebar_label: Payload
 ---
 
 # Payload
 
-In Hyper-Fetch, the term "payload" refers to the data sent with a request, typically in the body of `POST`, `PUT`, or
+In HyperFetch, the term "payload" refers to the data sent with a request, typically in the body of `POST`, `PUT`, or
 `PATCH` requests. This guide will walk you through defining and setting payloads for your requests, with a strong
 emphasis on type safety.
 
@@ -25,7 +26,7 @@ emphasis on type safety.
 
 ## Defining a Typed Request
 
-The core strength of Hyper-Fetch is its type safety. By defining a `payload` type for your request, you can ensure that
+The core strength of HyperFetch is its type safety. By defining a `payload` type for your request, you can ensure that
 the data you send to the server always has the correct shape. This eliminates a common source of bugs in web
 applications.
 
@@ -88,7 +89,7 @@ const request = client
 
 ## Setting the Payload
 
-Hyper-Fetch offers two convenient ways to attach a payload to your request: using the `.setPayload()` method or passing it
+HyperFetch offers two convenient ways to attach a payload to your request: using the `.setPayload()` method or passing it
 directly to the `.send()` method.
 
 ### 1. Using `.setPayload()`
@@ -149,7 +150,7 @@ const { data, error } = await createUser.send({
 
 ## Type Safety in Action
 
-Here's where Hyper-Fetch's type safety really shines. If you try to set a payload that doesn't match the `UserPayload`
+Here's where HyperFetch's type safety really shines. If you try to set a payload that doesn't match the `UserPayload`
 type, TypeScript will immediately flag it as an error during development, preventing bugs before they happen.
 
 ```ts
@@ -178,7 +179,7 @@ request payloads.
 
 :::success Congratulations!
 
-You've learned how to effectively manage request payloads with Hyper-Fetch!
+You've learned how to effectively manage request payloads with HyperFetch!
 
 - You know that **payloads** are the data you send with requests, like form submissions.
 - You can **enforce data consistency** by defining a `payload` type for your requests.

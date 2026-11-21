@@ -1,5 +1,6 @@
 ---
-title: Guide - Prefetching
+title: Prefetching data before the user navigates
+description: "Prefetch data with HyperFetch so the next view renders straight from cache with no loading spinner, including dynamic routes prefetched on hover."
 sidebar_label: Prefetching
 ---
 
@@ -7,7 +8,7 @@ sidebar_label: Prefetching
 
 **Prefetching** is a powerful technique for improving user experience by loading data before it's explicitly needed.
 When data is prefetched, it's available in the cache, so when the user navigates to a new view, the content can be
-displayed instantly without a loading spinner. With Hyper Fetch, prefetching is incredibly simple to implement.
+displayed instantly without a loading spinner. With HyperFetch, prefetching is incredibly simple to implement.
 
 :::secondary What you'll learn
 
@@ -26,7 +27,7 @@ The core idea behind prefetching is to anticipate a user's next move and fetch t
 example, if a user is likely to click on a user's profile from a list, you can start fetching that profile's data as
 soon as the list is displayed, or even when the user hovers over the list item.
 
-Hyper Fetch's design makes this trivial. By simply executing a request with `.send()`, you trigger the entire
+HyperFetch's design makes this trivial. By simply executing a request with `.send()`, you trigger the entire
 data-fetching lifecycle, including:
 
 1.  Sending the request to the server.
@@ -125,13 +126,13 @@ prefetchUser(2);
 ```
 
 > In a real application, you would call `prefetchUser` inside a `onMouseEnter` or `onPointerEnter` event handler. Each
-> time it's called with a new `userId`, Hyper Fetch will cache the response separately for that user.
+> time it's called with a new `userId`, HyperFetch will cache the response separately for that user.
 
 ---
 
 ## Prefetching and the Cache
 
-Prefetching is effective because of Hyper Fetch's built-in caching layer. When you call `.send()`, the request's
+Prefetching is effective because of HyperFetch's built-in caching layer. When you call `.send()`, the request's
 response is automatically cached. The cache key is generated based on the request's endpoint, method, parameters, and
 other properties, ensuring that each unique request has its own cache entry.
 
@@ -153,7 +154,7 @@ when the data is missing or stale. This is what creates the "instant" experience
 
 :::success Congratulations!
 
-You've learned how to leverage prefetching in Hyper Fetch to build faster and more responsive applications.
+You've learned how to use prefetching in HyperFetch to build faster and more responsive applications.
 
 - You understand that **prefetching** is about loading data in advance to improve perceived performance.
 - You can implement **basic prefetching** for static data by simply calling `.send()`.

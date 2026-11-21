@@ -1,11 +1,15 @@
 ---
 sidebar_position: 2
-title: Working with Queries
+title: GraphQL Query Examples with Variables in TypeScript
+description: How a GraphQL query is built, with operation names, variables and fields, and how to send typed GraphQL queries from TypeScript and React.
 sidebar_label: Queries
 ---
 
-Queries are used to fetch data from your GraphQL API. With Hyper Fetch, you can define your queries using `graphql-tag`
-and execute them with the configured client.
+# GraphQL query examples with variables
+
+A graphql query reads data. You name the fields you want, the server returns exactly those fields, and nothing changes on
+the server. This page shows the parts of a query, then how to send one with HyperFetch: written with `graphql-tag`,
+typed with generics, and run from a React component.
 
 :::tip What you'll learn
 
@@ -14,6 +18,33 @@ and execute them with the configured client.
 - How to pass variables to your queries.
 
 :::
+
+---
+
+## Anatomy of a GraphQL query
+
+```graphql
+query GetUserById($userId: ID!) {
+  user(id: $userId) {
+    username
+    firstName
+  }
+}
+```
+
+| Part                    | In the example        | What it does                                                        |
+| ----------------------- | --------------------- | ------------------------------------------------------------------- |
+| Operation type          | `query`               | Reads data. `mutation` writes, `subscription` streams.              |
+| Operation name          | `GetUserById`         | Names the operation in logs, tooling and the cache key              |
+| Variable definitions    | `$userId: ID!`        | Inputs with types. `!` means required.                              |
+| Arguments               | `id: $userId`         | Pass a variable to a field                                          |
+| Selection set           | `username firstName`  | The fields the response will contain, nothing more                  |
+
+Always pass dynamic values as variables instead of building the query string by hand. The query text stays the same, so
+servers can cache the parsed query, persisted queries work, and you never have to escape user input.
+
+On the wire, a query is a `POST` with a JSON body of `query`, `variables` and `operationName`, or a `GET` with the same
+fields in the query string. The [overview](./overview.mdx#what-is-sent) has the details.
 
 ---
 
@@ -100,3 +131,26 @@ separate setting the variables from sending the request.
 ```ts
 const { data, error } = await getUser.setPayload({ userId: "1" }).send();
 ```
+
+---
+
+## Queries in React
+
+`useFetch` sends the query when the component mounts and again when the variables change. The result is cached by the
+operation and its variables, so another component with the same query reads the cached data. Add `deduplicate: true` to
+the request to merge identical queries that start at the same time into one network call.
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+export const UserName = ({ userId }: { userId: string }) => {
+  const { data, loading } = useFetch(getUser.setPayload({ userId }));
+
+  if (loading && !data) return <p>Loading...</p>;
+
+  return <p>{data?.user.firstName}</p>;
+};
+```
+
+To refetch queries after a write, see [mutations](./mutations.mdx#refetching-queries-after-a-mutation). For the cache
+options behind `useFetch`, see [cache](../../core/cache.mdx).

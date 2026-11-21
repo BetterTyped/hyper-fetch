@@ -1,12 +1,13 @@
 ---
 sidebar_position: 1
 title: Socket Setup Guide
+description: "Set up WebSockets in HyperFetch: create a Socket instance with your server URL, add a listener for incoming events and an emitter that sends data to the server."
 sidebar_label: Setup
 ---
 
 # Setup
 
-Welcome to the Hyper-fetch Sockets setup guide! This guide will walk you through the essential first steps to get up and
+Welcome to the HyperFetch Sockets setup guide! This guide will walk you through the essential first steps to get up and
 running with real-time communication in your application. We'll cover how to initialize the socket, create listeners for
 incoming events, and set up emitters to send data to your server.
 
@@ -73,7 +74,7 @@ export const sendChatMessage = socket.createEmitter<ChatMessageType>()({
 
 :::success Congratulations!
 
-You've successfully set up the foundation for real-time communication with Hyper-fetch Sockets!
+You've successfully set up the foundation for real-time communication with HyperFetch Sockets!
 
 - You can initialize a `Socket` with a server URL.
 - You can create a `Listener` to handle incoming messages.

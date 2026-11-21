@@ -1,7 +1,7 @@
 ---
 sidebar_position: 11
 title: "Retry Failed Requests: Fetch, Axios and Backoff"
-description: Retry failed requests with a retry count, a delay and a retry condition. How fetch retry, axios-retry and exponential backoff compare to Hyper Fetch.
+description: Retry failed requests with a retry count, a delay and a retry condition. How fetch retry, axios-retry and exponential backoff compare to HyperFetch.
 sidebar_label: Retries
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: Retries
 
 Networks drop packets, servers restart, load balancers return a 503 for a second. Most of those failures go away if you
 just try again, so the usual fix is to retry failed requests a few times with a pause in between. This guide covers
-what a good retry policy looks like, how people do it with `fetch` and Axios, and how Hyper Fetch handles it with the
+what a good retry policy looks like, how people do it with `fetch` and Axios, and how HyperFetch handles it with the
 `retry` and `retryTime` options.
 
 ---
@@ -18,7 +18,7 @@ what a good retry policy looks like, how people do it with `fetch` and Axios, an
 
 1.  Which errors are **worth retrying** and which are not.
 2.  How a **fetch retry** and **axios-retry** setup usually look.
-3.  How to **enable and configure retries** for a request in Hyper Fetch.
+3.  How to **enable and configure retries** for a request in HyperFetch.
 4.  How to set a **custom delay** and a **retry condition**.
 5.  How to add **exponential backoff** with `exponentialBackoff` or your own delay function.
 
@@ -54,7 +54,7 @@ Axios has no built-in retry either. The common choice is the
 (by default network errors and 5xx responses on idempotent methods), a `retryDelay` callback with a built-in
 `exponentialDelay`, and an `onRetry` hook.
 
-In Hyper Fetch, retries are part of the request. They are scheduled by the dispatcher, so they work with every adapter,
+In HyperFetch, retries are part of the request. They are scheduled by the dispatcher, so they work with every adapter,
 including the [Axios adapter](../../../integrations/adapter-axios/overview.mdx), and they show up in the hooks state.
 
 ---
@@ -87,7 +87,7 @@ const sendRequest = async () => {
 sendRequest();
 ```
 
-In the example above, if the request to `/users-fake-endpoint` fails, Hyper Fetch retries it up to **3 times**, with a
+In the example above, if the request to `/users-fake-endpoint` fails, HyperFetch retries it up to **3 times**, with a
 **1-second delay** between each attempt. The `send()` promise resolves once, with the last response, so your code
 doesn't see the intermediate failures.
 
@@ -159,7 +159,7 @@ function can't be stored as JSON, so a request restored from a persistent queue 
 
 ## Conditional retries
 
-By default, Hyper Fetch retries on any error. You can use `setRetryOnError` to add a condition. For example, only retry
+By default, HyperFetch retries on any error. You can use `setRetryOnError` to add a condition. For example, only retry
 on server errors (5xx) but not on client errors (4xx) where retrying won't help:
 
 ```ts
@@ -178,7 +178,7 @@ const smartRetry = getUsers.setRetryOnError((response) => {
 ```
 
 The callback receives the error response and must return `true` to allow the retry or `false` to stop retrying. This is
-how you avoid retrying a `400 Bad Request` or `404 Not Found`, and it's the Hyper Fetch counterpart of axios-retry's
+how you avoid retrying a `400 Bad Request` or `404 Not Found`, and it's the HyperFetch counterpart of axios-retry's
 `retryCondition`.
 
 ---
@@ -214,7 +214,7 @@ and a `Retry-After` header.
 
 :::success Congratulations!
 
-You've learned how to retry failed requests with Hyper Fetch.
+You've learned how to retry failed requests with HyperFetch.
 
 - You know which failures are **worth retrying** and which are not.
 - You can set **retry attempts** and **delay** with `retry` and `retryTime`, or `.setRetry()` and `.setRetryTime()`.

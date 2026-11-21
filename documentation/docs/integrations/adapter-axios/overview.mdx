@@ -1,16 +1,16 @@
 ---
 sidebar_position: 1
-title: Axios Adapter for Hyper Fetch, with Cache and Retries
-description: Use Axios as the transport for Hyper Fetch. Keep axios options and upload progress, and add caching, retries, deduplication and offline queues.
+title: Axios Adapter for HyperFetch, with Cache and Retries
+description: Use Axios as the transport for HyperFetch. Keep axios options and upload progress, and add caching, retries, deduplication and offline queues.
 sidebar_label: Overview
 ---
 
-# Axios Adapter for Hyper Fetch
+# Axios Adapter for HyperFetch
 
 [Read the API Reference »](/docs/api/adapter-axios/Variables/AxiosAdapter.mdx)
 
-The `@hyper-fetch/axios` adapter makes Axios the HTTP transport under Hyper Fetch. Axios still sends every request, with
-its own options, headers and error objects. Hyper Fetch adds what Axios doesn't ship with: a response cache, retries,
+The `@hyper-fetch/axios` adapter makes Axios the HTTP transport under HyperFetch. Axios still sends every request, with
+its own options, headers and error objects. HyperFetch adds what Axios doesn't ship with: a response cache, retries,
 deduplication, cancellation of stale requests, offline queues and typed requests.
 
 ---
@@ -18,7 +18,7 @@ deduplication, cancellation of stale requests, offline queues and typed requests
 :::tip Purpose
 
 1.  **Keep `axios`**: Use familiar `axios` options, headers, and error handling.
-2.  **Add the missing parts**: Combine `axios` with Hyper Fetch's caching, queueing, and persistence.
+2.  **Add the missing parts**: Combine `axios` with HyperFetch's caching, queueing, and persistence.
 3.  **Track progress**: Get real upload and download progress events.
 4.  **Full control**: Access `axios` response details and error objects when needed.
 
@@ -34,17 +34,17 @@ The phrase gets used for two different things, so it helps to separate them:
   [Axios request config docs](https://axios-http.com/docs/req_config) list three built-in adapters: `xhr` (the default in
   browsers), `http` (the default in Node.js) and `fetch`. Setting `adapter: "fetch"` is what people mean by the axios
   fetch adapter.
-- **A Hyper Fetch adapter** is the layer that turns a Hyper Fetch request into a network call. The default one uses
+- **A HyperFetch adapter** is the layer that turns a HyperFetch request into a network call. The default one uses
   `fetch`. `AxiosAdapter` hands the call to Axios instead.
 
-They stack. You can use the Hyper Fetch Axios adapter and still pass Axios's `adapter` option through the request
+They stack. You can use the HyperFetch Axios adapter and still pass Axios's `adapter` option through the request
 options, because everything except the handful of fields listed at the bottom of this page goes straight to Axios.
 
 ---
 
-## Why put Axios under Hyper Fetch
+## Why put Axios under HyperFetch
 
-| Need                          | Axios alone                                  | Axios through Hyper Fetch                     |
+| Need                          | Axios alone                                  | Axios through HyperFetch                     |
 | ----------------------------- | -------------------------------------------- | --------------------------------------------- |
 | Upload progress               | Yes, `onUploadProgress` (on XHR)             | Yes, reported as `onUploadProgress` events    |
 | Response cache                | Not built in, needs an extra library          | [Built-in cache](../../core/cache.mdx) with `staleTime` and invalidation |
@@ -54,7 +54,7 @@ options, because everything except the handful of fields listed at the bottom of
 | Offline queue                 | Not built in                                 | Yes, `offline`                                |
 | Typed response, payload, params | Generics passed on each call              | Declared once on the request                  |
 
-If you were looking for an axios cache adapter, this covers that case: the cache lives in Hyper Fetch, above the
+If you were looking for an axios cache adapter, this covers that case: the cache lives in HyperFetch, above the
 transport, so every request sent through Axios is cached by its method, endpoint and query params. There is no extra
 cache package to configure.
 
@@ -91,7 +91,7 @@ const client = new Client({ url: "base-url" }).setAdapter(AxiosAdapter);
 
 ## Usage
 
-You can pass any valid `axios` request configuration options to your Hyper Fetch requests. These options can be set when
+You can pass any valid `axios` request configuration options to your HyperFetch requests. These options can be set when
 you create a request or when you send it.
 
 Here's an example of how to use some common `axios` options:
@@ -147,7 +147,7 @@ For a full list of available `axios` request configuration options, please refer
 
 :::caution Key Differences
 
-While you can use most `axios` options, some are managed by Hyper Fetch to ensure proper integration. You should **not**
+While you can use most `axios` options, some are managed by HyperFetch to ensure proper integration. You should **not**
 pass the following options, as they will be overwritten by the adapter:
 
 - `url`
@@ -156,7 +156,7 @@ pass the following options, as they will be overwritten by the adapter:
 - `data` (use `payload` in `send` method instead)
 - `onUploadProgress` (use `onUploadProgress` in `send` method instead)
 - `onDownloadProgress` (use `onDownloadProgress` in `send` method instead)
-- `signal` (managed by Hyper Fetch for cancellation)
+- `signal` (managed by HyperFetch for cancellation)
 - `headers` (use the request `headers` instead)
 
 :::

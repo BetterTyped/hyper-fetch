@@ -9,7 +9,7 @@ sidebar_label: Authentication
 WebSocket authentication is harder than HTTP authentication for one reason: the browser won't let you set headers on
 the handshake. There's no `Authorization: Bearer ...` for a `new WebSocket()`. You have to carry the credentials some
 other way, and you have to keep them valid across reconnects that may happen hours after the token was issued. This
-guide covers the options and how Hyper Fetch sockets resolve credentials fresh for every connection attempt.
+guide covers the options and how HyperFetch sockets resolve credentials fresh for every connection attempt.
 
 :::secondary What you'll learn
 
@@ -40,14 +40,14 @@ the log.
 
 Whatever you pick, the token has to be read when the connection opens, not when the socket object is created.
 Otherwise the automatic reconnect after a network drop sends an expired token and the server rejects it. That's the
-part Hyper Fetch handles with `onConnect`.
+part HyperFetch handles with `onConnect`.
 
 ---
 
 ## Authentication via query parameters
 
 The most common way to authenticate a WebSocket connection is by including a token in the connection URL's query
-parameters. Hyper Fetch handles this with the `queryParams` option in the `Socket` constructor.
+parameters. HyperFetch handles this with the `queryParams` option in the `Socket` constructor.
 
 ```tsx
 import { Socket } from "@hyper-fetch/sockets";
@@ -76,7 +76,7 @@ verify the client's identity before accepting the connection.
 ## Resolving credentials on every connection attempt
 
 Access tokens expire. A connection established with a valid token may be lost hours later, and the automatic reconnect
-must not reuse the token captured when the socket was created. The `onConnect` interceptor solves this: Hyper Fetch calls
+must not reuse the token captured when the socket was created. The `onConnect` interceptor solves this: HyperFetch calls
 it right before **every** connection attempt (the initial connection, automatic reconnects and manual reconnects) and
 uses whatever it returns to open the connection.
 
@@ -186,7 +186,7 @@ with the same tokens, see [authentication for requests](../core/01-basics/authen
 
 :::success Congratulations!
 
-You now know how to handle WebSocket authentication in Hyper Fetch sockets.
+You now know how to handle WebSocket authentication in HyperFetch sockets.
 
 - You know why the browser **WebSocket API has no auth headers** and which alternatives exist.
 - You can provide **initial authentication credentials** using `queryParams` or `adapterOptions`.

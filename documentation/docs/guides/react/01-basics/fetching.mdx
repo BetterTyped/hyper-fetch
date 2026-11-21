@@ -10,7 +10,7 @@ sidebar_label: Fetching
 Fetching data in React usually starts with the Fetch API inside `useEffect`. That works for a demo, and then the
 same questions come up in every component: where do loading and error state live, what happens when the user switches
 pages before the response arrives, and why does the same request fire twice? This guide shows the plain version first,
-then the `useFetch` hook from Hyper Fetch, which handles loading state, errors, caching and stale responses for you.
+then the `useFetch` hook from HyperFetch, which handles loading state, errors, caching and stale responses for you.
 
 :::secondary What you'll learn
 
@@ -68,7 +68,7 @@ Even this careful version leaves gaps:
 - **No types.** `response.json()` returns `any`.
 - **No retries, refetch on focus, or refetch after a mutation.** Each one is more code in every component.
 
-A data-fetching hook moves all of that out of the component. In Hyper Fetch that hook is `useFetch`. You describe the
+A data-fetching hook moves all of that out of the component. In HyperFetch that hook is `useFetch`. You describe the
 request once, and every component that uses it shares the same cache and the same in-flight request.
 
 ---
@@ -150,7 +150,7 @@ function UserProfile() {
 }
 ```
 
-The `useFetch` hook will automatically re-fetch the data whenever the `userId` state changes because Hyper-fetch tracks
+The `useFetch` hook will automatically re-fetch the data whenever the `userId` state changes because HyperFetch tracks
 the dependencies of your request.
 
 ---
@@ -219,7 +219,7 @@ If you've used React Query, `useFetch` is the equivalent of
 `queryFn` you write. `useFetch` takes a request object, and the cache key comes from the request's method, endpoint,
 params and query params, so there is no key to keep in sync by hand.
 
-| React Query `useQuery`                    | Hyper Fetch `useFetch`                          |
+| React Query `useQuery`                    | HyperFetch `useFetch`                          |
 | ----------------------------------------- | ----------------------------------------------- |
 | `useQuery({ queryKey, queryFn })`         | `useFetch(getUsers)`                            |
 | `queryKey: ["user", id]`                  | `getUser.setParams({ userId: id })`             |

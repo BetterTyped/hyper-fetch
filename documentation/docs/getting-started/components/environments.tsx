@@ -40,12 +40,12 @@ const environments = [
   },
   {
     name: "Svelte",
-    description: "Hyper Fetch is working with Svelte, but do not expose any hooks yet.",
+    description: "HyperFetch is working with Svelte, but do not expose any hooks yet.",
     icon: "⚙️",
   },
   {
     name: "Vue",
-    description: "Hyper Fetch is working with Vue, but do not expose any hooks yet.",
+    description: "HyperFetch is working with Vue, but do not expose any hooks yet.",
     icon: "⚙️",
   },
 ];

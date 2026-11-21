@@ -1,12 +1,15 @@
 ---
 sidebar_position: 3
-title: Cache Management
+title: Inspect and Edit the HyperFetch Cache in HyperFlow
+description: Browse the HyperFetch cache in HyperFlow. See fresh and stale entries, observers and data, and edit, invalidate or delete entries while the app runs.
+sidebar_label: Cache Management
 ---
 
-# Cache Management
+# Inspect and edit the cache in HyperFlow
 
-Effective cache management is crucial for building fast and efficient applications. HyperFlow provides a comprehensive
-suite of tools to give you full transparency and control over your application's cache.
+Most data bugs are cache bugs: a stale entry, a key that differs by one param, a component that never re-renders.
+HyperFlow lists the cache of a connected app, shows each entry's data and observers, and lets you change an entry while
+the app runs to see how the UI reacts.
 
 ![Cache Management](@site/static/img/previews/cache.png)
 
@@ -48,5 +51,4 @@ For deep debugging, you can drill down into individual cache entries. This detai
 - Metadata such as timestamps and expiration details.
 - The request that originally populated the cache entry.
 
-With this level of insight, you can easily debug complex caching behaviors, resolve stale data issues, and fine-tune
-your caching logic for optimal performance.
+Read [cache](../../core/cache.mdx) for how keys, `staleTime` and `cacheTime` work in the client.

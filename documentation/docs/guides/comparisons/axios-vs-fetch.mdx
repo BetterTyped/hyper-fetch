@@ -19,7 +19,7 @@ Fetch lets you keep one request API and switch the transport between native `fet
 1.  What **fetch** leaves to you: errors, JSON, timeouts, interceptors and progress.
 2.  What **Axios** adds, including **axios errors**, **axios interceptors** and **axios retry** options.
 3.  When fetch is enough and when an **axios alternative** or wrapper makes sense.
-4.  How to **swap the adapter** between fetch and Axios in Hyper Fetch.
+4.  How to **swap the adapter** between fetch and Axios in HyperFetch.
 
 :::
 
@@ -172,9 +172,9 @@ the wrapper. That is where a request layer comes in.
 
 ---
 
-## The Hyper Fetch angle: one request API, either transport
+## The HyperFetch angle: one request API, either transport
 
-Hyper Fetch sits above the transport. You define requests once with `createRequest`, and the client's adapter decides
+HyperFetch sits above the transport. You define requests once with `createRequest`, and the client's adapter decides
 how they go over the wire. The default adapter uses native `fetch`. [`@hyper-fetch/axios`](../../integrations/adapter-axios/overview.mdx)
 swaps in Axios. Your requests and hooks don't change.
 
@@ -248,6 +248,6 @@ is the Axios error object. See [progress](../react/01-basics/progress.mdx) for a
 - `fetch` is built in but leaves errors, JSON, timeouts, interceptors and upload progress to you.
 - Axios rejects on non-2xx, parses JSON, has `timeout`, interceptors and progress. Retry is an interceptor or a package.
 - Pick fetch for a few simple calls, Axios when many requests share logic or you upload files.
-- In Hyper Fetch, requests stay the same and `setAdapter(AxiosAdapter)` switches the transport.
+- In HyperFetch, requests stay the same and `setAdapter(AxiosAdapter)` switches the transport.
 
 :::

@@ -1,12 +1,13 @@
 ---
 sidebar_position: 6
-title: Guide - Authentication
+title: API authentication and token refresh in TypeScript
+description: "Attach Bearer tokens to HyperFetch requests with onAuth, refresh expired tokens without infinite loops, and handle cookie or API key authentication."
 sidebar_label: Authentication
 ---
 
 # Authentication
 
-Handling authentication is a critical part of any application that communicates with a secure API. Hyper Fetch provides
+Handling authentication is a critical part of any application that communicates with a secure API. HyperFetch provides
 a powerful and flexible way to manage authentication flows, including attaching tokens to requests and automatically
 refreshing them when they expire.
 
@@ -151,11 +152,11 @@ In the example above:
 
 ## Cookie-Based Authentication
 
-If your API uses cookies for authentication (e.g., `httpOnly` session cookies), Hyper Fetch handles them automatically
+If your API uses cookies for authentication (e.g., `httpOnly` session cookies), HyperFetch handles them automatically
 out of the box. The underlying browser `fetch` API or libraries like `axios` manage cookies seamlessly.
 
 When your server responds with a `Set-Cookie` header, the browser securely stores the cookie and automatically includes
-it in all subsequent requests to the same domain. You don't need any extra configuration in Hyper Fetch for this to
+it in all subsequent requests to the same domain. You don't need any extra configuration in HyperFetch for this to
 work.
 
 ---
@@ -196,7 +197,7 @@ const getWeather = client.createRequest()({
 
 :::success Congratulations!
 
-You've learned how to build a robust authentication flow with Hyper-Fetch!
+You've learned how to build a reliable authentication flow with HyperFetch!
 
 - You can use the **`.onAuth()`** client method to attach tokens to requests marked with **`auth: true`**.
 - You can use the **`.onError()`** client method to intercept failed requests and handle token refreshing.

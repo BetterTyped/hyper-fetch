@@ -1,13 +1,18 @@
 ---
 sidebar_position: 1
-title: oRPC Adapter
+title: oRPC Client for React with Caching and Hooks
+description: Call oRPC procedures from React with types from your router or contract, plus caching, deduplication, retries, offline queues and hooks.
 sidebar_label: Overview
 ---
 
+# oRPC client for React with caching and hooks
+
 [Read the API Reference »](/docs/api/adapter-orpc/Functions/OrpcAdapter.mdx)
 
-> The Hyper Fetch oRPC Adapter connects Hyper Fetch to an oRPC server, so procedures get caching, queueing, offline
-> support and React hooks, with types inferred from your router.
+`@hyper-fetch/orpc` is an oRPC client for HyperFetch. Your oRPC server and router stay as they are, and the frontend
+calls procedures through `createRequest`, `send()` and the React hooks you use for REST and GraphQL. Types come from
+your router or contract, rich types go through the oRPC serializer, and every call gets caching, deduplication, retries
+and offline queues.
 
 :::tip Purpose
 
@@ -19,6 +24,25 @@ sidebar_label: Overview
    [socket adapters](/docs/integrations/adapter-orpc/event-iterators.mdx).
 
 :::
+
+---
+
+## What oRPC is, and where this adapter fits
+
+[oRPC](https://orpc.dev/docs/getting-started) is a TypeScript library for typesafe APIs. You write procedures, group
+them in a router, and the client calls them like local functions with types inferred from the server. No code
+generation. The same router can also be served as a REST API with an OpenAPI spec, and you can start from a contract
+instead of an implementation.
+
+oRPC ships its own client, `createORPCClient` with an `RPCLink`, and a TanStack Query integration for React. This
+adapter is the alternative on the client side: HyperFetch sends the same RPC requests, encoded with the same serializer
+from `@orpc/client`, and adds its own cache, queues and hooks on top.
+
+| You want                                              | Use                                  |
+| ----------------------------------------------------- | ------------------------------------ |
+| A thin typed client with no extra cache               | `createORPCClient`                   |
+| oRPC inside an app that already uses TanStack Query   | oRPC's TanStack Query integration    |
+| One client for oRPC, REST, GraphQL and sockets, with offline queues | `@hyper-fetch/orpc`    |
 
 ---
 
@@ -72,7 +96,7 @@ const api = createSdk<typeof client, OrpcSchema<ContractRouterClient<typeof cont
 
 ---
 
-## Queries and mutations
+## Queries and mutations in React
 
 oRPC procedures have no kind, so every procedure is available both as `$query` and `$mutation`, the same way the oRPC
 query utils offer `queryOptions` and `mutationOptions` for every procedure. The procedure input is the request payload.

@@ -1,13 +1,17 @@
 ---
 sidebar_position: 1
-title: tRPC Adapter
+title: tRPC Client with React Hooks and Caching
+description: Call tRPC procedures from React or Next.js with types from your AppRouter, plus caching, deduplication, retries, offline queues and hooks.
 sidebar_label: Overview
 ---
 
+# tRPC client with React hooks and caching
+
 [Read the API Reference »](/docs/api/adapter-trpc/Functions/TrpcAdapter.mdx)
 
-> The Hyper Fetch tRPC Adapter connects Hyper Fetch to a tRPC server, so procedures get caching, queueing, offline
-> support and React hooks, with types inferred from your router.
+`@hyper-fetch/trpc` is a tRPC client for HyperFetch. You keep your tRPC server and router as they are, and the frontend
+calls procedures through the same `createRequest`, `send()` and React hooks you use for REST and GraphQL. Types come
+from your `AppRouter`, and every call gets caching, deduplication, retries and offline queues.
 
 :::tip Purpose
 
@@ -19,6 +23,60 @@ sidebar_label: Overview
    [socket adapters](/docs/integrations/adapter-trpc/subscriptions.mdx).
 
 :::
+
+---
+
+## What is tRPC
+
+tRPC is a way to call server functions from a TypeScript client without writing an API schema. The server defines a
+router of procedures, and the client imports only the router's type. When you rename a procedure or change its input,
+the client stops compiling. There is no code generation step and no OpenAPI file to keep in sync.
+
+There are three kinds of procedures:
+
+| Procedure      | What it does                    | How it goes over the wire                     |
+| -------------- | ------------------------------- | --------------------------------------------- |
+| `query`        | Reads data                      | `GET` with the input in the `input` param     |
+| `mutation`     | Changes data                    | `POST` with the input as a JSON body          |
+| `subscription` | Streams events to the client    | WebSocket or Server-Sent Events               |
+
+tRPC fits best when the frontend and backend are both TypeScript and live in one repo, so the client can import the
+router type. If other teams or languages call your API, a REST or GraphQL schema is usually the better contract.
+
+---
+
+## tRPC and React Query
+
+The official React integration of tRPC is built on TanStack Query, so "trpc react query" is how most people meet it.
+TanStack Query owns the cache and you work with query keys and query options generated from the router.
+
+This adapter is a different client for the same server. HyperFetch owns the cache, the queue and the hooks, and the
+request object is the key. You pass `api.user.byId.$query.setPayload({ id: 1 })` to `useFetch` and the input becomes
+part of the cache key, so there is nothing to write by hand. Pick it when you want one client for tRPC, REST, GraphQL
+and sockets, or when you need offline queues and request cancellation that work the same for every backend.
+
+---
+
+## tRPC with Next.js
+
+With the Next.js App Router, the tRPC router is usually mounted through tRPC's fetch adapter in a route handler, for
+example `app/api/trpc/[trpc]/route.ts`. The server side does not change for HyperFetch. Point the client at the path
+where the handler lives:
+
+```ts
+import { createClient, createSdk } from "@hyper-fetch/core";
+import { TrpcAdapter } from "@hyper-fetch/trpc";
+import type { TrpcSchema } from "@hyper-fetch/trpc";
+
+import type { AppRouter } from "@/server/router";
+
+export const client = createClient({ url: "/api/trpc" }).setAdapter(TrpcAdapter());
+
+export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { camelCaseToKebabCase: false });
+```
+
+A relative URL works in the browser. Code that runs on the server, such as a route handler or a server component that
+calls another service, needs the absolute URL, for example from an environment variable.
 
 ---
 

@@ -13,7 +13,7 @@ the question is never "which is faster", it is "does the server need to tell the
 for?"
 
 Most apps need both. This page covers where the line sits, how polling and webhooks fit in, and how to run HTTP requests
-and a socket side by side in one Hyper Fetch setup.
+and a socket side by side in one HyperFetch setup.
 
 :::secondary What you'll learn
 
@@ -89,7 +89,7 @@ interval.
 Long polling sits in between: the server holds the request open until it has something to say, answers, and the client
 immediately asks again. It works through any proxy, but every message still costs a full request.
 
-In Hyper Fetch, polling is two options on `useFetch`:
+In HyperFetch, polling is two options on `useFetch`:
 
 ```tsx
 import { Time } from "@hyper-fetch/core";
@@ -143,7 +143,7 @@ pushes an event to the user's open tab over the socket so the page changes witho
 ## Mixing HTTP and WebSocket in one client
 
 The pattern that holds up best: load and change data over HTTP, and use socket events only as a signal that cached data
-is out of date. Hyper Fetch keeps both in one place. The `Client` owns HTTP requests and the cache, the `Socket` owns the
+is out of date. HyperFetch keeps both in one place. The `Client` owns HTTP requests and the cache, the `Socket` owns the
 connection, and a listener connects them.
 
 ```ts title="src/api.ts"
@@ -214,6 +214,6 @@ regular expressions.
 - REST gives you caching, status codes and tooling. A socket gives you server push. Most apps want both.
 - Polling with `refresh` and `refreshTime` is fine for slow-changing data and few clients.
 - Webhooks are server to server. WebSockets reach the user. They often run in sequence.
-- In Hyper Fetch, read and write over the `Client`, listen on the `Socket`, and invalidate the cache from a listener.
+- In HyperFetch, read and write over the `Client`, listen on the `Socket`, and invalidate the cache from a listener.
 
 :::

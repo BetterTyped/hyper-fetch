@@ -1,14 +1,16 @@
 ---
 sidebar_position: 1
-title: Firebase Admin Adapter
+title: Firebase Admin SDK for Node.js with Typed Requests
+description: Use the Firebase Admin SDK in Node.js with typed Firestore and Realtime Database requests, retries, queues and errors returned in the response.
 sidebar_label: Overview
 ---
+# Firebase Admin SDK for Node.js with typed requests
 
 [Read the API Reference »](/api/adapter-firebase-admin/Functions/FirebaseAdminAdapter.mdx)
 
-`@hyper-fetch/firebase-admin` runs Firestore and Realtime Database operations from server code through HyperFetch
-requests, using the Firebase Admin SDK. Route handlers, workers and scripts get typed responses, retries and queues with
-the same request API as the browser package.
+`@hyper-fetch/firebase-admin` wraps the firebase admin sdk node package (`firebase-admin`) so Firestore and Realtime
+Database operations from server code are HyperFetch requests. Route handlers, workers and scripts get typed responses,
+retries and queues with the same request API as the browser package.
 
 ---
 
@@ -22,6 +24,19 @@ the same request API as the browser package.
 5.  **No rejected promises**: Firebase errors come back in `response.error`.
 
 :::
+
+---
+
+## What the Firebase Admin SDK is for
+
+Firebase has two JavaScript SDKs. The web SDK (`firebase`) runs in the browser as the signed-in user, and security
+rules decide what that user may read and write. The Admin SDK (`firebase-admin`) runs on a server you control, such as
+Node.js, Cloud Functions or a container. It authenticates with a service account or the default credentials of the
+environment, and it has full access to the project.
+
+Use the Admin SDK for work that should not depend on a user's rules: webhooks that update orders, scheduled cleanups,
+data migrations, or an API route that checks permissions in your own code first. Never ship it, or its credentials, to
+a browser.
 
 ---
 

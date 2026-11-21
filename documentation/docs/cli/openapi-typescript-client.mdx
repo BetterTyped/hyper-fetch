@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 title: Generate a TypeScript API Client from OpenAPI
-description: Compare openapi-typescript, Orval, Hey API and Kubb, then generate a typed TypeScript API client from your OpenAPI schema with the Hyper Fetch CLI.
+description: Compare openapi-typescript, Orval, Hey API and Kubb, then generate a typed TypeScript API client from your OpenAPI schema with the HyperFetch CLI.
 sidebar_label: OpenAPI to TypeScript
 ---
 
@@ -12,7 +12,7 @@ typescript generator reads the schema and writes the types, and often the client
 changes, you regenerate and the compiler shows you every call that broke.
 
 There are three common approaches, and they differ in how much code they write for you. This page explains each one,
-names the main tools, and then walks through the Hyper Fetch CLI from schema to a working React component.
+names the main tools, and then walks through the HyperFetch CLI from schema to a working React component.
 
 :::tip Purpose
 
@@ -30,7 +30,7 @@ names the main tools, and then walks through the Hyper Fetch CLI from schema to 
 | ---------------------------- | ---------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
 | Types only                   | TypeScript types for paths, params, bodies and responses         | openapi-typescript                           | The fetch layer (or a small typed fetch wrapper) |
 | Full client generator        | Functions or hooks per operation, often mocks and validators     | Orval, Hey API, Kubb, swagger-typescript-api | Configuration of the generator                 |
-| Typed requests for a library | Request definitions that plug into a data layer you already use  | Hyper Fetch CLI                              | The client setup (base URL, auth)              |
+| Typed requests for a library | Request definitions that plug into a data layer you already use  | HyperFetch CLI                              | The client setup (base URL, auth)              |
 
 ### Types only: openapi-typescript and openapi-fetch
 
@@ -69,16 +69,16 @@ migrate to Hey API, which started as its fork. And **oapi-codegen** is a
 These tools are a good fit when you want hooks or mocks generated for a specific library and are happy to tune a
 generator config.
 
-### Typed requests: the Hyper Fetch CLI
+### Typed requests: the HyperFetch CLI
 
-The Hyper Fetch CLI sits between the two. It generates types plus a typed **SDK schema**, and the SDK hands you real
-Hyper Fetch requests. You don't get one generated hook per endpoint. You get requests that work with `send()` on the
+The HyperFetch CLI sits between the two. It generates types plus a typed **SDK schema**, and the SDK hands you real
+HyperFetch requests. You don't get one generated hook per endpoint. You get requests that work with `send()` on the
 server, `useFetch` and `useSubmit` in React, and with the cache, retries, queues and offline support the library
 already has. Base URL, auth and interceptors stay in one client you write once.
 
 ---
 
-## Generate the client with Hyper Fetch
+## Generate the client with HyperFetch
 
 ### 1. Point the CLI at your schema
 
@@ -231,14 +231,14 @@ in CI and fail the build on a diff, or let the typecheck that follows catch the 
   many frameworks.
 - **A full generator (Orval, Hey API, Kubb)** if you want generated TanStack Query or SWR hooks, MSW mocks or Zod
   schemas, and you're fine owning a generator config.
-- **The Hyper Fetch CLI** if you use Hyper Fetch or want one data layer for HTTP and sockets, with caching, retries,
+- **The HyperFetch CLI** if you use HyperFetch or want one data layer for HTTP and sockets, with caching, retries,
   queues and offline replay attached to every generated request.
 
 :::secondary Summary
 
 1.  **openapi-typescript** generates types only. **Orval, Hey API and Kubb** generate full clients and hooks.
 2.  **`npx @hyper-fetch/cli generate`** writes types, an `SdkSchema` and a `createSdk` factory into your `api` folder.
-3.  **`createSdk(client)`** returns typed Hyper Fetch requests for every operation.
+3.  **`createSdk(client)`** returns typed HyperFetch requests for every operation.
 4.  Put defaults in **`$configure`** and regenerate from a script, never edit the generated file.
 
 :::

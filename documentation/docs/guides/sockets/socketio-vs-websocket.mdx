@@ -1,0 +1,190 @@
+---
+sidebar_position: 13
+title: Socket.IO vs WebSocket, what each one gives you
+description: Socket.IO vs WebSocket explained. Socket.IO is its own protocol on top of WebSocket with fallbacks, rooms and acks, and needs its own client to connect.
+sidebar_label: Socket.IO vs WebSocket
+---
+
+# Socket.IO vs WebSocket
+
+The short answer to socket.io vs websocket: WebSocket is a protocol and a browser API for a two-way connection. Socket.IO
+is a library that defines its own protocol and usually runs it over WebSocket, with extras on top: a long-polling
+fallback, automatic reconnection, acknowledgements, rooms and broadcasting. The two do not mix. A plain WebSocket client
+cannot talk to a Socket.IO server, and a Socket.IO client cannot talk to a plain WebSocket server.
+
+So the real question is whether you want those extras enough to put Socket.IO on both ends of the connection.
+
+:::secondary What you'll learn
+
+1.  What **Socket.IO** adds to WebSocket, according to its own docs.
+2.  Why the two are **not interchangeable** on the wire.
+3.  Who should **stay on Socket.IO**, and when plain WebSocket is enough.
+4.  What **HyperFetch** gives you over a plain WebSocket or SSE connection, and what it does not do.
+
+:::
+
+---
+
+## What Socket.IO does well
+
+Socket.IO describes itself as a library for "low-latency, bidirectional and event-based communication between a client
+and a server" ([Socket.IO: Introduction](https://socket.io/docs/v4/)). Most of its value sits in features you would
+otherwise build yourself:
+
+- **Transport fallback.** It can use HTTP long-polling, WebSocket or WebTransport. By default the client connects with
+  long-polling first and then upgrades ([How it works](https://socket.io/docs/v4/how-it-works/)). If a proxy blocks
+  WebSockets, the app still works.
+- **Reconnection with a heartbeat.** The server sends a ping, the client must answer within `pingTimeout`, and a lost
+  client reconnects with exponential backoff.
+- **Buffering.** Events emitted while disconnected are buffered and sent after reconnecting. The docs warn this can
+  cause "a huge spike of events" when the connection comes back, and offer `volatile` events to skip it
+  ([Client offline behavior](https://socket.io/docs/v4/client-offline-behavior/)).
+- **Acknowledgements.** Pass a callback as the last argument of `emit()` and the other side can answer it. Since v4.4.0
+  you can add a timeout with `socket.timeout(5000).emit(...)`
+  ([Emitting events](https://socket.io/docs/v4/emitting-events/)).
+- **Rooms and broadcasting.** The server can put sockets in rooms and emit to everyone in a room. Rooms are "a
+  server-only concept" ([Rooms](https://socket.io/docs/v4/rooms/)).
+- **Namespaces.** Several logical channels over one connection.
+- **Scaling.** An adapter, Redis for example, passes broadcasts between server processes
+  ([Using multiple nodes](https://socket.io/docs/v4/using-multiple-nodes/)).
+
+If your server is already Socket.IO, stay on it and use its client. You would only be rebuilding rooms, acks and
+broadcasting by hand.
+
+---
+
+## Why a WebSocket client cannot connect to a Socket.IO server
+
+The Socket.IO docs say it in bold: "Socket.IO is **NOT** a WebSocket implementation." Every packet carries extra
+metadata. Their example is `socket.emit("hello", "world")`, which goes out as one WebSocket frame with the text
+`42["hello","world"]`: `4` is the Engine.IO message type, `2` is the Socket.IO message type, and the rest is the event
+name and arguments. A connection also starts with a handshake and a session id, and by default over long-polling.
+
+A plain WebSocket client knows none of this. It opens the connection, then sees frames it cannot read and pings it does
+not answer. The same goes the other way round, so picking Socket.IO is a decision for both ends at once.
+
+---
+
+## Side by side
+
+Here is socket io vs websocket feature by feature, using what each project documents.
+
+| | Plain WebSocket | Socket.IO |
+| --- | --- | --- |
+| What it is | Protocol and browser API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)) | Library with its own protocol |
+| Client | Built into browsers and Node.js 22+ | `socket.io-client` |
+| Server | Any WebSocket server, any language | A Socket.IO server |
+| Fallback when WebSocket is blocked | None | HTTP long-polling |
+| Reconnect | You write it | Built in |
+| Heartbeat | You write it (browsers can only send app-level pings) | Built in |
+| Events sent while offline | `send()` throws or the data is lost | Buffered by default |
+| Request and reply | Your own convention | Acknowledgement callbacks |
+| Rooms and broadcast | Your server code | Built into the server |
+| Message format | Anything, text or binary | Socket.IO packets |
+| Several server instances | Any load balancer that keeps connections open | Sticky sessions unless WebSocket-only, plus an adapter for broadcasts |
+
+That last row matters in production. With long-polling enabled, every request of one session must reach the same
+process, so the load balancer needs sticky sessions. With the WebSocket-only transport, "sticky sessions are no longer
+required", but you also give up the fallback.
+
+---
+
+## When plain WebSocket is enough
+
+Plain WebSocket wins when you do not control the server or the server is not Node.js. Exchange feeds, IoT gateways,
+Go or Rust backends, managed realtime services and most public APIs speak WebSocket, not Socket.IO.
+
+It also wins when you only need part of the list above. Reconnects, a heartbeat and typed messages are a client problem
+and can be solved on the client. Rooms and broadcasting are a server problem, and a WebSocket server can do them with a
+map of connections per topic. What you lose for good is the long-polling fallback. Whether that matters depends on
+where your users connect from.
+
+If the client only receives, consider Server-Sent Events instead of either. [SSE vs WebSocket](./sse-vs-websocket.mdx)
+explains why, and SSE runs over plain HTTP with reconnects built into the browser.
+
+---
+
+## Where HyperFetch fits
+
+HyperFetch has no Socket.IO adapter. It cannot connect to a Socket.IO server, and it does not try to imitate the
+Socket.IO protocol. The `@hyper-fetch/sockets` package ships two adapters, `WebsocketAdapter` for plain WebSocket servers
+and `ServerSentEventsAdapter` for SSE.
+
+What it adds over a raw `WebSocket` or `EventSource` is the client half of the list above:
+
+```ts title="src/socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+type ChatMessage = { roomId: string; user: string; text: string };
+
+export const socket = new Socket({
+  url: "wss://chat.example.com/ws",
+  reconnectTime: 1000,
+  maxReconnectTime: 30_000,
+  adapterOptions: { heartbeat: true },
+});
+
+export const onRoomMessage = socket.createListener<ChatMessage>()({ topic: "rooms/:roomId/message" });
+export const sendRoomMessage = socket.createEmitter<ChatMessage>()({ topic: "rooms/:roomId/message" });
+
+onRoomMessage.setParams({ roomId: "general" }).listen(({ data }) => {
+  console.log(`${data.user}: ${data.text}`);
+});
+
+sendRoomMessage.setParams({ roomId: "general" }).emit({
+  payload: { roomId: "general", user: "ana", text: "Hi" },
+});
+```
+
+- **Reconnects.** Exponential backoff with full jitter between `reconnectTime` and `maxReconnectTime`, an attempt limit,
+  and a connection timeout. See [errors and reconnection](./websocket-reconnection-and-errors.mdx).
+- **Heartbeat.** Opt in with `heartbeat: true`. The server answers messages on the `heartbeat` topic.
+- **Fresh credentials per attempt.** The `onConnect` interceptor runs before every connection, covered in
+  [authentication](./authentication.mdx).
+- **Network awareness.** In the browser, going offline closes the connection and coming back online reconnects at once.
+- **Typed topics.** Listeners and emitters carry their payload type, and topics take params like `:roomId`.
+- **Delivery control.** Throttle or batch fast streams per listener with [`delivery`](./throttling.mdx).
+- **React hooks.** `useListener` and `useEmitter`, shown in [WebSockets in React](./websockets-in-react.mdx).
+- **One API for WebSocket and SSE.** Swap the adapter and the listeners stay the same.
+
+Some Socket.IO features are not built in, and it is better to know that up front:
+
+| Socket.IO feature | In HyperFetch |
+| --- | --- |
+| Long-polling fallback | Not built in. SSE is a separate adapter you choose, not an automatic fallback |
+| Acknowledgements | Not built in. Reply on a second topic and match a request id, as the [emitting guide](./emitting.mdx) shows |
+| Buffering while offline | Not built in. `emit()` drops the message and reports an emitter error |
+| Rooms and broadcasting | Server side. Topic params like `rooms/:roomId` name the room on the client |
+| Namespaces | Not built in. Use topic prefixes or separate `Socket` instances |
+
+The `SocketAdapter` class is public, so a team could write its own adapter for another protocol, as the
+[adapter reference](../../sockets/adapter.mdx) describes. None ships for Socket.IO today.
+
+---
+
+## Which one fits you
+
+**Stay on Socket.IO** when:
+
+- Your server is already Socket.IO and the rooms, acks and broadcasts work for you.
+- Some of your users sit behind proxies that block WebSockets and the long-polling fallback keeps them working.
+- You want rooms, broadcasting and multi-node fan-out from one library on a Node.js server.
+
+**Use plain WebSocket** when:
+
+- You connect to a server you do not control, or one written in another language.
+- You want a message format any WebSocket client can read, in any language.
+- You only need reconnects, a heartbeat and typed messages, all of which are client-side.
+
+**Use HyperFetch on top of WebSocket or SSE** when you are in the second group and want those client features without
+writing them, plus React hooks and a typed listener per topic.
+
+:::secondary Summary
+
+- WebSocket is a protocol and API. Socket.IO is a library with its own protocol, usually carried over WebSocket.
+- Socket.IO adds a long-polling fallback, reconnects, buffering, acknowledgements, rooms, namespaces and broadcasting.
+- A Socket.IO server needs a Socket.IO client, and the reverse.
+- HyperFetch has no Socket.IO adapter. It is a client for plain WebSocket and SSE servers, with reconnects, a heartbeat,
+  typed topics and React hooks.
+
+:::

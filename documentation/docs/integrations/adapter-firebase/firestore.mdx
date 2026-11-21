@@ -1,11 +1,16 @@
 ---
 sidebar_position: 2
-title: Working with Firestore
+title: Firestore in React with Typed Queries and Caching
+description: Read and write Firestore from React with typed documents, query constraints, cursor pagination and cached results, using getDocs, getDoc and setDoc.
 sidebar_label: Firestore
 ---
 
-Firestore operations are HyperFetch requests with a Firestore `method`. This page covers every method, what each one
-returns, and how to query and paginate collections.
+# Firestore in React with typed queries and caching
+
+Using firestore react code usually means calling `getDocs` or `onSnapshot` inside a `useEffect` and keeping the result
+in state. With HyperFetch, each Firestore operation is a request with a Firestore `method` instead, so `useFetch` and
+`useSubmit` handle the loading state, the cache and the types. This page covers every method, what each one returns,
+and how to query and paginate collections.
 
 ---
 
@@ -16,6 +21,18 @@ returns, and how to query and paginate collections.
 3.  **Query** collections with constraints and page through them with cursors.
 
 :::
+
+---
+
+## How Firestore stores data
+
+Firestore keeps documents in collections. A document is a set of fields with an id, and it can hold subcollections, so
+a path alternates between the two: `teas` (collection), `teas/sencha` (document), `teas/sencha/reviews` (collection).
+That is why the adapter decides between a document and a collection by counting path segments.
+
+Queries filter and sort one collection. Firestore runs a query only if an index supports it. Single-field indexes exist
+by default, and a query that combines a filter with a sort on another field usually needs a composite index. The error
+for a missing index arrives in `response.error` with a link to create it.
 
 ---
 
@@ -200,6 +217,24 @@ constraints.push($orderBy("year", "desc"));
 
 getTeas.setQueryParams(constraints);
 ```
+
+---
+
+## Firestore in React components
+
+```tsx
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+
+function TeaList() {
+  const { data, loading } = useFetch(getTeas.setQueryParams((c) => c.where("type", "==", "Green")));
+  const { submit, submitting } = useSubmit(addTea);
+
+  // data is TeaDoc[], and adding a tea is
+  // submit({ payload: { name: "Sencha", type: "Green", year: 2024 } })
+}
+```
+
+For updates as they happen, use a listener instead, see [realtime listening](./realtime-queries.mdx).
 
 ---
 

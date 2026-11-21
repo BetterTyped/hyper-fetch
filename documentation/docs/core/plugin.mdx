@@ -1,7 +1,7 @@
 ---
 sidebar_position: 9
 title: Plugin
-description: "Plugins hook into the Hyper Fetch lifecycle to observe requests, responses, cache and dispatcher events. Use them for logging, metrics or devtools."
+description: "Plugins hook into the HyperFetch lifecycle to observe requests, responses, cache and dispatcher events. Use them for logging, metrics or devtools."
 sidebar_label: Plugin
 ---
 
@@ -52,7 +52,7 @@ const client = createClient({
 
 ## Lifecycle Hooks
 
-Plugins can subscribe to events across the entire Hyper Fetch system. Each hook method registers a callback and returns
+Plugins can subscribe to events across the entire HyperFetch system. Each hook method registers a callback and returns
 the `Plugin` instance for chaining. A hook holds one callback: calling the same method again replaces the previous one.
 
 A plugin only observes the lifecycle. When one of its hooks throws, the request, the cache and the other plugins carry
@@ -164,7 +164,7 @@ DBs. Among them you can find:
 
 :::
 
-Hyper Fetch being the fetcher and a server state manager it is able to persist the state of the application. Not only
+HyperFetch being the fetcher and a server state manager it is able to persist the state of the application. Not only
 that - it can store and persist requests which are not triggered yet - for example if you're in the offline mode.
 
 ```ts live title="Persisting requests" console

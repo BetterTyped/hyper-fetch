@@ -1,11 +1,11 @@
 ---
 sidebar_position: 2
-title: "Hyper Fetch vs TanStack Query: React Query Alternative"
-description: Hyper Fetch vs TanStack Query compared on request definition, caching, mutations, realtime, offline, devtools and framework support.
+title: "HyperFetch vs TanStack Query: React Query Alternative"
+description: HyperFetch vs TanStack Query compared on request definition, caching, mutations, realtime, offline, devtools and framework support.
 sidebar_label: vs TanStack Query
 ---
 
-# Hyper Fetch vs TanStack Query
+# HyperFetch vs TanStack Query
 
 TanStack Query (still called React Query by most people) is the market leader for server state in React. If you are
 looking for a tanstack query alternative, the first thing worth saying is that TanStack Query is a good library with a
@@ -65,7 +65,7 @@ function Todos() {
 }
 ```
 
-Hyper Fetch defines the request once, outside components, with `createRequest`. The object holds the endpoint, the
+HyperFetch defines the request once, outside components, with `createRequest`. The object holds the endpoint, the
 method and the types. The cache key is derived from it, so you never write one by hand:
 
 ```ts
@@ -96,7 +96,7 @@ throwing. Non-2xx responses land in `error`, so there is no `response.ok` check 
 params, URL params (`:todoId` in the endpoint becomes a required param) and errors live on the request. See
 [requests](../../core/request.mdx) for the full set.
 
-The trade-off: TanStack Query's approach drops into any codebase. Hyper Fetch asks you to describe your API first, and
+The trade-off: TanStack Query's approach drops into any codebase. HyperFetch asks you to describe your API first, and
 pays you back with less glue code and one place to change an endpoint.
 
 ---
@@ -105,7 +105,7 @@ pays you back with less glue code and one place to change an endpoint.
 
 Both libraries cache per key, serve cached data while refetching in the background, and let you mark data stale.
 
-| Behaviour                    | TanStack Query                                     | Hyper Fetch                                   |
+| Behaviour                    | TanStack Query                                     | HyperFetch                                   |
 | ---------------------------- | -------------------------------------------------- | --------------------------------------------- |
 | Cache identity               | Query key you write                                | `cacheKey` derived from the request           |
 | Stale by default             | Immediately                                        | After `staleTime`, 5 minutes by default       |
@@ -116,7 +116,7 @@ Both libraries cache per key, serve cached data while refetching in the backgrou
 | Retries on failure           | 3, exponential backoff                             | 0 by default, set `retry`, `retryTime: exponentialBackoff()` for backoff |
 | Invalidate                   | `queryClient.invalidateQueries({ queryKey })`      | `client.cache.invalidate(request)`, a string or a RegExp |
 
-TanStack Query invalidates through the query client, by query key. In Hyper Fetch you pass the request
+TanStack Query invalidates through the query client, by query key. In HyperFetch you pass the request
 itself, a cache key string or a RegExp, and any mounted `useFetch` for that key fetches again. Details are in
 [cache revalidation](../core/02-advanced/cache-revalidation.mdx).
 
@@ -142,7 +142,7 @@ mutation.mutate({ title: "Buy milk" });
 
 `useMutation` returns `mutate`, `mutateAsync` (a promise that throws on error) and `isPending`.
 
-Hyper Fetch uses `useSubmit` with a request you already defined:
+HyperFetch uses `useSubmit` with a request you already defined:
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -174,7 +174,7 @@ TanStack Query doesn't open connections. It runs the functions you give it. For 
 and write incoming messages into the cache with [`setQueryData` or `invalidateQueries`](https://tanstack.com/query/latest/docs/reference/QueryClient).
 That works well and keeps TanStack Query small.
 
-Hyper Fetch ships a [sockets package](../../sockets/overview.mdx) with WebSocket and Server-Sent Events adapters.
+HyperFetch ships a [sockets package](../../sockets/overview.mdx) with WebSocket and Server-Sent Events adapters.
 Listeners and emitters are typed and defined the same way as HTTP requests:
 
 ```ts
@@ -203,7 +203,7 @@ status. Paused mutations can be persisted, but per the [mutations guide](https:/
 they "cannot be resumed when the page is reloaded unless you provide a default mutation function" with
 `setMutationDefaults`.
 
-Hyper Fetch sends every request through a dispatcher queue. Requests have `offline: true` by default, so a request made
+HyperFetch sends every request through a dispatcher queue. Requests have `offline: true` by default, so a request made
 while offline waits and goes out when the connection returns. Set `queued: true` to send them one by one. The queue can
 be persisted to a storage you provide, and a `lazyStorage` (IndexedDB, AsyncStorage) is read back and sent on the next
 start. Stored requests are rebuilt into request instances, so there is no mutation function to re-register after a
@@ -218,7 +218,7 @@ React Native, since several browser tabs sharing one queue can send duplicates. 
 TanStack Query has no adapters because it doesn't send requests. Whatever client you use in the `queryFn` is your
 adapter.
 
-Hyper Fetch's client has one adapter, and every request goes through it. The default uses `fetch`. You can switch to
+HyperFetch's client has one adapter, and every request goes through it. The default uses `fetch`. You can switch to
 [Axios](../../integrations/adapter-axios/overview.mdx), [GraphQL](../../integrations/adapter-graphql/overview.mdx) or
 [Firebase](../../integrations/adapter-firebase/overview.mdx) with `client.setAdapter()`, and your requests and hooks
 don't change.
@@ -231,7 +231,7 @@ TanStack Query has [React Query Devtools](https://tanstack.com/query/latest/docs
 `@tanstack/react-query-devtools` package rendered inside your app. It is only bundled when `NODE_ENV` is
 `development` by default.
 
-Hyper Fetch's devtools are [HyperFlow](../../hyper-flow/index.mdx), a desktop app for macOS, Windows and Linux. You
+HyperFetch's devtools are [HyperFlow](../../hyper-flow/index.mdx), a desktop app for macOS, Windows and Linux. You
 connect a client with `DevtoolsPlugin` from `@hyper-fetch/plugin-devtools`, then inspect requests, browse and edit the
 cache, and pause or resume queues.
 
@@ -241,14 +241,14 @@ cache, and pause or resume queues.
 
 This is a clear win for TanStack Query. It has official adapters for React, Solid, Svelte and Vue.
 
-Hyper Fetch's UI bindings are React only (`@hyper-fetch/react`), including React Native and Electron. The core package
+HyperFetch's UI bindings are React only (`@hyper-fetch/react`), including React Native and Electron. The core package
 runs anywhere JavaScript runs, so requests work in Node or plain TypeScript without hooks.
 
 ---
 
 ## Side by side
 
-| Capability                | TanStack Query                          | Hyper Fetch                                   |
+| Capability                | TanStack Query                          | HyperFetch                                   |
 | ------------------------- | --------------------------------------- | --------------------------------------------- |
 | Sends HTTP requests       | No, you write the `queryFn`             | Yes, `fetch` adapter built in                 |
 | Request definition        | Query key + query function              | `createRequest` object with types             |
@@ -264,9 +264,9 @@ runs anywhere JavaScript runs, so requests work in Node or plain TypeScript with
 
 ## SWR vs React Query
 
-If you are weighing SWR vs React Query rather than Hyper Fetch, the short version: SWR is smaller and focused on reads
+If you are weighing SWR vs React Query rather than HyperFetch, the short version: SWR is smaller and focused on reads
 with `useSWR`, with writes through `mutate` and `useSWRMutation`. TanStack Query has more knobs, offline mutation
-persistence and official devtools. Our [Hyper Fetch vs SWR](./swr.mdx) page covers SWR in detail.
+persistence and official devtools. Our [HyperFetch vs SWR](./swr.mdx) page covers SWR in detail.
 
 ---
 
@@ -278,7 +278,7 @@ persistence and official devtools. Our [Hyper Fetch vs SWR](./swr.mdx) page cove
 - You already have an HTTP client or SDK and only want caching on top of it.
 - Your team knows it well and you don't need realtime or upload progress from the same library.
 
-**Pick Hyper Fetch when:**
+**Pick HyperFetch when:**
 
 - You want each endpoint defined once, with its types, and used the same way in React, in Node and in tests.
 - You need WebSockets or SSE next to HTTP without wiring a second library.
@@ -287,9 +287,9 @@ persistence and official devtools. Our [Hyper Fetch vs SWR](./swr.mdx) page cove
 
 :::secondary Summary
 
-- TanStack Query caches the result of functions you write. Hyper Fetch defines and sends the request too.
+- TanStack Query caches the result of functions you write. HyperFetch defines and sends the request too.
 - Invalidation: `invalidateQueries({ queryKey })` vs `client.cache.invalidate(request)`.
 - Mutations: `useMutation` vs `useSubmit`, which never throws and reports progress.
-- Hyper Fetch adds sockets and an offline request queue. TanStack Query adds more frameworks.
+- HyperFetch adds sockets and an offline request queue. TanStack Query adds more frameworks.
 
 :::

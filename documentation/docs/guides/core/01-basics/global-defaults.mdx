@@ -1,6 +1,7 @@
 ---
 sidebar_position: 10
-title: Guide - Global Defaults
+title: Global default request options
+description: "Set global default options for every HyperFetch request, change them per HTTP method, and customize the request keys and IDs used by caching and aborting."
 sidebar_label: Global Defaults
 ---
 
@@ -8,7 +9,7 @@ sidebar_label: Global Defaults
 
 In any application, you'll find yourself repeating request configurations. Whether it's setting caching policies for
 `GET` requests or ensuring mutations are never cached, this repetitive setup can lead to boilerplate and
-inconsistencies. Hyper-Fetch solves this by allowing you to define powerful global defaults that apply to all requests,
+inconsistencies. HyperFetch solves this by allowing you to define powerful global defaults that apply to all requests,
 while still offering the flexibility to override them for specific cases.
 
 This guide will show you how to centralize your request logic, from default options to custom keying strategies.
@@ -30,7 +31,7 @@ This guide will show you how to centralize your request logic, from default opti
 ## Setting Default Request Options
 
 Adding global configurations can significantly streamline your application setup. For maximum flexibility, especially in
-larger applications, Hyper-Fetch allows you to add global configs through a callback function. This function receives
+larger applications, HyperFetch allows you to add global configs through a callback function. This function receives
 the request's details, enabling you to apply different defaults based on its properties, like the HTTP method.
 
 Global configurations are overridden by options set on individual requests. This means you can set a sensible default
@@ -79,7 +80,7 @@ const getImportantUser = getUser.setOptions({
 
 ## Customizing Request Keys
 
-Data and requests within Hyper-Fetch are organized by unique keys. These keys are automatically generated from request
+Data and requests within HyperFetch are organized by unique keys. These keys are automatically generated from request
 metadata like the endpoint, method, and parameters. They are crucial for features like caching, request deduplication,
 and aborting. However, you can customize the key generation logic to fit your specific needs.
 
@@ -93,7 +94,7 @@ Keys must always be a string.
 
 ### Key Mapper Methods
 
-Hyper-Fetch provides several methods to override key generation:
+HyperFetch provides several methods to override key generation:
 
 - `setQueryKeyMapper`: For keys used in query-like operations.
 - `setCacheKeyMapper`: For keys used to store and retrieve cached data.
@@ -124,7 +125,7 @@ console.log(getUsers.cacheKey); // Cache__GET__/users
 
 ## Customizing Request IDs
 
-Every request in Hyper-Fetch is assigned a unique identifier, which is crucial for tracking, logging, and debugging. By
+Every request in HyperFetch is assigned a unique identifier, which is crucial for tracking, logging, and debugging. By
 default, this ID is a randomly generated string. However, there are cases where you might want to define your own logic
 for generating these IDs.
 
@@ -162,7 +163,7 @@ console.log(requestId); // Request__/users__1718858400000
 
 :::success Congratulations!
 
-You've learned how to centralize and streamline your request configurations in Hyper-Fetch!
+You've learned how to centralize and streamline your request configurations in HyperFetch!
 
 - You can set **dynamic global defaults** for all your requests using `client.adapter.setRequestDefaults`.
 - You can tailor default behaviors based on **request properties** like the HTTP method.

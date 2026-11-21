@@ -7,7 +7,7 @@ sidebar_label: Listener
 
 [Read the API Reference »](/docs/api/sockets/Classes/Listener.mdx)
 
-The `Listener` class is a key component of Hyper Fetch's real-time communication capabilities. It provides a **powerful,
+The `Listener` class is a key component of HyperFetch's real-time communication capabilities. It provides a **powerful,
 type-safe way to define, configure, and manage event listeners** for data coming from a server through sockets. By
 encapsulating all the details needed to listen for an event—such as the topic and data structure—`Listener` ensures
 consistency, predictability, and flexibility in how your application handles real-time updates.
@@ -309,9 +309,9 @@ onNoteChange.setParams({ noteId: 2 }).listen(({ data }) => {
 
 ---
 
-### Integration with Hyper Fetch
+### Integration with HyperFetch
 
-A powerful use case for global event subscriptions is to create a seamless integration with Hyper Fetch's caching layer.
+A powerful use case for global event subscriptions is to connect sockets directly to HyperFetch's caching layer.
 When you receive a real-time update, you can use it to instantly update the relevant cached data from a `Request`. This
 keeps your application's state synchronized without needing to re-fetch data from the server.
 
