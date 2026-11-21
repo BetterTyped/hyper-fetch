@@ -71,6 +71,20 @@ describe("Adapter [ Bindings progress ]", () => {
       expect(downloads).toHaveLength(size === 1 ? 2 : 3);
     });
 
+    it("should never report more than 100% when the body is bigger than its announced size", async () => {
+      const { onResponseStart, onResponseProgress, onResponseEnd, downloads } = await setup();
+
+      // A compressed body: the size from the headers is smaller than the decompressed bytes counted by the adapter
+      onResponseStart({ total: 100, loaded: 0 });
+      onResponseProgress({ total: 100, loaded: 80 });
+      onResponseProgress({ total: 100, loaded: 400 });
+      onResponseProgress({ total: 100, loaded: 1000 });
+      onResponseEnd();
+
+      expect(downloads.every(({ progress }) => progress <= 100)).toBeTrue();
+      expect(downloads.at(-1)).toEqual({ loaded: 1000, total: 1000, progress: 100 });
+    });
+
     it("should not report the same progress twice in a row", async () => {
       const { onResponseStart, onResponseProgress, onResponseEnd, downloads } = await setup();
 

@@ -51,6 +51,25 @@ const sdk = createSdk<typeof client, MyApiSchema>(client);
   to="/docs/core/client"
 />
 
+### Options
+
+| Option                 | Default                            | Description                                                                         |
+| ---------------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `camelCaseToKebabCase` | `true`                             | Turn camelCase keys into kebab-case url segments (`userProfiles` → `user-profiles`) |
+| `pathSegments`         | `undefined`                        | Url segment of a key when it differs from the key. Mapped keys are not converted    |
+| `methodTransform`      | `(method) => method.toUpperCase()` | Turn the `$`-prefixed key into the request method                                   |
+| `defaults`             | `undefined`                        | Request defaults per endpoint, see [`$configure`](#sdk-configuration-configure)     |
+
+```typescript
+// `findByStatus` stays camelCase in the url, `userProfiles` becomes `user-profiles`
+const sdk = createSdk<typeof client, MyApiSchema>(client, {
+  pathSegments: { findByStatus: "findByStatus" },
+});
+
+sdk.pet.findByStatus.$get; // GET /pet/findByStatus
+sdk.userProfiles.$get; // GET /user-profiles
+```
+
 ---
 
 ## Defining the Schema
@@ -176,6 +195,14 @@ This approach has two major benefits:
   for very large and complex APIs.
 - **Developer Experience**: It provides a fluid, tRPC-like experience where you can explore your API surface with
   dot-notation, guided by TypeScript's autocompletion, while the underlying complexity is handled for you.
+
+:::caution Names taken by the request
+
+Every key below the top level is read from a request first. A nested key named like a request property (`send`,
+`cache`, `method`, `params` and so on) gives you that property, not a deeper path or procedure. The SDK types mark such
+a key with `SdkReservedKeyError`, so `sdk.messages.send` fails to compile. Rename the key in the schema.
+
+:::
 
 ---
 

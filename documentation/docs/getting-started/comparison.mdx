@@ -312,9 +312,10 @@ request) first-class. The `auth: false` option on individual requests opts them 
 
 ### Retries
 
-Configurable retry count (`retry`) and fixed retry delay (`retryTime`) per request, with `setRetryOnError` to decide
-per response whether to retry. Defaults for many requests can be set with the SDK `$configure` or the adapter's
-`setRequestDefaults`. Retries respect the queue, so a retried request does not bypass ordering guarantees.
+Configurable retry count (`retry`) and retry delay (`retryTime`, a number or a function such as `exponentialBackoff()`)
+per request, with `setRetryOnError` to decide per response whether to retry. Defaults for many requests can be set with
+the SDK `$configure` or the adapter's `setRequestDefaults`. Retries respect the queue, so a retried request does not
+bypass ordering guarantees.
 
 ### Cancellation
 

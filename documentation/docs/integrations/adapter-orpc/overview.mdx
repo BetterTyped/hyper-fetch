@@ -158,11 +158,14 @@ of the response.
 const { error, status } = await api.planet.find.$query.setPayload({ id: 999 }).send();
 
 status; // 404
-error?.defined; // true for the errors from the `.errors()` map of the procedure
-error?.code; // "NOT_FOUND"
-error?.status; // 404
-error?.message; // "Planet not found"
-error?.data; // { id: 999 }
+// `error` also includes the global error of the client (`Error` by default), so check for the oRPC shape first
+if (error && "defined" in error) {
+  error.defined; // true for the errors from the `.errors()` map of the procedure
+  error.code; // "NOT_FOUND"
+  error.status; // 404
+  error.message; // "Planet not found"
+  error.data; // { id: 999 }
+}
 ```
 
 With `OrpcSchema` the defined errors keep their code and data type, so checking `error.defined` and `error.code` narrows

@@ -134,7 +134,8 @@ export class Cache<Adapter extends AdapterInstance> {
   };
 
   /**
-   * Update the cache data with partial response data
+   * Update the cache data with partial response data. The `responseTimestamp` is set to the time of the update, so
+   * the `cacheTime` and `staleTime` count from the update. Use `set` to store the data with another timestamp.
    * @param request
    * @param partialResponse
    * @returns
@@ -160,7 +161,9 @@ export class Cache<Adapter extends AdapterInstance> {
     const processedResponse =
       typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
-      this.set(request, { ...cachedData, ...processedResponse });
+      // The updated data is as old as the update - the cache and stale times count from now. Callbacks usually
+      // spread the previous value, so its timestamp is replaced as well.
+      this.set(request, { ...cachedData, ...processedResponse, responseTimestamp: Date.now() });
     }
   };
 

@@ -4,7 +4,7 @@ import type { HttpMethodsType, HttpStatusType } from "types";
 
 import { Adapter } from "../adapter/adapter";
 import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
-import type { HttpAdapterExtraType, FetchAdapterOptionsType } from "./http-adapter.types";
+import type { HttpAdapterExtraType, FetchAdapterOptionsType, FetchResponseType } from "./http-adapter.types";
 import { parseErrorResponse, parseResponse, stringifyQueryParams } from "./http-adapter.utils";
 
 const defaultExtra = xhrExtra;
@@ -22,6 +22,26 @@ const getBodySize = (body: unknown): number | undefined => {
     return new Blob([body.toString()]).size;
   }
   return undefined;
+};
+
+/**
+ * Body of a successful response in the shape picked with the `responseType` option
+ */
+const readResponseBody = (bytes: Uint8Array, responseType: FetchResponseType | undefined, contentType: string | null) => {
+  switch (responseType) {
+    case "arrayBuffer": {
+      return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    }
+    case "blob": {
+      return new Blob([bytes as BlobPart], { type: contentType ?? "" });
+    }
+    case "text": {
+      return new TextDecoder().decode(bytes);
+    }
+    default: {
+      return parseResponse(new TextDecoder().decode(bytes));
+    }
+  }
 };
 
 export const getAdapter = () =>
@@ -75,7 +95,12 @@ export const getAdapter = () =>
         const fullUrl = `${url}${endpoint}${queryParams}`;
 
         const controller = getAbortController();
-        const { timeout: timeoutMs = defaultTimeout, streaming = false, ...restOptions } = adapterOptions || {};
+        const {
+          timeout: timeoutMs = defaultTimeout,
+          streaming = false,
+          responseType,
+          ...restOptions
+        } = adapterOptions || {};
 
         let timedOut = false;
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -145,11 +170,17 @@ export const getAdapter = () =>
               onError({ error, status, extra });
             }
           } else {
-            let body: string;
+            // The body is read as bytes from the stream. Without a stream reader (e.g. React Native) it is read with
+            // the method matching the response type - text for the default one, so nothing more than text is needed.
+            let body: { bytes: Uint8Array } | { text: string } | { data: Blob | ArrayBuffer };
 
             if (response.body && typeof response.body.getReader === "function") {
               const reader = response.body.getReader();
-              const contentLength = parseInt(response.headers.get("content-length") || "0", 10);
+              // Fetch gives the decompressed body, while Content-Length tells the size of the encoded one - the total
+              // of an encoded body is unknown
+              const contentEncoding = response.headers.get("content-encoding");
+              const isEncoded = !!contentEncoding && contentEncoding !== "identity";
+              const contentLength = isEncoded ? 0 : parseInt(response.headers.get("content-length") || "0", 10);
               let receivedLength = 0;
               const chunks: Uint8Array[] = [];
 
@@ -172,9 +203,13 @@ export const getAdapter = () =>
                 allChunks.set(chunk, position);
                 position += chunk.length;
               }
-              body = new TextDecoder().decode(allChunks);
+              body = { bytes: allChunks };
+            } else if (response.ok && responseType === "blob") {
+              body = { data: await response.blob() };
+            } else if (response.ok && responseType === "arrayBuffer") {
+              body = { data: await response.arrayBuffer() };
             } else {
-              body = await response.text();
+              body = { text: await response.text() };
             }
 
             if (timeoutId) {
@@ -184,11 +219,20 @@ export const getAdapter = () =>
             onResponseEnd();
             unmountListener();
 
+            const getText = () => ("text" in body ? body.text : new TextDecoder().decode("bytes" in body ? body.bytes : undefined));
+
             if (response.ok) {
-              const data = parseResponse(body);
+              let data: unknown;
+              if ("data" in body) {
+                data = body.data;
+              } else if ("bytes" in body) {
+                data = readResponseBody(body.bytes, responseType, response.headers.get("content-type"));
+              } else {
+                data = responseType === "text" ? body.text : parseResponse(body.text);
+              }
               onSuccess({ data, status, extra });
             } else {
-              const error = parseErrorResponse(body);
+              const error = parseErrorResponse(getText());
               onError({ error, status, extra });
             }
           }

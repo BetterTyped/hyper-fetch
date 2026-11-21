@@ -82,7 +82,7 @@ const updateUserProfile = client
   })
   // highlight-start
   .setRequestMapper((request) => {
-    const data = request.data; // Type-safe UserProfile object
+    const data = request.payload; // Type-safe UserProfile object
 
     const formData = new FormData();
     formData.append("username", data.username);

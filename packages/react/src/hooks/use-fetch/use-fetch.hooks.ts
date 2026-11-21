@@ -14,7 +14,7 @@ import { useRequestEvents, useTrackedState } from "helpers";
 import type { UseFetchOptionsType, UseFetchReturnType } from "hooks/use-fetch";
 import { useFetchDefaultOptions } from "hooks/use-fetch";
 import { useProvider } from "provider";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { createTrackedProxy, getBounceData } from "utils";
 import { keyReplacer } from "utils/key.utils";
 import { isSameScope } from "utils/scope.utils";
@@ -114,6 +114,8 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
   const scopedQueryKey = scopeKey(queryKey, request.scope);
 
   const fetchDependencies = useRef<unknown[] | null>(null);
+  // Async work started by a render checks it before it acts - StrictMode unmounts and mounts again, so it is set back
+  const isMounted = useRef(false);
   const isSuspenseResolved = useRef(false);
   const logger = useRef(loggerManager.initialize(client, "useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
@@ -260,6 +262,12 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
     return dispatcher.getRunningRequests(scopedQueryKey).some((running) => running.request.cacheKey === cacheKey);
   };
 
+  const haveDependenciesChanged = (previous: unknown[] | null, current: unknown[] | null) =>
+    !previous ||
+    !current ||
+    previous.length !== current.length ||
+    current.some((dependency, index) => !Object.is(dependency, previous[index]));
+
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
     const isFetching = getIsFetchingIdentity();
@@ -271,9 +279,29 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
         (typeof cacheTimestamp === "number" && Date.now() - cacheTimestamp < suspenseFreshTime));
     isSuspenseResolved.current = false;
 
-    if ((revalidate || hasStaleData) && !isFetching && !isFreshSuspenseData) {
-      handleFetch();
+    if (!(revalidate || hasStaleData) || isFetching || isFreshSuspenseData) {
+      return;
     }
+
+    // Without revalidation only stale data is fetched. Data kept only in the lazy storage (IndexedDB, AsyncStorage)
+    // is read asynchronously, so it is awaited first - fresh persisted data needs no request.
+    const isLazyDataPending = !revalidate && !suspense && !!cache.lazyStorage && !cache.storage.get(scopedCacheKey);
+    if (!isLazyDataPending) {
+      handleFetch();
+      return;
+    }
+
+    const handledDependencies = fetchDependencies.current;
+    const fetchWhenStale = () => {
+      // The request or the options changed meanwhile - their own lifecycle takes over
+      if (!isMounted.current || haveDependenciesChanged(handledDependencies, fetchDependencies.current)) {
+        return;
+      }
+      if (getStaleStatus() && !getIsFetchingIdentity()) {
+        latest.current.fetch();
+      }
+    };
+    cache.getLazyResource(scopedCacheKey).then(fetchWhenStale, fetchWhenStale);
   };
 
   const updateFetchData = () => {
@@ -308,11 +336,7 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
       return;
     }
 
-    const hasChanged =
-      previousDependencies.length !== currentDependencies.length ||
-      currentDependencies.some((dependency, index) => !Object.is(dependency, previousDependencies[index]));
-
-    if (hasChanged) {
+    if (haveDependenciesChanged(previousDependencies, currentDependencies)) {
       updateFetchData();
     }
   };
@@ -375,6 +399,13 @@ export const useFetch = <R extends RequestInstance, TSelected = ExtractResponseT
    * Initialization of the events related to data exchange with cache and queue
    * This allows to share the state with other hooks and keep it related
    */
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   useDidUpdate(handleMountEvents, [updateKey, disabled], true);
 
   /**

@@ -133,7 +133,8 @@ export const useStream = <T extends RequestInstance>(
     };
     emitChange();
 
-    const streamingRequest = request.setOptions({ streaming: true } as any);
+    // `setOptions` replaces the adapter options - the ones of the request (timeout, credentials...) have to stay
+    const streamingRequest = request.setOptions({ ...request.options, streaming: true } as any);
 
     streamingRequest.send().then((response) => {
       const { data, error, status, extra } = response;

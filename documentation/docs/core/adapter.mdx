@@ -258,6 +258,53 @@ It handles chunk accumulation, lifecycle management, and reactive re-renders aut
 
 ---
 
+7. ### Response type
+
+By default the HTTP adapter decodes the body as text and parses it when it is valid JSON. Images, archives and other
+binary files need their raw bytes, so pick the shape of `data` with the `responseType` option:
+
+| `responseType`  | `data` of a successful response                          |
+| --------------- | -------------------------------------------------------- |
+| not set         | Parsed JSON, or the text when the body is not valid JSON |
+| `"json"`        | The same as not set                                      |
+| `"text"`        | The text, never parsed                                   |
+| `"blob"`        | A `Blob` with the `Content-Type` of the response         |
+| `"arrayBuffer"` | The raw bytes as an `ArrayBuffer`                        |
+
+```ts title="Downloading a file"
+const downloadAvatar = client.createRequest<{ response: Blob }>()({
+  endpoint: "/users/:userId/avatar",
+  options: { responseType: "blob" },
+});
+
+const { data } = await downloadAvatar.setParams({ userId: 1 }).send();
+
+if (data) {
+  image.src = URL.createObjectURL(data);
+}
+```
+
+The error body is parsed the same way whatever the response type, so `error` keeps its JSON shape. Download progress
+works for every response type. With `streaming: true` the option is ignored, because `data` is the stream.
+
+---
+
+8. ### Timeout
+
+The `timeout` option (5 seconds by default) covers the whole exchange: sending the request, waiting for the response
+and downloading the body. A large download that takes longer than the timeout ends with the timeout error, even while
+the bytes keep arriving. Raise it for big files, or set `timeout: 0` to turn it off. With `streaming: true` the timeout
+stops once the response headers arrive.
+
+```ts
+const downloadBackup = client.createRequest<{ response: Blob }>()({
+  endpoint: "/backups/latest",
+  options: { responseType: "blob", timeout: 120_000 },
+});
+```
+
+---
+
 ## TypeScript Generics
 
 When you create custom adapter, you need to specify the types for the requests templates. Each adapter may have

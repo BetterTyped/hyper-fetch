@@ -8,6 +8,7 @@ import { OpenapiRequestGenerator, getAvailableOperations } from "codegen/openapi
 import { HttpMethod } from "codegen/openapi/http-methods.enum";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs-extra";
+import * as os from "node:os";
 import * as path from "path";
 
 const expectedMetadata = {
@@ -127,6 +128,35 @@ describe("Generator", () => {
       fileName: "openapi.client",
     });
     expect(generatedFileNamePath).toEndWith("openapi.client.ts");
+  });
+
+  it("Should create the output directory when it does not exist", async () => {
+    const outputDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "hyper-fetch-generate-"));
+    const apiDirectory = path.join(outputDirectory, "src", "api");
+    const generator = new OpenapiRequestGenerator(schema);
+
+    try {
+      const generatedFileNamePath = await generator.generateFile({
+        config: {
+          tsx: true,
+          aliases: { api: "src/api", hooks: "hooks", ui: "ui", components: "components", lib: "lib" },
+          resolvedPaths: {
+            cwd: outputDirectory,
+            api: apiDirectory,
+            hooks: path.join(outputDirectory, "hooks"),
+            ui: path.join(outputDirectory, "ui"),
+            components: path.join(outputDirectory, "components"),
+            lib: path.join(outputDirectory, "lib"),
+          },
+        },
+        fileName: "openapi.client",
+      });
+
+      expect(generatedFileNamePath).toBe(path.join(apiDirectory, "openapi.client.ts"));
+      expect(fs.existsSync(generatedFileNamePath)).toBeTrue();
+    } finally {
+      fs.removeSync(outputDirectory);
+    }
   });
 
   it("Should generate file with js extension", async () => {

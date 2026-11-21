@@ -125,7 +125,7 @@ local and global errors, adapter methods/options/extra, and whether params/paylo
   with `Expected 1 arguments, but got 0`. Setters flip per-request flags (`HasParams`, `HasPayload`, `HasQuery`) on the
   returned clone, so a discarded setter result keeps the requirement.
 - **Methods and adapter options are checked** against the adapter
-  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` for HTTP).
+  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` + `responseType` for HTTP).
 - **`setResponseMapper` changes types** (`data` and the local error follow the mapper's return); `setPayloadMapper` and
   `setRequestMapper` do not.
 - **`success` is not a discriminant**: `data: T | null` stays nullable after `if (success)`; check `data`.
@@ -334,7 +334,7 @@ refreshes the target once the last pending mutation on it settles. See
 | `auth`                    | `true`                                                     | runs `onAuth`                                 |
 | `cache`                   | `true`                                                     | ignored in `"server"` mode without `setScope` |
 | `cacheTime` / `staleTime` | `300000` ms each                                           | `Time.MIN * 5`                                |
-| `retry` / `retryTime`     | `0` / `500` ms                                             | fixed delay, no backoff                       |
+| `retry` / `retryTime`     | `0` / `500` ms                                             | delay or `exponentialBackoff()` function      |
 | `deduplicate`             | `true` for GET and QUERY on the HTTP adapter, else `false` |                                               |
 | `deduplicateTime`         | `null`                                                     | joins for the whole flight                    |
 | `cancelable` / `queued`   | `false` / `false`                                          |                                               |

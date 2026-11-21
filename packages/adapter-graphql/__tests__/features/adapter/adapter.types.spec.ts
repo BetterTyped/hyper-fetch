@@ -42,6 +42,15 @@ describe("Graphql Adapter [ Types ]", () => {
     expectTypeOf(client.createRequest()).parameter(0).toEqualTypeOf<{ endpoint: string; document: number }>();
   });
 
+  it("should send a string document with variables without asking for url params", () => {
+    const deleteUser = client.createRequest<{ response: UserResponse; payload: { id: string } }>()({
+      endpoint: "mutation DeleteUser($id: ID!) { deleteUser(id: $id) { username } }",
+    });
+
+    expectTypeOf(deleteUser.send).toBeCallableWith({ payload: { id: "1" } });
+    expectTypeOf(deleteUser.setPayload({ id: "1" }).send).toBeCallableWith();
+  });
+
   it("should compile the example from the proposal", () => {
     const getUser = client.createRequest<{ response: UserResponse; payload: { id: number } }>()({
       endpoint: "/User",

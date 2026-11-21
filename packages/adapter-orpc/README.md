@@ -72,7 +72,8 @@ const { data, error } = await api.planet.find.$query.setPayload({ id: 1 }).send(
 ```ts
 const { data, error } = await api.planet.find.$query.setPayload({ id: 99 }).send();
 
-if (error?.defined && error.code === "NOT_FOUND") {
+// `error` also includes the global error of the client, so check for the oRPC shape first
+if (error && "defined" in error && error.defined && error.code === "NOT_FOUND") {
   // error.data has the shape declared in the procedure's .errors()
   console.log(`Planet ${error.data.id} does not exist`);
 }

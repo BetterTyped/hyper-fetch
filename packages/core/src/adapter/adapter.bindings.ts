@@ -225,8 +225,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     const progressTimestamp = Date.now();
     responseTotal = getTotal(responseTotal, progress);
 
+    // The total never drops below the loaded bytes - e.g. a compressed body is counted after decompression,
+    // while its Content-Length tells the compressed size
     handleResponseProgress(responseStartTimestamp, progressTimestamp, {
-      total: progress.total || responseTotal,
+      total: responseTotal,
       loaded: progress.loaded || 0,
     });
     return progressTimestamp;

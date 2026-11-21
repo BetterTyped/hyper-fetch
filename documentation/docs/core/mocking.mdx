@@ -34,6 +34,18 @@ mock response. With this simple concept you're able to introduce any mocking app
 
 The mock methods `setMock()`, `clearMock()` and `setMockingEnabled()` modify the request instance and return it, instead
 of returning a clone like the other `set*` methods. Clones created later (for example with `setParams()`) copy the mock.
+Requests derived from it before the call keep what they had, so set the mock on the base request before you derive
+others from it, or on each derived request:
+
+```ts
+const getUser = client.createRequest<{ response: User }>()({ endpoint: "/users/:id" });
+const getFirstUser = getUser.setParams({ id: 1 }); // derived before the mock
+
+getUser.setMock(() => ({ data: { id: 1, name: "Mocked" }, status: 200 }));
+
+getUser.setParams({ id: 2 }); // mocked - derived after the call
+getFirstUser; // not mocked - call setMock on it too
+```
 
 :::
 

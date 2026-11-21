@@ -4,6 +4,7 @@ import { getErrorMessage } from "adapter";
 import type { ClientInstance } from "client";
 import type {
   QueueDataType,
+  DispatcherAsyncStorageType,
   DispatcherOptionsType,
   DispatcherStorageType,
   ResolvedQueueDataType,
@@ -38,6 +39,11 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   /** Cache element (by its storage key) to the order number of the request whose data it holds */
   private cachedOrder = new Map<string, number>();
 
+  /** Sends the queue restored from the storage once the client is configured */
+  private startTimer: ReturnType<typeof setTimeout> | undefined;
+  /** Operations of the lazy storage run one after another, so it always ends with the latest state of the queues */
+  private lazyOperations: Promise<void> = Promise.resolve();
+
   private logger: LoggerMethods;
   private client: ClientInstance<{ adapter: Adapter }>;
 
@@ -47,7 +53,102 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }
+    if (this.options?.lazyStorage) {
+      this.storage = this.withLazyStorage(this.storage, this.options.lazyStorage);
+    }
   }
+
+  // *********************************************************************
+  // *********************************************************************
+  // Lazy storage
+  // *********************************************************************
+  // *********************************************************************
+
+  /**
+   * Lazy storage is an external resource - its failures are logged, they must not take the requests down
+   */
+  private runLazyOperation = (action: string, queryKey: string | null, operation: () => Promise<void> | void) => {
+    this.lazyOperations = this.lazyOperations.then(async () => {
+      try {
+        await operation();
+      } catch (error) {
+        this.logger?.error({ title: `Lazy storage "${action}" failed`, type: "system", extra: { queryKey, error } });
+      }
+    });
+  };
+
+  /**
+   * Snapshot of the queue as JSON data - taken right away, as the queue objects change after the write is scheduled
+   */
+  private getLazyQueueData = (queue: QueueDataType): QueueDataType => {
+    return JSON.parse(
+      JSON.stringify({
+        ...queue,
+        requests: queue.requests.map((item) => ({
+          ...item,
+          request: this.isRequestJSON(item.request) ? item.request : item.request.toJSON(),
+        })),
+      }),
+    );
+  };
+
+  /**
+   * The sync storage stays the source of truth, its changes are written through to the lazy storage
+   */
+  private withLazyStorage = (
+    storage: DispatcherStorageType,
+    lazyStorage: DispatcherAsyncStorageType,
+  ): DispatcherStorageType => ({
+    get: (key) => storage.get(key),
+    keys: () => storage.keys(),
+    entries: () => storage.entries(),
+    set: (key, data) => {
+      storage.set(key, data);
+      const snapshot = this.getLazyQueueData(data as QueueDataType);
+      this.runLazyOperation("set", key, () => lazyStorage.set(key, snapshot));
+    },
+    delete: (key) => {
+      storage.delete(key);
+      this.runLazyOperation("delete", key, () => lazyStorage.delete(key));
+    },
+    clear: () => {
+      storage.clear();
+      this.runLazyOperation("clear", null, async () => {
+        const keys = [...(await lazyStorage.keys())];
+        await Promise.all(keys.map((key) => lazyStorage.delete(key)));
+      });
+    },
+  });
+
+  /**
+   * Reads the queues persisted by the previous run. Persisted requests are older than the ones added since the start,
+   * so they go first. Requests already in the queue are not added twice.
+   */
+  private restoreLazyQueues = (lazyStorage: DispatcherAsyncStorageType) => {
+    this.runLazyOperation("restore", null, async () => {
+      const keys = [...(await lazyStorage.keys())];
+      const persistedQueues = await Promise.all(keys.map(async (key) => [key, await lazyStorage.get(key)] as const));
+
+      persistedQueues.forEach(([queryKey, persisted]) => {
+        if (!persisted?.requests.length) {
+          return;
+        }
+        const queue = this.getQueue(queryKey);
+        const knownIds = new Set(queue.requests.map((item) => item.requestId));
+        const restored = persisted.requests
+          .filter((item) => !knownIds.has(item.requestId))
+          .map((item) => ({
+            ...item,
+            request: this.isRequestJSON(item.request) ? this.client.fromJSON(item.request) : item.request,
+          }));
+
+        if (restored.length) {
+          this.setQueue(queryKey, { ...queue, requests: [...restored, ...queue.requests] });
+          this.flushQueue(queryKey);
+        }
+      });
+    });
+  };
 
   // eslint-disable-next-line class-methods-use-this
   private isRequestJSON = (
@@ -64,6 +165,21 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     this.client.appManager.events.onOnline(() => {
       this.flush();
     });
+
+    // A queue restored from a persistent storage (e.g. the requests left by the previous page load) has to be sent
+    // on start. It waits for the next task, so the configuration chained after the client constructor - adapter,
+    // interceptors, plugins - applies to the restored requests too.
+    if (this.options?.lazyStorage) {
+      this.restoreLazyQueues(this.options.lazyStorage);
+    }
+
+    clearTimeout(this.startTimer);
+    if (this.getQueuesKeys().length) {
+      this.startTimer = setTimeout(() => {
+        this.startTimer = undefined;
+        this.flush();
+      });
+    }
 
     return this;
   };
@@ -244,12 +360,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
 
   /**
    * A request can be sent when it is not in flight, not held by `stopRequest`, not waiting for its retry,
-   * not just answered and - for the requests kept for later with the `offline` option - when there is a connection
+   * not just answered and - for the requests kept for later with the `offline` option - when there is a connection.
+   * Nothing is sent while the page unloads - the browser would cancel it right away.
    */
   private canPerformRequest = (item: ResolvedQueueItemType, runningIds: Set<string>) => {
     const isWaitingForNetwork = !this.client.appManager.isOnline && item.request.offline;
 
     return (
+      !this.client.appManager.isUnloading &&
       !item.stopped &&
       !isWaitingForNetwork &&
       !this.retryTimers.has(item.requestId) &&
@@ -313,6 +431,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
    * Clear all running requests and storage
    */
   clear = () => {
+    clearTimeout(this.startTimer);
+    this.startTimer = undefined;
     const keys = this.getQueuesKeys();
     // Running requests are canceled and report it on their own, the waiting ones are reported as removed
     const removed = keys.map((queryKey) => ({
@@ -648,6 +768,24 @@ export class Dispatcher<Adapter extends AdapterInstance> {
   };
 
   /**
+   * Delay of the next attempt from the `retryTime` of the request. The function form belongs to the user - when it
+   * throws, the request is not retried (`null`). Anything but a positive finite delay retries right away.
+   */
+  private getRetryDelay = (request: RequestInstance, attempt: number, response: RequestResponseType<any>) => {
+    const { retryTime } = request;
+    let delay: unknown = retryTime;
+    if (typeof retryTime === "function") {
+      try {
+        delay = retryTime({ attempt, response });
+      } catch (error) {
+        this.logger.error({ title: "The retryTime callback failed", type: "system", extra: { error, request } });
+        return null;
+      }
+    }
+    return typeof delay === "number" && Number.isFinite(delay) && delay > 0 ? delay : 0;
+  };
+
+  /**
    * Request can run for some time, once it's done, we have to check if it's successful or if it was aborted
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
@@ -655,7 +793,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     const { request, requestId } = storageItem;
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
-    const { retry, retryTime, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
+    const { retry, queryKey: rawQueryKey, abortKey: rawAbortKey, offline, scope } = request;
     const queryKey = scopeKey(rawQueryKey, scope);
     const abortKey = scopeKey(rawAbortKey, scope);
     const { adapter, requestManager, cache, appManager } = this.client;
@@ -709,6 +847,8 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     // If there is no running request with this id, it means it was cancelled and removed during send
     const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
     const isCanceled = !this.hasRunningRequest(queryKey, requestId) || isAbortedByUser || isCancelMessage;
+    // The browser cancels the requests of an unloading page - the failure says nothing about the request itself
+    const isUnloadFailure = !response.success && appManager.isUnloading;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queryKey, requestId);
@@ -719,8 +859,13 @@ export class Dispatcher<Adapter extends AdapterInstance> {
     try {
       // A request removed from the queue while it was running (cleared queue) has nothing left to retry
       const isQueued = !!this.getRequest(queryKey, requestId);
-      const canRetryResponse = !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus;
-      const willRetry = canRetryResponse && this.getShouldRetryOnError(request, response);
+      const canRetryResponse =
+        !response.success && canRetry && isQueued && !isCanceled && !isOfflineResponseStatus && !isUnloadFailure;
+      const retryDelay =
+        canRetryResponse && this.getShouldRetryOnError(request, response)
+          ? this.getRetryDelay(request, storageItem.retries, response)
+          : null;
+      const willRetry = retryDelay !== null;
 
       const requestDetails: ResponseDetailsType = {
         isCanceled,
@@ -814,6 +959,14 @@ export class Dispatcher<Adapter extends AdapterInstance> {
           extra: { response, requestDetails, request },
         });
       }
+      // On page unload - the request stays in the queue, a persistent storage sends it again on the next start
+      if (isUnloadFailure) {
+        return this.logger.debug({
+          title: "Page is unloading, keeping the request for the next start",
+          type: "system",
+          extra: { response, requestDetails, request },
+        });
+      }
       // On offline
       if (!response.success && isOfflineResponseStatus) {
         // if we don't want to keep offline request - just delete them
@@ -885,7 +1038,7 @@ export class Dispatcher<Adapter extends AdapterInstance> {
           });
           // Let the queue go on when it was held by this request
           this.flushQueue(queryKey);
-        }, retryTime || 0);
+        }, retryDelay);
         this.retryTimers.set(requestId, retryTimer);
       } else {
         if (request.retry) {

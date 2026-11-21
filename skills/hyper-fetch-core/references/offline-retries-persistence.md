@@ -56,8 +56,9 @@ const getFeed = client
   .setRetryOnError((response) => response.status === 0 || (response.status ?? 0) >= 500);
 ```
 
-- `retry` = extra attempts after the first (`retry: 3` means up to 4 calls). `retryTime` is a fixed delay (default 500
-  ms); there is no exponential backoff, so pick it per endpoint or compute it with a custom dispatcher.
+- `retry` = extra attempts after the first (`retry: 3` means up to 4 calls). `retryTime` is a delay in ms (default 500)
+  or a function `({ attempt, response }) => ms` (`attempt` from 0). `exponentialBackoff({ min, max, jitter })` from
+  `@hyper-fetch/core` builds one. A throwing function stops retrying; functions are lost in a persisted queue.
 - Every failure is retried by default, including 4xx. Use `setRetryOnError` to retry only transient errors; return
   `false` to stop. A throwing callback stops retrying.
 - Never retried: aborted/canceled requests, requests removed from the queue, failures while offline (they wait for the
@@ -116,9 +117,13 @@ export const client = createClient({
 - Queue items are stored as `request.toJSON()` when serialized and rebuilt into `Request` instances on read, but
   functions are lost: mappers, mocks, `retryOnError`, optimistic callbacks and `$hooks` do not survive a restart. Keep
   persisted requests free of required runtime callbacks, or re-attach behavior through interceptors.
-- After a restart the queued items are sent by `dispatcher.flush()` (called automatically on the `online` event); call
-  `client.submitDispatcher.flush()` at startup to resume immediately. Their original `send()` callers are gone, so
-  observe results with `client.requestManager.events.onResponse` or a `Plugin`.
+- After a restart the restored items are sent automatically right after the client is created (after the current
+  task, so interceptors chained on the client apply), and again on the `online` event. Their original `send()` callers
+  are gone, so observe results with `client.requestManager.events.onResponse` or a `Plugin`.
+- A request the browser cancels because the page unloads stays in the persisted queue for the next load.
+- For async stores (IndexedDB, AsyncStorage) use `new Dispatcher({ lazyStorage })` with `set`/`get`/`keys`/`delete`
+  returning promises. The in-memory queue stays the source of truth, every change is written as JSON in order, and on
+  start the persisted requests are put in front of the ones added meanwhile and sent. Failures are logged.
 - Use a dedicated store per dispatcher. Persistent queues are not safe across several browser tabs (each tab would
   replay the same items); use them in single-instance runtimes (React Native, Electron main window).
 - `client.fromJSON(json)` rebuilds a request manually, e.g. for your own outbox implementation.

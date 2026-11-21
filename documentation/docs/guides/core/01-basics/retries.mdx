@@ -79,6 +79,41 @@ Here, we created a new request `getUsersWithRetries` with 2 retries and a 2-seco
 
 ---
 
+## Backoff
+
+`retryTime` also takes a function that returns the delay of each attempt. It receives the `attempt` (`0` for the first
+retry) and the failed `response`. `exponentialBackoff` builds one that doubles the delay with every attempt, up to a
+maximum. By default it adds random jitter, so many clients that failed at the same time don't all retry together.
+
+```ts
+import { exponentialBackoff } from "@hyper-fetch/core";
+
+const getUsers = client.createRequest()({
+  endpoint: "/users",
+  retry: 5,
+  // highlight-next-line
+  retryTime: exponentialBackoff({ min: 500, max: 10_000 }),
+});
+
+// Or your own function - honor the Retry-After header of a 429 response
+const getReports = getUsers.setRetryTime(({ attempt, response }) => {
+  const retryAfter = Number(response.extra?.headers?.["retry-after"]);
+  return Number.isFinite(retryAfter) ? retryAfter * 1000 : 1000 * (attempt + 1);
+});
+```
+
+| `exponentialBackoff` option | Default       | Description                                                         |
+| --------------------------- | ------------- | ------------------------------------------------------------------- |
+| `min`                       | `500`         | Delay of the first retry in milliseconds                            |
+| `max`                       | `30000`       | Longest delay in milliseconds                                       |
+| `jitter`                    | `true`        | Pick a random delay from `min` up to `min * 2 ** attempt`           |
+| `random`                    | `Math.random` | Source of the randomness, for deterministic tests                   |
+
+When the function throws, the request is not retried. A delay that is not a positive number retries right away. A
+function can't be stored as JSON, so a request restored from a persistent queue uses the default delay of 500 ms.
+
+---
+
 ## Conditional Retries
 
 By default, Hyper-fetch retries on any error. You can use `setRetryOnError` to add a condition - for example, only retry

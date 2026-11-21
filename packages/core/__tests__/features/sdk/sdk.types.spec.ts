@@ -3,7 +3,7 @@ import type { ClientInstance, Client } from "client";
 import type { HttpAdapterType } from "http-adapter";
 import type { Request, RequestInstance, RequestModel } from "request";
 import { createSdk } from "sdk";
-import type { InjectClient } from "sdk";
+import type { InjectClient, SdkReservedKeyError } from "sdk";
 import { describe, it, expect, expectTypeOf } from "vitest";
 
 /**
@@ -278,6 +278,33 @@ describe("$configure - dot-path callback narrowing", () => {
       "/users": { cache: true, cacheTime: 30_000 },
     });
 
+    expect(true).toBe(true);
+  });
+});
+
+describe("SdkInstance - keys taken by the request properties", () => {
+  type Schema = {
+    send: { $post: RequestModel<{ response: User; endpoint: "/send" }> };
+    messages: {
+      $get: RequestModel<{ response: User[]; endpoint: "/messages" }>;
+      send: RequestModel<{ response: User; endpoint: "/messages/send" }>;
+      cache: { $get: RequestModel<{ response: User; endpoint: "/messages/cache" }> };
+      list: RequestModel<{ response: User[]; endpoint: "/messages/list" }>;
+    };
+  };
+  type Sdk = ReturnType<typeof createSdk<TestClient, Schema>>;
+
+  it("should flag a nested key named like a request property", () => {
+    expectTypeOf<Sdk["messages"]["send"]>().not.toMatchTypeOf<RequestInstance>();
+    expectTypeOf<Sdk["messages"]["cache"]>().not.toMatchTypeOf<{ $get: RequestInstance }>();
+    expectTypeOf<Sdk["messages"]["send"]>().toEqualTypeOf<SdkReservedKeyError<"send">>();
+    expect(true).toBe(true);
+  });
+
+  it("should keep the other keys and the top level keys", () => {
+    expectTypeOf<Sdk["messages"]["list"]>().toMatchTypeOf<RequestInstance>();
+    expectTypeOf<Sdk["messages"]["$get"]>().toMatchTypeOf<RequestInstance>();
+    expectTypeOf<Sdk["send"]["$post"]>().toMatchTypeOf<RequestInstance>();
     expect(true).toBe(true);
   });
 });
