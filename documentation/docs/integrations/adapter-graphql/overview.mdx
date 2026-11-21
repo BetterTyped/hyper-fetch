@@ -6,15 +6,16 @@ sidebar_label: Overview
 
 [Read the API Reference »](/docs/api/adapter-graphql/Functions/GraphqlAdapter.mdx)
 
-> The Hyper Fetch GraphQL Adapter provides a seamless way to integrate GraphQL with Hyper Fetch, enabling you to make
-> queries and mutations with ease.
+> The Hyper Fetch GraphQL package integrates GraphQL with Hyper Fetch: queries and mutations over HTTP with the
+> `GraphqlAdapter`, and subscriptions over WebSocket with the `GraphqlWsAdapter`.
 
 :::tip Purpose
 
 1. **Simplify GraphQL integration** in both server and browser environments.
 2. **Provide a type-safe way** to handle GraphQL operations.
 3. **Offer seamless integration** with the Hyper Fetch ecosystem.
-4. **Support both queries and mutations** with a consistent API.
+4. **Support queries, mutations and subscriptions** with a consistent API -
+   [subscriptions](/docs/integrations/adapter-graphql/subscriptions.mdx) use the `graphql-transport-ws` protocol.
 
 :::
 
@@ -335,6 +336,12 @@ Now that you have a basic understanding of the GraphQL adapter, you can explore 
   title="Mutations"
   description="Discover how to modify data with GraphQL mutations."
   to="/docs/integrations/adapter-graphql/mutations"
+/>
+<LinkCard
+  type="docs"
+  title="Subscriptions"
+  description="Listen to GraphQL subscriptions over WebSocket with typed listeners."
+  to="/docs/integrations/adapter-graphql/subscriptions"
 />
 <LinkCard
   type="docs"

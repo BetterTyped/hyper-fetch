@@ -140,8 +140,8 @@ onNoteChange.setParams({ noteId: 2 }).listen(/* ... */);
 
 ### Subscription Payload
 
-Some servers need data to start a subscription, for example the input of a tRPC subscription or an oRPC event iterator
-procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
+Some servers need data to start a subscription, for example the input of a tRPC subscription, the variables of a
+GraphQL subscription or an oRPC event iterator procedure. Pass its type as the second generic and set it with `setPayload`. Params build the topic, the payload is sent
 to the server when the subscription starts.
 
 ```ts
@@ -165,8 +165,11 @@ while listeners with an equal payload share one subscription on the server.
 - A required payload must be set before listening. `listen` without it is a TypeScript error.
 - An optional payload (`{ cursor?: number } | undefined`) can be skipped.
 - `useListener` from `@hyper-fetch/react` subscribes again when the payload changes.
-- The payload is used by adapters that start server-side subscriptions, such as the tRPC and oRPC socket adapters. The
-  built-in WebSocket and SSE adapters route messages by topic and do not send it.
+- The payload is used by adapters that start server-side subscriptions, such as the tRPC, oRPC and GraphQL socket
+  adapters. The built-in WebSocket and SSE adapters route messages by topic and do not send it.
+- A typed document in the listener options - like the `document` of the
+  [GraphQL adapter](/docs/integrations/adapter-graphql/subscriptions.mdx), from graphql-codegen or gql.tada - fills in
+  the response and the payload that the generics leave out.
 
 ---
 

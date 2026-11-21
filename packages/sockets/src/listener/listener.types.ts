@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import type { ExtractUrlParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
+import type {
+  ExtractEndpointPayloadType,
+  ExtractEndpointResponseType,
+  ExtractUrlParams,
+  EmptyTypes,
+  TypeWithDefaults,
+} from "@hyper-fetch/core";
 import type { SocketAdapterInstance } from "adapter";
 import type { ListenerDeliveryType } from "delivery";
 import type { Listener } from "listener";
@@ -200,7 +206,10 @@ export type PayloadIsRequired<Payload, HasPayload> = HasPayload extends false
  * `true` when the subscription needs a payload that was not set with `setPayload()` yet.
  * Erased listeners (`any` payload) never require it, so they stay assignable to every listener constraint.
  */
-export type ListenerRequiresPayload<L> = PayloadIsRequired<ExtractListenerPayloadType<L>, ExtractListenerHasPayloadType<L>>;
+export type ListenerRequiresPayload<L> = PayloadIsRequired<
+  ExtractListenerPayloadType<L>,
+  ExtractListenerHasPayloadType<L>
+>;
 
 /** What `onEnd` receives - `error` is `null` when the server finished the subscription without an error */
 export type ListenerEndType = { topic: string; error: Error | null };
@@ -267,3 +276,36 @@ export type ExtendListener<
     "response" extends keyof Properties ? Properties["response"] : ExtractListenerDeliveredType<T>
   >
 >;
+
+/**
+ * The listener option decorated with `__apiType` - a typed document passed as the `document` of a GraphQL listener,
+ * the decoration graphql-codegen and gql.tada add. `never` when no option carries it.
+ */
+type ExtractTypedListenerOptionType<Options> =
+  Options extends Record<string, any>
+    ? {
+        [Key in keyof Options]-?: "__apiType" extends keyof NonNullable<Options[Key]>
+          ? NonNullable<Options[Key]>
+          : never;
+      }[keyof Options]
+    : never;
+
+/**
+ * Response of a listener made by `createListener`: the one of the generics or, when they leave it out, the one of a
+ * typed document in the listener options.
+ */
+export type ResolveListenerResponseType<Response, Options> = unknown extends Response
+  ? [ExtractTypedListenerOptionType<Options>] extends [never]
+    ? Response
+    : ExtractEndpointResponseType<ExtractTypedListenerOptionType<Options>>
+  : Response;
+
+/**
+ * Payload of a listener made by `createListener`: the one of the generics or, when they leave it out, the variables
+ * of a typed document in the listener options. A document without variables needs no payload (`undefined`).
+ */
+export type ResolveListenerPayloadType<Payload, Options> = [Payload] extends [undefined]
+  ? [ExtractTypedListenerOptionType<Options>] extends [never]
+    ? Payload
+    : ExtractEndpointPayloadType<ExtractTypedListenerOptionType<Options>>
+  : Payload;

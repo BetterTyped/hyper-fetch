@@ -8,7 +8,7 @@ import type { ListenerDeliveryType, ResolveDeliveredType } from "delivery";
 import type { EmitterInstance, EmitterOptionsType } from "emitter";
 import { Emitter } from "emitter";
 import EventEmitter from "events";
-import type { ListenerOptionsType } from "listener";
+import type { ListenerOptionsType, ResolveListenerPayloadType, ResolveListenerResponseType } from "listener";
 import { Listener } from "listener";
 import type {
   SocketOptionsType,
@@ -23,7 +23,7 @@ import type {
   ErrorCallbackType,
 } from "socket";
 import { getSocketEvents, interceptListener, interceptEmitter, interceptConnection } from "socket";
-import type { ExtractAdapterExtraType, ExtractAdapterQueryParamsType } from "types";
+import type { ExtractAdapterExtraType, ExtractAdapterListenerOptionsType, ExtractAdapterQueryParamsType } from "types";
 
 export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
@@ -285,24 +285,42 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
 
   /**
    * Create a listener factory. `Response` is the message type, `Payload` is what the server needs to start
-   * the subscription (e.g. the input of a tRPC subscription), set later with `setPayload()`.
+   * the subscription (e.g. the input of a tRPC subscription or the variables of a GraphQL one), set later with
+   * `setPayload()`.
+   *
+   * A typed document in the listener options - a `TypedDocumentNode` from graphql-codegen or a gql.tada document -
+   * fills the `Response` and the `Payload` the generics leave out.
    *
    * @example
    * const onMessage = socket.createListener<Message, { roomId: string }>()({ topic: "chat.onMessage" });
    * onMessage.setPayload({ roomId: "1" }).listen(({ data }) => {});
+   *
+   * @example
+   * // Typed by the document
+   * const onMessage = socket.createListener()({ topic: "OnMessage", options: { document: OnMessageDocument } });
    */
   createListener = <Response, Payload = undefined>() => {
-    return <Topic extends string, Delivery extends ListenerDeliveryType<Response, Adapter> | undefined = undefined>(
-      options: ListenerOptionsType<Topic, Adapter, Response, Delivery>,
+    return <
+      Topic extends string,
+      Options extends ExtractAdapterListenerOptionsType<Adapter> = ExtractAdapterListenerOptionsType<Adapter>,
+      Delivery extends ListenerDeliveryType<ResolveListenerResponseType<Response, Options>, Adapter> | undefined =
+        undefined,
+    >(
+      options: ListenerOptionsType<Topic, Adapter, ResolveListenerResponseType<Response, Options>, Delivery> & {
+        options?: Options;
+      },
     ) => {
+      type TypedResponse = ResolveListenerResponseType<Response, Options>;
+      type TypedPayload = ResolveListenerPayloadType<Payload, Options>;
+
       return new Listener<
-        Response,
-        Payload,
+        TypedResponse,
+        TypedPayload,
         Topic,
         Socket<Adapter>,
         false,
         false,
-        ResolveDeliveredType<Response, Delivery>
+        ResolveDeliveredType<TypedResponse, Delivery>
       >(this, options);
     };
   };
