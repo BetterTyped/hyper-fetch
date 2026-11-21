@@ -1,0 +1,86 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  list-style: none;
+}
+
+.list button {
+  width: 100%;
+  text-align: left;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.toolbar [role="group"] {
+  width: auto;
+  margin: 0;
+}
+
+.messages {
+  min-height: 12rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.messages li {
+  list-style: none;
+  margin-bottom: 0.75rem;
+}
+
+.messages p {
+  margin: 0;
+}
+
+.log {
+  font-size: 0.875rem;
+}

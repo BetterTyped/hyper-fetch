@@ -1,0 +1,21 @@
+{
+  "name": "@hyper-fetch-examples/vanilla-basic",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Send typed requests from plain TypeScript and read the response object, no framework needed.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@picocss/pico": "^2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

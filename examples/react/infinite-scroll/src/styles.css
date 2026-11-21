@@ -1,0 +1,48 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem 4rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.products {
+  padding: 0;
+}
+
+.products li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.products img {
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+}
+
+.products div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.sentinel {
+  min-height: 4rem;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.status {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-card-background-color);
+  box-shadow: var(--pico-card-box-shadow);
+}

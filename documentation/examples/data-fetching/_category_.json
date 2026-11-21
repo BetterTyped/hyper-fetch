@@ -1,0 +1,12 @@
+{
+  "label": "Data fetching",
+  "position": 2,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Reading data: pagination, infinite lists, search, polling, suspense and more.",
+  "link": {
+    "type": "generated-index",
+    "title": "Data fetching examples",
+    "description": "Reading data: pagination, infinite lists, search, polling, suspense and more."
+  }
+}

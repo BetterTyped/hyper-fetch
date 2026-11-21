@@ -1,0 +1,89 @@
+---
+title: Elysia fullstack
+sidebar_label: Elysia
+sidebar_position: 9
+description:
+  An Elysia API on Node.js and a React client whose requests, query params and error bodies are typed from the Elysia
+  routes.
+sidebar_custom_props:
+  path: elysia/fullstack
+  level: intermediate
+  tags: [elysia, createSdk, typescript, validation, errors]
+---
+
+import { Example } from "@site/src/components";
+import server from "!!raw-loader!@examples/elysia/fullstack/server/app.ts";
+import api from "!!raw-loader!@examples/elysia/fullstack/src/api.ts";
+import app from "!!raw-loader!@examples/elysia/fullstack/src/App.tsx";
+import config from "!!raw-loader!@examples/elysia/fullstack/vite.config.ts";
+
+A bookmarks app with an Elysia backend running on Node.js. The React client filters, adds and deletes bookmarks through
+an SDK typed from the Elysia routes: query params, payloads, responses, the `422` validation error and a custom `404`.
+
+:::tip What it shows
+
+1. **`ElysiaAppToHyperFetch`** turns the type of an Elysia app into a schema for `createSdk`, with no codegen.
+2. **Typed inputs**: the `query` schema types `setQueryParams()`, the `body` schema types the payload, and `:bookmarkId`
+   types `setParams()`.
+3. **Typed errors**: Elysia rejects bad input with a `422` before the handler runs, and the client reads its `summary`
+   and `property` with types.
+4. **Elysia on Node.js** with `@elysiajs/node`, started next to Vite by one `npm run dev`.
+
+:::
+
+<Example
+  files={{
+    "server/app.ts": server,
+    "vite.config.ts": config,
+    "src/api.ts": api,
+    "src/App.tsx": app,
+  }}
+/>
+
+---
+
+## How it works
+
+1. `server/app.ts` creates the app with `new Elysia({ adapter: node(), prefix: "/api" })` and chains every route, since
+   Elysia only types the routes of one chain. It exports the schema type next to the app:
+
+   ```ts
+   // highlight-next-line
+   export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+   ```
+
+2. `vite.config.ts` has a small plugin that loads `server/app.ts` with `ssrLoadModule`, calls `app.listen(3000)` and
+   restarts it when a file in `server/` changes. `server.proxy` forwards `/api` to it, so the page calls its own origin.
+   In production, run the API alone with `npm run api` (`server/index.ts`) and build the client with `vite build`.
+3. `src/api.ts` imports `AppSchema` with `import type` and calls `createSdk<typeof client, AppSchema>(client)`. The
+   `/api` prefix becomes `sdk.api`, so `sdk.api.bookmarks.$get` is `GET /api/bookmarks`.
+4. `App` reads the list with `useFetch(getBookmarks.setQueryParams({ tag: filter }))`. Passing a tag that is not `docs`
+   or `tools` does not compile, because the route's `query` schema says so.
+5. Submit the form with an empty title or a URL like `not-a-url`. The `body` schema fails, Elysia answers `422`, and the
+   form shows `createError.summary`. A `"summary" in createError` check separates that body from a network error.
+6. `deleteBookmark.setParams({ bookmarkId }).send()` returns `status(404, { message })` as its typed error when the
+   bookmark is gone. After every change, `client.cache.invalidate(/\/api\/bookmarks/)` refreshes all cached filters.
+
+:::note When to use it
+
+- You use Elysia and want end-to-end types plus caching, retries and React hooks on the client.
+- Your Elysia API runs on Node.js today and may move to Bun later. The schema is a type, so the client does not change.
+
+:::
+
+---
+
+## Related
+
+- [Elysia integration](/docs/integrations/elysia/overview)
+- [SDK](/docs/core/sdk)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+`ElysiaAppToHyperFetch` reads the routes and schemas of an Elysia app and `createSdk` turns them into typed requests.
+Query params, payloads, responses and error bodies all follow the backend, and the frontend uses the usual hooks.
+
+:::

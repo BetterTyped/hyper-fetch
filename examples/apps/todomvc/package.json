@@ -1,0 +1,29 @@
+{
+  "name": "@hyper-fetch-examples/apps-todomvc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "TodoMVC with a Hono API in the same Vite app: filters in the URL, optimistic toggles and edits, clear completed, and todos stored on the server.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "hono": "^4.13.19",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@hono/vite-dev-server": "^0.26.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}

@@ -334,6 +334,24 @@ describe("Trpc Websocket Adapter [ Lifecycle ]", () => {
   });
 
   describe("when disconnecting", () => {
+    it("should finish disconnecting when closing the transport throws", async () => {
+      vi.useFakeTimers();
+      setup.socket.connect();
+      const ws = await openWebSocket();
+      // Some runtimes throw when closing a transport that never connected
+      vi.spyOn(ws, "close").mockImplementation(() => {
+        throw new Error("WebSocket was closed before the connection was established");
+      });
+
+      await setup.socket.disconnect();
+      await vi.advanceTimersByTimeAsync(1000);
+
+      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(setup.socket.adapter.forceClosed).toBeTrue();
+      expect(ControlledWebSocket.instances).toHaveLength(1);
+      expect(setup.errors).toHaveLength(0);
+    });
+
     it("should close the connection and stay closed", async () => {
       vi.useFakeTimers();
       setup.socket.connect();

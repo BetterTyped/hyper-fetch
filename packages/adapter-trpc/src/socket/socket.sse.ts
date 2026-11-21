@@ -279,10 +279,9 @@ export const TrpcSseAdapter = ({ transformer }: TrpcAdapterOptionsType = {}): Tr
           subscriptions.getAll().forEach(openStream);
           return {
             close: () => {
-              // A closed stream is detached - whatever it reports later does not reach the socket anymore
-              if (connection === details) {
-                connection = null;
-              }
+              // A closed stream is detached - whatever it reports later does not reach the socket anymore. The engine
+              // closes an attempt before it opens the next one, so these are always the current details.
+              connection = null;
               [...streams.keys()].forEach(closeStream);
             },
           };

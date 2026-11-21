@@ -1,0 +1,78 @@
+---
+title: Cache updates
+sidebar_label: Cache updates
+sidebar_position: 2
+description:
+  Edit cached data with client.cache.update and watch every component that reads it, through useFetch or useCache,
+  update at once.
+sidebar_custom_props:
+  path: react/cache-updates
+  level: beginner
+  tags: [useCache, useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/cache-updates/src/api.ts";
+import app from "!!raw-loader!@examples/react/cache-updates/src/App.tsx";
+
+A profile editor with a navigation bar and an email badge. Only the editor fetches the user. The other two read the same
+cache entry with `useCache`, so typing in the editor updates all three at once, and no request is sent.
+
+:::tip What it shows
+
+1. **One cache entry, many readers**: hooks that use the same request share its data.
+2. **`client.cache.update()`** changes cached data locally, and every reader re-renders.
+3. **`useCache`** reads the cache without ever sending a request.
+4. **`select`** on `useCache` picks one field, so the component re-renders only when that field changes.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `getUserRequest` has its params and query params set in `api.ts`, so every component uses exactly the same cache key.
+2. `ProfileEditor` calls `useFetch(getUserRequest)`. It fetches the user and fills the cache.
+3. `NavBar` and `EmailBadge` call `useCache(getUserRequest)`. They show nothing until the data is in the cache, then
+   follow every change to it.
+4. Each input calls `updateCachedUser()`, which merges the change into the cached response:
+
+   ```ts
+   client.cache.update(getUserRequest, (cached) =>
+     // highlight-next-line
+     cached?.data ? { data: { ...cached.data, ...changes } } : {},
+   );
+   ```
+
+   `cache.update()` merges a partial response into the entry, `cache.set()` replaces it. Both emit a cache event that
+   every hook on that key listens to.
+
+5. **Reload from server** calls `refetch()`. The server's data overwrites the local edits.
+
+The `setData` action returned by `useFetch` and `useCache` changes only that hook's own state. Use `client.cache` when
+other components should see the change.
+
+:::note When to use it
+
+- Writing a mutation response into the cache, so lists and details show it without another request.
+- Local edits that several components show at once, such as a profile name in a header and a settings page.
+- Read-only widgets (headers, badges, counters) that should show data another component fetched.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [`useCache`](/docs/react/hooks/use-cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+Every hook that uses the same request reads the same cache entry. `client.cache.update()` changes that entry, and
+`useFetch` and `useCache` hooks everywhere re-render with the new data.
+
+:::

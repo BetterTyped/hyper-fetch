@@ -1,0 +1,75 @@
+---
+title: Mocking
+sidebar_label: Mocking
+sidebar_position: 7
+description: Build a screen before its backend exists with setMock - mocked data, latency, errors and timeouts.
+sidebar_custom_props:
+  path: react/mocking
+  level: beginner
+  tags: [mocking, useFetch, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/mocking/src/api.ts";
+import app from "!!raw-loader!@examples/react/mocking/src/App.tsx";
+
+A todo screen built before its API is ready. A mock answers the real request, and one switch sends it to the real
+DummyJSON endpoint instead.
+
+:::tip What it shows
+
+1. **`setMock`** answers a request with data you return, without a server and without changing the component.
+2. **Mock config** sets the latency with `requestTime` and `responseTime`, and a `timeout` that fails the request.
+3. **Error scenarios** return an `error` and a `status`, so the error state is built before the API can fail.
+4. **`client.setEnableGlobalMocking(false)`** turns every mock off and sends the same request to the real API.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getTodos` against the real `/todos` endpoint, with its final response type. The component only
+   knows this request.
+2. `applyMock()` calls `getTodos.setMock(callback, config)`. The callback reads the request (here the `limit` query
+   param) and returns `data`, or `error` with a `status`:
+
+   ```ts
+   if (scenario === "error") return { error: new Error("Internal server error"), status: 500 };
+   // highlight-next-line
+   return { data: { todos: fixtures.slice(0, limit), total: fixtures.length }, status: 200 };
+   ```
+
+3. `setMock` is the one setter that changes the request in place instead of returning a clone, so every clone created
+   later, like `getTodos.setQueryParams({ limit: 5 })` in `App.tsx`, carries the mock.
+4. The mock runs the full request lifecycle. `useFetch` gets `loading`, `status` and timestamps, and
+   `onDownloadProgress` fills the progress bar from the simulated transfer.
+5. `useFetch` lists the mock settings in `dependencies`, so every change sends the request again.
+6. **Use mocks** calls `client.setEnableGlobalMocking()`. With mocks off, the request goes to DummyJSON and the UI stays
+   the same, which is the point: nothing changes when the backend ships.
+
+:::note When to use it
+
+- Frontend work that starts before the API is ready.
+- Building loading, empty, error and timeout states on purpose instead of waiting for them to happen.
+- Demos and tests that should not depend on a live server.
+
+:::
+
+---
+
+## Related
+
+- [Mocking](/docs/core/mocking)
+- [Mocking in tests](/docs/guides/testing/mocking)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`setMock` replaces the adapter for one request and keeps the rest of the lifecycle, so the UI is built and tested
+against loading, errors and timeouts before the backend exists. `setEnableGlobalMocking(false)` switches to the real
+API.
+
+:::

@@ -1,0 +1,12 @@
+{
+  "label": "Apps",
+  "position": 10,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Complete apps that combine many features, the way a real product uses them.",
+  "link": {
+    "type": "generated-index",
+    "title": "App examples",
+    "description": "Complete apps that combine many features, the way a real product uses them."
+  }
+}

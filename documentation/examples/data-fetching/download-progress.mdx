@@ -1,0 +1,86 @@
+---
+title: Download progress
+sidebar_label: Download progress
+sidebar_position: 17
+description:
+  Download a file with a live percentage, speed and time left from onDownloadProgress, then save it from a Blob.
+sidebar_custom_props:
+  path: react/download-progress
+  level: intermediate
+  tags: [downloads, useSubmit, cancellation]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/download-progress/src/App.tsx";
+import api from "!!raw-loader!@examples/react/download-progress/src/api.ts";
+
+A download button with a progress bar, the speed and the time left. httpbin sends a 1 MB file slowly on purpose; pick
+how slowly. When the file is complete, **Save file** stores it from memory without downloading it again.
+
+:::tip What it shows
+
+1. **`onSubmitDownloadProgress`** fires for every received chunk with `progress`, `loaded`, `total` and `timeLeft`.
+2. **The default fetch adapter** reports download progress by reading the response body chunk by chunk.
+3. **A Blob URL** turns the response into a file the user can save.
+4. **Request options for downloads**: `cache: false` and a longer adapter `timeout`.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` points `downloadFileRequest` at httpbin's `/range/:size`, which sends `size` letters spread over `duration`
+   seconds and sets `Content-Length`. With a known length, `progress` is an exact percentage.
+2. Two request options matter for downloads:
+
+   ```ts
+   client.createRequest<{ response: string; queryParams: { duration: number; chunk_size: number } }>()({
+     endpoint: "/range/:size",
+     cache: false,
+     // highlight-next-line
+     options: { timeout: 60_000 },
+   });
+   ```
+
+   The fetch adapter's timeout covers the whole download and defaults to 5 seconds. `cache: false` keeps the file out of
+   the cache, since it is used once.
+
+3. `App.tsx` uses `useSubmit`, because the download starts on a click. `submit({ queryParams })` passes the chosen
+   duration.
+4. `onSubmitDownloadProgress` stores the numbers from each event. The speed is `loaded` divided by the seconds since
+   `startTimestamp`, and `timeLeft` comes from HyperFetch.
+5. `onSubmitSuccess` wraps the body in a `Blob` and creates an object URL for the **Save file** link. The effect cleanup
+   revokes the old URL, so the memory is freed.
+6. **Cancel** calls `abort()`. The fetch is aborted and `onSubmitAbort` fires.
+
+The default fetch adapter decodes the response body as text. That is right for JSON and text files like this one, but a
+binary file such as an image or a zip would be damaged. For binary downloads with progress, use the Axios adapter with
+`options: { responseType: "blob" }`. Another option is the fetch adapter's `streaming: true`, which hands you the raw
+body stream to read yourself.
+
+:::note When to use it
+
+- Exports, reports, datasets and media that take more than a moment to arrive.
+- Use `onDownloadProgress` in `send()` or `onDownloadProgress` from `useFetch` the same way when the data is read on
+  mount instead of on a click.
+
+:::
+
+---
+
+## Related
+
+- [Progress guide](/docs/guides/react/basics/progress)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Adapter](/docs/core/adapter)
+- [Upload progress example](/examples/mutations/upload-progress)
+
+:::secondary Summary
+
+The fetch adapter reads the body in chunks and reports each one, so `onSubmitDownloadProgress` can drive a progress bar,
+a speed and a time left. When the response is complete, a Blob URL lets the user save it.
+
+:::

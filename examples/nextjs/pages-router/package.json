@@ -1,0 +1,27 @@
+{
+  "name": "@hyper-fetch-examples/nextjs-pages-router",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Fetch in getServerSideProps, dehydrate the responses and hydrate them into HyperFetch hooks with one Hydrate in _app.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "next": "^16.4.6",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

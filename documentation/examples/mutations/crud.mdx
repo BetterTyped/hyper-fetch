@@ -1,0 +1,86 @@
+---
+title: CRUD
+sidebar_label: CRUD
+sidebar_position: 4
+description:
+  Create, read, update and delete todos, and write each server response into the cached list instead of refetching it.
+sidebar_custom_props:
+  path: react/crud
+  level: intermediate
+  tags: [useFetch, useSubmit, cache, params]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/crud/src/api.ts";
+import app from "!!raw-loader!@examples/react/crud/src/App.tsx";
+
+A todo list with all four operations: add a todo, edit its text, check it off and delete it. Each mutation waits for the
+server, then writes the server's answer into the cached list.
+
+:::tip What it shows
+
+1. **Four typed requests**: `GET`, `POST`, `PATCH` and `DELETE`, with `:todoId` params and typed payloads.
+2. **One `useSubmit` per row**, so each row has its own `submitting` and `error` state.
+3. **Manual cache updates**: `client.cache.update()` writes the result into the list, and every reader re-renders.
+4. **No extra round trip**: the list is never refetched after a change.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getTodosRequest` plus one request per operation. `updateTodoRequest` and `deleteTodoRequest` share
+   the endpoint `/todos/:todoId`, so `setParams({ todoId })` is required before they can be sent.
+2. `updateCachedTodos()` wraps `client.cache.update()`. It receives the cached value, changes the `todos` array and
+   writes it back under the same cache key:
+
+   ```ts
+   client.cache.update(getTodosRequest, (cached) => {
+     if (!cached?.data) return {};
+     // highlight-next-line
+     return { data: { ...cached.data, todos: update(cached.data.todos) } };
+   });
+   ```
+
+3. `TodoItem` calls `useSubmit(updateTodoRequest.setParams({ todoId: todo.id }))`. On success it swaps the item for
+   `response.data`, the version the server returned.
+4. Delete removes the item from the cached list; create puts `response.data` at the top.
+5. The `useFetch(getTodosRequest)` in `App` listens to its cache key, so it re-renders after every `cache.update()`.
+
+### Why update the cache instead of refetching
+
+dummyjson only simulates writes: it answers as if the change was saved, but a new `GET /todos` returns the original
+list. Refetching after each mutation would wipe out your changes, so this example keeps the list in the cache.
+
+The same pattern pays off with real APIs. The mutation response already holds the new item, so writing it into the cache
+saves a request and updates the screen as soon as the server confirms. Use
+[invalidation](/examples/mutations/invalidation) instead when one change affects data you cannot compute on the client,
+such as totals, sorting or other users' edits.
+
+dummyjson also gives every new todo the id `255` and does not know it afterwards. That is why the create handler
+replaces an item with the same id, and why editing or deleting a new todo shows a `404` from the server.
+
+:::note When to use it
+
+- Lists and tables where the mutation response contains the changed item.
+- Screens that should update right after the server confirms, without a loading flash from a refetch.
+
+:::
+
+---
+
+## Related
+
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Cache](/docs/core/cache)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+Each operation is a typed request sent with `useSubmit`. When it succeeds, `client.cache.update()` writes the result
+into the cached list, so every component shows it without another request.
+
+:::

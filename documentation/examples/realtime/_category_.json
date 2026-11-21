@@ -1,0 +1,12 @@
+{
+  "label": "Realtime and streaming",
+  "position": 7,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "WebSockets, server-sent events and streamed responses.",
+  "link": {
+    "type": "generated-index",
+    "title": "Realtime and streaming examples",
+    "description": "WebSockets, server-sent events and streamed responses."
+  }
+}

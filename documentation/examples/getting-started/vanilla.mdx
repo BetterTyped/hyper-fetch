@@ -1,0 +1,74 @@
+---
+title: Vanilla TypeScript
+sidebar_label: Vanilla TypeScript
+sidebar_position: 2
+description: Send typed requests from plain TypeScript and read the response object, no framework needed.
+sidebar_custom_props:
+  path: vanilla/basic
+  level: beginner
+  tags: [vanilla, send, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/vanilla/basic/src/api.ts";
+import main from "!!raw-loader!@examples/vanilla/basic/src/main.ts";
+
+A todo list and a lookup form built with plain DOM code. `@hyper-fetch/core` does not need React or any other framework:
+you create a client, describe requests, and call `send()`.
+
+:::tip What it shows
+
+1. **`createClient` and `createRequest`** work the same with or without a UI framework.
+2. **`send()`** takes typed `params` and `queryParams` and returns a promise with the response.
+3. **The response object** carries `data`, `error`, `success`, `status` and timestamps for every call.
+4. **Errors resolve, they do not throw.** A 404 comes back as a response with a typed `error`.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/main.ts": main }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates one client with `createClient({ url })` and two requests. `getTodo` also sets the `error` generic,
+   so `response.error` is typed as the `{ message }` body dummyjson returns for a missing todo.
+2. `main.ts` writes a static HTML skeleton and fills it with `textContent`, so nothing from the API is parsed as HTML.
+3. `loadTodos()` calls `getTodos.send({ queryParams: { limit: 5 } })` on start. The values passed to `send()` apply to
+   that call only.
+4. The lookup form calls `getTodo.send({ params: { todoId } })`. `:todoId` in the endpoint makes `params` required, so
+   TypeScript flags a call without it.
+5. Every field of the response is printed: `success` and `status`, then `data` or `error`, and the time between
+   `requestTimestamp` and `responseTimestamp`. Try id `9999` to see a 404 come back as a normal response.
+
+```ts
+const response = await getTodo.send({ params: { todoId } });
+// highlight-next-line
+if (response.error) console.log(response.status, response.error.message);
+```
+
+`send()` also accepts lifecycle callbacks such as `onRequestStart`, `onDownloadProgress` and `onResponse` when you need
+to react before the promise settles.
+
+:::note When to use it
+
+- Scripts, web components or apps built with a framework that has no HyperFetch bindings.
+- Code that runs outside components, such as route loaders, workers or Node scripts.
+
+:::
+
+---
+
+## Related
+
+- [Client](/docs/core/client)
+- [Requests](/docs/core/request)
+- [Fetching guide](/docs/guides/core/basics/fetching)
+- [Error handling guide](/docs/guides/core/basics/error-handling)
+
+:::secondary Summary
+
+You sent typed requests with `send()` from plain TypeScript and read `data`, `error`, `success` and `status` from the
+response. The same core API powers the React hooks.
+
+:::

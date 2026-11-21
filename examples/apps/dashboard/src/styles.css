@@ -1,0 +1,116 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.error {
+  color: var(--pico-del-color);
+  font-size: 0.9rem;
+}
+
+.error button {
+  width: auto;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+
+.widget {
+  margin: 0;
+}
+
+.widget header,
+.widget footer {
+  margin-block: 0;
+  padding-block: 0.4rem;
+}
+
+.kpi {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.live {
+  color: var(--pico-ins-color);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 2rem;
+}
+
+.sparkline span {
+  flex: 1;
+  background: var(--pico-primary);
+  border-radius: 2px 2px 0 0;
+}
+
+.sort {
+  all: unset;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.offline {
+  padding: 0.75rem 1rem;
+  border-radius: var(--pico-border-radius);
+  background: var(--pico-mark-background-color);
+  color: var(--pico-mark-color);
+}
+
+.fetching-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--pico-primary);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.fetching-bar.active {
+  opacity: 1;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}

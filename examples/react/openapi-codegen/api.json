@@ -1,0 +1,10 @@
+{
+  "tsx": true,
+  "aliases": {
+    "api": "src/api",
+    "hooks": "src/hooks",
+    "ui": "src/components/ui",
+    "components": "src/components",
+    "lib": "src/lib"
+  }
+}

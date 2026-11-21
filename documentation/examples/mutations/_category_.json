@@ -1,0 +1,12 @@
+{
+  "label": "Mutations",
+  "position": 3,
+  "collapsible": true,
+  "collapsed": false,
+  "description": "Changing data: forms, optimistic updates, invalidation and uploads.",
+  "link": {
+    "type": "generated-index",
+    "title": "Mutations examples",
+    "description": "Changing data: forms, optimistic updates, invalidation and uploads."
+  }
+}
