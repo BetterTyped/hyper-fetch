@@ -1,44 +1,67 @@
 ---
-title: Guide - Offline
+title: Offline-First Requests and Offline Mode in React
+description: Build offline-first requests that wait for the network instead of failing. Offline mode in React, queued writes, and custom network detection.
 sidebar_label: Offline
 ---
 
-# Offline First
+# Offline-First Requests
 
-Hyper-fetch is designed with offline-first and data persistence in mind. This means our request queueing system is fully
-equipped to help you build robust offline-first applications. When your application goes offline, Hyper-fetch
-automatically pauses outgoing requests and seamlessly resumes them once the connection is restored.
+An offline-first app treats the network as something that comes and goes. Reads show the last data you had, and writes
+made without a connection wait in a queue and go out when it returns. Users on a train or a flaky cafe network keep
+working instead of staring at error screens. Hyper Fetch's request queue supports this out of the box: when the app
+goes offline, outgoing requests are held, and they are sent once the connection is back.
 
-This entire process is managed by the `AppManager`, which monitors the application's state, such as online/offline
-status and whether the app window is focused or blurred.
+This is managed by the `AppManager`, which tracks whether the app is online and whether its window is focused.
 
 ---
 
 :::secondary What you'll learn
 
-1.  How Hyper-fetch **automates offline request handling**.
-2.  The role of the **`AppManager`** in detecting network status.
-3.  How to provide **custom logic** for online/offline detection for environments like React Native.
-4.  How to integrate with libraries like **`@react-native-community/netinfo`**.
+1.  What **offline first** means for reads and writes.
+2.  How Hyper Fetch **automates offline request handling**.
+3.  The role of the **`AppManager`** in detecting network status.
+4.  How to show an **offline mode in React**.
+5.  How to provide **custom logic** for online/offline detection in environments like React Native.
 
 :::
 
-## Default Behavior
+---
 
-By default, Hyper-fetch listens to the browser's `online` and `offline` events to manage the request queue. No extra
-configuration is needed for this to work in a standard web environment. When the browser detects a lost connection, the
-`AppManager` puts all active and queued requests on hold. Once the connection returns, it automatically resumes them.
+## What offline first needs
 
-### Marking Requests for Offline Support
+An offline-first setup has three parts, plus an optional fourth. Each one has a Hyper Fetch piece:
 
-For a request to be queued when offline (instead of failing immediately), you must mark it with `offline: true`:
+| Part                          | What it does                                             | In Hyper Fetch                                |
+| ----------------------------- | -------------------------------------------------------- | --------------------------------------------- |
+| Network detection             | Knows when the connection drops and comes back           | `AppManager` (`online` / `offline` events)    |
+| Reads from local data         | Shows the last response instead of an error              | [Cache](./cache-revalidation.mdx)             |
+| Writes that wait              | Keeps failed writes and sends them later                 | Dispatcher queue with `offline: true`         |
+| Survives a reload (optional)  | Keeps cache and queued writes in storage                 | [Persistence](./persistence.mdx)              |
+
+One thing to know about detection: the browser's `online` flag is a hint, not a guarantee.
+[MDN notes](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine) that `navigator.onLine` being `true`
+doesn't mean the internet is reachable, only that the device is connected to some network. Treat offline detection as
+the fast path and still handle request errors.
+
+---
+
+## Default behavior
+
+By default, Hyper Fetch listens to the browser's `online` and `offline` events. No extra configuration is needed in a
+standard web environment. When the browser reports a lost connection, the dispatcher stops sending requests and keeps
+them in its queues. When the connection returns, it sends them.
+
+### Offline support per request
+
+Every request has an `offline` option, and it is `true` by default. A request sent while offline (or one that fails
+because the connection dropped) is kept and sent again when the network comes back:
 
 ```typescript
 const createPost = client.createRequest()({
   endpoint: "/posts",
   method: "POST",
   // highlight-next-line
-  offline: true,
+  offline: true, // the default, shown here for clarity
 });
 
 // If the user is offline when this is called, the request will be queued
@@ -46,12 +69,20 @@ const createPost = client.createRequest()({
 createPost.send({ payload: { title: "My Post", content: "Written offline" } });
 ```
 
-Without `offline: true`, requests made while offline will fail immediately with an error.
+The `send()` promise stays pending until the queued request is finally sent and answered. Offline failures don't use up
+[retries](../01-basics/retries.mdx) either.
 
-### Combining with Queuing
+The queue lives in memory by default, so a closed tab loses it. Give the dispatcher a `lazyStorage` (IndexedDB,
+AsyncStorage) and the queued writes are restored and sent on the next start. Requests the browser cancels while the page
+unloads stay in the queue for that next start instead of failing. Setup is in [persistence](./persistence.mdx).
 
-For the best offline experience, combine `offline: true` with `queued: true`. This ensures that multiple offline
-requests are sent sequentially once the connection is restored, avoiding overwhelming the server:
+Set `offline: false` when a late answer is worse than no answer, like a price check or a one-time code. Those requests
+fail right away while the device is offline, and the request is dropped instead of waiting.
+
+### Combining with queueing
+
+For writes that must keep their order, combine `offline: true` with `queued: true`. Requests in the same queue are then
+sent one by one once the connection is restored:
 
 ```typescript
 const syncAction = client.createRequest()({
@@ -62,15 +93,43 @@ const syncAction = client.createRequest()({
 });
 ```
 
-## Customization
+More on queue modes in [request queueing](./queueing.mdx).
 
-The default browser events are not always available in non-browser environments like React Native. For these cases, you
-can provide your own logic for detecting the connection status.
+---
 
-### React Native Example
+## Offline mode in React
+
+The `useAppManager` hook gives a component the current network state, which is all you need for an offline banner:
+
+```tsx
+import { useAppManager } from "@hyper-fetch/react";
+import { client } from "./api";
+
+export function OfflineBanner() {
+  const { isOnline } = useAppManager(client);
+
+  if (isOnline) return null;
+  return <div className="p-2 text-center text-sm">You're offline. Changes will sync when you're back.</div>;
+}
+```
+
+`useFetch` and `useSubmit` also have `onOfflineError` and `onSubmitOfflineError` callbacks. They fire when a request is
+held because of the network, without triggering the normal error callbacks, so you can show a "saved, waiting to sync"
+state instead of an error. And because `useFetch` reads the cache first, a screen you visited before still shows its
+last data while offline. See [window and network events](../../react/01-basics/window-focus-blur.mdx) for refetching
+when the connection comes back.
+
+---
+
+## Custom network detection
+
+The default browser events are not available in every environment, React Native being the common example. For these
+cases, give the `AppManager` your own detection logic.
+
+### React Native example
 
 In React Native, `@react-native-community/netinfo` is the standard way to get information about the device's network
-status. You can integrate it with Hyper-fetch's `AppManager` like this:
+status. You can connect it to Hyper Fetch's `AppManager` like this:
 
 ```typescript
 import { Client, AppManager } from "@hyper-fetch/core";
@@ -107,20 +166,20 @@ In this example:
     promise that resolves with the connection status.
 2.  `onlineEvent`: We set up an event listener with `NetInfo.addEventListener`. This listener calls `setOnline` with the
     current connection status whenever it changes. The function returns the `unsubscribe` function from `NetInfo`, which
-    `AppManager` will call to clean up the listener when it's no longer needed.
+    `AppManager` calls to clean up the listener when it's no longer needed.
 
-This setup ensures that Hyper-fetch's offline handling works seamlessly in a React Native environment.
+More React Native setup is in the [React Native environment guide](../../../react/03-environments/react-native.mdx).
 
 ---
 
 :::success Congratulations!
 
-You've learned how to handle offline state with Hyper-fetch!
+You've learned how to handle offline state with Hyper Fetch.
 
-- You know that Hyper-fetch provides **automatic offline handling** out of the box.
-- You can customize the **online/offline detection logic** using the `AppManager`.
-- You are able to integrate Hyper-fetch with **environment-specific** network status libraries like
+- You know the parts of an **offline-first** app: detection, cached reads, and writes that wait.
+- Requests are **held while offline** by default, and `offline: false` makes them fail fast instead.
+- You can show an **offline mode in React** with `useAppManager` and `onOfflineError`.
+- You can customize the **online/offline detection logic** using the `AppManager`, for example with
   `@react-native-community/netinfo`.
-- You can now build powerful **offline-first applications**.
 
 :::

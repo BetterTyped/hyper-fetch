@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Book, FlaskConical } from "lucide-react";
+import { Book, FlaskConical, Scale } from "lucide-react";
 
 import { Section } from "./modules";
 import { isBrowser } from "./utils/is-browser";
@@ -112,6 +112,23 @@ export const guides: Section[] = [
       "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 group-hover:bg-purple-400 group-hover:dark:bg-purple-500 !bg-opacity-40",
     border: "border-purple-500 dark:border-purple-400",
     borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
+    category: "Guides",
+  },
+  {
+    label: "Comparisons",
+    description: "How Hyper Fetch compares to TanStack Query, SWR, RTK Query, Apollo Client and Axios",
+    isPackage: false,
+    dir: "comparisons",
+    paths: ["comparisons"],
+    img: Scale,
+    text: "drop-shadow-sm !text-amber-500 dark:!text-amber-400",
+    textAction: "focus:!text-amber-500 focus:dark:!text-amber-400 active:!text-amber-600 active:dark:!text-amber-300",
+    textHover: "hover:!text-amber-500 hover:dark:!text-amber-400",
+    icon: "group-hover:shadow-amber-200 dark:group-hover:bg-amber-500 bg-amber-400 dark:bg-amber-500 !bg-opacity-30",
+    iconHover:
+      "group-hover:shadow-amber-200 dark:group-hover:bg-amber-500 group-hover:bg-amber-400 group-hover:dark:bg-amber-500 !bg-opacity-40",
+    border: "border-amber-500 dark:border-amber-400",
+    borderHover: "hover:border-amber-500 hover:dark:border-amber-400",
     category: "Guides",
   },
 ];

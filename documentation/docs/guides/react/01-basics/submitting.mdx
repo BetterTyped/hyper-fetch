@@ -1,27 +1,56 @@
 ---
 sidebar_position: 2
-title: Submitting Data with useSubmit
+title: Mutations in React with useSubmit
+description: Run mutations in React with useSubmit, the Hyper Fetch counterpart of React Query useMutation. Create, update and delete data with loading states.
 sidebar_label: Submitting
 ---
 
-# Submitting Data
+# Mutations in React with useSubmit
 
-While `useFetch` is for fetching and displaying data, `useSubmit` is its counterpart, designed for actions that change
-data on the server, such as creating, updating, or deleting resources. You use it when you need to trigger a request
-manually in response to a user event, like clicking a button.
+A mutation is any request that changes data on the server: creating, updating or deleting something. Reads run on their
+own when a component mounts. Mutations run when the user does something, like submitting a form or clicking "Delete".
+Mutations in React need a few things a read doesn't: a way to trigger the request by hand, a `submitting` flag to
+disable the button, a result you can act on, and a way to refresh the data the mutation changed.
 
-A key feature of `useSubmit` is that its `submit` function returns a promise, allowing you to easily perform actions
-after the submission completes, like resetting a form or showing a notification.
+In Hyper Fetch, `useFetch` is for reading and `useSubmit` is for mutations. Its `submit` function returns a promise, so
+you can reset a form or show a notification once the request completes.
 
 :::secondary What you'll learn
 
 1.  How to use the **`useSubmit` hook** to send data to the server.
-2.  How to handle **form submissions** for creating and updating data.
-3.  How to trigger **actions** like deleting an item.
-4.  How the **`submit` function** works as a promise for easy chaining of actions.
-5.  How to manage **loading states** (`submitting`) to provide user feedback.
+2.  How `useSubmit` maps to React Query's **`useMutation`**.
+3.  How to handle **form submissions** for creating and updating data.
+4.  How to trigger **actions** like deleting an item.
+5.  How the **`submit` function** works as a promise for easy chaining of actions.
+6.  How to manage **loading states** (`submitting`) to provide user feedback.
 
 :::
+
+---
+
+## useSubmit and useMutation
+
+If you're coming from React Query, `useSubmit` fills the same spot as
+[`useMutation`](https://tanstack.com/query/latest/docs/framework/react/guides/mutations). The main difference is that
+`useMutation` wraps a function you write (`mutationFn`), while `useSubmit` takes a request object that already knows its
+endpoint, method and types.
+
+| React Query `useMutation`         | Hyper Fetch `useSubmit`                                   |
+| --------------------------------- | --------------------------------------------------------- |
+| `mutationFn: (vars) => fetch(...)` | `useSubmit(createTodo)`, the request is the definition  |
+| `mutate(vars)`                    | `submit({ payload, params, queryParams })`                |
+| `mutateAsync(vars)`, throws on error | `await submit(...)`, resolves with `{ data, error, success }`, never rejects |
+| `isPending`                       | `submitting`                                              |
+| `data`, `error`                   | `data`, `error`                                           |
+| `onMutate`                        | `onSubmitRequestStart`, or `setOptimistic` on the request |
+| `onSuccess`, `onError`, `onSettled` | `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`  |
+| `invalidateQueries` in `onSuccess` | `client.cache.invalidate(getTodos)`                     |
+
+Because `submit` resolves even when the server returns an error, you check `success` (or `error`) instead of wrapping
+the call in `try` / `catch`. All options and return values are in the
+[useSubmit reference](../../../react/04-hooks/use-submit.mdx).
+
+---
 
 ## Managing a To-Do List
 
@@ -121,8 +150,24 @@ function TodoApp() {
 5.  **Loading State**: The `submitting` boolean (which we aliased to `isAdding` for the create action) is used to
     disable the "Add" button while the request is in flight, preventing duplicate submissions.
 
-This example demonstrates how `useSubmit` can be the backbone for all the interactive, data-changing parts of your
-application.
+This example shows how `useSubmit` covers all the data-changing parts of a screen.
+
+### Refreshing other components
+
+`refetch()` refreshes the list in this component only. When other components show the same data, invalidate the cache
+instead. Every `useFetch` reading it refetches:
+
+```tsx
+const { success } = await addTodo({ payload: { title: newTodo, completed: false } });
+
+if (success) {
+  // highlight-next-line
+  client.cache.invalidate(getTodos);
+}
+```
+
+To show the change before the server answers, use [optimistic updates](./optimistic-approach.mdx). For all invalidation
+options, see [cache invalidation](../../core/02-advanced/cache-revalidation.mdx).
 
 ---
 

@@ -1,0 +1,246 @@
+---
+sidebar_position: 5
+title: Generate a TypeScript API Client from OpenAPI
+description: Compare openapi-typescript, Orval, Hey API and Kubb, then generate a typed TypeScript API client from your OpenAPI schema with the Hyper Fetch CLI.
+sidebar_label: OpenAPI to TypeScript
+---
+
+# Generate a TypeScript API client from OpenAPI
+
+If your backend publishes an OpenAPI (or Swagger) schema, you don't have to write request types by hand. An openapi
+typescript generator reads the schema and writes the types, and often the client code, for every endpoint. When the API
+changes, you regenerate and the compiler shows you every call that broke.
+
+There are three common approaches, and they differ in how much code they write for you. This page explains each one,
+names the main tools, and then walks through the Hyper Fetch CLI from schema to a working React component.
+
+:::tip Purpose
+
+1.  **Pick an approach**: types only, a full generated client, or typed requests for a data layer.
+2.  **Generate** a typed SDK from an OpenAPI JSON schema with `npx @hyper-fetch/cli generate`.
+3.  **Use it** with `send()`, `useFetch` and `useSubmit`, and regenerate it in CI.
+
+:::
+
+---
+
+## Three ways to turn OpenAPI into TypeScript
+
+| Approach                     | What gets generated                                              | Examples                                     | You still write                                |
+| ---------------------------- | ---------------------------------------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Types only                   | TypeScript types for paths, params, bodies and responses         | openapi-typescript                           | The fetch layer (or a small typed fetch wrapper) |
+| Full client generator        | Functions or hooks per operation, often mocks and validators     | Orval, Hey API, Kubb, swagger-typescript-api | Configuration of the generator                 |
+| Typed requests for a library | Request definitions that plug into a data layer you already use  | Hyper Fetch CLI                              | The client setup (base URL, auth)              |
+
+### Types only: openapi-typescript and openapi-fetch
+
+[openapi-typescript](https://openapi-ts.dev/introduction) generates runtime-free types from OpenAPI 3.0 and 3.1, from
+YAML or JSON, local or remote:
+
+```bash
+npx openapi-typescript ./schema.yaml -o ./schema.d.ts
+```
+
+Nothing ships to the browser. To call the API with those types, the same project offers
+[openapi-fetch](https://openapi-ts.dev/openapi-fetch/), a small typed wrapper around `fetch`: you call
+`client.GET("/blogposts/{post_id}", { params })` and get back `{ data, error, response }`. For React, its
+[openapi-react-query](https://openapi-ts.dev/openapi-react-query/) package wraps TanStack Query on top. This is a good
+fit when you want the smallest runtime and like writing paths as strings.
+
+### Full client generators: Orval, Hey API, Kubb
+
+These write callable code for every operation:
+
+- [Orval](https://orval.dev/) generates types, hooks for React Query, SWR, Angular, Vue, Svelte and Solid, and MSW mock
+  handlers with Faker data.
+- [Hey API](https://heyapi.dev/openapi-ts/get-started) (`@hey-api/openapi-ts`) generates SDKs, types and schemas, with
+  HTTP clients for Fetch, Axios, Angular, Next.js and Nuxt. Its
+  [TanStack Query plugin](https://heyapi.dev/openapi-ts/plugins/tanstack-query) emits query and mutation options.
+- [Kubb](https://kubb.dev/) is plugin-based: TypeScript types, Axios and Fetch clients, TanStack
+  Query hooks, Zod schemas, Faker and MSW mocks, each from its own plugin.
+- [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) generates a Fetch or Axios client from
+  OpenAPI 3.0 and Swagger 2.0, JSON or YAML.
+
+If you searched for **openapi-typescript-codegen**: its
+[README](https://github.com/ferdikoomen/openapi-typescript-codegen) says the project is unmaintained and asks users to
+migrate to Hey API, which started as its fork. And **oapi-codegen** is a
+[Go generator](https://github.com/oapi-codegen/oapi-codegen): it writes Go servers, clients and types, not TypeScript.
+
+These tools are a good fit when you want hooks or mocks generated for a specific library and are happy to tune a
+generator config.
+
+### Typed requests: the Hyper Fetch CLI
+
+The Hyper Fetch CLI sits between the two. It generates types plus a typed **SDK schema**, and the SDK hands you real
+Hyper Fetch requests. You don't get one generated hook per endpoint. You get requests that work with `send()` on the
+server, `useFetch` and `useSubmit` in React, and with the cache, retries, queues and offline support the library
+already has. Base URL, auth and interceptors stay in one client you write once.
+
+---
+
+## Generate the client with Hyper Fetch
+
+### 1. Point the CLI at your schema
+
+```bash
+npx @hyper-fetch/cli@latest generate \
+  --template openapi \
+  --url https://petstore3.swagger.io/api/v3/openapi.json \
+  --fileName petstore.sdk.ts
+```
+
+`--template` is `openapi` or `swagger`. `--url` takes an `http(s)` URL or a JSON file path relative to `--cwd`. Leave a
+flag out and the CLI asks for it. The prompt only accepts URLs, so pass local files with `--url`.
+
+The first run in a project without an `api.json` runs [`init`](./commands/init.mdx) for you. It creates `api.json` and
+a `src/api` folder, and the SDK is written there. To choose the folder yourself, run `init` first. There is no `--output`
+flag: the folder comes from `aliases.api` in `api.json`. All flags are listed on the
+[`generate` page](./commands/generate.mdx).
+
+### 2. Look at what was generated
+
+The file has four parts:
+
+1.  **Model types** from your `components`, in a `Components` namespace.
+2.  **Per-operation types**, named after the `operationId`: `GetPetByIdResponseType`, `GetPetByIdPathParams`, and
+    `QueryParams`, `RequestBody` and `ErrorType` where the schema has them.
+3.  **`SdkSchema`**, a type that mirrors your URL tree.
+4.  **`createSdk`**, which takes your client and returns the SDK. Next to it, `sdkPathSegments` keeps the URL segments
+    that the SDK's camelCase to kebab-case conversion would get wrong.
+
+In `SdkSchema`, each path segment becomes a key, `{param}` segments become `$param` keys, and each HTTP method becomes a
+`$`-prefixed leaf typed with `RequestModel`. An abridged excerpt:
+
+```ts title="src/api/petstore.sdk.ts (excerpt)"
+export type SdkSchema = {
+  pet: {
+    $petId: {
+      $get: RequestModel<{ response: GetPetByIdResponseType; error: GetPetByIdErrorType; endpoint: "/pet/:petId" }>;
+    };
+  };
+  store: {
+    inventory: {
+      $get: RequestModel<{ response: GetInventoryResponseType; error: GetInventoryErrorType; endpoint: "/store/inventory" }>;
+    };
+  };
+};
+```
+
+The response type is the union of the operation's 2xx response schemas, and `any` when there is none. The error type is
+the union of its 4xx and 5xx schemas, and `undefined` when the schema describes no error bodies.
+
+### 3. Create the SDK with your client
+
+```ts title="src/api/index.ts"
+import { createClient } from "@hyper-fetch/core";
+import { createSdk } from "./petstore.sdk";
+
+export const client = createClient({ url: "https://petstore3.swagger.io/api/v3" });
+
+export const sdk = createSdk(client);
+```
+
+The generated file doesn't read `servers` from the schema, so the base URL always comes from your client. That keeps
+staging and production a one-line change.
+
+### 4. Send requests
+
+Every leaf of the SDK is a request, with the same `set*` methods as one you define by hand:
+
+```ts
+const { data: pet, error } = await sdk.pet.$petId.$get.setParams({ petId: 1 }).send();
+
+if (error) {
+  console.error(error);
+}
+```
+
+`setParams` is typed from the path, and `data` and `error` are typed from the schema.
+
+### 5. Use it in React
+
+Keep the requests you use often in module scope, then pass them to the hooks:
+
+```tsx title="src/pets/pet-card.tsx"
+import { useFetch } from "@hyper-fetch/react";
+import { sdk } from "../api";
+
+const getPet = sdk.pet.$petId.$get;
+
+export function PetCard({ petId }: { petId: number }) {
+  const { data, loading, error } = useFetch(getPet.setParams({ petId }));
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Pet not found</p>;
+
+  return <h2>{data?.name}</h2>;
+}
+```
+
+Writes go through `useSubmit` the same way. The [`useFetch`](../react/04-hooks/use-fetch.mdx) and
+[`useSubmit`](../react/04-hooks/use-submit.mdx) pages list every option.
+
+### 6. Set defaults for the whole SDK
+
+Generated code is overwritten on every run, so don't edit it. Put request defaults in `$configure` instead:
+
+```ts title="src/api/index.ts"
+import { Time } from "@hyper-fetch/core";
+
+export const sdk = createSdk(client).$configure({
+  "*": { retry: 2 },
+  "/store/inventory": { staleTime: Time.MIN },
+});
+```
+
+Keys are checked against the schema. The [SDK reference](../core/sdk.mdx) covers wildcards and per-method keys.
+
+### 7. Regenerate in CI
+
+Add a script that never prompts:
+
+```json title="package.json"
+{
+  "scripts": {
+    "api:generate": "hyper-fetch generate -t openapi -u https://api.example.com/openapi.json -f api.sdk.ts -o"
+  }
+}
+```
+
+Install `@hyper-fetch/cli` as a dev dependency for the `hyper-fetch` binary, or call it through `npx`. Run the script
+in CI and fail the build on a diff, or let the typecheck that follows catch the calls that no longer match the API.
+
+---
+
+## Limits to know about
+
+- **JSON only.** The CLI parses the schema as JSON. Convert a YAML spec to JSON before generating.
+- **No auth for the schema URL.** There is no flag for headers. Download a protected spec first and pass the local path.
+- **camelCase path segments are handled for you.** `createSdk` turns camelCase keys into kebab-case URLs by default,
+  so the generated file also exports `sdkPathSegments`, a map of the keys whose segment in the schema differs (like
+  `findByStatus` in `/pet/findByStatus`). The generated `createSdk` passes it as the `pathSegments` option, and your own
+  `pathSegments` entries win. kebab-case paths such as `/user-profiles` are generated as `userProfiles`.
+- **No hooks or mocks are generated.** The SDK gives you requests. Hooks come from `@hyper-fetch/react`, and mocks from
+  `request.setMock()` on a request you keep a reference to. See [mocking](../core/mocking.mdx).
+
+---
+
+## Which approach fits you
+
+- **Types only (openapi-typescript)** if you want zero runtime cost, already have a fetch layer you like, or work across
+  many frameworks.
+- **A full generator (Orval, Hey API, Kubb)** if you want generated TanStack Query or SWR hooks, MSW mocks or Zod
+  schemas, and you're fine owning a generator config.
+- **The Hyper Fetch CLI** if you use Hyper Fetch or want one data layer for HTTP and sockets, with caching, retries,
+  queues and offline replay attached to every generated request.
+
+:::secondary Summary
+
+1.  **openapi-typescript** generates types only. **Orval, Hey API and Kubb** generate full clients and hooks.
+2.  **`npx @hyper-fetch/cli generate`** writes types, an `SdkSchema` and a `createSdk` factory into your `api` folder.
+3.  **`createSdk(client)`** returns typed Hyper Fetch requests for every operation.
+4.  Put defaults in **`$configure`** and regenerate from a script, never edit the generated file.
+
+:::
+
+Start with the [CLI overview](./overview.mdx) if you haven't used the CLI before.

@@ -1,60 +1,106 @@
 ---
-title: Guide - Cache Invalidation
+title: Cache Invalidation and Revalidation in React Apps
+description: How to invalidate cache after a mutation, by key or pattern, and revalidate stale data. Compared with React Query invalidateQueries and React cache().
 sidebar_label: Cache Invalidation
 ---
 
-# Cache Invalidation
+# Cache Invalidation and Revalidation
 
-When building dynamic applications, keeping the data displayed to the user up-to-date is crucial. Data can become stale
-for many reasons - another user might have updated it, a background process changed it, or the current user performed an
-action that invalidates the existing view. Hyper-fetch provides powerful and flexible cache invalidation mechanisms to
-ensure your app's data is always fresh.
+Once you cache API responses, you have to decide when a cached copy stops being true. Another user edits a record, a
+background job changes a total, or your own form creates a new item that the cached list doesn't have. Cache
+invalidation is how you tell the cache "this is out of date", and revalidation is the fresh request that replaces it.
+This guide covers the general strategies, how React Query and React's own `cache()` handle it, and how to invalidate
+cache in Hyper Fetch with `client.cache.invalidate`.
 
 ---
 
 :::secondary What you'll learn
 
-1.  What **cache invalidation** is and why it's essential.
-2.  How to invalidate the cache using `client.cache.invalidate` with **request instances**, **strings**, and **RegExp**.
-3.  How to **batch-invalidate** multiple cache entries in a single call.
-4.  How to **read**, **update**, and **delete** cache entries directly.
-5.  How invalidation **triggers automatic re-fetching** in React hooks.
+1.  What **cache invalidation** and **revalidation** mean, and the common strategies.
+2.  How this maps to **React Query** and React's **`cache()`** function.
+3.  How to invalidate the cache using `client.cache.invalidate` with **request instances**, **strings**, and **RegExp**.
+4.  How to **batch-invalidate** multiple cache entries in a single call.
+5.  How to **read**, **update**, and **delete** cache entries directly.
+6.  How invalidation **triggers automatic re-fetching** in React hooks.
 
 :::
 
 ---
 
-## The Basics
+## Three ways to keep a cache fresh
 
-Cache invalidation marks cached data as stale by setting its `staleTime` to `0`. The next consumer - whether a React
-`useFetch` hook or a manual `send()` call with caching enabled - will see the data is out of date and trigger a fresh
-request to the server.
+| Strategy              | How it works                                              | Good for                                    |
+| --------------------- | --------------------------------------------------------- | ------------------------------------------- |
+| Time-based            | Data is fresh for a fixed time, then refetched on next use | Lists and dashboards that change slowly     |
+| Event-based           | You invalidate when you know data changed                  | After a mutation, a websocket message       |
+| Pattern-based         | One call invalidates a family of keys                      | Every page of a paginated list, all `/users/*` |
 
-Every cached request is identified by a unique `cacheKey`, which is derived from the request's method, endpoint, and
-query parameters (e.g. `GET_/users` or `GET_/users?page=2`). Invalidation works by targeting these keys.
+Most apps use all three. A sensible `staleTime` covers the background drift, and explicit invalidation after mutations
+covers the changes your own app makes.
+
+In Hyper Fetch the time-based part is two request options:
+
+- `staleTime` (default 5 minutes): how long a cached response counts as fresh. After that, the next consumer refetches.
+- `cacheTime` (default 5 minutes): how long the entry stays in memory at all before garbage collection.
+
+```ts
+const getUsers = client.createRequest<{ response: { id: number; name: string }[] }>()({
+  endpoint: "/users",
+  staleTime: 30_000, // refetch on next use after 30 seconds
+  cacheTime: 10 * 60_000, // keep in memory for 10 minutes
+});
+```
 
 ---
 
-## Invalidating by Request, String, or RegExp
+## React Query cache and React cache()
 
-The `client.cache.invalidate` method accepts three different argument types, giving you flexible control over what gets
-invalidated:
+If you're coming from React Query, `queryClient.invalidateQueries({ queryKey: ["todos"] })` marks every query whose key
+starts with `todos` as stale and refetches the ones on screen
+([TanStack docs](https://tanstack.com/query/latest/docs/framework/react/guides/query-invalidation)). Hyper Fetch does
+the same with `client.cache.invalidate`. Instead of array prefixes, you pass the request itself, an exact key, or a
+`RegExp` over the keys.
+
+React's own [`cache()`](https://react.dev/reference/react/cache) is something else. It memoizes a function inside React
+Server Components, and React clears it for every server request. It doesn't keep data between page views in the
+browser, so there is nothing to invalidate. For a client-side cache of API responses you need a data layer like the one
+below.
+
+---
+
+## The basics
+
+Invalidation marks cached data as stale by setting its `staleTime` to `0`. The next consumer, whether a React
+`useFetch` hook or a manual `send()` call with caching enabled, sees that the data is out of date and requests it again.
+
+Every cached request is identified by a `cacheKey`. By default it is built from the method, the endpoint (with params
+filled in) and the query string, joined with underscores. For example `GET_/users_`, `GET_/users/1_` or
+`GET_/users_?page=2`. Invalidation works by targeting these keys.
+
+---
+
+## Invalidating by request, string, or RegExp
+
+The `client.cache.invalidate` method accepts three different argument types:
 
 ```typescript
-import { client, getUsers, getUser } from "./api";
+import { client, getUsers } from "./api";
 
 // 1. Pass a request instance - uses the request's cacheKey and scope
 // highlight-next-line
 client.cache.invalidate(getUsers);
 
-// 2. Pass a cacheKey string directly
+// 2. Pass an exact cacheKey string
 // highlight-next-line
-client.cache.invalidate("GET_/users");
+client.cache.invalidate(getUsers.cacheKey);
 
 // 3. Pass a RegExp to match multiple cache entries at once
 // highlight-next-line
 client.cache.invalidate(new RegExp("GET_/users"));
 ```
+
+Passing the request instance is the safest choice. You don't need to know how the key is built, and it respects the
+request's `scope`. Calling `invalidate()` with no arguments invalidates everything.
 
 :::note When is it helpful?
 
@@ -67,7 +113,7 @@ client.cache.invalidate(new RegExp("GET_/users"));
 
 ---
 
-## Invalidation After Mutations
+## Invalidate cache after mutations
 
 The most common pattern is invalidating a list after adding, updating, or deleting an item. Here is a practical example:
 
@@ -102,9 +148,12 @@ if (success) {
 }
 ```
 
+If you'd rather show the new item before the server confirms it, update the cache first and roll back on error. That is
+covered in [optimistic updates](../../react/01-basics/optimistic-approach.mdx).
+
 ---
 
-## Batch Invalidation
+## Batch invalidation
 
 You can invalidate multiple cache entries in a single call by passing an array. The array can mix request instances,
 strings, and RegExp patterns:
@@ -124,10 +173,10 @@ This is useful after a complex mutation that affects multiple resources.
 
 ---
 
-## Pattern Matching with RegExp
+## Pattern matching with RegExp
 
 Sometimes you need to invalidate multiple cache entries that follow a pattern. For instance, you might have cached data
-for individual items (`/users/1`, `/users/2`) and a list of all items (`/users`). A `RegExp` is perfect for this.
+for individual items (`/articles/1`, `/articles/2`) and a list of all items (`/articles`). A `RegExp` handles this.
 
 ```ts
 const getArticles = client.createRequest()({
@@ -145,21 +194,20 @@ When a single article is updated, you can invalidate the entire family of articl
 
 ```ts
 // This will invalidate every cache entry whose key matches the pattern:
-// 1. The main list:      GET_/articles
-// 2. Individual items:   GET_/articles/1, GET_/articles/2
-// 3. Paginated lists:    GET_/articles?page=1, GET_/articles?page=2
+// 1. The main list:      GET_/articles_
+// 2. Individual items:   GET_/articles/1_, GET_/articles/2_
+// 3. Paginated lists:    GET_/articles_?page=1, GET_/articles_?page=2
 // highlight-next-line
 client.cache.invalidate(new RegExp("GET_/articles"));
 ```
 
 ---
 
-## Reading, Updating, and Deleting Cache
+## Reading, updating, and deleting cache
 
-Beyond invalidation, the cache provides direct access methods for advanced scenarios like optimistic updates or
-debugging:
+Beyond invalidation, the cache gives you direct access for advanced cases like optimistic updates or debugging:
 
-### Reading Cache
+### Reading cache
 
 ```ts
 const cachedData = client.cache.get(getUsers.cacheKey);
@@ -170,10 +218,11 @@ if (cachedData) {
 }
 ```
 
-### Updating Cache Directly
+### Updating cache directly
 
-Use `cache.update` for optimistic updates - modifying the cached data without a network request. The update is merged
-with the existing cache entry:
+Use `cache.update` to change the cached data without a network request. The update is merged with the existing cache
+entry, and it does nothing if there is no entry yet. It also sets `responseTimestamp` to the time of the update, so
+`staleTime` and `cacheTime` count from that moment. Use `cache.set` when the entry should keep another timestamp:
 
 ```ts
 // Optimistically add a new user to the cached list
@@ -186,40 +235,49 @@ client.cache.update(getUsers, (previousData) => {
 });
 ```
 
-### Deleting Cache Entries
+### Deleting cache entries
 
 Use `cache.delete` to completely remove an entry from both sync and async storage. Unlike `invalidate`, which marks
-data as stale, `delete` removes it entirely:
+data as stale and keeps showing it until the new response arrives, `delete` removes it entirely:
 
 ```ts
 // Remove the cached users list entirely
 client.cache.delete(getUsers.cacheKey);
 ```
 
-### Clearing All Cache
+### Clearing all cache
 
 ```ts
-// Remove all cached data
+// Remove all cached data, for example on logout
 await client.cache.clear();
 ```
 
 ---
 
-## How Invalidation Triggers Re-fetching
+## How invalidation triggers revalidation
 
 When you call `client.cache.invalidate`, it emits an invalidation event for each matching `cacheKey`. React hooks like
-`useFetch` listen for these events and automatically dispatch a fresh request when the data they depend on is
-invalidated. This means you don't need to manually re-fetch after invalidating - the hooks handle it for you.
+`useFetch` listen for these events and dispatch a fresh request when the data they show is invalidated. You don't need
+to refetch by hand after invalidating.
 
-In plain TypeScript (without React hooks), invalidation only marks data as stale. You would need to call `send()` again
-to actually re-fetch the data.
+Two `useFetch` options are related:
+
+- `revalidate` (on by default) refetches in the background on mount even when the cache has data, so users see the
+  cached copy instantly and the fresh one a moment later. Set it to `false` to fetch on mount only when the data is
+  stale.
+- `refresh` and `refreshTime` refetch on an interval. See [auto-refreshing data](../../react/01-basics/refreshing.mdx).
+
+In plain TypeScript (without React hooks), invalidation only marks data as stale. Call `send()` again to fetch it. To
+keep the cache across reloads, see [persistence](./persistence.mdx), and for the full cache API see the
+[cache reference](../../../core/cache.mdx).
 
 ---
 
 :::success Congratulations!
 
-You've learned how to handle cache invalidation in Hyper-fetch!
+You've learned how to handle cache invalidation in Hyper Fetch.
 
+- You know the **time-based**, **event-based** and **pattern-based** ways to keep a cache fresh.
 - You can invalidate cache using `client.cache.invalidate` with **request instances**, **strings**, or **RegExp**.
 - You can **batch-invalidate** multiple entries by passing an **array**.
 - You can **read**, **update**, and **delete** cache entries directly for advanced use cases.

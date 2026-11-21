@@ -1,0 +1,243 @@
+---
+sidebar_position: 3
+title: "SWR Alternative: Hyper Fetch vs SWR for React"
+description: Hyper Fetch vs SWR compared on fetchers, revalidation, mutations, subscriptions, offline and devtools, with code for each and when to pick SWR.
+sidebar_label: vs SWR
+---
+
+# Hyper Fetch vs SWR
+
+SWR is Vercel's data fetching hook for React, and it is very good at one thing: showing cached data right away and
+refreshing it in the background. If you are looking for an swr alternative, it is worth knowing first what SWR does well,
+because for a lot of read-heavy React apps it is all you need.
+
+This page compares SWR and Hyper Fetch on fetching, revalidation, mutations, realtime, offline and tooling. Claims about
+SWR link to its own docs.
+
+:::secondary What you'll learn
+
+1.  How **SWR's key and fetcher** model compares to **Hyper Fetch request objects**.
+2.  How **revalidation defaults** differ between the two.
+3.  How **mutations and subscriptions** work in each.
+4.  Where SWR sits next to **React Query**, and when to pick each library.
+
+:::
+
+---
+
+## What SWR does well
+
+Vercel describes SWR as ["a React Hooks library for data fetching"](https://vercel.com/oss/swr). The name comes from
+stale-while-revalidate: return cached data first, then fetch fresh data and update.
+
+- **Very little to learn.** One hook, `useSWR(key, fetcher)`, covers most reads. The key is usually the URL.
+- **Fresh data by default.** Per the [API reference](https://swr.vercel.app/docs/api), `revalidateOnFocus` and
+  `revalidateOnReconnect` are on, and identical requests within 2 seconds are deduplicated (`dedupingInterval: 2000`).
+- **Mutations that refresh reads.** `useSWRMutation` revalidates the matching `useSWR` data after the mutation resolves,
+  and `optimisticData` with `rollbackOnError` covers optimistic UI. See the [mutation docs](https://swr.vercel.app/docs/mutation).
+- **Subscriptions.** `useSWRSubscription` from `swr/subscription` (SWR 2.1.0 and later) feeds any realtime source into
+  the same cache. See [subscription](https://swr.vercel.app/docs/subscription).
+
+If your app mostly reads data and your API calls are simple, SWR is a fine choice and you can stop reading here.
+
+---
+
+## SWR react basics: key and fetcher
+
+The [getting started](https://swr.vercel.app/docs/getting-started) page shows the core of swr react code:
+
+```tsx
+import useSWR from "swr";
+
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
+
+function Profile({ userId }) {
+  const { data, error, isLoading } = useSWR(`/api/user/${userId}`, fetcher);
+}
+```
+
+The fetcher is yours. SWR calls it with the key and caches whatever it returns. That keeps SWR small and lets you use any
+HTTP client, but it also means request concerns live in your fetcher. With plain `fetch`, a 404 or 500 does not
+reject (see [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch)), so `error` stays empty unless your
+fetcher checks `res.ok` and throws.
+
+Hyper Fetch puts the request first. You describe it once with `createRequest`, and the built-in `fetch` adapter handles
+JSON, headers, timeouts and non-2xx errors:
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getUser = client.createRequest<{ response: User; error: ApiError }>()({
+  endpoint: "/users/:userId",
+});
+```
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+function Profile({ userId }: { userId: number }) {
+  const { data, error, loading } = useFetch(getUser.setParams({ userId }));
+}
+```
+
+`:userId` in the endpoint becomes a required, typed param. A 404 lands in `error` typed as `ApiError`. Learn more in
+[fetching](../react/01-basics/fetching.mdx) and [error handling](../core/01-basics/error-handling.mdx).
+
+---
+
+## Revalidation and refresh
+
+Both libraries serve cached data and refetch in the background. The defaults point in opposite directions:
+
+| Option                  | SWR                                       | Hyper Fetch                                  |
+| ----------------------- | ----------------------------------------- | -------------------------------------------- |
+| Refetch on window focus | `revalidateOnFocus: true`                 | `refetchOnFocus: false`                      |
+| Refetch on reconnect    | `revalidateOnReconnect: true`             | `refetchOnReconnect: false`                  |
+| Polling                 | `refreshInterval`, `0` (off)              | `refresh: true` with `refreshTime`           |
+| Deduplication           | 2 second window by default                | On for `GET` while the first call is in flight |
+| Keep data while loading | `keepPreviousData: false`                 | `keepPreviousData: "auto"`                   |
+| Retry on error          | On, `errorRetryInterval: 5000`            | Off, set `retry` and `retryTime` (or `exponentialBackoff()`) |
+
+SWR assumes you want aggressive freshness. Hyper Fetch's `useFetch` refetches in the background on mount by default
+(`revalidate: true`, set it to `false` to trust the cache for its `staleTime`, 5 minutes by default), and lets you turn
+on focus and reconnect refetching per hook. Neither is wrong. Pick defaults that match how often your
+data changes. See [refreshing](../react/01-basics/refreshing.mdx) and
+[window focus](../react/01-basics/window-focus-blur.mdx).
+
+---
+
+## Mutations
+
+SWR's `useSWRMutation` takes a key and a mutation function. Per the docs, the extra argument reaches the function "via
+the `arg` property of the 2nd parameter":
+
+```tsx
+import useSWRMutation from "swr/mutation";
+
+async function updateUser(url, { arg }) {
+  await fetch(url, { method: "POST", body: JSON.stringify(arg) });
+}
+
+function SaveButton() {
+  const { trigger, isMutating } = useSWRMutation("/api/user", updateUser);
+  return <button onClick={() => trigger({ name: "Ada" })}>Save</button>;
+}
+```
+
+The neat part is that the key ties the mutation to the read: SWR revalidates `useSWR("/api/user")` when it is done.
+
+In Hyper Fetch the mutation is another request, used with `useSubmit`:
+
+```tsx
+import { useSubmit } from "@hyper-fetch/react";
+
+const updateUser = client.createRequest<{ response: User; payload: { name: string } }>()({
+  endpoint: "/users/:userId",
+  method: "PATCH",
+});
+
+function SaveButton({ userId }: { userId: number }) {
+  const { submit, submitting, onSubmitSuccess } = useSubmit(updateUser.setParams({ userId }));
+
+  onSubmitSuccess(() => client.cache.invalidate(getUser.setParams({ userId })));
+
+  return <button onClick={() => submit({ payload: { name: "Ada" } })}>Save</button>;
+}
+```
+
+You link the read and the write yourself with `client.cache.invalidate()`. In exchange the payload is typed, the body is
+serialized for you, and `useSubmit` reports upload and download progress. See [submitting](../react/01-basics/submitting.mdx)
+and [cache revalidation](../core/02-advanced/cache-revalidation.mdx).
+
+---
+
+## Realtime
+
+`useSWRSubscription` is a thin bridge: you write a `subscribe(key, { next })` function that opens your connection and
+calls `next` on each event. SWR shares one subscription per key across components.
+
+Hyper Fetch ships the transport. The [sockets package](../../sockets/overview.mdx) has WebSocket and SSE adapters, with
+typed listeners:
+
+```ts
+import { createSocketClient } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({ url: "wss://api.example.com" });
+export const onUserUpdated = socket.createListener<User>()({ topic: "user-updated" });
+```
+
+`useListener(onUserUpdated)` in React gives you `data` and the connection state.
+
+---
+
+## Offline and queues
+
+SWR's [revalidation docs](https://swr.vercel.app/docs/revalidation) cover refetching when the network comes back, and
+the API has `refreshWhenOffline` and `isPaused()`. They don't describe queueing writes made while offline.
+
+Hyper Fetch requests go through a dispatcher. With the default `offline: true`, a request sent without a connection
+waits and is sent when the connection returns. `queued: true` sends them one at a time. Read
+[offline](../core/02-advanced/offline.mdx) and [queueing](../core/02-advanced/queueing.mdx).
+
+---
+
+## Devtools
+
+SWR's [devtools page](https://swr.vercel.app/docs/advanced/devtools) points to SWRDevTools, a browser extension, and
+says it "is not an official project of Vercel".
+
+Hyper Fetch has [HyperFlow](../../hyper-flow/index.mdx), a desktop app you connect with `DevtoolsPlugin` to inspect
+requests, cache and queues.
+
+---
+
+## SWR vs React Query
+
+Most people searching this are choosing between SWR and TanStack Query, not Hyper Fetch. Both are server-state hooks
+that call a function you write. SWR keeps the API small and leans on revalidation. TanStack Query has more
+configuration, offline mutation persistence and an official devtools package. We cover TanStack Query on its own page:
+[Hyper Fetch vs TanStack Query](./tanstack-query.mdx).
+
+---
+
+## Side by side
+
+| Capability            | SWR                                 | Hyper Fetch                               |
+| --------------------- | ----------------------------------- | ----------------------------------------- |
+| Sends HTTP requests   | No, you write the fetcher           | Yes, `fetch` adapter built in             |
+| Request definition    | Key + fetcher                       | `createRequest` with typed params, payload and errors |
+| Reads                 | `useSWR`                            | `useFetch`                                |
+| Writes                | `mutate`, `useSWRMutation`          | `useSubmit`                               |
+| Optimistic updates    | `optimisticData`, `rollbackOnError` | `setOptimistic` on the request            |
+| Realtime              | `useSWRSubscription`, your transport | `@hyper-fetch/sockets` (WebSocket, SSE)   |
+| Offline write queue   | Not described in the docs           | Yes                                       |
+| Devtools              | Community extension                 | HyperFlow                                 |
+| Frameworks            | React                               | React                                     |
+
+---
+
+## Which one fits you
+
+**Stay on SWR when:**
+
+- Your app is mostly reads, and focus and reconnect revalidation are what you want.
+- You already have a fetcher or SDK and only need caching on top.
+- You like a small API and are happy to keep request logic in your fetcher.
+
+**Pick Hyper Fetch when:**
+
+- You want typed requests (params, payload, query params, errors) defined once and reused across components and tests.
+- Your app writes a lot: forms, uploads with progress, requests that must survive going offline.
+- You need sockets or SSE next to HTTP without a second library.
+- You want an SDK [generated from your OpenAPI spec](../../cli/overview.mdx).
+
+:::secondary Summary
+
+- SWR caches what your fetcher returns and revalidates on focus and reconnect by default.
+- Hyper Fetch defines the request, sends it, and treats non-2xx responses as errors.
+- `useSWRMutation` refreshes reads by key. Hyper Fetch invalidates with `client.cache.invalidate()`.
+- Hyper Fetch adds a socket transport, an offline queue and progress events.
+
+:::

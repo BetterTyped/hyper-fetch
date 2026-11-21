@@ -1,36 +1,70 @@
 ---
 sidebar_position: 3
-title: Setting Response Type
+title: Typing API Responses in TypeScript
+description: How to type API responses in TypeScript. Why fetch returns any, why a cast is not a check, and how to declare and reuse response types per request.
 sidebar_label: Response Type
 ---
 
-# Response Type
+# Typing API Responses in TypeScript
 
-Typing the response of an API request is one of the most significant benefits of using TypeScript with a data-fetching
-library. Hyper-fetch makes it easy to define a **response type** for each request. This means you get full type safety
-and autocompletion for the data you receive, preventing runtime errors and making your code easier to reason about.
+Typing API responses in TypeScript is where most of the safety in a frontend comes from. If `data.user.name` is typed,
+the compiler catches the typo, the renamed field and the forgotten `null` check before your users do. This guide shows
+why the usual `fetch` approach gives you less safety than it looks, and how Hyper Fetch attaches a **response type** to
+each request so every caller gets it for free.
 
 :::secondary What you'll learn
 
-1.  How to define the **expected response type** for a request.
-2.  How the response type provides **type safety and autocompletion** for the returned data.
-3.  How to handle both **successful data and null** responses.
+1.  Why `response.json()` is untyped and what a **cast** really does.
+2.  How to define the **expected response type** for a request.
+3.  How the response type provides **type safety and autocompletion** for the returned data.
+4.  How to handle both **successful data and null** responses.
+5.  How to **reuse** a response type and **check it at runtime**.
 
 :::
 
-### Why is it helpful?
+---
 
-- **Runtime Error Prevention**: Eliminates `undefined is not a function` errors by ensuring you only access properties
-  that exist on the response data.
-- **Code Reliability**: Makes your components and functions more robust by guaranteeing the shape of the data they work
-  with.
-- **Faster Development**: IDE autocompletion for response data properties speeds up coding and reduces the need to check
-  API documentation.
-- **Self-Documenting**: The request itself becomes a source of truth for the API's response structure.
+## Why fetch responses are untyped
+
+`response.json()` returns `Promise<any>`. Whatever you do next is a promise you make to the compiler, not something it
+checks:
+
+```ts
+type User = { id: number; name: string };
+
+// A cast: TypeScript believes you, nothing is checked
+const users = (await fetch("/api/users").then((r) => r.json())) as User[];
+
+// A generic wrapper: nicer to call, but still a cast inside
+async function getJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  return response.json() as Promise<T>;
+}
+```
+
+Both are fine as long as the API sends what you expect. The gaps are:
+
+- **The type lives at the call site.** Every place that calls `/api/users` has to repeat `User[]`, and they drift apart.
+- **Errors have no type.** A `404` body is still parsed as `User[]`.
+- **Nothing checks at runtime.** If the backend renames `name` to `fullName`, the cast still passes and `user.name` is
+  `undefined` in production.
+
+The fix for the first two is to declare the type once, next to the endpoint. The fix for the third is runtime
+validation, covered at the end.
 
 ---
 
-### Example
+## Why is it helpful?
+
+- **Runtime error prevention**: You only access properties that exist on the response data, so `undefined is not a
+  function` errors get caught at compile time.
+- **Code reliability**: Components and functions get a guaranteed shape for the data they work with.
+- **Faster development**: IDE autocompletion for response data properties means fewer trips to the API docs.
+- **Self-documenting**: The request itself becomes the source of truth for the API's response structure.
+
+---
+
+## Example
 
 By providing a type to the `response` generic, you ensure that the `data` returned from the `.send()` method is strongly
 typed.
@@ -74,14 +108,76 @@ if (data) {
 }
 ```
 
+`data` is `null` until a request succeeds, so TypeScript makes you handle that case. The same type flows into
+`useFetch(getUsers).data` in React and into the cache, without repeating it.
+
+The `response` generic only types `data`. How the body is read is up to the adapter. The default HTTP adapter parses
+JSON, and its `responseType` option (`"text"`, `"blob"`, `"arrayBuffer"`) returns other shapes, so a file download is
+typed as `{ response: Blob }` with `options: { responseType: "blob" }`. See the
+[adapter docs](../../core/adapter.mdx) for the full table. With the GraphQL adapter, a typed document
+(`TypedDocumentNode` from graphql-codegen, or gql.tada) passed as `endpoint` fills the response and payload types
+without generics.
+
+---
+
+## Typing errors next to the response
+
+The response type has a partner: the error type. Declare it on the request for endpoint-specific errors, or on the
+client for the shape every endpoint returns. `error` is then typed instead of `unknown`:
+
+```ts
+type ValidationError = { message: string; fields: Record<string, string> };
+
+const createUser = client.createRequest<{
+  response: User;
+  payload: { name: string; email: string };
+  error: ValidationError;
+}>()({
+  endpoint: "/users",
+  method: "POST",
+});
+```
+
+See [local error types](./local-error.mdx) and [global error types](./global-error.mdx) for both sides.
+
+---
+
+## Reusing the response type
+
+You rarely need to export `ResponseType` by hand. The request already carries it, and `ExtractResponseType` reads it
+back:
+
+```ts
+import type { ExtractResponseType } from "@hyper-fetch/core";
+
+type Users = ExtractResponseType<typeof getUsers>; // User[]
+
+function UserTable({ users }: { users: Users }) {
+  // ...
+}
+```
+
+The other extractors (payload, params, query params, error) work the same way. See
+[request extractors](./request-extractors.mdx).
+
+---
+
+## Checking the type at runtime
+
+Types disappear when the code is compiled. If you can't trust the API, or it's a third-party one, validate the response
+with a schema library and derive the type from the schema, so the two can't drift. Hyper Fetch runs the check in
+`setResponseMapper`, and a failed parse ends up in `error`. The full example with Zod is in the
+[validation guide](../core/02-advanced/validation.mdx).
+
 ---
 
 :::success Congratulations!
 
-You've mastered setting response types!
+You've learned how to type API responses in TypeScript with Hyper Fetch.
 
+- You know why a **cast** on `response.json()` is a promise to the compiler, not a check.
 - You can define a **`response` type** for any request to get strongly-typed data.
-- You benefit from **autocompletion and compile-time checks** on the data you receive.
-- You can write more **robust code** by correctly handling the typed response.
+- You can type the **error** next to it and **reuse** both with extractors.
+- You know when to add **runtime validation** on top of the types.
 
 :::

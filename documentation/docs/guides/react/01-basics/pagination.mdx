@@ -1,23 +1,41 @@
 ---
-title: Building a Paginated List
+title: Pagination in React with useFetch
+description: Pagination in React with page and limit query params. Next and previous buttons, cached pages, keeping old data on screen, and prefetching the next page.
 sidebar_label: Pagination
 ---
 
-# Pagination
+# Pagination in React
 
-Pagination is a fundamental feature for displaying large datasets in a manageable way. With Hyper-fetch, implementing
-pagination is straightforward. By changing the parameters of your request, such as the page number or offset, `useFetch`
-will automatically re-fetch the data for the new page. The built-in caching will also make navigating between previously
-visited pages instantaneous.
+Pagination in React comes down to one piece of state, the current page, and a request that depends on it. Change the
+page, fetch the new slice, show it. The hard parts are around that: not flashing a spinner on every click, not
+refetching pages the user already saw, and knowing when there is no next page. With Hyper Fetch you put the page in
+the request's query params, and `useFetch` refetches when it changes. Each page gets its own cache entry, so going back
+to a page you visited is instant.
 
 :::secondary What you'll learn
 
 1.  How to implement **pagination** using the `useFetch` hook.
 2.  How to manage the **current page state** in a React component.
 3.  How to create **"Next"** and **"Previous"** buttons to navigate through pages.
-4.  How Hyper-fetch's **automatic re-fetching** and **caching** simplify pagination logic.
+4.  How Hyper Fetch's **automatic re-fetching** and **caching** simplify pagination logic.
+5.  How to keep the **previous page visible** and **prefetch** the next one.
 
 :::
+
+---
+
+## Numbered pages or infinite scroll
+
+Two UI patterns sit on top of the same API:
+
+- **Numbered pages** (this guide): the user moves between pages and sees one at a time. Good for tables, admin panels
+  and search results people want to link to.
+- **Infinite scroll**: pages are appended to one growing list. Good for feeds. See
+  [infinite scroll in React](./infinite-scroll.mdx), which uses `useInfiniteFetch`.
+
+For numbered pages the API usually takes `page` and `limit` (or `offset` and `limit`) as query params. If the server
+also returns a total count, you can show "Page 3 of 12" and disable "Next" on the last page. Without it, the common trick
+is the one used below: a page shorter than `limit` is the last one.
 
 ## Example
 
@@ -90,7 +108,40 @@ function PaginatedPosts() {
 5.  The `loading` state from `useFetch` is used to give feedback to the user while the new page is being loaded.
 6.  The "Next" button is disabled if the current page has fewer items than the limit, indicating we've reached the end.
 
-This declarative approach makes pagination logic clean and easy to manage.
+This declarative approach keeps the pagination logic in one line.
+
+---
+
+## Keep the old page on screen
+
+By default `useFetch` uses `keepPreviousData: "auto"`. When only the query params change, which is the pagination case,
+the previous page stays in `data` until the new one arrives. So instead of swapping the list for a spinner, you can dim
+it while `loading`:
+
+```tsx
+<ul className={loading ? "opacity-50" : ""}>
+  {posts?.map((post) => (
+    <li key={post.id}>{post.title}</li>
+  ))}
+</ul>
+```
+
+Set `keepPreviousData: "clean"` if you'd rather reset to empty on every page change.
+
+## Prefetch the next page
+
+Every page has its own cache entry, keyed by its query params. Sending the next page's request ahead of time puts it in
+the cache, so the "Next" click renders without waiting:
+
+```tsx
+React.useEffect(() => {
+  getPosts.setQueryParams({ page: page + 1, limit: 5 }).send();
+}, [page]);
+```
+
+More patterns in [prefetching](../../core/02-advanced/prefetching.mdx), and the cache rules in
+[cache invalidation](../../core/02-advanced/cache-revalidation.mdx). If you keep the page in the URL, read it from your
+router instead of `useState`, and the same code works with shareable links.
 
 ---
 
@@ -99,7 +150,7 @@ This declarative approach makes pagination logic clean and easy to manage.
 You've learned how to implement pagination in your React applications with Hyper-fetch!
 
 - You can create a **paginated list** controlled by React state.
-- You can leverage **automatic re-fetching** when request parameters change.
+- You can use **automatic re-fetching** when request parameters change.
 - You can build a **user-friendly navigation** for large datasets.
 - You understand how Hyper-fetch's **caching** makes navigating between pages fast.
 

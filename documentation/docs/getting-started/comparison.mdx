@@ -1,6 +1,7 @@
 ---
 sidebar_position: 5
 title: Why Hyper Fetch is Unique
+description: "What sets Hyper Fetch apart: typed requests defined once, HTTP and realtime behind one API, offline queues, swappable adapters and devtools."
 sidebar_label: Why HF?
 ---
 
@@ -15,6 +16,10 @@ This page describes Hyper Fetch's own capabilities and design decisions. Where o
 sketch the general landscape - every library moves fast, so always check the source you care about directly.
 
 :::
+
+For head-to-head pages with code and sources, see the [comparisons section](../guides/comparisons/index.mdx): Hyper
+Fetch vs [TanStack Query](../guides/comparisons/tanstack-query.mdx), [SWR](../guides/comparisons/swr.mdx) and
+[RTK Query](../guides/comparisons/rtk-query.mdx), plus [Axios vs fetch](../guides/comparisons/axios-vs-fetch.mdx).
 
 ---
 
@@ -102,7 +107,7 @@ making typed requests immediately.
 npx @hyper-fetch/cli@latest generate \
   --template openapi \
   --url https://api.example.com/openapi.json \
-  --output ./src/api/client.ts
+  --fileName client.ts
 ```
 
 The generated output is a `createSdk` schema. You bring your own `Client` (base URL, auth, adapter) and the

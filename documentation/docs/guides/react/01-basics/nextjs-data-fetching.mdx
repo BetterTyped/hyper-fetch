@@ -1,0 +1,286 @@
+---
+title: Next.js Data Fetching with SSR and Server Components
+description: Fetch data in Next.js server components, client components and SSR, hand server data to the client cache, and keep one user's data away from another.
+sidebar_label: Next.js Data Fetching
+---
+
+# Data fetching in Next.js
+
+Most next.js data fetching decisions come down to one question per piece of data: does it have to be in the HTML, or can
+the browser load it after the page appears? In the App Router, data the page needs to render is fetched on the server, in an async
+Server Component. Data that changes while the user is on the page (filters, polling, anything after a click) is fetched
+in a Client Component. When the same data is needed in both places, you fetch it on the server and hand the result to
+the client cache, so the browser doesn't request it again.
+
+This page shows all three with Hyper Fetch, and the one server rendering problem every data library has to solve:
+keeping one user's cached data away from the next request.
+
+:::secondary What you'll learn
+
+1.  How to **fetch in Server Components** with `request.send()`.
+2.  How to **fetch in Client Components** with `useFetch`.
+3.  How to **hydrate** server data into the client cache with `Hydrate`.
+4.  How **server cache mode** keeps per-user data from leaking between requests.
+5.  What is **not supported** yet.
+
+:::
+
+---
+
+## Where should the data be fetched?
+
+| Data                                                    | Fetch it in                         | Why                                                         |
+| ------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| Content the page is about, needed for SEO              | Server Component                    | It is in the HTML, no loading state, secrets stay on server |
+| Data that reacts to input, refreshes or polls          | Client Component with `useFetch`    | It needs state and effects, which only run in the browser   |
+| Data rendered first on the server, then kept fresh     | Server Component + `Hydrate`        | First paint has the data, the client cache takes over       |
+| Writes (forms, buttons)                                 | Client Component with `useSubmit`   | Loading and error state next to the button                  |
+
+The [Next.js data fetching docs](https://nextjs.org/docs/app/getting-started/fetching-data) describe the same split:
+async Server Components for server data, and React's `use` or a library such as SWR or React Query in Client
+Components.
+
+---
+
+## One client module for both sides
+
+Define the client and requests once and import them from Server and Client Components alike. `@hyper-fetch/core` has
+no React dependency, so this file works in both.
+
+```ts title="src/api/index.ts"
+import { createClient, Time } from "@hyper-fetch/core";
+
+type Post = { id: number; title: string; body: string };
+type User = { id: number; name: string };
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getPosts = client
+  .createRequest<{ response: Post[]; queryParams?: { q?: string } }>()({ endpoint: "/posts" })
+  .setStaleTime(Time.MIN);
+
+export const getPost = client.createRequest<{ response: Post }>()({ endpoint: "/posts/:postId" });
+
+export const getMe = client.createRequest<{ response: User }>()({ endpoint: "/me" });
+```
+
+The client's `mode` option defaults to `"auto"`: in the browser it resolves to `"client"`, in Node.js to `"server"`.
+That difference is what makes the shared module safe, as the next section explains.
+
+---
+
+## Server cache mode: why SSR caches leak
+
+A Next.js server is one long-running process that renders pages for many users. A module-level cache is shared by all
+of them. If user A's profile lands in that cache, user B's render can read it. This is the classic React SSR data leak,
+and it is why TanStack Query's
+[SSR guide](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr) creates a new `QueryClient` for
+every server request.
+
+Hyper Fetch solves it in the client instead. In `"server"` mode the cache **stores nothing** unless the request has a
+scope:
+
+```ts
+// Not cached on the server: safe default
+await getPost.setParams({ postId: 1 }).send();
+
+// Cached, under keys prefixed with the scope
+await getPost.setParams({ postId: 1 }).setScope(sessionId).send();
+
+// Cached once for everyone: only for data that is the same for every user
+await getPosts.setScope("public").send();
+```
+
+Scoped keys look like `${scope}__${cacheKey}`, so two scopes never read each other's entries. The cache lives in the
+memory of that server process. Each server instance, and each serverless instance, has its own. The
+[cache docs](../../../core/cache.mdx) cover the modes in detail.
+
+---
+
+## Fetching in Server Components
+
+A Server Component can be `async`, so it awaits the request directly. `send()` resolves with `{ data, error, status }`
+and does not throw on a failed response, so check `error` yourself.
+
+```tsx title="app/posts/page.tsx"
+import { getPosts } from "@/api";
+
+export default async function PostsPage() {
+  const { data: posts, error } = await getPosts.send();
+
+  if (error) {
+    return <p>Could not load posts.</p>;
+  }
+
+  return (
+    <ul>
+      {posts?.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+Start independent requests together and await them with `Promise.all`, so they don't run one after another:
+
+```tsx
+const [posts, post] = await Promise.all([getPosts.send(), getPost.setParams({ postId }).send()]);
+```
+
+### Auth and cookies
+
+The server has no browser cookies to send automatically. Forward what you need from the incoming request:
+
+```tsx title="app/account/page.tsx"
+import { headers } from "next/headers";
+import { getMe } from "@/api";
+
+export default async function AccountPage() {
+  const cookie = (await headers()).get("cookie") ?? "";
+  const { data: me } = await getMe.setHeaders({ cookie }).send();
+
+  return <h1>Hi {me?.name}</h1>;
+}
+```
+
+### Next.js fetch options
+
+The default adapter calls the global `fetch` and spreads the request options from `setOptions()` into its `init`. Standard
+`RequestInit` fields reach Next.js that way, and so do the
+[Next.js fetch options](https://nextjs.org/docs/app/api-reference/functions/fetch):
+
+```ts
+await getPosts.setOptions({ next: { revalidate: 60 } }).send();
+```
+
+The adapter also adds its own `timeout`, 5 seconds unless you set another value in the same options.
+
+---
+
+## Fetching in Client Components
+
+Hooks use React state and effects, so they only work in Client Components. Put `useFetch` in a file that starts with
+`"use client"`:
+
+```tsx title="app/posts/search.tsx"
+"use client";
+
+import { useState } from "react";
+import { useFetch } from "@hyper-fetch/react";
+import { getPosts } from "@/api";
+
+export function PostSearch() {
+  const [query, setQuery] = useState("");
+  const { data, loading } = useFetch(getPosts.setQueryParams({ q: query }), { bounce: true });
+
+  return (
+    <div>
+      <input value={query} onChange={(event) => setQuery(event.target.value)} />
+      {loading ? <p>Searching...</p> : <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>}
+    </div>
+  );
+}
+```
+
+During server rendering this component renders without data. It fetches once it runs in the browser. Every option from
+the [`useFetch` guide](./fetching.mdx) works here, including `suspense: true` with a `Suspense` boundary.
+
+Writes work the same way: `useSubmit` in a Client Component, then `client.cache.invalidate()` for the data it changed.
+The [`useSubmit` guide](./submitting.mdx) shows the pattern.
+
+---
+
+## Hydration: server data in client components
+
+Fetching in a Server Component and then calling `useFetch` for the same data in a Client Component would request it
+twice. `Hydrate` passes the server result into the client cache instead:
+
+1.  On the server, send the request and turn the response into a plain payload with `request.dehydrate({ response })`.
+2.  Pass the payload to a Client Component as a prop.
+3.  Render `Hydrate` there. Hooks below it render with the server data on the first render, and in the browser the data
+    is written to the cache before the hooks mount.
+
+```tsx title="app/posts/page.tsx"
+import { getPosts } from "@/api";
+import { PostList } from "./post-list";
+
+export default async function PostsPage() {
+  const response = await getPosts.send();
+
+  // highlight-next-line
+  return <PostList hydration={[response.success ? getPosts.dehydrate({ response }) : null]} />;
+}
+```
+
+```tsx title="app/posts/post-list.tsx"
+"use client";
+
+import { Hydrate, useFetch } from "@hyper-fetch/react";
+import type { HydrateProps } from "@hyper-fetch/react";
+import { client, getPosts } from "@/api";
+
+export function PostList({ hydration }: { hydration: HydrateProps["data"] }) {
+  return (
+    <Hydrate client={client} data={hydration}>
+      <Posts />
+    </Hydrate>
+  );
+}
+
+function Posts() {
+  // highlight-next-line
+  const { data } = useFetch(getPosts, { revalidate: false });
+
+  return <ul>{data?.map((post) => <li key={post.id}>{post.title}</li>)}</ul>;
+}
+```
+
+A few rules that save debugging time:
+
+- **The client instance stays on its side.** Import `client` in the Client Component and pass only the dehydrated data
+  across.
+- **`revalidate` decides the background refetch.** With the default `revalidate: true`, `useFetch` shows the hydrated
+  data and refetches in the background. With `revalidate: false`, it fetches only once the data is older than the
+  request's `staleTime`.
+- **Hydrate only successes.** `Hydrate` skips `null` items, so a failed server request leaves the client to fetch on its
+  own.
+- **The server cache stays empty.** In server mode, `Hydrate` serves the data to the hooks without writing it to the
+  shared cache.
+
+For infinite lists, `fetchInfinite(request, { pagination, pages })` from `@hyper-fetch/core` fetches the first pages on
+the server and returns `dehydrated`, ready for `Hydrate` and `useInfiniteFetch`.
+
+The pages router works the same way: return the payload from `getServerSideProps` or `getStaticProps` and render
+`Hydrate` in `_app.tsx`. The [`Hydrate` reference](../../../react/06-hydrate.mdx) shows that setup and the props.
+
+If you are coming from SWR or React Query, this is the same idea as SWR's
+[`SWRConfig` with server data](https://swr.vercel.app/docs/with-nextjs) or React Query's `HydrationBoundary`. The
+[migration guide](./migrating-from-react-query.mdx) maps the rest of the React Query API.
+
+---
+
+## What is not supported
+
+Be clear about the limits before you design around them:
+
+- **No Next.js-specific package.** Hyper Fetch has no route handler helpers or Next.js cache integration of its own.
+  First-class framework integrations are on the roadmap in the 8.0 release notes.
+- **No streaming of pending requests.** `request.dehydrate()` captures a finished response. To stream, await the
+  request inside a component wrapped in `Suspense` on the server, or use `suspense: true` in a Client Component.
+- **The server cache is in memory.** Scoped entries live in one process and disappear with it. For data shared across
+  instances, use Next.js caching or your own store.
+- **Server Actions don't update the client cache.** If a Server Action changes data, invalidate the affected requests
+  on the client after it returns, or refresh the route.
+
+---
+
+:::success Summary
+
+1.  **Server Components** await `request.send()`. Forward cookies with `setHeaders()`.
+2.  **Client Components** use `useFetch` and `useSubmit` in `"use client"` files.
+3.  **`Hydrate` + `request.dehydrate()`** move server data into the client cache, so the browser does not fetch it
+    again.
+4.  **Server mode** caches only scoped requests, so concurrent renders never share a user's data.
+
+:::

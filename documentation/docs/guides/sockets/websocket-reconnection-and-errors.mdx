@@ -1,0 +1,275 @@
+---
+sidebar_position: 10
+title: WebSocket errors, onerror and reconnect handling
+description: Handle websocket errors and reconnection. onerror vs onclose, close codes, ping/pong heartbeats, backoff, and what the Hyper Fetch adapter does for you.
+sidebar_label: Errors & Reconnection
+---
+
+# Handling WebSocket errors and reconnection
+
+Most websocket errors are not bugs in your code. They are the network, a deploy, a proxy timeout or a laptop lid. The
+browser reports them through two events, `error` and `close`, and neither one brings the connection back. This page
+explains what each event tells you, what the close codes mean, how to detect a dead connection with a heartbeat, and how
+to write a reconnect loop that does not hammer your server. The last section shows which parts the Hyper Fetch socket
+adapter already does.
+
+:::secondary What you'll learn
+
+1.  The difference between **`onerror`** and **`onclose`**, and why the error event tells you almost nothing.
+2.  What the common **close codes** mean and which ones are worth retrying.
+3.  How a **ping/pong heartbeat** finds connections that died without closing.
+4.  How to **reconnect** with a delay, a limit and backoff.
+5.  What the Hyper Fetch **`WebsocketAdapter`** handles, and how to configure it.
+
+:::
+
+---
+
+## WebSocket onerror vs onclose
+
+`onerror` fires when the connection fails, for example when the handshake is refused or data could not be sent. The
+event is a plain `Event` with no message and no code
+([MDN: error event](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event)).
+
+`onclose` fires when the connection is closed, for any reason. Its `CloseEvent` carries a numeric `code`, a `reason`
+string the other side may set, and `wasClean`
+([MDN: CloseEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code)).
+
+In browsers, a failed connection fires `error` and then `close`. So the practical rule is:
+
+- Use `onerror` to log that something went wrong.
+- Use `onclose` to decide what to do next, based on `code`.
+
+```ts
+const socket = new WebSocket("wss://example.com/ws");
+
+socket.onerror = () => {
+  // No details here. Wait for close.
+  console.warn("WebSocket error");
+};
+
+socket.onclose = (event) => {
+  console.log("Closed", event.code, event.reason, event.wasClean);
+};
+```
+
+One runtime difference to know: in Node.js 22, a failed handshake can report only `error`, without a `close` following.
+Code that waits only for `close` hangs there.
+
+---
+
+## WebSocket close codes
+
+These are the codes you will actually see, from MDN's table:
+
+| Code | Name | Retry? |
+| --- | --- | --- |
+| `1000` | Normal Closure | No. The connection finished on purpose. |
+| `1001` | Going Away | Yes. Server shutting down, or the page navigating away. |
+| `1002` | Protocol error | Rarely. Usually a client or server bug. |
+| `1003` | Unsupported Data | No, fix the payload. |
+| `1006` | Abnormal Closure | Yes. No close frame arrived: network drop, crash, proxy cut. |
+| `1008` | Policy Violation | Not blindly. Often auth; refresh credentials first. |
+| `1009` | Message Too Big | No, fix the message size. |
+| `1011` | Internal Error | Yes, with backoff. |
+| `1012` | Service Restart | Yes. |
+| `1013` | Try Again Later | Yes, with a longer delay. |
+| `1015` | TLS handshake | No, fix the certificate. |
+| `4000` to `4999` | Private use | Your server decides. |
+
+`1005`, `1006` and `1015` are reserved: the browser reports them, no endpoint sends them. When the client closes a
+socket itself, `close()` only accepts `1000` or a code from `3000` to `4999`. Code `1006` is the one you will see most,
+and it means "the connection just stopped".
+
+---
+
+## Ping/pong: finding connections that died quietly
+
+A connection can be dead without either side knowing. A NAT entry expires, a mobile device switches networks, a server
+is killed without closing its sockets. No close frame is sent, so no `close` event fires until TCP gives up, which can take
+minutes. Meanwhile your UI says "connected".
+
+The protocol has an answer for this: **ping and pong control frames**. Either side may send a ping after the handshake,
+and the receiver must answer with a pong carrying the same payload
+([MDN: Writing WebSocket servers](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers)).
+Servers usually send these pings to drop dead clients.
+
+The browser `WebSocket` interface has no method to send a ping frame. So a client that wants to detect a dead server does
+it at the application level:
+
+1.  After a quiet period, send an ordinary message, like `"ping"`.
+2.  Start a timer.
+3.  If any message arrives, the connection is alive. Reset both timers.
+4.  If the timer runs out, treat the connection as dead, close it and reconnect.
+
+---
+
+## WebSocket reconnect: what the loop needs
+
+A reconnect loop that only calls `new WebSocket()` in `onclose` causes real damage: when the server goes down, every client
+retries at the same moment, and when it comes back it takes all of them at once. A loop you can ship needs:
+
+- **A way to tell a deliberate close from a lost one.** Do not reconnect after code `1000` or after your own `close()`.
+- **A delay that grows.** Exponential backoff with a cap, for example 1s, 2s, 4s, up to 30s.
+- **Jitter.** A random part of the delay, so clients spread out.
+- **A reset on success.** After `open`, go back to the shortest delay.
+- **An attempt limit, or at least a "give up" state** the UI can show.
+- **Fresh credentials** per attempt, since the token from an hour ago may have expired.
+- **Resubscribing** to whatever the server needs to know about after a new connection.
+
+```ts
+let delay = 1000;
+let closedByUser = false;
+
+function connect() {
+  const socket = new WebSocket("wss://example.com/ws");
+
+  socket.onopen = () => {
+    delay = 1000;
+  };
+
+  socket.onclose = (event) => {
+    if (closedByUser || event.code === 1000) return;
+
+    const jitter = Math.random() * 500;
+    setTimeout(connect, delay + jitter);
+    delay = Math.min(delay * 2, 30_000);
+  };
+
+  return socket;
+}
+```
+
+This is still missing the heartbeat, the attempt limit, offline detection and any way for the rest of the app to read the
+connection state. That is the part worth handing to a library.
+
+---
+
+## What the Hyper Fetch adapter does
+
+The `WebsocketAdapter`, the default adapter of a Hyper Fetch `Socket`, implements this loop. Here is what it does,
+according to its source:
+
+- **Reconnects lost connections with backoff and jitter.** Every lost connection is retried. The delay is exponential
+  backoff with full jitter: the first retry comes between `reconnectTime` and twice that, the window doubles with every
+  attempt, and no delay is longer than `maxReconnectTime`.
+- **Leaves deliberate closes alone.** `socket.disconnect()` is never retried. A server close with `1000` stays closed
+  until you call `connect()` or `reconnect()`, or the network comes back.
+- **Limits attempts.** After `reconnect` attempts in one outage it stops and fires `onReconnectFailed`. The counter only
+  resets once a connection stays up for `minUptime`, so a server that accepts and then drops the socket right away
+  still runs into the limit.
+- **Times out slow handshakes.** An attempt that is not ready within `connectionTimeout` counts as a failed attempt, and
+  the next one follows the backoff.
+- **Runs a heartbeat when you turn it on.** It sends a `heartbeat` message after `pingTimeout` of silence. If nothing
+  arrives within `pongTimeout`, it marks the socket disconnected, reports an error and reconnects. Any incoming frame
+  counts as a pong.
+- **Turns close codes into messages.** The error passed to `onError` describes the code, so `1006` arrives as "The
+  connection was closed abnormally...".
+- **Follows the network.** Going offline closes the connection right away and no attempts run or count until the
+  `online` event, which connects at once. Getting the tab focus back skips the rest of a pending delay.
+- **Handles the Node.js 22 case.** A handshake that fails with only `error` is treated as an abnormal `1006` close.
+
+The [connection guide](./connection.mdx) has the full list of retry rules and options.
+
+### Configuring it
+
+```ts title="src/socket.ts"
+import { Socket } from "@hyper-fetch/sockets";
+
+export const socket = new Socket({
+  url: "wss://example.com/ws",
+  reconnect: 10, // attempts per outage, default Infinity
+  reconnectTime: 2000, // shortest delay before an attempt, default 1000
+  maxReconnectTime: 30_000, // longest delay before an attempt, default 30000
+  connectionTimeout: 5000, // ms one attempt may take, default 5000
+  adapterOptions: {
+    // highlight-start
+    heartbeat: true, // off by default
+    pingTimeout: 10_000, // silence before a ping, default 5000
+    pongTimeout: 5000, // wait for any reply, default 5000
+    heartbeatMessage: "ping", // sent as { topic: "heartbeat", data: "ping" }
+    // highlight-end
+  },
+})
+  .onError<Error>(({ error }) => console.warn("Socket error:", error.message))
+  .onDisconnected(() => console.log("Disconnected"))
+  .onReconnect(() => console.log("Reconnecting"))
+  .onReconnectFailed(() => console.error("Gave up reconnecting"));
+```
+
+The server only has to answer something when it receives a message on the `heartbeat` topic. If it uses another format,
+the adapter's `encode` option controls how the heartbeat frame is written, the same as any other message.
+
+### Choosing which closes to retry
+
+The default retries every close code except `1000`. That is wrong for codes where retrying cannot help, like `1003` and
+`1009` from the table above, where the same message gets the same answer. `shouldReconnect` receives the `code`,
+`reason` or `error` of the lost connection and returns whether to retry. `defaultShouldReconnect` is exported, so you can
+extend the default instead of rewriting it:
+
+```ts
+import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
+
+export const socket = new Socket({
+  url: "wss://example.com/ws",
+  // highlight-next-line
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 1003 && loss.code !== 1009,
+});
+```
+
+### Replacing the backoff
+
+When the built-in curve does not fit, `reconnectDelay` takes over the timing. It gets the `attempt` number of the outage
+(from `0`), the time `elapsed` in ms since the outage began and the `reason` of the loss. Return a delay in ms, or `null` to stop
+reconnecting, which fires `onReconnectFailed`:
+
+```ts
+export const socket = new Socket({
+  url: "wss://example.com/ws",
+  reconnectDelay: ({ attempt, elapsed, reason }) => {
+    if (elapsed > 5 * 60_000) return null; // give up after 5 minutes
+    if (reason.code === 1013) return 15_000; // Try Again Later
+    return Math.min(1000 * 2 ** attempt, 30_000) * (0.5 + Math.random() / 2);
+  },
+});
+```
+
+The `onConnect` interceptor runs before every attempt, so it is the place for fresh credentials, which is what a `1008`
+close usually needs. The [authentication guide](./authentication.mdx) shows how, and if the interceptor throws, the
+attempt fails and the error goes to `onError`.
+
+### In React
+
+`useListener` and `useEmitter` expose the same lifecycle, so a component can show the connection state without its own
+listeners on the socket:
+
+```tsx
+import { useListener } from "@hyper-fetch/react";
+
+function ConnectionBanner() {
+  const { connected, connecting, onError, onReconnecting, onReconnectingFailed } = useListener(onNotification);
+
+  onError<{ error: Error }>(({ error }) => console.warn(error.message));
+  onReconnecting(({ attempts }) => console.log("Reconnect attempt", attempts));
+  onReconnectingFailed(() => console.error("Stopped reconnecting"));
+
+  if (connecting) return <p>Connecting...</p>;
+  if (!connected) return <p>Offline. Retrying...</p>;
+  return null;
+}
+```
+
+For a "Try again" button after the attempts ran out, call `socket.reconnect()`. The [connection guide](./connection.mdx)
+covers manual `connect`, `disconnect` and `reconnect`, and the [WebSockets in React page](./websockets-in-react.mdx)
+covers the hooks from the start.
+
+:::secondary Summary
+
+- `onerror` carries no details. Read `code` in `onclose` to decide what to do.
+- `1000` means done. `1006` means the connection dropped. `1008` usually needs new credentials before a retry.
+- Browsers cannot send ping frames, so client heartbeats are ordinary messages with a reply timeout.
+- A reconnect loop needs backoff, jitter, a limit, a reset on success and fresh credentials.
+- The Hyper Fetch `WebsocketAdapter` reconnects with jittered backoff, limits attempts, times out handshakes and runs an
+  optional heartbeat. Tune it with `reconnectTime`, `maxReconnectTime`, `shouldReconnect` and `reconnectDelay`.
+
+:::
