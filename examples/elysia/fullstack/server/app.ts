@@ -1,5 +1,5 @@
 import { node } from "@elysiajs/node";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 import { Elysia, t } from "elysia";
 
 export type Bookmark = {
@@ -57,4 +57,4 @@ export const app = new Elysia({ adapter: node(), prefix: "/api" })
   });
 
 /** The schema type for `createSdk`. The client imports only this type, never the server code. */
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;

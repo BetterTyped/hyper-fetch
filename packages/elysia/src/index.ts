@@ -1,1 +1,1 @@
-export type { ElysiaAppToHyperFetch } from "./elysia.types";
+export type { ElysiaSchema, ElysiaAppToHyperFetch } from "./elysia.types";

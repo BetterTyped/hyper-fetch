@@ -3,11 +3,11 @@ import type { ServerType } from "@hono/node-server";
 import { createClient, createSdk } from "@hyper-fetch/core";
 import type { AddressInfo } from "node:net";
 
-import type { ElysiaAppToHyperFetch } from "../../../src";
+import type { ElysiaSchema } from "../../../src";
 import { edgeApp, rootParamApp } from "../../utils/edge-app";
 
-type Schema = ElysiaAppToHyperFetch<typeof edgeApp>;
-type RootSchema = ElysiaAppToHyperFetch<typeof rootParamApp>;
+type Schema = ElysiaSchema<typeof edgeApp>;
+type RootSchema = ElysiaSchema<typeof rootParamApp>;
 
 const startServer = (fetch: (request: Request) => Response | Promise<Response>) =>
   new Promise<ServerType>((resolve) => {
@@ -21,7 +21,7 @@ const stopServer = (server: ServerType) =>
 
 const getUrl = (server: ServerType) => `http://localhost:${(server.address() as AddressInfo).port}`;
 
-describe("ElysiaAppToHyperFetch [ Edge cases against an Elysia server ]", () => {
+describe("ElysiaSchema [ Edge cases against an Elysia server ]", () => {
   let server: ServerType;
   let url: string;
 
@@ -337,7 +337,7 @@ describe("ElysiaAppToHyperFetch [ Edge cases against an Elysia server ]", () => 
   });
 });
 
-describe("ElysiaAppToHyperFetch [ Root param against an Elysia server ]", () => {
+describe("ElysiaSchema [ Root param against an Elysia server ]", () => {
   let server: ServerType;
 
   beforeAll(async () => {

@@ -3,7 +3,7 @@ import type { ListenerModel, SSEAdapterOptionsType, SocketInstance } from "@hype
 import { createSocketSdk, ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
 import { EventSource } from "eventsource";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import type { FeedEvent, Price, RealtimeApp, RealtimeServer } from "../../utils/realtime-server";
 import { createRealtimeServer } from "../../utils/realtime-server";
 
@@ -305,7 +305,7 @@ describe("Hono realtime [ Server-Sent Events ]", () => {
   describe("when using the SDKs", () => {
     it("should take the stream path from the HTTP schema", async () => {
       const client = createClient({ url: server.httpUrl });
-      const sdk = createSdk<typeof client, HonoAppToHyperFetch<RealtimeApp>>(client);
+      const sdk = createSdk<typeof client, HonoSchema<RealtimeApp>>(client);
       const socket = createSocket({}, `${client.url}${sdk.events.$get.endpoint}`);
 
       await waitForStream(socket);

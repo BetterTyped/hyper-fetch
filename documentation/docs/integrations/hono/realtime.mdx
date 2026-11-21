@@ -7,20 +7,20 @@ sidebar_label: Realtime
 
 # Hono WebSocket and SSE client with typed messages
 
-[Read the API Reference »](/docs/api/hono/Types/HonoWebSocketPath.mdx)
+[Read the API Reference »](/docs/api/hono/Types/HonoSocketPath.mdx)
 
 A hono websocket route is a plain pipe: `upgradeWebSocket()` and `streamSSE()` carry whatever messages your handlers
 write, and Hono has no realtime protocol of its own. That makes the client side simple. A HyperFetch
 [`Socket`](/docs/sockets/socket) connects to those routes with the built-in `WebsocketAdapter` and
 `ServerSentEventsAdapter`. Write `{ topic, data }` messages on the server and every listener, emitter and React hook
-works without extra setup. `@hyper-fetch/hono` adds `HonoWebSocketPath`, which checks the address a socket connects to
+works without extra setup. `@hyper-fetch/hono` adds `HonoSocketPath`, which checks the address a socket connects to
 against your app.
 
 :::tip Purpose
 
-1. **Typed addresses**: `HonoWebSocketPath<AppType>` rejects socket URLs that do not match an `upgradeWebSocket()`
+1. **Typed addresses**: `HonoSocketPath<AppType>` rejects socket URLs that do not match an `upgradeWebSocket()`
    route, with `:param` segments filled in.
-2. **Clean HTTP schema**: WebSocket routes are left out of `HonoAppToHyperFetch`, so nobody calls `send()` on them.
+2. **Clean HTTP schema**: WebSocket routes are left out of `HonoSchema`, so nobody calls `send()` on them.
 3. **Typed messages**: a [`createSocketSdk`](/docs/sockets/sdk) schema exported from the backend types every listener
    and emitter.
 4. **Any message format**: `decode` and `encode` adapter options read apps that do not send `{ topic, data }`.
@@ -104,11 +104,11 @@ export type ChatSchema = {
 
 ```ts title="frontend/src/socket.ts"
 import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
-import type { HonoWebSocketPath } from "@hyper-fetch/hono";
+import type { HonoSocketPath } from "@hyper-fetch/hono";
 import type { AppType, ChatSchema } from "@my-app/backend";
 
 // highlight-next-line
-const path: HonoWebSocketPath<AppType> = "/ws";
+const path: HonoSocketPath<AppType> = "/ws";
 
 export const socket = new Socket({ url: `wss://api.example.com${path}` });
 export const chat = createSocketSdk<typeof socket, ChatSchema>(socket);
@@ -128,7 +128,7 @@ chat.chat.$roomId.$emitter.emit({ params: { roomId: "1" }, payload: { text: "Hel
 
 ## How realtime routes appear in the types
 
-| Hono route                                | `HonoAppToHyperFetch`            | `HonoWebSocketPath`     |
+| Hono route                                | `HonoSchema`            | `HonoSocketPath`     |
 | ----------------------------------------- | -------------------------------- | ----------------------- |
 | `.get("/ws", upgradeWebSocket(...))`      | left out                         | `"/ws"`                 |
 | `.get("/chat/:roomId", upgradeWebSocket)` | left out                         | `` `/chat/${string}` `` |
@@ -147,13 +147,13 @@ Its endpoint is still typed, so the HTTP SDK can give you the path.
 
 ## Paths and params
 
-A route with params opens one connection per value. `HonoWebSocketPath` accepts the path with the params filled in and
+A route with params opens one connection per value. `HonoSocketPath` accepts the path with the params filled in and
 rejects paths the app does not define.
 
 ```ts
-import type { HonoWebSocketPath } from "@hyper-fetch/hono";
+import type { HonoSocketPath } from "@hyper-fetch/hono";
 
-const roomPath = (roomId: string): HonoWebSocketPath<AppType> => `/chat/${roomId}`;
+const roomPath = (roomId: string): HonoSocketPath<AppType> => `/chat/${roomId}`;
 
 const socket = new Socket({ url: `wss://api.example.com${roomPath("1")}` });
 
@@ -162,7 +162,7 @@ socket.setUrl(`wss://api.example.com${roomPath("2")}`);
 await socket.reconnect();
 
 // error-next-line
-const typo: HonoWebSocketPath<AppType> = "/rooms/1";
+const typo: HonoSocketPath<AppType> = "/rooms/1";
 // Type error: the app has no /rooms WebSocket route
 ```
 
@@ -296,11 +296,11 @@ app.get("/events", (c) =>
 
 ```ts title="frontend/src/events.ts"
 import { createClient, createSdk } from "@hyper-fetch/core";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 import { ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
 
 const client = createClient({ url: "https://api.example.com" });
-const sdk = createSdk<typeof client, HonoAppToHyperFetch<AppType>>(client);
+const sdk = createSdk<typeof client, HonoSchema<AppType>>(client);
 
 // The endpoint comes from the typed HTTP schema
 const events = new Socket({ url: `${client.url}${sdk.events.$get.endpoint}`, adapter: ServerSentEventsAdapter });
@@ -382,8 +382,8 @@ export const Room = ({ roomId }: { roomId: string }) => {
 :::secondary What you learned
 
 - Hono WebSocket and SSE routes work with the built-in socket adapters when they send `{ topic, data }`.
-- `HonoWebSocketPath<AppType>` checks socket addresses, including `:param` segments, `basePath()` and `app.route()`.
-- WebSocket routes are not part of `HonoAppToHyperFetch`, SSE routes stay there as an untyped `$get`.
+- `HonoSocketPath<AppType>` checks socket addresses, including `:param` segments, `basePath()` and `app.route()`.
+- WebSocket routes are not part of `HonoSchema`, SSE routes stay there as an untyped `$get`.
 - Message types live in a `createSocketSdk` schema built from `ListenerModel` and `EmitterModel`.
 - Subscription input travels in your own join messages or in the handshake query params.
 

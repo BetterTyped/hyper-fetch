@@ -7,7 +7,7 @@ sidebar_label: Overview
 
 # Elysia client with types from your app
 
-[Read the API Reference »](/docs/api/elysia/Types/ElysiaAppToHyperFetch.mdx)
+[Read the API Reference »](/docs/api/elysia/Types/ElysiaSchema.mdx)
 
 `@hyper-fetch/elysia` gives you a typed elysia client built on HyperFetch. It converts the type of an
 [Elysia](https://elysiajs.com/) app into a schema for [`createSdk`](/docs/core/sdk), so the frontend calls the backend
@@ -70,7 +70,7 @@ supports.
 
 ```ts title="backend/src/app.ts"
 import { Elysia, t } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 const users = new Elysia({ prefix: "/users" })
   .get("/", () => [{ id: "1", name: "Ann" }])
@@ -82,7 +82,7 @@ const users = new Elysia({ prefix: "/users" })
 export const app = new Elysia().use(users);
 
 // highlight-next-line
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
@@ -241,12 +241,20 @@ const { error } = await sdk.users.$get.send();
 
 :::secondary What you learned
 
-- `ElysiaAppToHyperFetch<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
+- `ElysiaSchema<typeof app>` turns a chained Elysia app into a schema for `createSdk`.
 - Paths, params, optional params, kebab-case segments, prefixes and groups all map to nested SDK properties.
 - 2xx bodies type the response, and every other status types the local error.
 - Response types follow the wire: dates are strings, empty bodies are `""`, and streams are `unknown`.
 - `body` and `query` schemas type the payload and query params of each request.
 - The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+:::note Renamed type
+
+Earlier releases called `ElysiaSchema` `ElysiaAppToHyperFetch`. The old name still works and is marked `@deprecated`.
 
 :::
 

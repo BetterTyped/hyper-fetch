@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><b>Quick Start</b></a> ·
   <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview">Documentation</a> ·
-  <a href="https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoAppToHyperFetch">API Reference</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoSchema">API Reference</a> ·
   <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
   <a href="https://discord.gg/7upC2kVmyM">Discord</a>
 </p>
@@ -34,7 +34,7 @@ nothing from your server ends up in the client bundle.
 - 🛂 **Validators drive the payload** - `json` and `query` validators type `setPayload()` and `setQueryParams()`
 - 🧩 **Mounted routers included** - `app.route()` and `basePath()` prefixes land in the endpoint and the nesting
 - 🧷 **Every path shape** - Optional `:id?` and regex `:id{[0-9]+}` params, `.all()` and `app.on()` get typed accessors
-- 📡 **Realtime routes too** - `HonoWebSocketPath` rejects socket URLs that match no `upgradeWebSocket()` route
+- 📡 **Realtime routes too** - `HonoSocketPath` rejects socket URLs that match no `upgradeWebSocket()` route
 - 🚫 **No fake requests** - WebSocket routes stay out of the HTTP SDK, so nobody calls `send()` on them
 - 🪶 **Zero runtime** - Type exports only, so it adds no code to your bundle
 - ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline replay and React hooks on every route
@@ -48,11 +48,11 @@ npm install @hyper-fetch/core @hyper-fetch/hono
 ```ts
 // backend
 import { Hono } from "hono";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const app = new Hono().get("/users/:userId", (c) => c.json({ id: c.req.param("userId"), name: "Ann" }));
 
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 ```ts
@@ -72,7 +72,7 @@ const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 - **[Hono Integration](https://hyperfetch.bettertyped.com/docs/integrations/hono/overview)** - Setup, routes, validators and path shapes
 - **[Hono Realtime](https://hyperfetch.bettertyped.com/docs/integrations/hono/realtime)** - WebSocket and Server-Sent Events routes
 - **[SDK](https://hyperfetch.bettertyped.com/docs/core/sdk)** - How `createSdk` turns a schema into requests
-- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoAppToHyperFetch)** - Every exported type
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoSchema)** - Every exported type
 
 ## 💡 Examples
 
@@ -81,7 +81,7 @@ const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 ```ts
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const users = new Hono()
   .get("/", (c) => c.json([{ id: "1", name: "Ann" }]))
@@ -95,7 +95,7 @@ const auth = new Hono().get("/google-login", (c) => c.json({ authUrl: "https://a
 
 const app = new Hono().route("/users", users).route("/auth", auth);
 
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 ```ts
@@ -147,9 +147,9 @@ export type ChatSchema = { message: { $listener: ListenerModel<{ response: { tex
 ```ts
 // frontend
 import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
-import type { HonoWebSocketPath } from "@hyper-fetch/hono";
+import type { HonoSocketPath } from "@hyper-fetch/hono";
 
-const path: HonoWebSocketPath<AppType> = `/chat/${roomId}`; // "/rooms/1" would not compile
+const path: HonoSocketPath<AppType> = `/chat/${roomId}`; // "/rooms/1" would not compile
 const socket = new Socket({ url: `wss://api.example.com${path}` });
 const chat = createSocketSdk<typeof socket, ChatSchema>(socket);
 

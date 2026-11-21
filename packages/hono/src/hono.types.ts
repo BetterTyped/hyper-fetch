@@ -171,7 +171,7 @@ type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInst
  * `app.route()` and `basePath()`. Anything that is not a Hono app resolves to `{}`.
  *
  * Routes handled by `upgradeWebSocket()` are not requests, so they are left out - connect to them with a
- * `Socket` and check the address with {@link HonoWebSocketPath}. Server-Sent Events routes (`streamSSE()`)
+ * `Socket` and check the address with {@link HonoSocketPath}. Server-Sent Events routes (`streamSSE()`)
  * stay in the schema as a `$get` with an untyped response: Hono types them like any other raw `Response`.
  *
  * @typeParam App - The Hono app type, usually `typeof app`.
@@ -182,14 +182,14 @@ type ConvertSchema<Schema extends Record<string, any>, Client extends ClientInst
  * ```ts
  * // backend
  * const app = new Hono().get("/users/:userId", (c) => c.json({ id: c.req.param("userId") }));
- * export type AppSchema = HonoAppToHyperFetch<typeof app>;
+ * export type AppSchema = HonoSchema<typeof app>;
  *
  * // frontend
  * const sdk = createSdk<typeof client, AppSchema>(client);
  * const { data } = await sdk.users.$userId.$get.send({ params: { userId: "1" } });
  * ```
  */
-export type HonoAppToHyperFetch<App, Client extends ClientInstance = ClientInstance> =
+export type HonoSchema<App, Client extends ClientInstance = ClientInstance> =
   // Match `HonoBase` with all four generics: `.route()` returns `HonoBase<E, S, BasePath, CurrentPath>`,
   // so matching against `Hono<E, S, BasePath>` fails to infer the schema and resolves to `{}`.
   App extends HonoBase<any, infer S, any, any> ? Prettify<ConvertSchema<MergeUnionToRecord<S>, Client>> : {};
@@ -243,10 +243,25 @@ type ToPathPattern<Path extends string> =
  * export type AppType = typeof app;
  *
  * // frontend
- * const path: HonoWebSocketPath<AppType> = `/chat/${roomId}`;
+ * const path: HonoSocketPath<AppType> = `/chat/${roomId}`;
  * const socket = new Socket({ url: `wss://api.example.com${path}` });
  * ```
  */
-export type HonoWebSocketPath<App> = {
+export type HonoSocketPath<App> = {
   [Path in keyof WebSocketEndpoints<App> & string]: ToPathPattern<Path>;
 }[keyof WebSocketEndpoints<App> & string];
+
+/* -------------------------------------------------------------------------------------------------
+ * Deprecated names
+ * -----------------------------------------------------------------------------------------------*/
+
+/**
+ * @deprecated Renamed to {@link HonoSchema}, to match `TrpcSchema` and `OrpcSchema`. This alias will be removed in
+ * the next major version.
+ */
+export type HonoAppToHyperFetch<App, Client extends ClientInstance = ClientInstance> = HonoSchema<App, Client>;
+
+/**
+ * @deprecated Renamed to {@link HonoSocketPath}. This alias will be removed in the next major version.
+ */
+export type HonoWebSocketPath<App> = HonoSocketPath<App>;

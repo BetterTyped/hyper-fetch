@@ -2,15 +2,15 @@ import { createClient, createSdk } from "@hyper-fetch/core";
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 
 import { app } from "../__tests__/utils/app";
-import type { ElysiaAppToHyperFetch } from "../src";
+import type { ElysiaSchema } from "../src";
 
-type Schema = ElysiaAppToHyperFetch<typeof app>;
+type Schema = ElysiaSchema<typeof app>;
 
 /**
  * Runs with `bun test`, so Elysia serves through `Bun.serve` and Hyper Fetch sends with the fetch
  * of Bun. The vitest specs cover the same routes on Node.
  */
-describe("ElysiaAppToHyperFetch [ Requests against Elysia on Bun ]", () => {
+describe("ElysiaSchema [ Requests against Elysia on Bun ]", () => {
   let url: string;
 
   const createAppSdk = () => {

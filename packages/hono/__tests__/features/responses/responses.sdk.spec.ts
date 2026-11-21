@@ -1,13 +1,13 @@
 import type { ServerType } from "@hono/node-server";
 import { createClient, createSdk } from "@hyper-fetch/core";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import { responsesApp } from "../../utils/responses.app";
 import { startServer, stopServer } from "../../utils/server";
 
-type Schema = HonoAppToHyperFetch<typeof responsesApp>;
+type Schema = HonoSchema<typeof responsesApp>;
 
-describe("HonoAppToHyperFetch [ Responses against a Hono server ]", () => {
+describe("HonoSchema [ Responses against a Hono server ]", () => {
   let server: ServerType;
   let url: string;
 

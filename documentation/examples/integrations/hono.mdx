@@ -21,7 +21,7 @@ client gets every type from the Hono routes, without codegen.
 
 :::tip What it shows
 
-1. **`HonoAppToHyperFetch`** turns the type of a Hono app into a schema for `createSdk`.
+1. **`HonoSchema`** turns the type of a Hono app into a schema for `createSdk`.
 2. **Typed from the routes**: responses, the `json` validator payload and `:noteId` params all reach the client.
 3. **One dev server**: `@hono/vite-dev-server` runs the API inside Vite, so `npm run dev` starts both.
 4. **Typed errors**: the server sends `{ message }`, the error type of the HyperFetch client.
@@ -36,7 +36,7 @@ client gets every type from the Hono routes, without codegen.
 
    ```ts
    // highlight-next-line
-   export type AppSchema = HonoAppToHyperFetch<typeof app>;
+   export type AppSchema = HonoSchema<typeof app>;
    ```
 
 2. `vite.config.ts` adds `devServer({ entry: "server/app.ts", exclude: [...] })`. Requests to `/api` go to the Hono app;
@@ -71,7 +71,7 @@ client gets every type from the Hono routes, without codegen.
 
 :::secondary Summary
 
-`HonoAppToHyperFetch` reads the Hono app type and `createSdk` turns it into typed requests. The backend stays the single
+`HonoSchema` reads the Hono app type and `createSdk` turns it into typed requests. The backend stays the single
 source of truth, and the frontend uses the same hooks as any other HyperFetch app.
 
 :::

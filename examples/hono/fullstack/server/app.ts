@@ -1,4 +1,4 @@
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
@@ -39,7 +39,7 @@ const app = new Hono()
   .onError((error, c) => c.json({ message: error.message }, error instanceof HTTPException ? error.status : 500));
 
 /** The schema type for `createSdk`. The client imports only this type, never the server code. */
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 
 // `@hono/vite-dev-server` serves the default export inside the Vite dev server.
 export default app;

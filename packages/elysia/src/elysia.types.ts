@@ -212,15 +212,21 @@ type ConvertNode<
  * ```ts
  * // backend
  * const app = new Elysia().get("/users/:userId", ({ params }) => ({ id: params.userId }));
- * export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+ * export type AppSchema = ElysiaSchema<typeof app>;
  *
  * // frontend
  * const sdk = createSdk<typeof client, AppSchema>(client);
  * const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
  * ```
  */
-export type ElysiaAppToHyperFetch<App, Client extends ClientInstance = ClientInstance> = App extends {
+export type ElysiaSchema<App, Client extends ClientInstance = ClientInstance> = App extends {
   "~Routes": infer Routes;
 }
   ? ConvertNode<Routes, "", Client>
   : {};
+
+/**
+ * @deprecated Renamed to {@link ElysiaSchema}, to match `TrpcSchema` and `OrpcSchema`. This alias will be removed in
+ * the next major version.
+ */
+export type ElysiaAppToHyperFetch<App, Client extends ClientInstance = ClientInstance> = ElysiaSchema<App, Client>;

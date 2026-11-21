@@ -3,12 +3,12 @@ import { Hono } from "hono";
 import type { ApplyGlobalResponse, PickResponseByStatusCode } from "hono/client";
 import { expectTypeOf } from "vitest";
 
-import type { HonoAppToHyperFetch } from "../../../src";
+import type { HonoSchema } from "../../../src";
 import type { Result, responsesApp } from "../../utils/responses.app";
 
-type Schema = HonoAppToHyperFetch<typeof responsesApp>;
+type Schema = HonoSchema<typeof responsesApp>;
 
-describe("HonoAppToHyperFetch [ JSON responses ]", () => {
+describe("HonoSchema [ JSON responses ]", () => {
   it("should keep the literal type of JSON primitives", () => {
     expectTypeOf<ExtractResponseType<Schema["json"]["string"]["$get"]>>().toEqualTypeOf<"a-string">();
     expectTypeOf<ExtractResponseType<Schema["json"]["number"]["$get"]>>().toEqualTypeOf<37>();
@@ -41,14 +41,14 @@ describe("HonoAppToHyperFetch [ JSON responses ]", () => {
 
   it("should type a body JSON cannot serialize as never", () => {
     const app = new Hono().get("/bigint", (c) => c.json({ value: 42n }));
-    type BigIntSchema = HonoAppToHyperFetch<typeof app>;
+    type BigIntSchema = HonoSchema<typeof app>;
 
     expectTypeOf<ExtractResponseType<BigIntSchema["bigint"]["$get"]>>().toBeNever();
     expect(true).toBe(true);
   });
 });
 
-describe("HonoAppToHyperFetch [ Statuses ]", () => {
+describe("HonoSchema [ Statuses ]", () => {
   it("should union the bodies of every status", () => {
     expectTypeOf<ExtractResponseType<Schema["statuses"]["$get"]>>().toEqualTypeOf<
       { data: string } | { message: string }
@@ -64,14 +64,14 @@ describe("HonoAppToHyperFetch [ Statuses ]", () => {
   });
 
   it("should keep only the statuses PickResponseByStatusCode picks", () => {
-    type SuccessSchema = HonoAppToHyperFetch<PickResponseByStatusCode<typeof responsesApp, 200>>;
+    type SuccessSchema = HonoSchema<PickResponseByStatusCode<typeof responsesApp, 200>>;
 
     expectTypeOf<ExtractResponseType<SuccessSchema["statuses"]["$get"]>>().toEqualTypeOf<{ data: string }>();
     expect(true).toBe(true);
   });
 
   it("should add the responses ApplyGlobalResponse declares", () => {
-    type GlobalSchema = HonoAppToHyperFetch<
+    type GlobalSchema = HonoSchema<
       ApplyGlobalResponse<typeof responsesApp, { 500: { json: { error: string } } }>
     >;
 
@@ -80,7 +80,7 @@ describe("HonoAppToHyperFetch [ Statuses ]", () => {
   });
 });
 
-describe("HonoAppToHyperFetch [ Other response helpers ]", () => {
+describe("HonoSchema [ Other response helpers ]", () => {
   it("should type c.text() with the literal text", () => {
     expectTypeOf<ExtractResponseType<Schema["text"]["$get"]>>().toEqualTypeOf<"Hello, Hono!">();
     expectTypeOf<ExtractResponseType<Schema["text"]["numeric"]["$get"]>>().toEqualTypeOf<"42">();

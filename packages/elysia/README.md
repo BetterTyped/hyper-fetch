@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview"><b>Quick Start</b></a> ·
   <a href="https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview">Documentation</a> ·
-  <a href="https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaAppToHyperFetch">API Reference</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaSchema">API Reference</a> ·
   <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
   <a href="https://discord.gg/7upC2kVmyM">Discord</a>
 </p>
@@ -46,11 +46,11 @@ npm install @hyper-fetch/core @hyper-fetch/elysia
 ```ts
 // backend
 import { Elysia } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 const app = new Elysia().get("/users/:userId", ({ params }) => ({ id: params.userId, name: "Ann" }));
 
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 ```ts
@@ -69,7 +69,7 @@ const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 - **[Elysia Integration](https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview)** - Setup, schemas, errors and plugins
 - **[SDK](https://hyperfetch.bettertyped.com/docs/core/sdk)** - How `createSdk` turns a schema into requests
 - **[Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)** - The core request API
-- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaAppToHyperFetch)** - Every exported type
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/elysia/Types/ElysiaSchema)** - Every exported type
 
 ## 💡 Examples
 
@@ -77,7 +77,7 @@ const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 
 ```ts
 import { Elysia, t } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 const users = new Elysia({ prefix: "/users" })
   .post("/", ({ body, status }) => status(201, { id: "2", name: body.name }), {
@@ -91,7 +91,7 @@ const auth = new Elysia({ prefix: "/auth" }).get("/google-login", () => ({ authU
 
 const app = new Elysia().use(users).use(auth);
 
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 ```ts

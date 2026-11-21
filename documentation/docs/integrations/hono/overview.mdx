@@ -7,7 +7,7 @@ sidebar_label: Overview
 
 # Hono client with types from your Hono app
 
-[Read the API Reference »](/docs/api/hono/Types/HonoAppToHyperFetch.mdx)
+[Read the API Reference »](/docs/api/hono/Types/HonoSchema.mdx)
 
 `@hyper-fetch/hono` gives you a typed hono client built on HyperFetch. It converts the type of a
 [Hono](https://hono.dev/) app into a schema for [`createSdk`](/docs/core/sdk), so the frontend calls the backend through
@@ -66,7 +66,7 @@ npm install @hyper-fetch/core @hyper-fetch/hono
 ```ts title="backend/src/app.ts"
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const users = new Hono()
   .get("/", (c) => c.json([{ id: "1", name: "Ann" }]))
@@ -80,7 +80,7 @@ const users = new Hono()
 export const app = new Hono().route("/users", users);
 
 // highlight-next-line
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 2. Pass the schema to `createSdk` on the frontend. Use `import type` so no backend code reaches the client bundle.
@@ -213,10 +213,19 @@ const { error } = await sdk.users.$get.send();
 
 :::secondary What you learned
 
-- `HonoAppToHyperFetch<typeof app>` turns a chained Hono app into a schema for `createSdk`.
+- `HonoSchema<typeof app>` turns a chained Hono app into a schema for `createSdk`.
 - Paths, params, kebab-case segments, mounted routers and `basePath()` all map to nested SDK properties.
 - `json` and `query` validators type the payload and query params of each request.
 - The package ships types only, so import it with `import type` on the frontend.
+
+:::
+
+---
+
+:::note Renamed types
+
+Earlier releases called `HonoSchema` and `HonoSocketPath` `HonoAppToHyperFetch` and `HonoWebSocketPath`. The old
+names still work and are marked `@deprecated`.
 
 :::
 

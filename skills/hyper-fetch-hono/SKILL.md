@@ -1,10 +1,10 @@
 ---
 name: hyper-fetch-hono
 description:
-  Hono integration for HyperFetch (`@hyper-fetch/hono`). A types-only package whose `HonoAppToHyperFetch<typeof app>`
+  Hono integration for HyperFetch (`@hyper-fetch/hono`). A types-only package whose `HonoSchema<typeof app>`
   turns a Hono app type into a schema for `createSdk` from `@hyper-fetch/core`, so the frontend calls the backend with
   responses, JSON payloads, query and URL params typed from Hono routes and validators, without codegen. Use when the
-  user installs `@hyper-fetch/hono`, imports `HonoAppToHyperFetch`, wants end-to-end type safety between a Hono backend
+  user installs `@hyper-fetch/hono`, imports `HonoSchema`, wants end-to-end type safety between a Hono backend
   and a HyperFetch or React frontend, writes `createSdk<typeof client, AppSchema>`, calls `sdk.users.$userId.$get`, maps
   `app.route()`, `basePath()`, optional `:id?` or regex `:id{[0-9]+}` params, `.all()`, `app.on()`, kebab-case paths or
   `validator("json" | "query" | "form")` to typed requests, sends array query params or file uploads to Hono, replaces
@@ -14,7 +14,7 @@ description:
 
 # HyperFetch Hono integration
 
-`@hyper-fetch/hono` exports a single type, `HonoAppToHyperFetch<App, Client?>`. It reads the route schema Hono builds
+`@hyper-fetch/hono` exports a single type, `HonoSchema<App, Client?>`. It reads the route schema Hono builds
 for its own RPC client and converts it into a nested `createSdk` schema. There is no adapter and no runtime code: the
 frontend uses a normal `@hyper-fetch/core` client (the default HTTP adapter, or any HTTP adapter such as `AxiosAdapter`)
 plus `createSdk`. Every route becomes a regular `Request` with cache, retries, deduplication and React hooks.
@@ -34,7 +34,7 @@ needs `hono` available too (in a monorepo it usually is, otherwise add it as a d
 // backend/src/app.ts
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 type User = { id: string; name: string };
 
@@ -56,7 +56,7 @@ const auth = new Hono().get("/google-login", (c) => c.json({ authUrl: "https://a
 
 export const app = new Hono().route("/users", users).route("/auth", auth);
 
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 ```ts
@@ -270,16 +270,16 @@ Any validator that registers a `json` or `query` target works, including `zValid
 
 ### Requests outside `createSdk`
 
-`HonoAppToHyperFetch<typeof app, typeof client>` fills the `Client` generic directly when you use the schema types
+`HonoSchema<typeof app, typeof client>` fills the `Client` generic directly when you use the schema types
 without `createSdk`. With `createSdk` this is not needed, it injects its own client.
 
 ## Type safety
 
-Types flow in one direction: Hono route chain → `typeof app` → `HonoAppToHyperFetch<typeof app>` →
+Types flow in one direction: Hono route chain → `typeof app` → `HonoSchema<typeof app>` →
 `createSdk<typeof client, AppSchema>(client)` → each `Request` → `send()`, `useFetch`, `useSubmit`. Nothing is generated
 or duplicated, so a backend change breaks the frontend build at the call site.
 
-`HonoAppToHyperFetch<App, Client = ClientInstance>`:
+`HonoSchema<App, Client = ClientInstance>`:
 
 - `App`: the type of a Hono app (`typeof app`), including `.route()` and `basePath()`, and apps wrapped in Hono's
   `PickResponseByStatusCode` / `ApplyGlobalResponse`. Anything else resolves to `{}`.

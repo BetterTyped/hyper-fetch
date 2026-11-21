@@ -26,8 +26,8 @@ createSdk<typeof client, TrpcSchema<AppRouter>>(client, {
 createSdk<typeof client, OrpcSchema<typeof router>>(client, {
   camelCaseToKebabCase: false,
 });
-createSdk<typeof client, HonoAppToHyperFetch<typeof app>>(client);
-createSdk<typeof client, ElysiaAppToHyperFetch<typeof app>>(client);
+createSdk<typeof client, HonoSchema<typeof app>>(client);
+createSdk<typeof client, ElysiaSchema<typeof app>>(client);
 ```
 
 </BlogPostImage>
@@ -281,7 +281,7 @@ npm install @hyper-fetch/core @hyper-fetch/hono
 ```ts title="backend/src/app.ts"
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { HonoAppToHyperFetch } from "@hyper-fetch/hono";
+import type { HonoSchema } from "@hyper-fetch/hono";
 
 const users = new Hono()
   .get("/:userId", (c) => c.json({ id: c.req.param("userId"), name: "Ann" }))
@@ -294,7 +294,7 @@ const users = new Hono()
 export const app = new Hono().route("/users", users);
 
 // highlight-next-line
-export type AppSchema = HonoAppToHyperFetch<typeof app>;
+export type AppSchema = HonoSchema<typeof app>;
 ```
 
 ```ts title="frontend/src/api.ts"
@@ -319,16 +319,16 @@ payload and the query params. Optional params (`/files/:fileId?`) become two rou
 ### Realtime routes
 
 Hono has no realtime protocol of its own, so `upgradeWebSocket()` routes work with the built-in `WebsocketAdapter` when
-they send `{ topic, data }` messages. They are left out of `HonoAppToHyperFetch`, so nobody calls `send()` on them.
-`HonoWebSocketPath` checks the address a socket connects to instead.
+they send `{ topic, data }` messages. They are left out of `HonoSchema`, so nobody calls `send()` on them.
+`HonoSocketPath` checks the address a socket connects to instead.
 
 ```ts title="frontend/src/socket.ts"
 import { createSocketSdk, Socket } from "@hyper-fetch/sockets";
-import type { HonoWebSocketPath } from "@hyper-fetch/hono";
+import type { HonoSocketPath } from "@hyper-fetch/hono";
 import type { AppType, ChatSchema } from "@my-app/backend";
 
 // highlight-next-line
-const path: HonoWebSocketPath<AppType> = "/ws"; // a typo is a type error
+const path: HonoSocketPath<AppType> = "/ws"; // a typo is a type error
 
 const socket = new Socket({ url: `wss://api.example.com${path}` });
 const chat = createSocketSdk<typeof socket, ChatSchema>(socket);
@@ -354,7 +354,7 @@ npm install @hyper-fetch/core @hyper-fetch/elysia
 
 ```ts title="backend/src/app.ts"
 import { Elysia, t } from "elysia";
-import type { ElysiaAppToHyperFetch } from "@hyper-fetch/elysia";
+import type { ElysiaSchema } from "@hyper-fetch/elysia";
 
 export const app = new Elysia({ prefix: "/users" })
   .get("/:userId", ({ params, status }) =>
@@ -367,7 +367,7 @@ export const app = new Elysia({ prefix: "/users" })
   });
 
 // highlight-next-line
-export type AppSchema = ElysiaAppToHyperFetch<typeof app>;
+export type AppSchema = ElysiaSchema<typeof app>;
 ```
 
 ```ts title="frontend/src/api.ts"

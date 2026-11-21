@@ -14,14 +14,14 @@ import type {
 import { Elysia } from "elysia";
 import { expectTypeOf } from "vitest";
 
-import type { ElysiaAppToHyperFetch } from "../../../src";
+import type { ElysiaSchema } from "../../../src";
 import type { User, apiApp, app, groupApp } from "../../utils/app";
 
-type Schema = ElysiaAppToHyperFetch<typeof app>;
+type Schema = ElysiaSchema<typeof app>;
 
 type ValidationError = { type: "validation" };
 
-describe("ElysiaAppToHyperFetch [ Schema shape ]", () => {
+describe("ElysiaSchema [ Schema shape ]", () => {
   it("should nest plugin routes under their path segments", () => {
     expectTypeOf<keyof Schema["users"]>().toEqualTypeOf<"$get" | "$post" | "$userId">();
     expectTypeOf<keyof Schema["users"]["$userId"]>().toEqualTypeOf<"$get" | "posts">();
@@ -62,7 +62,7 @@ describe("ElysiaAppToHyperFetch [ Schema shape ]", () => {
   });
 
   it("should prefix endpoints with the plugin prefix", () => {
-    type ApiSchema = ElysiaAppToHyperFetch<typeof apiApp>;
+    type ApiSchema = ElysiaSchema<typeof apiApp>;
 
     expectTypeOf<keyof ApiSchema>().toEqualTypeOf<"api">();
     expectTypeOf<ExtractEndpointType<ApiSchema["api"]["users"]["$get"]>>().toEqualTypeOf<"/api/users">();
@@ -70,7 +70,7 @@ describe("ElysiaAppToHyperFetch [ Schema shape ]", () => {
   });
 
   it("should prefix endpoints with the group prefix", () => {
-    type GroupSchema = ElysiaAppToHyperFetch<typeof groupApp>;
+    type GroupSchema = ElysiaSchema<typeof groupApp>;
 
     expectTypeOf<keyof GroupSchema>().toEqualTypeOf<"v1">();
     expectTypeOf<
@@ -87,15 +87,15 @@ describe("ElysiaAppToHyperFetch [ Schema shape ]", () => {
 
   it("should keep a path segment named like a method", () => {
     const methodNamed = new Elysia().get("/get/delete", () => ({ nested: true as const }));
-    type MethodNamedSchema = ElysiaAppToHyperFetch<typeof methodNamed>;
+    type MethodNamedSchema = ElysiaSchema<typeof methodNamed>;
 
     expectTypeOf<ExtractEndpointType<MethodNamedSchema["get"]["delete"]["$get"]>>().toEqualTypeOf<"/get/delete">();
     expect(true).toBe(true);
   });
 
   it("should resolve to an empty schema for anything that is not an Elysia app", () => {
-    expectTypeOf<ElysiaAppToHyperFetch<{ routes: [] }>>().toEqualTypeOf<{}>();
-    expectTypeOf<ElysiaAppToHyperFetch<typeof Elysia>>().toEqualTypeOf<{}>();
+    expectTypeOf<ElysiaSchema<{ routes: [] }>>().toEqualTypeOf<{}>();
+    expectTypeOf<ElysiaSchema<typeof Elysia>>().toEqualTypeOf<{}>();
     expect(true).toBe(true);
   });
 
@@ -111,7 +111,7 @@ describe("ElysiaAppToHyperFetch [ Schema shape ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ Request types ]", () => {
+describe("ElysiaSchema [ Request types ]", () => {
   it("should take the response from the 2xx statuses of the handler", () => {
     expectTypeOf<ExtractResponseType<Schema["users"]["$get"]>>().toEqualTypeOf<User[]>();
     expectTypeOf<ExtractResponseType<Schema["users"]["$post"]>>().toEqualTypeOf<User>();
@@ -163,7 +163,7 @@ describe("ElysiaAppToHyperFetch [ Request types ]", () => {
 
   it("should default the client to ClientInstance and accept a custom one", () => {
     type AppClient = Client<{ code: string }, HttpAdapterType>;
-    type TypedSchema = ElysiaAppToHyperFetch<typeof app, AppClient>;
+    type TypedSchema = ElysiaSchema<typeof app, AppClient>;
 
     expectTypeOf<ExtractClientType<Schema["users"]["$get"]>>().toEqualTypeOf<ClientInstance>();
     expectTypeOf<ExtractClientType<TypedSchema["users"]["$get"]>>().toEqualTypeOf<AppClient>();
@@ -171,7 +171,7 @@ describe("ElysiaAppToHyperFetch [ Request types ]", () => {
   });
 });
 
-describe("ElysiaAppToHyperFetch [ createSdk ]", () => {
+describe("ElysiaSchema [ createSdk ]", () => {
   const client = createClient({ url: "http://localhost" });
   const sdk = createSdk<typeof client, Schema>(client);
 

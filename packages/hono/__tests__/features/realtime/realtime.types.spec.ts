@@ -5,12 +5,12 @@ import { Hono } from "hono";
 import { defineWebSocketHelper } from "hono/ws";
 import { expectTypeOf } from "vitest";
 
-import type { HonoAppToHyperFetch, HonoWebSocketPath } from "../../../src";
+import type { HonoSchema, HonoSocketPath } from "../../../src";
 import type { ChatMessage, RealtimeApp } from "../../utils/realtime-server";
 
-describe("HonoWebSocketPath [ Types ]", () => {
+describe("HonoSocketPath [ Types ]", () => {
   it("should list the WebSocket routes of the app", () => {
-    expectTypeOf<HonoWebSocketPath<RealtimeApp>>().toEqualTypeOf<
+    expectTypeOf<HonoSocketPath<RealtimeApp>>().toEqualTypeOf<
       "/ws" | `/chat/${string}` | "/notifications" | "/legacy"
     >();
     expect(true).toBe(true);
@@ -18,19 +18,19 @@ describe("HonoWebSocketPath [ Types ]", () => {
 
   it("should accept a path with the params filled in", () => {
     const roomId = "42";
-    const path: HonoWebSocketPath<RealtimeApp> = `/chat/${roomId}`;
+    const path: HonoSocketPath<RealtimeApp> = `/chat/${roomId}`;
 
-    expectTypeOf(path).toExtend<HonoWebSocketPath<RealtimeApp>>();
+    expectTypeOf(path).toExtend<HonoSocketPath<RealtimeApp>>();
     expect(path).toBe("/chat/42");
   });
 
   it("should reject HTTP routes and paths the app does not define", () => {
     // @ts-expect-error - /health is an HTTP route
-    const http: HonoWebSocketPath<RealtimeApp> = "/health";
+    const http: HonoSocketPath<RealtimeApp> = "/health";
     // @ts-expect-error - /events is a Server-Sent Events route, not a WebSocket
-    const sse: HonoWebSocketPath<RealtimeApp> = "/events";
+    const sse: HonoSocketPath<RealtimeApp> = "/events";
     // @ts-expect-error - the app has no /rooms route
-    const typo: HonoWebSocketPath<RealtimeApp> = "/rooms/1";
+    const typo: HonoSocketPath<RealtimeApp> = "/rooms/1";
 
     expect([http, sse, typo]).toHaveLength(3);
   });
@@ -43,7 +43,7 @@ describe("HonoWebSocketPath [ Types ]", () => {
     );
     const api = new Hono().basePath("/api").route("/live", live);
 
-    expectTypeOf<HonoWebSocketPath<typeof api>>().toEqualTypeOf<`/api/live/rooms/${string}/${string}`>();
+    expectTypeOf<HonoSocketPath<typeof api>>().toEqualTypeOf<`/api/live/rooms/${string}/${string}`>();
     expect(true).toBe(true);
   });
 
@@ -55,7 +55,7 @@ describe("HonoWebSocketPath [ Types ]", () => {
       upgradeWebSocket(() => ({})),
     );
 
-    expectTypeOf<HonoWebSocketPath<typeof live>>().toEqualTypeOf<"/live">();
+    expectTypeOf<HonoSocketPath<typeof live>>().toEqualTypeOf<"/live">();
     expect(true).toBe(true);
   });
 
@@ -71,7 +71,7 @@ describe("HonoWebSocketPath [ Types ]", () => {
         upgradeWebSocket(() => ({})),
       );
 
-    expectTypeOf<HonoWebSocketPath<typeof live>>().toEqualTypeOf<
+    expectTypeOf<HonoSocketPath<typeof live>>().toEqualTypeOf<
       "/feeds" | `/feeds/${string}` | `/posts/${string}/live`
     >();
     expect(true).toBe(true);
@@ -86,7 +86,7 @@ describe("HonoWebSocketPath [ Types ]", () => {
       )
       .post("/chat", (c) => c.json({ sent: true }));
 
-    type Schema = HonoAppToHyperFetch<typeof app>;
+    type Schema = HonoSchema<typeof app>;
     expectTypeOf<keyof Schema["chat"]>().toEqualTypeOf<"$post">();
     expect(true).toBe(true);
   });
@@ -94,8 +94,8 @@ describe("HonoWebSocketPath [ Types ]", () => {
   it("should resolve to never for an app without WebSocket routes and for anything that is not an app", () => {
     const http = new Hono().get("/users", (c) => c.json([]));
 
-    expectTypeOf<HonoWebSocketPath<typeof http>>().toBeNever();
-    expectTypeOf<HonoWebSocketPath<{ routes: [] }>>().toBeNever();
+    expectTypeOf<HonoSocketPath<typeof http>>().toBeNever();
+    expectTypeOf<HonoSocketPath<{ routes: [] }>>().toBeNever();
     expect(true).toBe(true);
   });
 });

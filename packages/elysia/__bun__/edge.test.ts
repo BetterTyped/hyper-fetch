@@ -2,15 +2,15 @@ import { createClient, createSdk } from "@hyper-fetch/core";
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 
 import { edgeApp } from "../__tests__/utils/edge-app";
-import type { ElysiaAppToHyperFetch } from "../src";
+import type { ElysiaSchema } from "../src";
 
-type Schema = ElysiaAppToHyperFetch<typeof edgeApp>;
+type Schema = ElysiaSchema<typeof edgeApp>;
 
 /**
  * The cases whose wire format depends on the runtime: Bun serializes bodies, streams, redirects and
  * multipart forms itself, so the types must match what arrives there as well as on Node.
  */
-describe("ElysiaAppToHyperFetch [ Edge cases against Elysia on Bun ]", () => {
+describe("ElysiaSchema [ Edge cases against Elysia on Bun ]", () => {
   let url: string;
 
   const createAppSdk = () => {
