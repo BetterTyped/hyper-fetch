@@ -1,0 +1,219 @@
+---
+sidebar_position: 9
+title: HTTP vs WebSocket, REST, polling and webhooks
+description: HTTP vs WebSocket explained. When request and response is enough, when you need a socket, how polling and webhooks compare, and how to mix both in one client.
+sidebar_label: HTTP vs WebSocket
+---
+
+# HTTP vs WebSocket
+
+The difference in http vs websocket comes down to who starts the conversation. With HTTP the client asks and the server
+answers, once per request. With a WebSocket the connection stays open and either side can send a message at any time. So
+the question is never "which is faster", it is "does the server need to tell the client something the client did not ask
+for?"
+
+Most apps need both. This page covers where the line sits, how polling and webhooks fit in, and how to run HTTP requests
+and a socket side by side in one Hyper Fetch setup.
+
+:::secondary What you'll learn
+
+1.  How **HTTP** and **WebSocket** differ in practice, beyond the protocol.
+2.  What you give up when you move from a **REST API** to a WebSocket.
+3.  When **polling** is good enough and when it gets expensive.
+4.  The difference between a **webhook** and a **WebSocket**, and how they work together.
+5.  How to **mix HTTP requests and socket events** in one client.
+
+:::
+
+---
+
+## The model behind each
+
+**HTTP** is request and response. The client sends a method, a URL, headers and maybe a body. The server sends back a
+status code, headers and a body. Then that exchange is over. Connections may be reused under the hood, but the server
+cannot send anything unless a request is waiting for an answer.
+
+**WebSocket** begins as an HTTP request with an `Upgrade` header. Once the server accepts it, the same TCP connection
+becomes a two-way message channel that stays open until one side closes it
+([MDN: WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)). There are no methods, URLs or
+status codes per message. Every message is whatever you decide it is.
+
+| | HTTP | WebSocket |
+| --- | --- | --- |
+| Who starts | Always the client | Either side, after connecting |
+| Lifetime | One request, one response | Open until closed |
+| Server push | No (except streamed responses) | Yes |
+| Message format | Methods, URLs, status codes, headers | Your own envelope |
+| Caching | HTTP caching, CDNs, `ETag` | None |
+| Errors | Status code per request | Your own error messages, plus close codes |
+| Retries | Safe for idempotent methods | Your own acknowledgements |
+| Scaling | Stateless, any instance can answer | Stateful, each connection pinned to one server |
+
+The last row matters more than it looks. A WebSocket server holds one open connection per user, so a broadcast has to
+reach users connected to other instances. That usually means a pub/sub layer such as Redis behind your socket servers.
+
+---
+
+## WebSocket vs REST API
+
+REST is a style built on HTTP, and it gets a lot from HTTP for free. Moving an operation from REST to a WebSocket gives
+those things up:
+
+- **Caching.** A `GET /products` response can be cached by the browser, a CDN or a library cache. A socket message cannot.
+- **Status codes and error shape.** `404`, `409` and `422` mean something to every tool. Over a socket you design your own
+  error messages and match them to the request that caused them.
+- **Request and response pairing.** An HTTP response belongs to its request. A socket reply is just another message, so
+  you need an id to correlate it. The [emitting guide](./emitting.mdx#server-replies) shows the pattern.
+- **Tooling.** Logs, tracing, rate limits, auth middleware and API docs all assume HTTP requests.
+
+So the usual split is: **reads and writes go over REST, change notifications go over the socket**. A user submits a form
+with `POST`, gets a status code back, and every other open tab learns about the change through a socket event.
+
+---
+
+## Polling vs WebSocket
+
+Polling means asking the server again on a timer. It is the simplest way to show fresh data without a socket, and for many
+screens it is the right answer.
+
+Polling is fine when:
+
+- Data changes every few minutes, and a delay of `refreshTime` is acceptable.
+- The number of open clients is small, so `clients x requests per minute` stays cheap.
+- The data is already behind a cached `GET` endpoint.
+
+Polling hurts when updates must arrive within a second, when most polls return nothing new, or when thousands of clients
+poll the same endpoint. At that point a socket, or SSE, sends one message per change instead of one request per client per
+interval.
+
+Long polling sits in between: the server holds the request open until it has something to say, answers, and the client
+immediately asks again. It works through any proxy, but every message still costs a full request.
+
+In Hyper Fetch, polling is two options on `useFetch`:
+
+```tsx
+import { Time } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
+
+const { data } = useFetch(getOrders, {
+  refresh: true,
+  refreshTime: Time.SEC * 30,
+});
+```
+
+The [refreshing guide](../react/01-basics/refreshing.mdx) covers the related options, like pausing while the tab is in the
+background.
+
+---
+
+## Webhook vs WebSocket
+
+These solve different problems, and they are often used together.
+
+A **webhook** is an HTTP request one server sends to another when something happens: Stripe calls your
+`/webhooks/stripe` endpoint when a payment succeeds, GitHub calls yours when a pull request opens. It is server to
+server, one request per event, and the receiver must have a public URL. A browser cannot receive a webhook. In Next.js,
+for example, a webhook receiver is a route handler that reads the `POST` body
+([Next.js: route.js](https://nextjs.org/docs/app/api-reference/file-conventions/route)).
+
+A **WebSocket** connects your server to your users' browsers or apps and keeps that line open.
+
+| | Webhook | WebSocket |
+| --- | --- | --- |
+| Between | Two servers | Your server and a client |
+| Transport | One HTTP `POST` per event | One long-lived connection |
+| Receiver needs | A public URL | An open connection |
+| Delivery if receiver is down | Provider retries (depends on the provider) | Message is lost unless you replay it |
+
+The common chain combines them: the payment provider calls your webhook, your backend updates the database, and then
+pushes an event to the user's open tab over the socket so the page changes without a reload.
+
+---
+
+## When to use which
+
+- **Plain HTTP**: forms, CRUD, search, anything the user triggers and waits for.
+- **HTTP with polling**: dashboards that can be 30 seconds stale, low traffic admin screens.
+- **SSE**: the server pushes and the client only listens. See [SSE vs WebSocket](./sse-vs-websocket.mdx).
+- **WebSocket**: both sides talk often, like chat, presence, cursors or games.
+- **Webhooks**: another company's server needs to tell yours that something happened.
+
+---
+
+## Mixing HTTP and WebSocket in one client
+
+The pattern that holds up best: load and change data over HTTP, and use socket events only as a signal that cached data
+is out of date. Hyper Fetch keeps both in one place. The `Client` owns HTTP requests and the cache, the `Socket` owns the
+connection, and a listener connects them.
+
+```ts title="src/api.ts"
+import { createClient } from "@hyper-fetch/core";
+import { Socket } from "@hyper-fetch/sockets";
+
+type Note = { id: string; title: string };
+
+export const client = createClient({ url: "https://api.example.com" });
+export const socket = new Socket({ url: "wss://api.example.com/ws" });
+
+// HTTP: read and write
+export const getNotes = client.createRequest<{ response: Note[] }>()({ endpoint: "/notes" });
+export const createNote = client.createRequest<{ response: Note; payload: { title: string } }>()({
+  endpoint: "/notes",
+  method: "POST",
+});
+
+// WebSocket: "something changed"
+export const onNotesChanged = socket.createListener<{ noteId: string }>()({ topic: "notes-changed" });
+
+// highlight-start
+// Any change, from this tab or another user, marks the list as stale.
+// Mounted useFetch hooks for getNotes fetch it again.
+onNotesChanged.listen(() => {
+  client.cache.invalidate(getNotes);
+});
+// highlight-end
+```
+
+Components stay plain HTTP components:
+
+```tsx
+import { useFetch, useSubmit } from "@hyper-fetch/react";
+
+import { createNote, getNotes } from "./api";
+
+function Notes() {
+  const { data, loading } = useFetch(getNotes);
+  const { submit, submitting } = useSubmit(createNote);
+
+  return (
+    <div>
+      {loading && !data && <p>Loading...</p>}
+      {data?.map((note) => <p key={note.id}>{note.title}</p>)}
+      <button disabled={submitting} onClick={() => submit({ payload: { title: "New note" } })}>
+        Add note
+      </button>
+    </div>
+  );
+}
+```
+
+Why this split works:
+
+- The HTTP response stays the source of truth, with status codes, retries and the cache.
+- A missed socket message costs freshness, not correctness: the next fetch still returns the right data.
+- The socket protocol stays tiny. It only names what changed.
+
+When the event already carries the full record, you can write it into the cache instead of refetching, with
+`client.cache.update()`. The [listener reference](../../sockets/listener.mdx#global-event-subscriptions) shows that
+variant, and [cache revalidation](../core/02-advanced/cache-revalidation.mdx) covers `invalidate` with strings and
+regular expressions.
+
+:::secondary Summary
+
+- HTTP is client-initiated request and response. A WebSocket is an open two-way channel.
+- REST gives you caching, status codes and tooling. A socket gives you server push. Most apps want both.
+- Polling with `refresh` and `refreshTime` is fine for slow-changing data and few clients.
+- Webhooks are server to server. WebSockets reach the user. They often run in sequence.
+- In Hyper Fetch, read and write over the `Client`, listen on the `Socket`, and invalidate the cache from a listener.
+
+:::

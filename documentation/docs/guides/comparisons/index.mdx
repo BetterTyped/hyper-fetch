@@ -1,0 +1,167 @@
+---
+sidebar_position: 1
+title: React Data Fetching Libraries Compared
+description: Hyper Fetch, TanStack Query, SWR, RTK Query and Apollo Client side by side. What each data fetching library is for and when to pick it.
+sidebar_label: Overview
+---
+
+# React data fetching libraries compared
+
+Picking a react data fetching library is mostly a question of what you already have. A Redux app, a GraphQL API, a
+REST backend with no client yet, a realtime feature next to plain HTTP calls. Each of the popular libraries answers a
+different version of that question, and the honest answer to "which one is best" is usually "the one that matches the
+rest of your stack".
+
+This page puts the five libraries people compare most often next to each other. It says what each one is for, where it
+is strong, and links to a longer page for each head-to-head comparison.
+
+:::secondary What you'll learn
+
+1.  What a **data fetching library** does that `fetch` alone does not.
+2.  What **TanStack Query, SWR, RTK Query and Apollo Client** are each built for.
+3.  Where **Hyper Fetch** fits, and where it does not.
+4.  How to pick a **React Query alternative** based on your API and your app.
+
+:::
+
+---
+
+## What a data fetching library does
+
+`fetch` sends one request and hands you a `Response`. Everything after that is your job: parse the body, check
+`response.ok`, keep a loading flag, cache the result so the next screen does not refetch it, refetch when the data goes
+stale, cancel the request when the component unmounts, retry when the network drops.
+
+A data fetching library takes that list off your hands. The libraries below split into two groups:
+
+- **Server-state managers** (TanStack Query, SWR). They cache and sync whatever your function returns. You bring the
+  HTTP call. They don't define what a request looks like.
+- **API layers** (RTK Query, Apollo Client, Hyper Fetch). You describe your endpoints or operations up front, and the
+  library sends the request as well as caching the result.
+
+Neither group is better. Server-state managers drop into any codebase because they don't care how you fetch. API layers
+give you more structure and less glue code, at the cost of adopting their way of describing requests.
+
+---
+
+## The five libraries at a glance
+
+| Library            | What it is for                                                              | You describe requests with                         | Fits best when                                        |
+| ------------------ | --------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------- |
+| **TanStack Query** | Caching and syncing server state from any async function                    | A query key plus a query function you write        | You want the most widely used option and full control over the fetch call |
+| **SWR**            | A small set of React hooks built around stale-while-revalidate              | A key (often the URL) plus a fetcher               | You want a light hook for reads and very little setup |
+| **RTK Query**      | Data fetching and caching built into Redux Toolkit                          | An API slice made with `createApi`                 | Your app already runs on Redux                        |
+| **Apollo Client**  | A GraphQL client with a normalized cache                                    | GraphQL documents                                  | Your API is GraphQL                                   |
+| **Hyper Fetch**    | A typed request layer with cache, queues, offline support and sockets       | `client.createRequest()` objects defined once      | A REST or mixed API where you want requests, realtime and offline in one place |
+
+A few facts behind that table, each from the library's own docs:
+
+- TanStack Query does not send requests itself. Its [overview](https://tanstack.com/query/latest/docs/framework/react/overview)
+  calls it a library for "fetching, caching, synchronizing and updating server state", and every query takes a
+  `queryFn` that you write.
+- SWR's docs describe its fetcher as ["just a wrapper of the native fetch"](https://swr.vercel.app/docs/getting-started),
+  and the name comes from the stale-while-revalidate caching strategy.
+- RTK Query is ["an optional addon included in the Redux Toolkit package"](https://redux.js.org/toolkit/rtk-query/overview),
+  built on `createSlice` and `createAsyncThunk`.
+- Apollo Client describes itself as a ["GraphQL state management library for JavaScript"](https://www.apollographql.com/docs/react)
+  and lists normalized caching as a core feature.
+
+---
+
+## Where Hyper Fetch fits
+
+Hyper Fetch is closest to RTK Query in shape. You define each request once, outside your components, and the request
+object carries its endpoint, method and types:
+
+```ts
+import { createClient } from "@hyper-fetch/core";
+
+export const client = createClient({ url: "https://api.example.com" });
+
+export const getUser = client.createRequest<{ response: User }>()({
+  endpoint: "/users/:userId",
+  method: "GET",
+});
+
+// Works anywhere: React, Node, a test, a script
+const { data, error, status } = await getUser.setParams({ userId: 1 }).send();
+```
+
+In React, the same object goes into a hook:
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+
+function Profile({ userId }: { userId: number }) {
+  const { data, loading, error } = useFetch(getUser.setParams({ userId }));
+  // ...
+}
+```
+
+What sets it apart from the other four:
+
+- **No Redux and no GraphQL requirement.** The default adapter speaks HTTP through `fetch`. Swap in
+  [Axios](../../integrations/adapter-axios/overview.mdx), [GraphQL](../../integrations/adapter-graphql/overview.mdx) or
+  [Firebase](../../integrations/adapter-firebase/overview.mdx) without changing how requests are used.
+- **Realtime in the same model.** The [sockets package](../../sockets/overview.mdx) gives WebSocket and SSE listeners and
+  emitters typed the same way as HTTP requests.
+- **Request queues and offline handling.** Requests sent while offline wait and go out when the connection returns. See
+  [offline](../core/02-advanced/offline.mdx) and [queueing](../core/02-advanced/queueing.mdx).
+
+And where it does not fit: Hyper Fetch has no normalized entity cache. If you need one record updated across every view
+that shows it, Apollo Client (for GraphQL) is built around that. Its UI bindings are React only, so a Vue or Svelte app
+is better served by TanStack Query.
+
+---
+
+## Head-to-head comparisons
+
+Each page below opens with what the other library does well, compares the same tasks in code, and ends with concrete
+situations for picking either side.
+
+<LinkCard
+  type="guides"
+  title="Hyper Fetch vs TanStack Query"
+  description="Query keys and query functions vs typed request objects. Caching, mutations, offline, devtools and frameworks."
+  to="/docs/guides/comparisons/tanstack-query"
+/>
+<LinkCard
+  type="guides"
+  title="Hyper Fetch vs SWR"
+  description="A small stale-while-revalidate hook vs a full request layer. Where SWR is enough and where it stops."
+  to="/docs/guides/comparisons/swr"
+/>
+<LinkCard
+  type="guides"
+  title="Hyper Fetch vs RTK Query"
+  description="Two libraries that define requests up front. One lives in Redux, one does not."
+  to="/docs/guides/comparisons/rtk-query"
+/>
+<LinkCard
+  type="guides"
+  title="Axios vs fetch"
+  description="What fetch leaves out, what Axios adds, and how to switch between them without touching your requests."
+  to="/docs/guides/comparisons/axios-vs-fetch"
+/>
+
+---
+
+## Which one fits you
+
+- **You use Redux already.** Start with RTK Query. It ships in the package you already installed and its requests show
+  up in Redux DevTools.
+- **Your API is GraphQL and the same entities appear on many screens.** Apollo Client and its normalized cache.
+- **You want the most common choice, or you need Vue, Solid or Svelte.** TanStack Query.
+- **You only read a few endpoints and want almost no setup.** SWR.
+- **You have a REST API, want typed requests defined once, and also need sockets, upload progress or offline queues.**
+  Hyper Fetch. The [quick start](../../getting-started/quick-start.mdx) takes a few minutes, and
+  [Why Hyper Fetch](../../getting-started/comparison.mdx) lists its design decisions in detail.
+
+:::secondary Summary
+
+- Server-state managers (TanStack Query, SWR) cache what your own fetch function returns.
+- API layers (RTK Query, Apollo Client, Hyper Fetch) also define and send the request.
+- RTK Query fits Redux apps, Apollo Client fits GraphQL, TanStack Query is the widest-used general option.
+- Hyper Fetch fits typed REST and mixed APIs that need realtime, queues or offline support in one model.
+
+:::
