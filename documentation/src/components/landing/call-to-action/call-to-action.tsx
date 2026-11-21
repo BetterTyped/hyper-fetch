@@ -1,69 +1,71 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import Link from "@docusaurus/Link";
-import { Description, Title } from "@site/src/components";
-import { ArrowRight, Download } from "lucide-react";
+import { Particles } from "@site/src/components";
+import { Star } from "lucide-react";
+import { motion } from "motion/react";
+import React from "react";
 
+import { SectionHeader, fadeUp } from "../shared/section-header";
+import { CtaButtons } from "../shared/skills-command";
+import { useHfMonthlyDownloads } from "../shared/use-hf-downloads";
+
+/*
+ * Final call to action: the standard section head, the same two actions as the hero and the
+ * open-source numbers, with downloads summed live from npm.
+ */
+
+const TITLE = "Fetch anything. Type everything.";
+const LINE = "Every protocol. Every framework. Ready for your AI agent.";
+
+/* Downloads are every HyperFetch package, live from npm, same set as the README badge */
+const useProof = () => {
+  const downloads = useHfMonthlyDownloads();
+  return [
+    { value: "MIT", label: "Open source" },
+    { value: "1.3k", label: "GitHub stars", star: true },
+    { value: downloads, label: "Downloads a month" },
+  ];
+};
+
+/* Centered head, the two hero actions, then the open-source numbers */
 export const CallToAction = () => {
+  const proof = useProof();
   return (
-    <section>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 overflow-hidden">
-        <div className="relative px-8 py-12 md:py-20 overflow-hidden">
-          {/* Radial gradient */}
-          <div
-            className="absolute flex items-center justify-center top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/3 aspect-square max-w-[80vw]"
-            aria-hidden="true"
-          >
-            <div className="absolute inset-0 translate-z-0 dark:bg-yellow-500 bg-yellow-300 rounded-full blur-[120px] opacity-70" />
-            <div className="absolute w-1/4 h-1/4 translate-z-0 dark:bg-yellow-400 bg-yellow-200 rounded-full blur-[40px]" />
-          </div>
-          {/* Blurred shape */}
-          <div
-            className="absolute bottom-0 translate-y-1/2 left-0 blur-2xl opacity-50 pointer-events-none -z-10"
-            aria-hidden="true"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="434" height="427">
-              <defs>
-                <linearGradient id="bs5-a" x1="19.609%" x2="50%" y1="14.544%" y2="100%">
-                  <stop offset="0%" stopColor="#556bf7" />
-                  <stop offset="100%" stopColor="#fbc646" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path
-                className="dark:fill-yellow-700 fill-yellow-200"
-                fillRule="evenodd"
-                d="m0 0 461 369-284 58z"
-                transform="matrix(1 0 0 -1 0 427)"
-              />
-            </svg>
-          </div>
-          {/* Content */}
-          <div className="max-w-3xl mx-auto text-center">
-            <div>
-              <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-pink-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
-                Improve your workflow today
+    <section className="relative overflow-hidden px-4 pb-16 pt-10 sm:px-6 md:pb-20 md:pt-12">
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 -z-10 aspect-square w-[560px] max-w-[90vw] -translate-x-1/2 -translate-y-[74%]"
+        aria-hidden
+      >
+        <div className="absolute inset-0 rounded-full bg-yellow-500 opacity-40 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 size-1/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-400 opacity-60 blur-[40px]" />
+      </div>
+      <Particles className="absolute inset-0 -z-10" quantity={40} />
+      <div className="mx-auto max-w-3xl text-center">
+        <SectionHeader
+          className="mb-0 md:mb-0"
+          eyebrow="Start building"
+          title={TITLE}
+          description={LINE}
+        />
+        <motion.div {...fadeUp(3)} className="mx-auto mt-10 flex w-full max-w-[400px] justify-center sm:w-auto sm:max-w-none">
+          <CtaButtons />
+        </motion.div>
+        <div className="mt-16 grid grid-cols-3 gap-6 sm:gap-10">
+          {proof.map((p, i) => (
+            <motion.div
+              key={p.label}
+              {...fadeUp(4 + i)}
+              className="flex flex-col items-center"
+            >
+              <div className="flex items-center gap-2 bg-gradient-to-b from-[#ffe08a] to-[#f5a623] bg-clip-text text-4xl font-extrabold pb-[0.14em] leading-none tracking-[-0.04em] !text-transparent [font-family:Figtree] md:text-5xl">
+                {p.star && (
+                  <Star className="size-6 fill-[#fbc646] text-[#fbc646] md:size-7" />
+                )}
+                {p.value}
               </div>
-            </div>
-            <Title className="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Build with HyperFetch
-            </Title>
-            <Description className="text-lg text-zinc-400 mb-8 max-w-2xl mx-auto">
-              Spend less time on boilerplate and more on building amazing features that your users will love.
-            </Description>
-            <div className="flex gap-4 mt-4 md:mt-10 flex-col md:flex-row justify-center items-center mb-8">
-              <Link
-                to="docs/getting-started"
-                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-8 flex items-center !no-underline bg-gradient-to-br justify-center from-yellow-400 via-yellow-500 to-yellow-500 text-white dark:text-zinc-800 font-semibold rounded-xl max-w-full text-left hover:from-yellow-500 hover:to-yellow-400 dark:hover:from-yellow-500 dark:hover:to-yellow-400 hover:text-white hover:dark:text-zinc-900 transition-all w-fit md:w-auto"
-              >
-                Get Started <ArrowRight className="w-[16px] ml-2" />
-              </Link>
-              <Link
-                to="/docs/hyper-flow/download"
-                className="!text-sm !md:text-md !lg:text-lg py-2 px-4 md:py-2 md:px-6 lg:py-2 lg:px-4 group inline-flex items-center shiny-btn !rounded-xl text-center w-fit md:w-auto"
-              >
-                <Download className="w-[16px] mr-2" /> Get Devtools Access
-              </Link>
-            </div>
-          </div>
+              <div className="mt-3 text-[13px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+                {p.label}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

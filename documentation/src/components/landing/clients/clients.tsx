@@ -8,6 +8,7 @@ import Client04 from "@site/static/img/client-04.svg";
 import Client05 from "@site/static/img/client-05.svg";
 import Client06 from "@site/static/img/client-06.svg";
 import "swiper/swiper.min.css";
+import { Eyebrow } from "../shared/section-header";
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 Swiper.use([Autoplay]);
@@ -34,12 +35,17 @@ export const Clients = () => {
 
   return (
     <section className="container max-w-4xl mx-auto px-4 sm:px-6 flex flex-col justify-center h-[220px]">
-      <div className="text-center text-base mb-10 max-w-[460px] mx-auto font-normal !text-gray-400">
-        Companies that use{" "}
-        <a href="https://bettertyped.com" className="font-medium text-gray-400">
-          BetterTyped
-        </a>{" "}
-        open-source software.
+      <div className="mb-10 text-center">
+        <Eyebrow>
+          Companies that use&nbsp;
+          <a
+            href="https://bettertyped.com"
+            className="!text-inherit !no-underline hover:underline"
+          >
+            BetterTyped
+          </a>
+          &nbsp;open-source software
+        </Eyebrow>
       </div>
       <div className="relative h-[60px]">
         {/* Particles animation */}

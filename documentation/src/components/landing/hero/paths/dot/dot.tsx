@@ -17,7 +17,11 @@ export const Dot = ({
   const [width] = useWindowSize();
 
   useLayoutEffect(() => {
-    animation.timeline.set(animation.item, { xPercent: -50, yPercent: -50, transformOrigin: "50% 50%" });
+    animation.timeline.set(animation.item, {
+      xPercent: -50,
+      yPercent: -50,
+      transformOrigin: "50% 50%",
+    });
     animation.timeline.to(animation.item, {
       motionPath: {
         path: animation.path,

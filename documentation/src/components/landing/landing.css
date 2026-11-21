@@ -1,0 +1,18 @@
+/*
+ * custom.css sets every p, span and div to 17px, weight 400 and zinc-300. The redesigned slots size
+ * their own text, so inside `.landing-scope` those elements inherit instead. `:where()` keeps the specificity of
+ * this reset equal to the global element rule (it wins by source order), so Tailwind classes still win.
+ */
+:where(.landing-scope) p,
+:where(.landing-scope) span,
+:where(.landing-scope) div {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* Logos drawn in black disappear on the dark page, so flip them to white there */
+[data-theme="dark"] .landing-root img[src$="/integration-next.svg"],
+[data-theme="dark"] .landing-root img[src$="/integration-remix.svg"] {
+  filter: invert(1);
+}
