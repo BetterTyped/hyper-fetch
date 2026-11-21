@@ -275,8 +275,9 @@ Set headers with request `headers` / `setHeaders` or `client.onAuth`, as with an
 
 ## Testing
 
-`createGraphqlMockingServer()` from `@hyper-fetch/testing` mocks GraphQL requests with msw
-(`mockRequest(request, { data, status })`). `request.setMock(...)` skips the network. See `hyper-fetch-testing`.
+`request.setMock(...)` skips the network. To exercise the real adapter, mock the operation with MSW:
+`graphql.query("GetUser", () => HttpResponse.json({ data: { user } }))` from `msw`, served by `setupServer` from
+`msw/node`. Name your operations so handlers can match them. See `hyper-fetch-testing`.
 
 ## Links
 

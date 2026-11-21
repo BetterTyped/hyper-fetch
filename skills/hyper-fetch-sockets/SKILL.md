@@ -2,14 +2,16 @@
 name: hyper-fetch-sockets
 description:
   Type-safe realtime client for HyperFetch (@hyper-fetch/sockets) - createSocketClient / Socket, typed Listener and
-  Emitter templates, WebsocketAdapter and ServerSentEventsAdapter, onConnect interceptor for auth tokens, reconnection
-  and heartbeat, delivery strategies for throttling and batching, the socket SDK (createSocketSdk, ListenerModel,
-  EmitterModel) and the React hooks useListener and useEmitter from @hyper-fetch/react. Use when code imports
-  @hyper-fetch/sockets or calls createListener, createEmitter, listen, emit, setParams, setPayload, onConnect,
-  onMessage, onSend, setQueryParams, reconnect, createSocketSdk, $configure, useListener or useEmitter, or when the task
-  is a chat, live feed, price ticker, notifications stream, presence, WebSocket or SSE connection, socket authentication
-  or token refresh, reconnect/retry policy, custom message format (decode/encode), high-frequency stream throttling, or
-  a custom socket adapter (socket.io, Firebase).
+  Emitter templates, WebsocketAdapter and ServerSentEventsAdapter, onConnect interceptor for auth tokens, the shared
+  reconnection engine (backoff with jitter, reconnectTime, maxReconnectTime, minUptime, connectionTimeout,
+  reconnectDelay, shouldReconnect, offline and focus handling) and heartbeat, delivery strategies for throttling and
+  batching, the socket SDK (createSocketSdk, ListenerModel, EmitterModel) and the React hooks useListener and useEmitter
+  from @hyper-fetch/react. Use when code imports @hyper-fetch/sockets or calls createListener, createEmitter, listen,
+  emit, setParams, setPayload, onConnect, onMessage, onSend, setQueryParams, reconnect, destroy, createSocketSdk,
+  createReconnectingConnection, $configure, useListener or useEmitter, or when the task is a chat, live feed, price
+  ticker, notifications stream, presence, WebSocket or SSE connection, socket authentication or token refresh,
+  reconnect/retry policy, sockets in Node.js, custom message format (decode/encode), high-frequency stream throttling,
+  or a custom socket adapter (socket.io, Firebase).
 ---
 
 # HyperFetch Sockets
@@ -76,9 +78,13 @@ unlisten(); // always clean up
 9. **SSE is receive-only.** `emit()` on a `ServerSentEventsAdapter` socket throws synchronously.
 10. **Interceptors must return.** `onMessage` returns the data, `onSend` returns the emitter, `onConnect` returns the
     connection. Returning `undefined` is an error.
-11. **Built-in adapters need a browser runtime.** They read `window.WebSocket` / `window.EventSource`; without them the
-    attempt fails with "WebSocket is not available in this environment" through `onError`. React hooks render safely on
-    the server and subscribe only on the client.
+11. **Pass the transport class where there is no global.** The adapters use the global `WebSocket` (browsers, Node.js
+    22+, Bun, Deno) and `EventSource` (browsers, Bun, Deno). Elsewhere pass `adapterOptions: { WebSocket }` from `ws` or
+    `{ EventSource }` from `eventsource`, or the attempt fails with "WebSocket is not available in this environment"
+    through `onError`. React hooks render safely on the server and subscribe only on the client.
+12. **Let the engine reconnect.** Lost connections come back on their own with backoff and jitter, right away when the
+    app is back online, and sooner when it regains focus. Tune `reconnectTime`, `maxReconnectTime`, `reconnect` and
+    `shouldReconnect` instead of calling `reconnect()` from `onDisconnected`.
 
 ## Type safety
 
@@ -176,8 +182,9 @@ socket
   .onError(({ error }) => console.error(error));
 
 await socket.connect(); // no-op when already connected
-await socket.reconnect(); // fresh connection, also after a manual disconnect
+await socket.reconnect(); // fresh connection, also after a manual disconnect or when attempts ran out
 await socket.disconnect(); // stays closed until connect() or reconnect()
+await socket.destroy(); // closes and stops following the network, the socket never connects again
 
 socket.setUrl("wss://eu.example.com/ws").setQueryParams({ tenant: "eu" }); // apply with reconnect()
 ```
@@ -191,6 +198,36 @@ off();
 ```
 
 Current state: `socket.adapter.connected`, `socket.adapter.connecting`, `socket.adapter.reconnectionAttempts`.
+
+### Reconnection policy
+
+The WebSocket, SSE, tRPC and oRPC adapters share one reconnection engine (custom adapters get it through
+`createReconnectingConnection`), configured on the socket:
+
+```ts
+import { createSocketClient, defaultShouldReconnect } from "@hyper-fetch/sockets";
+
+export const socket = createSocketClient({
+  url: "wss://api.example.com/ws",
+  reconnect: 20, // attempts before giving up, Infinity by default
+  reconnectTime: 500, // the backoff starts here (default 1000 ms)
+  maxReconnectTime: 15_000, // and never waits longer (default 30000 ms)
+  minUptime: 5000, // a connection must stay up this long before the attempt counter resets
+  connectionTimeout: 10_000, // one attempt, handshake included (default 5000 ms)
+  // 4401 is an app-level "token rejected" close: retrying cannot fix it
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
+});
+```
+
+- The delay before attempt `n` (from 0) is
+  `reconnectTime + random(0, min(maxReconnectTime - reconnectTime, reconnectTime * 2 ** n))`: exponential backoff with
+  full jitter, so the clients of a restarted server spread out.
+- A normal closure (`1000`) from the server stays closed. Every other loss (another code, an error, a timeout) is
+  retried. Closes started by the client are never retried.
+- Going offline drops the connection at once and counts no attempts. Coming back online connects immediately. Focus
+  skips the rest of a pending delay.
+- Take over the timing with `reconnectDelay: ({ attempt, elapsed, reason }) => number | null`. Return `null` to stop.
+- A manual `reconnect()` is never refused by the `reconnect` limit.
 
 ### Throttling and batching high-frequency topics
 
@@ -266,21 +303,26 @@ export const typedSocket = createSocketClient({
 
 ## Defaults worth knowing
 
-| Setting                                                                       | Default                                                                               |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `reconnect` (max attempts)                                                    | `Infinity`                                                                            |
-| `reconnectTime` (delay between attempts, also the open timeout of an attempt) | `5000` ms                                                                             |
-| `adapterOptions.autoConnect`                                                  | `true`                                                                                |
-| `adapterOptions.heartbeat`                                                    | `false` (`pingTimeout` and `pongTimeout` `5000` ms, `heartbeatMessage` `"heartbeat"`) |
-| Frame format                                                                  | JSON `{ topic, data }` in, `JSON.stringify({ topic, data: payload })` out             |
-| `delivery`                                                                    | none - every message delivered immediately, zero overhead                             |
-| `latest.leading`                                                              | `true`                                                                                |
-| `batch.maxSize`                                                               | `Infinity`                                                                            |
+| Setting                                                                    | Default                                                                               |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `reconnect` (max attempts)                                                 | `Infinity`                                                                            |
+| `reconnectTime` (minimum delay before an attempt, the backoff starts here) | `1000` ms                                                                             |
+| `maxReconnectTime` (maximum delay before an attempt)                       | `30000` ms                                                                            |
+| `minUptime` (uptime that resets the attempt counter)                       | `5000` ms                                                                             |
+| `connectionTimeout` (time one attempt may take until it is ready)          | `5000` ms                                                                             |
+| `shouldReconnect`                                                          | a normal closure (`1000`) stays closed, every other loss is retried                   |
+| `adapterOptions.autoConnect`                                               | `true`                                                                                |
+| `adapterOptions.heartbeat`                                                 | `false` (`pingTimeout` and `pongTimeout` `5000` ms, `heartbeatMessage` `"heartbeat"`) |
+| Frame format                                                               | JSON `{ topic, data }` in, `JSON.stringify({ topic, data: payload })` out             |
+| `delivery`                                                                 | none - every message delivered immediately, zero overhead                             |
+| `latest.leading`                                                           | `true`                                                                                |
+| `batch.maxSize`                                                            | `Infinity`                                                                            |
 
-The WebSocket adapter reconnects automatically when the connection closes with a code other than `1000`, when an attempt
-does not open within `reconnectTime`, and on heartbeat timeout. A close with `1000` or a manual `disconnect()` does not
-reconnect. When the browser comes back online, a socket with `autoConnect` connects again unless it was disconnected on
-purpose. Listeners stay registered across reconnects.
+The built-in adapters reconnect automatically when the connection is lost with a code other than `1000`, when an attempt
+is not ready within `connectionTimeout`, and on heartbeat timeout. A close with `1000` or a manual `disconnect()` does
+not reconnect. `autoConnect` only decides the first connection: a socket connected by hand recovers the same way, and
+comes back as soon as the app is online again unless it was disconnected on purpose. Listeners stay registered across
+reconnects.
 
 ## Performance notes
 
@@ -306,15 +348,17 @@ purpose. Listeners stay registered across reconnects.
 | Same function passed to `listen` twice (no `delivery`)                 | callbacks are keyed by identity; the second call does not add a subscription       |
 | Emitting on an SSE socket                                              | use a WebSocket socket or an HTTP request for client-to-server                     |
 | Throwing inside `onConnect` on a missing token                         | return the connection or handle the error; a throw stops reconnecting              |
+| `onDisconnected(() => socket.reconnect())`                             | let the engine reconnect; tune `reconnectTime`, `maxReconnectTime`, `reconnect`    |
+| Fixed retry delay expected from `reconnectTime`                        | it is the minimum of a jittered backoff; use `reconnectDelay` for a fixed schedule |
 | `socket.onConnected(...)` inside a component                           | `useListener` / `useEmitter` callbacks or `socket.events.onConnected` with cleanup |
 | Throttling with `setTimeout` in a React effect                         | `delivery` on the listener                                                         |
 
 ## Testing
 
-`@hyper-fetch/testing` ships `createWebsocketMockingServer(url)` (with `emitListenerEvent(listener, data)` and
-`expectEmitterEvent(emitter, payload)`), `createSseMockingServer(url)` and `waitForConnection(socket)`. Point the socket
-at the mock url, `await waitForConnection(socket)`, then push events. Use fake timers for `delivery` windows and
-`reconnectTime`. See the `hyper-fetch-testing` skill.
+Mock the server, not the socket. MSW intercepts WebSockets with `ws.link(url)`: answer the `connection` event and send
+frames in the adapter's format (`JSON.stringify({ topic, data })` by default). A small `ws` server on port `0` works as
+well. Wait for `socket.events.onConnected` (or `connected` in `useListener`) before pushing events, and use fake timers
+for `delivery` windows and reconnection delays. See the `hyper-fetch-testing` skill.
 
 ## References
 
@@ -322,8 +366,9 @@ at the mock url, `await waitForConnection(socket)`, then push events. Use fake t
   generic helpers or React hook results, or when a type error around them is unclear.
 - `references/listeners-emitters.md` - read when typing topics and payloads, params, delivery strategies, interceptors,
   socket events, request/reply over sockets.
-- `references/connection-reconnect-auth.md` - read when configuring auth, query params, reconnection, heartbeat, offline
-  handling, React Native / Node app managers, or debugging connection state.
+- `references/connection-reconnect-auth.md` - read when configuring auth, query params, the reconnection policy
+  (backoff, `minUptime`, `reconnectDelay`, `shouldReconnect`), heartbeat, offline and focus handling, React Native /
+  Node app managers, or debugging connection state.
 - `references/adapters.md` - read when choosing or configuring WebSocket vs SSE, custom frame formats, or writing a
   custom `SocketAdapter`.
 - `references/sdk.md` - read when using `createSocketSdk`, `ListenerModel` / `EmitterModel` schemas or `$configure`.

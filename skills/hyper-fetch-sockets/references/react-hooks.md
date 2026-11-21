@@ -161,5 +161,5 @@ Options: `dependencyTracking` (default `true`).
   hooks and `socket.events.*` clean up.
 - Server rendering: the hooks render with empty state and do not subscribe on the server.
 - StrictMode double mounting is supported; subscriptions are not duplicated.
-- Testing: render with `@testing-library/react`, drive messages with `createWebsocketMockingServer` from
-  `@hyper-fetch/testing` (see `hyper-fetch-testing`).
+- Testing: render with `@testing-library/react` and drive messages from a mocked server, for example MSW's
+  `ws.link(url)` sending `JSON.stringify({ topic, data })` frames (see `hyper-fetch-testing`).

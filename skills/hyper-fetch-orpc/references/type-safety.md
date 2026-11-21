@@ -39,7 +39,9 @@ every procedure.
 ## Inference per procedure
 
 Every procedure gets both leaves, with identical types: `$query` (method `QUERY`, deduplicated) and `$mutation` (method
-`MUTATION`). Procedures that return an event iterator are omitted. Procedures that only throw are kept.
+`MUTATION`). Procedures that return an event iterator are omitted: `OrpcSocketSchema<typeof router>` types them for
+`createSocketSdk` as `$listener`s, with the input as the payload and the yielded value as the response. Procedures that
+only throw are kept.
 
 | Input schema                                            | `payload` type                            | Required before `send()` |
 | ------------------------------------------------------- | ----------------------------------------- | ------------------------ |

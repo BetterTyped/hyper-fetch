@@ -125,7 +125,8 @@ local and global errors, adapter methods/options/extra, and whether params/paylo
   with `Expected 1 arguments, but got 0`. Setters flip per-request flags (`HasParams`, `HasPayload`, `HasQuery`) on the
   returned clone, so a discarded setter result keeps the requirement.
 - **Methods and adapter options are checked** against the adapter
-  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` + `responseType` for HTTP).
+  (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "QUERY"` and `RequestInit` + `timeout` + `streaming` + `responseType`
+  for HTTP).
 - **`setResponseMapper` changes types** (`data` and the local error follow the mapper's return); `setPayloadMapper` and
   `setRequestMapper` do not.
 - **`success` is not a discriminant**: `data: T | null` stays nullable after `if (success)`; check `data`.
@@ -390,9 +391,9 @@ refreshes the target once the last pending mutation on it settles. See
 
 Mock at the request level with
 `request.setMock(({ request }) => ({ data, status: 200 }), { requestTime: 0, responseTime: 0 })` (the mocker waits 20
-ms + 20 ms by default) or at the network level with `createHttpMockingServer()` from `@hyper-fetch/testing`. Toggle
-globally with `client.setEnableGlobalMocking(false)`. Create a fresh client per test (or call `client.clear()`) so
-cache, queues and interceptors do not leak between tests. Load the `hyper-fetch-testing` skill for the full workflow.
+ms + 20 ms by default) or at the network level with MSW handlers. Toggle globally with
+`client.setEnableGlobalMocking(false)`. Create a fresh client per test (or call `client.clear()`) so cache, queues and
+interceptors do not leak between tests. Load the `hyper-fetch-testing` skill for the full workflow.
 
 ## References
 

@@ -13,8 +13,10 @@ export const ws = createSocketClient({ url: "wss://api.example.com/ws", adapter:
 export const sse = createSocketClient({ url: "https://api.example.com/events", adapter: ServerSentEventsAdapter() });
 ```
 
-Both built-in adapters require `window.WebSocket` / `window.EventSource`. Without them (SSR, plain Node) every attempt
-fails with an "... is not available in this environment" error reported through `onError`.
+Both built-in adapters use the global `WebSocket` (browsers, Node.js 22+, Bun, Deno) and `EventSource` (browsers, Bun,
+Deno). Where there is none, pass the class in `adapterOptions` (`{ WebSocket }` from `ws`, `{ EventSource }` from
+`eventsource`), otherwise every attempt fails with an "... is not available in this environment" error reported through
+`onError`. Both reconnect through the shared engine described in `connection-reconnect-auth.md`.
 
 ## WebsocketAdapter
 
@@ -22,7 +24,8 @@ fails with an "... is not available in this environment" error reported through 
 
 | `adapterOptions`   | Default                                    | Notes                                                                            |
 | ------------------ | ------------------------------------------ | -------------------------------------------------------------------------------- |
-| `autoConnect`      | `true`                                     | Connect on creation and when the app goes back online.                           |
+| `autoConnect`      | `true`                                     | Connect on creation. Only the first connection depends on it.                    |
+| `WebSocket`        | global `WebSocket`                         | The constructor to use, e.g. from `ws` in Node.js before 22.                     |
 | `protocols`        | -                                          | `string \| string[]` for the `WebSocket` constructor (`Sec-WebSocket-Protocol`). |
 | `heartbeat`        | `false`                                    | Ping after `pingTimeout` of silence, expect any frame within `pongTimeout`.      |
 | `pingTimeout`      | `5000`                                     | ms.                                                                              |
@@ -60,13 +63,14 @@ Receive-only. `emit()` throws "Cannot emit events in SSE adapter" synchronously.
 
 | `adapterOptions`  | Default                | Notes                                                                     |
 | ----------------- | ---------------------- | ------------------------------------------------------------------------- |
-| `autoConnect`     | `true`                 |                                                                           |
+| `autoConnect`     | `true`                 | Connect on creation. Only the first connection depends on it.             |
+| `EventSource`     | global `EventSource`   | The constructor to use, e.g. from the `eventsource` package in Node.js.   |
 | `eventSourceInit` | -                      | Passed to `new EventSource(url, init)`, e.g. `{ withCredentials: true }`. |
 | `decode`          | JSON `{ topic, data }` | Same contract as WebSocket.                                               |
 
-Only unnamed SSE messages (the default `message` event) are dispatched. Send each event as
-`data: {"topic":"x","data": ...}` or map your format with `decode`. Named events (`event: price`) are not routed to
-listeners.
+Unnamed messages (the default `message` event) are decoded as `{ topic, data }` JSON, or with your `decode`. Named
+events (`event: price`) reach the listeners of the topic with that name: their data is parsed as JSON when it is JSON
+and passed as a string otherwise, or mapped by `decode`.
 
 ```ts
 type Price = { symbol: string; value: number };
@@ -86,97 +90,93 @@ export const onPrice = prices.createListener<Price>()({ topic: "prices" });
 ## Custom adapter
 
 Build one with `new SocketAdapter<Extra, AdapterOptions, ListenerOptions, EmitterOptions, QueryParams>({ name })` and
-`setConnector(bindings => ({ connect, reconnect, disconnect, listen, emit }))`. Use the bindings so the socket state,
-events and interceptors stay consistent:
-
-| Binding                                                 | Call it                                                                                                                                   |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `onConnect()`                                           | At the start of every attempt. Resolves the connection details (after `onConnect` interceptors) or `null` when no attempt should be made. |
-| `onConnectFailed({ error })`                            | When the transport cannot be created.                                                                                                     |
-| `onConnected()` / `onDisconnected()`                    | When the transport opens / closes.                                                                                                        |
-| `onReconnect({ disconnect, connect })`                  | From `reconnect()`; handles attempt counting and give-up events.                                                                          |
-| `onDisconnect()`                                        | From a manual `disconnect()`; resets state and marks it closed on purpose.                                                                |
-| `onListen({ listener, callback, onUnmount })`           | From `listen`; returns the remover.                                                                                                       |
-| `onEmit({ emitter })`                                   | From `emit`; maps payload and runs `onSend`, returns the emitter or `null` (already reported).                                            |
-| `onEmitError({ emitter, error })`, `onError({ error })` | Report failures.                                                                                                                          |
-| `onEvent({ topic, data, extra })`                       | For every incoming message; runs `onMessage` and dispatches to listeners.                                                                 |
-| `getQueryParams(queryParams)`                           | Stringify query params with the adapter mapper.                                                                                           |
+`setConnector(bindings => ...)`. Hand the bindings to `createReconnectingConnection` and describe only the transport:
+the engine owns one attempt at a time, `connectionTimeout`, backoff with jitter, `shouldReconnect`, offline and focus
+handling, and closing on purpose, exactly like the built-in adapters.
 
 ```ts
-import { SocketAdapter, getSocketUrl } from "@hyper-fetch/sockets";
-import type { QueryParamsType } from "@hyper-fetch/core";
-import { stringifyQueryParams } from "@hyper-fetch/core";
+import {
+  SocketAdapter,
+  createReconnectingConnection,
+  defaultShouldReconnect,
+  getSocketUrl,
+} from "@hyper-fetch/sockets";
 
 type Transport = {
   send: (frame: string) => void;
   close: () => void;
-  onOpen: (cb: () => void) => void;
-  onClose: (cb: () => void) => void;
-  onFrame: (cb: (topic: string, data: unknown) => void) => void;
+  on: (event: "open" | "close" | "message", cb: (payload: any) => void) => void;
 };
 declare function openTransport(url: string): Transport;
 
 export const MyAdapter = () =>
-  new SocketAdapter<undefined, { autoConnect?: boolean }, undefined, undefined, QueryParamsType | string>({
-    name: "my-transport",
-  })
-    .setQueryParamsMapper(stringifyQueryParams)
-    .setConnector(
-      ({
-        socket,
-        getQueryParams,
-        onConnect,
-        onReconnect,
-        onDisconnect,
-        onListen,
-        onEmit,
-        onConnected,
-        onDisconnected,
-        onEvent,
-      }) => {
-        let transport: Transport | undefined;
+  new SocketAdapter<undefined, { autoConnect?: boolean }>({ name: "my-transport" }).setConnector((bindings) => {
+    let transport: Transport | null = null;
 
-        const connect = async () => {
-          const connection = await onConnect();
-          if (!connection) return;
-          const url = getSocketUrl(connection.url, getQueryParams(connection.queryParams));
-          const current = openTransport(url);
-          transport = current;
-          current.onOpen(onConnected);
-          current.onClose(onDisconnected);
-          current.onFrame((topic, data) => onEvent({ topic, data, extra: undefined }));
-        };
+    const connection = createReconnectingConnection({
+      bindings,
+      autoConnect: bindings.adapter.adapterOptions?.autoConnect ?? true,
+      // Protocol close codes that retrying can't fix. The socket's own shouldReconnect wins over this
+      shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 4401,
+      open: (attempt) => {
+        const url = getSocketUrl(attempt.connection.url, bindings.getQueryParams(attempt.connection.queryParams));
+        const current = openTransport(url);
+        transport = current;
 
-        const disconnect = async () => {
-          transport?.close();
-          transport = undefined;
-          onDisconnect();
-          onDisconnected();
-        };
-
-        const reconnect = () => {
-          onReconnect({ disconnect, connect });
-        };
-
-        if (socket.adapter.adapterOptions?.autoConnect !== false) {
-          connect();
-        }
+        current.on("open", () => attempt.ready());
+        current.on("close", ({ code, reason }) => attempt.lost({ code, reason }));
+        current.on("message", ({ topic, data }) => {
+          if (attempt.isCurrent()) bindings.onEvent({ topic, data, extra: undefined });
+        });
 
         return {
-          connect,
-          reconnect,
-          disconnect,
-          listen: (listener, callback) => onListen({ listener, callback }),
-          emit: async (emitter) => {
-            const prepared = await onEmit({ emitter });
-            if (!prepared) return;
-            transport?.send(JSON.stringify({ topic: prepared.topic, data: prepared.payload }));
+          close: () => {
+            if (transport === current) transport = null;
+            current.close();
           },
         };
       },
-    );
+    });
+
+    // connection has connect, reconnect, disconnect and dispose
+    return {
+      ...connection,
+      listen: (listener, callback) => bindings.onListen({ listener, callback }),
+      emit: async (emitter) => {
+        const prepared = await bindings.onEmit({ emitter });
+        if (!prepared) return;
+        transport?.send(JSON.stringify({ topic: prepared.topic, data: prepared.payload }));
+      },
+    };
+  });
 ```
 
-For a complete reference implementation (connection timeout, joining a pending attempt, detaching a manually closed
-transport) read `packages/sockets/src/adapter-websockets/websocket-adapter.ts` in the
-[hyper-fetch repository](https://github.com/BetterTyped/hyper-fetch).
+The attempt handle given to `open`:
+
+| Member          | Call it                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------- |
+| `connection`    | Read it: `{ url, queryParams, adapterOptions }` after the `onConnect` interceptors.                      |
+| `ready()`       | Once the transport can carry messages - on open, or after the handshake of a protocol that has one.      |
+| `lost(loss)`    | When the transport is gone, with `{ code, reason, error }`. The engine closes it and plans the next try. |
+| `interrupted()` | For a transport that reconnects by itself (`EventSource`). `ready()` brings it back, else the timeout.   |
+| `isCurrent()`   | In your own handlers: `false` once the attempt was replaced, timed out or closed.                        |
+
+Return `null` from `open` when the transport can't be created, after reporting it with
+`bindings.onConnectFailed({ error })`. No retry follows. `dispose` (on the returned connection) removes the app manager
+listeners and timers; returning it from the connector makes it run on `socket.destroy()`.
+
+Other bindings:
+
+| Binding                                                 | Call it                                                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `onListen({ listener, callback, onUnmount })`           | From `listen`; returns the remover.                                                                |
+| `onEmit({ emitter })`                                   | From `emit`; maps the payload and runs `onSend`, returns the emitter or `null` (already reported). |
+| `onEmitError({ emitter, error })`, `onError({ error })` | Report failures.                                                                                   |
+| `onEvent({ topic, data, extra, callbacks? })`           | For every incoming message; runs `onMessage` and dispatches to listeners (or only `callbacks`).    |
+| `onListenerStart(...)`, `onListenerEnd(...)`            | With `confirmsSubscriptions: true`, when the server confirms or ends a subscription.               |
+| `getQueryParams(queryParams)`                           | Stringify query params with the adapter mapper.                                                    |
+
+For subscriptions with a payload per listener (tRPC, oRPC style), and full reference implementations, read
+`packages/sockets/src/adapter-websockets/websocket-adapter.ts` and `packages/adapter-trpc/src/socket` in the
+[hyper-fetch repository](https://github.com/BetterTyped/hyper-fetch), and the
+[custom adapter docs](https://hyperfetch.bettertyped.com/docs/sockets/adapter).

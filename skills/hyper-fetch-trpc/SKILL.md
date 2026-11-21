@@ -3,12 +3,15 @@ name: hyper-fetch-trpc
 description:
   tRPC adapter for HyperFetch (`@hyper-fetch/trpc`). Calls tRPC v11 procedures over HTTP with types inferred from the
   `AppRouter` type, through the regular `createSdk` of `@hyper-fetch/core`, and gives them HyperFetch caching,
-  deduplication, queueing, retries, offline support and React hooks. Use when the user installs or configures
-  `@hyper-fetch/trpc`, imports `TrpcAdapter`, `TrpcSchema`, `TrpcMethods`, `TrpcErrorType` or `TrpcTransformerType`,
-  writes `createSdk<typeof client, TrpcSchema<AppRouter>>`, calls `api.user.byId.$query` or `api.user.create.$mutation`,
-  uses tRPC with `useFetch` / `useSubmit`, sets a `superjson` transformer, maps `TRPCError` codes and `errorFormatter`
-  fields, adds auth headers to tRPC calls, or asks about tRPC batching, links, subscriptions, or replacing
-  `@trpc/client` / `@trpc/react-query` with HyperFetch.
+  deduplication, queueing, retries, offline support and React hooks. Subscription procedures become typed socket
+  listeners over WebSocket or Server-Sent Events. Use when the user installs or configures `@hyper-fetch/trpc`, imports
+  `TrpcAdapter`, `TrpcSchema`, `TrpcMethods`, `TrpcErrorType`, `TrpcTransformerType`, `TrpcWebsocketAdapter`,
+  `TrpcSseAdapter`, `TrpcSocketSchema` or `TrpcSocketError`, writes `createSdk<typeof client, TrpcSchema<AppRouter>>` or
+  `createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>`, calls `api.user.byId.$query`,
+  `api.user.create.$mutation` or `realtime.chat.onMessage.$listener`, uses tRPC with `useFetch` / `useSubmit` /
+  `useListener`, sets a `superjson` transformer, maps `TRPCError` codes and `errorFormatter` fields, adds auth headers
+  or `connectionParams` to tRPC calls, resumes subscriptions with `tracked()` and `lastEventId`, or asks about tRPC
+  batching, links, subscriptions, keep-alive, or replacing `@trpc/client` / `@trpc/react-query` with HyperFetch.
 ---
 
 # HyperFetch tRPC adapter
@@ -19,7 +22,12 @@ and pass it to the regular `createSdk`. Every procedure becomes a normal HyperFe
 procedures) or `$mutation` (mutation procedures), so `send()`, the cache, `useFetch` and `useSubmit` work as everywhere
 else.
 
-Read `hyper-fetch-core` for requests, cache and the SDK, and `hyper-fetch-react` for hooks.
+Subscription procedures go through a `Socket` of `@hyper-fetch/sockets` instead: `TrpcWebsocketAdapter()` or
+`TrpcSseAdapter()` plus the `TrpcSocketSchema<AppRouter>` helper for `createSocketSdk` turn each one into a typed
+`$listener` (see Subscriptions).
+
+Read `hyper-fetch-core` for requests, cache and the SDK, `hyper-fetch-react` for hooks and `hyper-fetch-sockets` for
+sockets and listeners.
 
 ## Install and set up
 
@@ -27,8 +35,13 @@ Read `hyper-fetch-core` for requests, cache and the SDK, and `hyper-fetch-react`
 npm install @hyper-fetch/core @hyper-fetch/trpc
 ```
 
-`@trpc/server` (v11) is an optional peer dependency used only by the `TrpcSchema` type. The project that imports the
-`AppRouter` type usually has it already. No `@trpc/client` is needed.
+`@trpc/server` (v11) is an optional peer dependency used only by the `TrpcSchema` and `TrpcSocketSchema` types. The
+project that imports the `AppRouter` type usually has it already. No `@trpc/client` is needed. Subscriptions also need
+`@hyper-fetch/sockets`:
+
+```bash
+npm install @hyper-fetch/sockets
+```
 
 ```ts
 // server: export only the type
@@ -63,8 +76,10 @@ export const api = createSdk<typeof client, TrpcSchema<AppRouter>>(client, { cam
    `initTRPC.create({ transformer: superjson })`. Mismatched transformers break inputs and outputs.
 6. **Narrow `error` before reading tRPC fields.** It is the router error shape or a plain `Error` (network, abort,
    timeout). Use `"data" in error`.
-7. **No batching, no subscriptions, no links.** Each call is one HTTP request. Subscription procedures are left out of
-   `TrpcSchema`.
+7. **No batching, no links.** Each query or mutation is one HTTP request.
+8. **Subscriptions live on a `Socket`, not on the client.** They are left out of `TrpcSchema` and come from
+   `createSocketSdk` with `TrpcSocketSchema`. Pass `{ camelCaseToKebabCase: false }` there too, and give the socket
+   adapter the same transformer as `TrpcAdapter`.
 
 ## Core patterns
 
@@ -197,6 +212,107 @@ const configured = api.$configure({
 
 `$configure` keys are validated against the schema and it returns a new SDK.
 
+### Subscriptions
+
+`TrpcWebsocketAdapter()` speaks the `wsLink` protocol (`applyWSSHandler` on the server). `TrpcSseAdapter()` speaks the
+`httpSubscriptionLink` protocol of the HTTP handlers (`createHTTPServer`, `fetchRequestHandler`), so point it at the
+same URL as `TrpcAdapter`.
+
+```ts
+// server
+const appRouter = t.router({
+  chat: t.router({
+    onMessage: t.procedure
+      .input((value) => value as { room: string; lastEventId?: string })
+      .subscription(async function* ({ input, signal }) {
+        for await (const message of messages(input.room, { after: input.lastEventId, signal })) {
+          yield tracked(message.id, message);
+        }
+      }),
+  }),
+});
+```
+
+```ts
+// client/realtime.ts
+import { Socket, createSocketSdk } from "@hyper-fetch/sockets";
+import { TrpcWebsocketAdapter } from "@hyper-fetch/trpc";
+import type { TrpcSocketSchema } from "@hyper-fetch/trpc";
+
+import type { AppRouter } from "../server/router";
+
+// Or: new Socket({ url: "http://localhost:3000/trpc", adapter: TrpcSseAdapter() })
+export const socket = new Socket({ url: "ws://localhost:3001", adapter: TrpcWebsocketAdapter() });
+
+export const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, {
+  camelCaseToKebabCase: false,
+});
+
+const stop = realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(({ data, extra }) => {
+  data; // the yielded message, without the tracked() wrapper
+  extra.eventId; // "message-42", null for events that are not tracked
+  extra.payload; // { room: "general" }
+});
+```
+
+- The input is the listener payload (`setPayload()` or `listen(cb, { payload })`), required only when the input is.
+- The topic is the procedure path with slashes (`chat/onMessage`). Queries and mutations are not in the schema, and
+  `emit()` on these sockets throws.
+- Listeners with the same input share one server subscription. The first starts it, the last one to leave stops it.
+  Different inputs are separate subscriptions and never receive each other's events.
+- After a reconnect every subscription restarts with the last tracked id as `lastEventId`, and tRPC passes it to the
+  procedure in `input.lastEventId`. Read it on the server to send what the client missed.
+- WebSocket keeps one connection for all subscriptions. SSE opens one `EventSource` per subscription and needs no
+  WebSocket server.
+
+Lifecycle and errors:
+
+```ts
+import { TrpcSocketError } from "@hyper-fetch/trpc";
+
+realtime.chat.onMessage.$listener.setPayload({ room: "general" }).listen(onMessage, {
+  onStart: ({ topic }) => {}, // the server accepted it, again after every reconnect
+  onEnd: ({ topic, error }) => {}, // the procedure returned (error null) or failed
+});
+
+socket.onError(({ error }) => {
+  if (error instanceof TrpcSocketError) {
+    error.topic; // "chat/onMessage", null when the server rejected the whole connection
+    error.payload; // { room: "general" }
+    error.shape.data.code; // "UNAUTHORIZED"
+  }
+});
+```
+
+An ended subscription is never restarted by a reconnect: call `listen()` again. Unsubscribing yourself does not call
+`onEnd`. In React, `useListener(realtime.chat.onMessage.$listener.setPayload({ room }))` returns `data`, `extra`,
+`connected` and `status` (`"idle"`, `"starting"`, `"listening"`, `"ended"`, `"failed"` with `error`), and its `listen()`
+subscribes again.
+
+Auth and transport options go in `adapterOptions`:
+
+```ts
+const socket = new Socket({
+  url: "ws://localhost:3001",
+  adapter: TrpcWebsocketAdapter({ transformer: superjson }),
+  adapterOptions: {
+    connectionParams: { token: getToken() }, // read by createContext as info.connectionParams
+    keepAlive: { enabled: true, intervalMs: 5000, pongTimeoutMs: 1000 }, // WebSocket only
+  },
+});
+
+// A fresh token for every connection attempt
+socket.onConnect(async ({ connection }) => ({
+  ...connection,
+  adapterOptions: { ...connection.adapterOptions, connectionParams: { token: await refreshToken() } },
+}));
+```
+
+`TrpcSseAdapter` takes `connectionParams`, `eventSourceInit` and, in Node.js, `EventSource` (from the `eventsource`
+package). `TrpcWebsocketAdapter` takes `WebSocket` (from `ws`) and `protocols`. Reconnect timing (`connectionTimeout`,
+`reconnectTime`, `maxReconnectTime`) is set on the `Socket`, see `hyper-fetch-sockets`. WebSocket batching, lazy
+connections and `experimental_encoder` are not supported.
+
 ### Requests without the SDK
 
 ```ts
@@ -221,7 +337,7 @@ Types flow from the server router to every call without codegen: `typeof appRout
 | `payload`    | the procedure input, `undefined` without input, optional when the input accepts `undefined` |
 | local error  | the router's `errorShape`, including `errorFormatter` fields                                |
 | endpoint     | `"/user/byId"` (names exactly as written)                                                   |
-| leaf         | `$query` for queries, `$mutation` for mutations, subscriptions omitted                      |
+| leaf         | `$query` for queries, `$mutation` for mutations, subscriptions omitted (`TrpcSocketSchema`) |
 
 ```ts
 // @ts-expect-error the input is required
@@ -271,7 +387,9 @@ Query params are appended to the URL. `input` and `batch` are reserved and dropp
 | `Property 'data' does not exist on type 'Error \| ...'` | `error` also includes the global `Error` | Narrow with `"data" in error`                        |
 | Dates arrive as strings                                 | Transformer missing on the adapter       | `TrpcAdapter({ transformer: superjson })`            |
 | Procedure gets no input for `null`                      | A `null` payload removes the payload     | Wrap it: `{ value: null }`                           |
-| Subscription procedure missing from `api`               | Subscriptions are not supported          | Use `@trpc/client` or `hyper-fetch-sockets`          |
+| Subscription procedure missing from `api`               | `TrpcSchema` omits subscriptions         | `createSocketSdk` with `TrpcSocketSchema<AppRouter>` |
+| Subscription stops after `onEnd`, reconnect ignores it  | Ended subscriptions are never restarted  | Call `listen()` again                                |
+| Events missed during a reconnect                        | Procedure ignores `input.lastEventId`    | Yield `tracked(id, data)` and resume from the id     |
 | `api.send` or `api.method` is not a procedure           | Name clashes with request properties     | `client.createRequest` with the path                 |
 | Many parallel calls, no `httpBatchLink`                 | Batching is not supported                | Rely on deduplication, or merge procedures           |
 
@@ -284,5 +402,7 @@ answering `{ result: { data } }` or `{ error }`. See `hyper-fetch-testing`.
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview
+- Subscriptions: https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/subscriptions
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-orpc`, `hyper-fetch-testing`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-sockets`, `hyper-fetch-orpc`,
+  `hyper-fetch-testing`.

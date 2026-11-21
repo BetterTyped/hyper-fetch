@@ -23,13 +23,13 @@ send() / useFetch() / useSubmit()             data, error and payload typed
 
 ## Inference per procedure
 
-| Router                                        | SDK                                   |
-| --------------------------------------------- | ------------------------------------- |
-| `t.procedure.query(...)`                      | `$query` leaf only                    |
-| `t.procedure.mutation(...)`                   | `$mutation` leaf only                 |
-| `t.procedure.subscription(...)`               | omitted                               |
-| nested `t.router`, `t.mergeRouters`, `lazy()` | nested keys, endpoint `"/a/b/c/leaf"` |
-| `camelCaseName`                               | key and endpoint keep `camelCaseName` |
+| Router                                        | SDK                                          |
+| --------------------------------------------- | -------------------------------------------- |
+| `t.procedure.query(...)`                      | `$query` leaf only                           |
+| `t.procedure.mutation(...)`                   | `$mutation` leaf only                        |
+| `t.procedure.subscription(...)`               | omitted, a `$listener` in `TrpcSocketSchema` |
+| nested `t.router`, `t.mergeRouters`, `lazy()` | nested keys, endpoint `"/a/b/c/leaf"`        |
+| `camelCaseName`                               | key and endpoint keep `camelCaseName`        |
 
 | Input                               | `payload` type       | Must be set before `send()` |
 | ----------------------------------- | -------------------- | --------------------------- |
@@ -55,6 +55,31 @@ so `TrpcAdapter({ transformer: superjson })` must be set whenever the router use
 TrpcAdapter({ transformer: { serialize: (value) => value, deserialize: (value) => value } });
 // @ts-expect-error both serialize and deserialize are required
 TrpcAdapter({ transformer: { serialize: (value: unknown) => value } });
+```
+
+## Subscriptions (`TrpcSocketSchema`)
+
+`TrpcSocketSchema<AppRouter>` is the mirror of `TrpcSchema` for `createSocketSdk`: it keeps only subscription procedures
+and gives each one a `$listener`.
+
+| Listener slot | Inferred as                                                                               |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| `response`    | what the procedure yields (async generator) or emits (observable), after the transformer  |
+| `tracked()`   | unwrapped: `tracked(id, data)` reaches listeners as `data`, the id is in `extra.eventId`  |
+| `payload`     | the procedure input, required only when the input is required, not taken without an input |
+| `topic`       | the procedure path with slashes, `"chat/onMessage"`                                       |
+| `extra`       | `TrpcSocketExtraType`: `{ eventId: string \| null; payload: unknown }`                    |
+
+A procedure that yields its own `{ id: string; data: T }` objects (exactly those two keys) is typed as tracked and
+unwrapped to `T`. Wrap events with `tracked()` or use other field names.
+
+```ts
+const realtime = createSocketSdk<typeof socket, TrpcSocketSchema<AppRouter>>(socket, { camelCaseToKebabCase: false });
+
+// @ts-expect-error the input is required
+realtime.chat.onMessage.$listener.listen(() => {});
+// @ts-expect-error queries and mutations are not listeners
+realtime.user.byId;
 ```
 
 ## What the compiler rejects

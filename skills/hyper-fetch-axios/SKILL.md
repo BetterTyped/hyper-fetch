@@ -251,15 +251,18 @@ are not `AxiosError`s) and do not put the server body in a request's `error` gen
 
 ## Testing
 
-`createHttpMockingServer` from `@hyper-fetch/testing` intercepts axios traffic (it uses msw), and `request.setMock(...)`
-skips the transport entirely. Both work unchanged with `AxiosAdapter`. See the `hyper-fetch-testing` skill.
+MSW intercepts axios traffic in Node and the browser, and `request.setMock(...)` skips the transport entirely. Both work
+unchanged with `AxiosAdapter`. See the `hyper-fetch-testing` skill.
 
 ```ts
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { http, HttpResponse } from "msw";
+import { setupServer } from "msw/node";
 
-const { startServer, stopServer, resetMocks, mockRequest } = createHttpMockingServer();
+const server = setupServer(
+  http.get("https://api.example.com/users/:userId", () => HttpResponse.json({ message: "Bad" }, { status: 400 })),
+);
+server.listen();
 
-mockRequest(getUser, { status: 400 });
 const { error, status } = await getUser.setParams({ userId: 1 }).send();
 // status 400, error is an AxiosError with message "Request failed with status code 400"
 ```

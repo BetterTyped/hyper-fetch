@@ -305,8 +305,8 @@ contract pinning with `Extract*` helpers, more `@ts-expect-error` cases and ever
 
 ## Testing
 
-The requests use the HTTP adapter, so `createHttpMockingServer` from `@hyper-fetch/testing` and `request.setMock(...)`
-work unchanged (see `hyper-fetch-testing`). For end-to-end tests serve the real app (`app.listen(0)` on Bun, or
+The requests use the HTTP adapter, so `request.setMock(...)` and MSW handlers work unchanged (see
+`hyper-fetch-testing`). For end-to-end tests serve the real app (`app.listen(0)` on Bun, or
 `serve({ fetch: app.fetch, port: 0 })` from `@hono/node-server` on Node) and point `createClient({ url })` at it. Pin
 type contracts with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()` from Vitest.
 
