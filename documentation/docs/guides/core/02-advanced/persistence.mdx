@@ -91,6 +91,10 @@ export const client = new Client({
 });
 ```
 
+With `revalidate: false`, `useFetch` waits for the lazy storage before it decides to fetch. Fresh persisted data is
+shown without a request, and only missing or stale data is fetched. With the default `revalidate: true` the request
+starts right away, and the persisted data is shown as soon as it is read.
+
 Clearing the cache with `client.cache.clear()` or `client.clear()` also removes every element from the lazy storage,
 using its `keys` and `delete` methods. Call it on logout, so the persisted data of one user is never loaded for the
 next one.
