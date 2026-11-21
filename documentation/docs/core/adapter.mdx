@@ -145,9 +145,7 @@ cache keys, query keys and `toJSON()` keep working with data.
 
 ```ts
 // The adapter decides what the callback receives and what gets stored
-adapter.setQueryParamsResolver((callback) =>
-  callback(createFilters()).toJSON(),
-);
+adapter.setQueryParamsResolver((callback) => callback(createFilters()).toJSON());
 
 // Users of that adapter can then write
 getUsers.setQueryParams((filters) => filters.where("role", "admin"));
@@ -195,10 +193,7 @@ Each adapter has its own options. Check the API reference for the available opti
 Set global defaults for **request configuration** (method, auth, deduplication, etc.).
 
 ```ts
-client.adapter.setRequestDefaults((options) => ({
-  ...options,
-  deduplicate: true,
-}));
+client.adapter.setRequestDefaults((options) => ({ ...options, deduplicate: true }));
 ```
 
 ---
