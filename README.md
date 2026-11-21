@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://hyperfetch.bettertyped.com/docs/getting-started/quick-start"><b>Quick Start</b></a> ·
   <a href="https://hyperfetch.bettertyped.com/">Documentation</a> ·
-  <a href="https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup">Guides</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/guides/core/basics/setup">Guides</a> ·
   <a href="https://discord.gg/7upC2kVmyM">Discord</a>
 </p>
 
@@ -255,8 +255,8 @@ const UserList = () => {
 - [Core Concepts](https://hyperfetch.bettertyped.com/docs/core/overview)
 - [React Integration](https://hyperfetch.bettertyped.com/docs/react/overview)
 - [CLI & SDK Generation](https://hyperfetch.bettertyped.com/docs/cli/commands/generate)
-- [API Reference](https://hyperfetch.bettertyped.com/api/)
-- [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+- [API Reference](https://hyperfetch.bettertyped.com/docs/api/getting-started/)
+- [Guides](https://hyperfetch.bettertyped.com/docs/guides/core/basics/setup)
 
 ## Our sponsors
 

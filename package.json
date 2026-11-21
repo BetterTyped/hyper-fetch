@@ -21,6 +21,7 @@
     "update-version": "node ./scripts/update-package-version.js",
     "test:firebase": "nx run-many --target=test --parallel=1 --skip-nx-cache --projects=firebase,firebase-admin",
     "test:release": "node --test scripts/release.test.mjs scripts/version-docs.test.mjs",
+    "readme:banners": "node ./scripts/readme-banners/render.mjs",
     "examples": "nx run-many --target=typecheck,build --parallel=3 --projects='@hyper-fetch-examples/*'",
     "test:examples": "node --test scripts/examples.test.mjs"
   },

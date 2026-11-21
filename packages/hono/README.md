@@ -1,39 +1,31 @@
-# 🏯 Hyper Fetch Hono
-
 <p align="center">
-  <b>Call your Hono backend from a fully typed HyperFetch SDK. No codegen, no duplicated types.</b>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/hono.png" alt="Hyper Fetch Hono. Your Hono app. Typed on the client. Route, validator and param types read from typeof app with no codegen and no runtime." /></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?logo=github&color=118ab2" alt="GitHub stars" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/hono">
-    <img src="https://img.shields.io/npm/v/@hyper-fetch/hono?logo=npm&color=e76f51" alt="npm version" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/hono">
-    <img src="https://img.shields.io/npm/dm/@hyper-fetch/hono?logo=npm" alt="npm downloads" />
-  </a>
-  <a href="https://bundlephobia.com/package/@hyper-fetch/hono">
-    <img src="https://img.shields.io/bundlephobia/minzip/@hyper-fetch/hono?color=64BC4B" alt="bundle size" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=yellow" alt="license" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" alt="TypeScript" />
-  </a>
-  <a href="https://hono.dev/">
-    <img src="https://img.shields.io/badge/hono-E36002?logo=hono&logoColor=white" alt="Hono" />
-  </a>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><b>Quick Start</b></a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview">Documentation</a> ·
+  <a href="https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoAppToHyperFetch">API Reference</a> ·
+  <a href="https://github.com/BetterTyped/hyper-fetch">GitHub</a> ·
+  <a href="https://discord.gg/7upC2kVmyM">Discord</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&logo=github&color=333" alt="GitHub stars" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/hono"><img src="https://img.shields.io/npm/v/@hyper-fetch/hono?logo=npm&color=e76f51" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/hono"><img src="https://api.maciejpyrc.com/portfolio/npm/downloads.svg?packages=@hyper-fetch/hono&color=fbc646" alt="Monthly downloads" /></a>
+  <a href="https://bundlejs.com/?q=@hyper-fetch/hono"><img src="https://api.maciejpyrc.com/portfolio/npm/size.svg?package=@hyper-fetch/hono&external=@hyper-fetch/core,hono" alt="Bundle size" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch"><img src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/integrations/hono/overview"><img src="https://img.shields.io/badge/Hono-4%2B-E36002?logo=hono&logoColor=white" alt="Hono" /></a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md"><img src="https://img.shields.io/github/license/BetterTyped/hyper-fetch?color=blue" alt="License" /></a>
 </p>
 
 ## 📖 About
 
-`@hyper-fetch/hono` turns the type of a Hono app into a HyperFetch SDK schema. Your frontend calls the backend through
-`createSdk` with response, payload, query and param types read straight from your Hono routes and validators, and its
-sockets connect to `upgradeWebSocket()` and `streamSSE()` routes at type-checked paths. It ships types only, so nothing
-from your server ends up in the client bundle.
+`@hyper-fetch/hono` turns the type of a Hono app into a Hyper Fetch SDK schema. Your frontend calls the backend
+through `createSdk` with response, payload, query and param types read straight from your Hono routes and validators,
+and its sockets connect to `upgradeWebSocket()` and `streamSSE()` routes at type-checked paths. It ships types only, so
+nothing from your server ends up in the client bundle.
 
 ## 🎯 Key Capabilities
 
@@ -45,7 +37,7 @@ from your server ends up in the client bundle.
 - 📡 **Realtime routes too** - `HonoWebSocketPath` rejects socket URLs that match no `upgradeWebSocket()` route
 - 🚫 **No fake requests** - WebSocket routes stay out of the HTTP SDK, so nobody calls `send()` on them
 - 🪶 **Zero runtime** - Type exports only, so it adds no code to your bundle
-- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline and React hooks work on every route
+- ⚡ **Every HyperFetch feature** - Cache, retries, deduplication, offline replay and React hooks on every route
 
 ## 🚀 Quick Start
 
@@ -71,15 +63,16 @@ import type { AppSchema } from "@my-app/backend";
 const client = createClient({ url: "https://api.example.com" });
 const sdk = createSdk<typeof client, AppSchema>(client);
 
+// data is { id: string; name: string } | null
 const { data } = await sdk.users.$userId.$get.setParams({ userId: "1" }).send();
 ```
 
 ## 📚 Documentation
 
-- [Hono Integration Docs](https://hyperfetch.bettertyped.com/docs/integrations/hono/overview)
-- [Hono Realtime](https://hyperfetch.bettertyped.com/docs/integrations/hono/realtime)
-- [SDK Guide](https://hyperfetch.bettertyped.com/docs/core/sdk)
-- [Getting Started](https://hyperfetch.bettertyped.com/docs/getting-started/quick-start)
+- **[Hono Integration](https://hyperfetch.bettertyped.com/docs/integrations/hono/overview)** - Setup, routes, validators and path shapes
+- **[Hono Realtime](https://hyperfetch.bettertyped.com/docs/integrations/hono/realtime)** - WebSocket and Server-Sent Events routes
+- **[SDK](https://hyperfetch.bettertyped.com/docs/core/sdk)** - How `createSdk` turns a schema into requests
+- **[API Reference](https://hyperfetch.bettertyped.com/docs/api/hono/Types/HonoAppToHyperFetch)** - Every exported type
 
 ## 💡 Examples
 
@@ -108,7 +101,9 @@ export type AppSchema = HonoAppToHyperFetch<typeof app>;
 ```ts
 const sdk = createSdk<typeof client, AppSchema>(client);
 
+// the payload is typed by the json validator
 await sdk.users.$post.setPayload({ name: "Bob" }).send();
+
 // kebab-case paths become camelCase properties: GET /auth/google-login
 await sdk.auth.googleLogin.$get.send();
 ```
@@ -123,7 +118,7 @@ import { sdk } from "./api";
 export const UserName = ({ userId }: { userId: string }) => {
   const { data, loading } = useFetch(sdk.users.$userId.$get.setParams({ userId }));
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner />;
   return <p>{data?.name}</p>;
 };
 ```
@@ -164,7 +159,7 @@ chat.message.$listener.listen(({ data }) => console.log(data.text));
 ### Server-Sent Events with named events
 
 ```ts
-// backend: named events reach the listeners of the event name, JSON data is parsed
+// backend: named events reach the listeners of that event name, JSON data is parsed
 app.get("/events", (c) =>
   streamSSE(c, async (stream) => {
     await stream.writeSSE({ id: "1", event: "tick", data: JSON.stringify({ symbol: "BTC", price: 100 }) });
@@ -179,16 +174,45 @@ import { ServerSentEventsAdapter, Socket } from "@hyper-fetch/sockets";
 
 const events = new Socket({
   url: "http://localhost:3000/events",
-  adapter: ServerSentEventsAdapter,
+  adapter: ServerSentEventsAdapter(),
   adapterOptions: { EventSource },
 });
 
 events
   .createListener<{ symbol: string; price: number }>()({ topic: "tick" })
-  .listen(({ data }) => {
-    console.log(data.price);
-  });
+  .listen(({ data }) => console.log(data.price));
 ```
+
+## 🧩 Hyper Fetch Ecosystem
+
+One typed client for every backend. Swap the adapter and keep the same `createRequest()` everywhere.
+
+<table align="center">
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hyper-fetch.svg" width="36" height="36" alt="" /><br /><sub><b>Core</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-react.svg" width="36" height="36" alt="" /><br /><sub><b>React</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-sockets.svg" width="36" height="36" alt="" /><br /><sub><b>Sockets</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/cli"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-openapi.svg" width="36" height="36" alt="" /><br /><sub><b>OpenAPI CLI</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-graphql.svg" width="36" height="36" alt="" /><br /><sub><b>GraphQL</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-trpc"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-trpc.svg" width="36" height="36" alt="" /><br /><sub><b>tRPC</b></sub></a></td>
+  </tr>
+  <tr>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-orpc"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc-dark.svg" /><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-orpc.svg" width="36" height="36" alt="" /></picture><br /><sub><b>oRPC</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hono"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-hono.svg" width="36" height="36" alt="" /><br /><sub><b>Hono</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/elysia"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-elysia.svg" width="36" height="36" alt="" /><br /><sub><b>Elysia</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-firebase.svg" width="36" height="36" alt="" /><br /><sub><b>Firebase</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/integration-axios.svg" width="36" height="36" alt="" /><br /><sub><b>Axios</b></sub></a></td>
+    <td align="center" width="110"><a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/hyper-flow"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/documentation/static/img/hyper-flow.svg" width="36" height="36" alt="" /><br /><sub><b>HyperFlow</b></sub></a></td>
+  </tr>
+</table>
+
+## 💖 Sponsors
+
+<p align="center">
+  <a href="https://github.com/sponsors/prc5">
+    <img src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/other/sponsorkit/sponsors.svg?raw=true" alt="Sponsors" />
+  </a>
+</p>
 
 ## License
 
