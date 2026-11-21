@@ -1,19 +1,20 @@
 /*
- * The Hype Stack card. Its picture is three apps built on Hype Stack, framed like a print. Under it: a small lit
- * label, a headline that ends on the name in its colour, the price, and a button the full width of the card.
- * Every rule names the card's class twice with the page's root in front, because the site's own stylesheet
- * colours every link in `main`, and the card sits inside `main`.
+ * The Hype Stack card: one line with a small lit label, a headline that ends on the name in its colour, and an
+ * orange arrow to go there. Every rule names the card's class twice with the page's root in front, because the
+ * site's own stylesheet colours every link in `main`, and the card sits inside `main`.
  */
 html body .hs-ad.hs-ad {
   --hs: oklch(0.68 0.2 50);
   --hs-bg: #0d0d10;
   --hs-ink: #ffffff;
-  --hs-dim: #a3a3ad;
   --hs-line: rgb(255 255 255 / 0.14);
   display: grid;
-  padding: 8px 8px 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 9px 9px 9px 14px;
   border: 1px solid var(--hs-line);
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--hs-bg);
   box-shadow: 0 26px 60px -34px color-mix(in oklch, var(--hs) 75%, transparent);
   color: var(--hs-ink);
@@ -29,7 +30,6 @@ html body .hs-ad.hs-ad {
 html[data-theme="light"] body .hs-ad.hs-ad {
   --hs-bg: #ffffff;
   --hs-ink: #0a0a0a;
-  --hs-dim: #5e5e66;
   --hs-line: rgb(0 0 0 / 0.14);
 }
 html body .hs-ad.hs-ad:hover {
@@ -39,45 +39,16 @@ html body .hs-ad.hs-ad:hover {
   text-decoration: none;
   transform: translateY(-2px);
 }
-html body .hs-ad.hs-ad > :not(.hs-ad-art) {
-  margin-inline: 10px;
-}
-html body .hs-ad.hs-ad .hs-ad-art {
-  position: relative;
-  display: block;
-  aspect-ratio: 9 / 5;
-  margin-bottom: 14px;
-  overflow: hidden;
-  border-radius: 11px;
-  background: #0a0c13;
-}
-html body .hs-ad.hs-ad .hs-ad-art::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
-}
-html body .hs-ad.hs-ad .hs-ad-art img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  object-fit: cover;
-  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-html body .hs-ad.hs-ad:hover .hs-ad-art img {
-  transform: scale(1.07);
-}
 html body .hs-ad.hs-ad .hs-ad-label {
   display: flex;
   align-items: center;
   gap: 7px;
   color: var(--hs);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 html body .hs-ad.hs-ad .hs-ad-label svg {
   flex: none;
@@ -86,46 +57,25 @@ html body .hs-ad.hs-ad .hs-ad-label svg {
   fill: var(--hs);
 }
 html body .hs-ad.hs-ad strong {
-  margin-top: 8px;
+  grid-column: 1;
   color: var(--hs-ink);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 650;
   letter-spacing: -0.03em;
   line-height: 1.2;
 }
 html body .hs-ad.hs-ad strong b {
-  display: block;
   color: var(--hs);
   font-weight: inherit;
 }
-html body .hs-ad.hs-ad .hs-ad-text {
-  margin-top: 8px;
-  color: var(--hs-dim);
-  font-size: 13.5px;
-  line-height: 1.5;
-}
-html body .hs-ad.hs-ad .hs-ad-price {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-top: 12px;
-  color: var(--hs-dim);
-  font-size: 13px;
-}
-html body .hs-ad.hs-ad .hs-ad-price b {
-  color: var(--hs-ink);
-  font-size: 22px;
-  font-weight: 650;
-  letter-spacing: -0.03em;
-}
 html body .hs-ad.hs-ad .hs-ad-go {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  display: grid;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  place-items: center;
+  width: 42px;
   height: 42px;
-  margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 11px;
   background: linear-gradient(
     180deg,
     color-mix(in oklch, var(--hs) 88%, #fff),
@@ -135,25 +85,14 @@ html body .hs-ad.hs-ad .hs-ad-go {
     inset 0 1px 0 rgb(255 255 255 / 0.28),
     0 10px 22px -10px var(--hs);
   color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 0.14);
   transition: filter 0.2s;
 }
 html body .hs-ad.hs-ad:hover .hs-ad-go {
   filter: brightness(1.07);
 }
-/* The words on the button take the button's own type, not the site's rule for a span inside a link. */
-html body .hs-ad.hs-ad .hs-ad-go span {
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
-}
 html body .hs-ad.hs-ad .hs-ad-go svg {
-  flex: none;
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2.4;
@@ -165,63 +104,9 @@ html body .hs-ad.hs-ad:hover .hs-ad-go svg {
   transform: translateX(3px);
 }
 
-/*
- * Shrunk: one line with the label, the headline and an orange arrow to go there. The cross turns the card into
- * this, and a phone only ever shows this.
- */
-html body .hs-ad.hs-ad[data-small] {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 2px 12px;
-  padding: 9px 9px 9px 4px;
-  border-radius: 16px;
-}
-html body .hs-ad.hs-ad[data-small] .hs-ad-art,
-html body .hs-ad.hs-ad[data-small] .hs-ad-text,
-html body .hs-ad.hs-ad[data-small] .hs-ad-price {
-  display: none;
-}
-html body .hs-ad.hs-ad[data-small] .hs-ad-label {
-  font-size: 10px;
-  white-space: nowrap;
-}
-html body .hs-ad.hs-ad[data-small] strong {
-  grid-column: 1;
-  margin-top: 0;
-  font-size: 15px;
-}
-html body .hs-ad.hs-ad[data-small] strong b {
-  display: inline;
-}
-html body .hs-ad.hs-ad[data-small] .hs-ad-go {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  width: 42px;
-  height: 42px;
-  margin: 0;
-  border-radius: 11px;
-}
-html body .hs-ad.hs-ad[data-small] .hs-ad-go span {
-  display: none;
-}
-html body .hs-ad.hs-ad[data-small] .hs-ad-go svg {
-  width: 18px;
-  height: 18px;
-}
-
 /* In the right column of a docs page, above the sponsors. */
 .hs-ad-rail {
-  position: relative;
   margin: 18px 4px 20px;
-}
-/* On a short window the picture steps aside, so the page's headings keep their room. */
-@media (max-height: 880px) {
-  html body .hs-ad-rail .hs-ad.hs-ad:not([data-small]) .hs-ad-art {
-    display: none;
-  }
-  html body .hs-ad-rail .hs-ad.hs-ad:not([data-small]) {
-    padding-top: 14px;
-  }
 }
 
 /* The card in the corner of the window, on pages with no sidebar and on screens too narrow to show one. */
@@ -230,8 +115,7 @@ html body .hs-ad.hs-ad[data-small] .hs-ad-go svg {
   right: 20px;
   bottom: 20px;
   z-index: 190;
-  width: 280px;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 30px 70px -20px rgb(0 0 0 / 0.75);
   animation: hs-ad-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
 }
@@ -241,47 +125,18 @@ html body .hs-ad.hs-ad[data-small] .hs-ad-go svg {
     transform: translateY(24px);
   }
 }
-.hs-ad-close {
-  position: absolute;
-  top: -9px;
-  right: -9px;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: #fff;
-  color: #000;
-  cursor: pointer;
-}
-.hs-ad-close svg {
-  width: 13px;
-  height: 13px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.4;
-  stroke-linecap: round;
-}
 /* With the right column on screen the card is already in it, so the one in the corner steps aside. */
 @media (min-width: 997px) {
   body:has(.hs-ad-rail) .hs-ad-float {
     display: none;
   }
 }
-/* Shrunk in the corner, the card is only as wide as its words. */
-.hs-ad-float:has(.hs-ad[data-small]) {
-  width: auto;
-}
-/* On a phone the small card runs the width of the window. */
+/* On a phone the card runs the width of the window. */
 @media (max-width: 560px) {
   .hs-ad-float {
     right: 10px;
     bottom: 10px;
     left: 10px;
-    width: auto;
   }
 }
 @media (prefers-reduced-motion: reduce) {
