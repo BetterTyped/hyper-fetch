@@ -148,9 +148,10 @@ describe("SDK [ Base ]", () => {
 
     it("should not read the segments from the object prototype", () => {
       const sdk = createSdk<TestClient, TestSchema>(client, { pathSegments: {} });
-      const untyped = sdk as unknown as Record<string, { $get: { endpoint: string } }>;
+      // A key named like an Object.prototype member - its segment is not read from the prototype of the map
+      const prototypeKey = (sdk as unknown as Record<string, unknown>)["constructor"] as { $get: { endpoint: string } };
 
-      expect(untyped.constructor.$get.endpoint).toBe("/constructor");
+      expect(prototypeKey.$get.endpoint).toBe("/constructor");
     });
 
     it("should keep the mapped segments in the configured sdk", () => {
