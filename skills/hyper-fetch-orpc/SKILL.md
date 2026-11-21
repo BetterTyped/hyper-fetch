@@ -299,10 +299,10 @@ const listPlanets = api.planet.list.$query.setOptions({ credentials: "include", 
 
 `request.setMock(() => ({ data, status: 200 }))` skips the network for any adapter. For wire-level tests run a real
 `RPCHandler` on port `0`, or mock `POST {url}/planet/find` with msw answering `{ json: output }` (and an error status
-with `{ json: errorJson }`). See `hyper-fetch-testing`.
+with `{ json: errorJson }`). See the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing).
 
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-orpc/overview
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-trpc`, `hyper-fetch-testing`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-trpc`.

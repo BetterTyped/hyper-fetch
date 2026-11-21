@@ -253,7 +253,7 @@ are not `AxiosError`s) and do not put the server body in a request's `error` gen
 
 `request.setMock(...)` skips the transport entirely and works unchanged with `AxiosAdapter`. To exercise axios itself
 (interceptors, `validateStatus`, error mapping), intercept the network with MSW - it catches axios traffic in Node and
-in the browser. See the `hyper-fetch-testing` skill.
+in the browser. See the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing).
 
 ```ts
 import { http, HttpResponse } from "msw";
@@ -276,4 +276,3 @@ const { error, status } = await getUser.setParams({ userId: 1 }).send();
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-axios/overview
 - Axios request config: https://axios-http.com/docs/req_config
 - Related skills: `hyper-fetch-core` (client, requests, interceptors, retries), `hyper-fetch-react` (hooks),
-  `hyper-fetch-testing` (mocking).

@@ -331,7 +331,7 @@ const server = setupServer(
 
 Wait for `socket.adapter.connected` (or `socket.events.onConnected`) before pushing events, and use fake timers for
 `delivery` windows and `reconnectTime`. For adapters with their own protocol (tRPC, oRPC, GraphQL), run the real server
-on a random port in the test. See the `hyper-fetch-testing` skill.
+on a random port in the test. See the [testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing).
 
 ## References
 
@@ -347,7 +347,7 @@ on a random port in the test. See the `hyper-fetch-testing` skill.
 - `references/react-hooks.md` - read when using `useListener` or `useEmitter` in React.
 
 Related skills: `hyper-fetch-core` (Client, requests, cache), `hyper-fetch-react` (HTTP hooks, Provider),
-`hyper-fetch-firebase` (Firebase socket adapter), `hyper-fetch-testing`, `hyper-fetch-devtools`.
+`hyper-fetch-firebase` (Firebase socket adapter), `hyper-fetch-devtools`.
 
 Docs: https://hyperfetch.bettertyped.com/docs/sockets/overview, https://hyperfetch.bettertyped.com/docs/sockets/socket,
 https://hyperfetch.bettertyped.com/docs/sockets/listener, https://hyperfetch.bettertyped.com/docs/sockets/emitter,

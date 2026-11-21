@@ -336,14 +336,13 @@ success-only schemas and every inference-loss case.
 
 ## Testing
 
-The requests use the HTTP adapter, so `request.setMock(...)` and network mocks with MSW work unchanged (see
-`hyper-fetch-testing`). For end-to-end tests serve the real app with `@hono/node-server`
-(`serve({ fetch: app.fetch, port: 0 })`) and point `createClient({ url })` at it. Type-level contracts can be pinned
-with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()` from Vitest.
+The requests use the HTTP adapter, so `request.setMock(...)` and network mocks with MSW work unchanged (see the
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)). For end-to-end tests serve the real app with
+`@hono/node-server` (`serve({ fetch: app.fetch, port: 0 })`) and point `createClient({ url })` at it. Type-level
+contracts can be pinned with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()` from Vitest.
 
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/hono/overview
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-axios`, `hyper-fetch-testing`,
-  `hyper-fetch-elysia`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-axios`, `hyper-fetch-elysia`.

@@ -279,10 +279,11 @@ Query params are appended to the URL. `input` and `batch` are reserved and dropp
 
 `request.setMock(() => ({ data, status: 200 }))` skips the network for any adapter. For wire-level tests run a real
 handler (`createHTTPServer` from `@trpc/server/adapters/standalone` on port `0`) or mock `{url}/user.byId` with msw,
-answering `{ result: { data } }` or `{ error }`. See `hyper-fetch-testing`.
+answering `{ result: { data } }` or `{ error }`. See the
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing).
 
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/adapter-trpc/overview
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-orpc`, `hyper-fetch-testing`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-orpc`.

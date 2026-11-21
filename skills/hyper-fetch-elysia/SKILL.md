@@ -305,14 +305,14 @@ contract pinning with `Extract*` helpers, more `@ts-expect-error` cases and ever
 
 ## Testing
 
-The requests use the HTTP adapter, so `request.setMock(...)` and network mocks with MSW work unchanged (see
-`hyper-fetch-testing`). For end-to-end tests serve the real app (`app.listen(0)` on Bun, or
-`serve({ fetch: app.fetch, port: 0 })` from `@hono/node-server` on Node) and point `createClient({ url })` at it. Pin
-type contracts with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()` from Vitest.
+The requests use the HTTP adapter, so `request.setMock(...)` and network mocks with MSW work unchanged (see the
+[testing guide](https://hyperfetch.bettertyped.com/docs/guides/testing)). For end-to-end tests serve the real app
+(`app.listen(0)` on Bun, or `serve({ fetch: app.fetch, port: 0 })` from `@hono/node-server` on Node) and point
+`createClient({ url })` at it. Pin type contracts with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()`
+from Vitest.
 
 ## Links
 
 - Docs: https://hyperfetch.bettertyped.com/docs/integrations/elysia/overview
 - SDK: https://hyperfetch.bettertyped.com/docs/core/sdk
-- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-testing`, `hyper-fetch-hono`,
-  `hyper-fetch-sockets`.
+- Related skills: `hyper-fetch-core`, `hyper-fetch-react`, `hyper-fetch-hono`, `hyper-fetch-sockets`.
