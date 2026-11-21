@@ -354,10 +354,10 @@ getUser.setParams({ id: 1 });
 
 ## Testing
 
-Test components with React Testing Library and mock the transport, not the hooks. HyperFetch ships
-`@hyper-fetch/testing` (`createHttpMockingServer`) and per-request `request.setMock()`. Clear shared state between tests
-with `client.clear()`, because the client and its cache are module singletons. Await rendered output (`findBy*`,
-`waitFor`) instead of fixed sleeps. See the `hyper-fetch-testing` skill.
+Test components with React Testing Library and mock the transport, not the hooks: per request with `request.setMock()`,
+for an SDK with `sdk.$configure(...)`, or at the network level with MSW. Clear shared state between tests with
+`client.clear()`, because the client and its cache are module singletons. Await rendered output (`findBy*`, `waitFor`)
+instead of fixed sleeps. See the `hyper-fetch-testing` skill.
 
 ## References
 

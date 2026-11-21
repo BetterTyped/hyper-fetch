@@ -390,7 +390,7 @@ refreshes the target once the last pending mutation on it settles. See
 
 Mock at the request level with
 `request.setMock(({ request }) => ({ data, status: 200 }), { requestTime: 0, responseTime: 0 })` (the mocker waits 20
-ms + 20 ms by default) or at the network level with `createHttpMockingServer()` from `@hyper-fetch/testing`. Toggle
+ms + 20 ms by default) or at the network level with MSW (`http` handlers and `setupServer` from `msw/node`). Toggle
 globally with `client.setEnableGlobalMocking(false)`. Create a fresh client per test (or call `client.clear()`) so
 cache, queues and interceptors do not leak between tests. Load the `hyper-fetch-testing` skill for the full workflow.
 

@@ -346,8 +346,6 @@ Requests are bound to the client they were created with, so module-level request
   the instance your code actually sends, or mock at the SDK level.
 - **`client.clear()` while components are mounted** replaces the cache under them. Clear in `beforeEach`, after RTL has
   unmounted the previous test's tree.
-- **Do not use `@hyper-fetch/testing`.** It is an unpublished internal package of the HyperFetch repo, not a public
-  testing API. Use `setMock`, `$configure` and MSW.
 
 ## References
 

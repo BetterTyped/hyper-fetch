@@ -311,10 +311,27 @@ purpose. Listeners stay registered across reconnects.
 
 ## Testing
 
-`@hyper-fetch/testing` ships `createWebsocketMockingServer(url)` (with `emitListenerEvent(listener, data)` and
-`expectEmitterEvent(emitter, payload)`), `createSseMockingServer(url)` and `waitForConnection(socket)`. Point the socket
-at the mock url, `await waitForConnection(socket)`, then push events. Use fake timers for `delivery` windows and
-`reconnectTime`. See the `hyper-fetch-testing` skill.
+Mock the server, not the socket. MSW intercepts WebSocket (`ws.link`) and Server-Sent Events (`sse`) connections, and
+the built-in adapters read messages as JSON `{ topic, data }`:
+
+```ts
+import { ws } from "msw";
+import { setupServer } from "msw/node";
+
+const chat = ws.link("ws://localhost:3000");
+const server = setupServer(
+  chat.addEventListener("connection", ({ client }) => {
+    client.send(JSON.stringify({ topic: "chat/messages", data: { text: "hello" } }));
+    client.addEventListener("message", (event) => {
+      // Assert what an emitter sent
+    });
+  }),
+);
+```
+
+Wait for `socket.adapter.connected` (or `socket.events.onConnected`) before pushing events, and use fake timers for
+`delivery` windows and `reconnectTime`. For adapters with their own protocol (tRPC, oRPC, GraphQL), run the real server
+on a random port in the test. See the `hyper-fetch-testing` skill.
 
 ## References
 

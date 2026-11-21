@@ -336,8 +336,8 @@ success-only schemas and every inference-loss case.
 
 ## Testing
 
-The requests use the HTTP adapter, so `createHttpMockingServer` from `@hyper-fetch/testing` and `request.setMock(...)`
-work unchanged (see `hyper-fetch-testing`). For end-to-end tests serve the real app with `@hono/node-server`
+The requests use the HTTP adapter, so `request.setMock(...)` and network mocks with MSW work unchanged (see
+`hyper-fetch-testing`). For end-to-end tests serve the real app with `@hono/node-server`
 (`serve({ fetch: app.fetch, port: 0 })`) and point `createClient({ url })` at it. Type-level contracts can be pinned
 with `expectTypeOf<ExtractResponseType<AppSchema["users"]["$get"]>>()` from Vitest.
 
