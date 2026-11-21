@@ -16,7 +16,7 @@ HyperFetch IS the SDK — the type-safe API layer for TypeScript apps.
 
 ## Positioning Statement
 
-> From REST to realtime. Fully typed.
+> Fetch anything. Type everything.
 
 Use this exact tagline in hero sections, READMEs, and social. Do not paraphrase.
 
@@ -67,7 +67,7 @@ Show complexity in layers. Never dump everything at once.
 
 ## Words to use
 - "type-safe", "typed", "autocompletion"
-- "one interface", "every backend", "REST to realtime"
+- "one interface", "every backend", "fetch anything"
 - "zero guesswork", "no `any`"
 - "works everywhere"
 

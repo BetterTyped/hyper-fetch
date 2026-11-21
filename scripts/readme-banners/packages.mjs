@@ -14,7 +14,7 @@ export const banners = [
     logo: "integration-hyper-fetch.svg",
     accent: "#fbc646",
     accentTo: "#fb923c",
-    headline: ["From REST to realtime.", "Fully typed."],
+    headline: ["Fetch anything.", "Type everything."],
     codeSize: 13,
     description:
       "Typed requests with cache, deduplication, retries, queues and offline replay built in. One <code>createRequest()</code> for every backend.",

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/core.png" alt="Hyper Fetch Core. From REST to realtime. Fully typed. Typed requests with cache, deduplication, retries, queues and offline replay built in." /></a>
+  <a href="https://hyperfetch.bettertyped.com/docs/core/overview"><img src="https://raw.githubusercontent.com/BetterTyped/hyper-fetch/main/.github/assets/packages/core.png" alt="Hyper Fetch Core. Fetch anything. Type everything. Typed requests with cache, deduplication, retries, queues and offline replay built in." /></a>
 </p>
 
 <p align="center">
