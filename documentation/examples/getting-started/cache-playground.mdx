@@ -1,0 +1,97 @@
+---
+title: Cache playground
+sidebar_label: Cache playground
+sidebar_position: 5
+description:
+  Change staleTime, cacheTime, retry and refetchOnFocus with sliders and watch the cache and the network react.
+sidebar_custom_props:
+  path: react/cache-playground
+  level: beginner
+  tags: [useFetch, cache, retries, mocking]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/cache-playground/src/api.ts";
+import app from "!!raw-loader!@examples/react/cache-playground/src/App.tsx";
+import cacheTable from "!!raw-loader!@examples/react/cache-playground/src/CacheTable.tsx";
+
+A playground for the cache options. Move a slider, open another post or leave the tab, and a live cache table and event
+log show what HyperFetch stores, when it sends a request and when it removes data.
+
+:::tip What it shows
+
+1. **`staleTime`** decides how long a cached response counts as fresh, so opening it again sends no request.
+2. **`cacheTime`** decides when the cache removes a response, whether a component uses it or not.
+3. **`retry`** sends a failed request again, one second apart, before the hook reports the error.
+4. **`refetchOnFocus` and `revalidate`** decide when `useFetch` asks the server again although it has data.
+5. **Client events** (`client.cache.events` and `client.requestManager.events`) make the cache and the network visible.
+
+:::
+
+<Example
+  files={{
+    "src/api.ts": api,
+    "src/App.tsx": app,
+    "src/CacheTable.tsx": cacheTable,
+  }}
+/>
+
+---
+
+## How it works
+
+1. `api.ts` defines one request, `getPostRequest`. `getPostWithSettings()` builds the request for a post from the
+   current slider values. Request setters return a new request, and the cache key stays the same:
+
+   ```ts
+   getPostRequest
+     .setParams({ postId })
+     // highlight-next-line
+     .setStaleTime(settings.staleTime * Time.SEC)
+     .setCacheTime(settings.cacheTime * Time.SEC)
+     .setRetry(settings.retry);
+   ```
+
+2. `PostView` passes that request to `useFetch` with `revalidate` and `refetchOnFocus` from the switches. With
+   `revalidate` off, a post is fetched on mount only when the cache has no fresh copy. `bounce: true` waits until you
+   stop dragging a slider before the changed request is sent.
+3. `CacheTable` reads `client.cache.keys()` and `client.cache.get()` twice a second. Every entry keeps the `staleTime`
+   and `cacheTime` of the request that saved it, so new slider values show up after the next response.
+4. `EventLog` subscribes to `requestManager.events.onRequestStart` and `onResponse` for the network, and to
+   `cache.events.onData`, `onInvalidate` and `onDelete` for the cache. `details.willRetry` tells a failed attempt that
+   will be retried from the final error.
+5. **Invalidate** calls `client.cache.invalidate(request)`. The entry becomes stale and the mounted hook fetches it
+   again.
+6. **Make requests fail** turns on a mock that answers `500`. Set `retry` to 2 and press **Refetch** to see three
+   attempts. A failed response is not stored, so the post you already have stays on screen.
+
+Things to try:
+
+- Set `staleTime` to 30s, open Post 2 and go back to Post 1. No request is sent until the 30 seconds pass.
+- Pick **None** and set a short `cacheTime` first. The entry disappears from the table when its time runs out. With a
+  post open, a removed entry is fetched again right away.
+- Turn on `refetchOnFocus`, switch to another tab and come back.
+
+:::note When to use it
+
+- Learning what each cache option does before you set it in your app.
+- Picking values: a long `staleTime` for data that rarely changes, a short one for data that changes often.
+
+:::
+
+---
+
+## Related
+
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Cache revalidation guide](/docs/guides/core/advanced/cache-revalidation)
+- [Retries guide](/docs/guides/core/basics/retries)
+- [Window focus and blur guide](/docs/guides/react/basics/window-focus-blur)
+
+:::secondary Summary
+
+`staleTime` controls when data is fetched again, `cacheTime` controls when it is removed, and `retry` controls how hard
+a request tries. The client's cache and request events show each decision as it happens.
+
+:::

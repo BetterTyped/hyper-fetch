@@ -319,6 +319,22 @@ describe("Orpc Websocket Adapter [ Lifecycle ]", () => {
   });
 
   describe("when disconnecting", () => {
+    it("should finish disconnecting when closing the transport throws", async () => {
+      const ws = await open();
+      // Some runtimes throw when closing a transport that never connected
+      vi.spyOn(ws, "close").mockImplementation(() => {
+        throw new Error("WebSocket was closed before the connection was established");
+      });
+
+      await setup.socket.disconnect();
+      await advance(60_000);
+
+      expect(setup.socket.adapter.connected).toBeFalse();
+      expect(setup.socket.adapter.forceClosed).toBeTrue();
+      expect(Controlled.instances).toHaveLength(1);
+      expect(setup.errors).toStrictEqual([]);
+    });
+
     it("should close the connection and keep the listeners", async () => {
       subscribe();
       const ws = await open();

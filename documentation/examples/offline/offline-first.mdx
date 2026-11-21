@@ -1,0 +1,117 @@
+---
+title: Offline first
+sidebar_label: Offline first
+sidebar_position: 0
+description:
+  Persist both the cache (IndexedDB) and the request queue (localStorage), so the app opens with data and keeps changes
+  made offline across reloads.
+sidebar_custom_props:
+  path: react/offline-first
+  level: advanced
+  tags: [offline, persistence, cache, useQueue]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/offline-first/src/api.ts";
+import storage from "!!raw-loader!@examples/react/offline-first/src/storage.ts";
+import app from "!!raw-loader!@examples/react/offline-first/src/App.tsx";
+
+A todo app that works through a whole offline session. It opens with the last list it saw, accepts new todos without a
+network, and still has both after a reload. When the network comes back, the waiting todos go to the server in order.
+
+HyperFetch persists two things here, each with a storage option on the client module that owns it:
+
+| What               | Module                       | Storage      | Why there                                                   |
+| ------------------ | ---------------------------- | ------------ | ----------------------------------------------------------- |
+| Responses          | `Cache`                      | IndexedDB    | Structured data, much more room than `localStorage`.        |
+| Changes not sent   | `submitDispatcher` queue     | localStorage | The dispatcher reads its storage synchronously.             |
+| Demo network state | `AppManager.initiallyOnline` | localStorage | Only so a reload while "offline" stays offline in the demo. |
+
+:::tip What it shows
+
+1. **`Cache({ storage, lazyStorage })`** keeps responses in memory and writes every change to IndexedDB.
+2. **`Dispatcher({ storage })`** keeps the queue of unsent mutations in `localStorage`.
+3. **Cache first reads** with `staleTime` and `revalidate: false`: a reload shows the list with no request.
+4. **Pending items from the queue** show new todos at once, and they are still there after a reload.
+5. **A client-wide response listener** applies answers to requests that were restored after a reload.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/storage.ts": storage, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `storage.ts` defines two storages. `indexedDbCache` implements `CacheAsyncStorageType` with
+   [`idb-keyval`](https://github.com/jakearchibald/idb-keyval). `localStorageQueue` implements `DispatcherStorageType`
+   on top of `localStorage`.
+2. `api.ts` reads IndexedDB once with a top-level `await`, before the first render, and passes the entries as the
+   in-memory `storage` of the cache. IndexedDB goes in `lazyStorage`, so every `set` and `delete` is written there too:
+
+   ```ts
+   const persistedCache = await readPersistedCache();
+   // highlight-next-line
+   cache: () => new Cache({ storage: new Map(persistedCache), lazyStorage: indexedDbCache }),
+   ```
+
+   Without the first read, `useFetch` would mount with an empty memory cache and send a request while IndexedDB is still
+   being read.
+
+3. `getTodos` sets `staleTime: Time.DAY` and `cacheTime: Time.WEEK`. `Todos` calls
+   `useFetch(getTodos, { revalidate: false })`, so fresh saved data is shown as it is. On a first visit without a
+   network, the request waits in the fetch dispatcher and the list shows a loading state.
+4. `addTodo` has `offline: true` and `queued: true`. The submit dispatcher saves each `send()` in `localStorage` as
+   request JSON (`request.toJSON()`) and rebuilds it with `client.fromJSON()` after a reload.
+5. `Todos` reads `useQueue(addTodo)` and renders every waiting request as a **pending** row. This is the optimistic UI:
+   it comes from the persisted queue, so it survives a reload. Callbacks such as `setOptimistic` live in code and are
+   not saved with the request.
+6. `client.requestManager.events.onResponse` runs for every response, also for requests restored from storage, where no
+   `send()` call waits anymore. It adds the saved todo to the cached list with `client.cache.update()`, which writes it
+   to IndexedDB.
+7. Going online emits the `AppManager` online event and the dispatcher sends the queue. A session that starts online has
+   no such event, so `api.ts` calls `client.submitDispatcher.flush()` once.
+8. **Clear saved data** calls `client.cache.clear()` (memory and IndexedDB) and `client.submitDispatcher.clear()`.
+
+DummyJSON does not store new todos. The app keeps the server answers in the cached list and does not refetch it, because
+a refetch would bring back the list without them.
+
+:::caution Limits
+
+- The dispatcher storage is synchronous, so the queue can't live in IndexedDB. `localStorage` holds a few megabytes and
+  only JSON, which is enough for a list of pending mutations but not for files.
+- Reading all of IndexedDB at start suits a cache of tens or hundreds of entries. For large caches use `lazyStorage`
+  alone, as in [IndexedDB persistence](/examples/offline/indexeddb-persistence).
+- A request that is already being sent when the page unloads is aborted by the browser and leaves the queue. Only the
+  requests that were still waiting are kept.
+- Every tab reads the same queue. Two open tabs can send a waiting request twice, so give mutations an idempotency key
+  on the server.
+
+:::
+
+:::note When to use it
+
+- Field, travel and warehouse apps that must open and accept input without a connection.
+- Mobile web and React Native apps on unstable networks.
+- Any app where "your change was lost" is worse than "your change is waiting".
+
+:::
+
+---
+
+## Related
+
+- [Persistence guide](/docs/guides/core/advanced/persistence)
+- [Offline guide](/docs/guides/core/advanced/offline)
+- [Cache](/docs/core/cache)
+- [Dispatcher](/docs/core/dispatcher)
+- [`useQueue`](/docs/react/hooks/use-queue)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+The cache saves responses to IndexedDB through `lazyStorage`, and the submit dispatcher saves unsent mutations to
+`localStorage` through its `storage`. Together they let the app start with data, take changes offline, and send them
+when the network returns, across reloads.
+
+:::

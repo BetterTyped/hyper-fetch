@@ -1,0 +1,79 @@
+---
+title: Next.js App Router
+sidebar_label: Next.js App Router
+sidebar_position: 1
+description: Fetch on the server in a Next.js App Router page and hydrate the response into the client cache.
+sidebar_custom_props:
+  path: nextjs/app-router
+  level: intermediate
+  tags: [nextjs, ssr, useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/nextjs/app-router/lib/api.ts";
+import page from "!!raw-loader!@examples/nextjs/app-router/app/page.tsx";
+import posts from "!!raw-loader!@examples/nextjs/app-router/app/posts.tsx";
+
+A Next.js 16 page that renders a list of posts on the server. The browser receives the HTML with the posts in it, and
+the client cache starts with the same response, so nothing is fetched again after hydration.
+
+:::tip What it shows
+
+1. **A server component** sends the request with `send()` and turns the response into plain data with `dehydrate()`.
+2. **`Hydrate`** puts that data into the client cache before the hooks below it mount.
+3. **`useFetch`** renders the server data on the first render, with no loading state and no request.
+4. **Client-only requests** still work as usual: comments load in the browser when you open them.
+
+:::
+
+<Example files={{ "lib/api.ts": api, "app/page.tsx": page, "app/posts.tsx": posts }} />
+
+---
+
+## How it works
+
+1. `lib/api.ts` creates one client used on both sides. It exports `latestPosts`, a request with its query params set, so
+   the server and the browser build the same cache key.
+2. `app/page.tsx` is an async server component. It awaits `latestPosts.send()` and passes the dehydrated response to the
+   client component:
+
+   ```tsx
+   // highlight-next-line
+   <Posts hydration={[response.success ? latestPosts.dehydrate({ response }) : null]} />
+   ```
+
+   Only successful responses are passed, because an `Error` object cannot cross the server/client boundary. When the
+   server request fails, `useFetch` fetches in the browser instead.
+
+3. `app/posts.tsx` starts with `"use client"`. A client instance cannot be passed from a server component, so this file
+   imports the client and renders `<Hydrate client={client} data={hydration}>`.
+4. `PostList` calls `useFetch(latestPosts, { revalidate: false })`. The hydrated data is fresh for the request's
+   `staleTime` (5 minutes by default), so the hook sends nothing. With the default `revalidate: true` it would show the
+   server data and refresh it in the background.
+5. On the server the client runs in server mode, where the cache stores nothing for unscoped requests, so two users
+   rendering at once never see each other's data.
+6. `next build` generates `next-env.d.ts`. Like `create-next-app`, the example lists it in `.gitignore` together with
+   `.next`.
+
+:::note When to use it
+
+- Pages that must show data in the first HTML, for SEO or a fast first paint.
+- Server components that already have the data and hand it to interactive client components.
+- Apps that keep HyperFetch caching and hooks in the browser after a server render.
+
+:::
+
+---
+
+## Related
+
+- [Hydrate](/docs/react/hydrate)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Client](/docs/core/client)
+
+:::secondary Summary
+
+The server sends the request and `dehydrate()` packs the response. `Hydrate` unpacks it into the client cache, so
+`useFetch` starts with the data instead of a loading state.
+
+:::

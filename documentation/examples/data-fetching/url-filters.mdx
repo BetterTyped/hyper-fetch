@@ -1,0 +1,90 @@
+---
+title: Filters in the URL
+sidebar_label: URL filters
+sidebar_position: 12
+description:
+  Keep search, sort and page in the URL query string and turn them into typed query params, with working back and
+  forward.
+sidebar_custom_props:
+  path: react/url-filters
+  level: intermediate
+  tags: [useFetch, params, pagination, cache]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/url-filters/src/App.tsx";
+import urlState from "!!raw-loader!@examples/react/url-filters/src/url-state.ts";
+import api from "!!raw-loader!@examples/react/url-filters/src/api.ts";
+
+A product table with search, sorting and pages. The filters are stored in the URL, so you can share a link to the exact
+view, reload the page, or use the back and forward buttons. It uses `URLSearchParams` and the history API, no router.
+
+:::tip What it shows
+
+1. **The URL as state**: `?q=phone&sortBy=price&order=desc&page=2` is the single source of truth for the filters.
+2. **Typed query params**: the request declares `q`, `sortBy`, `order`, `limit` and `skip`, so only valid values reach
+   it.
+3. **Back and forward** restore the filters, and the cache shows a page you already saw without waiting.
+4. **Previous data stays visible** while the next page loads.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/url-state.ts": urlState, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` types the query params of `/products/search`. `sortBy` is `"title" | "price" | "rating"` and `order` is
+   `"asc" | "desc"`, so a typo in a filter is a compile error.
+2. `url-state.ts` reads the filters with `URLSearchParams`. The URL is user input, so `toSortBy()`, `toOrder()` and the
+   page check turn unknown values into defaults.
+3. `update()` writes the new filters with `history.pushState` and leaves out default values to keep the URL short. A
+   `popstate` listener reads the URL again when you press back or forward.
+4. `App.tsx` turns the filters into query params:
+
+   ```ts
+   useFetch(
+     searchProductsRequest.setQueryParams({
+       q: filters.q,
+       sortBy: filters.sortBy,
+       order: filters.order,
+       limit: pageSize,
+       // highlight-next-line
+       skip: (filters.page - 1) * pageSize,
+       select: "title,price,rating,category",
+     }),
+   );
+   ```
+
+   Every combination of query params has its own cache key. Going back to a page you saw shows it from the cache, and
+   `useFetch` refreshes it in the background.
+
+5. When only query params change, `useFetch` keeps the previous data (`keepPreviousData: "auto"`), so the table stays on
+   screen with `aria-busy` while the next page loads.
+6. Changing the search, sort or order resets the page to 1. The search input has `key={filters.q}`, so it shows the
+   right text after back or forward.
+
+:::note When to use it
+
+- Lists, tables and search results that people bookmark or share.
+- Any filter state that should survive a reload. With a router, read and write the same values through its search params
+  API instead of `window.history`.
+
+:::
+
+---
+
+## Related
+
+- [Query params guide](/docs/guides/core/basics/query-params)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Pagination guide](/docs/guides/react/basics/pagination)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+The URL holds the filters, a small hook syncs it with React state, and typed query params pass them to `useFetch`. Each
+filter combination is cached under its own key, so back and forward are instant.
+
+:::

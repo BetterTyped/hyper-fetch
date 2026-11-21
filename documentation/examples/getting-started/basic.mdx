@@ -1,0 +1,62 @@
+---
+title: Basic data fetching
+sidebar_label: Basic fetching
+sidebar_position: 1
+description: Fetch a list and its details with useFetch, typed requests and a shared cache.
+sidebar_custom_props:
+  path: react/basic
+  level: beginner
+  tags: [useFetch, params, cache, typescript]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/basic/src/api.ts";
+import app from "!!raw-loader!@examples/react/basic/src/App.tsx";
+
+A list of posts with a details panel. It is the smallest complete HyperFetch app: one client, three typed requests and
+the `useFetch` hook.
+
+:::tip What it shows
+
+1. **One client** holds the base URL that every request uses.
+2. **Typed requests** describe the response, the endpoint params (`:postId`) and the query params once.
+3. **`useFetch`** sends a request on mount and returns `data`, `error` and `loading`.
+4. **Shared cache** makes a post you already opened show up instantly the second time.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates the client with `createClient({ url })` and defines the requests with `client.createRequest()`. The
+   generic argument sets the response type, and `queryParams` types `setQueryParams()`.
+2. `PostList` calls `useFetch(getPosts.setQueryParams(...))`. The request is sent when the component mounts, and
+   `refetch()` sends it again on demand.
+3. `PostDetails` calls `getPost.setParams({ postId })`. Every `postId` gets its own cache key, so switching back to a
+   post reads it from the cache instead of the network.
+4. Two `useFetch` calls in one component run in parallel, so the post and its comments load at the same time.
+
+:::note When to use it
+
+- Any screen that reads data when it opens.
+- Lists with a details view, where users switch back and forth.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+You created a client, typed three requests and read them with `useFetch`. The cache keys built from params let
+HyperFetch reuse data between components and visits.
+
+:::

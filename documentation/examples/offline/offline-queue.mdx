@@ -1,0 +1,76 @@
+---
+title: Offline queue
+sidebar_label: Offline queue
+sidebar_position: 1
+description: Requests made offline wait in the queue and are sent in order when the app is back online.
+sidebar_custom_props:
+  path: react/offline-queue
+  level: intermediate
+  tags: [offline, useQueue, send]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/offline-queue/src/api.ts";
+import app from "!!raw-loader!@examples/react/offline-queue/src/App.tsx";
+
+A todo form that keeps working without a network. Todos added offline wait in the dispatcher queue and reach the server,
+in order, once the app is online again.
+
+:::tip What it shows
+
+1. **`offline: true`** keeps a request in the queue while the app is offline instead of failing it.
+2. **`queued: true`** sends the waiting requests one at a time, in the order they were made.
+3. **`useAppManager`** reads and sets the online state, so you can test offline mode without cutting your network.
+4. **`useQueue`** shows every request that is waiting or in flight.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` creates `addTodo` with `offline: true` and `queued: true`. Mutations go to the client's `submitDispatcher`,
+   which keeps them under the request's `queryKey`.
+2. The switch calls `setOnline()` from `useAppManager(client)`. The `AppManager` normally follows the browser's `online`
+   and `offline` events; the switch sets the same state by hand.
+3. `handleSubmit` calls `addTodo.send()`. While offline, the dispatcher keeps the request instead of sending it, and the
+   promise stays pending:
+
+   ```ts
+   // highlight-next-line
+   const { data, error } = await addTodo.send({ payload: { todo, completed: false, userId: 1 } });
+   ```
+
+4. `Queue` calls `useQueue(addTodo)` and lists `requests` with their payload, upload progress, or a "waiting for
+   network" mark.
+5. Going online emits the `AppManager` online event. The dispatcher flushes its queues, sends the todos one by one, and
+   each `send()` resolves with the server response, which moves the todo to the saved list.
+
+DummyJSON does not store new todos, so the saved list is built from the responses.
+
+:::note When to use it
+
+- Mobile and field apps used on unreliable connections.
+- Forms and actions that must not be lost when the network drops.
+- Changes that the server must receive in the order the user made them.
+
+:::
+
+---
+
+## Related
+
+- [Offline guide](/docs/guides/core/advanced/offline)
+- [Dispatcher](/docs/core/dispatcher)
+- [Managers](/docs/core/managers)
+- [`useQueue`](/docs/react/hooks/use-queue)
+- [`useAppManager`](/docs/react/hooks/use-app-manager)
+
+:::secondary Summary
+
+`offline: true` keeps requests in the dispatcher queue while the `AppManager` reports no connection, and `queued: true`
+sends them in order when it comes back. `useQueue` and `useAppManager` make both states visible in the UI.
+
+:::

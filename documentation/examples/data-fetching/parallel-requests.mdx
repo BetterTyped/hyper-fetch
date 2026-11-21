@@ -1,0 +1,82 @@
+---
+title: Parallel requests
+sidebar_label: Parallel requests
+sidebar_position: 11
+description:
+  Load several independent requests at once, each with its own loading state, and show a global indicator with
+  useIsFetching.
+sidebar_custom_props:
+  path: react/parallel-requests
+  level: beginner
+  tags: [useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/parallel-requests/src/api.ts";
+import app from "!!raw-loader!@examples/react/parallel-requests/src/App.tsx";
+
+A dashboard with three cards: users, posts and todos. Each card has its own request, and the API answers them with
+different delays, so you can watch the cards fill in one by one while a global indicator counts what is still loading.
+
+:::tip What it shows
+
+1. **Parallel by default**: several `useFetch` calls in one component start together, with no waterfall.
+2. **Independent states**: every card reads its own `loading`, `error` and `data`, so a slow request never blocks a fast
+   one.
+3. **Global indicator**: `useIsFetching(client)` returns how many fetch requests are running right now.
+4. **Refresh one or all**: `refetch()` sends one request again; calling it on every hook refreshes the whole screen.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getUsers`, `getPosts` and `getTodos`. Their `queryParams` include `delay`, which dummyjson uses to
+   wait before it answers. The example sets 600, 1400 and 2200 ms so the order is easy to see.
+2. `App` calls `useFetch` three times. Hooks do not wait for each other: each one adds its request to the client's fetch
+   dispatcher on mount, and the browser sends all three at once.
+
+   ```tsx
+   // highlight-next-line
+   const users = useFetch(
+     getUsers.setQueryParams({
+       limit: 3,
+       select: "firstName,lastName",
+       delay: 600,
+     }),
+   );
+   const posts = useFetch(getPosts.setQueryParams({ limit: 3, select: "title", delay: 1400 }));
+   ```
+
+3. `Card` gets the `loading` and `error` of one hook only. Show a placeholder per section instead of one spinner for the
+   whole page.
+4. `GlobalIndicator` calls `useIsFetching(client)`. It re-renders only when the number of running requests changes, so
+   it is cheap to keep in a header or a top bar.
+5. **Refresh all** calls `refetch()` on each hook. A manual `refetch()` always goes to the network, even when the cached
+   data is still fresh.
+
+:::note When to use it
+
+- Dashboards and overview pages built from several unrelated endpoints.
+- Any screen where one slow endpoint should not hold back the rest.
+- A global "loading" bar or favicon badge driven by `useIsFetching` (or `useIsSubmitting` for saves).
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useIsFetching`](/docs/react/hooks/use-is-fetching)
+- [Dispatcher](/docs/core/dispatcher)
+
+:::secondary Summary
+
+Each `useFetch` call is an independent request with its own state, and several of them run in parallel. `useIsFetching`
+gives you one number for everything still in flight.
+
+:::

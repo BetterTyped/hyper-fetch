@@ -1,0 +1,81 @@
+---
+title: Drag to reorder
+sidebar_label: Drag to reorder
+sidebar_position: 7
+description:
+  Reorder a list with native drag and drop, update it optimistically and move the item back when the save fails.
+sidebar_custom_props:
+  path: react/drag-reorder
+  level: intermediate
+  tags: [useSubmit, optimistic, mocking]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/drag-reorder/src/api.ts";
+import app from "!!raw-loader!@examples/react/drag-reorder/src/App.tsx";
+
+A todo list you reorder by dragging, or with the arrow buttons. The new order shows at once while the save takes a
+second. Turn on **Make saves fail** and the todo slides back to where it was when the error arrives.
+
+:::tip What it shows
+
+1. **Native drag and drop**: `draggable`, `onDragStart`, `onDragOver` and `onDrop`, no library.
+2. **`setOptimistic` with `.set()`** moves the todo in the cached list before the request is sent.
+3. **A precise rollback** moves only that todo back, so other moves made in the meantime stay.
+4. **Mocked failures** with `setMock` and `setMockingEnabled`, switched from the UI.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `moveTodoRequest` sends the new position of one todo: `PATCH /todos/:todoId` with `{ position }`. dummyjson accepts
+   it but does not store the order, so the request returns `revalidate: false` to stop a refetch from undoing the move.
+2. Its optimistic update uses the generic `.set()` helper with a small `moveTodo()` function:
+
+   ```ts
+   optimistic(getTodosRequest)
+     // highlight-next-line
+     .set((data) => ({ ...data, todos: moveTodo(data.todos, todoId, payload.position) }))
+     .rollback(({ data, previous }) => {
+       const oldIndex = previous.todos.findIndex((todo) => todo.id === todoId);
+       return { ...data, todos: moveTodo(data.todos, todoId, oldIndex) };
+     });
+   ```
+
+   The rollback reads the old index from `previous` and moves the todo back inside the current `data`. Returning
+   `previous` as it is would also undo any other move that finished in the meantime.
+
+3. `App.tsx` calls `submit({ params: { todoId }, payload: { position } })` from the drop handler and from the arrow
+   buttons. The component has no cache code; `useFetch` re-renders from the updated cache.
+4. `onDragOver` must call `preventDefault()`, otherwise the browser does not allow the drop. The drop line shows the
+   side where the todo will land: below the target when you drag down, above it when you drag up.
+5. `onSubmitError` runs after core has moved the todo back, so it only writes to the log.
+
+:::note When to use it
+
+- Sortable lists, kanban columns, playlists and priorities where the user expects the new order right away.
+- Send the position of the moved item, not the whole list, so two quick moves do not overwrite each other.
+- Native drag and drop does not work with touch on every device. The arrow buttons also make the list usable with a
+  keyboard.
+
+:::
+
+---
+
+## Related
+
+- [Optimistic updates guide](/docs/guides/react/basics/optimistic-approach)
+- [Advanced optimistic updates guide](/docs/guides/react/basics/optimistic-advanced)
+- [`useSubmit`](/docs/react/hooks/use-submit)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+Native drag and drop picks the new position, `setOptimistic` moves the todo in the cache before the request goes out,
+and a rollback built from `previous` moves it back only if the save fails.
+
+:::

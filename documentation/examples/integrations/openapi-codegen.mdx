@@ -1,0 +1,92 @@
+---
+title: OpenAPI codegen
+sidebar_label: OpenAPI codegen
+sidebar_position: 10
+description:
+  Generate typed HyperFetch requests from the Swagger Petstore OpenAPI spec with @hyper-fetch/cli and use them in React.
+sidebar_custom_props:
+  path: react/openapi-codegen
+  level: intermediate
+  tags: [openapi, createSdk, typescript, useFetch, useSubmit]
+---
+
+import { Example } from "@site/src/components";
+import config from "!!raw-loader!@examples/react/openapi-codegen/api.json";
+import sdk from "!!raw-loader!@examples/react/openapi-codegen/src/api/petstore.sdk.ts";
+import client from "!!raw-loader!@examples/react/openapi-codegen/src/client.ts";
+import app from "!!raw-loader!@examples/react/openapi-codegen/src/App.tsx";
+
+A pet store client for the public [Swagger Petstore](https://petstore3.swagger.io) API. None of its requests are written
+by hand: `@hyper-fetch/cli` reads the OpenAPI spec and generates one file with every endpoint, model and `createSdk`
+factory. The app lists pets by status, adds a pet and looks one up by id.
+
+:::tip What it shows
+
+1. **`hyper-fetch generate`** turns an OpenAPI spec into a typed SDK file, run from an npm script.
+2. **Typed from the spec**: required query params, path params, payload fields and response models all come from
+   `openapi/petstore.json`.
+3. **Generated models**: `Components.Schemas.Pet` and the other schemas are exported for your own code.
+4. **Regular requests**: the generated SDK returns normal HyperFetch requests, used with `useFetch` and `useSubmit`.
+
+:::
+
+<Example
+  files={{
+    "api.json": config,
+    "src/api/petstore.sdk.ts": sdk,
+    "src/client.ts": client,
+    "src/App.tsx": app,
+  }}
+/>
+
+---
+
+## How it works
+
+1. The spec is saved in `openapi/petstore.json`, so the generated code only changes when you update the spec on purpose.
+   `package.json` has a script that writes the SDK:
+
+   ```bash
+   # highlight-next-line
+   hyper-fetch generate --template openapi --url openapi/petstore.json --fileName petstore.sdk.ts --overwrite
+   ```
+
+   `--url` takes an `http(s)` URL or a local path. With every flag set, the command never prompts, so it also runs in
+   CI.
+
+2. `api.json` is the CLI config. `aliases.api` is the folder the SDK is written to, here `src/api`.
+3. `src/api/petstore.sdk.ts` is the output. It holds the spec models in `Components`, one `RequestModel` per operation
+   in `SdkSchema`, and a `createSdk(client)` factory. Each path segment is a key and each method a `$` key, so
+   `GET /pet/{petId}` is `sdk.pet.$petId.$get`.
+4. `src/client.ts` creates the client with the base URL of the API and calls the generated `createSdk`. It passes
+   `camelCaseToKebabCase: false` because OpenAPI paths are literal: `/pet/findByStatus` must stay camelCase.
+5. `App` uses the requests like hand-written ones. `findPetsByStatus.setQueryParams({ status })` fails to compile
+   without `status`, which the spec marks as required. `getPetById.setParams({ petId })` takes the `{petId}` path param.
+   `useSubmit(addPet)` types the payload from the `Pet` schema, where `name` and `photoUrls` are required.
+
+The Petstore is a shared public demo, so the list changes as other people use it, and some of its ids are larger than a
+JavaScript number can hold. The app only offers to look up ids it can represent.
+
+:::note When to use it
+
+- Your backend publishes an OpenAPI or Swagger spec and you want types without writing requests by hand.
+- Third-party APIs with a spec: regenerate when they release a new version and let TypeScript show what changed.
+- Large APIs, where the spec is the single source of truth for dozens of endpoints.
+
+:::
+
+---
+
+## Related
+
+- [CLI generate](/docs/cli/commands/generate)
+- [CLI overview](/docs/cli/overview)
+- [SDK](/docs/core/sdk)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+
+:::secondary Summary
+
+`hyper-fetch generate` turns an OpenAPI spec into one file with typed requests and a `createSdk` factory. Commit the
+spec and the output, regenerate with an npm script, and use the requests like any other HyperFetch request.
+
+:::

@@ -1,0 +1,107 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  list-style: none;
+}
+
+.list button {
+  width: 100%;
+  text-align: left;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.chat article {
+  margin: 0;
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+}
+
+.chat article p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.chat .user {
+  align-self: flex-end;
+  background: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
+
+.chat .assistant {
+  align-self: flex-start;
+}
+
+button.small {
+  width: auto;
+  padding: 0.15rem 0.6rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+form[role="group"] {
+  margin-top: 1rem;
+}

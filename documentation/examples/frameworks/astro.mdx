@@ -1,0 +1,89 @@
+---
+title: Astro
+sidebar_label: Astro
+sidebar_position: 6
+description:
+  Fetch on the server in an Astro page and hydrate the response into a React island that uses HyperFetch hooks.
+sidebar_custom_props:
+  path: astro/ssr
+  level: intermediate
+  tags: [astro, ssr, useFetch, cache]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/astro/ssr/src/lib/api.ts";
+import page from "!!raw-loader!@examples/astro/ssr/src/pages/index.astro";
+import recipes from "!!raw-loader!@examples/astro/ssr/src/components/Recipes.tsx";
+
+A recipe list rendered by Astro. The page fetches the recipes in its frontmatter and passes the dehydrated response to a
+React island, so the HTML already contains the list and the island's hooks start with the same data. Ingredients load in
+the browser when you open a recipe.
+
+:::tip What it shows
+
+1. **Astro frontmatter** sends the request with `send()` on the server and packs it with `dehydrate()`.
+2. **An island prop** carries the dehydrated response into the browser. Astro serializes it into the HTML.
+3. **`Hydrate`** puts the response into the client cache before the island's hooks mount.
+4. **Client-only requests** still work as usual inside the island.
+
+:::
+
+<Example
+  files={{
+    "src/lib/api.ts": api,
+    "src/pages/index.astro": page,
+    "src/components/Recipes.tsx": recipes,
+  }}
+/>
+
+---
+
+## How it works
+
+1. `src/lib/api.ts` creates one client and exports `popularRecipes`, a request with its query params set. The Astro page
+   and the island import the same request, so they build the same cache key.
+2. `src/pages/index.astro` awaits the request in the frontmatter and renders the island with `client:load`:
+
+   ```astro
+   ---
+   const response = await popularRecipes.send();
+   const hydration = response.success ? [popularRecipes.dehydrate({ response })] : [];
+   ---
+   <!-- highlight-next-line -->
+   <Recipes client:load hydration={hydration} />
+   ```
+
+   A failed response is left out, and the island fetches the recipes in the browser instead.
+
+3. `astro.config.mjs` adds the React integration. Astro renders `Recipes` to HTML on the server and hydrates it in the
+   browser with the same props.
+4. `Recipes` wraps the list in `<Hydrate client={client} data={hydration}>`. `RecipeList` calls
+   `useFetch(popularRecipes, { revalidate: false })`, renders the recipes on its first render and sends no request.
+   "Refetch in the browser" shows that the hook is live after hydration.
+5. `Ingredients` is not part of the server render. Opening a recipe mounts it, and its `useFetch` fetches the
+   ingredients in the browser.
+6. The frontmatter runs on every request in `astro dev`. `astro build` renders the page once and fetches at build time.
+   To fetch on every request in production, add a server adapter such as `@astrojs/node` and set `output: "server"`; the
+   page code stays the same.
+
+:::note When to use it
+
+- Content sites built with Astro that have a few interactive React parts reading API data.
+- Pages that must ship the data in the HTML, while the island keeps caching and refetching in the browser.
+
+:::
+
+---
+
+## Related
+
+- [Hydrate](/docs/react/hydrate)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Client](/docs/core/client)
+
+:::secondary Summary
+
+The Astro page sends the request and passes `dehydrate()` to a React island as a prop. `Hydrate` unpacks it into the
+client cache, so the island renders the server data at once and keeps working like any HyperFetch app.
+
+:::

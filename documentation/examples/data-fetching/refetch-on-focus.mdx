@@ -1,0 +1,79 @@
+---
+title: Refetch on focus
+sidebar_label: Refetch on focus
+sidebar_position: 7
+description: Refetch when the window gets focus, loses it or the network comes back, with a log of every trigger.
+sidebar_custom_props:
+  path: react/refetch-on-focus
+  level: intermediate
+  tags: [useFetch, offline]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/refetch-on-focus/src/api.ts";
+import app from "!!raw-loader!@examples/react/refetch-on-focus/src/App.tsx";
+
+A random todo that is fetched again when you come back to the tab, leave it, or get your connection back. Each option
+has a switch, and a log prints every focus or network event followed by the request it caused.
+
+:::tip What it shows
+
+1. **`refetchOnFocus`** refetches when the window or tab gets focus again.
+2. **`refetchOnBlur`** refetches when the user leaves the window or tab.
+3. **`refetchOnReconnect`** refetches when the network comes back.
+4. **The app manager** (`client.appManager`) is the source of these events, and `useAppManager` reads and sets its
+   state.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `App` keeps the three options in state and passes them straight to `useFetch(getRandomTodo, options)`. The hook reads
+   the current value when an event arrives, so the switches take effect at once.
+2. The client's app manager listens to the browser's `visibilitychange`, `focus`, `blur`, `online` and `offline` events
+   and emits `focus`, `blur`, `online` and `offline`. The hook refetches on the events its options allow.
+3. A `useEffect` subscribes to `client.appManager.events` to log the cause, and the hook's `onRequestStart` callback
+   logs the request that follows it.
+4. `useAppManager(client)` returns `isFocused` and `isOnline` for the status line, plus `setFocused` and `setOnline`.
+   The "Simulate" and "Go offline" buttons call them, which emits the same events as the browser would. That makes
+   reconnects easy to try without unplugging anything.
+5. Switching tabs can fire both `visibilitychange` and `focus`, so the log may show two focus events. Deduplication of
+   GET requests still sends only one request.
+
+```tsx
+const { data } = useFetch(getRandomTodo, {
+  // highlight-next-line
+  refetchOnFocus: true,
+  refetchOnBlur: false,
+  refetchOnReconnect: true,
+});
+```
+
+All three options are `false` by default. Each refetch also restarts the `refreshTime` timer when polling is on.
+
+:::note When to use it
+
+- Data that other people or other tabs change, such as inboxes, carts or shared boards.
+- Apps used on phones, where users switch apps and lose the network often.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [`useAppManager`](/docs/react/hooks/use-app-manager)
+- [Window focus and blur guide](/docs/guides/react/basics/window-focus-blur)
+- [Managers](/docs/core/managers)
+
+:::secondary Summary
+
+You refetched data on focus, blur and reconnect with three `useFetch` options, logged each app manager event next to the
+request it caused, and simulated the events with `useAppManager`.
+
+:::

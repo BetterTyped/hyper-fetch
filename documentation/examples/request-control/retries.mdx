@@ -1,0 +1,82 @@
+---
+title: Retries
+sidebar_label: Retries
+sidebar_position: 2
+description: Retry failed requests with retry and retryTime, and watch every attempt end in a final success or error.
+sidebar_custom_props:
+  path: react/retries
+  level: intermediate
+  tags: [useFetch, retries, mocking, errors]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/retries/src/api.ts";
+import app from "!!raw-loader!@examples/react/retries/src/App.tsx";
+import log from "!!raw-loader!@examples/react/retries/src/AttemptLog.tsx";
+
+A quote that loads from an unreliable server. Pick how many attempts fail before one succeeds and press **Fetch quote**.
+The request is retried up to three times, one second apart, and the log lists every attempt. With four failures, the
+retries run out and the final error is shown.
+
+:::tip What it shows
+
+1. **`retry`** sets how many times a failed request is sent again.
+2. **`retryTime`** sets the wait in milliseconds before each retry.
+3. **Final result callbacks**: `onSuccess` and `onError` fire once, after the last attempt.
+4. **Per-attempt events**: `onRequestStart` and the client's request events report every attempt.
+5. **Mocking** makes the failures repeatable: the first attempts answer `503` on purpose.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app, "src/AttemptLog.tsx": log }} />
+
+---
+
+## How it works
+
+1. `getQuoteRequest` is created with the retry options:
+
+   ```ts
+   export const getQuoteRequest = client.createRequest<{ response: Quote }>()({
+     endpoint: "/quotes/random",
+     // highlight-next-line
+     retry: 3,
+     retryTime: 1000,
+   });
+   ```
+
+   `setRetry()` and `setRetryTime()` change them on a single request. `setRetryOnError((response) => boolean)` decides
+   per response whether a retry makes sense, for example only for `5xx` statuses.
+
+2. dummyjson does not fail on demand, so `api.ts` attaches a mock with `setMock()`. It answers `503` while
+   `failuresLeft` is above zero, then returns a quote. Retries are run by the dispatcher, so a real failing server is
+   retried the same way.
+3. `App` counts attempts with `onRequestStart`, which fires for the first attempt and for every retry.
+4. Between attempts the hook already holds the failed response, and `loading` is `false` while the retry timer runs.
+   `onError` fires only when no retry is left, so the app shows "retrying" until then and the final error after it.
+5. `AttemptLog` subscribes to `client.requestManager.events`. Each response carries `details.retries` and
+   `details.willRetry`, which tell whether another attempt is coming.
+
+Retries also apply to `useSubmit` and `send()`. Only retry mutations that are safe to repeat.
+
+:::note When to use it
+
+- Requests that can fail for a moment: flaky networks, rate limits, servers that restart.
+- Background data such as dashboards, where a short delay is better than an error.
+
+:::
+
+---
+
+## Related
+
+- [Requests](/docs/core/request)
+- [Dispatcher](/docs/core/dispatcher)
+- [Mocking](/docs/core/mocking)
+
+:::secondary Summary
+
+`retry` and `retryTime` make HyperFetch send a failed request again after a pause. Per-attempt events show each try, and
+the final `onSuccess` or `onError` tells you how it ended.
+
+:::

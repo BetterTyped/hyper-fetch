@@ -1,4 +1,3 @@
-import type { DocumentData } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { Adapter, DefaultMapperType } from "@hyper-fetch/core";
 import type { SocketAdapter } from "@hyper-fetch/sockets";
@@ -9,6 +8,7 @@ import type {
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
+import type { DocumentData } from "firebase/firestore";
 import type {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,

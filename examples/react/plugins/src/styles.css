@@ -1,0 +1,102 @@
+/* Pico styles the semantic HTML. These few rules only lay out the example. */
+main {
+  padding-block: 2rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  list-style: none;
+}
+
+.list button {
+  width: 100%;
+  text-align: left;
+}
+
+.muted {
+  color: var(--pico-muted-color);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  width: auto;
+  padding: 0.25rem 0.75rem;
+}
+
+.error {
+  color: var(--pico-del-color);
+}
+
+.toolbar {
+  flex-wrap: wrap;
+}
+
+.toolbar label {
+  margin: 0;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.buttons button {
+  padding: 0.25rem 0.75rem;
+}
+
+.grid-2 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+.log {
+  padding: 0;
+  list-style: none;
+  font-family: var(--pico-font-family-monospace);
+  font-size: 0.8rem;
+}
+
+.log li {
+  list-style: none;
+  padding-block: 0.1rem;
+}
+
+.log .start {
+  color: var(--pico-muted-color);
+}
+
+.log .success {
+  color: var(--pico-ins-color);
+}
+
+.log .error {
+  color: var(--pico-del-color);
+}
+
+table {
+  font-size: 0.85rem;
+}

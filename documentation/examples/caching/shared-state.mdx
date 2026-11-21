@@ -1,0 +1,81 @@
+---
+title: Shared state
+sidebar_label: Shared state
+sidebar_position: 4
+description:
+  Share a cart between distant components through the HyperFetch cache with useCache and client.cache.update, without
+  props or context.
+sidebar_custom_props:
+  path: react/shared-state
+  level: intermediate
+  tags: [useCache, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import app from "!!raw-loader!@examples/react/shared-state/src/App.tsx";
+import cart from "!!raw-loader!@examples/react/shared-state/src/cart.ts";
+import api from "!!raw-loader!@examples/react/shared-state/src/api.ts";
+
+A small shop with a cart badge in the header, a product grid and a cart panel. The three parts share no props, no
+context and no state library. The cart lives in one cache entry: one component fetches it, the others read it with
+`useCache` and change it with `client.cache.update()`.
+
+:::tip What it shows
+
+1. **The cache as shared state**: every hook that uses the same request reads the same cache entry.
+2. **`useCache`** reads that entry without sending a request, here with `select` to get only the item count.
+3. **`client.cache.update()`** changes the entry from anywhere, even outside React, and every reader re-renders.
+4. **One fetcher**: only `CartPanel` calls `useFetch`, so the cart is requested once.
+
+:::
+
+<Example files={{ "src/App.tsx": app, "src/cart.ts": cart, "src/api.ts": api }} />
+
+---
+
+## How it works
+
+1. `api.ts` exports one `getCartRequest` instance with its params set. Its cache key is the shared address of the cart.
+2. `CartPanel` calls `useFetch(getCartRequest)`. The response is saved in the cache under that key.
+3. `CartBadge` sits in the header, far from the panel, and only reads:
+
+   ```ts
+   // highlight-next-line
+   const { data: count } = useCache(getCartRequest, { select: (cart) => cart.totalQuantity });
+   ```
+
+   `useCache` never sends a request. Until the panel has loaded the cart, `data` is `null`. With `select`, the badge
+   re-renders only when the count changes.
+
+4. `cart.ts` has `addToCart()` and `removeFromCart()`. They call `client.cache.update(getCartRequest, ...)` with a
+   function that receives the cached value and returns the changed `data`. The cache emits the change and both the badge
+   and the panel update. The functions are plain modules, so a product card can call them without any hook.
+5. The cart request has `cacheTime: Infinity`. The cart is only changed in the cache, and with the default of five
+   minutes the entry would be removed and fetched again from the server, losing the changes.
+
+`useCache` also returns `setData`, but it changes only that hook's state. To change what every component sees, write to
+the cache with `client.cache.update()` or `client.cache.set()`.
+
+:::note When to use it
+
+- Server data that several distant components show or change: the current user, a cart, unread counts, settings.
+- For state that never comes from a server, a plain React context or state library is simpler.
+- To save the change on the server too, send a mutation with an optimistic update. See the optimistic updates example.
+
+:::
+
+---
+
+## Related
+
+- [`useCache`](/docs/react/hooks/use-cache)
+- [Cache](/docs/core/cache)
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Optimistic updates example](/examples/mutations/optimistic-updates)
+
+:::secondary Summary
+
+A request's cache key works as a shared address. One component fetches, others read with `useCache`, and
+`client.cache.update()` changes the data for all of them at once.
+
+:::

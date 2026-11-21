@@ -1,0 +1,72 @@
+---
+title: Streaming
+sidebar_label: Streaming
+sidebar_position: 3
+description: Render a streamed HTTP response chunk by chunk with useStream, the way chat apps show an LLM answer.
+sidebar_custom_props:
+  path: react/streaming
+  level: intermediate
+  tags: [useStream, streaming]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/streaming/src/api.ts";
+import app from "!!raw-loader!@examples/react/streaming/src/App.tsx";
+
+A response that arrives slowly, rendered as it downloads. httpbin's `/drip` endpoint sends a few bytes at a time over
+several seconds, which is the same shape as an LLM answer streamed token by token.
+
+:::tip What it shows
+
+1. **`useStream`** sends a request in streaming mode and reads the response body chunk by chunk.
+2. **`text`** holds everything decoded so far, so the UI grows with every chunk.
+3. **`chunks`** holds the raw `Uint8Array` pieces, for binary data or for counting what arrived.
+4. **`streaming` and `done`** tell the UI when to show a cursor and when the answer is complete.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/App.tsx": app }} />
+
+---
+
+## How it works
+
+1. `api.ts` defines `getDrip` like any other request. Nothing in it is specific to streaming.
+2. `App` passes the request to `useStream`. `start()` sends it with the `streaming: true` request option, so the HTTP
+   adapter resolves with the body as a `ReadableStream` instead of waiting for the whole response:
+
+   ```ts
+   // highlight-next-line
+   const { text, chunks, streaming, done, error, start, reset } = useStream(
+     getDrip.setQueryParams({ numbytes, duration, delay: 0 }),
+   );
+   ```
+
+3. Every chunk re-renders the component. The `<pre>` shows `text` with a blinking cursor while `streaming` is `true`,
+   and the progress bar compares the received length with the requested size.
+4. **Stream again** calls `reset()` to clear the previous answer and `start()` to send the request again.
+5. For an LLM API the code stays the same: point the request at the completion endpoint, set the prompt as the payload,
+   and render `text`.
+
+:::note When to use it
+
+- Chat and completion UIs that show an answer while it is generated.
+- Long reports, logs or exports that are useful before they finish.
+- Large downloads where you want the raw chunks.
+
+:::
+
+---
+
+## Related
+
+- [`useStream`](/docs/react/hooks/use-stream)
+- [Adapter](/docs/core/adapter)
+- [Requests](/docs/core/request)
+
+:::secondary Summary
+
+`useStream` turns a regular request into a streamed one. `text` grows as chunks arrive, and `streaming` and `done` drive
+the loading and finished states.
+
+:::

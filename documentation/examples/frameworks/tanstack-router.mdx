@@ -1,0 +1,80 @@
+---
+title: TanStack Router
+sidebar_label: TanStack Router
+sidebar_position: 5
+description:
+  TanStack Router loaders fill the HyperFetch cache, and hovering a link prefetches the next page before you click.
+sidebar_custom_props:
+  path: react/tanstack-router
+  level: intermediate
+  tags: [router, prefetching, cache, useFetch]
+---
+
+import { Example } from "@site/src/components";
+import api from "!!raw-loader!@examples/react/tanstack-router/src/api.ts";
+import router from "!!raw-loader!@examples/react/tanstack-router/src/router.tsx";
+
+A product catalog with code-based TanStack Router routes. Route loaders put the data into the HyperFetch cache, and with
+`defaultPreload: "intent"` the router runs a product's loader as soon as you hover or focus its link. The product page
+is slowed down on purpose: a hovered product opens at once, a cold one shows the pending screen. A panel lists the
+requests that reach the network.
+
+:::tip What it shows
+
+1. **Loaders fill the cache** with `send({ cachePolicy: "cache-first" })` and return nothing.
+2. **Prefetch on intent**: `defaultPreload: "intent"` runs the loader on hover, so HyperFetch fetches before the click.
+3. **HyperFetch owns the cache**: `defaultPreloadStaleTime: 0` keeps the router from caching loader results itself.
+4. **Typed params**: `params.parse` turns `$productId` into a number for the loader and the component.
+
+:::
+
+<Example files={{ "src/api.ts": api, "src/router.tsx": router }} />
+
+---
+
+## How it works
+
+1. `src/api.ts` exports `productList` and `productDetails(productId)`. Both requests have a one-minute `staleTime`, and
+   `productDetails` adds `delay: 800`, so a cold product page takes almost a second.
+2. `src/router.tsx` defines the routes with `createRootRoute` and `createRoute`, no file-based routing or codegen
+   plugin. Each loader only fills the cache:
+
+   ```ts
+   loader: async ({ params }) => {
+     // highlight-next-line
+     await productDetails(params.productId).send({ cachePolicy: "cache-first" });
+   },
+   ```
+
+3. `createRouter({ defaultPreload: "intent" })` makes every `<Link>` run its route loader on hover or focus. The loader
+   sends the request, and the response lands in the HyperFetch cache.
+4. The route components call `useFetch(productDetails(productId), { revalidate: false })`. The request is built the same
+   way as in the loader, so the cache key matches and the hook renders the data with no request.
+5. `defaultPreloadStaleTime: 0` tells the router not to keep its own copy of preloaded results. It runs the loader again
+   on every preload or navigation, and `cache-first` makes that free while HyperFetch has the data.
+6. Hover a product and watch the network panel: `GET /products/:productId` appears before you click, and nothing new
+   appears when you open it. Open a product from the address bar instead, and the `pendingComponent` shows while it
+   loads.
+
+:::note When to use it
+
+- Apps on TanStack Router that want HyperFetch caching, retries and deduplication for loader data.
+- Lists of links to slow pages, where prefetching on hover hides the wait.
+- Teams that keep one cache for loaders, hooks and mutations instead of the router's built-in loader cache.
+
+:::
+
+---
+
+## Related
+
+- [`useFetch`](/docs/react/hooks/use-fetch)
+- [Requests](/docs/core/request)
+- [Cache](/docs/core/cache)
+
+:::secondary Summary
+
+TanStack Router loaders call `send({ cachePolicy: "cache-first" })` and preload on intent, so HyperFetch has the data
+before the click. Components read the same requests with `useFetch` and render without a loading state.
+
+:::

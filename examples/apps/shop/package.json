@@ -1,0 +1,28 @@
+{
+  "name": "@hyper-fetch-examples/apps-shop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A small shop with React Router: catalog with categories, search and infinite scroll, an optimistic cart persisted in localStorage, and a validated checkout.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hyper-fetch/core": "latest",
+    "@hyper-fetch/react": "latest",
+    "@picocss/pico": "^2.1.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router": "^8.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.8"
+  }
+}
