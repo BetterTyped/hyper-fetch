@@ -104,9 +104,11 @@ What sets it apart from the other four:
   [Axios](../../integrations/adapter-axios/overview.mdx), [GraphQL](../../integrations/adapter-graphql/overview.mdx) or
   [Firebase](../../integrations/adapter-firebase/overview.mdx) without changing how requests are used.
 - **Realtime in the same model.** The [sockets package](../../sockets/overview.mdx) gives WebSocket and SSE listeners and
-  emitters typed the same way as HTTP requests.
-- **Request queues and offline handling.** Requests sent while offline wait and go out when the connection returns. See
-  [offline](../core/02-advanced/offline.mdx) and [queueing](../core/02-advanced/queueing.mdx).
+  emitters typed the same way as HTTP requests, and the GraphQL package adds
+  [subscriptions](../../integrations/adapter-graphql/subscriptions.mdx) over `graphql-transport-ws`.
+- **Request queues and offline handling.** Requests sent while offline wait and go out when the connection returns, and
+  a persistent queue keeps them through a reload. See [offline](../core/02-advanced/offline.mdx) and
+  [queueing](../core/02-advanced/queueing.mdx).
 
 And where it does not fit: Hyper Fetch has no normalized entity cache. If you need one record updated across every view
 that shows it, Apollo Client (for GraphQL) is built around that. Its UI bindings are React only, so a Vue or Svelte app

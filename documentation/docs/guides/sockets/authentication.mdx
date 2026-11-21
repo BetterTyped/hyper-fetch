@@ -122,8 +122,9 @@ Call `socket.reconnect()` to apply the new values to a live connection. For cred
 
 :::
 
-The same rule applies on logout or account switch: change what your auth store returns, then call `socket.reconnect()`
-so the server sees the new identity.
+The same rule applies on an account switch: change what your auth store returns, then call `socket.reconnect()` so the
+server sees the new identity. On logout, when the socket is not needed anymore, call `socket.destroy()`. It disconnects
+and removes the app manager subscriptions, so going back online or focusing the tab does not reconnect it.
 
 ---
 

@@ -105,7 +105,8 @@ The file has four parts:
 2.  **Per-operation types**, named after the `operationId`: `GetPetByIdResponseType`, `GetPetByIdPathParams`, and
     `QueryParams`, `RequestBody` and `ErrorType` where the schema has them.
 3.  **`SdkSchema`**, a type that mirrors your URL tree.
-4.  **`createSdk`**, which takes your client and returns the SDK.
+4.  **`createSdk`**, which takes your client and returns the SDK. Next to it, `sdkPathSegments` keeps the URL segments
+    that the SDK's camelCase to kebab-case conversion would get wrong.
 
 In `SdkSchema`, each path segment becomes a key, `{param}` segments become `$param` keys, and each HTTP method becomes a
 `$`-prefixed leaf typed with `RequestModel`. An abridged excerpt:
@@ -215,9 +216,10 @@ in CI and fail the build on a diff, or let the typecheck that follows catch the 
 
 - **JSON only.** The CLI parses the schema as JSON. Convert a YAML spec to JSON before generating.
 - **No auth for the schema URL.** There is no flag for headers. Download a protected spec first and pass the local path.
-- **camelCase path segments.** `createSdk` turns camelCase keys into kebab-case URLs by default. For a path like
-  `/pet/findByStatus`, create the SDK with `createSdk(client, { camelCaseToKebabCase: false })`. kebab-case paths such
-  as `/user-profiles` are generated as `userProfiles` and work with the default.
+- **camelCase path segments are handled for you.** `createSdk` turns camelCase keys into kebab-case URLs by default,
+  so the generated file also exports `sdkPathSegments`, a map of the keys whose segment in the schema differs (like
+  `findByStatus` in `/pet/findByStatus`). The generated `createSdk` passes it as the `pathSegments` option, and your own
+  `pathSegments` entries win. kebab-case paths such as `/user-profiles` are generated as `userProfiles`.
 - **No hooks or mocks are generated.** The SDK gives you requests. Hooks come from `@hyper-fetch/react`, and mocks from
   `request.setMock()` on a request you keep a reference to. See [mocking](../core/mocking.mdx).
 

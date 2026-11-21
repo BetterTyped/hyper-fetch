@@ -221,7 +221,8 @@ if (cachedData) {
 ### Updating cache directly
 
 Use `cache.update` to change the cached data without a network request. The update is merged with the existing cache
-entry, and it does nothing if there is no entry yet:
+entry, and it does nothing if there is no entry yet. It also sets `responseTimestamp` to the time of the update, so
+`staleTime` and `cacheTime` count from that moment. Use `cache.set` when the entry should keep another timestamp:
 
 ```ts
 // Optimistically add a new user to the cached list
@@ -261,8 +262,9 @@ to refetch by hand after invalidating.
 
 Two `useFetch` options are related:
 
-- `revalidate: true` refetches in the background on mount even when the cache has data, so users see the cached copy
-  instantly and the fresh one a moment later.
+- `revalidate` (on by default) refetches in the background on mount even when the cache has data, so users see the
+  cached copy instantly and the fresh one a moment later. Set it to `false` to fetch on mount only when the data is
+  stale.
 - `refresh` and `refreshTime` refetch on an interval. See [auto-refreshing data](../../react/01-basics/refreshing.mdx).
 
 In plain TypeScript (without React hooks), invalidation only marks data as stale. Call `send()` again to fetch it. To

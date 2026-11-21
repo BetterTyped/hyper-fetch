@@ -169,7 +169,8 @@ tables are in the [adapter reference](../../sockets/adapter.mdx).
   `Cannot emit events in SSE adapter`. Send client data with a normal request instead.
 - **Reconnecting.** When an SSE stream breaks and the browser is already retrying, the adapter keeps that `EventSource`
   so the browser can resume with the last event id, and only replaces it if it does not come back within
-  `connectionTimeout`. A WebSocket is always replaced, after `reconnectTime`.
+  `connectionTimeout`. A WebSocket is always replaced. Both wait the same jittered backoff, from `reconnectTime` up to
+  `maxReconnectTime`, before a new attempt.
 - **Heartbeat.** The `heartbeat`, `pingTimeout` and `pongTimeout` options exist on the WebSocket adapter only.
 - **Credentials.** For SSE, cookies go with `adapterOptions: { eventSourceInit: { withCredentials: true } }`. For a
   WebSocket, use query params or subprotocols, see [socket authentication](./authentication.mdx).

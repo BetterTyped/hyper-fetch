@@ -96,12 +96,13 @@ Both libraries serve cached data and refetch in the background. The defaults poi
 | Refetch on window focus | `revalidateOnFocus: true`                 | `refetchOnFocus: false`                      |
 | Refetch on reconnect    | `revalidateOnReconnect: true`             | `refetchOnReconnect: false`                  |
 | Polling                 | `refreshInterval`, `0` (off)              | `refresh: true` with `refreshTime`           |
-| Deduplication           | 2 second window by default                | Off, enable with `deduplicate: true`         |
+| Deduplication           | 2 second window by default                | On for `GET` while the first call is in flight |
 | Keep data while loading | `keepPreviousData: false`                 | `keepPreviousData: "auto"`                   |
-| Retry on error          | On, `errorRetryInterval: 5000`            | Off, set `retry` and `retryTime`             |
+| Retry on error          | On, `errorRetryInterval: 5000`            | Off, set `retry` and `retryTime` (or `exponentialBackoff()`) |
 
-SWR assumes you want aggressive freshness. Hyper Fetch assumes data is fresh for its `staleTime` (5 minutes by default)
-and lets you turn on focus and reconnect refetching per hook. Neither is wrong. Pick defaults that match how often your
+SWR assumes you want aggressive freshness. Hyper Fetch's `useFetch` refetches in the background on mount by default
+(`revalidate: true`, set it to `false` to trust the cache for its `staleTime`, 5 minutes by default), and lets you turn
+on focus and reconnect refetching per hook. Neither is wrong. Pick defaults that match how often your
 data changes. See [refreshing](../react/01-basics/refreshing.mdx) and
 [window focus](../react/01-basics/window-focus-blur.mdx).
 

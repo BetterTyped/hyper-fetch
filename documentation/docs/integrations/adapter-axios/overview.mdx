@@ -48,7 +48,7 @@ options, because everything except the handful of fields listed at the bottom of
 | ----------------------------- | -------------------------------------------- | --------------------------------------------- |
 | Upload progress               | Yes, `onUploadProgress` (on XHR)             | Yes, reported as `onUploadProgress` events    |
 | Response cache                | Not built in, needs an extra library          | [Built-in cache](../../core/cache.mdx) with `staleTime` and invalidation |
-| Retries                       | Not built in, usually `axios-retry`          | [`retry` and `retryTime`](../../guides/core/01-basics/retries.mdx) |
+| Retries                       | Not built in, usually `axios-retry`          | [`retry` and `retryTime`](../../guides/core/01-basics/retries.mdx), with `exponentialBackoff()` |
 | Interceptors                  | `axios.interceptors`                         | [Client interceptors](../../guides/core/02-advanced/intercepting.mdx) |
 | Deduplication                 | Not built in                                 | Yes, `deduplicate`                            |
 | Offline queue                 | Not built in                                 | Yes, `offline`                                |

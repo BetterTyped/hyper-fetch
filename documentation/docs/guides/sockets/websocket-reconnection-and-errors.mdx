@@ -150,18 +150,26 @@ connection state. That is the part worth handing to a library.
 The `WebsocketAdapter`, the default adapter of a Hyper Fetch `Socket`, implements this loop. Here is what it does,
 according to its source:
 
-- **Reconnects lost connections.** Any close with a code other than `1000` schedules a new attempt after `reconnectTime`.
-- **Leaves deliberate closes alone.** `socket.disconnect()` and a server close with `1000` do not reconnect.
-- **Limits attempts.** After `reconnect` failed attempts it stops and fires `onReconnectFailed`. The counter resets
-  after a successful `open` or a manual `disconnect()`.
-- **Times out slow handshakes.** An attempt that does not open within `connectionTimeout` is dropped and retried.
+- **Reconnects lost connections with backoff and jitter.** Every lost connection is retried. The delay is exponential
+  backoff with full jitter: the first retry comes between `reconnectTime` and twice that, the window doubles with every
+  attempt, and no delay is longer than `maxReconnectTime`.
+- **Leaves deliberate closes alone.** `socket.disconnect()` is never retried. A server close with `1000` stays closed
+  until you call `connect()` or `reconnect()`, or the network comes back.
+- **Limits attempts.** After `reconnect` attempts in one outage it stops and fires `onReconnectFailed`. The counter only
+  resets once a connection stays up for `minUptime`, so a server that accepts and then drops the socket right away
+  still runs into the limit.
+- **Times out slow handshakes.** An attempt that is not ready within `connectionTimeout` counts as a failed attempt, and
+  the next one follows the backoff.
 - **Runs a heartbeat when you turn it on.** It sends a `heartbeat` message after `pingTimeout` of silence. If nothing
   arrives within `pongTimeout`, it marks the socket disconnected, reports an error and reconnects. Any incoming frame
   counts as a pong.
 - **Turns close codes into messages.** The error passed to `onError` describes the code, so `1006` arrives as "The
   connection was closed abnormally...".
-- **Pauses while offline.** In the browser it skips attempts while offline and connects again on the `online` event.
+- **Follows the network.** Going offline closes the connection right away and no attempts run or count until the
+  `online` event, which connects at once. Getting the tab focus back skips the rest of a pending delay.
 - **Handles the Node.js 22 case.** A handshake that fails with only `error` is treated as an abnormal `1006` close.
+
+The [connection guide](./connection.mdx) has the full list of retry rules and options.
 
 ### Configuring it
 
@@ -170,8 +178,9 @@ import { Socket } from "@hyper-fetch/sockets";
 
 export const socket = new Socket({
   url: "wss://example.com/ws",
-  reconnect: 10, // attempts, default Infinity
-  reconnectTime: 2000, // ms before the next attempt, default 5000
+  reconnect: 10, // attempts per outage, default Infinity
+  reconnectTime: 2000, // shortest delay before an attempt, default 1000
+  maxReconnectTime: 30_000, // longest delay before an attempt, default 30000
   connectionTimeout: 5000, // ms one attempt may take, default 5000
   adapterOptions: {
     // highlight-start
@@ -191,29 +200,43 @@ export const socket = new Socket({
 The server only has to answer something when it receives a message on the `heartbeat` topic. If it uses another format,
 the adapter's `encode` option controls how the heartbeat frame is written, the same as any other message.
 
-### Adding backoff
+### Choosing which closes to retry
 
-The built-in delay is fixed: every attempt waits `reconnectTime`. Hyper Fetch has no backoff option. You can add one with
-the `onConnect` interceptor, which runs before every attempt, may be async, and receives the attempt number (`0` for a
-fresh connection):
+The default retries every close code except `1000`. That is wrong for codes where retrying cannot help, like `1003` and
+`1009` from the table above, where the same message gets the same answer. `shouldReconnect` receives the `code`,
+`reason` or `error` of the lost connection and returns whether to retry. `defaultShouldReconnect` is exported, so you can
+extend the default instead of rewriting it:
 
 ```ts
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { Socket, defaultShouldReconnect } from "@hyper-fetch/sockets";
 
 export const socket = new Socket({
   url: "wss://example.com/ws",
-  reconnectTime: 1000,
-}).onConnect(async ({ connection, attempt }) => {
-  if (attempt > 0) {
-    // highlight-next-line
-    await sleep(Math.min(1000 * 2 ** attempt, 30_000) + Math.random() * 500);
-  }
-  return connection;
+  // highlight-next-line
+  shouldReconnect: (loss) => defaultShouldReconnect(loss) && loss.code !== 1003 && loss.code !== 1009,
 });
 ```
 
-`onConnect` is also the place for fresh credentials on every attempt. The [authentication guide](./authentication.mdx)
-shows how, and if the interceptor throws, the attempt fails and the error goes to `onError`.
+### Replacing the backoff
+
+When the built-in curve does not fit, `reconnectDelay` takes over the timing. It gets the `attempt` number of the outage
+(from `0`), the time `elapsed` in ms since the outage began and the `reason` of the loss. Return a delay in ms, or `null` to stop
+reconnecting, which fires `onReconnectFailed`:
+
+```ts
+export const socket = new Socket({
+  url: "wss://example.com/ws",
+  reconnectDelay: ({ attempt, elapsed, reason }) => {
+    if (elapsed > 5 * 60_000) return null; // give up after 5 minutes
+    if (reason.code === 1013) return 15_000; // Try Again Later
+    return Math.min(1000 * 2 ** attempt, 30_000) * (0.5 + Math.random() / 2);
+  },
+});
+```
+
+The `onConnect` interceptor runs before every attempt, so it is the place for fresh credentials, which is what a `1008`
+close usually needs. The [authentication guide](./authentication.mdx) shows how, and if the interceptor throws, the
+attempt fails and the error goes to `onError`.
 
 ### In React
 
@@ -246,7 +269,7 @@ covers the hooks from the start.
 - `1000` means done. `1006` means the connection dropped. `1008` usually needs new credentials before a retry.
 - Browsers cannot send ping frames, so client heartbeats are ordinary messages with a reply timeout.
 - A reconnect loop needs backoff, jitter, a limit, a reset on success and fresh credentials.
-- The Hyper Fetch `WebsocketAdapter` reconnects, limits attempts, times out handshakes and runs an optional heartbeat. Add
-  backoff with an async `onConnect`.
+- The Hyper Fetch `WebsocketAdapter` reconnects with jittered backoff, limits attempts, times out handshakes and runs an
+  optional heartbeat. Tune it with `reconnectTime`, `maxReconnectTime`, `shouldReconnect` and `reconnectDelay`.
 
 :::

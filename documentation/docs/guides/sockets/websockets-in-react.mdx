@@ -133,9 +133,10 @@ By default the [WebSocket adapter](../../sockets/adapter.mdx) expects JSON frame
 `{ topic, data: payload }`. If your server uses another format, such as `{ type, payload }`, map it with the `decode` and
 `encode` adapter options instead of changing the server.
 
-This socket already reconnects. When the connection is lost it waits `reconnectTime` (5 seconds by default) and opens a
-new one, up to `reconnect` attempts (unlimited by default). A close with code `1000` is treated as intentional and is not
-retried. The [connection guide](./connection.mdx) lists every option.
+This socket already reconnects. When the connection is lost it opens a new one after a backoff delay with jitter, from
+`reconnectTime` (1 second by default) up to `maxReconnectTime` (30 seconds), for up to `reconnect` attempts (unlimited by
+default). A server close with code `1000` is treated as intentional and is not retried. The
+[connection guide](./connection.mdx#retries) lists every option.
 
 ---
 
@@ -189,7 +190,7 @@ Here is how each problem from the plain version is handled:
 
 | Problem | Plain `useEffect` | Hyper Fetch |
 | --- | --- | --- |
-| Lost connection | Stays dead | Reconnects after `reconnectTime`, up to `reconnect` attempts |
+| Lost connection | Stays dead | Reconnects with jittered backoff, up to `reconnect` attempts |
 | Send while connecting | `send()` throws `InvalidStateError` | `emit()` never throws; the failure arrives in `onEmitError` |
 | StrictMode double mount | Opens and closes a second connection | Only the subscription is re-run; the socket lives outside React |
 | Two components, one stream | Two connections | One connection, two listeners |

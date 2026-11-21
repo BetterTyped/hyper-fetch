@@ -87,7 +87,7 @@ Every TanStack name below comes from the
 | `refetchInterval`                                  | `refresh: true` + `refreshTime`                             |                                                                                         |
 | `refetchOnWindowFocus` (on by default)             | `refetchOnFocus` (off by default)                           |                                                                                         |
 | `refetchOnReconnect`                               | `refetchOnReconnect` (off by default)                       |                                                                                         |
-| `retry` (3 by default)                             | `retry` / `setRetry()` (0 by default), `retryTime`          | Set on the request                                                                      |
+| `retry` (3 by default), `retryDelay`               | `retry` / `setRetry()` (0 by default), `retryTime` (500 ms) | Set on the request. `retryTime` also takes a function, like `exponentialBackoff()`      |
 | `throwOnError`                                     | `throwOnError`                                              | Sends the error to the nearest Error Boundary                                           |
 | `useSuspenseQuery`                                 | `useFetch(request, { suspense: true })`                     | Suspends until the data arrives                                                         |
 | `useInfiniteQuery`                                 | `useInfiniteFetch(request, { pagination })`                 | No `getNextPageParam`, you name the paging fields                                       |
@@ -122,16 +122,17 @@ export const App = () => (
 );
 ```
 
-Retries live on the request: `getTodos.setRetry(3)`. If you used `staleTime` to skip refetches, set it on the request
+Retries live on the request: `getTodos.setRetry(3)`. The delay between attempts is a fixed 500 ms by default. For a
+delay that grows with every attempt, pass `setRetryTime(exponentialBackoff())`, exported from `@hyper-fetch/core`. If you used `staleTime` to skip refetches, set it on the request
 and pass `revalidate: false` to the hook, so `useFetch` only fetches when the cached data is stale.
 
 Two more differences are worth knowing:
 
 - **`cacheTime` is not `gcTime`.** TanStack starts the `gcTime` timer when the last observer unmounts. Hyper Fetch
-  counts `cacheTime` from the moment the response is stored.
-- **In-flight deduplication is opt-in.** TanStack shares one promise between identical queries. In Hyper Fetch, hooks
-  that mount while the same request is running wait for it, and `setDeduplicate(true)` shares one in-flight request
-  between identical `send()` calls too.
+  counts `cacheTime` from the moment the response is stored, and `client.cache.update()` restarts it.
+- **Deduplication depends on the method.** TanStack shares one promise between identical queries. In Hyper Fetch, the
+  default HTTP adapter deduplicates `GET` requests already, so identical reads in flight share one network call. For
+  other methods it is opt-in with `setDeduplicate(true)`, and an explicit `deduplicate` option always wins.
 
 ---
 

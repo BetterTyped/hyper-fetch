@@ -200,11 +200,12 @@ The default fetch adapter already fills the gaps listed above:
 - **Errors.** Non-2xx responses resolve with `error` and `status` set, and `send()` never throws. No `response.ok`
   check, no try/catch.
 - **JSON.** Object payloads are serialized and get `Content-Type: application/json` unless you set your own. Responses
-  are parsed as JSON when they can be.
+  are parsed as JSON when they can be, and `options: { responseType: "blob" }` (or `"text"`, `"arrayBuffer"`) reads
+  files and other bodies as they are.
 - **Timeouts.** 5 seconds by default. Change it with `options: { timeout: 10000 }` on the request.
 - **Cancel.** `request.abort()`, or abort a group by its abort key. See [cancellation](../core/02-advanced/cancellation.mdx).
-- **Retries.** `retry` and `retryTime` on the request, with `setRetryOnError` for a condition. Works with either
-  adapter.
+- **Retries.** `retry` and `retryTime` on the request, with `exponentialBackoff()` for growing delays and
+  `setRetryOnError` for a condition. Works with either adapter.
 
 ### Interceptors without Axios
 

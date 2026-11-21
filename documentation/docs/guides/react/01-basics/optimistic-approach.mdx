@@ -130,7 +130,7 @@ optimistic(getTodos).remove(params.slug, { key: "slug" });
 
 - `optimistic(getUser.setParams({ userId }))` - one cache entry. A target whose params are not set is a compile error.
 - `optimistic.all(getUsers)` - every cached variant of the request, whatever the query params: filters, sorting and
-  all pages of [infinite lists](/docs/react/hooks/use-infinite-fetch).
+  all pages of [infinite lists](../../../react/04-hooks/use-infinite-fetch.mdx).
 - `.list("field")` - the list helpers for an array inside an object response:
 
 ```ts
@@ -355,4 +355,4 @@ To move to the helpers:
 ## Next Steps
 
 For concurrent mutations on one list, toggles and several caches at once, see the
-[Advanced Optimistic Patterns](/docs/guides/react/basics/optimistic-advanced) guide.
+[Advanced Optimistic Patterns](./optimistic-advanced.mdx) guide.

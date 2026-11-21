@@ -69,8 +69,9 @@ The event also carries `request` and `requestId`, so you can tell parallel uploa
 What fills those numbers depends on the adapter:
 
 - The default `HttpAdapter` uses `fetch`. Download progress is real: it reads the response body stream and reports each
-  chunk against the `content-length` header. Upload progress is a start event and a finish event, so the bar jumps from
-  0 to 100.
+  chunk against the `content-length` header. A compressed response (`content-encoding: gzip` and the like) has no known
+  total, because `content-length` counts the compressed bytes. There `total` follows `loaded`, so show the `loaded`
+  bytes instead of a percentage. Upload progress is a start event and a finish event, so the bar jumps from 0 to 100.
 - The [Axios adapter](../../../integrations/adapter-axios/overview.mdx) wires Axios's `onUploadProgress` into Hyper
   Fetch. In a browser Axios runs on XHR, so you get real upload progress while the file is in flight.
 
@@ -172,9 +173,11 @@ and renders a bar for each.
 :::caution Upload progress with the default adapter
 
 The default HTTP adapter uses `fetch`, which has no upload events. It reports `0%` when the request starts and `100%`
-once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` and `URLSearchParams`
-payloads. For a live upload percentage, use the [Axios adapter](/docs/integrations/adapter-axios/overview), which reads
-the browser upload events. Download progress works with every adapter.
+once the response arrives, with the body size as the total for strings, `Blob`, `ArrayBuffer` (and typed arrays) and
+`URLSearchParams` payloads. A `FormData` or stream body has no known size up front, so it jumps from 0 to 100 too, but
+`loaded` and `total` are not byte counts. For a live upload percentage, use the
+[Axios adapter](../../../integrations/adapter-axios/overview.mdx), which reads the browser upload events. Download
+progress works with every adapter.
 
 :::
 

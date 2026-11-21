@@ -72,6 +72,10 @@ createPost.send({ payload: { title: "My Post", content: "Written offline" } });
 The `send()` promise stays pending until the queued request is finally sent and answered. Offline failures don't use up
 [retries](../01-basics/retries.mdx) either.
 
+The queue lives in memory by default, so a closed tab loses it. Give the dispatcher a `lazyStorage` (IndexedDB,
+AsyncStorage) and the queued writes are restored and sent on the next start. Requests the browser cancels while the page
+unloads stay in the queue for that next start instead of failing. Setup is in [persistence](./persistence.mdx).
+
 Set `offline: false` when a late answer is worse than no answer, like a price check or a one-time code. Those requests
 fail right away while the device is offline, and the request is dropped instead of waiting.
 

@@ -163,7 +163,7 @@ The `useFetch` hook returns a rich set of values beyond just `data`, `loading`, 
 const {
   data,               // The response data (typed)
   error,              // The error object if the request failed
-  loading,            // Whether the request is in progress
+  loading,            // Whether the request is in progress (stays true between retries)
   success,            // Whether the last request was successful
   status,             // HTTP status code
   extra,              // Adapter-specific extra data (e.g. response headers)
@@ -243,6 +243,6 @@ You've learned the basics of fetching data with `useFetch`!
 - You can fetch **lists of data** and **single items** with parameters.
 - You can handle **loading** and **error states** to provide a better user experience.
 - You understand how `useFetch` **automatically re-fetches** when request parameters change.
-- You are ready to explore more advanced features of the [`useFetch` hook](/docs/react/hooks/use-fetch).
+- You are ready to explore more advanced features of the [`useFetch` hook](../../../react/04-hooks/use-fetch.mdx).
 
 :::

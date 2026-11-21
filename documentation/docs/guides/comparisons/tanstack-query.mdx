@@ -109,10 +109,11 @@ Both libraries cache per key, serve cached data while refetching in the backgrou
 | ---------------------------- | -------------------------------------------------- | --------------------------------------------- |
 | Cache identity               | Query key you write                                | `cacheKey` derived from the request           |
 | Stale by default             | Immediately                                        | After `staleTime`, 5 minutes by default       |
+| Refetch on mount             | When stale, so on every new mount by default       | On by default (`revalidate: true` in `useFetch`) |
 | Unused data removed          | After 5 minutes (`gcTime`)                         | After `cacheTime`, 5 minutes by default       |
 | Refetch on window focus      | On by default                                      | Off by default, `refetchOnFocus: true`        |
 | Refetch on reconnect         | On by default                                      | Off by default, `refetchOnReconnect: true`    |
-| Retries on failure           | 3, exponential backoff                             | 0 by default, set `retry` and `retryTime`     |
+| Retries on failure           | 3, exponential backoff                             | 0 by default, set `retry`, `retryTime: exponentialBackoff()` for backoff |
 | Invalidate                   | `queryClient.invalidateQueries({ queryKey })`      | `client.cache.invalidate(request)`, a string or a RegExp |
 
 TanStack Query invalidates through the query client, by query key. In Hyper Fetch you pass the request
@@ -204,8 +205,9 @@ they "cannot be resumed when the page is reloaded unless you provide a default m
 
 Hyper Fetch sends every request through a dispatcher queue. Requests have `offline: true` by default, so a request made
 while offline waits and goes out when the connection returns. Set `queued: true` to send them one by one. The queue can
-be persisted to a storage you provide. Stored requests are rebuilt into request instances when read back, so there is
-no mutation function to re-register after a restart. The docs recommend persistent queues for single-instance apps like
+be persisted to a storage you provide, and a `lazyStorage` (IndexedDB, AsyncStorage) is read back and sent on the next
+start. Stored requests are rebuilt into request instances, so there is no mutation function to re-register after a
+restart. Functions on a request, like mappers or a function `retryTime`, are not stored. The docs recommend persistent queues for single-instance apps like
 React Native, since several browser tabs sharing one queue can send duplicates. See [offline](../core/02-advanced/offline.mdx),
 [queueing](../core/02-advanced/queueing.mdx) and [persistence](../core/02-advanced/persistence.mdx).
 
